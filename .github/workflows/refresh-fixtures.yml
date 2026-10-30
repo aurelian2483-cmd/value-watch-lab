@@ -1,0 +1,33 @@
+name: Refresh factual football fixtures
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: fixture-feed-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch verified upcoming fixtures (requires API secret)
+        env:
+          FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+        run: python scripts/refresh_fixtures.py
+      - name: Commit fixture changes only
+        run: |
+          if git status --porcelain -- fixture-feed.json | grep -q .; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add fixture-feed.json
+            git commit -m "Update source-attributed upcoming fixture feed"
+            git push
+          else
+            echo "No fixture-feed changes to publish."
+          fi
