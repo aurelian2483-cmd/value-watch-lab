@@ -26,14 +26,25 @@ const key='vw26-prototype-v2';let saved={};try{saved=JSON.parse(localStorage.get
  for(const code of ['football','horses','tennis','nfl']){
    const lane=payload.sports[code];
    if(!lane||!Array.isArray(lane.events))continue;
-   const pill=document.createElement('span');
-   pill.className='btn';
-   pill.style.cursor='default';
-   pill.textContent=lane.label+' · '+(lane.state==='NOT_CONNECTED'?'Awaiting feed':lane.events.length+' events');
-   lanes.appendChild(pill);
+   const box=document.createElement('div');
+   box.style.cssText='flex:1 1 180px;border:1px solid #d8e3f1;border-radius:12px;padding:10px;min-width:0';
+   const label=document.createElement('strong');
+   label.textContent=lane.label+' · '+(lane.events.length?lane.events.length+' events':'Awaiting source');
+   box.appendChild(label);
+   if(lane.events.length){
+     const list=document.createElement('div');list.className='small';list.style.marginTop='8px';
+     for(const event of lane.events.slice(0,5)){
+       const line=document.createElement('p');line.style.margin='6px 0';
+       const dt=event.startUTC?new Date(event.startUTC).toLocaleString('en-GB',{timeZone:'Europe/London',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Time unverified';
+       line.textContent=dt+' · '+event.event+' · UNPRICED';
+       list.appendChild(line);
+     }
+     box.appendChild(list);
+   }
+   lanes.appendChild(box);
  }
- document.getElementById('feedstatus').textContent=payload.live?'Source feed':'Setup stage';
- document.getElementById('feednote').textContent=payload.live?'Source-attributed event data only. No automatic value grades or bets.':'Four sport lanes prepared. No live provider connections, independently modelled picks or verified odds yet.';
+ document.getElementById('feedstatus').textContent='Dated snapshot';
+ document.getElementById('feednote').textContent='Source-attributed fixture discovery only. Not live or automatically refreshed; no verified Sky Bet prices or independent probabilities. No fixture is automatically a betting pick.';
 }catch(err){
  document.getElementById('feedstatus').textContent='Feed unavailable';
  document.getElementById('feednote').textContent='Historical research cards remain available; no live sport feed is connected.';
