@@ -7,8 +7,8 @@ from zoneinfo import ZoneInfo
 from experiment33_sky_source_probe import fetch,Text,URL
 from experiment30_fixture_crosscheck import normal,parse_time,get_espn
 from experiment18_team_check import FIXTURES
-DAYS=re.compile(r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\\s+(\\d{1,2})(?:st|nd|rd|th)?\\s+November",re.I)
-FIXTURE=re.compile(r"(?P<time>\\d{1,2}[.]\\d{2}\\s*(?:am|pm))\\s+(?P<home>[A-Za-z][A-Za-z .&'’-]+?)\\s+vs\\s+(?P<away>[A-Za-z][A-Za-z .&'’-]+?)\\s+Kick-off at\\s+(?P<confirm>\\d{1,2}[.]\\d{2}\\s*(?:am|pm))",re.I)
+DAYS=re.compile(r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+(\d{1,2})(?:st|nd|rd|th)?\s+November",re.I)
+FIXTURE=re.compile(r"(?P<time>\d{1,2}[.]\d{2}\s*(?:am|pm))\s+(?P<home>[A-Za-z][A-Za-z .&'’-]+?)\s+vs\s+(?P<away>[A-Za-z][A-Za-z .&'’-]+?)\s+Kick-off at\s+(?P<confirm>\d{1,2}[.]\d{2}\s*(?:am|pm))",re.I)
 def parse(raw):
  p=Text();p.feed(raw.decode("utf-8","replace"));text=" ".join(p.parts)
  dates=list(DAYS.finditer(text));events=[]
@@ -16,7 +16,7 @@ def parse(raw):
   section=text[m.end():dates[i+1].start() if i+1<len(dates) else len(text)]
   for x in FIXTURE.finditer(section):
    if x.group("time").replace(" ","").lower()!=x.group("confirm").replace(" ","").lower():continue
-   clock=dt.datetime.strptime(re.sub(r"\\s+","",x.group("time")).upper(),"%I.%M%p").time()
+   clock=dt.datetime.strptime(re.sub(r"\s+","",x.group("time")).upper(),"%I.%M%p").time()
    local=dt.datetime.combine(dt.date(2026,11,int(m.group(2))),clock,tzinfo=ZoneInfo("Europe/London"))
    events.append({"home":x.group("home").strip(),"away":x.group("away").strip(),"kickoff_utc":local.astimezone(dt.timezone.utc).isoformat()})
  return events
