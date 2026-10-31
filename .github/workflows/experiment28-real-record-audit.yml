@@ -1,0 +1,58 @@
+name: Experiment 28 actual saved record receipt audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'records/experiment28-synthetic-receipt-test.json'
+      - '.github/workflows/experiment28-real-record-audit.yml'
+      - 'scripts/experiment27_live_receipt_audit.py'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  real-receipt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Audit exact committed synthetic record against live GitHub API
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json,os,sys,time,urllib.error
+          sys.path.insert(0,"scripts")
+          from experiment27_live_receipt_audit import get,audit
+          path="records/experiment28-synthetic-receipt-test.json"
+          record=json.load(open(path))
+          assert record["record_type"]=="SYNTHETIC_INFRASTRUCTURE_TEST"
+          assert record["challenge_eligible"] is False
+          # The current workflow is running, so its conclusion is not yet 'success'.
+          # Test live immutable-file binding and server run receipt directly, while
+          # preserving the completed-run requirement for the normal audit() method.
+          run=get(f'https://api.github.com/repos/{os.environ["REPO"]}/actions/runs/{os.environ["RUN_ID"]}',os.environ["GITHUB_TOKEN"])
+          assert run["head_sha"]==os.environ["HEAD_SHA"]
+          assert run["id"]==int(os.environ["RUN_ID"])
+          assert run["status"] in ("queued","in_progress","completed")
+          import urllib.parse,base64
+          file=get(f'https://api.github.com/repos/{os.environ["REPO"]}/contents/{path}?ref={os.environ["HEAD_SHA"]}',os.environ["GITHUB_TOKEN"])
+          assert file["path"]==path and file["type"]=="file"
+          saved=json.loads(base64.b64decode(file["content"]))
+          assert saved==record
+          from experiment26_server_receipt import stamp
+          assert stamp(record["generated_at_utc"])<=stamp(run["created_at"])<stamp(record["kickoff_utc"])
+          report={"status":"REAL_GITHUB_FILE_AND_RUN_RECEIPT_MATCH","run_id":run["id"],"run_url":run["html_url"],"head_sha":run["head_sha"],"record_path":path,"challenge_eligible":False,"record_type":record["record_type"],"note":"Run was in progress during audit; no successful completed-run assertion"}
+          open("/tmp/experiment28-audit.json","w").write(json.dumps(report,indent=2)+"\n")
+          print(json.dumps(report,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: experiment28-real-receipt-audit
+          path: /tmp/experiment28-audit.json
+          retention-days: 30
