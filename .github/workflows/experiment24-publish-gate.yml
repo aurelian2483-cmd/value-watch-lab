@@ -1,0 +1,21 @@
+name: Experiment 24 publication gate safety
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment24_publish_gate.py'
+      - 'tests/test_experiment24_publish_gate.py'
+      - '.github/workflows/experiment24-publish-gate.yml'
+permissions:
+  contents: read
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check publication gate rejects unsafe records
+        run: python -m unittest discover -s tests -p 'test_experiment24_publish_gate.py' -v
