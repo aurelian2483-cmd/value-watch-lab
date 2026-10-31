@@ -20,13 +20,13 @@ jobs:
         env:
           FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
         run: python scripts/refresh_fixtures.py
-      - name: Commit fixture changes only
+      - name: Build research screening queue\n        run: python scripts/build_candidate_queue.py\n      - name: Commit fixture and candidate queue changes
         run: |
-          if git status --porcelain -- fixture-feed.json | grep -q .; then
+          if git status --porcelain -- fixture-feed.json candidate-queue.json | grep -q .; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add fixture-feed.json
-            git commit -m "Update source-attributed upcoming fixture feed"
+            git add fixture-feed.json candidate-queue.json
+            git commit -m "Update fixture and research screening queues"
             git push
           else
             echo "No fixture-feed changes to publish."
