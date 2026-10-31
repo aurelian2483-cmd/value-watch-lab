@@ -1,0 +1,27 @@
+name: Sky HTML structure diagnostic
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/sky_html_structure_diagnostic.py'
+      - '.github/workflows/sky-html-structure.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Inspect Sky HTML and embedded scripts
+        run: python scripts/sky_html_structure_diagnostic.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky-html-structure-review
+          path: /tmp/sky-html-structure-review.json
+          if-no-files-found: warn
