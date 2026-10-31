@@ -1,0 +1,21 @@
+name: Experiment 21 ledger safety tests
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment21_ledger.py'
+      - 'tests/test_experiment21_ledger.py'
+      - '.github/workflows/experiment21-ledger.yml'
+permissions:
+  contents: read
+jobs:
+  ledger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run ledger safety unit tests
+        run: python -m unittest discover -s tests -p 'test_experiment21_ledger.py' -v
