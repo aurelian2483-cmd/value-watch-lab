@@ -1,0 +1,26 @@
+name: Experiment 16 fixture candidate discovery
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/fixture_candidates.py'
+      - '.github/workflows/fixture-candidates.yml'
+permissions:
+  contents: read
+jobs:
+  fixture-candidates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Discover fixtures without asserting verified kickoff
+        run: python scripts/fixture_candidates.py --output /tmp/fixture-candidates.json
+      - name: Upload candidates for independent verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: unverified-fixture-candidates
+          path: /tmp/fixture-candidates.json
+          retention-days: 7
