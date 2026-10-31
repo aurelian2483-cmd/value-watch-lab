@@ -1,0 +1,21 @@
+name: Experiment 26 server receipt validation
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment26_server_receipt.py'
+      - 'tests/test_experiment26_server_receipt.py'
+      - '.github/workflows/experiment26-server-receipt.yml'
+permissions:
+  contents: read
+jobs:
+  receipt-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test fail-closed GitHub receipt validation
+        run: python -m unittest discover -s tests -p 'test_experiment26_server_receipt.py' -v
