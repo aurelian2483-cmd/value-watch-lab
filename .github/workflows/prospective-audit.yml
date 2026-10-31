@@ -1,0 +1,30 @@
+name: Audit prospective forecasts
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'research/prospective/**'
+      - 'scripts/audit_prospective.py'
+      - '.github/workflows/prospective-audit.yml'
+  schedule:
+    - cron: '20 7 * * *'
+permissions:
+  contents: read
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/research/prospective-100'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate immutable pre-kickoff records
+        run: python scripts/audit_prospective.py > prospective-audit.json
+      - name: Display audit
+        run: cat prospective-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prospective-audit
+          path: prospective-audit.json
