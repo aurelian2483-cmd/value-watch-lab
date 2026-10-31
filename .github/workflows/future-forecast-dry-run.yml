@@ -1,0 +1,39 @@
+name: Experiment 15 future forecast safety gate
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/future_forecast_dry_run.py'
+      - '.github/workflows/future-forecast-dry-run.yml'
+permissions:
+  contents: read
+jobs:
+  safety-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-model-smoke.txt
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Verify missing fixtures fail closed
+        run: |
+          if python scripts/future_forecast_dry_run.py --fixtures /tmp/nonexistent-verified-fixtures.csv --output /tmp/forecasts.json; then
+            echo "ERROR: missing fixtures were accepted"
+            exit 1
+          fi
+          test ! -f /tmp/forecasts.json
+          echo "PASS: unverified fixture data cannot produce predictions"
+      - name: Live integration dry run if verified fixture manifest is present
+        if: hashFiles('research/fixtures/verified-upcoming.csv') != ''
+        run: python scripts/future_forecast_dry_run.py --fixtures research/fixtures/verified-upcoming.csv --output /tmp/forecasts.json
+      - name: Upload dry-run only (never commit)
+        if: hashFiles('research/fixtures/verified-upcoming.csv') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: future-forecast-dry-run
+          path: /tmp/forecasts.json
+          retention-days: 7
