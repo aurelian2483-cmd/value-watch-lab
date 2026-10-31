@@ -1,0 +1,21 @@
+name: Experiment 22 provenance safety tests
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment22_provenance.py'
+      - 'tests/test_experiment22_provenance.py'
+      - '.github/workflows/experiment22-provenance.yml'
+permissions:
+  contents: read
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test cryptographic evidence and tamper rejection
+        run: python -m unittest discover -s tests -p 'test_experiment22_provenance.py' -v
