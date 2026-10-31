@@ -1,0 +1,33 @@
+name: Value Watch feed integration test (no publishing)
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/refresh_football_data.py'
+      - 'scripts/audit_prospective.py'
+      - '.github/workflows/feed-integration-test.yml'
+permissions:
+  contents: read
+jobs:
+  feed-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate saved prospective records
+        run: python scripts/audit_prospective.py
+      - name: Download and validate current season results
+        run: python scripts/refresh_football_data.py --output-dir /tmp/value-watch-feed
+      - name: Confirm both league files exist
+        run: |
+          test -s /tmp/value-watch-feed/value_watch_2026_27_E0.csv
+          test -s /tmp/value-watch-feed/value_watch_2026_27_E1.csv
+      - name: Save input snapshot as test artifact only
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-current-season-feeds
+          path: /tmp/value-watch-feed/*.csv
+          retention-days: 7
