@@ -5,7 +5,7 @@ Fail closed on missing network, malformed CSV, wrong league or implausible dates
 import argparse,csv,datetime as dt,io,pathlib,urllib.request
 URL="https://www.football-data.co.uk/mmz4281/2627/{division}.csv"
 REQUIRED={"Date","HomeTeam","AwayTeam","FTHG","FTAG","FTR"}
-def validate(payload,division,now):
+def validate(payload,division,now,max_age_days=None):
     if not payload or len(payload)<100: raise ValueError("empty/short feed")
     content=payload.decode("utf-8-sig")
     reader=csv.DictReader(io.StringIO(content))
@@ -27,8 +27,8 @@ def validate(payload,division,now):
             dates.append(date);completed+=1
     if completed<20:raise ValueError("too few completed results")
     latest=max(dates)
-    if (now-latest).days>2:raise ValueError("results feed stale")
-    return {"division":division,"completed":completed,"latest":latest.isoformat(),"bytes":len(payload)}
+    if max_age_days is not None and (now-latest).days>max_age_days:raise ValueError(f"results feed stale: latest={latest}, age={(now-latest).days} days, limit={max_age_days}")
+    return {"division":division,"completed":completed,"latest":latest.isoformat(),"age_days":(now-latest).days,"prediction_ready_at_2_days":(now-latest).days<=2,"bytes":len(payload)}
 def fetch(division,timeout=20):
     req=urllib.request.Request(URL.format(division=division),headers={"User-Agent":"ValueWatchResearch/1.0"})
     with urllib.request.urlopen(req,timeout=timeout) as r:
