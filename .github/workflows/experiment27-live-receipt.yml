@@ -1,0 +1,39 @@
+name: Experiment 27 live GitHub receipt audit safety
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment27_live_receipt_audit.py'
+      - 'tests/test_experiment27_live_receipt_audit.py'
+      - '.github/workflows/experiment27-live-receipt.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate live API audit logic with deterministic mock responses
+        run: python -m unittest discover -s tests -p 'test_experiment27_live_receipt_audit.py' -v
+      - name: Confirm GitHub Actions API accessible with actual run
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json,os,sys
+          sys.path.insert(0,"scripts")
+          from experiment27_live_receipt_audit import get
+          repo=os.environ["REPO"]
+          run=get(f'https://api.github.com/repos/{repo}/actions/runs/{os.environ["RUN_ID"]}',os.environ["GITHUB_TOKEN"])
+          assert run["head_sha"]==os.environ["HEAD_SHA"]
+          assert run["id"]==int(os.environ["RUN_ID"])
+          print("PASS: real GitHub API run metadata fetched and SHA matched; no forecast record audited")
+          PY
