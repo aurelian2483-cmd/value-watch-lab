@@ -1,0 +1,31 @@
+name: Experiment 30 independent fixture crosscheck
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment30_fixture_crosscheck.py'
+      - 'tests/test_experiment30_fixture_crosscheck.py'
+      - '.github/workflows/experiment30-fixture-crosscheck.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Test mismatch rejection
+        run: python -m unittest discover -s tests -p 'test_experiment30_fixture_crosscheck.py' -v
+      - name: Check current external schedules (review only)
+        run: python scripts/experiment30_fixture_crosscheck.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment30-fixture-crosscheck-review
+          path: /tmp/experiment30-review.json
+          if-no-files-found: warn
+          retention-days: 14
