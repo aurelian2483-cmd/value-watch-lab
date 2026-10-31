@@ -28,10 +28,20 @@ jobs:
         run: python scripts/verify_football_results.py
       - name: Commit updated research and result feeds
         run: |
-          if git status --porcelain -- fixture-feed.json candidate-queue.json results-feed.json | grep -q .; then
+          files=()
+          for file in fixture-feed.json candidate-queue.json results-feed.json; do
+            if [ -f "$file" ]; then
+              files+=("$file")
+            fi
+          done
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No feed files exist; nothing to publish."
+            exit 0
+          fi
+          git add -- "${files[@]}"
+          if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add fixture-feed.json candidate-queue.json results-feed.json
             git commit -m "Update fixture and research screening queues"
             git push
           else
