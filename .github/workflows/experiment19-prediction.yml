@@ -1,0 +1,28 @@
+name: Experiment 19 actual prediction dry run
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment19_prediction_dry_run.py'
+      - '.github/workflows/experiment19-prediction.yml'
+permissions:
+  contents: read
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-model-smoke.txt
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Generate pre-match predictions without publishing
+        run: python scripts/experiment19_prediction_dry_run.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: experiment19-unpublished-predictions
+          path: /tmp/experiment19-dry-run.json
+          retention-days: 7
