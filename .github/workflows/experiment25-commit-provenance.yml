@@ -1,0 +1,21 @@
+name: Experiment 25 commit provenance safety
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment25_commit_provenance.py'
+      - 'tests/test_experiment25_commit_provenance.py'
+      - '.github/workflows/experiment25-commit-provenance.yml'
+permissions:
+  contents: read
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate commit-time logic and reject false confidence
+        run: python -m unittest discover -s tests -p 'test_experiment25_commit_provenance.py' -v
