@@ -1,0 +1,36 @@
+name: Experiment 43 proposed hash chained forecast evidence ledger
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment43_proposed_evidence_ledger.py'
+      - '.github/workflows/experiment43-proposed-evidence-ledger.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  research-ledger:
+    if: github.ref == 'refs/heads/research/prospective-100'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install verification dependencies
+        run: pip install -r requirements-model-smoke.txt
+      - name: Verify Experiment 42 and propose review-only evidence ledger
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/experiment43_proposed_evidence_ledger.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment43-proposed-evidence-ledger-review
+          path: /tmp/experiment43/
+          retention-days: 30
+          if-no-files-found: warn
