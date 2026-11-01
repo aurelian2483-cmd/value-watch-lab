@@ -31,7 +31,8 @@ def main():
  for fixture in es["fixtures"]:
   key=(norm(fixture["home"]),norm(fixture["away"]))
   target=dt.datetime.fromisoformat(fixture["kickoff_utc"].replace("Z","+00:00"))
-  matches=[t for t in index.get(key,[]) if abs((dt.datetime.fromisoformat(t.replace("Z","+00:00"))-target).total_seconds())<=60]
+  candidates=index.get(key,[])
+  matches=[t for t in candidates if abs((dt.datetime.fromisoformat(t.replace("Z","+00:00"))-target).total_seconds())<=60]
   item={"home":fixture["home"],"away":fixture["away"],"kickoff_utc":fixture["kickoff_utc"],
    "espn_event_id":fixture["espn_event_id"],"forecast_eligible":False}
   if len(matches)==1:
@@ -39,7 +40,13 @@ def main():
    verified.append(item)
   else:
    item["cross_source_schedule_match"]=False
-   item["reason"]="No unique matching Football-Data fixture within 60 seconds"
+   if not candidates:
+    item["reason"]="TEAM_PAIR_ABSENT_FROM_SECOND_SOURCE"
+   elif len(matches)>1:
+    item["reason"]="AMBIGUOUS_MULTIPLE_KICKOFF_MATCHES"
+   else:
+    item["reason"]="KICKOFF_TIME_MISMATCH"
+    item["secondary_kickoffs_utc"]=candidates[:4]
    unverified.append(item)
    reason_counts[item["reason"]]=reason_counts.get(item["reason"],0)+1
  report={"experiment":80,"status":"CROSS_SOURCE_AUDIT_READY",
