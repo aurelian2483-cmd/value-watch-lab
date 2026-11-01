@@ -1,0 +1,26 @@
+name: Sky ESPN strict fixture crosscheck
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/sky_espn_strict_crosscheck.py'
+      - '.github/workflows/sky-espn-strict-crosscheck.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Strict independent source crosscheck
+        run: python scripts/sky_espn_strict_crosscheck.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sky-espn-crosscheck-review
+          path: /tmp/sky-espn-crosscheck-review.json
+          if-no-files-found: warn
