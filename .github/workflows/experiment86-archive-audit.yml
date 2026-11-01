@@ -1,0 +1,34 @@
+name: Experiment 86 archived forecast audit
+on:
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/prospective-100
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Cross-check fixture schedule
+        run: python scripts/experiment80_fixture_verification.py
+      - name: Build fixture research feed
+        run: python scripts/experiment82_dashboard_feed.py
+      - name: Integrate and verify archived paper forecasts
+        run: python scripts/experiment86_archive_feed.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment86-archived-forecast-audit
+          path: |
+            /tmp/experiment82/dashboard-data.json
+            /tmp/experiment86/archive-audit.json
+            /tmp/experiment86/archive-errors.json
+          retention-days: 90
+          if-no-files-found: warn
