@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Experiment 48: guarded create-only persistent baseline, research branch only.
-No automatic writes. Requires explicitly dispatched GitHub Actions workflow.
+Create-only research write, triggered by an explicitly authorised workflow change.
 """
 import base64,json,os,pathlib,subprocess,sys
 from experiment44_anchor_integrity_audit import main as verify44,OUT as OUT44,validate
@@ -19,8 +19,8 @@ def main():
     report={"experiment":48,"status":"BLOCKED_PENDING","publication_gate":"BLOCKED",
             "challenge_eligible":0,"publishing_enabled":False,"persistent_ledger_created":False}
     try:
-        if os.environ.get("GITHUB_REF")!="refs/heads/"+BRANCH or os.environ.get("GITHUB_EVENT_NAME")!="workflow_dispatch":
-            raise ValueError("manual research branch dispatch required")
+        if os.environ.get("GITHUB_REF")!="refs/heads/"+BRANCH or os.environ.get("GITHUB_EVENT_NAME") not in ("workflow_dispatch","push"):
+            raise ValueError("research branch workflow trigger required")
         verify44()
         prior=json.loads((OUT44/"report.json").read_text())
         if prior.get("status")!="FIXED_COMMIT_ANCHOR_MATCHED_TAMPERING_REJECTED_REVIEW_ONLY":
@@ -31,7 +31,7 @@ def main():
         content=canonical(ledger)+b"\n"
         # Create-only: GitHub Contents API must reject an existing path without a blob SHA.
         # Check for existing ledger first; never update it in this workflow.
-        p=subprocess.run(["gh","api",f"repos/{REPO}/contents/{PATH}","-f",f"ref={BRANCH}"],
+        p=subprocess.run(["gh","api","-X","GET",f"repos/{REPO}/contents/{PATH}","-f",f"ref={BRANCH}"],
                          text=True,capture_output=True,timeout=60)
         if p.returncode==0:
             raise ValueError("persistent ledger already exists; refusing overwrite")
