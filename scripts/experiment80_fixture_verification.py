@@ -27,7 +27,7 @@ def main():
    key=(norm(row["HomeTeam"]),norm(row["AwayTeam"]))
    index.setdefault(key,[]).append(stamp(when))
   except (ValueError,KeyError):continue
- verified=[];unverified=[]
+ verified=[];unverified=[];reason_counts={}
  for fixture in es["fixtures"]:
   key=(norm(fixture["home"]),norm(fixture["away"]))
   target=dt.datetime.fromisoformat(fixture["kickoff_utc"].replace("Z","+00:00"))
@@ -41,10 +41,11 @@ def main():
    item["cross_source_schedule_match"]=False
    item["reason"]="No unique matching Football-Data fixture within 60 seconds"
    unverified.append(item)
+   reason_counts[item["reason"]]=reason_counts.get(item["reason"],0)+1
  report={"experiment":80,"status":"CROSS_SOURCE_AUDIT_READY",
   "espn_fixture_count":len(es["fixtures"]),"matched_count":len(verified),
   "unmatched_count":len(unverified),"verified_schedule_only":verified,
-  "unverified":unverified,"football_data_snapshot_sha256":hashlib.sha256(raw).hexdigest(),
+  "unverified":unverified,"unverified_reason_counts":reason_counts,"football_data_snapshot_sha256":hashlib.sha256(raw).hexdigest(),
   "source_first_availability_verified":False,"independent_timestamp_attested":False,
   "forecast_eligible_count":0,"new_forecasts":0,"model_validation":"UNVALIDATED",
   "publication_gate":"BLOCKED","challenge_eligible":0,
