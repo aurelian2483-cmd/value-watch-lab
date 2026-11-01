@@ -12,7 +12,7 @@ def main():
  try:
   inventory=json.loads((BASE/"artifact-inventory.json").read_text())
   records=[];seen=set();dupes=[];source_counts={"63":0,"68":0}
-  for entry in inventory["artifacts"]:
+  for entry in sorted(inventory["artifacts"],key=lambda e:(0 if e["name"]=="experiment63-new-fixture-forecast-review" else 1,e["id"])):
    root=BASE/str(entry["id"])
    if entry["name"]=="experiment63-new-fixture-forecast-review":
     candidates=list(root.rglob("forecast.json"));kind="63"
