@@ -4,7 +4,19 @@ import datetime as dt,hashlib,json,pathlib,re,sys
 from html.parser import HTMLParser
 from zoneinfo import ZoneInfo
 from experiment18_team_check import FIXTURES
-from experiment30_fixture_crosscheck import get_espn,normal,parse_time
+import urllib.request
+def normal(name):
+ s="".join(ch for ch in name.casefold() if ch.isalnum())
+ aliases={"tottenhamhotspur":"spurs","tottenham":"spurs","nottinghamforest":"nottmforest","manchestercity":"mancity","newcastleunited":"newcastle","leedsunited":"leeds","coventrycity":"coventry"}
+ return aliases.get(s,s)
+def parse_time(value):
+ t=dt.datetime.fromisoformat(value.replace("Z","+00:00"))
+ if t.tzinfo is None:raise ValueError("kickoff without timezone")
+ return t.astimezone(dt.timezone.utc)
+def get_espn(day):
+ url="https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates="+day.strftime("%Y%m%d")+"&limit=100"
+ req=urllib.request.Request(url,headers={"User-Agent":"ValueWatchResearch/1.0"})
+ with urllib.request.urlopen(req,timeout=25) as response:return response.read(3000000)
 from experiment33_sky_source_probe import fetch,URL
 
 class Sky(HTMLParser):
