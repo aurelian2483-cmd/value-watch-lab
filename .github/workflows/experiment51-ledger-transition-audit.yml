@@ -1,0 +1,34 @@
+name: Experiment 51 independent persistent ledger transition audit
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment51-ledger-transition-audit.yml'
+      - 'scripts/experiment51_ledger_transition_audit.py'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/research/prospective-100'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Audit parent and child commit ledger bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/experiment51_ledger_transition_audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment51-ledger-transition-review
+          path: /tmp/experiment51/
+          retention-days: 90
+          if-no-files-found: warn
