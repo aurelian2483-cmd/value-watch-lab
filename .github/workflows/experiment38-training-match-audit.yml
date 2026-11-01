@@ -1,0 +1,31 @@
+name: Experiment 38 individual training match audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment38_training_match_audit.py'
+      - '.github/workflows/experiment38-training-match-audit.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/research/prospective-100'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Crosscheck individual training results (read-only)
+        run: python scripts/experiment38_training_match_audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment38-training-match-audit
+          path: /tmp/experiment38/report.json
+          retention-days: 14
+          if-no-files-found: warn
