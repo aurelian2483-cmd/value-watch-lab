@@ -1,0 +1,62 @@
+name: Experiment 70 research performance dashboard
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment70-research-dashboard.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Fetch original forecast artifacts and verified scoring artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/experiment68-history /tmp/experiment70-score
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/experiment70-artifacts.json
+          python - <<'PY'
+          import json,pathlib
+          pages=json.loads(pathlib.Path("/tmp/experiment70-artifacts.json").read_text())
+          if isinstance(pages,dict):pages=[pages]
+          artifacts=[]
+          names={"experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review","experiment67-post-match-scoring-review"}
+          for page in pages:
+           for a in page.get("artifacts",[]):
+            if a.get("name") in names and not a.get("expired") and a.get("workflow_run",{}).get("head_branch")=="research/prospective-100":
+             artifacts.append({"id":a["id"],"name":a["name"]})
+          pathlib.Path("/tmp/experiment70-inventory.json").write_text(json.dumps(artifacts))
+          pathlib.Path("/tmp/experiment68-history/artifact-inventory.json").write_text(json.dumps({"artifacts":[a for a in artifacts if a["name"]!="experiment67-post-match-scoring-review"]}))
+          PY
+          python - <<'PY'
+          import json,subprocess,pathlib,os
+          for a in json.loads(pathlib.Path("/tmp/experiment70-inventory.json").read_text()):
+           base=pathlib.Path("/tmp/experiment70-score" if a["name"]=="experiment67-post-match-scoring-review" else "/tmp/experiment68-history")/str(a["id"])
+           base.mkdir(parents=True)
+           archive=pathlib.Path("/tmp")/(str(a["id"])+".zip")
+           with archive.open("wb") as out:
+            subprocess.run(["gh","api",f"repos/{os.environ['GITHUB_REPOSITORY']}/actions/artifacts/{a['id']}/zip"],stdout=out,check=True)
+           subprocess.run(["unzip","-q",str(archive),"-d",str(base)],check=True)
+          PY
+      - name: Verify original forecast registry
+        run: python scripts/experiment69_forecast_registry.py
+      - name: Build read-only dashboard
+        run: python scripts/experiment70_research_dashboard.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment70-research-dashboard-review
+          path: |
+            /tmp/experiment70/
+            /tmp/experiment68-history/registry.json
+            /tmp/experiment68-history/registry-report.json
+          retention-days: 90
+          if-no-files-found: warn
