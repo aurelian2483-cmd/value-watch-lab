@@ -1,0 +1,67 @@
+name: Experiment 69 cross-experiment deduplicated forecast collector
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment69-deduplicated-collector.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Download all retained forecast artifacts and build inventory
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/experiment68-history
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/artifact-pages.json
+          python - <<'PY'
+          import json,pathlib
+          pages=json.loads(pathlib.Path("/tmp/artifact-pages.json").read_text())
+          if isinstance(pages,dict):pages=[pages]
+          selected=[]
+          for page in pages:
+           for a in page.get("artifacts",[]):
+            if a.get("name") not in ("experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review"):continue
+            if a.get("expired"):continue
+            if a.get("workflow_run",{}).get("head_branch")!="research/prospective-100":continue
+            selected.append({"id":a["id"],"name":a["name"]})
+          pathlib.Path("/tmp/experiment68-history/artifact-inventory.json").write_text(json.dumps({"artifacts":selected}))
+          PY
+          python - <<'PY'
+          import json,subprocess,pathlib
+          base=pathlib.Path("/tmp/experiment68-history")
+          for a in json.loads((base/"artifact-inventory.json").read_text())["artifacts"]:
+           target=base/str(a["id"]);target.mkdir()
+           archive=base/(str(a["id"])+".zip")
+           with archive.open("wb") as out:
+            subprocess.run(["gh","api",f"repos/{__import__('os').environ['GITHUB_REPOSITORY']}/actions/artifacts/{a['id']}/zip"],stdout=out,check=True)
+           subprocess.run(["unzip","-q",str(archive),"-d",str(target)],check=True)
+          PY
+      - name: Verify complete retained history and deduplicate
+        run: python scripts/experiment69_forecast_registry.py
+      - name: Capture only genuinely unseen future fixtures
+        run: python scripts/experiment68_forecast_collector.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment69-deduplicated-collector-review
+          path: |
+            /tmp/experiment68-history/registry.json
+            /tmp/experiment68-history/registry-report.json
+            /tmp/experiment68/ 
+            /tmp/experiment62/
+          retention-days: 90
+          if-no-files-found: warn
