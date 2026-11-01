@@ -1,0 +1,36 @@
+name: Experiment 65 verify RFC3161 trust chain
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment65-timestamp-trust.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download original Experiment 64 evidence artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUN_ID=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '[.artifacts[] | select(.name == "experiment64-timestamp-review" and .expired == false and .workflow_run.head_branch == "research/prospective-100")] | sort_by(.created_at) | last | .workflow_run.id')
+          test -n "$RUN_ID"
+          test "$RUN_ID" != "null"
+          mkdir -p /tmp/experiment64-original
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name experiment64-timestamp-review --dir /tmp/experiment64-original
+      - name: Verify evidence and assess certificate trust independently
+        run: python scripts/experiment65_timestamp_trust.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment65-timestamp-trust-review
+          path: /tmp/experiment65/
+          retention-days: 90
+          if-no-files-found: warn
