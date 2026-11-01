@@ -12,7 +12,7 @@ def main():
  probe=read("/tmp/experiment81/source-feasibility-report.json")
  fixtures=[]
  if coverage and coverage.get("status")=="COVERAGE_AUDIT_READY":
-  matched={(x["home"].casefold(),x["away"].casefold(),x["kickoff_utc"]) for x in (verification or {}).get("verified_schedule_only",[])}
+  matched={(x["home"].casefold(),x["away"].casefold(),x["kickoff_utc"]) for x in (verification or {}).get("verified_schedule_only",[]) if (verification or {}).get("status")=="CROSS_SOURCE_AUDIT_READY"}
   for f in coverage.get("fixtures",[]):
    key=(f["home"].casefold(),f["away"].casefold(),f["kickoff_utc"])
    fixtures.append({"home":f["home"],"away":f["away"],"kickoff_utc":f["kickoff_utc"],
