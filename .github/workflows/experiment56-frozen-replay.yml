@@ -1,0 +1,32 @@
+name: Experiment 56 frozen-input replay
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment56-frozen-replay.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Verify frozen bytes and reproduce probabilities twice
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/experiment56_frozen_replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment56-frozen-replay-review
+          path: /tmp/experiment56/
+          retention-days: 90
+          if-no-files-found: warn
