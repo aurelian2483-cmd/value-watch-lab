@@ -22,12 +22,12 @@ def main():
   discovery=json.loads((DISCOVERY/"report.json").read_text())
   if discovery.get("status")=="BLOCKED_AUDIT_ERROR":raise ValueError("fixture discovery failed")
   fixtures=json.loads((DISCOVERY/"discovered-fixtures.json").read_text()).get("accepted",[])
-  existing=set()
-  manifest=pathlib.Path("/tmp/experiment68-previous/manifest.json")
-  if manifest.is_file():
-   previous=json.loads(manifest.read_text())
-   for record in previous.get("forecasts",[]):
-    existing.add((norm(record["home"]),norm(record["away"]),record["kickoff_utc"]))
+  registry_path=pathlib.Path("/tmp/experiment68-history/registry.json")
+  if not registry_path.is_file():raise ValueError("missing cross-experiment registry")
+  registry=json.loads(registry_path.read_text())
+  if registry.get("complete") is not True or registry.get("experiment63_artifact_count",0)<1:
+   raise ValueError("incomplete cross-experiment registry")
+  existing={(norm(r["home"]),norm(r["away"]),r["kickoff_utc"]) for r in registry["forecasts"]}
   pending=[x for x in fixtures if (norm(x["home"]),norm(x["away"]),x["kickoff_utc"]) not in existing]
   future=[x for x in pending if dt.datetime.fromisoformat(x["kickoff_utc"].replace("Z","+00:00"))>dt.datetime.now(dt.timezone.utc)+dt.timedelta(minutes=90)]
   training=[];receipts=[];records=[];skipped=[]
@@ -73,7 +73,7 @@ def main():
      "source_first_availability_verified":False}
     record["record_sha256"]=digest(canonical(record));records.append(record)
   bundle={"schema":"experiment68-paper-batch-v1","run_started_at_utc":stamp(start),
-   "forecasts":records,"skipped":skipped,"previous_manifest_used":manifest.is_file(),
+   "forecasts":records,"skipped":skipped,"cross_experiment_registry_used":True,
    "previous_forecast_count":len(existing),"discovery_status":discovery["status"],
    "discovery_report_sha256":digest((DISCOVERY/"report.json").read_bytes()),
    "source_receipts":receipts,"publication_gate":"BLOCKED","challenge_eligible":0}
@@ -83,7 +83,7 @@ def main():
    discovered_count=len(fixtures),skipped_count=len(skipped),
    manifest_sha256=digest(canonical(bundle)),
    limitations=["Artifacts retained by GitHub Actions only; not an independently immutable ledger",
-   "Prior artifact deduplication depends on successful artifact retrieval",
+   "Deduplication covers retained historical artifacts only",
    "No independently attested input availability or timestamp",
    "No verified odds, EV, publication or official challenge credit"])
  except Exception as e:report.update(status="BLOCKED_AUDIT_ERROR",error=str(e))
