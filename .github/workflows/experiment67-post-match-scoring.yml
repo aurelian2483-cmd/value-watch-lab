@@ -1,0 +1,40 @@
+name: Experiment 67 read-only post-match scoring
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment67-post-match-scoring.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '20 8 * * *'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Retrieve original Experiment 63 frozen forecast
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUN_ID=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '[.artifacts[] | select(.name == "experiment63-new-fixture-forecast-review" and .expired == false and .workflow_run.head_branch == "research/prospective-100")] | sort_by(.created_at) | last | .workflow_run.id')
+          test -n "$RUN_ID"
+          test "$RUN_ID" != "null"
+          mkdir -p /tmp/experiment63-original
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name experiment63-new-fixture-forecast-review --dir /tmp/experiment63-downloaded
+          cp /tmp/experiment63-downloaded/experiment63/forecast.json /tmp/experiment63-original/forecast.json
+      - name: Compare two final-result sources and score frozen forecast
+        run: python scripts/experiment67_post_match_scoring.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment67-post-match-scoring-review
+          path: /tmp/experiment67/
+          retention-days: 90
+          if-no-files-found: warn
