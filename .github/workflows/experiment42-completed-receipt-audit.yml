@@ -25,7 +25,7 @@ jobs:
         run: pip install -r requirements-model-smoke.txt
       - name: Independently verify completed run, artifact digest and forecast hashes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: python scripts/experiment42_completed_receipt_audit.py
       - uses: actions/upload-artifact@v4
         if: always()
