@@ -1,0 +1,93 @@
+name: Experiment 71 live scoring and research dashboard
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment71-live-score-dashboard.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download original forecast evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/experiment68-history /tmp/experiment70-score /tmp/experiment63-original
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/experiment71-pages.json
+          python - <<'PY'
+          import json,pathlib
+          pages=json.loads(pathlib.Path("/tmp/experiment71-pages.json").read_text())
+          if isinstance(pages,dict):pages=[pages]
+          artifacts=[]
+          for page in pages:
+           for a in page.get("artifacts",[]):
+            if a.get("name") not in ("experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review"):continue
+            if a.get("expired") or a.get("workflow_run",{}).get("head_branch")!="research/prospective-100":continue
+            artifacts.append({"id":a["id"],"name":a["name"]})
+          if not any(a["name"]=="experiment63-new-fixture-forecast-review" for a in artifacts):
+           raise SystemExit("Original Experiment 63 artifact unavailable")
+          pathlib.Path("/tmp/experiment68-history/artifact-inventory.json").write_text(json.dumps({"artifacts":artifacts}))
+          PY
+          python - <<'PY'
+          import json,subprocess,pathlib,os
+          base=pathlib.Path("/tmp/experiment68-history")
+          for a in json.loads((base/"artifact-inventory.json").read_text())["artifacts"]:
+           target=base/str(a["id"]);target.mkdir()
+           archive=base/(str(a["id"])+".zip")
+           with archive.open("wb") as out:
+            subprocess.run(["gh","api",f"repos/{os.environ['GITHUB_REPOSITORY']}/actions/artifacts/{a['id']}/zip"],stdout=out,check=True)
+           subprocess.run(["unzip","-q",str(archive),"-d",str(target)],check=True)
+          PY
+      - name: Verify original record and cross-experiment registry
+        run: |
+          set -euo pipefail
+          python scripts/experiment69_forecast_registry.py
+          python - <<'PY'
+          import pathlib,json,hashlib
+          base=pathlib.Path("/tmp/experiment68-history")
+          registry=json.loads((base/"registry.json").read_text())
+          originals=[r for r in registry["forecasts"] if r["experiment"]==63]
+          if len(originals)!=1:raise SystemExit("Expected one original Experiment 63 record")
+          original=originals[0]
+          source=base/str(original["artifact_id"])
+          candidates=list(source.rglob("forecast.json"))
+          if len(candidates)!=1:raise SystemExit("Original forecast missing")
+          raw=candidates[0].read_bytes()
+          if hashlib.sha256(raw).hexdigest()!="5a6b23afd87ee9e43c31e50ba94a846e256216cc514944ef157eea1db9129aba":
+           raise SystemExit("Original forecast bytes differ from frozen SHA256")
+          if json.loads(raw)["record_sha256"]!="3fbc4929fc319fbd09d5ed1fb47959cf96bdbf56cc87d084306cade7c7103b15":
+           raise SystemExit("Original record SHA256 mismatch")
+          pathlib.Path("/tmp/experiment63-original/forecast.json").write_bytes(raw)
+          PY
+      - name: Check independently corroborated final result and score
+        run: python scripts/experiment67_post_match_scoring.py
+      - name: Stage freshly verified score for dashboard
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/experiment70-score/current
+          if [ -f /tmp/experiment67/score.json ]; then
+            cp /tmp/experiment67/score.json /tmp/experiment70-score/current/score.json
+            cp /tmp/experiment67/report.json /tmp/experiment70-score/current/report.json
+          fi
+      - name: Build dashboard including fresh scoring result when verified
+        run: python scripts/experiment70_research_dashboard.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment71-live-score-dashboard-review
+          path: |
+            /tmp/experiment67/
+            /tmp/experiment70/
+            /tmp/experiment68-history/registry.json
+            /tmp/experiment68-history/registry-report.json
+          retention-days: 90
+          if-no-files-found: warn
