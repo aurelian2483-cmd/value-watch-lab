@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Experiment 69: build fail-closed, cross-experiment read-only fixture registry.
-Input: all retained Experiment 63 and 68 GitHub artifacts downloaded by workflow.
+Input: retained Experiment 63, 68 and 69 GitHub artifacts downloaded by workflow.
 No writes to persistent research ledger or publication.
 """
 import datetime as dt,hashlib,json,pathlib,sys
@@ -11,7 +11,7 @@ def main():
  report={"experiment":69,"status":"BLOCKED_PENDING","publication_gate":"BLOCKED","challenge_eligible":0}
  try:
   inventory=json.loads((BASE/"artifact-inventory.json").read_text())
-  records=[];seen=set();dupes=[];source_counts={"63":0,"68":0}
+  records=[];seen=set();dupes=[];source_counts={"63":0,"68":0,"69":0}
   for entry in sorted(inventory["artifacts"],key=lambda e:(0 if e["name"]=="experiment63-new-fixture-forecast-review" else 1,e["id"])):
    root=BASE/str(entry["id"])
    if entry["name"]=="experiment63-new-fixture-forecast-review":
@@ -21,6 +21,10 @@ def main():
    elif entry["name"]=="experiment68-forecast-collector-review":
     candidates=list(root.rglob("manifest.json"));kind="68"
     if len(candidates)!=1:raise ValueError("Experiment 68 artifact missing unique manifest.json")
+    objects=json.loads(candidates[0].read_text()).get("forecasts",[])
+   elif entry["name"]=="experiment69-deduplicated-collector-review":
+    candidates=list(root.rglob("manifest.json"));kind="69"
+    if len(candidates)!=1:raise ValueError("Experiment 69 artifact missing unique manifest.json")
     objects=json.loads(candidates[0].read_text()).get("forecasts",[])
    else:raise ValueError("unexpected artifact")
    source_counts[kind]+=1
@@ -39,6 +43,7 @@ def main():
    "generated_at_utc":dt.datetime.now(dt.timezone.utc).isoformat(),
    "experiment63_artifact_count":source_counts["63"],
    "experiment68_artifact_count":source_counts["68"],
+   "experiment69_artifact_count":source_counts["69"],
    "forecasts":records,"duplicate_records":dupes,"publication_gate":"BLOCKED",
    "challenge_eligible":0,"scope":"retained GitHub Actions artifacts only"}
   (BASE/"registry.json").write_bytes(canon(registry)+b"\n")
