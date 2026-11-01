@@ -83,9 +83,27 @@ def main():
       "normalized_away":away,"kickoff_utc":stamp(kickoff),"csv_row":line}
    except Exception as exc:rejections.append({"line":line,"reason":str(exc)})
   if not csv_by_pair:raise ValueError("no upcoming E0 fixture candidates in football-data fixtures.csv")
-  params=urllib.parse.urlencode({"dates":now.strftime("%Y%m%d")+"-"+end.strftime("%Y%m%d"),"limit":"500"})
-  espn_raw,secondary=fetch(ESPN_URL+"?"+params,"espn-scoreboard.json")
-  events=json.loads(espn_raw).get("events",[])
+  # Query each actual candidate matchday separately; the ESPN scoreboard endpoint
+  # rejected the 14-day range request with HTTP 400 in the original run.
+  days=sorted({v["kickoff_utc"][:10].replace("-","") for v in csv_by_pair.values()})
+  events=[];secondary_receipts=[];secondary_errors=[]
+  for day in days:
+   params=urllib.parse.urlencode({"dates":day,"limit":"100"})
+   try:
+    espn_raw,receipt=fetch(ESPN_URL+"?"+params,"espn-scoreboard-"+day+".json")
+    events.extend(json.loads(espn_raw).get("events",[]))
+    secondary_receipts.append(receipt)
+   except Exception as e:
+    secondary_errors.append({"day":day,"error":str(e)})
+  if not secondary_receipts:
+   report.update(status="SECONDARY_SOURCE_UNAVAILABLE_REVIEW_ONLY",
+    source_a_candidates=len(csv_by_pair),new_cross_source_fixtures=0,
+    excluded_count=len(csv_by_pair),source_receipts=[primary],
+    secondary_errors=secondary_errors)
+   (OUT/"discovered-fixtures.json").write_text(json.dumps({"accepted":[],"excluded":[
+    {"fixture":v,"reasons":["ESPN unavailable; independent comparison cannot be established"]}
+    for v in csv_by_pair.values()]},indent=2)+"\\n")
+   raise RuntimeError("NO_SECONDARY_SOURCE_DATA")
   espn_by_pair={}
   for e in events:
    if not e.get("competitions"):continue
@@ -127,8 +145,8 @@ def main():
    else:accepted.append(candidate)
   report.update(status="NEW_CROSS_SOURCE_FIXTURES_DISCOVERED_REVIEW_ONLY" if accepted else "NO_NEW_CROSS_SOURCE_FIXTURES_REVIEW_ONLY",
    run_started_at_utc=stamp(now),discovery_window_utc=[stamp(earliest),stamp(end)],
-   source_receipts=[primary,secondary],source_a_candidates=len(csv_by_pair),
-   source_b_events=len(events),new_cross_source_fixtures=len(accepted),
+   source_receipts=[primary,*secondary_receipts],source_a_candidates=len(csv_by_pair),
+   source_b_events=len(events),secondary_errors=secondary_errors,new_cross_source_fixtures=len(accepted),
    excluded_count=len(excluded),skipped_csv_rows=rejections,
    match_policy="Exact canonical team pairing; UTC kickoff <= 60 seconds difference; ESPN pre-match; not existing ledger pair",
    fixture_schedule_corrobated_at_capture=bool(accepted),
@@ -138,7 +156,9 @@ def main():
     "Duplicate suppression by home/away pairing is deliberately conservative",
     "No model predictions, odds, official challenge entries or ledger updates"])
   (OUT/"discovered-fixtures.json").write_text(json.dumps({"accepted":accepted,"excluded":excluded},indent=2)+"\n")
- except Exception as exc:report.update(status="BLOCKED_AUDIT_ERROR",error=str(exc))
+ except Exception as exc:
+  if str(exc)=="NO_SECONDARY_SOURCE_DATA":report["error"]="ESPN unavailable; no fixtures were independently verified"
+  else:report.update(status="BLOCKED_AUDIT_ERROR",error=str(exc))
  (OUT/"report.json").write_text(json.dumps(report,indent=2)+"\n")
  print(json.dumps({k:report.get(k) for k in ("status","source_a_candidates","new_cross_source_fixtures","excluded_count","error")}))
  if report["status"]=="BLOCKED_AUDIT_ERROR":sys.exit(1)
