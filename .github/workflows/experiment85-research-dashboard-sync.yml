@@ -39,7 +39,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: experiment85-validated-research-feed
-          path: /tmp/experiment82/dashboard-data.json
+          path: |
+            /tmp/experiment82/dashboard-data.json
+            /tmp/experiment80/verification-report.json
+            /tmp/experiment79/coverage-report.json
           retention-days: 30
       - name: Checkout website
         uses: actions/checkout@v4
