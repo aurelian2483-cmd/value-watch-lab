@@ -1,0 +1,32 @@
+name: Experiment 72 research-only schedule dispatcher
+# The ONLY file added to main. All research code runs from research/prospective-100.
+# Cron is UTC, not Europe/London local time; DST shifts wall-clock times.
+on:
+  schedule:
+    - cron: '0 7 * * *'
+    - cron: '30 23 * * *'
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'Research task to run'
+        required: true
+        type: choice
+        options:
+          - collect
+          - score
+permissions:
+  contents: read
+  actions: read
+jobs:
+  collect:
+    if: ${{ github.event_name == 'schedule' && github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch' && inputs.task == 'collect' }}
+    uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment69-deduplicated-collector.yml@research/prospective-100
+    permissions:
+      contents: read
+      actions: read
+  score:
+    if: ${{ github.event_name == 'schedule' && github.event.schedule == '30 23 * * *' || github.event_name == 'workflow_dispatch' && inputs.task == 'score' }}
+    uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment71-live-score-dashboard.yml@research/prospective-100
+    permissions:
+      contents: read
+      actions: read
