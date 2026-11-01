@@ -1,0 +1,10 @@
+name: Experiment 86 archived forecast dispatcher
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment86-archive-audit.yml@research/prospective-100
+    permissions:
+      contents: read
