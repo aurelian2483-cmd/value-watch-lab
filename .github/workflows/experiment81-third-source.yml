@@ -1,0 +1,27 @@
+name: Experiment 81 third source feasibility
+on:
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/prospective-100
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Probe independent fixture source
+        run: python scripts/experiment81_third_source_probe.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment81-third-source-feasibility
+          path: /tmp/experiment81/source-feasibility-report.json
+          retention-days: 90
+          if-no-files-found: warn
