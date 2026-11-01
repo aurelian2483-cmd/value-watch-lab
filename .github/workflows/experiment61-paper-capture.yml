@@ -1,0 +1,29 @@
+name: Experiment 61 paper-only pre-match evidence capture
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment61-paper-capture.yml'
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Freeze new input bytes, source receipt times and paper-only model forecasts
+        run: python scripts/experiment61_paper_capture.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment61-paper-capture-review
+          path: /tmp/experiment61/
+          retention-days: 90
+          if-no-files-found: warn
