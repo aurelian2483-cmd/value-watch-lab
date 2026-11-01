@@ -28,6 +28,8 @@ jobs:
         run: python research-source/scripts/experiment82_dashboard_feed.py
       - name: Integrate integrity-verified archived paper forecasts
         run: python research-source/scripts/experiment86_archive_feed.py
+      - name: Audit per-fixture forecast readiness
+        run: python research-source/scripts/experiment101_forecast_readiness.py
       - name: Validate safety and freshness
         run: python research-source/scripts/experiment85_validate_feed.py /tmp/experiment82/dashboard-data.json
       - name: Validate persistent research results for public history
