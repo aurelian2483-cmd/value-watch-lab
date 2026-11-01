@@ -12,7 +12,31 @@ def fetch_csv(season):
     with urllib.request.urlopen(req,timeout=30) as response:
         if response.status!=200:raise ValueError("CSV HTTP status not 200")
         return response.read(2000000)
-from sky_espn_strict_crosscheck import normal,parse_time
+from sky_espn_strict_crosscheck import parse_time
+# Explicit identity mapping only; no fuzzy matching that could conflate clubs.
+CLUB_ALIASES = {
+    "manunited":"manchesterunited",
+    "manutd":"manchesterunited",
+    "manchesterutd":"manchesterunited",
+    "mancity":"manchestercity",
+    "wolves":"wolverhamptonwanderers",
+    "wolverhampton":"wolverhamptonwanderers",
+    "brighton":"brightonandhovealbion",
+    "brightonhovealbion":"brightonandhovealbion",
+    "westham":"westhamunited",
+    "nottmforest":"nottinghamforest",
+    "nottingham":"nottinghamforest",
+    "newcastle":"newcastleunited",
+    "tottenham":"tottenhamhotspur",
+    "spurs":"tottenhamhotspur",
+    "leeds":"leedsunited",
+    "coventry":"coventrycity",
+    "leicester":"leicestercity",
+    "ipswich":"ipswichtown",
+}
+def normal(name):
+    key="".join(c for c in str(name).casefold() if c.isalnum())
+    return CLUB_ALIASES.get(key,key)
 
 OUT=pathlib.Path("/tmp/experiment38")
 LONDON=ZoneInfo("Europe/London")
