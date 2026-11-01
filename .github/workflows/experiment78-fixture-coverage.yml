@@ -1,0 +1,38 @@
+name: Experiment 78 fixture coverage audit
+on:
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  coverage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/prospective-100
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Capture current fixture snapshot
+        run: python scripts/experiment62_fixture_discovery.py
+      - name: Audit source coverage
+        if: always()
+        run: |
+          if [ -f /tmp/experiment62/football-data-fixtures.csv ] && [ -f /tmp/experiment62/discovered-fixtures.json ] && [ -f /tmp/experiment62/report.json ]; then
+            python scripts/experiment78_fixture_coverage.py
+          else
+            echo 'Source snapshot incomplete' >&2
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment78-fixture-coverage-audit
+          path: |
+            /tmp/experiment78/coverage-report.json
+            /tmp/experiment62/report.json
+          retention-days: 90
+          if-no-files-found: warn
