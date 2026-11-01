@@ -29,7 +29,7 @@ async function load(){
  const res=await fetch("../research-dashboard-data.json",{cache:"no-store"});if(!res.ok)throw Error("Feed unavailable");
  const d=await res.json();
  if(d.research_only!==true||d.publication_gate!=="BLOCKED"||d.model_validation!=="UNVALIDATED")throw Error("Invalid research feed");
- const fixtures=Array.isArray(d.upcoming_fixtures)?d.upcoming_fixtures:[];
+ const generated=Date.parse(d.generated_at_utc||"");\n if(!Number.isFinite(generated)||generated>Date.now()+300000||Date.now()-generated>36*3600000)throw Error("Research feed stale or invalid (older than 36 hours)");\n const fixtures=Array.isArray(d.upcoming_fixtures)?d.upcoming_fixtures:[];
  document.getElementById("count").textContent=fixtures.length;
  document.getElementById("checked").textContent=fixtures.filter(f=>f.verification==="SCHEDULE_CROSS_CHECK").length;
  document.getElementById("forecast").textContent=Array.isArray(d.paper_forecasts)?d.paper_forecasts.length:0;
