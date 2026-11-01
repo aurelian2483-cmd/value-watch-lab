@@ -1,0 +1,66 @@
+name: Experiment 74 durable research forecast archive
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: experiment74-archive
+  cancel-in-progress: false
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/prospective-100
+          persist-credentials: true
+      - name: Download retained research forecast artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/experiment68-history
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/experiment74-pages.json
+          python - <<'PY'
+          import json,pathlib
+          pages=json.loads(pathlib.Path("/tmp/experiment74-pages.json").read_text())
+          if isinstance(pages,dict):pages=[pages]
+          names={"experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review","experiment69-deduplicated-collector-review"}
+          selected=[{"id":a["id"],"name":a["name"]} for page in pages for a in page.get("artifacts",[])
+           if a.get("name") in names and not a.get("expired") and a.get("workflow_run",{}).get("head_branch") in ("research/prospective-100","main")]
+          pathlib.Path("/tmp/experiment68-history/artifact-inventory.json").write_text(json.dumps({"artifacts":selected}))
+          PY
+          python - <<'PY'
+          import json,subprocess,pathlib,os
+          base=pathlib.Path("/tmp/experiment68-history")
+          for a in json.loads((base/"artifact-inventory.json").read_text())["artifacts"]:
+           target=base/str(a["id"]);target.mkdir()
+           archive=base/(str(a["id"])+".zip")
+           with archive.open("wb") as out:
+            subprocess.run(["gh","api",f"repos/{os.environ['GITHUB_REPOSITORY']}/actions/artifacts/{a['id']}/zip"],stdout=out,check=True)
+           subprocess.run(["unzip","-q",str(archive),"-d",str(target)],check=True)
+          PY
+      - name: Verify and archive unique original forecast records
+        run: python scripts/experiment74_archive.py
+      - name: Commit only new research archive records
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- research/forecast-archive/v1/
+          if git diff --cached --quiet; then
+            echo "No new archive records"
+          else
+            git diff --cached --name-only | grep -v '^research/forecast-archive/v1/[a-f0-9]\{64\}\.json$' && { echo "Unexpected staged file"; exit 1; } || true
+            git commit -m "Experiment 74: append verified paper forecast records"
+            git push origin HEAD:research/prospective-100
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment74-archive-audit
+          path: /tmp/experiment74-report.json
+          retention-days: 90
+          if-no-files-found: warn
