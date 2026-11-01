@@ -1,6 +1,9 @@
-name: Experiment 90 archive result dispatcher
+name: Experiment 91 scheduled archive result audit
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '30 0 * * *'
+    - cron: '30 12 * * *'
 permissions:
   contents: read
 jobs:
