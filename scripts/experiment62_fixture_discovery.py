@@ -36,7 +36,7 @@ ALIASES={
  "nottingham":"nottingham forest",
 }
 def norm(name):
- s=re.sub(r"\s+"," ",re.sub(r"[^a-z0-9& ]"," ",name.lower().replace("fc ","").replace(" fc",""))).strip()
+ s=re.sub(r"\s+"," ",re.sub(r"[^a-z0-9& ]"," ",re.sub(r"\bfc\b","",name.lower()))).strip()
  return ALIASES.get(s,s)
 def parse_time(s):
  s=(s or "").strip()
