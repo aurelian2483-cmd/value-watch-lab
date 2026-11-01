@@ -25,7 +25,7 @@ def main():
   registry_path=pathlib.Path("/tmp/experiment68-history/registry.json")
   if not registry_path.is_file():raise ValueError("missing cross-experiment registry")
   registry=json.loads(registry_path.read_text())
-  if registry.get("complete") is not True or registry.get("experiment63_artifact_count",0)<1:
+  if registry.get("complete") is not True or registry.get("experiment63_artifact_count",0)<1 and registry.get("archive_record_count",0)<1:
    raise ValueError("incomplete cross-experiment registry")
   existing={(norm(r["home"]),norm(r["away"]),r["kickoff_utc"]) for r in registry["forecasts"]}
   pending=[x for x in fixtures if (norm(x["home"]),norm(x["away"]),x["kickoff_utc"]) not in existing]
