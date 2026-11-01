@@ -25,6 +25,30 @@ for f in fixtures:
  seen.add(key)
  kickoff=dt.datetime.fromisoformat(key[2].replace("Z","+00:00"))
  if kickoff.tzinfo is None or kickoff<now-dt.timedelta(minutes=120) or kickoff>now+dt.timedelta(days=22):raise ValueError("Fixture outside permitted horizon")
-if data.get("paper_forecasts")!=[] or data.get("completed_results")!=[]:raise ValueError("Unexpected prediction or result publication")
+forecasts=data.get("paper_forecasts")
+if not isinstance(forecasts,list) or len(forecasts)>100:raise ValueError("Invalid forecast list")
+if forecasts:
+ audit=data.get("forecast_archive_audit",{})
+ if audit.get("status")!="SHA256_VERIFIED_RESEARCH_ONLY" or audit.get("unique_forecasts")!=len(forecasts):
+  raise ValueError("Missing archive integrity audit")
+ keys=set()
+ for f in forecasts:
+  if f.get("record_type")!="ARCHIVED_PAPER_FORECAST" or f.get("challenge_eligible")!=0 or f.get("publication_gate")!="BLOCKED":
+   raise ValueError("Unsafe archived forecast")
+  if f.get("source_first_availability_verified") is not False or f.get("independent_timestamp_attested") is not False:
+   raise ValueError("Unattested archived forecast flags changed")
+  key=(f.get("league"),f.get("home"),f.get("away"),f.get("kickoff_utc"))
+  if any(not isinstance(x,str) or not x.strip() for x in key) or key in keys:raise ValueError("Duplicate or invalid archive fixture")
+  keys.add(key)
+  created=dt.datetime.fromisoformat(f["generated_at_utc"].replace("Z","+00:00"))
+  kickoff=dt.datetime.fromisoformat(f["kickoff_utc"].replace("Z","+00:00"))
+  if created.tzinfo is None or kickoff.tzinfo is None or created>=kickoff:raise ValueError("Archive not pre-event")
+  probs=[f.get(k) for k in ("prob_home","prob_draw","prob_away")]
+  if any(not isinstance(v,(float,int)) or isinstance(v,bool) or not 0<v<1 for v in probs) or abs(sum(probs)-1)>1e-8:
+   raise ValueError("Invalid archived probabilities")
+  digest=f.get("record_sha256")
+  if not isinstance(digest,str) or len(digest)!=64 or any(ch not in "0123456789abcdef" for ch in digest):
+   raise ValueError("Invalid archived digest")
+if data.get("completed_results")!=[]:raise ValueError("Results cannot be published yet")
 if data.get("accuracy",{}).get("value") is not None:raise ValueError("Accuracy cannot be published yet")
 print(json.dumps({"status":"PUBLIC_RESEARCH_FEED_VALIDATED","fixtures":len(fixtures),"publication_gate":"BLOCKED"}))
