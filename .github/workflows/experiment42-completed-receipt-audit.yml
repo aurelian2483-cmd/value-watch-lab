@@ -1,0 +1,34 @@
+name: Experiment 42 independent completed run and artifact audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment42_completed_receipt_audit.py'
+      - '.github/workflows/experiment42-completed-receipt-audit.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  receipt-audit:
+    if: github.ref == 'refs/heads/research/prospective-100'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Independently verify completed run, artifact digest and forecast hashes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/experiment42_completed_receipt_audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment42-independent-receipt-review
+          path: /tmp/experiment42/report.json
+          retention-days: 30
+          if-no-files-found: warn
