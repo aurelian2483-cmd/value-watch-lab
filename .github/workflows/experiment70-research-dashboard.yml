@@ -28,10 +28,10 @@ jobs:
           pages=json.loads(pathlib.Path("/tmp/experiment70-artifacts.json").read_text())
           if isinstance(pages,dict):pages=[pages]
           artifacts=[]
-          names={"experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review","experiment67-post-match-scoring-review"}
+          names={"experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review","experiment69-deduplicated-collector-review","experiment67-post-match-scoring-review"}
           for page in pages:
            for a in page.get("artifacts",[]):
-            if a.get("name") in names and not a.get("expired") and a.get("workflow_run",{}).get("head_branch")=="research/prospective-100":
+            if a.get("name") in names and not a.get("expired") and a.get("workflow_run",{}).get("head_branch") in ("research/prospective-100","main"):
              artifacts.append({"id":a["id"],"name":a["name"]})
           pathlib.Path("/tmp/experiment70-inventory.json").write_text(json.dumps(artifacts))
           pathlib.Path("/tmp/experiment68-history/artifact-inventory.json").write_text(json.dumps({"artifacts":[a for a in artifacts if a["name"]!="experiment67-post-match-scoring-review"]}))
