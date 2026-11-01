@@ -1,0 +1,45 @@
+name: Experiment 40 historical cutoff and fixture provenance
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/prospective-100
+    paths:
+      - scripts/experiment40_cutoff_fixture_provenance.py
+      - .github/workflows/experiment40-cutoff-fixture-provenance.yml
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/research/prospective-100'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install model dependencies
+        run: pip install -r requirements-model-smoke.txt
+
+      - name: Audit historical cutoff and fixture provenance
+        run: python scripts/experiment40_cutoff_fixture_provenance.py
+
+      - name: Upload review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment40-cutoff-fixture-provenance-review
+          path: /tmp/experiment40/
+          retention-days: 14
+          if-no-files-found: warn
