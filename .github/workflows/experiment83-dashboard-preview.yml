@@ -1,0 +1,31 @@
+name: Experiment 83 dashboard preview
+on:
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/prospective-100
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Audit ESPN versus Football-Data
+        run: python scripts/experiment80_fixture_verification.py
+      - name: Generate dashboard data with schedule cross-checks
+        run: python scripts/experiment82_dashboard_feed.py
+      - name: Build standalone preview
+        run: python scripts/experiment83_dashboard_build.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment83-dashboard-preview
+          path: /tmp/experiment83/
+          retention-days: 90
+          if-no-files-found: warn
