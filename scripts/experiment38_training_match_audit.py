@@ -33,6 +33,8 @@ CLUB_ALIASES = {
     "coventry":"coventrycity",
     "leicester":"leicestercity",
     "ipswich":"ipswichtown",
+    "bournemouth":"afcbournemouth",
+    "hull":"hullcity",
 }
 def normal(name):
     key="".join(c for c in str(name).casefold() if c.isalnum())
