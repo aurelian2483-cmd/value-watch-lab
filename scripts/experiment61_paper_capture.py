@@ -50,6 +50,8 @@ def main():
   model=fit(model_train,2.0)
   model_hash=sha((ROOT/"scripts/model_integration_smoke.py").read_bytes())
   cutoff=stamp();now=dt.datetime.now(dt.timezone.utc)
+  prior_ledger=json.loads((ROOT/"research/persistent-forecast-ledger.json").read_text())
+  existing_fixtures={tuple(entry["fixture_identity"]) for entry in prior_ledger if len(entry.get("fixture_identity",[]))==4}
   records=[];skipped=[]
   for home,away,kickoff in FIXTURES:
    when=dt.datetime.fromisoformat(kickoff.replace("Z","+00:00"))
@@ -62,7 +64,8 @@ def main():
     skipped.append({"fixture":[home,away,kickoff],"reason":"team missing from model training"})
     continue
    p=predict(h,a,model)
-   record={"type":"NEW_PAPER_ONLY_NOT_CHALLENGE","league":"E0",
+   repeated=("E0",home,away,kickoff) in existing_fixtures
+   record={"type":"PAPER_ONLY_CAPTURE_NOT_CHALLENGE","repeats_existing_review_fixture":repeated,"league":"E0",
       "home":home,"away":away,"model_home":h,"model_away":a,"kickoff_utc":kickoff,
       "generated_at_utc":stamp(),"prob_home":p[0],"prob_draw":p[1],"prob_away":p[2],
       "model_sha256":model_hash,"training_rows_sha256":sha(canon(training)),
@@ -82,10 +85,11 @@ def main():
     "challenge_eligible":0,"publication_gate":"BLOCKED"}
   (OUT/"forecast-bundle.json").write_bytes(canon(bundle)+b"\n")
   report.update(status="PAPER_ONLY_PREKICKOFF_BUNDLE_CAPTURED_NOT_CHALLENGE" if records else "NO_ELIGIBLE_FUTURE_FIXTURES",
-   forecast_count=len(records),skipped_count=len(skipped),source_count=len(sources),
+   forecast_count=len(records),repeated_review_fixture_count=sum(r["repeats_existing_review_fixture"] for r in records),skipped_count=len(skipped),source_count=len(sources),
    training_row_count=len(training),forecast_bundle_sha256=sha(canon(bundle)),
    source_hashes={s["name"]:s["sha256"] for s in sources},
    limitations=["Scheduled fixtures are hard-coded from previous review; not freshly verified",
+    "These fixtures may repeat previously recorded review fixtures; a new capture is not a new fixture",
     "GitHub runner time is a capture timestamp, not independent notarisation",
     "Recorded source availability is receipt time only, not independent historical first availability",
     "No contemporaneous Sky Bet prices or EV calculated",
