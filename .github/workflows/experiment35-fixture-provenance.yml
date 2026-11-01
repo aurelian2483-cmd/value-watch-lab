@@ -1,0 +1,29 @@
+name: Experiment 35 fixture provenance bridge
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment35_fixture_provenance_bridge.py'
+      - '.github/workflows/experiment35-fixture-provenance.yml'
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install model dependencies
+        run: python -m pip install numpy scipy
+      - name: Crosscheck fixtures and review forecast provenance
+        run: python scripts/experiment35_fixture_provenance_bridge.py
+      - name: Upload read-only review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment35-fixture-provenance-review
+          path: /tmp/experiment35-fixture-provenance-review.json
+          if-no-files-found: warn
