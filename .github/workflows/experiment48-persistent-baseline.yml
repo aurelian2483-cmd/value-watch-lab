@@ -1,6 +1,10 @@
 name: Experiment 48 guarded persistent baseline creation
 on:
   workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment48-persistent-baseline.yml'
 permissions:
   contents: write
   actions: read
