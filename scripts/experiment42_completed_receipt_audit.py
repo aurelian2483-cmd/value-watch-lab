@@ -2,7 +2,7 @@
 """Experiment 42: independently verify completed Experiment 41 GitHub run/artifact.
 Read-only, fail-closed. Never commits forecasts, publishes, or counts challenges.
 """
-import datetime as dt,hashlib,io,json,os,pathlib,sys,urllib.request,zipfile
+import datetime as dt,hashlib,io,json,os,pathlib,sys,subprocess,zipfile
 from experiment21_ledger import check_record,identity,timestamp
 from experiment39_training_inclusion_audit import canonical,sha
 
@@ -17,16 +17,26 @@ EXPECTED_MANIFEST="5256b4983c40bb9a79c772e676af6662d6e7b00886702e00f8146155e80bf
 KICKOFFS={"Everton":"2026-11-06T20:00:00Z","Leeds United":"2026-11-07T12:30:00Z",
           "Fulham":"2026-11-07T15:00:00Z","Nottingham Forest":"2026-11-07T17:30:00Z"}
 def api(url,limit=3000000):
-    token=os.environ.get("GITHUB_TOKEN")
-    if not token:raise ValueError("GITHUB_TOKEN unavailable; independent authenticated receipt required")
-    req=urllib.request.Request(url,headers={"Authorization":"Bearer "+token,
-        "Accept":"application/vnd.github+json","User-Agent":"ValueWatchResearch/1.0",
-        "X-GitHub-Api-Version":"2022-11-28"})
-    with urllib.request.urlopen(req,timeout=35) as response:
-        if response.status!=200:raise ValueError("GitHub HTTP status not 200")
-        data=response.read(limit+1)
-        if len(data)>limit:raise ValueError("GitHub response exceeds size limit")
-        return data
+    token=os.environ.get("GH_TOKEN")
+    if not token or not token.strip():
+        raise ValueError("GH_TOKEN unavailable; authenticated GitHub API required")
+    if not url.startswith("https://api.github.com/repos/"+REPO+"/"):
+        raise ValueError("unexpected GitHub API endpoint")
+    # GitHub CLI handles token authentication and artifact download redirects.
+    # Never print token, response body, or authenticated request headers.
+    try:
+        p=subprocess.run(["gh","api",url,"--method","GET",
+            "-H","Accept: application/vnd.github+json"],
+            capture_output=True,timeout=50,check=False)
+    except (OSError,subprocess.TimeoutExpired) as exc:
+        raise ValueError("GitHub CLI API request unavailable: "+type(exc).__name__) from None
+    if p.returncode:
+        detail=p.stderr.decode("utf-8","replace")
+        # Avoid exposing response details, including any unexpected credentials.
+        raise ValueError("GitHub CLI API request failed for "+url.split("/repos/",1)[1].split("?",1)[0]+
+                         " (exit "+str(p.returncode)+", authentication or permission may be denied)")
+    if len(p.stdout)>limit:raise ValueError("GitHub response exceeds size limit")
+    return p.stdout
 def read_json(url):return json.loads(api(url))
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
