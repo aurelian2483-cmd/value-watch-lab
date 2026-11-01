@@ -29,7 +29,7 @@ jobs:
           test "$RUN_ID" != "null"
           mkdir -p /tmp/experiment55-downloaded
           gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name experiment55-input-snapshot-review --dir /tmp/experiment55-downloaded
-      - name: Walk-forward scoring and calibration diagnostics
+      - name: Walk-forward scoring, cold-start exclusions and calibration diagnostics
         run: python scripts/experiment57_calibration.py
       - uses: actions/upload-artifact@v4
         if: always()
