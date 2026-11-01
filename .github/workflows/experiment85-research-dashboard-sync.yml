@@ -1,4 +1,4 @@
-name: Experiment 89 research dashboard sync
+name: Experiment 93 research dashboard sync
 on:
   schedule:
     - cron: '20 8 * * *'
@@ -30,6 +30,8 @@ jobs:
         run: python research-source/scripts/experiment86_archive_feed.py
       - name: Validate safety and freshness
         run: python research-source/scripts/experiment85_validate_feed.py /tmp/experiment82/dashboard-data.json
+      - name: Validate persistent research results for public history
+        run: python research-source/scripts/experiment93_public_history.py research-source/research/results-ledger/v1/verified-results.json /tmp/experiment93/history.json
       - uses: actions/upload-artifact@v4
         with:
           name: experiment85-validated-research-feed
@@ -46,10 +48,11 @@ jobs:
         run: |
           set -euo pipefail
           cp /tmp/experiment82/dashboard-data.json website/research-dashboard-data.json
+          cp /tmp/experiment93/history.json website/research-history.json
           cd website
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- research-dashboard-data.json
+          git add -- research-dashboard-data.json research-history.json
           if git diff --cached --quiet; then
             echo "No data changes"
           else
