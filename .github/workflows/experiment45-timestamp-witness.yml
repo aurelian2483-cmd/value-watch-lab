@@ -1,0 +1,38 @@
+name: Experiment 45 independent timestamp witness
+on:
+  workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/experiment45_timestamp_witness.py'
+      - '.github/workflows/experiment45-timestamp-witness.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  witness:
+    if: github.ref == 'refs/heads/research/prospective-100'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install research dependencies
+        run: |
+          pip install -r requirements-model-smoke.txt
+          pip install opentimestamps-client==0.7.2
+      - name: Verify existing ledger and submit timestamp witness
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/experiment45_timestamp_witness.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment45-timestamp-witness-review
+          path: /tmp/experiment45/
+          retention-days: 90
+          if-no-files-found: warn
