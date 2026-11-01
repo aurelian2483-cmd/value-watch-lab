@@ -62,7 +62,7 @@ def main():
   "challenge_progress":"0/100","persistent_ledger_modified":False,
   "sky_bet_odds_verified":False,"independent_timestamp_attested":False}
  try:
-  now=dt.datetime.now(UTC);earliest=now+dt.timedelta(minutes=90);end=now+dt.timedelta(days=14)
+  now=dt.datetime.now(UTC);earliest=now+dt.timedelta(minutes=90);end=now+dt.timedelta(days=21)
   data,primary=fetch(FIXTURE_URL,"football-data-fixtures.csv")
   reader=csv.DictReader(io.StringIO(data.decode("utf-8-sig")))
   required={"Div","Date","Time","HomeTeam","AwayTeam"}
