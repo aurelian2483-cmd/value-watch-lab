@@ -34,6 +34,7 @@ ALIASES={
  "sheffield utd":"sheffield united","sheffield united":"sheffield united",
  "luton":"luton town","luton town":"luton town","watford":"watford",
  "nottingham":"nottingham forest",
+ "hull":"hull city","hull city":"hull city",
 }
 def norm(name):
  s=re.sub(r"\s+"," ",re.sub(r"[^a-z0-9& ]"," ",re.sub(r"\bfc\b","",name.lower()))).strip()
@@ -163,3 +164,4 @@ def main():
  print(json.dumps({k:report.get(k) for k in ("status","source_a_candidates","new_cross_source_fixtures","excluded_count","error")}))
  if report["status"]=="BLOCKED_AUDIT_ERROR":sys.exit(1)
 if __name__=="__main__":main()
+
