@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Value Watch | Research Dashboard</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif;background:#0b1220;color:#e9eef8}
+body{max-width:1120px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+h1{margin-bottom:6px}p,small{color:#aebbd0}.tag{border:1px solid #e0b45d;color:#ffdc88;border-radius:20px;padding:8px 12px;font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:24px 0}
+.card,section{background:#172338;border:1px solid #2a3952;border-radius:14px;padding:16px}
+.num{font-size:30px;font-weight:750}section{margin:18px 0}table{border-collapse:collapse;width:100%;min-width:540px}td,th{text-align:left;padding:11px 8px;border-bottom:1px solid #2a3952}th{color:#aebbd0}
+.scroll{overflow-x:auto}.status{color:#ffdc88}.error{color:#ff9c9c}footer{padding:20px 0;color:#aebbd0}
+</style></head><body>
+<header><div><h1>Value Watch Research</h1><p>Experimental football fixture and forecast monitoring</p></div><strong class="tag">UNVALIDATED · RESEARCH ONLY</strong></header>
+<div class="cards">
+<div class="card"><small>Upcoming fixtures</small><div class="num" id="count">—</div></div>
+<div class="card"><small>Schedule cross-checks</small><div class="num" id="checked">—</div></div>
+<div class="card"><small>Paper forecasts in feed</small><div class="num" id="forecast">—</div></div>
+<div class="card"><small>Prediction accuracy</small><div class="num" id="accuracy">N/A</div></div>
+</div>
+<section><h2>Upcoming fixtures</h2><p>Schedule cross-checks do not establish model validation or first-availability timestamps.</p><div class="scroll"><table><thead><tr><th>Kickoff (UK)</th><th>Home</th><th>Away</th><th>Schedule evidence</th></tr></thead><tbody id="fixtures"><tr><td colspan="4">Loading fixture data…</td></tr></tbody></table></div></section>
+<section><h2>Paper forecasts</h2><p id="forecasts">No paper forecasts included in this feed.</p></section>
+<section><h2>Completed results</h2><p id="results">No verified completed results included in this feed.</p></section>
+<section><h2>Research controls</h2><p>Model UNVALIDATED · Publication BLOCKED · Official challenge 0/100. No odds, EV or betting recommendations.</p><p id="source">Source audits: pending</p></section>
+<footer id="updated">Research-only preview. No live website publication.</footer>
+<script>
+"use strict";
+function cell(row,value){const td=document.createElement("td");td.textContent=value;row.append(td)}
+async function load(){
+ const res=await fetch("./dashboard-data.json",{cache:"no-store"});if(!res.ok)throw Error("Feed unavailable");
+ const d=await res.json();
+ if(d.research_only!==true||d.publication_gate!=="BLOCKED"||d.model_validation!=="UNVALIDATED")throw Error("Invalid research feed");
+ const fixtures=Array.isArray(d.upcoming_fixtures)?d.upcoming_fixtures:[];
+ document.getElementById("count").textContent=fixtures.length;
+ document.getElementById("checked").textContent=fixtures.filter(f=>f.verification==="SCHEDULE_CROSS_CHECK").length;
+ document.getElementById("forecast").textContent=Array.isArray(d.paper_forecasts)?d.paper_forecasts.length:0;
+ const a=d.accuracy||{};document.getElementById("accuracy").textContent=a.status==="INSUFFICIENT_VERIFIED_SCORED_DATA"?"N/A":(typeof a.value==="number"?(a.value*100).toFixed(1)+"%":"N/A");
+ const body=document.getElementById("fixtures");body.replaceChildren();
+ for(const f of fixtures){
+  const tr=document.createElement("tr");
+  let time="Unknown";try{time=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/London",dateStyle:"medium",timeStyle:"short"}).format(new Date(f.kickoff_utc))}catch{}
+  cell(tr,time);cell(tr,f.home||"Unknown");cell(tr,f.away||"Unknown");
+  cell(tr,f.verification==="SCHEDULE_CROSS_CHECK"?"Schedule cross-checked":"Unverified");body.append(tr);
+ }
+ if(!fixtures.length){const tr=document.createElement("tr");const td=document.createElement("td");td.colSpan=4;td.textContent="No fixtures in this feed";tr.append(td);body.append(tr)}
+ document.getElementById("source").textContent="Source audits: "+JSON.stringify(d.source_audits||{});
+ document.getElementById("updated").textContent="Feed generated: "+(d.generated_at_utc||"Unknown")+" · Research only";
+}
+load().catch(e=>{document.getElementById("fixtures").textContent="Fixture feed unavailable: "+e.message;document.getElementById("updated").textContent="Research data could not be loaded"});
+</script></body></html>
