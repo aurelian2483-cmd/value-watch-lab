@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/experiment71-live-score-dashboard.yml'
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
   actions: read
@@ -15,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: research/prospective-100
           persist-credentials: false
       - name: Download original forecast evidence
         env:
