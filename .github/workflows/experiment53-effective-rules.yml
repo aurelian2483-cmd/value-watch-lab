@@ -1,0 +1,32 @@
+name: Experiment 53 effective branch rules verification
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment53-effective-rules.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Verify effective branch rules
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/experiment53_effective_rules.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment53-effective-rules-review
+          path: /tmp/experiment53/
+          retention-days: 90
+          if-no-files-found: warn
