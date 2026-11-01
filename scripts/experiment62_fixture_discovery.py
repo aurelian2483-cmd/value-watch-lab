@@ -138,7 +138,7 @@ def main():
    candidate={"league":"E0","home":primary_row["home"],"away":primary_row["away"],
       "kickoff_utc":primary_row["kickoff_utc"],"football_data_row":primary_row["csv_row"],
       "espn_event_id":secondary_rows[0]["id"] if len(secondary_rows)==1 else None,
-      "matched_espn_event_count":len(secondary_rows),"source_snapshot_sha256":{"football_data":primary["sha256"],"espn":secondary["sha256"]},
+      "matched_espn_event_count":len(secondary_rows),"source_snapshot_sha256":{"football_data":primary["sha256"],"espn_daily_responses":[x["sha256"] for x in secondary_receipts]},
       "odds":None,"challenge_eligible":0,"publication_gate":"BLOCKED",
       "source_first_availability_verified":False,"independent_attestation_verified":False}
    if reasons:excluded.append({"fixture":candidate,"reasons":reasons})
