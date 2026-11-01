@@ -38,17 +38,33 @@ def main():
       "artifact_id":entry["id"],"experiment":int(kind)}
     if key in seen:dupes.append(record)
     else:records.append(record);seen.add(key)
-  if source_counts["63"]<1:raise ValueError("original Experiment 63 artifact not found")
+  archive_dir=pathlib.Path("research/forecast-archive/v1")
+  archived_count=0
+  for file in sorted(archive_dir.glob("*.json")):
+   obj=json.loads(file.read_text())
+   expected=obj.get("record_sha256")
+   content=dict(obj);content.pop("record_sha256",None)
+   if expected!=file.stem or expected!=sha(canon(content)):
+    raise ValueError("archived forecast integrity mismatch")
+   key=(obj["league"],obj["home"].strip().lower(),obj["away"].strip().lower(),obj["kickoff_utc"])
+   record={"league":obj["league"],"home":obj["home"],"away":obj["away"],
+    "kickoff_utc":obj["kickoff_utc"],"record_sha256":expected,
+    "artifact_id":None,"experiment":74,"archive_path":str(file)}
+   archived_count+=1
+   if key not in seen:records.append(record);seen.add(key)
+  if source_counts["63"]<1 and archived_count<1:
+   raise ValueError("neither original artifact nor archived forecasts available")
   registry={"schema":"experiment69-read-only-registry-v1","complete":True,
    "generated_at_utc":dt.datetime.now(dt.timezone.utc).isoformat(),
    "experiment63_artifact_count":source_counts["63"],
    "experiment68_artifact_count":source_counts["68"],
    "experiment69_artifact_count":source_counts["69"],
+   "archive_record_count":archived_count,
    "forecasts":records,"duplicate_records":dupes,"publication_gate":"BLOCKED",
    "challenge_eligible":0,"scope":"retained GitHub Actions artifacts only"}
   (BASE/"registry.json").write_bytes(canon(registry)+b"\n")
   report.update(status="CROSS_EXPERIMENT_REGISTRY_READY",unique_fixture_count=len(records),
-   duplicate_record_count=len(dupes),source_counts=source_counts,registry_sha256=sha(canon(registry)))
+   duplicate_record_count=len(dupes),source_counts=source_counts,archive_record_count=archived_count,registry_sha256=sha(canon(registry)))
  except Exception as e:report.update(status="BLOCKED_AUDIT_ERROR",error=str(e))
  (BASE/"registry-report.json").write_text(json.dumps(report,indent=2)+"\n")
  print(json.dumps(report))
