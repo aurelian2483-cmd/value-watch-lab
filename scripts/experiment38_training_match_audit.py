@@ -5,7 +5,13 @@ Read-only: no forecasts, ledger writes, publication or challenge eligibility.
 """
 import collections,csv,datetime as dt,hashlib,io,json,pathlib,sys,urllib.request
 from zoneinfo import ZoneInfo
-from experiment23_pipeline import fetch as fetch_csv
+def fetch_csv(season):
+    """Fetch training CSV directly; no numerical model dependencies."""
+    url=f"https://www.football-data.co.uk/mmz4281/{season}/E0.csv"
+    req=urllib.request.Request(url,headers={"User-Agent":"ValueWatchResearch/1.0"})
+    with urllib.request.urlopen(req,timeout=30) as response:
+        if response.status!=200:raise ValueError("CSV HTTP status not 200")
+        return response.read(2000000)
 from sky_espn_strict_crosscheck import normal,parse_time
 
 OUT=pathlib.Path("/tmp/experiment38")
