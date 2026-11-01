@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements-model-smoke.txt
-      - name: Verify effective branch rules
+      - name: Verify effective branch rules after owner settings update
         env:
           GH_TOKEN: ${{ github.token }}
         run: python scripts/experiment53_effective_rules.py
