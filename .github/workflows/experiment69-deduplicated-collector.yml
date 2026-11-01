@@ -38,9 +38,9 @@ jobs:
           selected=[]
           for page in pages:
            for a in page.get("artifacts",[]):
-            if a.get("name") not in ("experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review"):continue
+            if a.get("name") not in ("experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review","experiment69-deduplicated-collector-review"):continue
             if a.get("expired"):continue
-            if a.get("workflow_run",{}).get("head_branch")!="research/prospective-100":continue
+            if a.get("workflow_run",{}).get("head_branch") not in ("research/prospective-100","main"):continue
             selected.append({"id":a["id"],"name":a["name"]})
           pathlib.Path("/tmp/experiment68-history/artifact-inventory.json").write_text(json.dumps({"artifacts":selected}))
           PY
