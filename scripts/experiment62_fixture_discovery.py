@@ -13,7 +13,7 @@ ESPN_URL="https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard"
 ALIASES={
  "man utd":"manchester united","man united":"manchester united",
  "man city":"manchester city","manchester city":"manchester city",
- "nott'm forest":"nottingham forest","nottingham forest":"nottingham forest",
+ "nott m forest":"nottingham forest","nottingham forest":"nottingham forest",
  "newcastle":"newcastle united","newcastle united":"newcastle united",
  "tottenham":"tottenham hotspur","tottenham hotspur":"tottenham hotspur",
  "leeds":"leeds united","leeds united":"leeds united",
@@ -120,7 +120,7 @@ def main():
    candidate={"league":"E0","home":primary_row["home"],"away":primary_row["away"],
       "kickoff_utc":primary_row["kickoff_utc"],"football_data_row":primary_row["csv_row"],
       "espn_event_id":secondary_rows[0]["id"] if len(secondary_rows)==1 else None,
-      "matched_espec_event_count":len(secondary_rows),"source_snapshot_sha256":{"football_data":primary["sha256"],"espn":secondary["sha256"]},
+      "matched_espn_event_count":len(secondary_rows),"source_snapshot_sha256":{"football_data":primary["sha256"],"espn":secondary["sha256"]},
       "odds":None,"challenge_eligible":0,"publication_gate":"BLOCKED",
       "source_first_availability_verified":False,"independent_attestation_verified":False}
    if reasons:excluded.append({"fixture":candidate,"reasons":reasons})
