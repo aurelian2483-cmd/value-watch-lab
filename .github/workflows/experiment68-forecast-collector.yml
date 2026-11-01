@@ -1,0 +1,44 @@
+name: Experiment 68 paper-only forecast collector
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment68-forecast-collector.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Retrieve latest prior collector manifest for deduplication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/experiment68-previous
+          ARTIFACT_ID=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '[.artifacts[] | select(.name == "experiment68-forecast-collector-review" and .expired == false and .workflow_run.head_branch == "research/prospective-100")] | sort_by(.created_at) | last | .id')
+          if [[ -n "$ARTIFACT_ID" && "$ARTIFACT_ID" != "null" ]]; then
+            gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/previous-artifact.zip
+            unzip -p /tmp/previous-artifact.zip manifest.json > /tmp/experiment68-previous/manifest.json
+          fi
+      - name: Discover and capture all eligible new paper forecasts
+        run: python scripts/experiment68_forecast_collector.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment68-forecast-collector-review
+          path: |
+            /tmp/experiment68/
+            /tmp/experiment62/
+          retention-days: 90
+          if-no-files-found: warn
