@@ -27,6 +27,15 @@ def validate(rows,anchor):
             raise ValueError("upstream witness changed")
         previous=e["entry_sha256"]
     return previous
+def rewrite_chain(entries):
+    """Change a forecast and recompute every dependent hash, simulating a rewrite."""
+    entries[0]["forecast_record_sha256"]="f"*64
+    previous="0"*64
+    for entry in entries:
+        entry["previous_entry_sha256"]=previous
+        entry["entry_sha256"]=digest({k:v for k,v in entry.items() if k!="entry_sha256"})
+        previous=entry["entry_sha256"]
+
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
     report={"experiment":44,"status":"BLOCKED_PENDING","challenge_eligible":0,
@@ -49,7 +58,7 @@ def main():
             ("altered_forecast_hash",lambda a:a[0].__setitem__("forecast_record_sha256","0"*64)),
             ("deleted_entry",lambda a:a.pop()),
             ("duplicated_entry",lambda a:a.append(copy.deepcopy(a[-1]))),
-            ("rewritten_chain",lambda a:[x.__setitem__("entry_sha256",digest({k:v for k,v in x.items() if k!="entry_sha256"})) for x in a]),
+            ("rewritten_chain",rewrite_chain),
             ("reordered_entries",lambda a:a.reverse())):
             modified=copy.deepcopy(rows)
             mutate(modified)
