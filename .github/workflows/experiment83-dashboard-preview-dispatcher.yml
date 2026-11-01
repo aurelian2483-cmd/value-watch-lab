@@ -1,0 +1,10 @@
+name: Experiment 83 dashboard preview dispatcher
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment83-dashboard-preview.yml@research/prospective-100
+    permissions:
+      contents: read
