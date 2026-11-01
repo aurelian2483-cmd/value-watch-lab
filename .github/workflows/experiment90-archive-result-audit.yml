@@ -18,10 +18,27 @@ jobs:
           python-version: '3.12'
       - name: Verify final scores independently and calculate paper-only metrics
         run: python scripts/experiment90_archive_result_scoring.py
+      - name: Write audit summary
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path('/tmp/experiment90/report.json')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write('## Archived forecast result audit\\n\\n')
+              if not p.exists():
+                  out.write('No report was produced. Check the scoring step logs.\\n')
+              else:
+                  d=json.loads(p.read_text())
+                  out.write(f"Status: **{d.get('status','UNKNOWN')}**\\n\\n")
+                  out.write(f"Verified scores: **{len(d.get('scored',[]))}** · Pending: **{len(d.get('pending',[]))}** · Errors: **{len(d.get('errors',[]))}**\\n\\n")
+                  out.write('Research-only; model UNVALIDATED; publication BLOCKED; official challenge 0/100.\\n')
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: experiment90-archive-result-audit
+          name: experiment90-archive-result-audit-${{ github.run_id }}
           path: /tmp/experiment90/report.json
           retention-days: 90
           if-no-files-found: warn
