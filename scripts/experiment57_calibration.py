@@ -41,7 +41,7 @@ def main():
   reconstructed=[[r[0].isoformat(),r[1],r[2],r[3],r[4],w]
    for group,w in ((prior,0.5),(current,1.0)) for r in group]
   if reconstructed!=rows:raise ValueError("training rows do not match archived source bytes")
-  tests=[];train_group_counts=[]
+  tests=[];excluded=[];train_group_counts=[]
   for day in sorted({r[0] for r in current}):
    historical=[r for r in current if r[0]<day]
    train=[(*r,0.5) for r in prior]+[(*r,1.0) for r in historical]
@@ -53,14 +53,16 @@ def main():
    train_group_counts.append({"evaluation_day":day.isoformat(),"prior_train":len(prior),"current_train":len(historical)})
    for r in current:
     if r[0]!=day:continue
-    if r[1] not in model[0] or r[2] not in model[0]:raise ValueError("unseen team in evaluation")
+    if r[1] not in model[0] or r[2] not in model[0]:
+     excluded.append({"date":day.isoformat(),"home":r[1],"away":r[2],"reason":"team absent from strictly earlier training records"})
+     continue
     p=predict(r[1],r[2],model)
     if len(p)!=3 or not all(0<v<1 for v in p) or abs(sum(p)-1)>1e-8:raise ValueError("invalid probability")
     tests.append({"date":day.isoformat(),"home":r[1],"away":r[2],
      "outcome_index":outcome(r),"model_probabilities":p,"baseline_probabilities":base,
      "earlier_current_training_rows":len(historical),
      "training_excluded_same_day":True,"first_availability_verified":False})
-  if len(tests)!=len(current):raise ValueError("not every held out result scored")
+  if len(tests)+len(excluded)!=len(current) or len(tests)<30:raise ValueError("insufficient eligible held-out results")
   model_metrics=metrics(tests,"model_probabilities")
   base_metrics=metrics(tests,"baseline_probabilities")
   bins=[]
@@ -72,7 +74,7 @@ def main():
   (OUT/"retrospective-predictions.json").write_text(json.dumps(tests,indent=2)+"\n")
   report.update(status="RETROSPECTIVE_CHRONOLOGICAL_SCORING_REVIEW_ONLY",
    input_sha256=expected,training_rows_sha256=manifest["training_rows_sha256"],
-   evaluation_count=len(tests),date_groups=len(train_group_counts),
+   evaluation_count=len(tests),excluded_cold_start_count=len(excluded),excluded_cold_start_matches=excluded,date_groups=len(train_group_counts),
    first_evaluation_day=min(x["date"] for x in tests),
    last_evaluation_day=max(x["date"] for x in tests),
    model_metrics=model_metrics,baseline_metrics=base_metrics,
@@ -83,7 +85,7 @@ def main():
    historical_source_first_availability_verified=False,model_calibration_validated=False,
    prospective_performance_validated=False,profitability_validated=False,
    limitations=["Retrospective as-of source availability cannot be independently verified",
-     "Only 80 current-season results, insufficient for reliable fine-grained calibration",
+     "At most 80 current-season results, with cold-start fixtures excluded; insufficient for reliable fine-grained calibration",
      "No market odds or profit validation",
      "No prospective challenge records or publication eligibility"])
  except Exception as e:report.update(status="BLOCKED_AUDIT_ERROR",error=str(e))
