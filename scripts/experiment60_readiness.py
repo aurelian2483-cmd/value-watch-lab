@@ -67,7 +67,7 @@ def main():
    gate("Positive EV evidence against a reliable market baseline",False,
     "Experiment 59 market benchmark was not beaten in point estimates; independently defensible positive EV absent",{}),
    gate("No data contamination from training/post-event updates",False,
-    "Frozen dataset replay is reproducible, but historical first-availability proof is missing",{})]
+    "Frozen dataset replay is reproducible, but historical first-availability proof is missing",{})
   ]
   blockers=[g["gate"] for g in gates if not g["passed"]]
   report.update(status="READINESS_AUDIT_COMPLETE_GATES_BLOCKED",gates=gates,
