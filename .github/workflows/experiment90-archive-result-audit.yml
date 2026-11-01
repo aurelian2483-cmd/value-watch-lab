@@ -3,7 +3,10 @@ on:
   workflow_call:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: research-results-ledger-v1
+  cancel-in-progress: false
 jobs:
   audit:
     runs-on: ubuntu-24.04
@@ -12,12 +15,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: research/prospective-100
-          persist-credentials: false
+          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Verify final scores independently and calculate paper-only metrics
         run: python scripts/experiment90_archive_result_scoring.py
+      - name: Validate and update persistent research ledger
+        run: python scripts/experiment92_results_ledger.py /tmp/experiment90/report.json
+      - name: Commit verified research results only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- research/results-ledger/v1/verified-results.json
+          if git diff --cached --quiet; then
+            echo "No new independently verified results"
+          else
+            git commit -m "Experiment 92: append independently verified research results"
+            git push origin HEAD:research/prospective-100
+          fi
       - name: Write audit summary
         if: always()
         shell: bash
