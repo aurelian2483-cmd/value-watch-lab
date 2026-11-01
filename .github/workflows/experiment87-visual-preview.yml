@@ -1,0 +1,29 @@
+name: Experiment 87 visual preview
+on:
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/prospective-100
+          persist-credentials: false
+      - name: Validate preview snapshot safety
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          d=json.loads(pathlib.Path('research/dashboard/experiment87/dashboard-data.json').read_text())
+          assert d['research_only'] is True and d['model_validation']=='UNVALIDATED' and d['publication_gate']=='BLOCKED'
+          assert d['official_challenge']['completed']==0 and d['preview_only'] is True
+          assert len(d['paper_forecasts'])==1 and not d['completed_results']
+          print('EXPERIMENT87_PREVIEW_SAFETY_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: experiment87-visual-preview
+          path: research/dashboard/experiment87/
+          retention-days: 30
