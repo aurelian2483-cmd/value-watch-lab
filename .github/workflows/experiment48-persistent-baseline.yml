@@ -1,0 +1,33 @@
+name: Experiment 48 guarded persistent baseline creation
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: experiment48-persistent-ledger
+  cancel-in-progress: false
+jobs:
+  create-baseline:
+    if: github.ref == 'refs/heads/research/prospective-100'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Verify baseline and create once, never overwrite
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/experiment48_persistent_baseline.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment48-persistent-baseline-review
+          path: /tmp/experiment48/
+          retention-days: 90
+          if-no-files-found: warn
