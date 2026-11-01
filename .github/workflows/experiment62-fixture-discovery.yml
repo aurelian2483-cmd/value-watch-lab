@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Discover and cross-check fixtures with corrected aliases
+      - name: Discover and cross-check fixtures with per-day ESPN queries
         run: python scripts/experiment62_fixture_discovery.py
       - uses: actions/upload-artifact@v4
         if: always()
