@@ -1,0 +1,43 @@
+name: Experiment 59 closing-odds market benchmark
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment59-market-benchmark.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download frozen Experiment 55 dataset and Experiment 57 predictions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for SPEC in 'experiment55-input-snapshot-review:experiment55-downloaded' 'experiment57-calibration-review:experiment57-downloaded'; do
+            NAME="${SPEC%%:*}"
+            TARGET="${SPEC#*:}"
+            RUN_ID=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq "[.artifacts[] | select(.name == \"${NAME}\" and .expired == false and .workflow_run.head_branch == \"research/prospective-100\")] | sort_by(.created_at) | last | .workflow_run.id")
+            test -n "$RUN_ID"
+            test "$RUN_ID" != "null"
+            mkdir -p "/tmp/$TARGET"
+            gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$NAME" --dir "/tmp/$TARGET"
+          done
+      - name: Compare market probabilities after margin removal
+        run: python scripts/experiment59_market_benchmark.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment59-market-benchmark-review
+          path: /tmp/experiment59/
+          retention-days: 90
+          if-no-files-found: warn
