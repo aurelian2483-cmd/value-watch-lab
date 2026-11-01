@@ -1,0 +1,29 @@
+name: Experiment 54 pre-kickoff source availability audit
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment54-source-availability.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Classify source availability evidence
+        run: python scripts/experiment54_source_availability.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment54-source-availability-review
+          path: /tmp/experiment54/
+          retention-days: 90
+          if-no-files-found: warn
