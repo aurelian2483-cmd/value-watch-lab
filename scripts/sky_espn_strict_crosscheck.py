@@ -17,7 +17,13 @@ def get_espn(day):
  url="https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates="+day.strftime("%Y%m%d")+"&limit=100"
  req=urllib.request.Request(url,headers={"User-Agent":"ValueWatchResearch/1.0"})
  with urllib.request.urlopen(req,timeout=25) as response:return response.read(3000000)
-from experiment33_sky_source_probe import fetch,URL
+import urllib.request
+URL="https://www.skysports.com/premier-league-scores-fixtures/2026-11-01"
+def fetch():
+ req=urllib.request.Request(URL,headers={"User-Agent":"Mozilla/5.0 (compatible; ValueWatchResearch/1.0)","Accept":"text/html"})
+ with urllib.request.urlopen(req,timeout=30) as response:
+  if "skysports.com" not in response.geturl().split("/")[2]:raise ValueError("unexpected redirect")
+  return response.read(5000000)
 
 class Sky(HTMLParser):
  def __init__(self):
