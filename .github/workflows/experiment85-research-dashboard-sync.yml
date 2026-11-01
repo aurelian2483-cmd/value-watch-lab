@@ -1,0 +1,56 @@
+name: Experiment 85 research dashboard sync
+on:
+  schedule:
+    - cron: '20 8 * * *'
+    - cron: '20 18 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: research-dashboard-sync
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/prospective-100
+          persist-credentials: false
+          path: research-source
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Independently cross-check fixture schedule
+        run: python research-source/scripts/experiment80_fixture_verification.py
+      - name: Generate research-only feed
+        run: python research-source/scripts/experiment82_dashboard_feed.py
+      - name: Validate safety and freshness
+        run: python research-source/scripts/experiment85_validate_feed.py /tmp/experiment82/dashboard-data.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: experiment85-validated-research-feed
+          path: /tmp/experiment82/dashboard-data.json
+          retention-days: 30
+      - name: Checkout website
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: website
+          persist-credentials: true
+      - name: Publish only validated research JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/experiment82/dashboard-data.json website/research-dashboard-data.json
+          cd website
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- research-dashboard-data.json
+          if git diff --cached --quiet; then
+            echo "No data changes"
+          else
+            git commit -m "Experiment 85: refresh research-only dashboard snapshot"
+            git push origin HEAD:main
+          fi
