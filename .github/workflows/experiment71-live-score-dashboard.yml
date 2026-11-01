@@ -32,8 +32,8 @@ jobs:
           artifacts=[]
           for page in pages:
            for a in page.get("artifacts",[]):
-            if a.get("name") not in ("experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review"):continue
-            if a.get("expired") or a.get("workflow_run",{}).get("head_branch")!="research/prospective-100":continue
+            if a.get("name") not in ("experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review","experiment69-deduplicated-collector-review"):continue
+            if a.get("expired") or a.get("workflow_run",{}).get("head_branch") not in ("research/prospective-100","main"):continue
             artifacts.append({"id":a["id"],"name":a["name"]})
           if not any(a["name"]=="experiment63-new-fixture-forecast-review" for a in artifacts):
            raise SystemExit("Original Experiment 63 artifact unavailable")
