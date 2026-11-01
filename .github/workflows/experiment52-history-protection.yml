@@ -1,0 +1,34 @@
+name: Experiment 52 history protection and witness audit
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - '.github/workflows/experiment52-history-protection.yml'
+      - 'scripts/experiment52_history_protection.py'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/research/prospective-100'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-smoke.txt
+      - name: Read-only protection audit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/experiment52_history_protection.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment52-history-protection-review
+          path: /tmp/experiment52/
+          retention-days: 90
+          if-no-files-found: warn
