@@ -47,7 +47,7 @@ def main():
    train=[(*r,0.5) for r in prior]+[(*r,1.0) for r in historical]
    if len(train)<100:raise ValueError("insufficient training")
    model=fit(train,2.0)
-   raw_counts=[sum((0.5 if r in prior else 1.0) for r in train if outcome(r)==i) for i in range(3)]
+   raw_counts=[sum(r[5] for r in train if outcome(r)==i) for i in range(3)]
    # Weighted prior frequency baseline from training only, not future results.
    base=[x/sum(raw_counts) for x in raw_counts]
    train_group_counts.append({"evaluation_day":day.isoformat(),"prior_train":len(prior),"current_train":len(historical)})
