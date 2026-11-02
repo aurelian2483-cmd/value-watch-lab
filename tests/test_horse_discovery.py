@@ -13,7 +13,7 @@ class DiscoveryTests(unittest.TestCase):
   return ('<script id="__NEXT_DATA__">'+json.dumps({'props':{'pageProps':{'hasError':False,'meetings':[meeting]}}})+'</script>').encode()
  def test_source_observation_does_not_become_a_prediction(self):
   r=discover(self.page(),dt.datetime(2026,11,2,tzinfo=dt.timezone.utc))
-  self.assertEqual(len(r['races']),1);self.assertFalse(r['coverage_verified']);self.assertEqual(r['qualified_selections'],[])
+  self.assertEqual(len(r['races']),1);self.assertFalse(r['coverage_verified']);self.assertIn('/racecard/123/',r['races'][0]['source']);self.assertEqual(r['races'][0]['source_link_type'],'CONSTRUCTED_REQUIRES_IDENTITY_VALIDATION');self.assertEqual(r['qualified_selections'],[])
   self.assertEqual(r['races'][0]['runners'],[]);self.assertIsNone(r['races'][0]['prediction'])
  def test_stale_duplicate_or_generic_source_rejected(self):
   now=dt.datetime(2026,11,2,tzinfo=dt.timezone.utc)
