@@ -95,7 +95,7 @@ def main():
   outputs.append({"home":fixture["home"],"away":fixture["away"],"kickoff_utc":fixture["kickoff_utc"],"prob_home":probs[0],"prob_draw":probs[1],"prob_away":probs[2],"model":model,"training_basis":basis,"research_only":True,"model_validation":"UNVALIDATED","publication_gate":"BLOCKED","challenge_eligible":0,"odds":None,"expected_value":None})
  data["experimental_model_forecasts"]=outputs
  data["experimental_model_unavailable"]=unavailable
- data["experimental_model_audit"]={"model":"POISSON_BASELINE_2025_26_V1","training_source":SOURCE,"training_matches":matches,"forecast_count":len(outputs),"fallback_audit":fallback_audit,"fallback_source_error":fallback_error,"fallback_forecast_count":sum(x["model"]=="POISSON_CURRENT_SEASON_SHRINKAGE_V1" for x in outputs),"limitation":"Uncalibrated prior-season baseline plus separately labelled small-sample current-season fallback; not archived or independently attested"}
+ data["experimental_model_audit"]={"model":"POISSON_BASELINE_2025_26_V1","training_source":SOURCE,"training_matches":matches,"training_sha256":hashlib.sha256(raw).hexdigest(),"forecast_count":len(outputs),"fallback_audit":fallback_audit,"fallback_source_error":fallback_error,"fallback_forecast_count":sum(x["model"]=="POISSON_CURRENT_SEASON_SHRINKAGE_V1" for x in outputs),"limitation":"Uncalibrated prior-season baseline plus separately labelled small-sample current-season fallback; not archived or independently attested"}
  FEED.write_text(json.dumps(data,indent=2)+"\n")
  print(json.dumps(data["experimental_model_audit"]))
 if __name__=="__main__":main()

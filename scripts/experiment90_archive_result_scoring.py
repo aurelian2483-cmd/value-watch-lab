@@ -21,7 +21,11 @@ def main():
  report={"experiment":90,"status":"READ_ONLY_AUDIT","publication_gate":"BLOCKED",
   "model_validation":"UNVALIDATED","challenge_eligible":0,"official_challenge":"0/100",
   "scored":[],"pending":[],"errors":[],"persistent_ledger_modified":False}
- for path in sorted((ROOT/"research/forecast-archive/v1").glob("*.json")):
+ ledger_path=ROOT/"research/results-ledger/v1/verified-results.json"
+ ledger=json.loads(ledger_path.read_text()) if ledger_path.exists() else {"entries":[]}
+ already_scored={entry["record_sha256"] for entry in ledger["entries"]}
+ paths=sorted((ROOT/"research/forecast-archive/v1").glob("*.json"))+sorted((ROOT/"research/forecast-archive/v2").glob("*.json"))
+ for path in paths:
   try:
    f=json.loads(path.read_text());unsigned=dict(f);digest=unsigned.pop("record_sha256")
    if digest!=path.stem or sha(canon(unsigned))!=digest:raise ValueError("Archive SHA mismatch")
@@ -29,12 +33,14 @@ def main():
    kickoff=dt.datetime.fromisoformat(f["kickoff_utc"].replace("Z","+00:00"))
    created=dt.datetime.fromisoformat(f["generated_at_utc"].replace("Z","+00:00"))
    if kickoff.tzinfo is None or created.tzinfo is None or created>=kickoff:raise ValueError("Not a valid pre-event record")
-   fixture={"home":f["home"],"away":f["away"],"kickoff_utc":f["kickoff_utc"],"record_sha256":digest}
+   if digest in already_scored:continue
+   fixture={"model":f.get("model","LEGACY_ARCHIVE"),"home":f["home"],"away":f["away"],"kickoff_utc":f["kickoff_utc"],"record_sha256":digest}
    if now<kickoff+dt.timedelta(hours=3):
     report["pending"].append({**fixture,"reason":"WAITING_FOR_KICKOFF_PLUS_3_HOURS"});continue
    day=kickoff.strftime("%Y%m%d")
    espn_url="https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?"+urllib.parse.urlencode({"dates":day,"limit":100})
-   csv_url="https://www.football-data.co.uk/mmz4281/2627/E0.csv"
+   year=kickoff.year if kickoff.month>=7 else kickoff.year-1
+   csv_url=f"https://www.football-data.co.uk/mmz4281/{year%100:02d}{(year+1)%100:02d}/E0.csv"
    er,ereceipt=fetch(espn_url);cr,creceipt=fetch(csv_url)
    matches=[]
    for event in json.loads(er).get("events",[]):
@@ -79,3 +85,4 @@ def main():
  print(json.dumps({"status":report["status"],"scored":len(report["scored"]),"pending":len(report["pending"]),"errors":len(report["errors"])}))
  if report["errors"]:raise SystemExit(1)
 if __name__=="__main__":main()
+

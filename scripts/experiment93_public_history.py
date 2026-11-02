@@ -28,6 +28,15 @@ payload={**required,"generated_at_utc":dt.datetime.now(dt.timezone.utc).isoforma
  "mean_multiclass_brier_score":sum(x["multiclass_brier_score"] for x in rows)/len(rows) if rows else None,
  "mean_log_loss":sum(x["log_loss"] for x in rows)/len(rows) if rows else None,
  "entries":rows}
+groups={}
+for entry in rows:
+ groups.setdefault(entry.get("model","LEGACY_ARCHIVE"),[]).append(entry)
+payload["unique_fixture_count"]=len({(e["home"],e["away"],e["kickoff_utc"]) for e in rows})
+payload["model_metrics"]={name:{"scored_forecasts":len(entries),
+ "mean_multiclass_brier_score":sum(e["multiclass_brier_score"] for e in entries)/len(entries),
+ "mean_log_loss":sum(e["log_loss"] for e in entries)/len(entries),
+ "status":"DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION"} for name,entries in groups.items()}
 out.parent.mkdir(parents=True,exist_ok=True)
 out.write_text(json.dumps(payload,indent=2)+"\n")
 print(json.dumps({"status":"RESEARCH_HISTORY_VALIDATED","sample_size":len(rows)}))
+

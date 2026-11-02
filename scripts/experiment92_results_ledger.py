@@ -34,6 +34,7 @@ def main():
   digest=s.get("record_sha256")
   if not isinstance(digest,str) or len(digest)!=64 or any(c not in "0123456789abcdef" for c in digest):fail("Invalid forecast digest")
   entry={k:s[k] for k in ("record_sha256","home","away","kickoff_utc","score_home","score_away","actual_outcome","multiclass_brier_score","log_loss")}
+  if "model" in s:entry["model"]=s["model"]
   entry["source_receipts"]=receipts
   entry["challenge_eligible"]=0
   entry["publication_gate"]="BLOCKED"
@@ -47,3 +48,4 @@ def main():
  summary={"experiment":92,"status":"LEDGER_VALIDATED","new_entries":added,"total_entries":len(by_id),"pending_forecasts":len(report.get("pending",[])),"official_challenge":"0/100","publication_gate":"BLOCKED"}
  print(json.dumps(summary))
 if __name__=="__main__":main()
+
