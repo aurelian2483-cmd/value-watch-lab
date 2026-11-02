@@ -3,6 +3,8 @@
 No account creation, subscriptions, odds requests, or credentials in outputs.
 """
 import base64
+import email.utils
+import math
 import datetime as dt
 import hashlib
 import json
@@ -55,21 +57,38 @@ class Client:
   self.pause=pause;self.last=None
  def get(self,path,query):
   if path not in ('/v1/racecards/free','/v1/results/today/free'):raise ValueError('Unapproved endpoint')
-  if self.last is not None:self.pause(max(0,1.05-(time.monotonic()-self.last)))
   url=BASE+path+'?'+urllib.parse.urlencode(query,doseq=True)
   req=urllib.request.Request(url,headers={'Authorization':self.authorization,'Accept':'application/json','User-Agent':'ValueWatchResearch/1.0'})
-  try:
-   self.last=time.monotonic()
-   with self.opener.open(req,timeout=30) as response:
-    if response.status!=200:raise ValueError('Provider HTTP failure')
-    if urllib.parse.urlsplit(response.geturl()).netloc!='api.theracingapi.com':raise ValueError('Unexpected provider host')
-    raw=response.read(3000001)
-  except urllib.error.HTTPError as exc:raise ValueError('Provider HTTP '+str(exc.code)) from None
-  except urllib.error.URLError:raise ValueError('Provider network unavailable') from None
+  retries=0
+  for attempt in range(3):
+   if self.last is not None:self.pause(max(0,2.1-(time.monotonic()-self.last)))
+   try:
+    self.last=time.monotonic()
+    with self.opener.open(req,timeout=30) as response:
+     if response.status!=200:raise ValueError('Provider HTTP failure')
+     if urllib.parse.urlsplit(response.geturl()).netloc!='api.theracingapi.com':raise ValueError('Unexpected provider host')
+     raw=response.read(3000001)
+    self.last=time.monotonic()
+    break
+   except urllib.error.HTTPError as exc:
+    self.last=time.monotonic()
+    if exc.code!=429 or attempt==2:raise ValueError('Provider HTTP '+str(exc.code)) from None
+    header=exc.headers.get('Retry-After') if exc.headers else None
+    delay=5*(2**attempt)
+    if header:
+     try:requested=float(header)
+     except ValueError:
+      try:requested=(email.utils.parsedate_to_datetime(header)-dt.datetime.now(dt.timezone.utc)).total_seconds()
+      except (TypeError,ValueError,OverflowError):raise ValueError('Provider rate limit; invalid Retry-After') from None
+     if not math.isfinite(requested):raise ValueError('Provider rate limit; invalid Retry-After') from None
+     delay=max(delay,requested)
+    if delay>60:raise ValueError('Provider rate limit; requested wait exceeds this run retry window') from None
+    self.pause(delay);retries+=1
+   except urllib.error.URLError:raise ValueError('Provider network unavailable') from None
   if not raw or len(raw)>3000000:raise ValueError('Provider response missing or oversized')
   payload=json.loads(raw)
   if not isinstance(payload,dict):raise ValueError('Provider object response required')
-  receipt={'url':url,'sha256':hashlib.sha256(raw).hexdigest(),'observed_at_utc':dt.datetime.now(dt.timezone.utc).isoformat()}
+  receipt={'url':url,'sha256':hashlib.sha256(raw).hexdigest(),'observed_at_utc':dt.datetime.now(dt.timezone.utc).isoformat(),'rate_limit_retries':retries}
   return payload,receipt,raw
  def pages(self,path,key,query):
   rows=[];receipts=[];skip=0
