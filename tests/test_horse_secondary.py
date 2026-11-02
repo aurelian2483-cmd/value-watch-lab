@@ -6,6 +6,9 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import io
+import urllib.error
+import email.utils
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE.parent/'scripts') if HERE.name=='tests' else str(HERE))
@@ -49,6 +52,40 @@ class SecondaryTests(unittest.TestCase):
   self.assertEqual(len(s.cache_results([row],path)),2)
   p=next(path.glob('*.json'));d=json.loads(p.read_text());d['row']['course']='Changed';p.write_text(json.dumps(d))
   with self.assertRaises(ValueError):s.cache_results([],path)
+ def test_rate_limit_retry_honours_header(self):
+  class Response(io.BytesIO):
+   status=200
+   def geturl(inner):return 'https://api.theracingapi.com/v1/racecards/free'
+  class Opener:
+   calls=0
+   def open(inner,req,timeout):
+    inner.calls+=1
+    if inner.calls==1:raise urllib.error.HTTPError(req.full_url,429,'rate limit',{'Retry-After':'7'},None)
+    return Response(b'{"racecards":[],"total":0,"skip":0}')
+  waits=[];opener=Opener();client=s.Client('private-test-user','private-test-password',opener=opener,pause=waits.append)
+  data,receipt,raw=client.get('/v1/racecards/free',{})
+  self.assertEqual(opener.calls,2);self.assertIn(7,waits);self.assertEqual(receipt['rate_limit_retries'],1)
+  self.assertNotIn('private-test',json.dumps(receipt))
+ def test_rate_retries_bounded_and_auth_not_retried(self):
+  class Opener:
+   def __init__(inner,code,header='0'):inner.code=code;inner.calls=0;inner.header=header
+   def open(inner,req,timeout):
+    inner.calls+=1
+    raise urllib.error.HTTPError(req.full_url,inner.code,'blocked',{'Retry-After':inner.header},None)
+  for code,header,expected in [(429,'0',3),(401,'0',1),(403,'0',1),(429,'120',1)]:
+   opener=Opener(code,header);waits=[];client=s.Client('u','p',opener=opener,pause=waits.append)
+   with self.assertRaises(ValueError):client.get('/v1/results/today/free',{})
+   self.assertEqual(opener.calls,expected);self.assertTrue(all(w<=60 for w in waits))
+ def test_retry_after_http_date(self):
+  header=email.utils.format_datetime(dt.datetime.now(dt.timezone.utc)+dt.timedelta(seconds=10),usegmt=True)
+  class Opener:
+   calls=0
+   def open(inner,req,timeout):
+    inner.calls+=1
+    raise urllib.error.HTTPError(req.full_url,429,'rate limit',{'Retry-After':header},None)
+  waits=[];client=s.Client('u','p',opener=Opener(),pause=waits.append)
+  with self.assertRaises(ValueError):client.get('/v1/results/today/free',{})
+  self.assertTrue(any(w>=8 for w in waits))
  def test_only_free_endpoints_are_permitted(self):
   client=s.Client('fake-user','fake-password',opener=object())
   with self.assertRaises(ValueError):client.get('/v1/results',{})
