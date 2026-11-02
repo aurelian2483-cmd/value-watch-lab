@@ -53,4 +53,19 @@ class FormModelTests(unittest.TestCase):
  def test_archive_tampering_fails(self):
   self.archive();p=next((self.root/'archive').glob('*.json'));d=json.loads(p.read_text());d['runners'][0]['model_probability']=.99;p.write_text(json.dumps(d))
   with self.assertRaises(ValueError):self.archive()
+ def test_return_to_previous_form_preserves_latest_revision(self):
+  original=copy.deepcopy(self.data);_,records,_=self.archive()
+  self.race['runners'][0]['previous_results'][0]['position']=2
+  _,records,_=m.archive_forecasts(self.data,self.now+dt.timedelta(minutes=1),self.root/'archive')
+  current,records,a=m.archive_forecasts(original,self.now+dt.timedelta(minutes=2),self.root/'archive')
+  self.assertEqual(a['new_archived_records'],1);self.assertEqual(len(records),3)
+  self.assertEqual(current[0]['generated_at_utc'],(self.now+dt.timedelta(minutes=2)).isoformat())
+  _,records,a=m.archive_forecasts(original,self.now+dt.timedelta(minutes=3),self.root/'archive')
+  self.assertEqual(a['new_archived_records'],0)
+ def test_result_identity_and_source_tampering_are_rejected(self):
+  _,records,_=self.archive();path=self.root/'results.json';now=self.now+dt.timedelta(hours=2)
+  m.score_provisional(records,now,path,fetch=lambda r:self.raw_result());original=path.read_text()
+  for field,value in [('race_id','other'),('model','other'),('source_receipt',{'url':'https://other.invalid','sha256':'a'*64})]:
+   data=json.loads(original);data['entries'][0][field]=value;path.write_text(json.dumps(data))
+   with self.assertRaises(ValueError):m.score_provisional(records,now,path)
 if __name__=='__main__':unittest.main()

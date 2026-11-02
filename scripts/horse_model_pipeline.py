@@ -95,13 +95,17 @@ def signature(record):
 
 def archive_forecasts(data,now,directory):
  check_feed(data,now);existing=[validate_record(json.loads(p.read_text()),p) for p in sorted(directory.glob('*.json'))]
- known={signature(r):r for r in existing};seen=set();current=[];skipped=[];new=[]
+ latest={}
+ for r in existing:
+  key=(r['model'],r['race_id'],r['startUTC'])
+  if key not in latest or stamp(r['generated_at_utc'])>stamp(latest[key]['generated_at_utc']):latest[key]=r
+ seen=set();current=[];skipped=[];new=[]
  for race in data['races']:
   if race['race_id'] in seen:raise ValueError('Duplicate source race')
   seen.add(race['race_id']);record,reason=forecast(race,now)
   if reason:skipped.append({'race_id':race['race_id'],'reason':reason});continue
-  key=signature(record)
-  if key in known:current.append(known[key]);continue
+  previous=latest.get((record['model'],record['race_id'],record['startUTC']))
+  if previous and signature(record)==signature(previous):current.append(previous);continue
   earlier=[r for r in existing if r['race_id']==record['race_id'] and r['startUTC']==record['startUTC']]
   record['revision_of']=max(earlier,key=lambda x:stamp(x['generated_at_utc']))['record_sha256'] if earlier else None
   record['record_sha256']=sha(record);validate_record(record);new.append(record);current.append(record)
@@ -152,6 +156,9 @@ def score_provisional(records,now,ledger_path,fetch=fetch_final):
   if entry.get('verification')!='SINGLE_SOURCE_PROVISIONAL' or entry.get('independently_verified') is not False or entry.get('publication_gate')!='BLOCKED' or entry.get('challenge_eligible')!=0:raise ValueError('Unsafe provisional result')
   record=frozen.get(entry['record_sha256'])
   if record is None:raise ValueError('Provisional result has no archived forecast')
+  if any(entry.get(k)!=record[k] for k in ('race_id','racecourse','startUTC','model')):raise ValueError('Provisional result identity mismatch')
+  receipt=entry.get('source_receipt',{});url=urllib.parse.urlsplit(receipt.get('url',''))
+  if receipt.get('url')!=record['source'] or url.scheme!='https' or url.hostname!='www.sportinglife.com' or len(receipt.get('sha256',''))!=64 or any(c not in '0123456789abcdef' for c in receipt.get('sha256','')):raise ValueError('Invalid provisional source receipt')
   probability=next((x['model_probability'] for x in record['runners'] if x['horse_id']==entry['winner_horse_id']),None)
   if probability is None:raise ValueError('Winner not in frozen field')
   for metric in ('multiclass_brier_score','log_loss','equal_chance_brier_score','equal_chance_log_loss'):

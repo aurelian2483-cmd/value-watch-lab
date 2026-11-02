@@ -1,5 +1,8 @@
 name: Experiment 93 research dashboard sync
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/experiment85-research-dashboard-sync.yml']
   schedule:
     - cron: '20 8 * * *'
     - cron: '20 18 * * *'
@@ -7,7 +10,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: research-dashboard-sync
+  group: research-results-ledger-v1
   cancel-in-progress: false
 jobs:
   build:
@@ -55,6 +58,7 @@ jobs:
           if [ -d research/forecast-revisions ]; then git add -- research/forecast-revisions; fi
           if ! git diff --cached --quiet; then
             git commit -m "Archive prospective research forecasts and verified results"
+            git pull --rebase origin research/prospective-100
             git push origin HEAD:research/prospective-100
           fi
       - uses: actions/upload-artifact@v4
@@ -89,5 +93,6 @@ jobs:
             echo "No data changes"
           else
             git commit -m "Experiment 85: refresh research-only dashboard snapshot"
+            git pull --rebase origin main
             git push origin HEAD:main
           fi
