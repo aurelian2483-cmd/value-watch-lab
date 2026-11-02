@@ -1,0 +1,44 @@
+name: Horse racing experimental discovery
+on:
+  schedule:
+    - cron: '35 8 * * *'
+    - cron: '35 18 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: horse-research-discovery
+  cancel-in-progress: false
+jobs:
+  discovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test race discovery controls
+        run: python -m unittest discover -s tests -p 'test_horse_discovery.py'
+      - name: Collect single-source UK and Ireland race observations
+        run: python scripts/discover_horse_races.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: horse-research-discovery
+          path: /tmp/horse-research/
+          retention-days: 30
+      - name: Publish experimental observations only
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/horse-research/racing-research-data.json racing-research-data.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- racing-research-data.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh experimental racing discovery observations"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
