@@ -39,7 +39,7 @@ def build(data,now,archive=ARCHIVE):
   if not dt.timedelta(minutes=-5)<=now-stamp(race['runner_observed_at_utc'])<=dt.timedelta(minutes=30):
    skipped.append({'race_id':rid,'reason':'STALE_RUNNER_OBSERVATION'});continue
   runners=race['runners'];active=[r for r in runners if r['active_runner'] is True]
-  if any(r.get('runner_status') not in ('RUNNER','NONRUNNER') or r['active_runner']!=(r['runner_status']=='RUNNER') for r in runners):raise ValueError('Inconsistent runner statuses')
+  if any(r.get('runner_status') not in ('RUNNER','NONRUNNER','WITHDRAWN') or r['active_runner']!=(r['runner_status']=='RUNNER') for r in runners):raise ValueError('Inconsistent runner statuses')
   if len({r['horse_id'] for r in runners})!=len(runners) or len(active)!=race['active_runner_count']:raise ValueError('Invalid field identity/count')
   if len(active)<2:
    skipped.append({'race_id':rid,'reason':'FEWER_THAN_TWO_ACTIVE_RUNNERS'});continue

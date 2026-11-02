@@ -37,7 +37,7 @@ def parse_card(raw,race,observed):
   if not name or not horse_id or horse_id in seen:raise ValueError('Missing or duplicate horse identity')
   seen.add(horse_id)
   status=ride['ride_status']
-  if status not in ('RUNNER','NONRUNNER'):raise ValueError('Unknown runner status: '+str(status))
+  if status not in ('RUNNER','NONRUNNER','WITHDRAWN'):raise ValueError('Unknown runner status: '+str(status))
   histories=[];past_seen=set()
   for past in horse.get('previous_results',[]):
    try:
@@ -58,7 +58,7 @@ def parse_card(raw,race,observed):
  if type(summary.get('ride_count')) is not int or active!=summary['ride_count']:raise ValueError('Active runner count differs from racecard summary')
  pre_event=observed<kickoff and summary['race_stage'] in ('DORMANT','GOINGDOWN','ATTHEPOST')
  return {'runners':runners,'runner_data_status':'SINGLE_SOURCE_RUNNERS_OBSERVED',
-  'active_runner_count':active,'non_runner_count':len(runners)-active,
+  'active_runner_count':active,'non_runner_count':len(runners)-active,'withdrawn_count':sum(r['runner_status']=='WITHDRAWN' for r in runners),
   'runner_count_changed_since_discovery':active!=race['source_runner_count'],
   'race_stage':summary['race_stage'],'capture_phase':'PRE_EVENT' if pre_event else 'NOT_PRE_EVENT',
   'runner_observed_at_utc':observed.isoformat(),'runner_source':race['source'],

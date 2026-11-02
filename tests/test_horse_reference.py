@@ -21,6 +21,12 @@ class ReferenceTests(unittest.TestCase):
   r,a=build(self.data,self.now,self.archive);self.assertEqual(len(r[0]['runners']),3);self.assertAlmostEqual(sum(x['reference_probability'] for x in r[0]['runners']),1)
   self.assertTrue(r[0]['reference_only']);self.assertEqual(a['new_archived_records'],1)
   r,a=build(self.data,self.now,self.archive);self.assertEqual(a['new_archived_records'],0)
+ def test_withdrawn_horse_is_excluded_from_reference(self):
+  self.data['races'][0]['runners'][0].update(active_runner=False,runner_status='WITHDRAWN')
+  self.data['races'][0]['active_runner_count']=2;self.data['races'][0]['non_runner_count']=2
+  r,a=build(self.data,self.now,self.archive)
+  self.assertEqual(len(r[0]['runners']),2);self.assertNotIn('0',[x['horse_id'] for x in r[0]['runners']])
+  self.assertTrue(all(x['reference_probability']==.5 for x in r[0]['runners']))
  def test_changed_field_keeps_previous_record(self):
   r,a=build(self.data,self.now,self.archive);old=r[0]['record_sha256']
   self.data['races'][0]['runners'][0].update(active_runner=False,runner_status='NONRUNNER');self.data['races'][0]['active_runner_count']=2;self.data['races'][0]['non_runner_count']=2

@@ -21,6 +21,12 @@ class RunnerTests(unittest.TestCase):
   self.assertEqual((r['active_runner_count'],r['non_runner_count']),(1,1))
   self.assertEqual(len(r['runners'][0]['previous_results']),1);self.assertIsNone(r['runners'][0]['win_probability'])
   self.assertFalse(r['forecast_eligible']);self.assertEqual(r['capture_phase'],'PRE_EVENT')
+ def test_withdrawn_horse_is_retained_but_inactive(self):
+  withdrawn=copy.deepcopy(self.props['race']['rides'][0]);withdrawn['horse']['horse_reference']['id']=77;withdrawn['ride_status']='WITHDRAWN'
+  self.props['race']['rides'].append(withdrawn)
+  r=parse_card(self.raw(),self.race,self.now)
+  self.assertEqual(r['active_runner_count'],1);self.assertEqual(r['non_runner_count'],1);self.assertEqual(r['withdrawn_count'],1)
+  self.assertEqual(r['runners'][1]['runner_status'],'WITHDRAWN');self.assertFalse(r['runners'][1]['active_runner'])
  def test_mismatched_identity_time_and_counts_rejected(self):
   for field,value in [('course_name','Wrong course'),('time','18:00'),('ride_count',3)]:
    p=copy.deepcopy(self.props);p['race']['race_summary'][field]=value
