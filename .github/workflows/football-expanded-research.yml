@@ -1,0 +1,70 @@
+name: Expanded football leagues research
+on:
+  schedule:
+    - cron: '40 8 * * *'
+    - cron: '40 18 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: expanded-football-research
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/prospective-100
+          path: research-source
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test isolated league identities, models and scoring
+        run: python -m unittest discover -s research-source/tests -p 'test_expanded_football.py'
+      - name: Collect, cross-check, model, archive and score additional competitions
+        run: python -u research-source/scripts/expanded_football.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: football-expanded-research-feed
+          path: /tmp/football-expanded/*.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: football-expanded-source-snapshots
+          path: /tmp/football-expanded/source-snapshots/
+          retention-days: 30
+      - name: Persist expanded research records
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd research-source
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for directory in research/football-expanded-training research/football-expanded-archive research/football-expanded-results; do
+            if [ -d "$directory" ]; then git add -- "$directory"; fi
+          done
+          if ! git diff --cached --quiet; then
+            git commit -m "Archive expanded football research forecasts and verified scores"
+            git pull --rebase origin research/prospective-100
+            git push origin HEAD:research/prospective-100
+          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: website
+      - name: Publish additional league data
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/football-expanded/football-expanded-data.json website/football-expanded-data.json
+          cd website
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- football-expanded-data.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh expanded football research snapshot"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
