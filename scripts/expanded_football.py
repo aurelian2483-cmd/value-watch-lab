@@ -324,12 +324,25 @@ def score_results(records,fetcher,now,path):
  selected={r['record_sha256'] for r in latest.values()};entries=[e for e in old['entries'] if e['record_sha256'] in selected]
  groups={}
  for code in LEAGUES:
-  es=[e for e in entries if e['league']==code];n=len(es);groups[code]={'scored_races':n,'mean_brier_score':sum(e['multiclass_brier_score'] for e in es)/n if n else None,'mean_log_loss':sum(e['log_loss'] for e in es)/n if n else None,'status':'INSUFFICIENT_SAMPLE' if n<30 else 'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION'}
+  es=[e for e in entries if e['league']==code];n=len(es);groups[code]=comparison_summary(es)
   by_model={}
   for model in sorted({e['model'] for e in es}):
-   sample=[e for e in es if e['model']==model];by_model[model]={'scored_races':len(sample),'mean_brier_score':sum(e['multiclass_brier_score'] for e in sample)/len(sample),'mean_log_loss':sum(e['log_loss'] for e in sample)/len(sample)}
+   sample=[e for e in es if e['model']==model];by_model[model]=comparison_summary(sample)
   groups[code]['by_model']=by_model
- return {'entries':entries,'pending':pending,'by_league':groups,'selection_policy':'Latest archived forecast per league/home/away/kickoff; no revision inflates sample size.'}
+ future=[r for r in latest.values() if when(r['kickoff_utc'])>now]
+ waiting=[r for r in latest.values() if r['record_sha256'] not in by_id and when(r['kickoff_utc'])<=now<when(r['kickoff_utc'])+dt.timedelta(hours=3)]
+ due=[r for r in latest.values() if r['record_sha256'] not in by_id and now>=when(r['kickoff_utc'])+dt.timedelta(hours=3)]
+ reasons={}
+ for p in pending:reasons[p['reason']]=reasons.get(p['reason'],0)+1
+ cycle={'checked_at_utc':stamp(now),'archived_unique_fixtures':len(latest),'scored_matches':len(entries),'not_started':len(future),'awaiting_settlement_buffer':len(waiting),'due_unresolved':len(due),
+  'next_kickoff_utc':min((r['kickoff_utc'] for r in future),default=None),'next_result_check_eligible_utc':min((stamp(when(r['kickoff_utc'])+dt.timedelta(hours=3)) for r in latest.values() if r['record_sha256'] not in by_id),default=None),'pending_reasons':reasons,
+  'status':'VERIFIED_RESULTS_AVAILABLE' if entries else 'RESULT_CHECK_REQUIRED' if due else 'AWAITING_FINAL_RESULTS' if waiting else 'AWAITING_FIRST_KICKOFF' if future else 'NO_ARCHIVED_FORECASTS'}
+ return {'entries':entries,'pending':pending,'by_league':groups,'cycle_audit':cycle,'comparison_policy':'Same scored matches, model versus fixed 1/3 home/draw/away baseline. Lower scores are better; negative model-minus-baseline differences favour the model. This is a sanity benchmark, not a market or profitability comparison.','selection_policy':'Latest archived forecast per league/home/away/kickoff; no revision inflates sample size.'}
+
+def comparison_summary(entries):
+ n=len(entries);b=sum(e['multiclass_brier_score'] for e in entries)/n if n else None;l=sum(e['log_loss'] for e in entries)/n if n else None
+ return {'scored_races':n,'scored_matches':n,'mean_brier_score':b,'mean_log_loss':l,'uniform_mean_brier_score':2/3 if n else None,'uniform_mean_log_loss':math.log(3) if n else None,
+  'mean_brier_difference':b-2/3 if n else None,'mean_log_loss_difference':l-math.log(3) if n else None,'status':'INSUFFICIENT_SAMPLE' if n<30 else 'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION'}
 
 def main():
  OUT.mkdir(parents=True,exist_ok=True);now=dt.datetime.now(UTC);fetcher=Fetcher();league_audits={code:{'name':cfg['name'],'source_errors':[],'training_errors':[]} for code,cfg in LEAGUES.items()}

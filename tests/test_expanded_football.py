@@ -71,4 +71,28 @@ class ExpandedTests(unittest.TestCase):
   pending=m.score_results(all,Disagree(),self.now+dt.timedelta(days=1),self.root/'disagreement.json');self.assertEqual(pending['entries'],[])
   bad=json.loads((self.root/'results.json').read_text());bad['entries'][0]['source_receipts']=[];(self.root/'results.json').write_text(json.dumps(bad))
   with self.assertRaises(ValueError):m.score_results(all,Fetch(),self.now+dt.timedelta(days=1),self.root/'results.json')
+ def test_future_forecasts_never_request_results(self):
+  f=m.model_forecast(self.f,self.training);_,records,_=m.archive_forecasts([f],self.now,self.root/'archive')
+  class NoFetch:
+   def get(inner,url):raise AssertionError('Future results must not be requested')
+  perf=m.score_results(records,NoFetch(),self.now,self.root/'future.json')
+  self.assertEqual(perf['cycle_audit']['status'],'AWAITING_FIRST_KICKOFF')
+  self.assertEqual(perf['cycle_audit']['not_started'],1)
+  self.assertIsNone(perf['by_league']['E1']['mean_brier_difference'])
+  self.assertEqual(perf['cycle_audit']['next_result_check_eligible_utc'],'2026-11-02T23:00:00Z')
+ def test_baseline_comparison_and_revision_do_not_inflate_sample(self):
+  f=m.model_forecast(self.f,self.training);_,records,_=m.archive_forecasts([f],self.now,self.root/'archive')
+  revised=copy.deepcopy(f);revised['prob_home']=.5;revised['prob_draw']=.3;revised['prob_away']=.2
+  _,records,_=m.archive_forecasts([revised],self.now+dt.timedelta(minutes=1),self.root/'archive')
+  class Fetch:
+   def get(inner,url):
+    raw=self.espn() if 'espn.com' in url else b'Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,FTR\nE1,02/11/2026,20:00,Coventry,Hull,2,1,H\n'
+    return raw,{'url':url,'sha256':'a'*64}
+  perf=m.score_results(records,Fetch(),self.now+dt.timedelta(days=1),self.root/'revised.json')
+  stats=perf['by_league']['E1'];self.assertEqual(stats['scored_matches'],1)
+  self.assertAlmostEqual(stats['mean_brier_score'],.38)
+  self.assertAlmostEqual(stats['mean_brier_difference'],.38-2/3)
+  self.assertEqual(perf['entries'][0]['record_sha256'],records[-1]['record_sha256'])
+  self.assertEqual(perf['cycle_audit']['status'],'VERIFIED_RESULTS_AVAILABLE')
+  self.assertEqual(perf['cycle_audit']['due_unresolved'],0)
 if __name__=='__main__':unittest.main()
