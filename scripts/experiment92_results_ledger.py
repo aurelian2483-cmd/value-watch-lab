@@ -3,6 +3,7 @@
 Requires a successful Experiment 90 audit; never grants official challenge credit.
 """
 import datetime as dt,hashlib,json,math,pathlib,sys
+from football_result_integrity import load_archives,validate_result
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 LEDGER=ROOT/"research/results-ledger/v1/verified-results.json"
 AUDIT=pathlib.Path(sys.argv[1] if len(sys.argv)>1 else "/tmp/experiment90/report.json")
@@ -16,12 +17,15 @@ def main():
  if any(old.get(k)!=v for k,v in {"schema_version":1,"research_only":True,"model_validation":"UNVALIDATED","publication_gate":"BLOCKED","official_challenge":"0/100"}.items()):fail("Unsafe ledger header")
  if not isinstance(old.get("entries"),list):fail("Invalid ledger entries")
  by_id={}
+ frozen=load_archives(ROOT)
  for e in old["entries"]:
+  validate_result(e,frozen)
   key=e.get("record_sha256")
   if not isinstance(key,str) or key in by_id:fail("Invalid or duplicate ledger key")
   by_id[key]=e
  added=0
  for s in report.get("scored",[]):
+  validate_result(s,frozen)
   if s.get("challenge_eligible")!=0 or s.get("publication_gate")!="BLOCKED" or s.get("timestamp_independently_attested") is not False:fail("Unsafe scored record")
   if len(s.get("source_receipts",[]))!=2:fail("Missing independent receipts")
   receipts=s["source_receipts"]
@@ -48,4 +52,3 @@ def main():
  summary={"experiment":92,"status":"LEDGER_VALIDATED","new_entries":added,"total_entries":len(by_id),"pending_forecasts":len(report.get("pending",[])),"official_challenge":"0/100","publication_gate":"BLOCKED"}
  print(json.dumps(summary))
 if __name__=="__main__":main()
-

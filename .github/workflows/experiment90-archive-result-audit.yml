@@ -34,6 +34,7 @@ jobs:
             echo "No new independently verified results"
           else
             git commit -m "Experiment 92: append independently verified research results"
+            git pull --rebase origin research/prospective-100
             git push origin HEAD:research/prospective-100
           fi
       - name: Write audit summary

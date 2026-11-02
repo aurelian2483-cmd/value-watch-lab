@@ -38,6 +38,19 @@ class ExpandedTests(unittest.TestCase):
  def test_capture_requires_inputs_already_received(self):
   f=m.model_forecast(self.f,self.training);f['training_basis']['source_receipts']=[{'observed_at_utc':m.stamp(self.now+dt.timedelta(seconds=1))}]
   with self.assertRaises(ValueError):m.archive_forecasts([f],self.now,self.root/'future-input')
+ def test_return_to_previous_inputs_is_a_new_latest_revision(self):
+  a=m.model_forecast(self.f,self.training);b=copy.deepcopy(a);b.update(prob_home=.5,prob_draw=.3,prob_away=.2);path=self.root/'revert'
+  _,records,_=m.archive_forecasts([a],self.now,path)
+  changed,records,_=m.archive_forecasts([b],self.now+dt.timedelta(minutes=1),path)
+  current,records,n=m.archive_forecasts([a],self.now+dt.timedelta(minutes=2),path)
+  self.assertEqual(n,1);self.assertEqual(len(records),3)
+  self.assertEqual(current[0]['prob_home'],a['prob_home']);self.assertEqual(current[0]['revision_of'],changed[0]['record_sha256'])
+  current,records,n=m.archive_forecasts([a],self.now+dt.timedelta(minutes=3),path)
+  self.assertEqual(n,0);self.assertEqual(current[0]['generated_at_utc'],m.stamp(self.now+dt.timedelta(minutes=2)))
+ def test_duplicate_batch_does_not_partially_write_archive(self):
+  a=m.model_forecast(self.f,self.training);path=self.root/'duplicate'
+  with self.assertRaises(ValueError):m.archive_forecasts([a,a],self.now,path)
+  self.assertFalse(path.exists())
  def espn(self,detail='FT',league='eng.2'):
   return json.dumps({'leagues':[{'slug':league}],'events':[{'id':'1','date':self.f['kickoff_utc'],'status':{'type':{'state':'post','completed':True,'detail':detail}},'competitions':[{'competitors':[{'homeAway':'home','team':{'displayName':'Coventry'},'score':'2'},{'homeAway':'away','team':{'displayName':'Hull'},'score':'1'}]}]}]}).encode()
  def test_regulation_time_only_and_competition_guard(self):

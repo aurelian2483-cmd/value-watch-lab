@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Experiment 93: validate persistent result ledger for read-only public research display."""
 import json,pathlib,sys,datetime as dt,math
+from football_result_integrity import load_archives,validate_result
 source=pathlib.Path(sys.argv[1]);out=pathlib.Path(sys.argv[2])
 d=json.loads(source.read_text())
 required={"schema_version":1,"research_only":True,"model_validation":"UNVALIDATED","publication_gate":"BLOCKED","official_challenge":"0/100"}
@@ -8,7 +9,9 @@ if any(d.get(k)!=v for k,v in required.items()):raise ValueError("Unsafe ledger 
 rows=d.get("entries")
 if not isinstance(rows,list) or len(rows)>10000:raise ValueError("Invalid result ledger")
 seen=set()
+frozen=load_archives(source.resolve().parents[3])
 for e in rows:
+ validate_result(e,frozen)
  digest=e.get("record_sha256")
  if not isinstance(digest,str) or len(digest)!=64 or any(c not in "0123456789abcdef" for c in digest) or digest in seen:raise ValueError("Invalid/duplicate digest")
  seen.add(digest)
@@ -39,4 +42,3 @@ payload["model_metrics"]={name:{"scored_forecasts":len(entries),
 out.parent.mkdir(parents=True,exist_ok=True)
 out.write_text(json.dumps(payload,indent=2)+"\n")
 print(json.dumps({"status":"RESEARCH_HISTORY_VALIDATED","sample_size":len(rows)}))
-

@@ -3,6 +3,7 @@
 Read-only, paper-only; does not modify the official challenge or website.
 """
 import csv,datetime as dt,hashlib,io,json,math,pathlib,urllib.parse,urllib.request
+from zoneinfo import ZoneInfo
 from experiment62_fixture_discovery import norm
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 OUT=pathlib.Path("/tmp/experiment90");OUT.mkdir(parents=True,exist_ok=True)
@@ -43,7 +44,9 @@ def main():
    csv_url=f"https://www.football-data.co.uk/mmz4281/{year%100:02d}{(year+1)%100:02d}/E0.csv"
    er,ereceipt=fetch(espn_url);cr,creceipt=fetch(csv_url)
    matches=[]
-   for event in json.loads(er).get("events",[]):
+   espn=json.loads(er)
+   if len(espn.get('leagues',[]))!=1 or espn['leagues'][0].get('slug')!='eng.1':raise ValueError('ESPN competition mismatch')
+   for event in espn.get("events",[]):
     comps=event.get("competitions") or []
     if not comps:continue
     teams=comps[0].get("competitors",[])
@@ -54,7 +57,7 @@ def main():
     eventtime=dt.datetime.fromisoformat(event["date"].replace("Z","+00:00"))
     if abs((eventtime-kickoff).total_seconds())>60:continue
     status=event.get("status",{}).get("type",{})
-    if status.get("state")!="post" or status.get("completed") is not True:continue
+    if status.get("state")!="post" or status.get("completed") is not True or status.get('detail')!='FT':continue
     matches.append((int(h["score"]),int(a["score"]),event.get("id")))
    if len(matches)!=1:
     report["pending"].append({**fixture,"reason":"ESPN_FINAL_MISSING_OR_AMBIGUOUS"});continue
@@ -62,7 +65,8 @@ def main():
    csvmatches=[]
    for row in csv.DictReader(io.StringIO(cr.decode("utf-8-sig"))):
     if row.get("Div")!="E0" or norm(row.get("HomeTeam",""))!=norm(f["home"]) or norm(row.get("AwayTeam",""))!=norm(f["away"]):continue
-    if dt.datetime.strptime(row["Date"],"%d/%m/%Y").date()!=kickoff.date():continue
+    csvtime=dt.datetime.combine(dt.datetime.strptime(row['Date'],'%d/%m/%Y').date(),dt.time.fromisoformat(row['Time']),ZoneInfo('Europe/London'))
+    if abs((csvtime-kickoff).total_seconds())>60:continue
     if not all(row.get(k) for k in ("FTHG","FTAG","FTR")):continue
     ch,ca=int(row["FTHG"]),int(row["FTAG"])
     if row["FTR"]!=("H" if ch>ca else "A" if ca>ch else "D"):raise ValueError("Football-Data inconsistent result")
@@ -85,4 +89,3 @@ def main():
  print(json.dumps({"status":report["status"],"scored":len(report["scored"]),"pending":len(report["pending"]),"errors":len(report["errors"])}))
  if report["errors"]:raise SystemExit(1)
 if __name__=="__main__":main()
-

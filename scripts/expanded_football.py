@@ -253,15 +253,22 @@ def archive_forecasts(forecasts,now,directory):
   if saved!=p.stem or digest(unsigned)!=saved:raise ValueError('Expanded forecast archive integrity failure')
   validate_forecast(r)
   if when(r['generated_at_utc'])>=when(r['kickoff_utc'])-dt.timedelta(minutes=5):raise ValueError('Late archived forecast')
-  key=signature(r)
-  if key in known:raise ValueError('Duplicate expanded forecast signature')
-  known[key]=r;records.append(r)
- current=[];new=[]
+  records.append(r)
+ for r in sorted(records,key=lambda r:r['generated_at_utc']):
+  key=identity(r);previous=known.get(key)
+  if previous and when(r['generated_at_utc'])==when(previous['generated_at_utc']):raise ValueError('Ambiguous forecast revision timestamp')
+  if r.get('revision_of') and (previous is None or r['revision_of']!=previous['record_sha256']):raise ValueError('Broken expanded revision chain')
+  known[key]=r
+ current=[];new=[];seen=set()
  for f in forecasts:
-  key=signature(f)
-  if key in known:current.append(known[key]);continue
+  validate_forecast(f)
+  key=identity(f);previous=known.get(key)
+  if key in seen:raise ValueError('Duplicate current expanded fixture')
+  seen.add(key)
+  if previous and signature(previous)==signature(f):current.append(previous);continue
   if when(f['kickoff_utc'])<=now+dt.timedelta(minutes=5):continue
   r={**f,'generated_at_utc':stamp(now),'independent_timestamp_attested':False,'source_first_availability_verified':False}
+  if previous:r['revision_of']=previous['record_sha256']
   for receipt in r['training_basis'].get('source_receipts',[])+r.get('schedule_source_receipts',[]):
    if receipt.get('observed_at_utc') and when(receipt['observed_at_utc'])>now:raise ValueError('Inputs received after forecast capture')
   r['record_sha256']=digest(r);validate_forecast(r);current.append(r);new.append(r)
@@ -271,7 +278,7 @@ def archive_forecasts(forecasts,now,directory):
  return current,records+new,len(new)
 
 def validate_forecast(r):
- if r.get('league') not in LEAGUES or r.get('publication_gate')!='BLOCKED' or r.get('model_validation')!='UNVALIDATED' or r.get('challenge_eligible')!=0 or r.get('odds') is not None or r.get('expected_value') is not None:raise ValueError('Unsafe expanded forecast')
+ if r.get('research_only') is not True or r.get('league') not in LEAGUES or r.get('publication_gate')!='BLOCKED' or r.get('model_validation')!='UNVALIDATED' or r.get('challenge_eligible')!=0 or r.get('odds') is not None or r.get('expected_value') is not None:raise ValueError('Unsafe expanded forecast')
  p=[r[k] for k in ('prob_home','prob_draw','prob_away')]
  if any(type(v) not in (int,float) or not math.isfinite(v) or not 0<v<1 for v in p) or abs(sum(p)-1)>1e-8:raise ValueError('Invalid probability vector')
 
