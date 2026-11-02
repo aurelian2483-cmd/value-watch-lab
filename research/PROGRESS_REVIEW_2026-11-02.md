@@ -50,3 +50,15 @@ New tests cover non-regulation results, wrong competitions/kickoffs, altered pub
 The root four-sport page retains historical cards and separate older feeds alongside the newer labs. Make the active football/racing lanes and their timestamps the primary view. NFL and tennis should retain explicit coverage states; they are not proven equivalent to the implemented football/racing pipelines by this audit.
 
 No prices, EV estimates, grades, qualified picks, model promotion or challenge credit were created by these fixes.
+
+## Post-fix live verification
+
+- Premier League synchronization run 41543877769 completed successfully, including the hardened tests, archive capture, final-result audit, public-history validation and publication. The archive now has 21 primary forecasts plus the existing legacy record; the current feed has 20 upcoming estimates.
+- Racing run 41543877804 completed successfully. All eight archived form forecasts now have provisional scores and second-publisher corroboration; none remains pending. No new post-event forecasts were created. This remains an insufficient sample.
+- Football settlement remains correctly withheld for Newcastle–Everton on 2 November: ESPN supplied a final, but the corroborating Football-Data CSV contains no matching fixture row at review time. Both the legacy and current-model records are pending for the same underlying match; they are not two separate match outcomes.
+- Website deployment run 41543941118 completed successfully. Browser QA confirmed that stale racing snapshots clear evidence and evaluation panels rather than retaining prior values.
+
+Run receipts:
+- https://github.com/aurelian2483-cmd/value-watch-lab/actions/runs/41543877769
+- https://github.com/aurelian2483-cmd/value-watch-lab/actions/runs/41543877804
+- https://github.com/aurelian2483-cmd/value-watch-lab/actions/runs/41543941118
