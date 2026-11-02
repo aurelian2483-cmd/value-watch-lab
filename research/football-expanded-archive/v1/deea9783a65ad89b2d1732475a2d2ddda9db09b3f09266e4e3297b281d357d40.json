@@ -1,0 +1,76 @@
+{
+  "league": "E1",
+  "home": "Bolton Wanderers",
+  "away": "Portsmouth",
+  "kickoff_utc": "2026-11-21T15:00:00Z",
+  "espn_event_id": "401880160",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "forecast_status": "MODEL_INPUTS_UNAVAILABLE",
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.2518859909104361,
+  "prob_draw": 0.2666234937071522,
+  "prob_away": 0.48149051538241167,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 7,
+    "away_matches": 7,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 156,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/E1.csv",
+        "sha256": "c7fa2ecb1aaff715701c0bc0f2d812ec46e71dfbfd1540168ecd0ce4d6210fb4",
+        "observed_at_utc": "2026-11-02T19:14:59.200139Z",
+        "timestamp_basis": "local_snapshot_file_mtime"
+      }
+    ],
+    "training_sha256": "8d71ba83d1c336fcb9dd4097f9c482dbfa2bc0b0fcf955f6e921df2d0ced92cb",
+    "lambda_home": 0.9621906678592723,
+    "lambda_away": 1.440581871250841,
+    "home_venue_inputs": {
+      "hgf": 9,
+      "hga": 15,
+      "hn": 7,
+      "agf": 9,
+      "aga": 11,
+      "an": 6
+    },
+    "away_venue_inputs": {
+      "hgf": 10,
+      "hga": 10,
+      "hn": 6,
+      "agf": 6,
+      "aga": 5,
+      "an": 7
+    },
+    "league_home_mean": 1.6538461538461537,
+    "league_away_mean": 1.2756410256410255
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261121&limit=100",
+      "sha256": "d7ad7613175e1db9854b8ba830a70e9cba490a40e1411eacca9555e692abf883",
+      "observed_at_utc": "2026-11-02T19:12:39.016049Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-11-01",
+      "sha256": "24d3dd1e3dc3875ddecb3fe4dfa13debf093e3422d56ba11500978a47c4a43fb",
+      "observed_at_utc": "2026-11-02T19:14:38.364180Z"
+    }
+  ],
+  "generated_at_utc": "2026-11-02T19:22:23.645564Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "deea9783a65ad89b2d1732475a2d2ddda9db09b3f09266e4e3297b281d357d40"
+}

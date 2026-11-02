@@ -1,0 +1,76 @@
+{
+  "league": "F1",
+  "home": "Paris Saint-Germain",
+  "away": "Troyes",
+  "kickoff_utc": "2026-11-07T19:45:00Z",
+  "espn_event_id": "401876407",
+  "league_name": "Ligue 1",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "forecast_status": "MODEL_INPUTS_UNAVAILABLE",
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_F1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.5467952980822689,
+  "prob_draw": 0.2497306646662603,
+  "prob_away": 0.20347403725147087,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 3,
+    "away_matches": 4,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 80,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/F1.csv",
+        "sha256": "4e39575f8ce0273a8d53cde3d238ded2094e108504205b7ec584e77db5bdbee8",
+        "observed_at_utc": "2026-11-02T19:16:44.360404Z",
+        "timestamp_basis": "local_snapshot_file_mtime"
+      }
+    ],
+    "training_sha256": "14d8cfefb1cedcd1698abb17c21a32d247fd7f91365dcbf4b08e52f9e3b1056f",
+    "lambda_home": 1.6043931159420288,
+    "lambda_away": 0.870184748427673,
+    "home_venue_inputs": {
+      "hgf": 6,
+      "hga": 3,
+      "hn": 3,
+      "agf": 15,
+      "aga": 7,
+      "an": 6
+    },
+    "away_venue_inputs": {
+      "hgf": 5,
+      "hga": 11,
+      "hn": 5,
+      "agf": 2,
+      "aga": 5,
+      "an": 4
+    },
+    "league_home_mean": 1.725,
+    "league_away_mean": 1.325
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/fra.1/scoreboard?dates=20261107&limit=100",
+      "sha256": "3a00cdddc141301aa190be69479bec7c0ae434839945bfcf61c1affe3a49946f",
+      "observed_at_utc": "2026-11-02T19:13:53.708413Z"
+    },
+    {
+      "url": "https://www.skysports.com/ligue-1-scores-fixtures/2026-11-01",
+      "sha256": "0388eb6f813e9996c902abf8280cdb376a971ba153e8e12f38031d261490d0c2",
+      "observed_at_utc": "2026-11-02T19:16:27.486461Z"
+    }
+  ],
+  "generated_at_utc": "2026-11-02T19:22:23.645564Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "70fa4950d149b96b88534bde0e17af75661fda3cefd6343b00a45de9c73aa67a"
+}
