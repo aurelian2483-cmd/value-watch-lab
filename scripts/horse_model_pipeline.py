@@ -76,6 +76,7 @@ def forecast(race,now):
   'active_runner_count':len(rows),'research_only':True,'reference_only':False,
   'model_validation':'UNVALIDATED','publication_gate':'BLOCKED','challenge_eligible':0,
   'independent_timestamp_attested':False,'independent_schedule_verified':False,
+  'schedule_cross_checked':race.get('schedule_cross_checked') is True,'secondary_schedule_receipt':race.get('secondary_schedule_receipt'),
   'historical_first_availability_verified':False,'odds':None,'expected_value':None,
   'limitation':'Untrained, uncalibrated form heuristic; parameters are exploratory. Ignores class, distance, going, weight, draw and trainer/jockey effects. Not verified betting value.'}
  return record,None
@@ -200,15 +201,31 @@ def main():
  data=json.loads((WORK/'racing-research-data.json').read_text());now=dt.datetime.now(UTC)
  current,archived,audit=archive_forecasts(data,now,ROOT/'research/horse-form-archive/v1')
  performance=score_provisional(archived,now,ROOT/'research/horse-results/v1/provisional.json')
+ from horse_secondary_source import corroborate
+ from horse_evaluation import evaluate
+ secondary_path=WORK/'secondary-result-cache.json'
+ secondary_rows=json.loads(secondary_path.read_text()) if secondary_path.exists() else []
+ by_id={r['record_sha256']:r for r in archived};corroborated=[];verification_pending=[]
+ for entry in performance['entries']:
+  evidence,reason=corroborate(by_id[entry['record_sha256']],entry,secondary_rows)
+  if evidence:corroborated.append({**entry,'cross_source_evidence':evidence})
+  else:verification_pending.append({'race_id':entry['race_id'],'reason':reason})
+ performance['cross_source_verified_results']=len(corroborated)
+ performance['cross_source_entries']=corroborated
+ performance['cross_source_pending']=verification_pending
+ performance['provisional_evaluation']=evaluate(archived,performance['entries'])
+ performance['cross_source_evaluation']=evaluate(archived,corroborated)
+ performance['verification_note']='Two publishers corroborate race identity, full final field and winner. Independent underlying data origin is not established.'
  public={'schema_version':1,'generated_at_utc':now.isoformat(),'research_only':True,'publication_gate':'BLOCKED',
-  'model_validation':'UNVALIDATED','official_challenge':'0/100','independent_schedule_verification':'NOT_CONNECTED',
+  'model_validation':'UNVALIDATED','official_challenge':'0/100','independent_schedule_verification':'UNDERLYING_ORIGIN_NOT_ATTESTED',
+  'secondary_source_audit':data.get('secondary_source_audit',{'connection_status':'NOT_CONFIGURED'}),
   'race_date_uk':data['race_date_uk'],'runner_audit':data.get('runner_audit'),
   'race_count':len(data['races']),'reference_baseline_audit':data.get('reference_baseline_audit'),
   'form_forecasts':current,'form_model_audit':audit,'performance':performance,
   'limitations':['Exploratory heuristic, not a trained or calibrated AI model.',
    'Restricted to all-weather races with at least three valid prior Flat finishes for every active runner.',
    'Parameters are unvalidated research choices; form alone omits major race factors.',
-   'Independent schedule and result verification remain unconnected. Provisional metrics are not verified accuracy.',
+   'Second-publisher matches are reported separately; underlying data-origin independence and historical availability remain unattested. Provisional metrics are not verified accuracy.',
    'No verified Sky Bet prices, betting EV, Grade A/B recommendations or official challenge credit.']}
  (WORK/'horse-model-data.json').write_text(json.dumps(public,indent=2)+'\n')
  (WORK/'horse-model-audit.json').write_text(json.dumps({'form_model_audit':audit,'performance':{k:v for k,v in performance.items() if k!='entries'}},indent=2)+'\n')

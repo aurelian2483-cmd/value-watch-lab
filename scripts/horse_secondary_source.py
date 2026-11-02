@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+"""Optional second-publisher race/result evidence via documented free API endpoints.
+No account creation, subscriptions, odds requests, or credentials in outputs.
+"""
+import base64
+import datetime as dt
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import time
+import unicodedata
+import urllib.error
+import urllib.parse
+import urllib.request
+from zoneinfo import ZoneInfo
+from enrich_horse_runners import stamp
+
+ROOT=Path(__file__).resolve().parents[1]
+WORK=Path('/tmp/horse-research')
+BASE='https://api.theracingapi.com'
+COUNTRY_SUFFIXES='GB|IRE|FR|GER|USA|AUS|NZ|SAF|JPN|CAN|ARG|BRZ|CHI|ITY|SPA|SWE|DEN|NOR|CZE|POL|TUR|UAE|BHR|KSA'
+
+def canonical(x):return json.dumps(x,sort_keys=True,separators=(',',':')).encode()
+def digest(x):return hashlib.sha256(canonical(x)).hexdigest()
+def horse_name(value):
+ value=re.sub(r'\s*\((' + COUNTRY_SUFFIXES + r')\)\s*$','',str(value),flags=re.I)
+ value=unicodedata.normalize('NFKD',value).encode('ascii','ignore').decode().casefold().replace("'",'').replace('’','')
+ return re.sub(r'[^a-z0-9]+',' ',value).strip()
+def course_name(value):
+ value=re.sub(r'\s*\((AW|IRE|GB)\)\s*$','',str(value),flags=re.I)
+ name=horse_name(value)
+ return {'chelmsford':'chelmsford city','chelmsford city':'chelmsford city'}.get(name,name)
+
+def candidates(race,rows):
+ matches=[]
+ for row in rows:
+  try:
+   if row.get('region','').upper() not in ('GB','IRE') or course_name(row['course'])!=course_name(race['racecourse']):continue
+   # Never infer AM/PM from the provider's 12-hour off_time/off string.
+   when=stamp(row['off_dt'])
+   if row['date']!=when.astimezone(ZoneInfo('Europe/London')).date().isoformat():continue
+   if abs((when-stamp(race['startUTC'])).total_seconds())<=60:matches.append(row)
+  except (KeyError,ValueError,TypeError,AttributeError):continue
+ return matches
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+ def redirect_request(self,req,fp,code,msg,headers,newurl):raise ValueError('Provider redirect rejected')
+
+class Client:
+ def __init__(self,user,password,opener=None,pause=time.sleep):
+  self.authorization='Basic '+base64.b64encode((user+':'+password).encode()).decode()
+  self.opener=opener or urllib.request.build_opener(NoRedirect())
+  self.pause=pause;self.last=None
+ def get(self,path,query):
+  if path not in ('/v1/racecards/free','/v1/results/today/free'):raise ValueError('Unapproved endpoint')
+  if self.last is not None:self.pause(max(0,1.05-(time.monotonic()-self.last)))
+  url=BASE+path+'?'+urllib.parse.urlencode(query,doseq=True)
+  req=urllib.request.Request(url,headers={'Authorization':self.authorization,'Accept':'application/json','User-Agent':'ValueWatchResearch/1.0'})
+  try:
+   self.last=time.monotonic()
+   with self.opener.open(req,timeout=30) as response:
+    if response.status!=200:raise ValueError('Provider HTTP failure')
+    if urllib.parse.urlsplit(response.geturl()).netloc!='api.theracingapi.com':raise ValueError('Unexpected provider host')
+    raw=response.read(3000001)
+  except urllib.error.HTTPError as exc:raise ValueError('Provider HTTP '+str(exc.code)) from None
+  except urllib.error.URLError:raise ValueError('Provider network unavailable') from None
+  if not raw or len(raw)>3000000:raise ValueError('Provider response missing or oversized')
+  payload=json.loads(raw)
+  if not isinstance(payload,dict):raise ValueError('Provider object response required')
+  receipt={'url':url,'sha256':hashlib.sha256(raw).hexdigest(),'observed_at_utc':dt.datetime.now(dt.timezone.utc).isoformat()}
+  return payload,receipt,raw
+ def pages(self,path,key,query):
+  rows=[];receipts=[];skip=0
+  for _ in range(10):
+   payload,receipt,raw=self.get(path,{**query,'limit':100,'skip':skip})
+   page=payload.get(key) or []
+   if not isinstance(page,list) or type(payload.get('total')) is not int or payload.get('skip')!=skip:raise ValueError('Provider pagination schema mismatch')
+   (WORK/'secondary-source-snapshots').mkdir(parents=True,exist_ok=True)
+   (WORK/'secondary-source-snapshots'/(receipt['sha256']+'.json')).write_bytes(raw)
+   rows.extend({**r,'_source_receipt':receipt} for r in page);receipts.append(receipt);skip+=len(page)
+   if skip==payload['total']:return rows,receipts
+   if not page or skip>payload['total']:raise ValueError('Incomplete provider pagination')
+  raise ValueError('Provider pagination limit exceeded')
+
+def cache_results(rows,directory):
+ # Keep the free endpoint's daily observations for checking older provisional races later.
+ pending=[]
+ existing={}
+ for p in directory.glob('*.json'):
+  obj=json.loads(p.read_text());unsigned=dict(obj);saved=unsigned.pop('record_sha256')
+  if digest(unsigned)!=saved or p.stem!=saved:raise ValueError('Secondary result evidence integrity failure')
+  existing[obj['row_digest']]=obj
+ for row in rows:
+  if row.get('region','').upper() not in ('GB','IRE'):continue
+  unsigned={k:v for k,v in row.items() if k!='_source_receipt'};row_digest=digest(unsigned)
+  if row_digest in existing:continue
+  obj={'row_digest':row_digest,'row':unsigned,'receipt':row['_source_receipt']};obj['record_sha256']=digest(obj)
+  existing[row_digest]=obj;pending.append(obj)
+ if pending:directory.mkdir(parents=True,exist_ok=True)
+ for obj in pending:
+  with (directory/(obj['record_sha256']+'.json')).open('x') as f:f.write(json.dumps(obj,indent=2)+'\n')
+ return [{**obj['row'],'_source_receipt':obj['receipt']} for obj in existing.values()]
+
+def collect(data,now,client=None,cache=None):
+ audit={'provider':'The Racing API','connection_status':'MISSING_CREDENTIALS','schedule_matches':0,'result_rows_cached':0,'errors':[],
+  'verification_scope':'Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established.'}
+ user,password=os.environ.get('RACING_API_USERNAME'),os.environ.get('RACING_API_PASSWORD')
+ if client is None and (not user or not password):return data,[],audit
+ client=client or Client(user,password);cards=[];results=[]
+ for kind,path,key,query in [('cards','/v1/racecards/free','racecards',{'day':'today','region_codes':['gb','ire']}),('results','/v1/results/today/free','results',{'region':['gb','ire']})]:
+  try:
+   rows,_=client.pages(path,key,query)
+   if kind=='cards':cards=rows
+   else:results=rows
+  except Exception as exc:audit['errors'].append({'stage':kind,'error':str(exc)})
+ audit['connection_status']='PARTIAL_OR_UNAVAILABLE' if audit['errors'] else 'CONNECTED'
+ for race in data['races']:
+  matches=candidates(race,cards)
+  race['schedule_cross_checked']=False
+  if len(matches)==1 and matches[0].get('race_status') in ('declared','weighed') and matches[0].get('is_abandoned') is not True and stamp(race['startUTC'])>now:
+   row=matches[0];race['schedule_cross_checked']=True;race['secondary_schedule_receipt']=row['_source_receipt'];race['secondary_race_id']=row['race_id'];audit['schedule_matches']+=1
+  elif len(matches)>1:race['secondary_schedule_status']='AMBIGUOUS_MATCH'
+ directory=cache or ROOT/'research/horse-secondary-results/v1'
+ results=cache_results(results,directory);audit['result_rows_cached']=len(results)
+ return data,results,audit
+
+def corroborate(record,entry,rows):
+ matches=candidates({'racecourse':record['racecourse'],'startUTC':record['startUTC']},rows)
+ # Collapse identical result rows observed in several pages/runs.
+ unique={digest({k:v for k,v in r.items() if k!='_source_receipt'}):r for r in matches}
+ if len(unique)!=1:return None,'SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED'
+ row=next(iter(unique.values()));runners=row.get('runners')
+ if not isinstance(runners,list) or not runners:return None,'SECONDARY_RUNNER_LIST_UNAVAILABLE'
+ names=[];winners=[]
+ for r in runners:
+  position=str(r.get('position','')).strip().upper()
+  if position in ('NR','WD','WITHDRAWN','NON RUNNER'):continue
+  if not (position.isdigit() and int(position)>0) and position not in ('PU','F','UR','BD','RO','RR','SU','DSQ'):return None,'SECONDARY_FINISH_POSITION_UNSUPPORTED'
+  name=horse_name(r.get('horse',''))
+  if not name or name in names:return None,'SECONDARY_HORSE_IDENTITY_AMBIGUOUS'
+  names.append(name)
+  if position=='1':winners.append(name)
+ expected=[horse_name(r['name']) for r in record['runners']]
+ if len(set(expected))!=len(expected) or set(names)!=set(expected):return None,'SECONDARY_FIELD_DISAGREEMENT'
+ expected_winner=next((horse_name(r['name']) for r in record['runners'] if r['horse_id']==entry['winner_horse_id']),None)
+ if winners!=[expected_winner]:return None,'SECONDARY_WINNER_DISAGREEMENT_OR_DEAD_HEAT'
+ receipt=row.get('_source_receipt',{})
+ url=urllib.parse.urlsplit(receipt.get('url',''))
+ if url.scheme!='https' or url.hostname!='api.theracingapi.com' or url.path!='/v1/results/today/free' or not re.fullmatch('[a-f0-9]{64}',receipt.get('sha256','')):return None,'SECONDARY_RECEIPT_INVALID'
+ return {'verification':'TWO_PUBLISHER_RESULT_CORROBORATED','record_sha256':record['record_sha256'],
+  'primary_receipt':entry['source_receipt'],'secondary_receipt':receipt,'secondary_race_id':row['race_id'],
+  'winner_horse_id':entry['winner_horse_id'],'publication_gate':'BLOCKED','challenge_eligible':0},None
+
+def main():
+ path=WORK/'racing-research-data.json';data=json.loads(path.read_text())
+ if data.get('research_only') is not True or data.get('publication_gate')!='BLOCKED':raise ValueError('Unsafe racing feed')
+ now=dt.datetime.now(dt.timezone.utc)
+ if not dt.timedelta(minutes=-5)<=now-stamp(data['generated_at_utc'])<=dt.timedelta(hours=2):raise ValueError('Stale discovery feed')
+ data,rows,audit=collect(data,now)
+ data['secondary_source_audit']=audit;path.write_text(json.dumps(data,indent=2)+'\n')
+ (WORK/'secondary-result-cache.json').write_text(json.dumps(rows)+'\n')
+ (WORK/'secondary-source-audit.json').write_text(json.dumps(audit,indent=2)+'\n')
+ print(json.dumps(audit))
+if __name__=='__main__':main()

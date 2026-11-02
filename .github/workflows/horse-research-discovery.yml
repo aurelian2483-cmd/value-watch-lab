@@ -27,12 +27,20 @@ jobs:
         run: python scripts/enrich_horse_runners.py
       - name: Freeze equal-chance research references before races
         run: python scripts/horse_reference_baseline.py
+      - name: Optional second-publisher race and result cross-check
+        env:
+          RACING_API_USERNAME: ${{ secrets.RACING_API_USERNAME }}
+          RACING_API_PASSWORD: ${{ secrets.RACING_API_PASSWORD }}
+        run: python scripts/horse_secondary_source.py
       - name: Archive experimental form forecasts and track provisional final results
         run: python scripts/horse_model_pipeline.py
       - uses: actions/upload-artifact@v4
         with:
           name: horse-research-discovery
-          path: /tmp/horse-research/*.json
+          path: |
+            /tmp/horse-research/racing-research-data.json
+            /tmp/horse-research/horse-model-data.json
+            /tmp/horse-research/*audit.json
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
@@ -41,6 +49,7 @@ jobs:
             /tmp/horse-research/*.html
             /tmp/horse-research/runner-sources/
             /tmp/horse-research/result-sources/
+            /tmp/horse-research/secondary-source-snapshots/
           retention-days: 30
       - name: Publish experimental observations only
         shell: bash
@@ -54,6 +63,7 @@ jobs:
           if [ -d research/horse-reference-archive ]; then git add -- research/horse-reference-archive; fi
           if [ -d research/horse-form-archive ]; then git add -- research/horse-form-archive; fi
           if [ -d research/horse-results ]; then git add -- research/horse-results; fi
+          if [ -d research/horse-secondary-results ]; then git add -- research/horse-secondary-results; fi
           if ! git diff --cached --quiet; then
             git commit -m "Refresh experimental racing discovery observations"
             git pull --rebase origin main
