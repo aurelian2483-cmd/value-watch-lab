@@ -3,6 +3,7 @@
 import datetime as dt
 import hashlib
 import json
+import re
 from html.parser import HTMLParser
 from pathlib import Path
 import urllib.request
@@ -50,12 +51,16 @@ def discover(raw,observed):
     count=race['ride_count']
     if type(count)!=int or count<0:raise ValueError('Invalid source runner count')
     link=parser.links.get(race_id)
+    link_type='PAGE_LINK' if link else 'CONSTRUCTED_REQUIRES_IDENTITY_VALIDATION'
+    if not link:
+     slug=lambda text:re.sub(r'[^a-z0-9]+','-',text.lower()).strip('-')
+     link='/racing/racecards/'+day.isoformat()+'/'+slug(course['name'])+'/racecard/'+race_id+'/'+slug(race['name'])
     races.append({'race_id':race_id,'racecourse':course['name'],'country':course['country']['short_name'],
      'name':race['name'],'startUTC':kickoff.isoformat(),'race_stage':race['race_stage'],
      'surface':race.get('course_surface',{}).get('surface'),'going':race.get('going'),
      'distance':race.get('distance'),'race_class':race.get('race_class'),
      'source_runner_count':count,'runners':[],
-     'source':'https://www.sportinglife.com'+link if link else SOURCE,
+     'source':'https://www.sportinglife.com'+link,'source_link_type':link_type,
      'observedAtUTC':observed.isoformat(),'verification':'SINGLE_SOURCE_UNVERIFIED',
      'forecast_status':'RUNNER_DATA_NOT_CONNECTED','prediction':None,'odds':None,'expected_value':None,
      'forecast_eligible':False,'challenge_eligible':0})
