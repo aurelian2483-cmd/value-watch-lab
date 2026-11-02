@@ -21,9 +21,11 @@ jobs:
         with:
           python-version: '3.12'
       - name: Test race discovery controls
-        run: python -m unittest discover -s tests -p 'test_horse_discovery.py'
+        run: python -m unittest discover -s tests -p 'test_horse*.py'
       - name: Collect single-source UK and Ireland race observations
         run: python scripts/discover_horse_races.py
+      - name: Collect runner identities, non-runners and dated form
+        run: python scripts/enrich_horse_runners.py
       - uses: actions/upload-artifact@v4
         with:
           name: horse-research-discovery
