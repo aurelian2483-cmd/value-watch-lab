@@ -60,9 +60,9 @@
     try {
       const report = await json('./master-research-report.json');
       validate(report);
-      const fetched = await Promise.allSettled([json('./research-dashboard-data.json'), json('./football-expanded-data.json')]);
+      const fetched = await Promise.allSettled([json('./research-dashboard-data.json'), json('./football-expanded-data.json'), json('./research-reports/index.json')]);
       if (current !== generation) return;
-      const feeds = fetched.filter(r => r.status === 'fulfilled').map(r => r.value);
+      const feeds = fetched.slice(0, 2).filter(r => r.status === 'fulfilled').map(r => r.value);
       el('masterstate').textContent = 'PUBLISHED CHAT REPORT · ' + report.snapshotDate;
       el('masterdate').textContent = 'Chat report: ' + report.snapshotDate + ' · Website publication: ' + format(report.publishedAtUTC) + ' UK. Supporting observations are copied research and have not been reverified.';
       const passes = el('masterpasses'); passes.replaceChildren();
@@ -113,6 +113,9 @@
       el('mastercopystatus').textContent = active.length + ' upcoming singles · ' + report.builders.length + ' published builders · 0 qualified bets. Builder legs are related research hypotheses, not independent evidence.';
       const provenance = el('chatpublication'); provenance.replaceChildren();
       node(provenance, 'p', 'Publication coverage: this 2 November report contains 3 recovered singles and 2 builders. It is not a complete copy of every chat. New chat messages require publication before appearing here.', 'small');
+      const archive = fetched[2]?.status === 'fulfilled' ? fetched[2].value : null;
+      if (archive?.kind === 'CHAT_RESEARCH_ARCHIVE') node(provenance, 'p', archive.additionalRecoveredReports + ' additional recovered reports · ' + archive.recoveredEntries + ' restored entries · ' + archive.gaps.length + ' recovery gap. Restored notes do not add official challenge credit.', 'small');
+      const archiveLink = node(provenance, 'a', 'Browse all recovered chat reports', 'btn'); archiveLink.href = './research-reports/';
       for (const previous of report.previousReports || []) {
         const link = node(provenance, 'a', previous.label, 'btn'); link.href = previous.url;
       }
