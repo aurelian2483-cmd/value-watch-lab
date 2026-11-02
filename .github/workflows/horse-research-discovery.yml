@@ -26,6 +26,8 @@ jobs:
         run: python scripts/discover_horse_races.py
       - name: Collect runner identities, non-runners and dated form
         run: python scripts/enrich_horse_runners.py
+      - name: Freeze equal-chance research references before races
+        run: python scripts/horse_reference_baseline.py
       - uses: actions/upload-artifact@v4
         with:
           name: horse-research-discovery
@@ -39,6 +41,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- racing-research-data.json
+          if [ -d research/horse-reference-archive ]; then git add -- research/horse-reference-archive; fi
           if ! git diff --cached --quiet; then
             git commit -m "Refresh experimental racing discovery observations"
             git pull --rebase origin main
