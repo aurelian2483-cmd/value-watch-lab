@@ -1,8 +1,12 @@
 name: Expanded football leagues research
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/football-expanded-research.yml']
   schedule:
     - cron: '40 8 * * *'
     - cron: '40 18 * * *'
+    - cron: '40 23 * * *'
   workflow_dispatch:
 permissions:
   contents: write
@@ -68,3 +72,4 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+
