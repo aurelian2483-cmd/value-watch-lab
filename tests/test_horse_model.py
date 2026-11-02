@@ -68,4 +68,17 @@ class FormModelTests(unittest.TestCase):
   for field,value in [('race_id','other'),('model','other'),('source_receipt',{'url':'https://other.invalid','sha256':'a'*64})]:
    data=json.loads(original);data['entries'][0][field]=value;path.write_text(json.dumps(data))
    with self.assertRaises(ValueError):m.score_provisional(records,now,path)
+ def test_settled_history_preserves_pre_event_probabilities_and_winner(self):
+  _,records,_=self.archive();before=copy.deepcopy(records)
+  p=m.score_provisional(records,self.now+dt.timedelta(hours=2),self.root/'results.json',fetch=lambda r:self.raw_result())
+  p['cross_source_entries']=[p['entries'][0]]
+  rows=m.settled_history(records,p)
+  self.assertEqual(rows[0]['runners'][0]['model_probability'],records[0]['runners'][0]['model_probability'])
+  self.assertEqual(rows[0]['winner_horse_id'],'1');self.assertEqual(rows[0]['result_verification'],'TWO_PUBLISHER_CORROBORATED')
+  self.assertEqual(rows[0]['generated_at_utc'],records[0]['generated_at_utc']);self.assertEqual(records,before)
+  self.assertEqual(m.settled_history(records,p,limit=0),[])
+ def test_finished_card_differs_from_unsupported_upcoming_race(self):
+  data={**self.data,'race_date_uk':'2026-11-02'}
+  self.assertEqual(m.race_cycle(data,[],self.now)['status'],'NO_SUPPORTED_UPCOMING_FORECASTS')
+  self.assertEqual(m.race_cycle(data,[],self.now+dt.timedelta(hours=2))['status'],'COLLECTED_CARD_FINISHED')
 if __name__=='__main__':unittest.main()

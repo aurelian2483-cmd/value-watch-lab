@@ -204,6 +204,26 @@ def score_provisional(records,now,ledger_path,fetch=fetch_final):
   'metrics_status':'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION','metrics':metrics,'entries':entries,'pending':pending,
   'selection_policy':'Latest archived forecast per race/model, captured at least five minutes before scheduled start.'}
 
+def settled_history(records,performance,limit=20):
+ by_id={r['record_sha256']:r for r in records}
+ corroborated={e['record_sha256'] for e in performance.get('cross_source_entries',[])}
+ rows=[]
+ for entry in sorted(performance['entries'],key=lambda e:(e['startUTC'],e['record_sha256']),reverse=True)[:limit]:
+  record=by_id[entry['record_sha256']]
+  runners=[{k:r[k] for k in ('horse_id','name','model_probability','equal_chance_reference')} for r in record['runners']]
+  rows.append({**{k:record[k] for k in ('record_sha256','race_id','racecourse','race_name','startUTC','generated_at_utc','model')},
+   'runners':runners,'winner_horse_id':entry['winner_horse_id'],
+   'result_verification':'TWO_PUBLISHER_CORROBORATED' if entry['record_sha256'] in corroborated else 'SINGLE_SOURCE_PROVISIONAL',
+   'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','research_only':True})
+ return rows
+
+def race_cycle(data,current,now):
+ upcoming=[r for r in data['races'] if stamp(r['startUTC'])>now]
+ return {'checked_at_utc':now.isoformat(),'race_date_uk':data['race_date_uk'],'collection_scope':'CURRENT_UK_DAY_ONLY',
+  'upcoming_observed_races':len(upcoming),'upcoming_form_forecasts':len(current),
+  'next_observed_start_utc':min((r['startUTC'] for r in upcoming),default=None),
+  'status':'UPCOMING_FORECASTS_AVAILABLE' if current else 'NO_SUPPORTED_UPCOMING_FORECASTS' if upcoming else 'COLLECTED_CARD_FINISHED'}
+
 def main():
  data=json.loads((WORK/'racing-research-data.json').read_text());now=dt.datetime.now(UTC)
  current,archived,audit=archive_forecasts(data,now,ROOT/'research/horse-form-archive/v1')
@@ -229,6 +249,7 @@ def main():
   'race_date_uk':data['race_date_uk'],'runner_audit':data.get('runner_audit'),
   'race_count':len(data['races']),'reference_baseline_audit':data.get('reference_baseline_audit'),
   'form_forecasts':current,'form_model_audit':audit,'performance':performance,
+  'settled_forecasts':settled_history(archived,performance),'settled_history_limit':20,'race_cycle_audit':race_cycle(data,current,now),
   'limitations':['Exploratory heuristic, not a trained or calibrated AI model.',
    'Restricted to all-weather races with at least three valid prior Flat finishes for every active runner.',
    'Parameters are unvalidated research choices; form alone omits major race factors.',
