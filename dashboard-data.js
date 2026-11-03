@@ -36,7 +36,20 @@
   for(const h of [...r.runners].sort((a,b)=>b.model_probability-a.model_probability)){const row=add(a,'div',undefined,'racing-row'),name=add(row,'div');add(name,'strong',h.name);add(name,'small',(h.form_features?.usable_runs??'—')+' usable prior runs · research only');outcomeButton(row,r,h.horse_id,'Form weight',h.model_probability)}
   const foot=add(a,'div',undefined,'event-card-foot');add(foot,'span','EXPERIMENTAL · WIN HYPOTHESIS','paper-label');add(foot,'span',r.runners.length+' runners · field checked '+short(r.fieldChecked)+' UK');
  }
+ function sportPresentation(){
+  const football=state.sport==='football',racing=state.sport==='racing',available=['all','football','racing'].includes(state.sport);
+  $('football-competition-filter').hidden=!football;
+  $('league-filter').disabled=!football;
+  document.querySelectorAll('.competition-sidebar > h2,.competition-sidebar > [data-league]').forEach(e=>e.hidden=!football);
+  document.querySelectorAll('.sidebar-tools a').forEach(a=>{const href=a.getAttribute('href');a.hidden=state.sport!=='all'&&(href.includes('racing-research')? !racing:href.includes('football-leagues')? !football:false)});
+  const legend=document.querySelector('.model-legend');legend.hidden=!available;legend.replaceChildren();
+  if(available){add(legend,'span',racing?'FORM WEIGHT %':'MODEL %');add(legend,'span',racing?'Untrained form weights; not calibrated win probabilities or bookmaker odds.':'Percentages are experimental estimates, not bookmaker odds.').style.fontWeight='normal';const b=add(legend,'button','How to read these cards');b.type='button';b.dataset.appView='research'}
+  const stamps=feeds.map(f=>f.label+' snapshot '+full(f.generated_at_utc)).join(' · '),racingStamp=horse?'Horse racing snapshot '+full(horse.generated_at_utc)+'. Only recent matching pre-race fields can appear.':'A verified horse racing snapshot is unavailable.';
+  $('event-source-status').textContent=state.sport==='nfl'?'NFL research feed is not connected.':state.sport==='tennis'?'Tennis research feed is not connected.':racing?racingStamp:state.sport==='all'?(stamps?stamps+'. ':'')+racingStamp+' No live odds feed.':stamps?stamps+'. No live odds feed.':'Published football sources could not be verified. No model cards are shown.';
+  const search=$('event-search');search.placeholder=racing?'Search races, courses or horses':football?'Search teams or football competitions':state.sport==='tennis'?'Search tennis players or tournaments':state.sport==='nfl'?'Search NFL teams':'Search teams, races or horses';search.setAttribute('aria-label',search.placeholder);
+ }
  function renderEvents(){
+  sportPresentation();
   $('race-decisions').hidden=!['all','racing'].includes(state.sport);
   const root=$('sports-event-list');root.replaceChildren();const query=state.query.toLocaleLowerCase().trim();
   const football=games.filter(r=>current(r)&&(state.league==='all'||state.league===r.league)&&(!query||(r.home+' '+r.away+' '+r.league_name).toLocaleLowerCase().includes(query)));
@@ -70,10 +83,11 @@
   if(results[2].status==='fulfilled'&&safe(results[2].value)){horse=results[2].value;for(const r of horse.form_forecasts||[]){const c=horse.current_field_checks?.[r.record_sha256],age=Date.now()-Date.parse(c?.runner_observed_at_utc);if(c?.status!=='FRESH_MATCHING_FIELD'||!Number.isFinite(age)||age<0||age>1800000||!Array.isArray(r.runners)||JSON.stringify([...(c.active_runner_ids||[])].sort())!==JSON.stringify(r.runners.map(x=>x.horse_id).sort())||r.runners.some(x=>!Number.isFinite(x.model_probability)||x.model_probability<=0||x.model_probability>=1)||Math.abs(r.runners.reduce((s,x)=>s+x.model_probability,0)-1)>1e-8)continue;races.push({...r,kind:'racing',uid:'race|'+r.race_id,snapshot:horse.generated_at_utc,fieldChecked:c.runner_observed_at_utc})}}
   loaded=true;$('event-source-status').textContent=feeds.length?feeds.map(f=>f.label+' snapshot '+full(f.generated_at_utc)).join(' · ')+'. No live odds feed.':'Published football sources could not be verified. No model cards are shown.';renderEvents();renderResults();renderResearch();
  }
- document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.appView){state.view=b.dataset.appView;views()}if(b.dataset.sport){state.sport=b.dataset.sport;state.view='selections';state.league='all';state.limit=8;views();renderEvents()}if(b.dataset.league){state.league=b.dataset.league;state.sport='football';state.view='selections';state.limit=8;views();renderEvents()}if(b.hasAttribute('data-paper-open'))openPaper();if(b.dataset.paperOutcome)recordPaper(b.dataset.eventKey,b.dataset.paperOutcome)});
+ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.appView){state.view=b.dataset.appView;views()}if(b.dataset.sport){state.query='';$('event-search').value='';state.sport=b.dataset.sport;state.view='selections';state.league='all';state.limit=8;views();renderEvents()}if(b.dataset.league){state.league=b.dataset.league;state.sport='football';state.view='selections';state.limit=8;views();renderEvents()}if(b.hasAttribute('data-paper-open'))openPaper();if(b.dataset.paperOutcome)recordPaper(b.dataset.eventKey,b.dataset.paperOutcome)});
  $('paper-close').onclick=closePaper;document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePaper();document.body.classList.remove('search-open');$('search-toggle').setAttribute('aria-expanded','false')}});
  $('search-toggle').onclick=()=>{const yes=document.body.classList.toggle('search-open');$('search-toggle').setAttribute('aria-expanded',String(yes));if(yes)$('event-search').focus()};
- $('event-search').oninput=e=>{state.query=e.target.value;state.limit=8;state.view='selections';views();renderEvents()};$('league-filter').onchange=e=>{state.league=e.target.value;state.limit=8;views();renderEvents()};$('load-more-events').onclick=()=>{state.limit+=8;renderEvents()};$('refresh-dashboard').onclick=()=>window.location.reload();
+ $('event-search').oninput=e=>{state.query=e.target.value;state.limit=8;state.view='selections';views();renderEvents()};$('league-filter').onchange=e=>{if(state.sport!=='football')return;state.league=e.target.value;state.limit=8;views();renderEvents()};$('load-more-events').onclick=()=>{state.limit+=8;renderEvents()};$('refresh-dashboard').onclick=()=>window.location.reload();
  new MutationObserver(sync).observe($('basket'),{childList:true,subtree:true});setInterval(()=>{renderEvents();renderResearch()},60000);views();sync();load();
 })();
+
 
