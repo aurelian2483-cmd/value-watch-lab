@@ -2,7 +2,7 @@ name: Horse racing experimental discovery
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/horse-research-discovery.yml', 'scripts/horse_model_pipeline.py', 'tests/test_horse_model.py']
+    paths: ['.github/workflows/horse-research-discovery.yml', 'scripts/horse_model_pipeline.py', 'tests/test_horse_model.py', 'scripts/horse_challenger.py', 'tests/test_horse_challenger.py', 'research/horse-challenger/model-v1.json']
   schedule:
     - cron: '10,40 8-22 * * *'
   workflow_dispatch:
@@ -37,12 +37,15 @@ jobs:
         run: python scripts/horse_secondary_source.py
       - name: Archive experimental form forecasts and track provisional final results
         run: python scripts/horse_model_pipeline.py
+      - name: Freeze trained challenger estimates separately
+        run: python scripts/horse_challenger.py
       - uses: actions/upload-artifact@v4
         with:
           name: horse-research-discovery
           path: |
             /tmp/horse-research/racing-research-data.json
             /tmp/horse-research/horse-model-data.json
+            /tmp/horse-research/horse-challenger-data.json
             /tmp/horse-research/*audit.json
           retention-days: 30
       - uses: actions/upload-artifact@v4
@@ -60,9 +63,11 @@ jobs:
           set -euo pipefail
           cp /tmp/horse-research/racing-research-data.json racing-research-data.json
           cp /tmp/horse-research/horse-model-data.json horse-model-data.json
+          cp /tmp/horse-research/horse-challenger-data.json horse-challenger-data.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- racing-research-data.json horse-model-data.json
+          git add -- racing-research-data.json horse-model-data.json horse-challenger-data.json
+          git add -- research/horse-challenger
           if [ -d research/horse-reference-archive ]; then git add -- research/horse-reference-archive; fi
           if [ -d research/horse-form-archive ]; then git add -- research/horse-form-archive; fi
           if [ -d research/horse-results ]; then git add -- research/horse-results; fi

@@ -1,0 +1,643 @@
+{
+  "schema_version": 1,
+  "model": "AW_CONDITIONAL_LOGIT_PILOT_V1",
+  "feature_version": "AW_CONTEXT_FEATURES_V1",
+  "features": [
+    "official_rating",
+    "weight_lbs",
+    "shrunk_form",
+    "last_finish",
+    "surface_form",
+    "distance_form",
+    "course_form",
+    "class_change",
+    "log_days_since_run",
+    "rating_change"
+  ],
+  "coefficients": [
+    0.9063070963952543,
+    -0.25533648647586893,
+    0.2715090628002485,
+    0.6192848289239028,
+    0.19624079860072752,
+    0.23566935122863056,
+    0.16792669534701785,
+    0.4178986335868233,
+    -0.09928279421385798,
+    0.1961413689987747
+  ],
+  "l2": 1,
+  "training_data_last_date": "2026-10-13",
+  "dataset_sha256": "303ba6e48be444373004173cad83c12b2b6cd43de50a9d806ce1d75d496d2b5e",
+  "training_design": {
+    "train_before": "2026-10-01",
+    "validation_before": "2026-10-16",
+    "test_from": "2026-10-16",
+    "train_races": 14,
+    "validation_races": 18,
+    "test_races": 26,
+    "tuning": [
+      {
+        "l2": 0.1,
+        "validation_log_loss": 2.2230915806960905
+      },
+      {
+        "l2": 1,
+        "validation_log_loss": 2.145953709620517
+      },
+      {
+        "l2": 10,
+        "validation_log_loss": 2.160148017468044
+      },
+      {
+        "l2": 100,
+        "validation_log_loss": 2.1930358198433857
+      }
+    ],
+    "refit": "Train plus validation only after L2 selection; test never used in fitting."
+  },
+  "retrospective_test": {
+    "challenger": {
+      "races": 26,
+      "mean_log_loss": 2.4381463254154614,
+      "mean_brier": 0.9258999231750682,
+      "race_scores": [
+        {
+          "race_id": "943768",
+          "date": "2026-10-16",
+          "log_loss": 2.437030988030805,
+          "brier": 0.9340341613021,
+          "winner_probability": 0.08742001761654476
+        },
+        {
+          "race_id": "943771",
+          "date": "2026-10-16",
+          "log_loss": 2.2800643353968493,
+          "brier": 0.9113055794689952,
+          "winner_probability": 0.10227762643218184
+        },
+        {
+          "race_id": "943772",
+          "date": "2026-10-16",
+          "log_loss": 2.30742362635501,
+          "brier": 0.9089505098139192,
+          "winner_probability": 0.09951731534849158
+        },
+        {
+          "race_id": "943773",
+          "date": "2026-10-16",
+          "log_loss": 1.8633289872594847,
+          "brier": 0.8050399457706329,
+          "winner_probability": 0.15515525980266034
+        },
+        {
+          "race_id": "943774",
+          "date": "2026-10-16",
+          "log_loss": 2.0159769952747975,
+          "brier": 0.8826757603434163,
+          "winner_probability": 0.13319021356959043
+        },
+        {
+          "race_id": "943775",
+          "date": "2026-10-16",
+          "log_loss": 2.8768082852031585,
+          "brier": 0.9967507848435931,
+          "winner_probability": 0.05631421521535812
+        },
+        {
+          "race_id": "944209",
+          "date": "2026-10-19",
+          "log_loss": 2.688634109309833,
+          "brier": 0.9887679106405387,
+          "winner_probability": 0.06797372066501661
+        },
+        {
+          "race_id": "944211",
+          "date": "2026-10-19",
+          "log_loss": 2.0999602908879043,
+          "brier": 0.8873763561105964,
+          "winner_probability": 0.12246129098556502
+        },
+        {
+          "race_id": "944214",
+          "date": "2026-10-19",
+          "log_loss": 2.9437006534883876,
+          "brier": 0.9833574806855899,
+          "winner_probability": 0.052670452542502556
+        },
+        {
+          "race_id": "944217",
+          "date": "2026-10-19",
+          "log_loss": 3.78006456513866,
+          "brier": 1.0788438891988024,
+          "winner_probability": 0.02282121792242548
+        },
+        {
+          "race_id": "944218",
+          "date": "2026-10-19",
+          "log_loss": 2.4847673982096987,
+          "brier": 0.9293145768272509,
+          "winner_probability": 0.08334493843952104
+        },
+        {
+          "race_id": "944220",
+          "date": "2026-10-19",
+          "log_loss": 2.464654274341816,
+          "brier": 0.9241519608008308,
+          "winner_probability": 0.08503823719065876
+        },
+        {
+          "race_id": "944221",
+          "date": "2026-10-19",
+          "log_loss": 2.024234156595827,
+          "brier": 0.8379769500347501,
+          "winner_probability": 0.13209496852016883
+        },
+        {
+          "race_id": "944222",
+          "date": "2026-10-19",
+          "log_loss": 2.5742780850356666,
+          "brier": 0.9559704989373365,
+          "winner_probability": 0.07620881923186541
+        },
+        {
+          "race_id": "944223",
+          "date": "2026-10-19",
+          "log_loss": 2.2354871566912915,
+          "brier": 0.8927856457487374,
+          "winner_probability": 0.10694002061485361
+        },
+        {
+          "race_id": "944224",
+          "date": "2026-10-19",
+          "log_loss": 2.4954086251341847,
+          "brier": 1.025328260553043,
+          "winner_probability": 0.08246274815468913
+        },
+        {
+          "race_id": "944897",
+          "date": "2026-10-19",
+          "log_loss": 2.0121591251723068,
+          "brier": 0.8428502570341648,
+          "winner_probability": 0.1336996884395114
+        },
+        {
+          "race_id": "944786",
+          "date": "2026-10-22",
+          "log_loss": 3.042740493385816,
+          "brier": 1.0079664726289896,
+          "winner_probability": 0.04770397775923242
+        },
+        {
+          "race_id": "944787",
+          "date": "2026-10-22",
+          "log_loss": 2.7077853822372253,
+          "brier": 0.9727241878795477,
+          "winner_probability": 0.06668432359550638
+        },
+        {
+          "race_id": "944788",
+          "date": "2026-10-22",
+          "log_loss": 1.9280178669764998,
+          "brier": 0.8225044523362824,
+          "winner_probability": 0.14543618684246928
+        },
+        {
+          "race_id": "944789",
+          "date": "2026-10-22",
+          "log_loss": 2.2926474413792035,
+          "brier": 0.907414863405677,
+          "winner_probability": 0.10099871940504757
+        },
+        {
+          "race_id": "944792",
+          "date": "2026-10-22",
+          "log_loss": 2.365017891514734,
+          "brier": 0.9471139853067514,
+          "winner_probability": 0.0939476194882242
+        },
+        {
+          "race_id": "944793",
+          "date": "2026-10-22",
+          "log_loss": 2.39082077058418,
+          "brier": 0.9444923903536381,
+          "winner_probability": 0.09155450778372394
+        },
+        {
+          "race_id": "945342",
+          "date": "2026-10-22",
+          "log_loss": 1.8558932248815005,
+          "brier": 0.812681377138493,
+          "winner_probability": 0.15631325740823873
+        },
+        {
+          "race_id": "946354",
+          "date": "2026-10-31",
+          "log_loss": 2.3289377225335675,
+          "brier": 0.8859075627552455,
+          "winner_probability": 0.0973991570845752
+        },
+        {
+          "race_id": "946895",
+          "date": "2026-10-31",
+          "log_loss": 2.895962009783594,
+          "brier": 0.9871121826328491,
+          "winner_probability": 0.055245852471919536
+        }
+      ]
+    },
+    "form_baseline": {
+      "races": 26,
+      "mean_log_loss": 2.34638406877737,
+      "mean_brier": 0.9038487946474253,
+      "race_scores": [
+        {
+          "race_id": "943768",
+          "date": "2026-10-16",
+          "log_loss": 2.252142809563335,
+          "brier": 0.8816705425104193,
+          "winner_probability": 0.10517361590003015
+        },
+        {
+          "race_id": "943771",
+          "date": "2026-10-16",
+          "log_loss": 2.3752907698954493,
+          "brier": 0.9264854957828357,
+          "winner_probability": 0.0929874473290335
+        },
+        {
+          "race_id": "943772",
+          "date": "2026-10-16",
+          "log_loss": 2.331091762307042,
+          "brier": 0.8977081340270838,
+          "winner_probability": 0.097189581224715
+        },
+        {
+          "race_id": "943773",
+          "date": "2026-10-16",
+          "log_loss": 2.177752118698887,
+          "brier": 0.8849617034913668,
+          "winner_probability": 0.11329592039529361
+        },
+        {
+          "race_id": "943774",
+          "date": "2026-10-16",
+          "log_loss": 2.168382858771589,
+          "brier": 0.900442092135545,
+          "winner_probability": 0.11436240761856951
+        },
+        {
+          "race_id": "943775",
+          "date": "2026-10-16",
+          "log_loss": 2.367901368891285,
+          "brier": 0.9138659894528948,
+          "winner_probability": 0.09367711383873462
+        },
+        {
+          "race_id": "944209",
+          "date": "2026-10-19",
+          "log_loss": 2.1351109584259085,
+          "brier": 0.875234012756713,
+          "winner_probability": 0.11823147087088832
+        },
+        {
+          "race_id": "944211",
+          "date": "2026-10-19",
+          "log_loss": 2.1184948209909575,
+          "brier": 0.861476477653343,
+          "winner_probability": 0.12021243363701777
+        },
+        {
+          "race_id": "944214",
+          "date": "2026-10-19",
+          "log_loss": 2.7023124524328863,
+          "brier": 0.9382601592706944,
+          "winner_probability": 0.06705028273848194
+        },
+        {
+          "race_id": "944217",
+          "date": "2026-10-19",
+          "log_loss": 2.500365750742155,
+          "brier": 0.9197405418029009,
+          "winner_probability": 0.08205498146446612
+        },
+        {
+          "race_id": "944218",
+          "date": "2026-10-19",
+          "log_loss": 2.4821679195635293,
+          "brier": 0.9173664029470664,
+          "winner_probability": 0.08356187366434535
+        },
+        {
+          "race_id": "944220",
+          "date": "2026-10-19",
+          "log_loss": 2.4426529309329132,
+          "brier": 0.9102165724122638,
+          "winner_probability": 0.08692992619283206
+        },
+        {
+          "race_id": "944221",
+          "date": "2026-10-19",
+          "log_loss": 2.327012948901719,
+          "brier": 0.8830623549499055,
+          "winner_probability": 0.09758680894964315
+        },
+        {
+          "race_id": "944222",
+          "date": "2026-10-19",
+          "log_loss": 2.417402853752092,
+          "brier": 0.9240406984092692,
+          "winner_probability": 0.08915286005997425
+        },
+        {
+          "race_id": "944223",
+          "date": "2026-10-19",
+          "log_loss": 2.572711140780536,
+          "brier": 0.9403368014280039,
+          "winner_probability": 0.07632832781053887
+        },
+        {
+          "race_id": "944224",
+          "date": "2026-10-19",
+          "log_loss": 2.0705201765039516,
+          "brier": 0.9205121059902531,
+          "winner_probability": 0.1261201598952045
+        },
+        {
+          "race_id": "944897",
+          "date": "2026-10-19",
+          "log_loss": 2.248984566652798,
+          "brier": 0.8893682070518054,
+          "winner_probability": 0.10550630480647835
+        },
+        {
+          "race_id": "944786",
+          "date": "2026-10-22",
+          "log_loss": 2.5944755341352703,
+          "brier": 0.9352445902702854,
+          "winner_probability": 0.07468503555638764
+        },
+        {
+          "race_id": "944787",
+          "date": "2026-10-22",
+          "log_loss": 2.3565907928238317,
+          "brier": 0.9029336685690981,
+          "winner_probability": 0.09474267063154478
+        },
+        {
+          "race_id": "944788",
+          "date": "2026-10-22",
+          "log_loss": 2.1397009602413974,
+          "brier": 0.8665002582681781,
+          "winner_probability": 0.11769003175878832
+        },
+        {
+          "race_id": "944789",
+          "date": "2026-10-22",
+          "log_loss": 2.4890283506225708,
+          "brier": 0.9267788317186663,
+          "winner_probability": 0.08299056514301113
+        },
+        {
+          "race_id": "944792",
+          "date": "2026-10-22",
+          "log_loss": 2.0937668444538966,
+          "brier": 0.8671374579263237,
+          "winner_probability": 0.12322210202073959
+        },
+        {
+          "race_id": "944793",
+          "date": "2026-10-22",
+          "log_loss": 2.2726868604280734,
+          "brier": 0.8949904553240136,
+          "winner_probability": 0.10303496725755414
+        },
+        {
+          "race_id": "945342",
+          "date": "2026-10-22",
+          "log_loss": 2.1411440835658255,
+          "brier": 0.8584941384010502,
+          "winner_probability": 0.1175203130208939
+        },
+        {
+          "race_id": "946354",
+          "date": "2026-10-31",
+          "log_loss": 2.6425275548965113,
+          "brier": 0.9294642780603775,
+          "winner_probability": 0.07118112778510907
+        },
+        {
+          "race_id": "946895",
+          "date": "2026-10-31",
+          "log_loss": 2.585766599237212,
+          "brier": 0.9337766902227038,
+          "winner_probability": 0.07533830317252929
+        }
+      ]
+    },
+    "uniform": {
+      "races": 26,
+      "mean_log_loss": 2.3511761069476664,
+      "mean_brier": 0.9031533637302867,
+      "race_scores": [
+        {
+          "race_id": "943768",
+          "date": "2026-10-16",
+          "log_loss": 2.3978952727983707,
+          "brier": 0.909090909090909,
+          "winner_probability": 0.09090909090909091
+        },
+        {
+          "race_id": "943771",
+          "date": "2026-10-16",
+          "log_loss": 2.1972245773362196,
+          "brier": 0.8888888888888888,
+          "winner_probability": 0.1111111111111111
+        },
+        {
+          "race_id": "943772",
+          "date": "2026-10-16",
+          "log_loss": 2.3978952727983707,
+          "brier": 0.909090909090909,
+          "winner_probability": 0.09090909090909091
+        },
+        {
+          "race_id": "943773",
+          "date": "2026-10-16",
+          "log_loss": 2.1972245773362196,
+          "brier": 0.8888888888888888,
+          "winner_probability": 0.1111111111111111
+        },
+        {
+          "race_id": "943774",
+          "date": "2026-10-16",
+          "log_loss": 2.0794415416798357,
+          "brier": 0.875,
+          "winner_probability": 0.125
+        },
+        {
+          "race_id": "943775",
+          "date": "2026-10-16",
+          "log_loss": 2.3025850929940455,
+          "brier": 0.9,
+          "winner_probability": 0.1
+        },
+        {
+          "race_id": "944209",
+          "date": "2026-10-19",
+          "log_loss": 2.1972245773362196,
+          "brier": 0.8888888888888888,
+          "winner_probability": 0.1111111111111111
+        },
+        {
+          "race_id": "944211",
+          "date": "2026-10-19",
+          "log_loss": 2.3025850929940455,
+          "brier": 0.9,
+          "winner_probability": 0.1
+        },
+        {
+          "race_id": "944214",
+          "date": "2026-10-19",
+          "log_loss": 2.639057329615259,
+          "brier": 0.9285714285714286,
+          "winner_probability": 0.07142857142857142
+        },
+        {
+          "race_id": "944217",
+          "date": "2026-10-19",
+          "log_loss": 2.4849066497880004,
+          "brier": 0.9166666666666665,
+          "winner_probability": 0.08333333333333333
+        },
+        {
+          "race_id": "944218",
+          "date": "2026-10-19",
+          "log_loss": 2.4849066497880004,
+          "brier": 0.9166666666666665,
+          "winner_probability": 0.08333333333333333
+        },
+        {
+          "race_id": "944220",
+          "date": "2026-10-19",
+          "log_loss": 2.4849066497880004,
+          "brier": 0.9166666666666665,
+          "winner_probability": 0.08333333333333333
+        },
+        {
+          "race_id": "944221",
+          "date": "2026-10-19",
+          "log_loss": 2.5649493574615367,
+          "brier": 0.9230769230769232,
+          "winner_probability": 0.07692307692307693
+        },
+        {
+          "race_id": "944222",
+          "date": "2026-10-19",
+          "log_loss": 2.3025850929940455,
+          "brier": 0.9,
+          "winner_probability": 0.1
+        },
+        {
+          "race_id": "944223",
+          "date": "2026-10-19",
+          "log_loss": 2.3978952727983707,
+          "brier": 0.909090909090909,
+          "winner_probability": 0.09090909090909091
+        },
+        {
+          "race_id": "944224",
+          "date": "2026-10-19",
+          "log_loss": 1.791759469228055,
+          "brier": 0.8333333333333334,
+          "winner_probability": 0.16666666666666666
+        },
+        {
+          "race_id": "944897",
+          "date": "2026-10-19",
+          "log_loss": 2.3025850929940455,
+          "brier": 0.9,
+          "winner_probability": 0.1
+        },
+        {
+          "race_id": "944786",
+          "date": "2026-10-22",
+          "log_loss": 2.4849066497880004,
+          "brier": 0.9166666666666665,
+          "winner_probability": 0.08333333333333333
+        },
+        {
+          "race_id": "944787",
+          "date": "2026-10-22",
+          "log_loss": 2.3978952727983707,
+          "brier": 0.909090909090909,
+          "winner_probability": 0.09090909090909091
+        },
+        {
+          "race_id": "944788",
+          "date": "2026-10-22",
+          "log_loss": 2.3025850929940455,
+          "brier": 0.9,
+          "winner_probability": 0.1
+        },
+        {
+          "race_id": "944789",
+          "date": "2026-10-22",
+          "log_loss": 2.3978952727983707,
+          "brier": 0.909090909090909,
+          "winner_probability": 0.09090909090909091
+        },
+        {
+          "race_id": "944792",
+          "date": "2026-10-22",
+          "log_loss": 2.1972245773362196,
+          "brier": 0.8888888888888888,
+          "winner_probability": 0.1111111111111111
+        },
+        {
+          "race_id": "944793",
+          "date": "2026-10-22",
+          "log_loss": 2.3025850929940455,
+          "brier": 0.9,
+          "winner_probability": 0.1
+        },
+        {
+          "race_id": "945342",
+          "date": "2026-10-22",
+          "log_loss": 2.3978952727983707,
+          "brier": 0.909090909090909,
+          "winner_probability": 0.09090909090909091
+        },
+        {
+          "race_id": "946354",
+          "date": "2026-10-31",
+          "log_loss": 2.639057329615259,
+          "brier": 0.9285714285714286,
+          "winner_probability": 0.07142857142857142
+        },
+        {
+          "race_id": "946895",
+          "date": "2026-10-31",
+          "log_loss": 2.4849066497880004,
+          "brier": 0.9166666666666665,
+          "winner_probability": 0.08333333333333333
+        }
+      ]
+    }
+  },
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "research_only": true,
+  "limitations": [
+    "Historical first availability is not attested. Cards fetched after results may be corrected.",
+    "Conditions on final runner field; not an auditable pre-off non-runner simulation.",
+    "No prices, betting returns or prospective challenge credit.",
+    "Small fixed-date sample; no calibration claim or evidence of betting profitability.",
+    "Final-field reconstruction is not a prospective test. Test is single-publisher and exploratory.",
+    "Feature definitions and L2 grid fixed before inspecting test metrics. Further tuning requires a new untouched test period.",
+    "No SP/odds, editorial ratings or target-race results are used as features.",
+    "No going-specific, trainer/jockey or draw model. Course is a sparse past-performance feature only."
+  ],
+  "promotion_status": "NOT_PROMOTED_FAILED_RETROSPECTIVE_COMPARISON",
+  "artifact_sha256": "364453810c63fad5f4460828f562e15174d16544d177316d08f681b87aedadc4"
+}
