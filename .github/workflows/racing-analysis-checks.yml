@@ -2,9 +2,9 @@ name: Research dashboard and worksheet checks
 on:
   push:
     branches: [main]
-    paths: ['index.html', 'sportsbook.css', 'track-record/**', 'tests/test_research_track.cjs', 'dashboard-core.js', 'dashboard-data.js', 'tests/test_dashboard_core.cjs', 'racing-research/analysis*', 'racing-research/sources*', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
+    paths: ['index.html', 'sportsbook.css', 'track-record/**', 'tests/test_research_track.cjs', 'dashboard-core.js', 'dashboard-data.js', 'tests/test_dashboard_core.cjs', 'racing-research/analysis*', 'racing-research/sources*', 'racing-research/advice*', 'tests/test_horse_advice.cjs', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
   pull_request:
-    paths: ['index.html', 'sportsbook.css', 'track-record/**', 'tests/test_research_track.cjs', 'dashboard-core.js', 'dashboard-data.js', 'tests/test_dashboard_core.cjs', 'racing-research/analysis*', 'racing-research/sources*', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
+    paths: ['index.html', 'sportsbook.css', 'track-record/**', 'tests/test_research_track.cjs', 'dashboard-core.js', 'dashboard-data.js', 'tests/test_dashboard_core.cjs', 'racing-research/analysis*', 'racing-research/sources*', 'racing-research/advice*', 'tests/test_horse_advice.cjs', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
 permissions:
   contents: read
 jobs:
@@ -20,6 +20,8 @@ jobs:
           node --check racing-research/analysis-core.js
           node --check racing-research/analysis.js
           node --check racing-research/sources.js
+          node --check racing-research/advice-core.js
+          node tests/test_horse_advice.cjs
           node --check racing-research/recommendations.js
           node tests/test_racing_analysis.cjs
           node --check dashboard-core.js
@@ -28,4 +30,5 @@ jobs:
           node --check track-record/core.js
           node --check track-record/app.js
           node tests/test_research_track.cjs
+
 
