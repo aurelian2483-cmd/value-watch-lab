@@ -37,6 +37,7 @@
   const foot=add(a,'div',undefined,'event-card-foot');add(foot,'span','EXPERIMENTAL · WIN HYPOTHESIS','paper-label');add(foot,'span',r.runners.length+' runners · field checked '+short(r.fieldChecked)+' UK');
  }
  function renderEvents(){
+  $('race-decisions').hidden=!['all','racing'].includes(state.sport);
   const root=$('sports-event-list');root.replaceChildren();const query=state.query.toLocaleLowerCase().trim();
   const football=games.filter(r=>current(r)&&(state.league==='all'||state.league===r.league)&&(!query||(r.home+' '+r.away+' '+r.league_name).toLocaleLowerCase().includes(query)));
   const racing=races.filter(r=>current(r)&&(!query||(r.race_name+' '+r.racecourse+' '+r.runners.map(h=>h.name).join(' ')).toLocaleLowerCase().includes(query)));
@@ -75,3 +76,4 @@
  $('event-search').oninput=e=>{state.query=e.target.value;state.limit=8;state.view='selections';views();renderEvents()};$('league-filter').onchange=e=>{state.league=e.target.value;state.limit=8;views();renderEvents()};$('load-more-events').onclick=()=>{state.limit+=8;renderEvents()};$('refresh-dashboard').onclick=()=>window.location.reload();
  new MutationObserver(sync).observe($('basket'),{childList:true,subtree:true});setInterval(()=>{renderEvents();renderResearch()},60000);views();sync();load();
 })();
+
