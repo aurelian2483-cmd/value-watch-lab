@@ -1,0 +1,22 @@
+name: Racing analysis worksheet checks
+on:
+  push:
+    branches: [main]
+    paths: ['racing-research/analysis*', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
+  pull_request:
+    paths: ['racing-research/analysis*', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
+permissions:
+  contents: read
+jobs:
+  worksheet:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check scripts and quantitative controls
+        run: |
+          node --check racing-research/analysis-core.js
+          node --check racing-research/analysis.js
+          node tests/test_racing_analysis.cjs
