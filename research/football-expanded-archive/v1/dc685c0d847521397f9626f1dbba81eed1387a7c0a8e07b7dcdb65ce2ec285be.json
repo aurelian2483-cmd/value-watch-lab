@@ -1,0 +1,75 @@
+{
+  "league": "SP1",
+  "home": "Alav\u00e9s",
+  "away": "Deportivo",
+  "kickoff_utc": "2026-11-21T13:00:00Z",
+  "espn_event_id": "401882806",
+  "league_name": "La Liga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=20261121&limit=100",
+      "sha256": "14212d80501cccc7c1687d949f8e50b4fb0346203005a1b07e5c576946c53c98",
+      "observed_at_utc": "2026-11-03T16:31:53.455425Z"
+    },
+    {
+      "url": "https://www.skysports.com/la-liga-scores-fixtures/2026-11-01",
+      "sha256": "a0b5844bd2f17562beea2b365c497ee7190f48a5cb9c33dac3f9c2f6a5b2101b",
+      "observed_at_utc": "2026-11-03T16:32:01.780187Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_SP1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.5002724294444191,
+  "prob_draw": 0.23787803626535609,
+  "prob_away": 0.2618495342902249,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 6,
+    "away_matches": 5,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 109,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/SP1.csv",
+        "sha256": "a382f00d78d85eae814e8b06a4a0d5ba0dd70905156f20b02f8c0e6c28b7c7d6",
+        "observed_at_utc": "2026-11-03T16:32:04.526558Z"
+      }
+    ],
+    "training_sha256": "38680760b941676384331dec51996496153cb79af7803e2ecfba0570a321fac4",
+    "lambda_home": 1.7202767539257628,
+    "lambda_away": 1.1800749450833439,
+    "home_venue_inputs": {
+      "hgf": 11,
+      "hga": 6,
+      "hn": 6,
+      "agf": 4,
+      "aga": 11,
+      "an": 5
+    },
+    "away_venue_inputs": {
+      "hgf": 8,
+      "hga": 6,
+      "hn": 6,
+      "agf": 7,
+      "aga": 8,
+      "an": 5
+    },
+    "league_home_mean": 1.7064220183486238,
+    "league_away_mean": 1.3027522935779816
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-03T16:32:16.990774Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "8379b66c0aeb0b4bc6bd63e446de1758826305a839640df3c2c0b1a7cb922b54",
+  "record_sha256": "dc685c0d847521397f9626f1dbba81eed1387a7c0a8e07b7dcdb65ce2ec285be"
+}

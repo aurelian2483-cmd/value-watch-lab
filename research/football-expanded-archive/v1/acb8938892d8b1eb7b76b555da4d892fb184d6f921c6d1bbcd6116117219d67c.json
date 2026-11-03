@@ -1,0 +1,75 @@
+{
+  "league": "I1",
+  "home": "Monza",
+  "away": "Fiorentina",
+  "kickoff_utc": "2026-11-23T19:45:00Z",
+  "espn_event_id": "401875009",
+  "league_name": "Serie A",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/scoreboard?dates=20261123&limit=100",
+      "sha256": "182e357d82fac5d630013fb3a13e8ed421f652cf82a3e799c5441ac4a7ce4858",
+      "observed_at_utc": "2026-11-03T16:31:54.946345Z"
+    },
+    {
+      "url": "https://www.skysports.com/serie-a-scores-fixtures/2026-11-01",
+      "sha256": "bbb8048ae9b660832186c6871c45c835b9d774e789ffcdb2685ec095b96ca9ec",
+      "observed_at_utc": "2026-11-03T16:32:10.410215Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_I1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.4678690141125449,
+  "prob_draw": 0.1950476477532373,
+  "prob_away": 0.33708333813421787,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 4,
+    "away_matches": 5,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 100,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/I1.csv",
+        "sha256": "4138a4f01e96312a7a5dc07450c7a520c3861a479620fe3d102f12d42a6678ba",
+        "observed_at_utc": "2026-11-03T16:32:12.711902Z"
+      }
+    ],
+    "training_sha256": "68b63e515b919f366adfc19700c882d46a6f9a89f804b70488bb4e54fe099a39",
+    "lambda_home": 2.3574074074074076,
+    "lambda_away": 2.0031339031339033,
+    "home_venue_inputs": {
+      "hgf": 9,
+      "hga": 8,
+      "hn": 4,
+      "agf": 8,
+      "aga": 16,
+      "an": 6
+    },
+    "away_venue_inputs": {
+      "hgf": 5,
+      "hga": 11,
+      "hn": 5,
+      "agf": 10,
+      "aga": 12,
+      "an": 5
+    },
+    "league_home_mean": 1.62,
+    "league_away_mean": 1.56
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-03T16:32:16.990774Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "5007d2a56ed14d74f6e55442fd52cc6287bd76cd4daa4a8db13062e0110992e4",
+  "record_sha256": "acb8938892d8b1eb7b76b555da4d892fb184d6f921c6d1bbcd6116117219d67c"
+}
