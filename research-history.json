@@ -4,12 +4,80 @@
   "model_validation": "UNVALIDATED",
   "publication_gate": "BLOCKED",
   "official_challenge": "0/100",
-  "generated_at_utc": "2026-11-03T01:02:59.719203+00:00",
-  "sample_size": 0,
+  "generated_at_utc": "2026-11-03T16:16:58.542138+00:00",
+  "sample_size": 2,
   "metrics_status": "INSUFFICIENT_SAMPLE",
-  "mean_multiclass_brier_score": null,
-  "mean_log_loss": null,
-  "entries": [],
-  "unique_fixture_count": 0,
-  "model_metrics": {}
+  "mean_multiclass_brier_score": 0.6713321158876259,
+  "mean_log_loss": 1.0886097075019099,
+  "entries": [
+    {
+      "record_sha256": "3fbc4929fc319fbd09d5ed1fb47959cf96bdbf56cc87d084306cade7c7103b15",
+      "home": "Newcastle",
+      "away": "Everton",
+      "kickoff_utc": "2026-11-02T20:00:00Z",
+      "score_home": 0,
+      "score_away": 1,
+      "actual_outcome": "A",
+      "multiclass_brier_score": 0.7171607908502167,
+      "log_loss": 1.1553028951265367,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261102&limit=100",
+          "sha256": "1825f0cbe838b9ff842ed1d0814ae9d0e4bf14b8b6e0c9891ca168bbee9ac29b",
+          "received_at_utc": "2026-11-03T16:16:55.975868+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "c429b75f681dc7aaec5641a23320402409530b4b01a9f147bb7e386fe508159b",
+          "received_at_utc": "2026-11-03T16:16:57.127812+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "8c8cf3b5721b129e11f4979e7a8647400644b424f3522ca2f8f072b53b8cebdd",
+      "home": "Newcastle United",
+      "away": "Everton",
+      "kickoff_utc": "2026-11-02T20:00:00Z",
+      "score_home": 0,
+      "score_away": 1,
+      "actual_outcome": "A",
+      "multiclass_brier_score": 0.6255034409250351,
+      "log_loss": 1.0219165198772833,
+      "model": "POISSON_BASELINE_2025_26_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261102&limit=100",
+          "sha256": "1825f0cbe838b9ff842ed1d0814ae9d0e4bf14b8b6e0c9891ca168bbee9ac29b",
+          "received_at_utc": "2026-11-03T16:16:57.166261+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "c429b75f681dc7aaec5641a23320402409530b4b01a9f147bb7e386fe508159b",
+          "received_at_utc": "2026-11-03T16:16:58.315501+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    }
+  ],
+  "unique_fixture_count": 2,
+  "model_metrics": {
+    "LEGACY_ARCHIVE": {
+      "scored_forecasts": 1,
+      "mean_multiclass_brier_score": 0.7171607908502167,
+      "mean_log_loss": 1.1553028951265367,
+      "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION"
+    },
+    "POISSON_BASELINE_2025_26_V1": {
+      "scored_forecasts": 1,
+      "mean_multiclass_brier_score": 0.6255034409250351,
+      "mean_log_loss": 1.0219165198772833,
+      "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION"
+    }
+  }
 }
