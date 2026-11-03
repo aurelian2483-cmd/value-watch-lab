@@ -81,4 +81,14 @@ class FormModelTests(unittest.TestCase):
   data={**self.data,'race_date_uk':'2026-11-02'}
   self.assertEqual(m.race_cycle(data,[],self.now)['status'],'NO_SUPPORTED_UPCOMING_FORECASTS')
   self.assertEqual(m.race_cycle(data,[],self.now+dt.timedelta(hours=2))['status'],'COLLECTED_CARD_FINISHED')
+ def test_latest_field_observation_is_separate_from_frozen_capture(self):
+  current,records,_=self.archive();original=copy.deepcopy(records)
+  self.race['runner_observed_at_utc']=(self.now+dt.timedelta(minutes=10)).isoformat()
+  checks=m.current_field_checks(self.data,current,self.now+dt.timedelta(minutes=11))
+  self.assertEqual(checks[current[0]['record_sha256']]['status'],'FRESH_MATCHING_FIELD');self.assertEqual(records,original)
+  checks=m.current_field_checks(self.data,current,self.now+dt.timedelta(minutes=41))
+  self.assertEqual(checks[current[0]['record_sha256']]['status'],'STALE_RUNNER_OBSERVATION')
+  self.race['runners'][0]['active_runner']=False
+  checks=m.current_field_checks(self.data,current,self.now+dt.timedelta(minutes=11))
+  self.assertEqual(checks[current[0]['record_sha256']]['status'],'FIELD_DIFFERS_FROM_FROZEN_FORECAST')
 if __name__=='__main__':unittest.main()

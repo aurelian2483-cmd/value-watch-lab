@@ -224,6 +224,20 @@ def race_cycle(data,current,now):
   'next_observed_start_utc':min((r['startUTC'] for r in upcoming),default=None),
   'status':'UPCOMING_FORECASTS_AVAILABLE' if current else 'NO_SUPPORTED_UPCOMING_FORECASTS' if upcoming else 'COLLECTED_CARD_FINISHED'}
 
+def current_field_checks(data,forecasts,now):
+ races={r['race_id']:r for r in data['races']};checks={}
+ for f in forecasts:
+  r=races.get(f['race_id']);status='RUNNER_OBSERVATION_UNAVAILABLE';observed=None;ids=[]
+  if r and r.get('runner_data_status')=='SINGLE_SOURCE_RUNNERS_OBSERVED':
+   observed=r.get('runner_observed_at_utc');ids=sorted(x['horse_id'] for x in r['runners'] if x.get('active_runner') is True)
+   age=now-stamp(observed)
+   if not dt.timedelta(0)<=age<=dt.timedelta(minutes=PARAMETERS['maximum_runner_age_minutes']):status='STALE_RUNNER_OBSERVATION'
+   elif ids!=sorted(x['horse_id'] for x in f['runners']):status='FIELD_DIFFERS_FROM_FROZEN_FORECAST'
+   elif abs((stamp(r['startUTC'])-stamp(f['startUTC'])).total_seconds())>60:status='SCHEDULE_CHANGED'
+   else:status='FRESH_MATCHING_FIELD'
+  checks[f['record_sha256']]={'status':status,'runner_observed_at_utc':observed,'active_runner_ids':ids,'active_runner_count':len(ids),'checked_at_utc':now.isoformat()}
+ return checks
+
 def main():
  data=json.loads((WORK/'racing-research-data.json').read_text());now=dt.datetime.now(UTC)
  current,archived,audit=archive_forecasts(data,now,ROOT/'research/horse-form-archive/v1')
@@ -249,6 +263,7 @@ def main():
   'race_date_uk':data['race_date_uk'],'runner_audit':data.get('runner_audit'),
   'race_count':len(data['races']),'reference_baseline_audit':data.get('reference_baseline_audit'),
   'form_forecasts':current,'form_model_audit':audit,'performance':performance,
+  'current_field_checks':current_field_checks(data,current,now),
   'settled_forecasts':settled_history(archived,performance),'settled_history_limit':20,'race_cycle_audit':race_cycle(data,current,now),
   'limitations':['Exploratory heuristic, not a trained or calibrated AI model.',
    'Restricted to all-weather races with at least three valid prior Flat finishes for every active runner.',
