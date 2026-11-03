@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),C=require('../dashboard-core.js');
+const defaults=[{id:'old',selection:'Old pick',sport:'Horses',event:'Ascot · 31 Oct 2026 · 14:00 GMT'}];
+const imported=[{id:'custom-import',selection:'My saved pick',sport:'Football',event:'My match · 7 Nov 2026 · 15:00 GMT'}];
+const state=C.restoreTrial(defaults,JSON.stringify({data:imported,selected:['custom-import']}));
+assert.equal(state.data[0].id,'custom-import');assert.deepEqual(state.selected,['custom-import']);assert.equal(state.loadError,false);
+assert.deepEqual(C.restoreTrial(defaults,JSON.stringify({data:[],selected:[]})).data,[]);
+assert.equal(C.restoreTrial(defaults,'null').loadError,true);assert.equal(C.restoreTrial(defaults,'broken').loadError,true);
+assert.equal(C.restoreTrial(defaults,JSON.stringify({data:[...imported,...imported]})).loadError,true);
+assert.equal(C.restoreTrial(defaults,null).data[0].id,'old');assert.equal(defaults[0].sample,undefined);
+const now=Date.parse('2026-11-03T19:01:00Z');
+assert.equal(C.recordTiming(defaults[0],now),'ARCHIVED');assert.equal(C.recordTiming(imported[0],now),'UPCOMING');
+assert.equal(C.recordTiming({event:'Unknown date'},now),'TIME_UNCONFIRMED');
+assert.equal(C.recordTiming({event:'31 Feb 2026 · 14:00 GMT'},now),'TIME_UNCONFIRMED');
+assert.equal(C.recordTiming({startUTC:'2026-11-03T19:45:00Z'},now),'UPCOMING');
+console.log('Dashboard persistence and historical-event checks passed.');

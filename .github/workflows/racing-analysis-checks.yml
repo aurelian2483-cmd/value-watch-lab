@@ -1,10 +1,10 @@
-name: Racing analysis worksheet checks
+name: Research dashboard and worksheet checks
 on:
   push:
     branches: [main]
-    paths: ['racing-research/analysis*', 'racing-research/sources*', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
+    paths: ['index.html', 'dashboard-core.js', 'dashboard-data.js', 'tests/test_dashboard_core.cjs', 'racing-research/analysis*', 'racing-research/sources*', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
   pull_request:
-    paths: ['racing-research/analysis*', 'racing-research/sources*', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
+    paths: ['index.html', 'dashboard-core.js', 'dashboard-data.js', 'tests/test_dashboard_core.cjs', 'racing-research/analysis*', 'racing-research/sources*', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
 permissions:
   contents: read
 jobs:
@@ -22,3 +22,6 @@ jobs:
           node --check racing-research/sources.js
           node --check racing-research/recommendations.js
           node tests/test_racing_analysis.cjs
+          node --check dashboard-core.js
+          node --check dashboard-data.js
+          node tests/test_dashboard_core.cjs
