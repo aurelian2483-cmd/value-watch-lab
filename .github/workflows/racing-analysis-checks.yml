@@ -2,9 +2,9 @@ name: Racing analysis worksheet checks
 on:
   push:
     branches: [main]
-    paths: ['racing-research/analysis*', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
+    paths: ['racing-research/analysis*', 'racing-research/sources*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
   pull_request:
-    paths: ['racing-research/analysis*', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
+    paths: ['racing-research/analysis*', 'racing-research/sources*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
 permissions:
   contents: read
 jobs:
@@ -19,4 +19,5 @@ jobs:
         run: |
           node --check racing-research/analysis-core.js
           node --check racing-research/analysis.js
+          node --check racing-research/sources.js
           node tests/test_racing_analysis.cjs
