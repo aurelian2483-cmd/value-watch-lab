@@ -1,0 +1,74 @@
+{
+  "league": "F1",
+  "home": "AJ Auxerre",
+  "away": "Paris FC",
+  "kickoff_utc": "2026-11-07T18:00:00Z",
+  "espn_event_id": "401876411",
+  "league_name": "Ligue 1",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/fra.1/scoreboard?dates=20261107&limit=100",
+      "sha256": "22043d367cae637b7080c39abd1229a0ede43bcd59a6bbb7c5423f9f7c3414e2",
+      "observed_at_utc": "2026-11-04T16:34:38.541657Z"
+    },
+    {
+      "url": "https://www.skysports.com/ligue-1-scores-fixtures/2026-11-01",
+      "sha256": "a663d417dda38f80dd9ff49064ac76ba23a1b91ba5593404348d2835c8cccc7e",
+      "observed_at_utc": "2026-11-04T16:34:51.968642Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_F1_PRIOR_SEASON",
+  "prob_home": 0.365442902279138,
+  "prob_draw": 0.3063209044327601,
+  "prob_away": 0.32823619328810194,
+  "training_basis": {
+    "mode": "PRIOR_SEASON",
+    "home_matches": 17,
+    "away_matches": 17,
+    "league_average_pseudo_matches": 5,
+    "small_sample": false,
+    "training_matches": 306,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2526/F1.csv",
+        "sha256": "898b7ddcd373cfe955ae353b1a98cf7f1c8757ca10b69d53039f4e098e88f192",
+        "observed_at_utc": "2026-11-04T16:34:52.981045Z"
+      }
+    ],
+    "training_sha256": "fcd744c0740a9c873fe8e9314fa2a7ee40eac8680ce7979d4663594dd773f706",
+    "lambda_home": 1.0460460440351722,
+    "lambda_away": 0.9746907685350394,
+    "home_venue_inputs": {
+      "hgf": 18,
+      "hga": 17,
+      "hn": 17,
+      "agf": 16,
+      "aga": 27,
+      "an": 17
+    },
+    "away_venue_inputs": {
+      "hgf": 28,
+      "hga": 27,
+      "hn": 17,
+      "agf": 19,
+      "aga": 23,
+      "an": 17
+    },
+    "league_home_mean": 1.5816993464052287,
+    "league_away_mean": 1.238562091503268
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-04T16:34:53.963555Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "d27abafbfb977e99e2733df0da509e971df339f8bb4764982f3490a2b9c658fe"
+}
