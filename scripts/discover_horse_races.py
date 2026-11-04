@@ -11,7 +11,11 @@ from zoneinfo import ZoneInfo
 
 SOURCE='https://www.sportinglife.com/racing/racecards'
 OUT=Path('/tmp/horse-research')
-COUNTRIES={'ENG','SCO','WAL','GB','GBR','IRE','IRL','NI','NIR'}
+COUNTRY_ALIASES={'ENG':'ENG','ENGLAND':'ENG','SCO':'SCO','SCOT':'SCO','SCOTLAND':'SCO','WAL':'WAL','WALE':'WAL','WALES':'WAL','GB':'GBR','GBR':'GBR','UK':'GBR','IRE':'IRE','IRL':'IRE','EIRE':'IRE','IRELAND':'IRE','NI':'NIR','NIR':'NIR','NORTHERNIRELAND':'NIR'}
+COUNTRIES=set(COUNTRY_ALIASES.values())
+
+def country_code(value):
+ return COUNTRY_ALIASES.get(re.sub(r'[^A-Z]','',str(value or '').upper()))
 
 class PageData(HTMLParser):
  def __init__(self):
@@ -33,11 +37,14 @@ def discover(raw,observed):
  if parser.blocks!=1:raise ValueError('Missing or ambiguous structured page data')
  props=json.loads(''.join(parser.parts))['props']['pageProps']
  if props.get('hasError') is not False or not isinstance(props.get('meetings'),list):raise ValueError('Racecard source error/schema change')
- today=observed.astimezone(ZoneInfo('Europe/London')).date();races=[];seen=set();rejected=[]
+ today=observed.astimezone(ZoneInfo('Europe/London')).date();races=[];seen=set();rejected=[];included_meetings=[];excluded_countries=[]
  for meeting in props['meetings']:
   summary=meeting['meeting_summary'];course=summary['course']
-  if course['country']['short_name'] not in COUNTRIES:continue
+  raw_country=course.get('country',{}).get('short_name');canonical_country=country_code(raw_country)
+  if canonical_country is None:
+   excluded_countries.append({'meeting':course.get('name'),'source_country':raw_country});continue
   if summary.get('visible') is not True:continue
+  included_meetings.append({'racecourse':course['name'],'country':canonical_country,'source_country':raw_country,'source_race_count':len(meeting.get('races',[]))})
   for race in meeting['races']:
    if race.get('hidden') is True:continue
    try:
@@ -55,10 +62,10 @@ def discover(raw,observed):
     if not link:
      slug=lambda text:re.sub(r'[^a-z0-9]+','-',text.lower()).strip('-')
      link='/racing/racecards/'+day.isoformat()+'/'+slug(course['name'])+'/racecard/'+race_id+'/'+slug(race['name'])
-    races.append({'race_id':race_id,'racecourse':course['name'],'country':course['country']['short_name'],
+    races.append({'race_id':race_id,'racecourse':course['name'],'country':canonical_country,'source_country':raw_country,
      'name':race['name'],'startUTC':kickoff.isoformat(),'race_stage':race['race_stage'],
      'surface':race.get('course_surface',{}).get('surface'),'going':race.get('going'),
-     'distance':race.get('distance'),'race_class':race.get('race_class'),
+     'distance':race.get('distance'),'race_class':race.get('race_class'),'has_handicap':race.get('has_handicap'),'going_shortcode':race.get('going_shortcode'),
      'source_runner_count':count,'runners':[],
      'source':'https://www.sportinglife.com'+link,'source_link_type':link_type,
      'observedAtUTC':observed.isoformat(),'verification':'SINGLE_SOURCE_UNVERIFIED',
@@ -69,6 +76,7 @@ def discover(raw,observed):
  return {'schema_version':1,'kind':'HORSE_RACING_EXPERIMENTAL_RESEARCH','generated_at_utc':observed.isoformat(),
   'race_date_uk':today.isoformat(),'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
   'official_challenge':{'completed':0,'status':'NOT_STARTED'},'coverage_verified':False,
+  'discovery_coverage':{'observed_source_meetings':len(props['meetings']),'included_meetings':included_meetings,'excluded_country_meetings':excluded_countries,'complete_external_coverage_verified':False},
   'status':'RACES_DISCOVERED_RUNNER_DATA_PENDING','source_receipts':[{'url':SOURCE,'sha256':hashlib.sha256(raw).hexdigest(),
    'observed_at_utc':observed.isoformat()}],'races':sorted(races,key=lambda r:(r['startUTC'],r['race_id'])),
   'candidate_selections':[],'qualified_selections':[],

@@ -37,6 +37,15 @@ class SecondaryTests(unittest.TestCase):
    def pages(inner,path,key,query):return ([self.row,self.row],[]) if key=='racecards' else ([],[])
   d,rows,a=s.collect({'races':[copy.deepcopy(self.race)]},self.now,MockClient(),self.root/'cache')
   self.assertFalse(d['races'][0]['schedule_cross_checked'])
+ def test_explicit_secondary_discipline_and_conflict(self):
+  row={**self.row,'type':'Hurdle'}
+  class Client:
+   def pages(inner,path,key,query):return ([row] if key=='racecards' else []),[]
+  data={'races':[{**self.race,'run_type':'FLAT'}]}
+  output,_,_=s.collect(data,self.now,client=Client(),cache=self.root/'types')
+  self.assertEqual(output['races'][0]['secondary_run_type'],'HURDLE')
+  self.assertTrue(output['races'][0]['discipline_conflict'])
+  self.assertEqual(output['races'][0]['secondary_run_type_receipt'],self.receipt)
  def test_full_field_and_winner_must_agree(self):
   e,reason=s.corroborate(self.record,self.entry,[self.row]);self.assertIsNone(reason);self.assertEqual(e['verification'],'TWO_PUBLISHER_RESULT_CORROBORATED')
   for change in ['field','winner','receipt','ambiguous']:

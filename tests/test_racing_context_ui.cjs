@@ -1,0 +1,28 @@
+const assert=require('node:assert/strict'),C=require('../racecards-core.js');
+const now=Date.parse('2026-11-04T13:00:00Z'),sha='a'.repeat(64),signature='b'.repeat(64),guard={research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED'};
+const r={race_id:'1',startUTC:'2026-11-04T15:00:00Z',race_stage:'DORMANT',runner_data_status:'SINGLE_SOURCE_RUNNERS_OBSERVED',runner_observed_at_utc:'2026-11-04T12:55:00Z',runner_source_sha256:'current-source',active_runner_count:2,runners:[{horse_id:'a',name:'A',active_runner:true,runner_status:'RUNNER'},{horse_id:'b',name:'B',active_runner:true,runner_status:'RUNNER'}]};
+const m={...guard,challenge_eligible:0,model:'CONTEXT_FORM_RESEARCH_V1',race_id:'1',startUTC:r.startUTC,generated_at_utc:'2026-11-04T12:50:00Z',record_sha256:sha,context_signature:signature,odds:null,expected_value:null,runners:[{horse_id:'a',name:'A',model_probability:.4},{horse_id:'b',name:'B',model_probability:.6}]};
+const check={status:'FRESH_MATCHING_FIELD_AND_CONTEXT',context_signature:signature,runner_source_sha256:r.runner_source_sha256,runner_observed_at_utc:r.runner_observed_at_utc,active_runner_ids:['a','b']};
+const f={...guard,generated_at_utc:'2026-11-04T12:56:00Z',forecasts:[m],skipped:[],current_field_checks:{[sha]:check}};
+assert(C.contextForecast(r,f,now).valid);assert(C.contextForecast(r,f,now).fresh);assert.equal(C.contextForecast(r,f,now).record.runners[1].horse_id,'b');
+assert.equal(C.contextForecast(r,f,now+3600000).fresh,false,'frozen weights never masquerade as a current checked field');
+assert.equal(C.contextForecast({...r,runner_source_sha256:'new-source'},f,now).reason,'CONTEXT_CHECK_OUTDATED');
+assert.equal(C.contextForecast(r,{...f,current_field_checks:{[sha]:{...check,context_signature:'other'}}},now).reason,'RACE_CONDITIONS_CHANGED');
+assert.equal(C.contextForecast({...r,runners:[r.runners[0]]},f,now).valid,false);
+assert.equal(C.contextForecast(r,{...f,forecasts:[{...m,runners:[...m.runners,{...m.runners[0]}]}]},now).valid,false);
+assert.equal(C.contextForecast(r,{...f,forecasts:[{...m,odds:2}]},now).valid,false);
+assert.equal(C.contextForecast(r,{...f,forecasts:[{...m,model_validation:'VALIDATED'}]},now).valid,false);
+assert.equal(C.contextForecast(r,{...f,forecasts:[{...m,generated_at_utc:r.startUTC}]},now).valid,false);
+assert.equal(C.contextForecast(r,{...f,forecasts:[],skipped:[{race_id:'1',reason:'INSUFFICIENT_COMPARABLE_FORM_FOR_FULL_FIELD'}]},now).label,'At least one runner lacks enough comparable dated form for this race type.');
+assert.equal(C.contextForecast({...r,runner_data_status:'RUNNER_FIELD_UNCONFIRMED'},f,now).valid,false);
+console.log('Context race UI checks: matching field/conditions/source, freshness, safety, chronology and exact exclusion reasons');
+const quoted={...r,market_observation:{status:'COMPLETE_SOURCE_OBSERVATION',bookmaker:'Sky Bet',publisher:'Sporting Life',executable_verified:false,verification:'SOURCE_OBSERVED_UNVERIFIED',source_sha256:r.runner_source_sha256,source:'https://www.sportinglife.com/card',bookmaker_race_id:'race',bookmaker_market_id:'win',observed_at_utc:r.runner_observed_at_utc,quotes:[{horse_id:'a',decimal:2,fractional:'1/1'},{horse_id:'b',decimal:3,fractional:'2/1'}],history_status:'COMPARABLE_SOURCE_OBSERVATIONS',previous_observation:{record_sha256:sha,bookmaker:'Sky Bet',publisher:'Sporting Life',source:'https://www.sportinglife.com/card',bookmaker_race_id:'race',bookmaker_market_id:'win',observed_at_utc:'2026-11-04T12:30:00Z',active_runner_ids:['a','b'],quotes:[{horse_id:'a',decimal:3,fractional:'2/1'},{horse_id:'b',decimal:2,fractional:'1/1'}]}},runner_source:'https://www.sportinglife.com/card'};
+assert.equal(C.priceMovement(quoted,'a',now).direction,'SHORTENED');assert.equal(C.priceMovement(quoted,'b',now).direction,'DRIFTED');
+assert.equal(C.priceMovement({...quoted,market_observation:{...quoted.market_observation,history_status:'FIELD_CHANGED'}},'a',now),null);
+assert.equal(C.priceMovement({...quoted,market_observation:{...quoted.market_observation,previous_observation:{...quoted.market_observation.previous_observation,bookmaker_market_id:'different'}}},'a',now),null);
+assert.equal(C.priceMovement({...quoted,market_observation:{...quoted.market_observation,previous_observation:{...quoted.market_observation.previous_observation,active_runner_ids:['a']}}},'a',now),null);
+assert.equal(C.priceMovement({...quoted,market_observation:{...quoted.market_observation,previous_observation:{...quoted.market_observation.previous_observation,observed_at_utc:quoted.market_observation.observed_at_utc}}},'a',now),null);
+console.log('Recorded quote comparisons reject changed fields, markets and reversed timestamps');
+
+assert.equal(C.contextForecast({...r,active_runner_count:3},f,now).reason,"INVALID_ACTIVE_FIELD");
+assert.equal(C.contextForecast({...r,runners:[...r.runners,{...r.runners[0]}]},f,now).reason,"INVALID_ACTIVE_FIELD");

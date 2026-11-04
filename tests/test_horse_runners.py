@@ -44,5 +44,20 @@ class RunnerTests(unittest.TestCase):
  def test_postevent_capture_not_treated_as_prematch(self):
   r=parse_card(self.raw(),self.race,self.now+dt.timedelta(hours=3))
   self.assertEqual(r['capture_phase'],'NOT_PRE_EVENT');self.assertFalse(r['forecast_eligible'])
+ def test_current_conditions_are_from_racecard_and_nonfinish_history_is_preserved(self):
+  summary=self.props['race']['race_summary'];summary.update(name='Example Handicap Hurdle (GBB Race)',going='Soft',distance='2m',race_class='4',course_surface={'surface':'TURF'})
+  self.race['going']='Good'
+  past=self.props['race']['rides'][0]['horse']['previous_results'][0];past.update(position=None,casualty={'reason':'Fell'},run_type='HURDLE')
+  result=parse_card(self.raw(),self.race,self.now)
+  self.assertEqual(result['going'],'Soft');self.assertIn('going',result['conditions_changed_since_discovery'])
+  self.assertEqual(result['run_type'],'HURDLE');self.assertEqual(result['run_type_basis'],'EXPLICIT_RACE_TITLE_TERM')
+  hist=result['runners'][0]['previous_results'][0];self.assertEqual(hist['finish_status'],'NON_FINISHER');self.assertEqual(hist['nonfinish_reason'],'Fell')
+ def test_flat_turf_is_not_assumed_for_unknown_or_mixed_histories(self):
+  summary=self.props['race']['race_summary'];summary.update(name='Example Handicap',course_surface={'surface':'TURF'})
+  past=self.props['race']['rides'][0]['horse']['previous_results'][0]
+  result=parse_card(self.raw(),self.race,self.now);self.assertIsNone(result['run_type'])
+  past['run_type']='FLAT';result=parse_card(self.raw(),self.race,self.now)
+  self.assertEqual(result['run_type'],'FLAT');self.assertEqual(result['run_type_basis'],'INFERRED_FULL_FIELD_HISTORY')
+  summary['name']='Hurdle Chase';result=parse_card(self.raw(),self.race,self.now);self.assertIsNone(result['run_type']);self.assertEqual(result['run_type_basis'],'CONFLICTING_SOURCE_TITLE_TERMS')
 if __name__=='__main__':unittest.main()
 

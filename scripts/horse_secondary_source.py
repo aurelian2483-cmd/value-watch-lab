@@ -140,6 +140,11 @@ def collect(data,now,client=None,cache=None):
   race['schedule_cross_checked']=False
   if len(matches)==1 and matches[0].get('race_status') in ('declared','weighed') and matches[0].get('is_abandoned') is not True and stamp(race['startUTC'])>now:
    row=matches[0];race['schedule_cross_checked']=True;race['secondary_schedule_receipt']=row['_source_receipt'];race['secondary_race_id']=row['race_id'];audit['schedule_matches']+=1
+   family={'flat':'FLAT','hurdle':'HURDLE','chase':'CHASE','nh_flat':'NH_FLAT'}.get(str(row.get('type','')).strip().casefold().replace(' ','_'))
+   if family:
+    race['secondary_run_type']=family;race['secondary_run_type_receipt']=row['_source_receipt']
+    primary=race.get('run_type')
+    race['discipline_conflict']=primary in ('FLAT','HURDLE','CHASE','NH_FLAT') and primary!=family
   elif len(matches)>1:race['secondary_schedule_status']='AMBIGUOUS_MATCH'
  directory=cache or ROOT/'research/horse-secondary-results/v1'
  results=cache_results(results,directory);audit['result_rows_cached']=len(results)
