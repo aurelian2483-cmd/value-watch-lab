@@ -5,10 +5,12 @@ import calendar
 import concurrent.futures
 import hashlib
 import json
+import math
 import re
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,23 +18,44 @@ NOW = datetime.now(timezone.utc)
 BASE = 'https://site.api.espn.com/apis/site/v2/sports/'
 RECEIPTS = []
 CACHE = Path('/tmp/value-watch-sports-sources')
+MAX_PART_AGE = timedelta(hours=36)
+
+def current_time():
+    return datetime.now(timezone.utc)
+
 
 def stamp(d):
     return d.isoformat().replace('+00:00', 'Z')
 
 def dt(s):
-    return datetime.fromisoformat(s.replace('Z', '+00:00'))
+    value = datetime.fromisoformat(s.replace('Z', '+00:00'))
+    if value.tzinfo is None:
+        raise ValueError('Timezone is required')
+    return value.astimezone(timezone.utc)
 
 def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+def cache_ttl(path, now):
+    """Live schedules expire quickly; completed past periods are economical to reuse."""
+    query = parse_qs(urlsplit(path).query)
+    dates = query.get('dates', [''])[0]
+    if path.startswith('tennis/') and re.fullmatch(r'\d{8}-\d{8}', dates):
+        if datetime.strptime(dates.split('-')[1], '%Y%m%d').date() < now.replace(day=1).date():
+            return 7*86400
+    if path.startswith('football/nfl/') and dates.isdigit() and len(dates) == 4:
+        if int(dates) < now.year:
+            return 7*86400
+    return 900
 
 def fetch(path):
     url = BASE + path
     key = hashlib.sha256(url.encode()).hexdigest()
     CACHE.mkdir(parents=True, exist_ok=True)
     cached = CACHE / (key + '.json')
-    # Cache only within this run/day; source age remains explicit in receipts.
-    if cached.exists() and NOW.timestamp() - cached.stat().st_mtime < 1800:
+    # Original source collection time remains in receipts when using an Actions cache.
+    age = current_time().timestamp() - cached.stat().st_mtime if cached.exists() else None
+    if age is not None and 0 <= age < cache_ttl(path, current_time()):
         raw = cached.read_bytes()
     else:
         req = urllib.request.Request(url, headers={'User-Agent': 'ValueWatchResearch/1.0'})
@@ -54,7 +77,7 @@ def pair(c, kind):
     players = c.get('competitors', [])
     if len(players) != 2 or any(p.get('type') != kind or not p.get('id') for p in players):
         return None
-    if players[0]['id'] == players[1]['id']:
+    if str(players[0]['id']) == str(players[1]['id']):
         return None
     key = 'athlete' if kind == 'athlete' else 'team'
     if any(not p.get(key, {}).get('displayName') or p[key]['displayName'].upper() in ('TBD', 'TBA') for p in players):
@@ -79,6 +102,8 @@ def final(c, kind):
             result = 1.0 if ps[0].get('winner') else 0.0
         else:
             a, b = [float(p['score']) for p in ps]
+            if any(not math.isfinite(x) or x < 0 or not x.is_integer() for x in (a, b)):
+                return None
             result = 1.0 if a > b else 0.0 if a < b else .5
         return {'id': str(c['id']), 'date': stamp(when), 'a': str(ps[0]['id']), 'b': str(ps[1]['id']), 'result': result}
     except (KeyError, ValueError, TypeError):
@@ -125,7 +150,7 @@ def upcoming(c, kind):
     ps = pair(c, kind)
     try:
         return ps if ps and c.get('status', {}).get('type', {}).get('state') == 'pre' and c.get('timeValid') is True and dt(c['date']) > NOW+timedelta(minutes=5) else None
-    except (ValueError, KeyError):
+    except (ValueError, KeyError, TypeError):
         return None
 
 def tennis():
@@ -161,11 +186,24 @@ def tennis():
                     seen.add(c['id'])
                     rows.append({'id': tour+'-'+str(c['id']), 'name': ' vs '.join(p['athlete']['displayName'] for p in ps),
                                  'competition': tour.upper()+' · '+e['name'], 'startUTC': c['date'],
+                                 'participants': [{'id': str(p['id']), 'name': p['athlete']['displayName']} for p in ps],
                                  'source': BASE+f'tennis/{tour}/scoreboard?dates={NOW:%Y%m%d}&limit=100',
                                  'forecast': forecast(ps, ratings, counts, history, 'athlete'),
                                  'unavailable_reason': 'Requires eight source-observed prior completed singles matches per player.'})
     return {'generated_at_utc': stamp(NOW), 'events': sorted(rows, key=lambda e: e['startUTC']),
-            'limitations': 'Fixed Elo baseline, separate ATP/WTA histories. No surface, fitness, retirement or fatigue model. Scheduled times can move. Historical results are not a verified backtest.'}
+            'limitations': 'Fixed Elo baseline, separate ATP/WTA histories from January of the current year (history resets each January; early-year coverage can be insufficient). No surface, fitness, retirement or fatigue model. Scheduled times can move. Historical results are not a verified backtest.'}
+
+def validate_nfl_coverage(rows, previous_year):
+    previous = unique([r for r in rows if r.get('season') == previous_year])
+    counts = defaultdict(int)
+    for row in previous:
+        counts[row['a']] += 1
+        counts[row['b']] += 1
+    # Current 32-team, 17-game regular-season format: 272 distinct prior games.
+    if len(previous) != 272 or len(counts) != 32 or set(counts.values()) != {17}:
+        raise ValueError('Previous NFL regular-season coverage incomplete; expected 272 games and 17 per team')
+    return {'previous_season': previous_year, 'previous_season_completed_games': len(previous),
+            'previous_season_teams': len(counts), 'verification': 'SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED'}
 
 def nfl():
     current = fetch('football/nfl/scoreboard?limit=100')
@@ -176,12 +214,17 @@ def nfl():
     docs = batch([f'football/nfl/scoreboard?dates={y}&seasontype=2&week={w}&limit=100' for y,w in paths])
     rows = []
     for (y,w), doc in zip(paths, docs):
-        if int(doc.get('season',{}).get('year',0)) != y or int(doc.get('week',{}).get('number',0)) != w:
+        if int(doc.get('season',{}).get('year',0)) != y or int(doc.get('season',{}).get('type',0)) != 2 or int(doc.get('week',{}).get('number',0)) != w or not doc.get('events'):
             raise ValueError('NFL source season/week mismatch')
-        rows.extend(r for e in doc.get('events', []) if e.get('season',{}).get('type') == 2 for c in e.get('competitions', []) if (r := final(c,'team')))
+        for e in doc.get('events', []):
+            if e.get('season', {}).get('year') != y or e.get('season', {}).get('type') != 2:
+                raise ValueError('NFL event season identity mismatch')
+            for c in e.get('competitions', []):
+                r = final(c, 'team')
+                if r:
+                    rows.append({**r, 'season': y})
     history = unique(rows)
-    if len(history) < 272:
-        raise ValueError('NFL history coverage incomplete')
+    coverage = validate_nfl_coverage(history, year-1)
     ratings, counts = fit(history)
     events = []
     for e in current.get('events', []):
@@ -191,32 +234,95 @@ def nfl():
                 continue
             events.append({'id':'nfl-'+str(c['id']), 'name':' vs '.join(p['team']['displayName'] for p in ps),
                            'competition':f'NFL · Week {week}', 'startUTC':c['date'],
+                           'participants':[{'id':str(p['id']),'name':p['team']['displayName']}for p in ps],
                            'source':BASE+'football/nfl/scoreboard?limit=100',
                            'forecast':forecast(ps,ratings,counts,history,'team'),
                            'unavailable_reason':'Requires eight source-observed prior completed games per team.'})
-    return {'generated_at_utc':stamp(NOW),'events':sorted(events,key=lambda e:e['startUTC']),
-            'limitations':'Fixed Elo baseline; no home advantage, quarterback, injury, weather or spread model. Three-way result including overtime; tie prior is smoothed historical frequency. No verified value selections.'}
+    return {'generated_at_utc':stamp(NOW),'events':sorted(events,key=lambda e:e['startUTC']), 'training_coverage':coverage,
+            'limitations':'Regular-season NFL only; postseason and off-season forecasts are not implemented. Fixed Elo baseline; no home advantage, quarterback, injury, weather or spread model. Three-way result including overtime; tie prior is smoothed historical frequency. No verified value selections.'}
+
+def finalize_part(part, started, completed):
+    """Use actual completion, never import time, as this snapshot's time boundary."""
+    result = dict(part)
+    result['collection_started_at_utc'] = stamp(started)
+    result['generated_at_utc'] = stamp(completed)
+    result['collection_status'] = 'COLLECTED'
+    result['result_tracking_status'] = 'NOT_IMPLEMENTED'
+    result['events'] = []
+    for event in part.get('events', []):
+        try:
+            if dt(event['startUTC']) <= completed + timedelta(minutes=5):
+                continue
+        except (KeyError, ValueError, TypeError):
+            continue
+        row = dict(event)
+        if row.get('forecast'):
+            row['forecast'] = {**row['forecast'], 'generated_at_utc': stamp(completed)}
+        result['events'].append(row)
+    return result
+
+def previous_part(document, sport, completed, error):
+    """An isolated failure may retain a still-fresh observation, never renew its age."""
+    try:
+        if document.get('research_only') is not True or document.get('publication_gate') != 'BLOCKED' or document.get('model_validation') != 'UNVALIDATED':
+            return None
+        old = document['sports'][sport]
+        age = completed - dt(old['generated_at_utc'])
+        if not timedelta(0) <= age <= MAX_PART_AGE or not isinstance(old.get('events'), list):
+            return None
+        kept = dict(old)
+        kept['events'] = [e for e in old['events'] if dt(e['startUTC']) > completed + timedelta(minutes=5)]
+        kept['collection_status'] = 'RETAINED_AFTER_COLLECTION_ERROR'
+        kept['last_collection_error'] = error
+        kept['last_collection_attempt_at_utc'] = stamp(completed)
+        kept['result_tracking_status'] = 'NOT_IMPLEMENTED'
+        return kept
+    except (KeyError, ValueError, TypeError):
+        return None
 
 def main():
+    try:
+        previous = json.loads((ROOT/'other-sports-data.json').read_text())
+    except (OSError, ValueError):
+        previous = {}
     sports, errors = {}, {}
-    for sport, collect in [('tennis',tennis),('nfl',nfl)]:
+    run_started = current_time()
+    for sport, collect in [('tennis', tennis), ('nfl', nfl)]:
+        started = current_time()
         try:
-            sports[sport] = collect()
+            sports[sport] = finalize_part(collect(), started, current_time())
         except Exception as exc:
             errors[sport] = type(exc).__name__+': '+str(exc)
+            retained = previous_part(previous, sport, current_time(), errors[sport])
+            if retained:
+                sports[sport] = retained
+            print('::warning title='+sport.upper()+' collection::'+errors[sport].replace('\n', ' '))
     if not sports:
         raise RuntimeError(str(errors))
-    document = {'schema_version':1,'generated_at_utc':stamp(NOW),'research_only':True,'model_validation':'UNVALIDATED',
-                'publication_gate':'BLOCKED','official_challenge':'0/100','sports':sports,'collection_errors':errors,
-                'source_receipts':sorted(RECEIPTS,key=lambda r:r['url'])}
+    completed = current_time()
+    # A second sport can take minutes. Recheck before writing the archive as well.
+    for part in sports.values():
+        part['events'] = [e for e in part['events'] if dt(e['startUTC']) > completed + timedelta(minutes=5)]
+    receipts = list(RECEIPTS)
+    if any(p['collection_status'] == 'RETAINED_AFTER_COLLECTION_ERROR' for p in sports.values()):
+        receipts += previous.get('source_receipts', [])
+    document = {'schema_version': 1, 'generated_at_utc': stamp(completed),
+                'collection_started_at_utc': stamp(run_started), 'research_only': True,
+                'model_validation': 'UNVALIDATED', 'publication_gate': 'BLOCKED',
+                'official_challenge': '0/100', 'sports': sports, 'collection_errors': errors,
+                'result_tracking_status': 'NOT_IMPLEMENTED',
+                'source_receipts': sorted({digest(r): r for r in receipts}.values(), key=lambda r: r['url'])}
     # Keep each pre-event snapshot append-only. A digest alone is not an external timestamp attestation.
     sha = digest(document)
-    archive = ROOT/'research/other-sports-archive'/NOW.strftime('%Y-%m-%d')/(sha+'.json')
-    archive.parent.mkdir(parents=True,exist_ok=True)
-    archive.write_text(json.dumps(document,indent=2)+'\n')
+    archive = ROOT/'research/other-sports-archive'/completed.strftime('%Y-%m-%d')/(sha+'.json')
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    archive.write_text(json.dumps(document, indent=2)+'\n')
     document['archive_sha256'] = sha
-    (ROOT/'other-sports-data.json').write_text(json.dumps(document,indent=2)+'\n')
-    print(json.dumps({'events':{k:len(v['events']) for k,v in sports.items()},'forecasts':{k:sum(bool(e['forecast']) for e in v['events']) for k,v in sports.items()},'errors':errors}))
+    (ROOT/'other-sports-data.json').write_text(json.dumps(document, indent=2)+'\n')
+    print(json.dumps({'events': {k: len(v['events']) for k, v in sports.items()},
+                      'forecasts': {k: sum(bool(e['forecast']) for e in v['events']) for k, v in sports.items()},
+                      'errors': errors}))
+    return document
 
 if __name__ == '__main__':
     main()

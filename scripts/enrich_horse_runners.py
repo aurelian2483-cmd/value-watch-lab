@@ -67,7 +67,7 @@ def parse_card(raw,race,observed):
   'race_stage':summary['race_stage'],'capture_phase':'PRE_EVENT' if pre_event else 'NOT_PRE_EVENT',
   'runner_observed_at_utc':observed.isoformat(),'runner_source':race['source'],
   'runner_source_sha256':hashlib.sha256(raw).hexdigest(),'excluded_history_rows':excluded_history,
-  'forecast_status':'MODEL_NOT_IMPLEMENTED' if pre_event else 'POST_EVENT_OR_NOT_CONFIRMED_PRE_EVENT',
+  'forecast_status':'SEPARATE_MODEL_FEED_REQUIRED' if pre_event else 'POST_EVENT_OR_NOT_CONFIRMED_PRE_EVENT',
   'forecast_eligible':False}
 
 def collect(race):

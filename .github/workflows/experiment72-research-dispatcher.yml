@@ -1,7 +1,10 @@
 name: Experiment 72 research-only schedule dispatcher
-# The ONLY file added to main. All research code runs from research/prospective-100.
+# Legacy evidence collector/scorer runs from research/prospective-100.
 # Cron is UTC, not Europe/London local time; DST shifts wall-clock times.
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/experiment72-research-dispatcher.yml']
   schedule:
     - cron: '0 7 * * *'
     - cron: '30 23 * * *'
@@ -25,7 +28,7 @@ jobs:
       contents: read
       actions: read
   score:
-    if: ${{ github.event_name == 'schedule' && github.event.schedule == '30 23 * * *' || github.event_name == 'workflow_dispatch' && inputs.task == 'score' }}
+    if: ${{ github.event_name == 'schedule' && github.event.schedule == '30 23 * * *' || github.event_name == 'workflow_dispatch' && inputs.task == 'score' || github.event_name == 'push' }}
     uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment71-live-score-dashboard.yml@research/prospective-100
     permissions:
       contents: read

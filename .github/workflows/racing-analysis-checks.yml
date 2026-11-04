@@ -2,9 +2,9 @@ name: Research dashboard and worksheet checks
 on:
   push:
     branches: [main]
-    paths: ['racecards-core.js', 'tests/test_racecards.cjs', 'index.html', 'sportsbook.css', 'track-record/**', 'tests/test_research_track.cjs', 'dashboard-core.js', 'dashboard-data.js', 'tests/test_dashboard_core.cjs', 'racing-research/analysis*', 'racing-research/sources*', 'racing-research/advice*', 'tests/test_horse_advice.cjs', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
+    paths: ['research-audit-core.js', 'tests/test_research_audit.cjs', 'tests/test_dashboard_refresh.cjs', 'racecards-core.js', 'tests/test_racecards.cjs', 'index.html', 'sportsbook.css', 'track-record/**', 'tests/test_research_track.cjs', 'dashboard-core.js', 'dashboard-data.js', 'tests/test_dashboard_core.cjs', 'racing-research/analysis*', 'racing-research/sources*', 'racing-research/advice*', 'tests/test_horse_advice.cjs', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
   pull_request:
-    paths: ['racecards-core.js', 'tests/test_racecards.cjs', 'index.html', 'sportsbook.css', 'track-record/**', 'tests/test_research_track.cjs', 'dashboard-core.js', 'dashboard-data.js', 'tests/test_dashboard_core.cjs', 'racing-research/analysis*', 'racing-research/sources*', 'racing-research/advice*', 'tests/test_horse_advice.cjs', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
+    paths: ['research-audit-core.js', 'tests/test_research_audit.cjs', 'tests/test_dashboard_refresh.cjs', 'racecards-core.js', 'tests/test_racecards.cjs', 'index.html', 'sportsbook.css', 'track-record/**', 'tests/test_research_track.cjs', 'dashboard-core.js', 'dashboard-data.js', 'tests/test_dashboard_core.cjs', 'racing-research/analysis*', 'racing-research/sources*', 'racing-research/advice*', 'tests/test_horse_advice.cjs', 'racing-research/recommendations*', 'racing-research/source-observations.json', 'tests/test_racing_analysis.cjs', '.github/workflows/racing-analysis-checks.yml']
 permissions:
   contents: read
 jobs:
@@ -28,6 +28,9 @@ jobs:
           node --check dashboard-data.js
           node --check racecards-core.js
           node tests/test_racecards.cjs
+          node --check research-audit-core.js
+          node tests/test_research_audit.cjs
+          node tests/test_dashboard_refresh.cjs
           node tests/test_dashboard_core.cjs
           node --check track-record/core.js
           node --check track-record/app.js

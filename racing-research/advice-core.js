@@ -5,7 +5,7 @@ function safeURL(s){try{const u=new URL(s);return u.protocol==='https:'&&!u.user
 function family(s){const u=safeURL(s);if(!u)return null;const host=new URL(u).hostname.replace(/^www\./,'');for(const suffix of ['punterslounge.com','attheraces.com','racingpost.com','thetimes.com','theracingforum.co.uk','fatjockey.com','theukbettingforum.co.uk','olbg.com','reddit.com'])if(host===suffix||host.endsWith('.'+suffix))return suffix;return host}
 function normalise(e){
  if(!e||typeof e.id!=='string'||!e.id||!e.race_id||!name(e.horse)||!name(e.author)||!safeURL(e.url)||!Number.isFinite(Date.parse(e.startUTC))||!['tipster','forum'].includes(e.group))return null;
- return {...e,race_id:String(e.race_id),horseKey:name(e.horse),authorKey:family(e.url)+'|'+name(e.author),family:family(e.url),stance:['support','caution','against','mention'].includes(e.stance)?e.stance:'support',topics:Array.isArray(e.topics)?e.topics.filter(x=>['surface','distance','course','going','draw','pace','class','weight','trainer','jockey','eyecatcher','price'].includes(x)):[],key:String(e.race_id)+'|'+name(e.horse)};
+ return {...e,race_id:String(e.race_id),horseKey:name(e.horse),authorKey:family(e.url)+'|'+name(e.author),family:family(e.url),stance:['support','caution','against','mention'].includes(e.stance)?e.stance:'mention',topics:Array.isArray(e.topics)?e.topics.filter(x=>['surface','distance','course','going','draw','pace','class','weight','trainer','jockey','eyecatcher','price'].includes(x)):[],key:String(e.race_id)+'|'+name(e.horse)};
 }
 function aggregate(entries){
  const groups=new Map(),ids=new Set();let rejected=0;

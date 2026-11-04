@@ -22,6 +22,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/value-watch-sports-sources
+          key: other-sports-sources-v1-${{ github.run_id }}
+          restore-keys: other-sports-sources-v1-
       - run: python -m unittest discover -s tests -p 'test_other_sports.py'
       - run: python scripts/collect_other_sports.py
       - uses: actions/upload-artifact@v4
