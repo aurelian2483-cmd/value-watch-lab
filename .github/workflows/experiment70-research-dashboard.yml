@@ -22,7 +22,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/experiment68-history /tmp/experiment70-score
-          gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/experiment70-artifacts.json
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/experiment70-artifacts.json
           python - <<'PY'
           import json,pathlib
           pages=json.loads(pathlib.Path("/tmp/experiment70-artifacts.json").read_text())

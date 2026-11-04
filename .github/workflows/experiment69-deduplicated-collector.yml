@@ -30,7 +30,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/experiment68-history
-          gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/artifact-pages.json
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/artifact-pages.json
           python - <<'PY'
           import json,pathlib
           pages=json.loads(pathlib.Path("/tmp/artifact-pages.json").read_text())
