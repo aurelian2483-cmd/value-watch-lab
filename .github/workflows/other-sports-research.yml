@@ -1,0 +1,42 @@
+name: Tennis and NFL experimental research
+on:
+  push:
+    branches: [main]
+    paths: ['scripts/collect_other_sports.py', 'tests/test_other_sports.py', '.github/workflows/other-sports-research.yml']
+  schedule:
+    - cron: '15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: other-sports-research
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -p 'test_other_sports.py'
+      - run: python scripts/collect_other_sports.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: other-sports-source-snapshots
+          path: /tmp/value-watch-sports-sources/
+          retention-days: 30
+      - name: Publish experimental snapshots and append forecasts
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- other-sports-data.json research/other-sports-archive
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh experimental tennis and NFL baselines'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

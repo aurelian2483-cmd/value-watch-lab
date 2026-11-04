@@ -9,6 +9,7 @@ import urllib.parse
 import urllib.request
 from zoneinfo import ZoneInfo
 from discover_horse_races import PageData
+from horse_market import quoted_market
 
 ROOT=Path('/tmp/horse-research')
 UTC=dt.timezone.utc
@@ -37,7 +38,7 @@ def parse_card(raw,race,observed):
   if not name or not horse_id or horse_id in seen:raise ValueError('Missing or duplicate horse identity')
   seen.add(horse_id)
   status=ride['ride_status']
-  if status not in ('RUNNER','NONRUNNER','WITHDRAWN'):raise ValueError('Unknown runner status: '+str(status))
+  if status not in ('RUNNER','NONRUNNER','WITHDRAWN','DOUBTFUL'):raise ValueError('Unknown runner status: '+str(status))
   histories=[];past_seen=set()
   for past in horse.get('previous_results',[]):
    try:
@@ -54,11 +55,14 @@ def parse_card(raw,race,observed):
    'trainer':(ride.get('trainer') or {}).get('name'),'days_since_last_run':horse.get('last_ran_days'),
    'previous_results':sorted(histories,key=lambda h:h['date'],reverse=True),
    'historical_first_availability_verified':False,'win_probability':None,'odds':None,'expected_value':None})
+ uncertain=any(r['runner_status']=='DOUBTFUL' for r in runners)
  active=sum(r['active_runner'] for r in runners)
- if type(summary.get('ride_count')) is not int or active!=summary['ride_count']:raise ValueError('Active runner count differs from racecard summary')
+ if type(summary.get('ride_count')) is not int or (not uncertain and active!=summary['ride_count']) or (uncertain and not active<=summary['ride_count']<=len(runners)):raise ValueError('Active runner count differs from racecard summary')
  pre_event=observed<kickoff and summary['race_stage'] in ('DORMANT','GOINGDOWN','ATTHEPOST')
- return {'runners':runners,'runner_data_status':'SINGLE_SOURCE_RUNNERS_OBSERVED',
-  'active_runner_count':active,'non_runner_count':len(runners)-active,'withdrawn_count':sum(r['runner_status']=='WITHDRAWN' for r in runners),
+ return {'runners':runners,'runner_data_status':'RUNNER_FIELD_UNCONFIRMED' if uncertain else 'SINGLE_SOURCE_RUNNERS_OBSERVED',
+  'market_observation':quoted_market(rides,observed,race['source'],hashlib.sha256(raw).hexdigest(),pre_event,not uncertain),
+  'doubtful_runner_count':sum(r['runner_status']=='DOUBTFUL' for r in runners),
+  'active_runner_count':active,'non_runner_count':sum(r['runner_status'] in ('NONRUNNER','WITHDRAWN') for r in runners),'withdrawn_count':sum(r['runner_status']=='WITHDRAWN' for r in runners),
   'runner_count_changed_since_discovery':active!=race['source_runner_count'],
   'race_stage':summary['race_stage'],'capture_phase':'PRE_EVENT' if pre_event else 'NOT_PRE_EVENT',
   'runner_observed_at_utc':observed.isoformat(),'runner_source':race['source'],
@@ -107,6 +111,8 @@ def main():
  data['runner_audit']=report;data['status']=report['status']
  data['limitations']=[s for s in data['limitations'] if not s.startswith('Source runner counts')]
  data['limitations']+=['Runner status and form are single-source observations, not independent verification.',
+  'Doubtful runners remain visible but block full-field forecasts and quoted favourites.',
+  'Separately displayed market observations are third-party quotes, not verified executable bookmaker prices.',
   'Historical rows are date-filtered before race/capture day; their historical availability is not attested.',
   'Tips, commentary, current-race finishing positions and bookmaker prices are excluded from runner features.']
  path.write_text(json.dumps(data,indent=2)+'\n')
@@ -115,3 +121,4 @@ def main():
  if not connected:raise SystemExit('No usable runner cards; retain last published feed')
 
 if __name__=='__main__':main()
+

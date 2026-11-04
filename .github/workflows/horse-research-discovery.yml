@@ -2,9 +2,9 @@ name: Horse racing experimental discovery
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/horse-research-discovery.yml', 'scripts/horse_model_pipeline.py', 'tests/test_horse_model.py', 'scripts/horse_challenger.py', 'tests/test_horse_challenger.py', 'research/horse-challenger/model-v1.json']
+    paths: ['scripts/enrich_horse_runners.py', 'scripts/horse_market.py', 'tests/test_horse_market.py', 'tests/test_horse_runners.py', '.github/workflows/horse-research-discovery.yml', 'scripts/horse_model_pipeline.py', 'tests/test_horse_model.py', 'scripts/horse_challenger.py', 'tests/test_horse_challenger.py', 'research/horse-challenger/model-v1.json']
   schedule:
-    - cron: '10,40 8-22 * * *'
+    - cron: '10,40 6-22 * * *'
   workflow_dispatch:
 permissions:
   contents: write
@@ -77,3 +77,4 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+

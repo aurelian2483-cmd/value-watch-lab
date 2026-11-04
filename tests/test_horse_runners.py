@@ -37,7 +37,12 @@ class RunnerTests(unittest.TestCase):
   p=copy.deepcopy(self.props);p['race']['rides'][0]['ride_status']='UNKNOWN'
   with self.assertRaises(ValueError):parse_card(self.raw(p),self.race,self.now)
   with self.assertRaises(ValueError):parse_card(b'<html>No racecard</html>',self.race,self.now)
+ def test_doubtful_runner_is_visible_but_field_is_not_forecast_ready(self):
+  r=copy.deepcopy(self.props['race']['rides'][0]);r['horse']['horse_reference']['id']=88;r['ride_status']='DOUBTFUL';self.props['race']['rides'].append(r);self.props['race']['race_summary']['ride_count']=2
+  result=parse_card(self.raw(),self.race,self.now)
+  self.assertEqual(result['runner_data_status'],'RUNNER_FIELD_UNCONFIRMED');self.assertEqual(result['doubtful_runner_count'],1);self.assertEqual(result['market_observation']['favourite_horse_ids'],[])
  def test_postevent_capture_not_treated_as_prematch(self):
   r=parse_card(self.raw(),self.race,self.now+dt.timedelta(hours=3))
   self.assertEqual(r['capture_phase'],'NOT_PRE_EVENT');self.assertFalse(r['forecast_eligible'])
 if __name__=='__main__':unittest.main()
+
