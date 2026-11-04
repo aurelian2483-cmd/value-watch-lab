@@ -28,3 +28,5 @@ Automated controls cover discipline separation, future/same-day exclusions, non-
 The first expanded collection observed 48 races across six meetings, including Scotland, Wales and Ireland, with 29 complete source-price captures. Its first context run archived 14 forecasts: four turf and ten all-weather. No jump field qualified on that run; implemented jump calculations do not override insufficient same-discipline evidence. Initial context scored-result count was zero.
 
 Automatic tipster collection remains unconnected: the publisher returned a client challenge to the unattended HTTP client. Existing manual observations remain labelled as such; no new opinions or consensus were invented.
+
+Deployment verification: the expanded horse workflow and dashboard checks passed. At the 19:13 UK refresh, ten earlier context forecasts had source-backed provisional scores. That evening snapshot had no new eligible context forecasts, so current forecasts and the earlier frozen archive must be viewed separately; no old race is presented as an upcoming selection.

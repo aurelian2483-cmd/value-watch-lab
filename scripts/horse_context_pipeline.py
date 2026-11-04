@@ -283,8 +283,8 @@ def main():
     disciplines={kind:sum(r['run_type']==kind for r in current) for kind in sorted(FAMILIES)}
     public={'schema_version':1,'generated_at_utc':now.isoformat(),'research_only':True,'publication_gate':'BLOCKED',
             'model_validation':'UNVALIDATED','official_challenge':'0/100','model':MODEL,'parameters':PARAMETERS,
-            'forecasts':current,'skipped':skipped,'current_field_checks':field_checks(data,current,now),
-            'coverage':{'observed_races':len(data['races']),'forecast_count':len(current),'discipline_counts':disciplines,'skipped_count':len(skipped)},
+            'forecasts':current,'recent_archived_forecasts':sorted(archived,key=lambda r:r['generated_at_utc'],reverse=True)[:50],'skipped':skipped,'current_field_checks':field_checks(data,current,now),
+            'coverage':{'observed_races':len(data['races']),'forecast_count':len(current),'archived_forecast_count':len(archived),'discipline_counts':disciplines,'skipped_count':len(skipped)},
             'performance':performance,'settled_forecasts':settled_history(archived,performance),
             'limitations':[LIMITATION,'Every active runner requires three dated same-discipline resolved outcomes. Known non-finishes receive zero finish percentile; unresolved outcomes block forecasts.',
                            'Discipline provenance is retained; historical outcomes never include capture/race day. No prospective improvement is established before forward scoring.',
