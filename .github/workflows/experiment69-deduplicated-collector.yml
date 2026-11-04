@@ -33,6 +33,7 @@ jobs:
           gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/artifact-pages.json
           python - <<'PY'
           import json,pathlib
+          from scripts.artifact_inventory import successful_artifact
           pages=json.loads(pathlib.Path("/tmp/artifact-pages.json").read_text())
           if isinstance(pages,dict):pages=[pages]
           selected=[]
@@ -41,6 +42,7 @@ jobs:
             if a.get("name") not in ("experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review","experiment69-deduplicated-collector-review"):continue
             if a.get("expired"):continue
             if a.get("workflow_run",{}).get("head_branch") not in ("research/prospective-100","main"):continue
+            if not successful_artifact(a):continue
             selected.append({"id":a["id"],"name":a["name"]})
           pathlib.Path("/tmp/experiment68-history/artifact-inventory.json").write_text(json.dumps({"artifacts":selected}))
           PY

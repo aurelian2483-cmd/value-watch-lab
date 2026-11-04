@@ -26,11 +26,12 @@ jobs:
           gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/experiment74-pages.json
           python - <<'PY'
           import json,pathlib
+          from scripts.artifact_inventory import successful_artifact
           pages=json.loads(pathlib.Path("/tmp/experiment74-pages.json").read_text())
           if isinstance(pages,dict):pages=[pages]
           names={"experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review","experiment69-deduplicated-collector-review"}
           selected=[{"id":a["id"],"name":a["name"]} for page in pages for a in page.get("artifacts",[])
-           if a.get("name") in names and not a.get("expired") and a.get("workflow_run",{}).get("head_branch") in ("research/prospective-100","main")]
+           if a.get("name") in names and not a.get("expired") and a.get("workflow_run",{}).get("head_branch") in ("research/prospective-100","main") and successful_artifact(a)]
           pathlib.Path("/tmp/experiment68-history/artifact-inventory.json").write_text(json.dumps({"artifacts":selected}))
           PY
           python - <<'PY'

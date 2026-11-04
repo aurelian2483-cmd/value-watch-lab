@@ -27,6 +27,7 @@ jobs:
           gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" > /tmp/experiment71-pages.json
           python - <<'PY'
           import json,pathlib
+          from scripts.artifact_inventory import successful_artifact
           pages=json.loads(pathlib.Path("/tmp/experiment71-pages.json").read_text())
           if isinstance(pages,dict):pages=[pages]
           artifacts=[]
@@ -34,6 +35,7 @@ jobs:
            for a in page.get("artifacts",[]):
             if a.get("name") not in ("experiment63-new-fixture-forecast-review","experiment68-forecast-collector-review","experiment69-deduplicated-collector-review"):continue
             if a.get("expired") or a.get("workflow_run",{}).get("head_branch") not in ("research/prospective-100","main"):continue
+            if not successful_artifact(a):continue
             artifacts.append({"id":a["id"],"name":a["name"]})
           if not any(a["name"]=="experiment63-new-fixture-forecast-review" for a in artifacts):
            raise SystemExit("Original Experiment 63 artifact unavailable")
