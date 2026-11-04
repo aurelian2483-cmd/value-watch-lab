@@ -14,5 +14,13 @@ function matchingModel(r,models){
  const rows=(models||[]).filter(m=>String(m.race_id)===String(r.race_id)&&Date.parse(m.startUTC)===Date.parse(r.startUTC)&&Array.isArray(m.runners)&&same(ids(m.runners),ids(active))&&new Set(ids(m.runners)).size===m.runners.length&&m.runners.length>=2&&m.runners.every(h=>typeof h.model_probability==='number'&&Number.isFinite(h.model_probability)&&h.model_probability>0&&h.model_probability<1)&&Math.abs(m.runners.reduce((a,h)=>a+h.model_probability,0)-1)<1e-8&&Date.parse(m.generated_at_utc)<Date.parse(m.startUTC)-300000);
  return rows.sort((a,b)=>Date.parse(b.generated_at_utc)-Date.parse(a.generated_at_utc))[0]||null;
 }
-return {market,matchingModel};
+// Input is chronological; interleave sports without changing each sport's order.
+function balanced(rows){
+ const buckets=['football','racecard','tennis','nfl'].map(kind=>rows.filter(r=>r.kind===kind));
+ const output=[];
+ for(let i=0;buckets.some(b=>i<b.length);i++)for(const bucket of buckets)if(bucket[i])output.push(bucket[i]);
+ return output;
+}
+return {market,matchingModel,balanced};
 });
+

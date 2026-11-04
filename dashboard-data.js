@@ -86,8 +86,9 @@
   let list=[];if(state.sport==='all'||state.sport==='football')list.push(...football);if(state.league==='all'&&(state.sport==='all'||state.sport==='racing'))list.push(...racing.map(r=>({...r,kind:'racecard'})));
   if(['all','tennis','nfl'].includes(state.sport))list.push(...extra.filter(r=>(state.sport==='all'||r.kind===state.sport)&&Date.parse(r.startUTC)>Date.now()+300000&&(state.competition==='all'||r.competition===state.competition)&&(!query||(r.name+' '+r.competition).toLowerCase().includes(query))));
   list.sort((a,b)=>Date.parse(a.kickoff_utc||a.startUTC)-Date.parse(b.kickoff_utc||b.startUTC));
+  if(state.sport==='all')list=RaceCards.balanced(list);
   $('event-heading').textContent=state.sport==='all'?'Upcoming experiments & racecards':state.sport==='football'?'Football experiments':state.sport==='racing'?'Race times & runners':state.sport==='tennis'?'Tennis matches':'NFL weekly research';
-  $('event-count').textContent=loaded?list.length+' available card'+(list.length===1?'':'s')+(query?' matching “'+state.query+'”':''):'Loading published cards…';
+  $('event-count').textContent=loaded?list.length+' available card'+(list.length===1?'':'s')+(query?' matching “'+state.query+'”':'')+(state.sport==='all'?' · Balanced preview · '+[['football','Football'],['racecard','Horses'],['tennis','Tennis'],['nfl','NFL']].map(([kind,label])=>label+' '+list.filter(r=>r.kind===kind).length).join(' · '):''):'Loading published cards…';
   if(!list.length&&loaded){const sportName=state.sport==='nfl'?'NFL':'Tennis';add(root,'div',state.sport==='racing'?'No collected racecards match these filters. Try All collected races or another meeting.':['tennis','nfl'].includes(state.sport)?sportName+' has no available events in the published source snapshot.':'No published experiments match these filters.','empty')}
   for(const r of list.slice(0,state.limit)){if(r.kind==='football')footballCard(r);else if(r.kind==='racecard')raceScheduleCard(r);else otherSportCard(r)}
   $('load-more-events').hidden=list.length<=state.limit;sync();
@@ -123,6 +124,7 @@
  $('event-search').oninput=e=>{state.query=e.target.value;state.limit=8;state.view='selections';views();renderEvents()};$('league-filter').onchange=e=>{if(state.sport!=='football')return;state.league=e.target.value;state.limit=8;views();renderEvents()};$('load-more-events').onclick=()=>{state.limit+=8;renderEvents()};$('refresh-dashboard').onclick=()=>window.location.reload();
  new MutationObserver(sync).observe($('basket'),{childList:true,subtree:true});setInterval(()=>{renderEvents();renderResearch()},60000);views();sync();load();
 })();
+
 
 
 

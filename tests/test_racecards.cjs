@@ -5,3 +5,13 @@ assert.equal(C.market({...r,runner_data_status:'RUNNER_FIELD_UNCONFIRMED'},now).
 assert.equal(C.market({...r,market_observation:{...r.market_observation,quotes:[{horse_id:'a',decimal:2}]}},now).valid,false);
 const model={race_id:'1',startUTC:r.startUTC,generated_at_utc:'2026-11-04T05:30:00Z',runners:[{horse_id:'a',model_probability:.1},{horse_id:'b',model_probability:.9}]};assert.equal(C.matchingModel(r,[model]).runners[1].horse_id,'b');assert.equal(C.matchingModel({...r,runners:[r.runners[0]]},[model]),null);assert.equal(C.matchingModel(r,[{...model,generated_at_utc:r.startUTC}]),null);
 console.log('Racecard favourite, stale observations and model-field matching checks passed');
+
+
+const mixed=[...Array.from({length:12},(_,i)=>({kind:'tennis',id:'t'+i})),{kind:'football',id:'f1'},{kind:'football',id:'f2'},{kind:'racecard',id:'h1'},{kind:'racecard',id:'h2'},{kind:'nfl',id:'n1'},{kind:'nfl',id:'n2'}];
+const balanced=C.balanced(mixed);
+assert.deepEqual(balanced.slice(0,8).map(x=>x.kind),['football','racecard','tennis','nfl','football','racecard','tennis','nfl']);
+assert.deepEqual(balanced.filter(x=>x.kind==='tennis').map(x=>x.id),mixed.filter(x=>x.kind==='tennis').map(x=>x.id));
+assert.equal(balanced.length,mixed.length);
+assert.equal(new Set(balanced.map(x=>x.id)).size,mixed.length);
+assert.deepEqual(C.balanced([]),[]);
+console.log('All sports preview includes every available sport and preserves within-sport order');
