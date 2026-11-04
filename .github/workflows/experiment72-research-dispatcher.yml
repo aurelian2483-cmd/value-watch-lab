@@ -23,20 +23,20 @@ permissions:
 jobs:
   collect:
     if: ${{ github.event_name == 'schedule' && github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch' && inputs.task == 'collect' }}
-    uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment69-deduplicated-collector.yml@research/prospective-100
+    uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment69-deduplicated-collector.yml@4a762f5119c1c03417d9a76a4ef64fe555640f58
     permissions:
       contents: read
       actions: read
   score:
     if: ${{ github.event_name == 'schedule' && github.event.schedule == '30 23 * * *' || github.event_name == 'workflow_dispatch' && inputs.task == 'score' || github.event_name == 'push' }}
-    uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment71-live-score-dashboard.yml@research/prospective-100
+    uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment71-live-score-dashboard.yml@4a762f5119c1c03417d9a76a4ef64fe555640f58
     permissions:
       contents: read
       actions: read
   archive_after_collect:
     needs: collect
     if: ${{ needs.collect.result == 'success' }}
-    uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment74-archive.yml@research/prospective-100
+    uses: aurelian2483-cmd/value-watch-lab/.github/workflows/experiment74-archive.yml@4a762f5119c1c03417d9a76a4ef64fe555640f58
     permissions:
       contents: write
       actions: read
