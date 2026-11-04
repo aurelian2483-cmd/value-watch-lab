@@ -61,6 +61,14 @@ class ContextControls(unittest.TestCase):
         self.assertEqual(m.forecast(r,NOW)[1],'INSUFFICIENT_SAME_DISCIPLINE_HISTORY')
         r=race();r['runner_data_status']='RUNNER_FIELD_UNCONFIRMED'
         self.assertEqual(m.forecast(r,NOW)[1],'RUNNER_FIELD_UNCONFIRMED')
+    def test_malformed_recent_same_discipline_history_cannot_be_silently_omitted(self):
+        for changes in ({'race_id':None},{'race_id':''},{'date':'invalid-date'},{'date':None}):
+            r=race();past={**history(30,None),'date':'2026-11-03','finish_status':'OUTCOME_UNCONFIRMED',**changes}
+            r['runners'][0]['previous_results'].append(past)
+            self.assertEqual(m.forecast(r,NOW)[1],'UNRESOLVED_HISTORY_OUTCOME')
+        r=race();past={**history(30,None),'date':'2026-11-03','finish_status':'OUTCOME_UNCONFIRMED'}
+        del past['race_id'];r['runners'][0]['previous_results'].append(past)
+        self.assertEqual(m.forecast(r,NOW)[1],'UNRESOLVED_HISTORY_OUTCOME')
     def test_freshness_and_pre_event_buffer(self):
         r=race();r['runner_observed_at_utc']=(NOW-dt.timedelta(minutes=31)).isoformat()
         self.assertEqual(m.forecast(r,NOW)[1],'STALE_RUNNER_DATA')

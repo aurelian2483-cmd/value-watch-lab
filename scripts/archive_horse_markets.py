@@ -41,7 +41,8 @@ def snapshot(race):
 def comparison(current,previous):
  base={'previous_observation':None,'movements':[],'history_status':'FIRST_RECORDED_OBSERVATION'}
  if previous is None:return base
- base['previous_observation']={k:previous[k] for k in ('record_sha256','observed_at_utc','bookmaker','publisher','bookmaker_race_id','bookmaker_market_id','active_runner_ids','quotes','source','source_sha256')}
+ base['previous_observation']={k:previous[k] for k in ('record_sha256','observed_at_utc','startUTC','bookmaker','publisher','bookmaker_race_id','bookmaker_market_id','active_runner_ids','quotes','source','source_sha256')}
+ if stamp(current['startUTC'])!=stamp(previous['startUTC']):return {**base,'history_status':'SCHEDULE_CHANGED'}
  if current['active_runner_ids']!=previous['active_runner_ids']:return {**base,'history_status':'FIELD_CHANGED'}
  if any(current[k]!=previous[k] for k in ('bookmaker','bookmaker_race_id','bookmaker_market_id')):return {**base,'history_status':'MARKET_CHANGED'}
  old={str(q['horse_id']):q for q in previous['quotes']}
@@ -64,7 +65,7 @@ def update(data,archive=ARCHIVE):
   for path in folder.glob('*.json'):
    item=json.loads(path.read_text());body={k:v for k,v in item.items() if k!='record_sha256'}
    if item.get('record_sha256')!=path.stem or digest(body)!=path.stem:raise ValueError('Market capture integrity mismatch')
-   if str(item['race_id'])!=str(race['race_id']) or stamp(item['startUTC'])!=stamp(race['startUTC']):raise ValueError('Market capture race identity mismatch')
+   if str(item['race_id'])!=str(race['race_id']) or stamp(item['startUTC']).date().isoformat()!=day:raise ValueError('Market capture race identity mismatch')
    if stamp(item['observed_at_utc'])>=stamp(item['startUTC']) or stamp(item['observed_at_utc'])>now+dt.timedelta(minutes=5):raise ValueError('Invalid market archive chronology')
    if stamp(item['observed_at_utc'])<stamp(current['observed_at_utc']):previous.append(item)
   path=folder/(current['record_sha256']+'.json');raw=json.dumps(current,indent=2)+'\n'

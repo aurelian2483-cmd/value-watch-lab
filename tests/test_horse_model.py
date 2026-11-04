@@ -47,6 +47,20 @@ class FormModelTests(unittest.TestCase):
   result=m.score_provisional(all,now,ledger,fetch=lambda record:(_ for _ in ()).throw(AssertionError('must not refetch')))
   old=json.loads(ledger.read_text());old['entries'][0]['log_loss']=99;ledger.write_text(json.dumps(old))
   with self.assertRaises(ValueError):m.score_provisional(all,now,ledger)
+ def test_result_batch_rotates_past_unavailable_records(self):
+  _,archived,_=self.archive();records=[]
+  for i in range(31):
+   r=copy.deepcopy(archived[0]);r['race_id']=str(i);r['record_sha256']=m.sha(r);records.append(r)
+  path=self.root/'fair-results.json';now=self.now+dt.timedelta(hours=2);runs=[]
+  for _ in range(2):
+   attempted=[]
+   def unavailable(record):
+    attempted.append(record['race_id']);raise ValueError('source unavailable')
+   m.score_provisional(records,now,path,fetch=unavailable);runs.append(attempted)
+  self.assertEqual(len(runs[0]),30);self.assertEqual(len(runs[1]),30)
+  self.assertEqual(set(runs[0]+runs[1]),{str(i) for i in range(31)})
+  counts=json.loads(path.read_text())['result_attempt_counts']
+  self.assertEqual(len(counts),31);self.assertTrue(all(1<=v<=2 for v in counts.values()))
  def test_changed_final_field_and_dead_heat_never_scored(self):
   r,all,a=self.archive();result,reason=m.parse_final(self.raw_result(field=('1','3')),r[0]);self.assertIsNone(result);self.assertEqual(reason,'VOID_FIELD_CHANGED_AFTER_CAPTURE')
   result,reason=m.parse_final(self.raw_result(winners=('1','2')),r[0]);self.assertIsNone(result);self.assertEqual(reason,'DEAD_HEAT_OR_WINNER_UNRESOLVED')

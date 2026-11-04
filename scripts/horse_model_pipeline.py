@@ -173,12 +173,16 @@ def score_provisional(records,now,ledger_path,fetch=fetch_final):
  for r in records:
   key=(r['model'],r['race_id'],r['startUTC'])
   if key not in latest or stamp(r['generated_at_utc'])>stamp(latest[key]['generated_at_utc']):latest[key]=r
+ retry_counts=old.get('result_attempt_counts',{})
+ if not isinstance(retry_counts,dict) or any(not isinstance(k,str) or type(v) is not int or v<0 for k,v in retry_counts.items()):raise ValueError('Invalid result retry counters')
  pending=[];attempts=0
- for r in latest.values():
+ # Least-attempted records first prevents old unavailable results starving new races.
+ for r in sorted(latest.values(),key=lambda r:(retry_counts.get(r['record_sha256'],0),r['startUTC'],r['record_sha256'])):
   if r['record_sha256'] in by_id:continue
   if now<stamp(r['startUTC'])+dt.timedelta(minutes=30):pending.append({'race_id':r['race_id'],'reason':'WAITING_FOR_FINAL_RESULT'});continue
   if attempts>=30:pending.append({'race_id':r['race_id'],'reason':'DEFERRED_RESULT_BATCH_LIMIT'});continue
   attempts+=1
+  retry_counts[r['record_sha256']]=retry_counts.get(r['record_sha256'],0)+1
   try:
    result,reason=parse_final(fetch(r),r)
    if reason:pending.append({'race_id':r['race_id'],'reason':reason});continue
@@ -192,6 +196,7 @@ def score_provisional(records,now,ledger_path,fetch=fetch_final):
     'source_receipt':{'url':r['source'],'sha256':result['source_sha256'],'observed_at_utc':now.isoformat()},
     'verification':'SINGLE_SOURCE_PROVISIONAL','independently_verified':False,'challenge_eligible':0,'publication_gate':'BLOCKED'}
   except Exception as exc:pending.append({'race_id':r['race_id'],'reason':'RESULT_SOURCE_UNAVAILABLE_OR_INVALID','error':str(exc)})
+ old['result_attempt_counts']=retry_counts
  old['entries']=sorted(by_id.values(),key=lambda e:(e['startUTC'],e['record_sha256']))
  ledger_path.parent.mkdir(parents=True,exist_ok=True);ledger_path.write_text(json.dumps(old,indent=2)+'\n')
  # One latest frozen forecast per race/model. Older revisions never add sample size.

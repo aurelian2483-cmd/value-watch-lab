@@ -26,3 +26,30 @@ console.log('Recorded quote comparisons reject changed fields, markets and rever
 
 assert.equal(C.contextForecast({...r,active_runner_count:3},f,now).reason,"INVALID_ACTIVE_FIELD");
 assert.equal(C.contextForecast({...r,runners:[...r.runners,{...r.runners[0]}]},f,now).reason,"INVALID_ACTIVE_FIELD");
+
+// Execute the actual archive page so revision checks and historical filters are covered.
+(async()=>{
+ const fs=require('node:fs'),vm=require('node:vm'),elements=new Map();
+ class Element{
+  constructor(tag='div'){this.tagName=tag;this.children=[];this.dataset={};this.value='';this._text='';this.disabled=false}
+  append(e){this.children.push(e)}replaceChildren(...rows){this.children=[...rows];this._text=''}
+  set textContent(v){this._text=String(v);this.children=[]}get textContent(){return this._text+' '+this.children.map(x=>x.textContent).join(' ')}
+ }
+ const doc={visibilityState:'visible',createElement:t=>new Element(t),getElementById(id){if(!elements.has(id))elements.set(id,new Element());return elements.get(id)},querySelectorAll:()=>[],addEventListener(){}};
+ doc.getElementById('context-view').value='all';doc.getElementById('context-meeting').value='all';
+ const current={...m,racecourse:'Current course',race_name:'Revision test'},old={...current,record_sha256:'c'.repeat(64),context_signature:'d'.repeat(64),generated_at_utc:'2026-11-04T12:40:00Z'};
+ const historical={...old,race_id:'historical',racecourse:'Archived-only course',record_sha256:'e'.repeat(64)};
+ const feed={...f,forecasts:[current],recent_archived_forecasts:[old,historical,current],coverage:{archived_forecast_count:3}};
+ const raw={...guard,generated_at_utc:f.generated_at_utc,races:[{...r,racecourse:'Current course'}]};
+ const scope={document:doc,RaceCards:{...C,contextForecast:(r,f)=>C.contextForecast(r,f,now)},console,Intl,URL,AbortController,Date:class extends Date{static now(){return now}},setTimeout:()=>1,clearTimeout(){},setInterval(){},fetch:async url=>({ok:true,json:async()=>url.includes('horse-context-data')?feed:raw})};
+ vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../racing-research/context.js'),'utf8'),scope);
+ for(let i=0;i<5;i++)await new Promise(setImmediate);
+ const cards=doc.getElementById('context-forecasts').children;
+ assert.equal(cards.length,3,'all frozen records retain archived revisions');
+ const oldCard=cards.find(x=>x.children.some(c=>c.textContent.includes('12:40')&&c.textContent.includes('Record frozen'))&&x.textContent.includes('Revision test'));
+ assert(oldCard.textContent.includes('FROZEN RECORD'),'old conditions cannot inherit the current revision field check');
+ assert(!oldCard.textContent.includes('Current source runner field and context match'));
+ assert(cards.some(x=>x.textContent.includes('Current source runner field and context match')),'current revision keeps its own matching check');
+ assert(doc.getElementById('context-meeting').children.some(x=>x.value==='Archived-only course'),'archive-only meetings remain filterable after raw cards roll forward');
+ console.log('Context archive rendering: revision-specific freshness and historical meeting filters passed');
+})().catch(e=>{console.error(e);process.exitCode=1});

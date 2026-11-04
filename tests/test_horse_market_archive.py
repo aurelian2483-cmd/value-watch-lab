@@ -24,6 +24,19 @@ class MarketArchiveTests(unittest.TestCase):
  def test_field_or_market_changes_never_compared_as_steam(self):
   old=M.snapshot(self.race());new=copy.deepcopy(old);new['active_runner_ids']=['0'];self.assertEqual(M.comparison(new,old)['history_status'],'FIELD_CHANGED');self.assertEqual(M.comparison(new,old)['movements'],[])
   new=copy.deepcopy(old);new['bookmaker_market_id']='different';self.assertEqual(M.comparison(new,old)['history_status'],'MARKET_CHANGED');self.assertEqual(M.comparison(new,old)['movements'],[])
+ def test_schedule_change_is_archived_without_comparing_prices(self):
+  with tempfile.TemporaryDirectory() as folder:
+   archive=Path(folder);first={'races':[self.race()]};M.update(first,archive)
+   saved=next(archive.rglob('*.json')).read_bytes()
+   r=self.race('2026-11-04T06:30:00Z',(2.,6.));r['startUTC']='2026-11-04T20:03:00Z'
+   self.assertEqual(M.update({'races':[r]},archive),1)
+   self.assertEqual(r['market_observation']['history_status'],'SCHEDULE_CHANGED')
+   self.assertEqual(r['market_observation']['movements'],[])
+   self.assertEqual(r['market_observation']['previous_observation']['startUTC'],'2026-11-04T20:00:00Z')
+   self.assertIn(saved,[p.read_bytes() for p in archive.rglob('*.json')])
+   later=self.race('2026-11-04T07:00:00Z',(2.,6.));later['startUTC']=r['startUTC']
+   M.update({'races':[later]},archive)
+   self.assertEqual(later['market_observation']['history_status'],'COMPARABLE_SOURCE_OBSERVATIONS')
  def test_tampering_blocks_history(self):
   with tempfile.TemporaryDirectory()as folder:
    archive=Path(folder);M.update({'races':[self.race()]},archive);p=next(archive.rglob('*.json'));body=json.loads(p.read_text());body['quotes'][0]['decimal']=9;p.write_text(json.dumps(body))

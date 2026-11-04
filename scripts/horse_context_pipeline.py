@@ -108,11 +108,20 @@ def context_features(runner,race,cutoff):
     target_family = family(race['run_type'])
     target_distance,target_class,target_going = yards(race.get('distance')),number(race.get('race_class')),going(race.get('going'))
     rows,seen,unknown = [],set(),0
-    for past in sorted(runner.get('previous_results',[]),key=lambda r:r.get('date',''),reverse=True):
+    history=runner.get('previous_results',[])
+    if not isinstance(history,list) or any(not isinstance(past,dict) for past in history):
+        return None,'UNRESOLVED_HISTORY_OUTCOME'
+    relevant=[past for past in history if family(past.get('run_type'))==target_family]
+    for past in sorted(relevant,key=lambda r:str(r.get('date','')),reverse=True):
         try:
-            day=dt.date.fromisoformat(past['date']);age=(cutoff-day).days;pid=str(past['race_id'])
-            if pid in seen or not 0 < age <= PARAMETERS['maximum_age_days'] or family(past.get('run_type')) != target_family:
+            day=dt.date.fromisoformat(past['date']);age=(cutoff-day).days
+            if not 0 < age <= PARAMETERS['maximum_age_days']:
                 continue
+            pid=past['race_id']
+            if pid is None or not str(pid).strip():
+                return None,'UNRESOLVED_HISTORY_OUTCOME'
+            pid=str(pid)
+            if pid in seen:continue
             seen.add(pid)
             result=outcome(past)
             if result is None:
@@ -139,7 +148,7 @@ def context_features(runner,race,cutoff):
             if len(rows)==PARAMETERS['maximum_form_runs']:
                 break
         except (ValueError,KeyError,TypeError,OverflowError):
-            continue
+            return None,'UNRESOLVED_HISTORY_OUTCOME'
     if len(rows)<PARAMETERS['minimum_form_runs']:
         return None,'INSUFFICIENT_SAME_DISCIPLINE_HISTORY'
     total=sum(r['context_weight'] for r in rows)
