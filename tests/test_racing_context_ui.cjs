@@ -39,7 +39,7 @@ assert.equal(C.contextForecast({...r,runners:[...r.runners,{...r.runners[0]}]},f
  doc.getElementById('context-view').value='all';doc.getElementById('context-meeting').value='all';
  const current={...m,racecourse:'Current course',race_name:'Revision test'},old={...current,record_sha256:'c'.repeat(64),context_signature:'d'.repeat(64),generated_at_utc:'2026-11-04T12:40:00Z'};
  const historical={...old,race_id:'historical',racecourse:'Archived-only course',record_sha256:'e'.repeat(64)};
- const feed={...f,forecasts:[current],recent_archived_forecasts:[old,historical,current],coverage:{archived_forecast_count:3}};
+ const feed={...f,forecasts:[current],recent_archived_forecasts:[old,historical,current],coverage:{archived_forecast_count:3},performance:{amendment_count:2,withheld_results:1,correction_policy:{},model_comparison:{model_validation:'UNVALIDATED',matched_races:2,groups:[{discipline:'FLAT',surface:'AW',paired_races:2,mean_brier_delta_context_minus_baseline:-.01,mean_log_loss_delta_context_minus_baseline:-.02,context_parameter_sha256:sha,baseline_parameter_sha256:signature}],exclusions:{FIELD_MISMATCH:1},limitations:[]}}};
  const raw={...guard,generated_at_utc:f.generated_at_utc,races:[{...r,racecourse:'Current course'}]};
  const scope={document:doc,RaceCards:{...C,contextForecast:(r,f)=>C.contextForecast(r,f,now)},console,Intl,URL,AbortController,Date:class extends Date{static now(){return now}},setTimeout:()=>1,clearTimeout(){},setInterval(){},fetch:async url=>({ok:true,json:async()=>url.includes('horse-context-data')?feed:raw})};
  vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../racing-research/context.js'),'utf8'),scope);
@@ -51,5 +51,9 @@ assert.equal(C.contextForecast({...r,runners:[...r.runners,{...r.runners[0]}]},f
  assert(!oldCard.textContent.includes('Current source runner field and context match'));
  assert(cards.some(x=>x.textContent.includes('Current source runner field and context match')),'current revision keeps its own matching check');
  assert(doc.getElementById('context-meeting').children.some(x=>x.value==='Archived-only course'),'archive-only meetings remain filterable after raw cards roll forward');
+ const review=doc.getElementById('context-performance').textContent;
+ assert(review.includes('Recorded amendments: 2')&&review.includes('Results withheld after recheck: 1'),'correction status is visible');
+ assert(review.includes('2 races have comparable result evidence')&&review.includes('-0.0100'),'paired sample and actual score differences are visible');
+ assert(review.includes('Small samples')&&review.includes('field mismatch'),'comparison uncertainty and exclusions remain visible');
  console.log('Context archive rendering: revision-specific freshness and historical meeting filters passed');
 })().catch(e=>{console.error(e);process.exitCode=1});

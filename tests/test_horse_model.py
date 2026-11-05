@@ -47,6 +47,51 @@ class FormModelTests(unittest.TestCase):
   result=m.score_provisional(all,now,ledger,fetch=lambda record:(_ for _ in ()).throw(AssertionError('must not refetch')))
   old=json.loads(ledger.read_text());old['entries'][0]['log_loss']=99;ledger.write_text(json.dumps(old))
   with self.assertRaises(ValueError):m.score_provisional(all,now,ledger)
+ def test_corrected_winner_appends_amendment_and_preserves_original(self):
+  _,records,_=self.archive();path=self.root/'corrections.json';first=self.now+dt.timedelta(hours=2)
+  m.score_provisional(records,first,path,fetch=lambda r:self.raw_result())
+  original=copy.deepcopy(json.loads(path.read_text())['entries'])
+  later=first+dt.timedelta(hours=6)
+  result=m.score_provisional(records,later,path,fetch=lambda r:self.raw_result(winners=('2',)))
+  ledger=json.loads(path.read_text());self.assertEqual(ledger['entries'],original)
+  self.assertEqual(result['entries'][0]['winner_horse_id'],'2');self.assertEqual(result['amendment_count'],1)
+  amendment=ledger['amendments'][0];self.assertEqual(amendment['previous_entry'],original[0]);self.assertEqual(amendment['action'],'REPLACE')
+  self.assertAlmostEqual(result['metrics']['mean_log_loss'],-m.math.log(records[0]['runners'][1]['model_probability']))
+  repeated=m.score_provisional(records,later,path,fetch=lambda r:(_ for _ in ()).throw(AssertionError('must not refetch')))
+  self.assertEqual(repeated['entries'][0]['winner_horse_id'],'2')
+  ledger['amendments'][0]['reason']='tampered';path.write_text(json.dumps(ledger))
+  with self.assertRaises(ValueError):m.score_provisional(records,later,path)
+ def test_unchanged_result_recheck_has_no_amendment_and_respects_window(self):
+  _,records,_=self.archive();path=self.root/'unchanged.json';first=self.now+dt.timedelta(hours=2)
+  m.score_provisional(records,first,path,fetch=lambda r:self.raw_result());original=json.loads(path.read_text())['entries']
+  result=m.score_provisional(records,first+dt.timedelta(hours=6),path,fetch=lambda r:self.raw_result())
+  self.assertEqual(result['amendment_count'],0);self.assertEqual(result['entries'][0]['result_recheck_status'],'LATEST_SOURCE_CONFIRMED')
+  self.assertEqual(json.loads(path.read_text())['entries'],original)
+  m.score_provisional(records,first+dt.timedelta(hours=49),path,fetch=lambda r:(_ for _ in ()).throw(AssertionError('outside window')))
+ def test_source_error_retains_flagged_provisional_score(self):
+  _,records,_=self.archive();path=self.root/'source-error.json';first=self.now+dt.timedelta(hours=2)
+  m.score_provisional(records,first,path,fetch=lambda r:self.raw_result())
+  def unavailable(r):raise TimeoutError('offline')
+  result=m.score_provisional(records,first+dt.timedelta(hours=6),path,fetch=unavailable)
+  self.assertEqual(result['scored_forecasts'],1);self.assertEqual(result['amendment_count'],0)
+  self.assertEqual(result['source_unavailable_rechecks'],1)
+  self.assertEqual(result['entries'][0]['result_recheck_status'],'SOURCE_UNAVAILABLE_PREVIOUS_PROVISIONAL_RETAINED')
+  self.assertEqual(m.settled_history(records,result)[0]['result_recheck_status'],'SOURCE_UNAVAILABLE_PREVIOUS_PROVISIONAL_RETAINED')
+ def test_invalidated_final_withholds_score_and_restoration_is_auditable(self):
+  _,records,_=self.archive();path=self.root/'withheld.json';first=self.now+dt.timedelta(hours=2)
+  m.score_provisional(records,first,path,fetch=lambda r:self.raw_result());original=json.loads(path.read_text())['entries']
+  invalid=m.score_provisional(records,first+dt.timedelta(hours=6),path,fetch=lambda r:self.raw_result(field=('1','3')))
+  self.assertEqual(invalid['scored_forecasts'],0);self.assertEqual(invalid['withheld_results'],1)
+  self.assertIsNone(invalid['metrics']['mean_log_loss']);self.assertEqual(json.loads(path.read_text())['entries'],original)
+  restored=m.score_provisional(records,first+dt.timedelta(hours=12),path,fetch=lambda r:self.raw_result())
+  self.assertEqual(restored['scored_forecasts'],1);self.assertEqual(restored['withheld_results'],0)
+  self.assertEqual(restored['amendment_count'],2)
+  self.assertEqual(json.loads(path.read_text())['amendments'][-1]['reason'],'SOURCE_RESULT_RESTORED')
+ def test_invalid_source_structure_withholds_previous_score(self):
+  _,records,_=self.archive();path=self.root/'invalid-source.json';first=self.now+dt.timedelta(hours=2)
+  m.score_provisional(records,first,path,fetch=lambda r:self.raw_result())
+  invalid=m.score_provisional(records,first+dt.timedelta(hours=6),path,fetch=lambda r:b'bad page')
+  self.assertEqual(invalid['scored_forecasts'],0);self.assertEqual(invalid['withheld_results'],1)
  def test_result_batch_rotates_past_unavailable_records(self):
   _,archived,_=self.archive();records=[]
   for i in range(31):

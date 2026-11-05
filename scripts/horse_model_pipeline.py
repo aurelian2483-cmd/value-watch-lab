@@ -20,6 +20,7 @@ PARAMETERS={'minimum_form_runs':3,'maximum_form_runs':6,'maximum_age_days':730,
  'recency_half_life_days':90,'neutral_prior_runs':5,'softmax_temperature_inverse':2,
  'capture_buffer_minutes':5,'maximum_runner_age_minutes':30}
 UTC=dt.timezone.utc
+RESULT_RECHECK_POLICY={'window_hours':48,'cadence_hours':6,'maximum_fetches_per_run':30}
 
 def canon(x):return json.dumps(x,sort_keys=True,separators=(',',':')).encode()
 def sha(x):return hashlib.sha256(canon(x)).hexdigest()
@@ -148,11 +149,8 @@ def fetch_final(record):
  (WORK/'result-sources'/(record['race_id']+'.html')).write_bytes(raw)
  return raw
 
-def score_provisional(records,now,ledger_path,fetch=fetch_final):
- old=json.loads(ledger_path.read_text()) if ledger_path.exists() else {'schema_version':1,'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','entries':[]}
- if old.get('publication_gate')!='BLOCKED' or old.get('research_only') is not True or old.get('model_validation')!='UNVALIDATED':raise ValueError('Unsafe provisional ledger')
- frozen={r['record_sha256']:r for r in records}
- for entry in old['entries']:
+def validate_scored_entries(scored_entries,frozen):
+ for entry in scored_entries:
   if entry.get('verification')!='SINGLE_SOURCE_PROVISIONAL' or entry.get('independently_verified') is not False or entry.get('publication_gate')!='BLOCKED' or entry.get('challenge_eligible')!=0:raise ValueError('Unsafe provisional result')
   record=frozen.get(entry['record_sha256'])
   if record is None:raise ValueError('Provisional result has no archived forecast')
@@ -167,46 +165,112 @@ def score_provisional(records,now,ledger_path,fetch=fetch_final):
   if abs(entry['equal_chance_brier_score']-(n-1)/n)>1e-10 or abs(entry['equal_chance_log_loss']-math.log(n))>1e-10:raise ValueError('Reference metric mismatch')
   expected=sum((x['model_probability']-int(x['horse_id']==entry['winner_horse_id']))**2 for x in record['runners'])
   if abs(entry['multiclass_brier_score']-expected)>1e-10 or abs(entry['log_loss']+math.log(probability))>1e-10:raise ValueError('Provisional metrics differ from frozen forecast')
- by_id={e['record_sha256']:e for e in old['entries']}
- if len(by_id)!=len(old['entries']):raise ValueError('Duplicate provisional ledger entries')
+
+def result_entry(record,result,now):
+ winner=result['winner_horse_id'];rows=record['runners'];n=len(rows)
+ probability=next(x['model_probability'] for x in rows if x['horse_id']==winner)
+ return {'record_sha256':record['record_sha256'],'race_id':record['race_id'],'racecourse':record['racecourse'],
+  'startUTC':record['startUTC'],'model':record['model'],'winner_horse_id':winner,'scored_at_utc':now.isoformat(),
+  'multiclass_brier_score':sum((x['model_probability']-int(x['horse_id']==winner))**2 for x in rows),
+  'log_loss':-math.log(probability),'equal_chance_brier_score':(n-1)/n,'equal_chance_log_loss':math.log(n),
+  'source_receipt':{'url':record['source'],'sha256':result['source_sha256'],'observed_at_utc':now.isoformat()},
+  'verification':'SINGLE_SOURCE_PROVISIONAL','independently_verified':False,'challenge_eligible':0,'publication_gate':'BLOCKED'}
+
+def apply_result_amendments(originals,amendments,frozen):
+ current=dict(originals);last=None;last_observed=None
+ for amendment in amendments:
+  body=dict(amendment);digest=body.pop('amendment_sha256',None)
+  if digest!=sha(body) or amendment.get('previous_amendment_sha256')!=last:raise ValueError('Result amendment chain integrity failure')
+  key=amendment['record_sha256']
+  if key not in originals or amendment.get('previous_entry')!=current.get(key):raise ValueError('Result amendment previous state mismatch')
+  observed=stamp(amendment['observed_at_utc']);receipt=amendment.get('source_receipt',{})
+  if observed<stamp(originals[key]['scored_at_utc']) or (last_observed and observed<last_observed):raise ValueError('Result amendment chronology failure')
+  if receipt.get('url')!=frozen[key]['source'] or receipt.get('observed_at_utc')!=amendment['observed_at_utc'] or len(str(receipt.get('sha256','')))!=64 or any(c not in '0123456789abcdef' for c in str(receipt.get('sha256',''))):raise ValueError('Invalid result amendment receipt')
+  last_observed=observed
+  if amendment['action']=='WITHHOLD':
+   if amendment.get('replacement_entry') is not None or not amendment.get('reason'):raise ValueError('Invalid withheld result amendment')
+   current.pop(key,None)
+  elif amendment['action']=='REPLACE':
+   replacement=amendment['replacement_entry'];validate_scored_entries([replacement],frozen)
+   if replacement['record_sha256']!=key or replacement['scored_at_utc']!=amendment['observed_at_utc'] or replacement['source_receipt']!=receipt:raise ValueError('Result amendment identity mismatch')
+   current[key]=replacement
+  else:raise ValueError('Unknown result amendment action')
+  last=digest
+ return current
+
+def score_provisional(records,now,ledger_path,fetch=fetch_final):
+ old=json.loads(ledger_path.read_text()) if ledger_path.exists() else {'schema_version':1,'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','entries':[]}
+ if old.get('publication_gate')!='BLOCKED' or old.get('research_only') is not True or old.get('model_validation')!='UNVALIDATED':raise ValueError('Unsafe provisional ledger')
+ frozen={r['record_sha256']:r for r in records}
+ validate_scored_entries(old['entries'],frozen)
+ originals={e['record_sha256']:e for e in old['entries']}
+ if len(originals)!=len(old['entries']):raise ValueError('Duplicate provisional ledger entries')
+ amendments=old.get('amendments',[])
+ if not isinstance(amendments,list):raise ValueError('Invalid result amendments')
+ by_id=apply_result_amendments(originals,amendments,frozen)
  latest={}
  for r in records:
   key=(r['model'],r['race_id'],r['startUTC'])
   if key not in latest or stamp(r['generated_at_utc'])>stamp(latest[key]['generated_at_utc']):latest[key]=r
- retry_counts=old.get('result_attempt_counts',{})
+ retry_counts=old.get('result_attempt_counts',{});rechecks=old.get('result_rechecks',{})
  if not isinstance(retry_counts,dict) or any(not isinstance(k,str) or type(v) is not int or v<0 for k,v in retry_counts.items()):raise ValueError('Invalid result retry counters')
+ if not isinstance(rechecks,dict):raise ValueError('Invalid result recheck metadata')
+ for key,check in rechecks.items():
+  if key not in originals or not isinstance(check,dict):raise ValueError('Orphan result recheck')
+  observed=stamp(check['checked_at_utc'])
+  if observed>now+dt.timedelta(minutes=5) or observed<stamp(originals[key]['scored_at_utc']):raise ValueError('Invalid result recheck chronology')
  pending=[];attempts=0
- # Least-attempted records first prevents old unavailable results starving new races.
+ def amend(record,replacement,reason,source_hash):
+  key=record['record_sha256'];body={'record_sha256':key,'observed_at_utc':now.isoformat(),
+   'action':'REPLACE' if replacement else 'WITHHOLD','reason':reason,'previous_entry':by_id.get(key),
+   'replacement_entry':replacement,'source_receipt':{'url':record['source'],'sha256':source_hash,'observed_at_utc':now.isoformat()},'previous_amendment_sha256':amendments[-1]['amendment_sha256'] if amendments else None}
+  body['amendment_sha256']=sha(body);amendments.append(body)
+  if replacement:by_id[key]=replacement
+  else:by_id.pop(key,None)
+ # Persisted fair ordering shares one bounded fetch budget between new results and due rechecks.
  for r in sorted(latest.values(),key=lambda r:(retry_counts.get(r['record_sha256'],0),r['startUTC'],r['record_sha256'])):
-  if r['record_sha256'] in by_id:continue
-  if now<stamp(r['startUTC'])+dt.timedelta(minutes=30):pending.append({'race_id':r['race_id'],'reason':'WAITING_FOR_FINAL_RESULT'});continue
-  if attempts>=30:pending.append({'race_id':r['race_id'],'reason':'DEFERRED_RESULT_BATCH_LIMIT'});continue
-  attempts+=1
-  retry_counts[r['record_sha256']]=retry_counts.get(r['record_sha256'],0)+1
-  try:
-   result,reason=parse_final(fetch(r),r)
-   if reason:pending.append({'race_id':r['race_id'],'reason':reason});continue
-   winner=result['winner_horse_id'];rows=r['runners'];n=len(rows)
-   brier=sum((x['model_probability']-int(x['horse_id']==winner))**2 for x in rows)
-   probability=next(x['model_probability'] for x in rows if x['horse_id']==winner)
-   by_id[r['record_sha256']]={'record_sha256':r['record_sha256'],'race_id':r['race_id'],'racecourse':r['racecourse'],
-    'startUTC':r['startUTC'],'model':r['model'],'winner_horse_id':winner,'scored_at_utc':now.isoformat(),
-    'multiclass_brier_score':brier,'log_loss':-math.log(probability),
-    'equal_chance_brier_score':(n-1)/n,'equal_chance_log_loss':math.log(n),
-    'source_receipt':{'url':r['source'],'sha256':result['source_sha256'],'observed_at_utc':now.isoformat()},
-    'verification':'SINGLE_SOURCE_PROVISIONAL','independently_verified':False,'challenge_eligible':0,'publication_gate':'BLOCKED'}
-  except Exception as exc:pending.append({'race_id':r['race_id'],'reason':'RESULT_SOURCE_UNAVAILABLE_OR_INVALID','error':str(exc)})
- old['result_attempt_counts']=retry_counts
- old['entries']=sorted(by_id.values(),key=lambda e:(e['startUTC'],e['record_sha256']))
+  key=r['record_sha256'];is_recheck=key in originals
+  if is_recheck:
+   if now>stamp(r['startUTC'])+dt.timedelta(hours=RESULT_RECHECK_POLICY['window_hours']):continue
+   last=stamp(rechecks.get(key,{}).get('checked_at_utc',originals[key]['scored_at_utc']))
+   if now-last<dt.timedelta(hours=RESULT_RECHECK_POLICY['cadence_hours']):continue
+  elif now<stamp(r['startUTC'])+dt.timedelta(minutes=30):pending.append({'race_id':r['race_id'],'reason':'WAITING_FOR_FINAL_RESULT'});continue
+  if attempts>=RESULT_RECHECK_POLICY['maximum_fetches_per_run']:pending.append({'race_id':r['race_id'],'reason':'DEFERRED_RESULT_BATCH_LIMIT'});continue
+  attempts+=1;retry_counts[key]=retry_counts.get(key,0)+1
+  try:raw=fetch(r)
+  except Exception as exc:
+   pending.append({'race_id':r['race_id'],'reason':'RESULT_SOURCE_UNAVAILABLE_OR_INVALID','error':str(exc)})
+   if is_recheck:rechecks[key]={'checked_at_utc':now.isoformat(),'status':'SOURCE_UNAVAILABLE_PREVIOUS_PROVISIONAL_RETAINED' if key in by_id else 'SOURCE_UNAVAILABLE_RESULT_REMAINS_WITHHELD'}
+   continue
+  try:result,reason=parse_final(raw,r)
+  except Exception as exc:result=None;reason='INVALID_RESULT_SOURCE';pending.append({'race_id':r['race_id'],'reason':reason,'error':str(exc)})
+  if result is None:
+   pending.append({'race_id':r['race_id'],'reason':reason})
+   if is_recheck:
+    rechecks[key]={'checked_at_utc':now.isoformat(),'status':'WITHHELD_LATEST_SOURCE_UNSUPPORTED','reason':reason}
+    if key in by_id:amend(r,None,reason,hashlib.sha256(raw).hexdigest())
+   continue
+  entry=result_entry(r,result,now)
+  if not is_recheck:
+   originals[key]=entry;by_id[key]=entry
+  else:
+   previous=by_id.get(key)
+   if previous is None or previous['winner_horse_id']!=entry['winner_horse_id']:amend(r,entry,'SOURCE_RESULT_CORRECTION' if previous else 'SOURCE_RESULT_RESTORED',result['source_sha256'])
+   rechecks[key]={'checked_at_utc':now.isoformat(),'status':'LATEST_SOURCE_CONFIRMED','source_receipt':entry['source_receipt']}
+ old['result_attempt_counts']=retry_counts;old['result_rechecks']=rechecks;old['amendments']=amendments
+ # First scores are retained unchanged; corrections are append-only amendments.
+ old['entries']=sorted(originals.values(),key=lambda e:(e['startUTC'],e['record_sha256']))
  ledger_path.parent.mkdir(parents=True,exist_ok=True);ledger_path.write_text(json.dumps(old,indent=2)+'\n')
- # One latest frozen forecast per race/model. Older revisions never add sample size.
  selected={r['record_sha256'] for r in latest.values()}
- entries=[e for e in old['entries'] if e['record_sha256'] in selected]
+ entries=[{**e,'result_recheck_status':rechecks.get(key,{}).get('status','NOT_RECHECKED'),
+  'result_last_checked_at_utc':rechecks.get(key,{}).get('checked_at_utc',e['scored_at_utc'])} for key,e in by_id.items() if key in selected]
  metrics={}
  for field in ('multiclass_brier_score','log_loss','equal_chance_brier_score','equal_chance_log_loss'):
   metrics['mean_'+field]=sum(e[field] for e in entries)/len(entries) if entries else None
  return {'scored_forecasts':len(entries),'independently_verified_results':0,'verification':'SINGLE_SOURCE_PROVISIONAL',
   'metrics_status':'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION','metrics':metrics,'entries':entries,'pending':pending,
+  'amendment_count':len(amendments),'withheld_results':sum(key in originals and key not in by_id for key in selected),
+  'correction_policy':RESULT_RECHECK_POLICY,'source_unavailable_rechecks':sum(e['result_recheck_status']=='SOURCE_UNAVAILABLE_PREVIOUS_PROVISIONAL_RETAINED' for e in entries),
   'selection_policy':'Latest archived forecast per race/model, captured at least five minutes before scheduled start.'}
 
 def settled_history(records,performance,limit=20):
@@ -219,6 +283,7 @@ def settled_history(records,performance,limit=20):
   rows.append({**{k:record[k] for k in ('record_sha256','race_id','racecourse','race_name','startUTC','generated_at_utc','model')},
    'runners':runners,'winner_horse_id':entry['winner_horse_id'],
    'result_verification':'TWO_PUBLISHER_CORROBORATED' if entry['record_sha256'] in corroborated else 'SINGLE_SOURCE_PROVISIONAL',
+   'result_recheck_status':entry.get('result_recheck_status','NOT_RECHECKED'),'result_last_checked_at_utc':entry.get('result_last_checked_at_utc',entry.get('scored_at_utc')),
    'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','research_only':True})
  return rows
 
