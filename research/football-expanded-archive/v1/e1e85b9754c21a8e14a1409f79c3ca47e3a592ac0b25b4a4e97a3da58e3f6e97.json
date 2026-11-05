@@ -1,0 +1,75 @@
+{
+  "league": "E1",
+  "home": "Cardiff City",
+  "away": "Preston North End",
+  "kickoff_utc": "2026-11-24T19:45:00Z",
+  "espn_event_id": "401880147",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261124&limit=100",
+      "sha256": "e841a73cc888a9db2c7496c650d5cec1fb04c8bbc64eb9108341865aeec02af0",
+      "observed_at_utc": "2026-11-05T23:50:11.855477Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-11-01",
+      "sha256": "1822247c79a408b167842d4f87e71e6c2b6c4bfdfff0217971e5c718ec97fdd0",
+      "observed_at_utc": "2026-11-05T23:50:15.577430Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.7240161041866403,
+  "prob_draw": 0.15922327309625847,
+  "prob_away": 0.11676062271710118,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 7,
+    "away_matches": 7,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 168,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/E1.csv",
+        "sha256": "7e39aaedd53fe4cb351378f26e823622efcb4b9a4e1b8da3dc2043acebd984fd",
+        "observed_at_utc": "2026-11-05T23:50:18.875594Z"
+      }
+    ],
+    "training_sha256": "049e1a0e5ebd3ecc3081b4704a804053cfa8484b162b0023f8b14b17e753444c",
+    "lambda_home": 2.5808100414078674,
+    "lambda_away": 0.952294280167264,
+    "home_venue_inputs": {
+      "hgf": 16,
+      "hga": 9,
+      "hn": 7,
+      "agf": 6,
+      "aga": 14,
+      "an": 7
+    },
+    "away_venue_inputs": {
+      "hgf": 7,
+      "hga": 13,
+      "hn": 7,
+      "agf": 5,
+      "aga": 17,
+      "an": 7
+    },
+    "league_home_mean": 1.6428571428571428,
+    "league_away_mean": 1.2916666666666667
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-05T23:50:34.570527Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "67f9d257b3a0322e3bbd70881d709f5ef5a95fe159b2718147aee853b6d39aec",
+  "record_sha256": "e1e85b9754c21a8e14a1409f79c3ca47e3a592ac0b25b4a4e97a3da58e3f6e97"
+}

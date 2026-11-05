@@ -1,0 +1,75 @@
+{
+  "league": "E1",
+  "home": "Derby County",
+  "away": "Bolton Wanderers",
+  "kickoff_utc": "2026-11-06T20:00:00Z",
+  "espn_event_id": "401880167",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261106&limit=100",
+      "sha256": "a6c8eb04835fd3466861ac4f4d00d040889b2212d6c30dd8f987386703df28c0",
+      "observed_at_utc": "2026-11-05T23:50:11.545181Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-11-01",
+      "sha256": "1822247c79a408b167842d4f87e71e6c2b6c4bfdfff0217971e5c718ec97fdd0",
+      "observed_at_utc": "2026-11-05T23:50:15.577430Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.20474056875943525,
+  "prob_draw": 0.22948027346286914,
+  "prob_away": 0.5657791577776955,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 7,
+    "away_matches": 7,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 168,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/E1.csv",
+        "sha256": "7e39aaedd53fe4cb351378f26e823622efcb4b9a4e1b8da3dc2043acebd984fd",
+        "observed_at_utc": "2026-11-05T23:50:18.875594Z"
+      }
+    ],
+    "training_sha256": "049e1a0e5ebd3ecc3081b4704a804053cfa8484b162b0023f8b14b17e753444c",
+    "lambda_home": 0.9920419254658386,
+    "lambda_away": 1.8102691905615296,
+    "home_venue_inputs": {
+      "hgf": 4,
+      "hga": 14,
+      "hn": 7,
+      "agf": 7,
+      "aga": 15,
+      "an": 7
+    },
+    "away_venue_inputs": {
+      "hgf": 9,
+      "hga": 15,
+      "hn": 7,
+      "agf": 10,
+      "aga": 11,
+      "an": 7
+    },
+    "league_home_mean": 1.6428571428571428,
+    "league_away_mean": 1.2916666666666667
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-05T23:50:34.570527Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "29afee70ae842f3f88f3621db8515150f3e21457e846b8ba1ccf7afd39899af5",
+  "record_sha256": "769a7e597a44fed76535102535506efc66813556f5911a309b326a3d826c05b2"
+}
