@@ -7,7 +7,7 @@ function market(r,now=Date.now()){
  if(m?.status!=='COMPLETE_SOURCE_OBSERVATION'||m.bookmaker!=='Sky Bet'||m.executable_verified!==false||m.verification!=='SOURCE_OBSERVED_UNVERIFIED'||m.source_sha256!==r.runner_source_sha256||m.source!==r.runner_source||!m.bookmaker_market_id||!Array.isArray(m.quotes))return empty;
  const q=m.quotes,seen=Date.parse(m.observed_at_utc),start=Date.parse(r.startUTC);if(active.length<2||active.length!==r.active_runner_count||new Set(ids(q)).size!==q.length||!same(ids(q),ids(active))||q.some(x=>typeof x.decimal!=='number'||!Number.isFinite(x.decimal)||x.decimal<=1)||!Number.isFinite(seen)||seen>now+300000||seen>=start)return empty;
  const low=Math.min(...q.map(x=>x.decimal)),favourites=active.filter(h=>q.some(x=>String(x.horse_id)===String(h.horse_id)&&x.decimal===low));const fresh=now-seen<=1800000&&now<start&&['DORMANT','GOINGDOWN','ATTHEPOST'].includes(r.race_stage);
- return {valid:true,fresh,quotes:q,favourites,label:fresh?'Source-observed Sky Bet favourite':'Favourite at the earlier source observation',observed:m.observed_at_utc,source:m.source};
+ return {valid:true,fresh,quotes:q,favourites:fresh?favourites:[],label:fresh?'Source-observed Sky Bet favourite':'Favourite withheld: source prices or race status are stale',observed:m.observed_at_utc,source:m.source};
 }
 function matchingModel(r,models){
  if(r.runner_data_status!=='SINGLE_SOURCE_RUNNERS_OBSERVED')return null;const active=(r.runners||[]).filter(h=>h.active_runner===true&&h.runner_status==='RUNNER');
