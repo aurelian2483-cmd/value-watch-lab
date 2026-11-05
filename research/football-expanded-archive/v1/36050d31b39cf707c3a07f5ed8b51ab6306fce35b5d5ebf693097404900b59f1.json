@@ -1,0 +1,75 @@
+{
+  "league": "E1",
+  "home": "West Ham United",
+  "away": "Preston North End",
+  "kickoff_utc": "2026-11-21T15:00:00Z",
+  "espn_event_id": "401880150",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261121&limit=100",
+      "sha256": "e21801e6f37727792055fd176620d94eb482b31967f5204d576f1f3cb759e70e",
+      "observed_at_utc": "2026-11-05T02:53:45.774896Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-11-01",
+      "sha256": "9b75803c74858a51369d0e260adece9bfcfa79eb81ea020e3208f6ccc8cae2ba",
+      "observed_at_utc": "2026-11-05T02:53:50.066151Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.7312183801256669,
+  "prob_draw": 0.14976553216600516,
+  "prob_away": 0.11901608770832789,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 7,
+    "away_matches": 7,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 168,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/E1.csv",
+        "sha256": "5dbccc11397b2ea86a56ce179c0c7ee723cf62734694a3dc4797aabaee624ab6",
+        "observed_at_utc": "2026-11-05T02:53:53.474287Z"
+      }
+    ],
+    "training_sha256": "99aeeb103b72f15efaffe710170d906d6e5712a908fce0ac4fee5dc952410c2d",
+    "lambda_home": 2.7939742926155975,
+    "lambda_away": 1.0755021654719237,
+    "home_venue_inputs": {
+      "hgf": 18,
+      "hga": 11,
+      "hn": 7,
+      "agf": 18,
+      "aga": 10,
+      "an": 7
+    },
+    "away_venue_inputs": {
+      "hgf": 7,
+      "hga": 13,
+      "hn": 7,
+      "agf": 5,
+      "aga": 17,
+      "an": 7
+    },
+    "league_home_mean": 1.6428571428571428,
+    "league_away_mean": 1.2916666666666667
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-05T02:54:12.054827Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "2c216518a70008820003b9e801fbb38ad5ee19035c6161b8c56d6df5784892ae",
+  "record_sha256": "36050d31b39cf707c3a07f5ed8b51ab6306fce35b5d5ebf693097404900b59f1"
+}
