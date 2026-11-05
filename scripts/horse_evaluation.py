@@ -54,6 +54,7 @@ def evaluate(records,entries):
   'model_validation':'UNVALIDATED'}
 
 def _instant(value):
+ if not isinstance(value,str):raise ValueError('Timestamp string required')
  stamp=dt.datetime.fromisoformat(value.replace('Z','+00:00'))
  if stamp.tzinfo is None:raise ValueError('Timezone required')
  return stamp.astimezone(dt.timezone.utc)
@@ -68,7 +69,9 @@ def _validated_score(record,entry):
  receipt=entry['source_receipt'];url=urllib.parse.urlsplit(receipt['url'])
  digest=receipt.get('sha256','')
  if receipt['url']!=record['source'] or url.scheme!='https' or url.hostname!='www.sportinglife.com' or len(digest)!=64 or any(c not in '0123456789abcdef' for c in digest):raise ValueError('Invalid source receipt')
- if _instant(receipt['observed_at_utc'])<kickoff:raise ValueError('Outcome observed before start')
+ observed=_instant(receipt['observed_at_utc']);scored=_instant(entry['scored_at_utc'])
+ if observed<kickoff:raise ValueError('Outcome observed before start')
+ if scored<observed:raise ValueError('Score precedes outcome observation')
  rows=record['runners'];ids=[str(r['horse_id']) for r in rows];ps=[r['model_probability'] for r in rows]
  if len(rows)<2 or len(set(ids))!=len(rows) or any(type(p) not in (int,float) or not math.isfinite(p) or not 0<p<1 for p in ps) or abs(sum(ps)-1)>1e-8:raise ValueError('Invalid vector')
  winner=str(entry['winner_horse_id'])

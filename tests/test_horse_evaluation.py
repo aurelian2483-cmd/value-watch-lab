@@ -16,7 +16,7 @@ def fixture(race_id='1',context=True,probability=.6):
       'run_type':'FLAT','surface':'TAPETA','runners':[{'horse_id':'1','model_probability':probability},{'horse_id':'2','model_probability':1-probability}]}
     entry={k:record[k] for k in ('record_sha256','race_id','racecourse','startUTC','model')}
     entry.update({'winner_horse_id':'1','multiclass_brier_score':2*(1-probability)**2,'log_loss':-math.log(probability),
-      'equal_chance_brier_score':.5,'equal_chance_log_loss':math.log(2),'verification':'SINGLE_SOURCE_PROVISIONAL',
+      'scored_at_utc':'2026-11-04T16:00:00Z','equal_chance_brier_score':.5,'equal_chance_log_loss':math.log(2),'verification':'SINGLE_SOURCE_PROVISIONAL',
       'independently_verified':False,'publication_gate':'BLOCKED','challenge_eligible':0,
       'source_receipt':{'url':record['source'],'sha256':'c'*64,'observed_at_utc':'2026-11-04T16:00:00Z'}})
     return record,entry
@@ -76,6 +76,18 @@ class PairedModelComparison(unittest.TestCase):
         self.assertEqual(len(paired['groups']),2)
         self.assertEqual({v['paired_races'] for v in paired['groups']},{1})
         self.assertNotEqual(parameter_fingerprint(c),parameter_fingerprint(c2))
+
+    def test_result_cannot_be_scored_before_it_was_observed(self):
+        for timestamp in ['2026-11-04T15:59:59Z', None, '2026-11-04T16:00:00']:
+            c,ce=fixture();b,be=fixture(context=False)
+            if timestamp is None:ce.pop('scored_at_utc')
+            else:ce['scored_at_utc']=timestamp
+            result=compare_models([c],[ce],[b],[be])
+            self.assertEqual(result['matched_races'],0)
+            self.assertEqual(result['exclusions'],{'INVALID_OR_UNSUPPORTED_RESULT_EVIDENCE':1})
+        c,ce=fixture();b,be=fixture(context=False)
+        ce['scored_at_utc']='2026-11-04T17:00:00+01:00'
+        self.assertEqual(compare_models([c],[ce],[b],[be])['matched_races'],1)
 
     def test_corrupt_score_and_late_capture_are_excluded(self):
         for changes in ['score','capture']:
