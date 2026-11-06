@@ -5,6 +5,7 @@ on:
     branches: [research/prospective-100]
     paths:
       - 'scripts/run_h2h_archive_backtest.py'
+      - 'scripts/build_h2h_historical_context.py'
       - 'scripts/football_h2h_backtest.py'
       - 'research/football-expanded-results/v1/verified.json'
       - '.github/workflows/football-h2h-archive-backtest.yml'
@@ -25,18 +26,24 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_football_h2h.py' -v
           python -m unittest discover -s tests -p 'test_football_h2h_backtest.py' -v
+      - name: Collect historical H2H context with source receipts
+        run: |
+          mkdir -p /tmp/h2h-evaluation
+          python scripts/build_h2h_historical_context.py /tmp/h2h-evaluation/history.json /tmp/h2h-evaluation/source-receipts.json
       - name: Run verified-ledger backtest if archived results exist
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p /tmp/h2h-evaluation
           if [ -f research/football-expanded-results/v1/verified.json ]; then
-            python scripts/run_h2h_archive_backtest.py --verified-ledger /tmp/h2h-evaluation/report.json
+            python scripts/run_h2h_archive_backtest.py /tmp/h2h-evaluation/history.json /tmp/h2h-evaluation/report.json
           else
             printf '%s\\n' '{"status":"MISSING_VERIFIED_LEDGER","model_validation":"UNVALIDATED","publication_gate":"BLOCKED","model_comparison_performed":false}' > /tmp/h2h-evaluation/report.json
           fi
       - uses: actions/upload-artifact@v4
         with:
           name: h2h-verified-archive-research-report
-          path: /tmp/h2h-evaluation/report.json
+          path: |
+            /tmp/h2h-evaluation/report.json
+            /tmp/h2h-evaluation/source-receipts.json
           retention-days: 30
