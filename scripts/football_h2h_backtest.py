@@ -66,6 +66,14 @@ def paired_backtest(forecasts, history, weight=0.0, minimum=5):
         "challenger_mean_brier": mean("challenger_brier"),
         "baseline_mean_log_loss": mean("baseline_log_loss"),
         "challenger_mean_log_loss": mean("challenger_log_loss"),
+        "delta_brier_challenger_minus_baseline": (
+            mean("challenger_brier") - mean("baseline_brier") if n else None
+        ),
+        "delta_log_loss_challenger_minus_baseline": (
+            mean("challenger_log_loss") - mean("baseline_log_loss") if n else None
+        ),
+        "eligible_h2h_fixtures": sum(row["h2h_sample"] >= minimum for row in rows),
+        "comparison_active": weight > 0 and any(row["h2h_sample"] >= minimum for row in rows),
         "status": "EXPERIMENTAL_PAIRED_BACKTEST_NOT_VALIDATED",
         "publication_gate": "BLOCKED",
         "records": rows,
