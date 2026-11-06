@@ -37,18 +37,21 @@ def main():
                 rows.extend(parsed)
                 receipts.append({"league": league, "season": season, "url": url,
                                  "sha256": hashlib.sha256(raw).hexdigest(),
-                                 "observed_at_utc": cutoff.isoformat(),
+                                 "observed_at_utc": datetime.now(timezone.utc).isoformat(),
                                  "accepted_rows": len(parsed)})
             except Exception as exc:
                 receipts.append({"league": league, "season": season, "url": url,
                                  "error": str(exc)})
     if not rows:
         raise ValueError("No independently sourced historical rows")
+    accepted = sum("accepted_rows" in receipt for receipt in receipts)
+    failed = len(receipts) - accepted
     Path(sys.argv[1]).write_text(json.dumps(rows, indent=2) + "\n")
     Path(sys.argv[2]).write_text(json.dumps({
         "research_only": True, "publication_gate": "BLOCKED",
         "historical_source_availability_at_forecast_time": "NOT_ATTESTED",
-        "receipts": receipts}, indent=2) + "\n")
+        "sources_accepted": accepted, "sources_failed": failed,
+        "history_rows": len(rows), "receipts": receipts}, indent=2) + "\n")
 
 
 if __name__ == "__main__":
