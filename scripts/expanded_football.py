@@ -15,6 +15,7 @@ import re
 import unicodedata
 import urllib.parse
 import urllib.request
+from football_h2h import head_to_head, conflict_with_forecast
 from zoneinfo import ZoneInfo
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -377,16 +378,18 @@ def main():
     raw,receipt=fetcher.get('https://www.skysports.com/'+cfg['sky']+'-scores-fixtures/'+month+'-01');source_rows.extend(sky_rows(raw,code,month,'pre'));secondary_receipts.append(receipt)
    except Exception as exc:audit['source_errors'].append({'source':'Sky','month':month,'error':str(exc)})
   prior=current=None
+  h2h_rows=[]
   try:
    if code=='UCL':prior=ucl_training(fetcher,now)
    else:
     season=season_code(now,True);raw,receipt=fetcher.get('https://www.football-data.co.uk/mmz4281/'+season+'/'+code+'.csv');training=csv_rows(raw,code,now,season)
     if len(training)!=cfg['expected_prior']:raise ValueError('Prior domestic season incomplete')
     prior=train_data(training,[receipt])
+    h2h_rows.extend(training)
   except Exception as exc:audit['training_errors'].append({'source':'prior','error':str(exc)})
   if code!='UCL':
    try:
-    season=season_code(now);raw,receipt=fetcher.get('https://www.football-data.co.uk/mmz4281/'+season+'/'+code+'.csv');current=train_data(csv_rows(raw,code,now,season),[receipt])
+    season=season_code(now);raw,receipt=fetcher.get('https://www.football-data.co.uk/mmz4281/'+season+'/'+code+'.csv');current_rows=csv_rows(raw,code,now,season);current=train_data(current_rows,[receipt]);h2h_rows.extend(current_rows)
    except Exception as exc:audit['training_errors'].append({'source':'current','error':str(exc)})
   for f in rows:
    checked=corroborate(f,source_rows)
@@ -395,6 +398,14 @@ def main():
    model=None
    if checked and audit['days_succeeded']==22 and prior is not None:model=model_forecast(item,prior,current)
    item['forecast_status']='EXPERIMENTAL_MODEL_FORECAST' if model else 'SCHEDULE_UNVERIFIED' if not checked else 'MODEL_INPUTS_UNAVAILABLE'
+   # Descriptive only: available seasons may contain too few direct meetings.
+   # Do not feed this evidence into the published probability model.
+   if code!='UCL' and h2h_rows:
+    evidence=head_to_head(h2h_rows,f['home'],f['away'],when(f['kickoff_utc']))
+    evidence['coverage']='CURRENT_AND_PREVIOUS_LEAGUE_SEASONS_ONLY'
+    evidence['source_status']='HISTORICAL_CSV_SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED'
+    evidence['conflict']=conflict_with_forecast(evidence,model['prob_home'],model['prob_draw'],model['prob_away']) if model else 'NO_MODEL_FORECAST'
+    item['head_to_head_research']=evidence
    fixtures.append(item)
    if model:forecasts.append(model)
   print(json.dumps({'league':code,'fixtures':len(rows),'forecasts':sum(f['league']==code for f in forecasts),'training_matches':prior['matches'] if prior else 0,'source_errors':len(audit['source_errors'])}),flush=True)
