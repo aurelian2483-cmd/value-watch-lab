@@ -28,6 +28,7 @@ def head_to_head(rows, home, away, cutoff, limit=10):
     if not hk or not ak or hk == ak:
         raise ValueError("Invalid team identity")
     selected = []
+    seen = set()
     for row in rows:
         rh, ra = team_key(row["home"]), team_key(row["away"])
         if {rh, ra} != {hk, ak} or rh == ra:
@@ -38,6 +39,10 @@ def head_to_head(rows, home, away, cutoff, limit=10):
         hg, ag = row["score_home"], row["score_away"]
         if type(hg) is not int or type(ag) is not int or min(hg, ag) < 0:
             raise ValueError("Invalid historical result")
+        identity = (date, rh, ra)
+        if identity in seen:
+            raise ValueError("Duplicate historical fixture across source seasons")
+        seen.add(identity)
         selected.append((date, row, rh == hk))
     selected.sort(key=lambda x: x[0], reverse=True)
     recent = selected[:limit]
