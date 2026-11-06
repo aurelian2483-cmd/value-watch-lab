@@ -159,13 +159,15 @@ def main():
     # Diagnostic only: fixed weights are NOT fitted or selected on this sample.
     # These in-sample descriptive comparisons must never be used for publication.
     exploratory = []
-    for weight in (0.0, 0.1, 0.2, 0.3):
+    for weight in (0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30):
         trial = paired_backtest(forecasts, history, weight=weight, minimum=5)
         exploratory.append({key: value for key, value in trial.items() if key != "records"})
     report["exploratory_fixed_weight_sensitivity"] = {
         "comparisons": exploratory,
         "status": "DESCRIPTIVE_ONLY_NO_HOLDOUT",
         "weights_selected": False,
+        "weight_range": [0.0, 0.30],
+        "weight_step": 0.05,
         "predictive_validation": False,
         "publication_gate": "BLOCKED",
     }
