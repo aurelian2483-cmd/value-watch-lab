@@ -23,5 +23,7 @@ jobs:
           python-version: '3.12'
       - name: Compile H2H and expanded football modules
         run: python -m py_compile scripts/football_h2h.py scripts/football_h2h_backtest.py scripts/expanded_football.py
+      - name: Compile verified-archive backtest runner
+        run: python -m py_compile scripts/run_h2h_archive_backtest.py
       - name: Run H2H evidence and challenger tests
         run: python -m unittest discover -s tests -p 'test_football_h2h*.py' -v
