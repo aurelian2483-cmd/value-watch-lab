@@ -78,3 +78,53 @@ def paired_backtest(forecasts, history, weight=0.0, minimum=5):
         "publication_gate": "BLOCKED",
         "records": rows,
     }
+
+
+def chronological_weight_selection(calibration, evaluation, history,
+                                   candidate_weights=(0.0, 0.1, 0.2, 0.3),
+                                   minimum=5):
+    """Choose weight on earlier fixtures, evaluate once on later fixtures.
+
+    The caller must supply genuinely out-of-sample archived forecasts.
+    If insufficient evidence exists, the default zero-weight baseline wins.
+    """
+    if not calibration or not evaluation:
+        raise ValueError("Both chronological periods must contain forecasts")
+    last_calibration = max(f["kickoff"] for f in calibration)
+    first_evaluation = min(f["kickoff"] for f in evaluation)
+    if last_calibration >= first_evaluation:
+        raise ValueError("Calibration must finish before evaluation begins")
+    weights = tuple(candidate_weights)
+    if not weights or 0.0 not in weights or len(set(weights)) != len(weights):
+        raise ValueError("Candidate weights must be unique and include baseline")
+    if any(type(w) not in (float, int) or not math.isfinite(w) or not 0 <= w <= 1 for w in weights):
+        raise ValueError("Invalid candidate weight")
+    trials = [paired_backtest(calibration, history, weight=w, minimum=minimum)
+              for w in weights]
+    # Require both adequate paired coverage and improvement on calibration;
+    # otherwise retain baseline. The later evaluation is never used to tune.
+    eligible = trials[0]["eligible_h2h_fixtures"]
+    if eligible < 30:
+        chosen = 0.0
+        reason = "INSUFFICIENT_CALIBRATION_H2H_COVERAGE"
+    else:
+        ranked = sorted(trials, key=lambda t: (
+            t["challenger_mean_log_loss"], t["challenger_mean_brier"], t["weight"]))
+        best = ranked[0]
+        baseline = next(t for t in trials if t["weight"] == 0.0)
+        chosen = (best["weight"] if
+                  best["challenger_mean_log_loss"] < baseline["baseline_mean_log_loss"] and
+                  best["challenger_mean_brier"] < baseline["baseline_mean_brier"]
+                  else 0.0)
+        reason = "CALIBRATION_ONLY_SELECTION" if chosen else "NO_CALIBRATION_IMPROVEMENT"
+    untouched = paired_backtest(evaluation, history, weight=chosen, minimum=minimum)
+    return {
+        "selected_weight": chosen,
+        "selection_reason": reason,
+        "calibration_fixtures": len(calibration),
+        "evaluation_fixtures": len(evaluation),
+        "calibration_h2h_eligible": eligible,
+        "evaluation": {k: v for k, v in untouched.items() if k != "records"},
+        "status": "EXPERIMENTAL_HOLDOUT_NOT_VALIDATED",
+        "publication_gate": "BLOCKED",
+    }
