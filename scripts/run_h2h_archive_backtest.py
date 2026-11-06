@@ -123,10 +123,30 @@ def main():
         if previous is None or f["generated_at"] > previous["generated_at"]:
             latest[key] = f
     forecasts = sorted(latest.values(), key=lambda f: (f["kickoff"], f["league"], f["home"]))
+    # Coverage diagnostics show why a challenger cannot be evaluated.
+    # A descriptive H2H sample is not equivalent to a usable model signal.
+    from football_h2h import head_to_head
+    coverage = {}
+    for f in forecasts:
+        league = f["league"]
+        evidence = head_to_head(
+            [row for row in history if row.get("league") == league],
+            f["home"], f["away"], f["generated_at"], limit=10
+        )
+        bucket = coverage.setdefault(league, {
+            "scored_fixtures": 0, "with_any_prior_h2h": 0,
+            "with_five_prior_h2h": 0, "total_prior_h2h_observations": 0
+        })
+        bucket["scored_fixtures"] += 1
+        n = evidence["sample_size"]
+        bucket["with_any_prior_h2h"] += int(n > 0)
+        bucket["with_five_prior_h2h"] += int(n >= 5)
+        bucket["total_prior_h2h_observations"] += n
     baseline = paired_backtest(forecasts, history, weight=0.0)
     baseline.pop("records")
     report = {
         "baseline": baseline,
+        "h2h_coverage_by_league": coverage,
         "history_rows_supplied": len(history),
         "unique_verified_fixtures": len(forecasts),
         "model_comparison_performed": False,
