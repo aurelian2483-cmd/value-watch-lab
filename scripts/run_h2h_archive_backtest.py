@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from datetime import datetime
 from football_h2h_backtest import paired_backtest
+from expanded_football import digest, validate_forecast
 
 
 def parse(value):
@@ -37,6 +38,11 @@ def load_verified(root, history):
         if not source.exists():
             raise FileNotFoundError(str(source))
         forecast = json.loads(source.read_text())
+        unsigned = dict(forecast)
+        unsigned.pop("record_sha256", None)
+        if digest(unsigned) != sha:
+            raise ValueError("Forecast archive digest mismatch")
+        validate_forecast(forecast)
         if forecast.get("record_sha256") != sha or forecast.get("publication_gate") != "BLOCKED":
             raise ValueError("Forecast archive mismatch or unsafe gate")
         if (entry["league"], entry["home"], entry["away"], entry["kickoff_utc"]) != (
