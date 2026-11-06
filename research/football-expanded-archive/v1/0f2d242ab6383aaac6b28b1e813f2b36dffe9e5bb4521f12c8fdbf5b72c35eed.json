@@ -1,0 +1,74 @@
+{
+  "league": "E1",
+  "home": "Southampton",
+  "away": "Middlesbrough",
+  "kickoff_utc": "2026-11-27T20:00:00Z",
+  "espn_event_id": "401880129",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261127&limit=100",
+      "sha256": "0c88cacf77d61f6a865bc234737a5adc08ba825a43b0ee918ea0cf6bbd8c0174",
+      "observed_at_utc": "2026-11-06T23:30:05.544097Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-11-01",
+      "sha256": "8e0b0708d695fc86e8f8a73524d505dc146ed80f471c2c778cabc5063f6f2778",
+      "observed_at_utc": "2026-11-06T23:30:08.376500Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_PRIOR_SEASON",
+  "prob_home": 0.4427834994972148,
+  "prob_draw": 0.2577822655908098,
+  "prob_away": 0.2994342349119754,
+  "training_basis": {
+    "mode": "PRIOR_SEASON",
+    "home_matches": 23,
+    "away_matches": 23,
+    "league_average_pseudo_matches": 5,
+    "small_sample": false,
+    "training_matches": 552,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2526/E1.csv",
+        "sha256": "98954c319950f19158624b17a154ef1c56eb7b8d169ef317f28f06d11d0b9a74",
+        "observed_at_utc": "2026-11-06T23:30:10.287407Z"
+      }
+    ],
+    "training_sha256": "315a67cc752ded284f16fd6be5c4e2d5d90d6887654eb9afdd9ec2a75f349ed1",
+    "lambda_home": 1.4756993059963734,
+    "lambda_away": 1.166367397114125,
+    "home_venue_inputs": {
+      "hgf": 38,
+      "hga": 19,
+      "hn": 23,
+      "agf": 44,
+      "aga": 37,
+      "an": 23
+    },
+    "away_venue_inputs": {
+      "hgf": 34,
+      "hga": 18,
+      "hn": 23,
+      "agf": 38,
+      "aga": 29,
+      "an": 23
+    },
+    "league_home_mean": 1.4003623188405796,
+    "league_away_mean": 1.2047101449275361
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-06T23:30:29.387962Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "0f2d242ab6383aaac6b28b1e813f2b36dffe9e5bb4521f12c8fdbf5b72c35eed"
+}
