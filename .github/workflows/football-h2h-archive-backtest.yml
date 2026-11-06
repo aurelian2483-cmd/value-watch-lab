@@ -1,6 +1,13 @@
 name: H2H verified archive research backtest
 on:
   workflow_dispatch:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/run_h2h_archive_backtest.py'
+      - 'scripts/football_h2h_backtest.py'
+      - 'research/football-expanded-results/v1/verified.json'
+      - '.github/workflows/football-h2h-archive-backtest.yml'
 permissions:
   contents: read
 jobs:
