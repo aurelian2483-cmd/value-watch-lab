@@ -89,6 +89,14 @@ class PairedModelComparison(unittest.TestCase):
         ce['scored_at_utc']='2026-11-04T17:00:00+01:00'
         self.assertEqual(compare_models([c],[ce],[b],[be])['matched_races'],1)
 
+    def test_uniform_benchmark_must_match_actual_frozen_field(self):
+        for metric in ['equal_chance_brier_score','equal_chance_log_loss']:
+            r,e=fixture();e[metric]+=0.1
+            with self.assertRaisesRegex(ValueError,'Uniform benchmark'):
+                evaluate([r],[e])
+        r,e=fixture()
+        self.assertEqual(evaluate([r],[e])['models'][r['model']]['scored_races'],1)
+
     def test_corrupt_score_and_late_capture_are_excluded(self):
         for changes in ['score','capture']:
             c,ce=fixture();b,be=fixture(context=False)

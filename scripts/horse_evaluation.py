@@ -28,6 +28,8 @@ def evaluate(records,entries):
   if key in seen:raise ValueError('More than one scored revision per race/model')
   seen.add(key)
   if not all(type(e.get(k)) in (int,float) and math.isfinite(e[k]) and e[k]>=0 for k in ('multiclass_brier_score','log_loss','equal_chance_brier_score','equal_chance_log_loss')):raise ValueError('Invalid scored metric')
+  n=len(r['runners'])
+  if n<2 or abs(e['equal_chance_brier_score']-(n-1)/n)>1e-10 or abs(e['equal_chance_log_loss']-math.log(n))>1e-10:raise ValueError('Uniform benchmark does not match frozen field')
   groups.setdefault((r['model'],parameter_fingerprint(r)),[]).append((r,e))
  result={}
  edges=[0,.05,.1,.15,.2,.3,.5,1.000000001]
