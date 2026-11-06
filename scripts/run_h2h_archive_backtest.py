@@ -156,6 +156,19 @@ def main():
         "model_validation": "UNVALIDATED",
         "publication_gate": "BLOCKED",
     }
+    # Diagnostic only: fixed weights are NOT fitted or selected on this sample.
+    # These in-sample descriptive comparisons must never be used for publication.
+    exploratory = []
+    for weight in (0.0, 0.1, 0.2, 0.3):
+        trial = paired_backtest(forecasts, history, weight=weight, minimum=5)
+        exploratory.append({key: value for key, value in trial.items() if key != "records"})
+    report["exploratory_fixed_weight_sensitivity"] = {
+        "comparisons": exploratory,
+        "status": "DESCRIPTIVE_ONLY_NO_HOLDOUT",
+        "weights_selected": False,
+        "predictive_validation": False,
+        "publication_gate": "BLOCKED",
+    }
     if len(forecasts) >= 60:
         # Keep all matches on the boundary date in one partition.
         boundary = forecasts[int(len(forecasts) * 0.7)]["kickoff"].date()
