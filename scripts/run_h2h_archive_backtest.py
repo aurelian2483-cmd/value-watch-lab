@@ -8,7 +8,7 @@ import json
 import sys
 from pathlib import Path
 from datetime import datetime
-from football_h2h_backtest import paired_backtest
+from football_h2h_backtest import paired_backtest, chronological_weight_selection
 from expanded_football import digest, validate_forecast
 
 
@@ -70,14 +70,39 @@ def main():
     if not isinstance(history, list):
         raise ValueError("History must be a list")
     forecasts = load_verified(root, history)
-    # Zero weight is the only default. Nonzero weights require separate,
-    # time-separated calibration and untouched evaluation fixtures.
-    report = paired_backtest(forecasts, history, weight=0.0)
-    report.pop("records")
-    report["history_rows_supplied"] = len(history)
-    report["model_comparison_performed"] = False
-    report["reason"] = "Nonzero H2H weight requires independent earlier calibration."
-    report["research_only"] = True
+    # One forecast per unique fixture. Revisions must not inflate sample size.
+    latest = {}
+    for f in forecasts:
+        key = (f["league"], f["home"], f["away"], f["kickoff"])
+        previous = latest.get(key)
+        if previous is None or f["generated_at"] > previous["generated_at"]:
+            latest[key] = f
+    forecasts = sorted(latest.values(), key=lambda f: (f["kickoff"], f["league"], f["home"]))
+    baseline = paired_backtest(forecasts, history, weight=0.0)
+    baseline.pop("records")
+    report = {
+        "baseline": baseline,
+        "history_rows_supplied": len(history),
+        "unique_verified_fixtures": len(forecasts),
+        "model_comparison_performed": False,
+        "reason": "Insufficient unique scored fixtures for chronological split.",
+        "research_only": True,
+        "model_validation": "UNVALIDATED",
+        "publication_gate": "BLOCKED",
+    }
+    if len(forecasts) >= 60:
+        # Keep all matches on the boundary date in one partition.
+        boundary = forecasts[int(len(forecasts) * 0.7)]["kickoff"].date()
+        calibration = [f for f in forecasts if f["kickoff"].date() < boundary]
+        evaluation = [f for f in forecasts if f["kickoff"].date() >= boundary]
+        if len(calibration) >= 30 and len(evaluation) >= 20:
+            comparison = chronological_weight_selection(calibration, evaluation, history)
+            report["holdout"] = comparison
+            report["model_comparison_performed"] = comparison["evaluation"]["comparison_active"]
+            report["reason"] = comparison["selection_reason"]
+        else:
+            report["reason"] = "Insufficient distinct chronological calibration/evaluation dates."
+
     Path(sys.argv[2]).write_text(json.dumps(report, indent=2) + "\n")
 
 
