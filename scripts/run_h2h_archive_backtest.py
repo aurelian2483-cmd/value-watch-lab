@@ -81,15 +81,20 @@ def verified_history_from_ledger(root):
     if not path.exists():
         raise FileNotFoundError(str(path))
     entries = json.loads(path.read_text())["entries"]
-    seen = set()
+    seen = {}
     history = []
     for entry in entries:
         if entry.get("verification") != "TWO_SOURCE_REGULATION_TIME_FINAL":
             raise ValueError("Unverified historical result")
         key = (entry["league"], entry["home"], entry["away"], entry["kickoff_utc"][:10])
+        scores = (entry["score_home"], entry["score_away"])
+        if any(type(v) is not int or v < 0 for v in scores):
+            raise ValueError("Invalid verified historical score")
         if key in seen:
+            if seen[key] != scores:
+                raise ValueError("Conflicting verified scores for the same fixture")
             continue  # Multiple forecast revisions of one verified match.
-        seen.add(key)
+        seen[key] = scores
         history.append({
             "league": entry["league"],
             "home": entry["home"],
