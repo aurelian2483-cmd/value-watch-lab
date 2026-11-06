@@ -1,8 +1,6 @@
 name: H2H verified archive research backtest
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '15 9 * * 1'
 permissions:
   contents: read
 jobs:
@@ -28,16 +26,7 @@ jobs:
           if [ -f research/football-expanded-results/v1/verified.json ]; then
             python scripts/run_h2h_archive_backtest.py --verified-ledger /tmp/h2h-evaluation/report.json
           else
-            python - <<'PY'
-          import json
-          from pathlib import Path
-          Path('/tmp/h2h-evaluation/report.json').write_text(json.dumps({
-              'status':'MISSING_VERIFIED_LEDGER',
-              'model_validation':'UNVALIDATED',
-              'publication_gate':'BLOCKED',
-              'model_comparison_performed':False
-          },indent=2)+'\\n')
-          PY
+            printf '%s\\n' '{"status":"MISSING_VERIFIED_LEDGER","model_validation":"UNVALIDATED","publication_gate":"BLOCKED","model_comparison_performed":false}' > /tmp/h2h-evaluation/report.json
           fi
       - uses: actions/upload-artifact@v4
         with:
