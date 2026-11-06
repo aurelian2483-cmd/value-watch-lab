@@ -1,0 +1,27 @@
+name: Football H2H research tests
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/football_h2h.py'
+      - 'scripts/football_h2h_backtest.py'
+      - 'scripts/expanded_football.py'
+      - 'tests/test_football_h2h.py'
+      - 'tests/test_football_h2h_backtest.py'
+      - '.github/workflows/football-h2h-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile H2H and expanded football modules
+        run: python -m py_compile scripts/football_h2h.py scripts/football_h2h_backtest.py scripts/expanded_football.py
+      - name: Run H2H evidence and challenger tests
+        run: python -m unittest discover -s tests -p 'test_football_h2h*.py' -v
