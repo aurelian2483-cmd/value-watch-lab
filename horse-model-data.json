@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-06T08:53:34.269559+00:00",
+  "generated_at_utc": "2026-11-06T14:09:21.030792+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -9,8 +9,8 @@
   "secondary_source_audit": {
     "provider": "The Racing API",
     "connection_status": "CONNECTED",
-    "schedule_matches": 36,
-    "result_rows_cached": 156,
+    "schedule_matches": 27,
+    "result_rows_cached": 164,
     "errors": [],
     "verification_scope": "Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established."
   },
@@ -19,21 +19,62 @@
     "status": "RUNNER_OBSERVATIONS_COLLECTED",
     "races_received": 36,
     "races_enriched": 36,
-    "active_runner_observations": 332,
-    "non_runner_observations": 8,
-    "pre_event_races": 36,
+    "active_runner_observations": 319,
+    "non_runner_observations": 21,
+    "pre_event_races": 27,
     "errors": [],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED",
-    "collection_completed_at_utc": "2026-11-06T08:53:28.502973+00:00"
+    "collection_completed_at_utc": "2026-11-06T14:09:15.493472+00:00"
   },
   "race_count": 36,
   "reference_baseline_audit": {
     "status": "REFERENCE_BENCHMARKS_ONLY",
     "model": "EQUAL_CHANCE_REFERENCE_V1",
-    "available_references": 36,
-    "new_archived_records": 8,
-    "skipped": [],
+    "available_references": 26,
+    "new_archived_records": 6,
+    "skipped": [
+      {
+        "race_id": "947281",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947288",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947275",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947282",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947289",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947276",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947283",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947290",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947277",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947284",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      }
+    ],
     "reference_only": true,
     "publication_gate": "BLOCKED",
     "independent_schedule_verification": "NOT_CONNECTED",
@@ -4409,6 +4450,889 @@
     {
       "schema_version": 1,
       "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+      "race_id": "947470",
+      "racecourse": "Dundalk",
+      "race_name": "Irish Stallion Farms EBF Cooley Fillies Stakes (Fillies' And Mares' Listed)",
+      "startUTC": "2026-11-06T18:45:00+00:00",
+      "source": "https://www.sportinglife.com/racing/racecards/2026-11-06/dundalk/racecard/947470/irish-stallion-farms-ebf-cooley-fillies-stakes-fillies-and-mares-listed",
+      "generated_at_utc": "2026-11-06T14:09:21.030792+00:00",
+      "parameters": {
+        "minimum_form_runs": 3,
+        "maximum_form_runs": 6,
+        "maximum_age_days": 730,
+        "recency_half_life_days": 90,
+        "neutral_prior_runs": 5,
+        "softmax_temperature_inverse": 2,
+        "capture_buffer_minutes": 5,
+        "maximum_runner_age_minutes": 30
+      },
+      "runners": [
+        {
+          "horse_id": "1099317",
+          "name": "Callianassa",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.7512397630669789,
+            "shrunk_form_strength": 0.6070412858253682,
+            "history": [
+              {
+                "race_id": "944566",
+                "date": "2026-10-21",
+                "position": 1,
+                "field_size": 5,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.8840636953004919
+              },
+              {
+                "race_id": "942809",
+                "date": "2026-10-10",
+                "position": 1,
+                "field_size": 20,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.8122523963562356
+              },
+              {
+                "race_id": "938091",
+                "date": "2026-09-12",
+                "position": 3,
+                "field_size": 10,
+                "finish_percentile": 0.7777777777777778,
+                "recency_weight": 0.6546922875874867
+              },
+              {
+                "race_id": "931224",
+                "date": "2026-08-21",
+                "position": 8,
+                "field_size": 14,
+                "finish_percentile": 0.46153846153846156,
+                "recency_weight": 0.55265246928962
+              },
+              {
+                "race_id": "929727",
+                "date": "2026-07-25",
+                "position": 6,
+                "field_size": 12,
+                "finish_percentile": 0.5454545454545454,
+                "recency_weight": 0.4488932925326847
+              },
+              {
+                "race_id": "925054",
+                "date": "2026-06-26",
+                "position": 11,
+                "field_size": 14,
+                "finish_percentile": 0.23076923076923078,
+                "recency_weight": 0.35904142751968665
+              }
+            ]
+          },
+          "model_probability": 0.08033657541102394,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1120245",
+          "name": "Mallavelly",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.593586460704009,
+            "shrunk_form_strength": 0.5368909350828681,
+            "history": [
+              {
+                "race_id": "941568",
+                "date": "2026-10-02",
+                "position": 1,
+                "field_size": 5,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.7637175654573216
+              },
+              {
+                "race_id": "938261",
+                "date": "2026-09-12",
+                "position": 7,
+                "field_size": 18,
+                "finish_percentile": 0.6470588235294118,
+                "recency_weight": 0.6546922875874867
+              },
+              {
+                "race_id": "933786",
+                "date": "2026-08-20",
+                "position": 7,
+                "field_size": 8,
+                "finish_percentile": 0.14285714285714285,
+                "recency_weight": 0.548412489847313
+              },
+              {
+                "race_id": "932037",
+                "date": "2026-08-07",
+                "position": 6,
+                "field_size": 7,
+                "finish_percentile": 0.16666666666666666,
+                "recency_weight": 0.49616397313147176
+              },
+              {
+                "race_id": "928696",
+                "date": "2026-07-19",
+                "position": 3,
+                "field_size": 6,
+                "finish_percentile": 0.6,
+                "recency_weight": 0.4286219914265364
+              },
+              {
+                "race_id": "923623",
+                "date": "2026-06-27",
+                "position": 2,
+                "field_size": 11,
+                "finish_percentile": 0.9,
+                "recency_weight": 0.36181730936009454
+              }
+            ]
+          },
+          "model_probability": 0.06982026522293634,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1121640",
+          "name": "Pink Oxalis",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.6285402534580667,
+            "shrunk_form_strength": 0.555137465167352,
+            "history": [
+              {
+                "race_id": "944167",
+                "date": "2026-10-18",
+                "position": 4,
+                "field_size": 16,
+                "finish_percentile": 0.8,
+                "recency_weight": 0.8638716525936915
+              },
+              {
+                "race_id": "942163",
+                "date": "2026-10-07",
+                "position": 5,
+                "field_size": 9,
+                "finish_percentile": 0.5,
+                "recency_weight": 0.7937005259840998
+              },
+              {
+                "race_id": "938261",
+                "date": "2026-09-12",
+                "position": 6,
+                "field_size": 18,
+                "finish_percentile": 0.7058823529411765,
+                "recency_weight": 0.6546922875874867
+              },
+              {
+                "race_id": "933786",
+                "date": "2026-08-20",
+                "position": 6,
+                "field_size": 8,
+                "finish_percentile": 0.2857142857142857,
+                "recency_weight": 0.548412489847313
+              },
+              {
+                "race_id": "930251",
+                "date": "2026-07-30",
+                "position": 5,
+                "field_size": 13,
+                "finish_percentile": 0.6666666666666666,
+                "recency_weight": 0.4665164957684037
+              },
+              {
+                "race_id": "928696",
+                "date": "2026-07-19",
+                "position": 2,
+                "field_size": 6,
+                "finish_percentile": 0.8,
+                "recency_weight": 0.4286219914265364
+              }
+            ]
+          },
+          "model_probability": 0.0724152824373656,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1140904",
+          "name": "Aviatrice",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.598215059684986,
+            "shrunk_form_strength": 0.5370325920302063,
+            "history": [
+              {
+                "race_id": "941568",
+                "date": "2026-10-02",
+                "position": 2,
+                "field_size": 5,
+                "finish_percentile": 0.75,
+                "recency_weight": 0.7637175654573216
+              },
+              {
+                "race_id": "938261",
+                "date": "2026-09-12",
+                "position": 8,
+                "field_size": 18,
+                "finish_percentile": 0.5882352941176471,
+                "recency_weight": 0.6546922875874867
+              },
+              {
+                "race_id": "932084",
+                "date": "2026-08-08",
+                "position": 8,
+                "field_size": 10,
+                "finish_percentile": 0.2222222222222222,
+                "recency_weight": 0.5
+              },
+              {
+                "race_id": "927834",
+                "date": "2026-07-16",
+                "position": 2,
+                "field_size": 6,
+                "finish_percentile": 0.8,
+                "recency_weight": 0.418832251612578
+              },
+              {
+                "race_id": "923623",
+                "date": "2026-06-27",
+                "position": 3,
+                "field_size": 11,
+                "finish_percentile": 0.8,
+                "recency_weight": 0.36181730936009454
+              },
+              {
+                "race_id": "922352",
+                "date": "2026-06-14",
+                "position": 10,
+                "field_size": 15,
+                "finish_percentile": 0.35714285714285715,
+                "recency_weight": 0.3273461437937433
+              }
+            ]
+          },
+          "model_probability": 0.06984004907659196,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1161733",
+          "name": "Carolina Jetstream",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.352102108240222,
+            "shrunk_form_strength": 0.4450238699919343,
+            "history": [
+              {
+                "race_id": "941752",
+                "date": "2026-10-04",
+                "position": 10,
+                "field_size": 10,
+                "finish_percentile": 0.0,
+                "recency_weight": 0.7755723809168673
+              },
+              {
+                "race_id": "932259",
+                "date": "2026-09-12",
+                "position": 8,
+                "field_size": 9,
+                "finish_percentile": 0.125,
+                "recency_weight": 0.6546922875874867
+              },
+              {
+                "race_id": "934446",
+                "date": "2026-08-21",
+                "position": 2,
+                "field_size": 10,
+                "finish_percentile": 0.8888888888888888,
+                "recency_weight": 0.55265246928962
+              },
+              {
+                "race_id": "914626",
+                "date": "2026-06-27",
+                "position": 8,
+                "field_size": 8,
+                "finish_percentile": 0.0,
+                "recency_weight": 0.36181730936009454
+              },
+              {
+                "race_id": "922782",
+                "date": "2026-06-17",
+                "position": 6,
+                "field_size": 15,
+                "finish_percentile": 0.6428571428571429,
+                "recency_weight": 0.3349974972043391
+              },
+              {
+                "race_id": "918740",
+                "date": "2026-05-24",
+                "position": 2,
+                "field_size": 12,
+                "finish_percentile": 0.9090909090909091,
+                "recency_weight": 0.27846261478923423
+              }
+            ]
+          },
+          "model_probability": 0.05810142383330401,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1162230",
+          "name": "Never Let Go",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.18879762784373214,
+            "shrunk_form_strength": 0.442329374192521,
+            "history": [
+              {
+                "race_id": "926403",
+                "date": "2026-07-07",
+                "position": 12,
+                "field_size": 12,
+                "finish_percentile": 0.0,
+                "recency_weight": 0.39078430867418046
+              },
+              {
+                "race_id": "917534",
+                "date": "2026-05-14",
+                "position": 10,
+                "field_size": 10,
+                "finish_percentile": 0.0,
+                "recency_weight": 0.25782149335074883
+              },
+              {
+                "race_id": "915091",
+                "date": "2026-05-02",
+                "position": 6,
+                "field_size": 6,
+                "finish_percentile": 0.0,
+                "recency_weight": 0.23506165352154046
+              },
+              {
+                "race_id": "910013",
+                "date": "2026-03-28",
+                "position": 2,
+                "field_size": 11,
+                "finish_percentile": 0.9,
+                "recency_weight": 0.17952071375984333
+              },
+              {
+                "race_id": "881073",
+                "date": "2025-09-26",
+                "position": 5,
+                "field_size": 12,
+                "finish_percentile": 0.6363636363636364,
+                "recency_weight": 0.04385511374771545
+              },
+              {
+                "race_id": "872747",
+                "date": "2025-08-09",
+                "position": 2,
+                "field_size": 7,
+                "finish_percentile": 0.8333333333333334,
+                "recency_weight": 0.03030197327020994
+              }
+            ]
+          },
+          "model_probability": 0.05778915790333827,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1182018",
+          "name": "Dancing Saxon",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.9078807376253687,
+            "shrunk_form_strength": 0.6599781653390788,
+            "history": [
+              {
+                "race_id": "941754",
+                "date": "2026-10-04",
+                "position": 2,
+                "field_size": 16,
+                "finish_percentile": 0.9333333333333333,
+                "recency_weight": 0.7755723809168673
+              },
+              {
+                "race_id": "935845",
+                "date": "2026-08-30",
+                "position": 2,
+                "field_size": 12,
+                "finish_percentile": 0.9090909090909091,
+                "recency_weight": 0.5923182505897684
+              },
+              {
+                "race_id": "931624",
+                "date": "2026-08-23",
+                "position": 3,
+                "field_size": 8,
+                "finish_percentile": 0.7142857142857143,
+                "recency_weight": 0.5612310241546865
+              },
+              {
+                "race_id": "930052",
+                "date": "2026-07-27",
+                "position": 1,
+                "field_size": 15,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.4558612442791084
+              },
+              {
+                "race_id": "929047",
+                "date": "2026-07-22",
+                "position": 2,
+                "field_size": 15,
+                "finish_percentile": 0.9285714285714286,
+                "recency_weight": 0.4386405555615829
+              },
+              {
+                "race_id": "927443",
+                "date": "2026-07-11",
+                "position": 1,
+                "field_size": 11,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.4030103761616688
+              }
+            ]
+          },
+          "model_probability": 0.08930868689842275,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1184532",
+          "name": "Leading Dancer",
+          "form_features": {
+            "usable_runs": 5,
+            "weighted_finish_percentile": 0.7175024126004331,
+            "shrunk_form_strength": 0.5549023986231668,
+            "history": [
+              {
+                "race_id": "944760",
+                "date": "2026-10-18",
+                "position": 7,
+                "field_size": 15,
+                "finish_percentile": 0.5714285714285714,
+                "recency_weight": 0.8638716525936915
+              },
+              {
+                "race_id": "938988",
+                "date": "2026-09-18",
+                "position": 2,
+                "field_size": 8,
+                "finish_percentile": 0.8571428571428571,
+                "recency_weight": 0.6856553850463664
+              },
+              {
+                "race_id": "886206",
+                "date": "2025-10-25",
+                "position": 1,
+                "field_size": 8,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.054830069445197846
+              },
+              {
+                "race_id": "881384",
+                "date": "2025-09-28",
+                "position": 1,
+                "field_size": 4,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.04453585529924077
+              },
+              {
+                "race_id": "878575",
+                "date": "2025-09-12",
+                "position": 3,
+                "field_size": 10,
+                "finish_percentile": 0.7777777777777778,
+                "recency_weight": 0.03937253280921478
+              }
+            ]
+          },
+          "model_probability": 0.07238124561853242,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1188497",
+          "name": "Suzie Songs",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.7458648488804611,
+            "shrunk_form_strength": 0.5760763644895273,
+            "history": [
+              {
+                "race_id": "938261",
+                "date": "2026-09-12",
+                "position": 4,
+                "field_size": 18,
+                "finish_percentile": 0.8235294117647058,
+                "recency_weight": 0.6546922875874867
+              },
+              {
+                "race_id": "933210",
+                "date": "2026-08-14",
+                "position": 1,
+                "field_size": 11,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.5236470614103134
+              },
+              {
+                "race_id": "929049",
+                "date": "2026-07-22",
+                "position": 1,
+                "field_size": 3,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.4386405555615829
+              },
+              {
+                "race_id": "926239",
+                "date": "2026-07-04",
+                "position": 4,
+                "field_size": 6,
+                "finish_percentile": 0.4,
+                "recency_weight": 0.3818587827286608
+              },
+              {
+                "race_id": "911865",
+                "date": "2026-04-12",
+                "position": 12,
+                "field_size": 13,
+                "finish_percentile": 0.08333333333333333,
+                "recency_weight": 0.20150518808083442
+              },
+              {
+                "race_id": "867320",
+                "date": "2025-09-14",
+                "position": 7,
+                "field_size": 7,
+                "finish_percentile": 0.0,
+                "recency_weight": 0.03998369344207079
+              }
+            ]
+          },
+          "model_probability": 0.07551226996550595,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1191615",
+          "name": "Prevalence",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.6128984919761855,
+            "shrunk_form_strength": 0.534830917333847,
+            "history": [
+              {
+                "race_id": "939532",
+                "date": "2026-09-21",
+                "position": 1,
+                "field_size": 12,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.7016818199634473
+              },
+              {
+                "race_id": "935845",
+                "date": "2026-08-30",
+                "position": 12,
+                "field_size": 12,
+                "finish_percentile": 0.0,
+                "recency_weight": 0.5923182505897684
+              },
+              {
+                "race_id": "924648",
+                "date": "2026-06-26",
+                "position": 1,
+                "field_size": 20,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.35904142751968665
+              },
+              {
+                "race_id": "918739",
+                "date": "2026-05-24",
+                "position": 10,
+                "field_size": 12,
+                "finish_percentile": 0.18181818181818182,
+                "recency_weight": 0.27846261478923423
+              },
+              {
+                "race_id": "915395",
+                "date": "2026-05-04",
+                "position": 3,
+                "field_size": 12,
+                "finish_percentile": 0.8181818181818182,
+                "recency_weight": 0.2387104009776041
+              },
+              {
+                "race_id": "888532",
+                "date": "2025-11-07",
+                "position": 1,
+                "field_size": 12,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.06060394654041988
+              }
+            ]
+          },
+          "model_probability": 0.06953319502751015,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1192245",
+          "name": "White Sand Beach",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.7109021356079648,
+            "shrunk_form_strength": 0.5710081668825121,
+            "history": [
+              {
+                "race_id": "940959",
+                "date": "2026-10-01",
+                "position": 1,
+                "field_size": 5,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.757858283255199
+              },
+              {
+                "race_id": "928694",
+                "date": "2026-07-19",
+                "position": 4,
+                "field_size": 7,
+                "finish_percentile": 0.5,
+                "recency_weight": 0.4286219914265364
+              },
+              {
+                "race_id": "927633",
+                "date": "2026-07-13",
+                "position": 2,
+                "field_size": 9,
+                "finish_percentile": 0.875,
+                "recency_weight": 0.40926610976499084
+              },
+              {
+                "race_id": "923977",
+                "date": "2026-06-24",
+                "position": 2,
+                "field_size": 19,
+                "finish_percentile": 0.9444444444444444,
+                "recency_weight": 0.3535533905932738
+              },
+              {
+                "race_id": "921154",
+                "date": "2026-06-07",
+                "position": 8,
+                "field_size": 9,
+                "finish_percentile": 0.125,
+                "recency_weight": 0.3101657113410298
+              },
+              {
+                "race_id": "918739",
+                "date": "2026-05-24",
+                "position": 8,
+                "field_size": 12,
+                "finish_percentile": 0.36363636363636365,
+                "recency_weight": 0.27846261478923423
+              }
+            ]
+          },
+          "model_probability": 0.07475071399038799,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1192541",
+          "name": "Quiescent",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.4274486514255719,
+            "shrunk_form_strength": 0.47941358375612314,
+            "history": [
+              {
+                "race_id": "944760",
+                "date": "2026-10-18",
+                "position": 14,
+                "field_size": 15,
+                "finish_percentile": 0.07142857142857142,
+                "recency_weight": 0.8638716525936915
+              },
+              {
+                "race_id": "941987",
+                "date": "2026-10-02",
+                "position": 4,
+                "field_size": 13,
+                "finish_percentile": 0.75,
+                "recency_weight": 0.7637175654573216
+              },
+              {
+                "race_id": "911576",
+                "date": "2026-04-07",
+                "position": 9,
+                "field_size": 12,
+                "finish_percentile": 0.2727272727272727,
+                "recency_weight": 0.19389309522921683
+              },
+              {
+                "race_id": "889249",
+                "date": "2025-11-09",
+                "position": 1,
+                "field_size": 11,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.06154467205840196
+              },
+              {
+                "race_id": "885582",
+                "date": "2025-10-22",
+                "position": 1,
+                "field_size": 8,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.05357774892831705
+              },
+              {
+                "race_id": "881878",
+                "date": "2025-09-27",
+                "position": 1,
+                "field_size": 7,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.04419417382415922
+              }
+            ]
+          },
+          "model_probability": 0.06223823974158196,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1195754",
+          "name": "Wearing Stars",
+          "form_features": {
+            "usable_runs": 6,
+            "weighted_finish_percentile": 0.7688143946114979,
+            "shrunk_form_strength": 0.5968984343165409,
+            "history": [
+              {
+                "race_id": "946302",
+                "date": "2026-10-30",
+                "position": 1,
+                "field_size": 14,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.9475160078148386
+              },
+              {
+                "race_id": "934446",
+                "date": "2026-08-21",
+                "position": 7,
+                "field_size": 10,
+                "finish_percentile": 0.3333333333333333,
+                "recency_weight": 0.55265246928962
+              },
+              {
+                "race_id": "929881",
+                "date": "2026-07-25",
+                "position": 2,
+                "field_size": 13,
+                "finish_percentile": 0.9166666666666666,
+                "recency_weight": 0.4488932925326847
+              },
+              {
+                "race_id": "923977",
+                "date": "2026-06-24",
+                "position": 4,
+                "field_size": 19,
+                "finish_percentile": 0.8333333333333334,
+                "recency_weight": 0.3535533905932738
+              },
+              {
+                "race_id": "919794",
+                "date": "2026-05-29",
+                "position": 2,
+                "field_size": 14,
+                "finish_percentile": 0.9230769230769231,
+                "recency_weight": 0.2893948415246629
+              },
+              {
+                "race_id": "914231",
+                "date": "2026-04-27",
+                "position": 9,
+                "field_size": 12,
+                "finish_percentile": 0.2727272727272727,
+                "recency_weight": 0.22618192615817884
+              }
+            ]
+          },
+          "model_probability": 0.07872330993543658,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1208984",
+          "name": "Duchess Of Kenli",
+          "form_features": {
+            "usable_runs": 5,
+            "weighted_finish_percentile": 0.594579182561772,
+            "shrunk_form_strength": 0.5327873606021314,
+            "history": [
+              {
+                "race_id": "942971",
+                "date": "2026-10-11",
+                "position": 10,
+                "field_size": 16,
+                "finish_percentile": 0.4,
+                "recency_weight": 0.8185322195299817
+              },
+              {
+                "race_id": "940961",
+                "date": "2026-10-01",
+                "position": 1,
+                "field_size": 5,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.757858283255199
+              },
+              {
+                "race_id": "933786",
+                "date": "2026-08-20",
+                "position": 8,
+                "field_size": 8,
+                "finish_percentile": 0.0,
+                "recency_weight": 0.548412489847313
+              },
+              {
+                "race_id": "929881",
+                "date": "2026-07-25",
+                "position": 1,
+                "field_size": 13,
+                "finish_percentile": 1.0,
+                "recency_weight": 0.4488932925326847
+              },
+              {
+                "race_id": "893678",
+                "date": "2025-12-12",
+                "position": 6,
+                "field_size": 12,
+                "finish_percentile": 0.5454545454545454,
+                "recency_weight": 0.07935387279475448
+              }
+            ]
+          },
+          "model_probability": 0.06924958493806216,
+          "equal_chance_reference": 0.07142857142857142
+        }
+      ],
+      "runner_source_sha256": "8033b7eb39fdc639feba7986962a00040fd9e50a33cf46f2cb236692882679de",
+      "runner_observed_at_utc": "2026-11-06T14:09:13.416759+00:00",
+      "active_runner_count": 14,
+      "research_only": true,
+      "reference_only": false,
+      "model_validation": "UNVALIDATED",
+      "publication_gate": "BLOCKED",
+      "challenge_eligible": 0,
+      "independent_timestamp_attested": false,
+      "independent_schedule_verified": false,
+      "schedule_cross_checked": true,
+      "secondary_schedule_receipt": {
+        "url": "https://api.theracingapi.com/v1/racecards/free?day=today&region_codes=gb&region_codes=ire&limit=100&skip=0",
+        "sha256": "440f375ea10875d136cc1d2951a3f580467b359d86c5d4b06df83612da72ba67",
+        "observed_at_utc": "2026-11-06T14:09:18.400575+00:00",
+        "rate_limit_retries": 0
+      },
+      "historical_first_availability_verified": false,
+      "odds": null,
+      "expected_value": null,
+      "limitation": "Untrained, uncalibrated form heuristic; parameters are exploratory. Ignores class, distance, going, weight, draw and trainer/jockey effects. Not verified betting value.",
+      "revision_of": null,
+      "record_sha256": "6b465b00bd86a370f70124570a927661ec16cc85cd56c098cb382753a2c7a9fa"
+    },
+    {
+      "schema_version": 1,
+      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
       "race_id": "947302",
       "racecourse": "Newcastle",
       "race_name": "Make The Move To Midnite Handicap (Div 2)",
@@ -5830,7 +6754,7 @@
       "race_name": "BAR 1 Betting Bet Builder Boost Handicap (0-60)",
       "startUTC": "2026-11-06T20:15:00+00:00",
       "source": "https://www.sportinglife.com/racing/racecards/2026-11-06/dundalk/racecard/947473/bar-1-betting-bet-builder-boost-handicap-0-60",
-      "generated_at_utc": "2026-11-06T01:40:53.352795+00:00",
+      "generated_at_utc": "2026-11-06T14:09:21.030792+00:00",
       "parameters": {
         "minimum_form_runs": 3,
         "maximum_form_runs": 6,
@@ -5842,67 +6766,6 @@
         "maximum_runner_age_minutes": 30
       },
       "runners": [
-        {
-          "horse_id": "1037589",
-          "name": "Jazzy Dancer",
-          "form_features": {
-            "usable_runs": 6,
-            "weighted_finish_percentile": 0.5690997996881995,
-            "shrunk_form_strength": 0.5257468384088202,
-            "history": [
-              {
-                "race_id": "945748",
-                "date": "2026-10-28",
-                "position": 2,
-                "field_size": 13,
-                "finish_percentile": 0.9166666666666666,
-                "recency_weight": 0.9330329915368074
-              },
-              {
-                "race_id": "943978",
-                "date": "2026-10-16",
-                "position": 8,
-                "field_size": 14,
-                "finish_percentile": 0.46153846153846156,
-                "recency_weight": 0.8506671609508557
-              },
-              {
-                "race_id": "927444",
-                "date": "2026-07-11",
-                "position": 11,
-                "field_size": 14,
-                "finish_percentile": 0.23076923076923078,
-                "recency_weight": 0.4030103761616688
-              },
-              {
-                "race_id": "921551",
-                "date": "2026-06-10",
-                "position": 9,
-                "field_size": 14,
-                "finish_percentile": 0.38461538461538464,
-                "recency_weight": 0.3174154911790179
-              },
-              {
-                "race_id": "919026",
-                "date": "2026-05-28",
-                "position": 7,
-                "field_size": 18,
-                "finish_percentile": 0.6470588235294118,
-                "recency_weight": 0.2871745887492587
-              },
-              {
-                "race_id": "909523",
-                "date": "2026-03-27",
-                "position": 11,
-                "field_size": 14,
-                "finish_percentile": 0.23076923076923078,
-                "recency_weight": 0.17814342119696308
-              }
-            ]
-          },
-          "model_probability": 0.062367565892002055,
-          "equal_chance_reference": 0.058823529411764705
-        },
         {
           "horse_id": "1123080",
           "name": "Una Matata",
@@ -5961,8 +6824,8 @@
               }
             ]
           },
-          "model_probability": 0.0613755344938699,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.07300069828113911,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1124310",
@@ -6022,69 +6885,8 @@
               }
             ]
           },
-          "model_probability": 0.05783241413123876,
-          "equal_chance_reference": 0.058823529411764705
-        },
-        {
-          "horse_id": "1146098",
-          "name": "Local Lad",
-          "form_features": {
-            "usable_runs": 6,
-            "weighted_finish_percentile": 0.1469730758196152,
-            "shrunk_form_strength": 0.37673170060972916,
-            "history": [
-              {
-                "race_id": "944560",
-                "date": "2026-10-20",
-                "position": 23,
-                "field_size": 24,
-                "finish_percentile": 0.043478260869565216,
-                "recency_weight": 0.8772811111231658
-              },
-              {
-                "race_id": "941757",
-                "date": "2026-10-04",
-                "position": 12,
-                "field_size": 16,
-                "finish_percentile": 0.26666666666666666,
-                "recency_weight": 0.7755723809168673
-              },
-              {
-                "race_id": "939545",
-                "date": "2026-09-21",
-                "position": 14,
-                "field_size": 15,
-                "finish_percentile": 0.07142857142857142,
-                "recency_weight": 0.7016818199634473
-              },
-              {
-                "race_id": "912910",
-                "date": "2026-04-19",
-                "position": 15,
-                "field_size": 17,
-                "finish_percentile": 0.125,
-                "recency_weight": 0.21266679023771393
-              },
-              {
-                "race_id": "887918",
-                "date": "2025-11-05",
-                "position": 3,
-                "field_size": 9,
-                "finish_percentile": 0.75,
-                "recency_weight": 0.059677600244401045
-              },
-              {
-                "race_id": "886592",
-                "date": "2025-10-27",
-                "position": 8,
-                "field_size": 15,
-                "finish_percentile": 0.5,
-                "recency_weight": 0.0556811698837712
-              }
-            ]
-          },
-          "model_probability": 0.04629412611486319,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.06878647411675275,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1151660",
@@ -6144,8 +6946,8 @@
               }
             ]
           },
-          "model_probability": 0.04858640277005757,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.05778917215844577,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1168869",
@@ -6205,8 +7007,8 @@
               }
             ]
           },
-          "model_probability": 0.0661172275306522,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.07864051723464242,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1181017",
@@ -6266,8 +7068,8 @@
               }
             ]
           },
-          "model_probability": 0.06856218090267567,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.08154857017290831,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1186994",
@@ -6327,8 +7129,8 @@
               }
             ]
           },
-          "model_probability": 0.06501488335745416,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.07732937762415741,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1190554",
@@ -6388,8 +7190,8 @@
               }
             ]
           },
-          "model_probability": 0.06554387593010995,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.07795856688512043,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1198739",
@@ -6425,8 +7227,8 @@
               }
             ]
           },
-          "model_probability": 0.049885749119544326,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.05933462820381929,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1208126",
@@ -6486,69 +7288,8 @@
               }
             ]
           },
-          "model_probability": 0.0639326887050922,
-          "equal_chance_reference": 0.058823529411764705
-        },
-        {
-          "horse_id": "1208707",
-          "name": "Sarfarcat",
-          "form_features": {
-            "usable_runs": 6,
-            "weighted_finish_percentile": 0.2835205780136024,
-            "shrunk_form_strength": 0.42105766912380965,
-            "history": [
-              {
-                "race_id": "943978",
-                "date": "2026-10-16",
-                "position": 10,
-                "field_size": 14,
-                "finish_percentile": 0.3076923076923077,
-                "recency_weight": 0.8506671609508557
-              },
-              {
-                "race_id": "940360",
-                "date": "2026-09-25",
-                "position": 8,
-                "field_size": 14,
-                "finish_percentile": 0.46153846153846156,
-                "recency_weight": 0.7236346187201891
-              },
-              {
-                "race_id": "936887",
-                "date": "2026-09-04",
-                "position": 10,
-                "field_size": 12,
-                "finish_percentile": 0.18181818181818182,
-                "recency_weight": 0.6155722066724582
-              },
-              {
-                "race_id": "930215",
-                "date": "2026-07-28",
-                "position": 11,
-                "field_size": 14,
-                "finish_percentile": 0.23076923076923078,
-                "recency_weight": 0.4593856758704203
-              },
-              {
-                "race_id": "901731",
-                "date": "2026-02-06",
-                "position": 6,
-                "field_size": 6,
-                "finish_percentile": 0.0,
-                "recency_weight": 0.12214499605428075
-              },
-              {
-                "race_id": "897877",
-                "date": "2026-01-09",
-                "position": 14,
-                "field_size": 14,
-                "finish_percentile": 0.0,
-                "recency_weight": 0.09845140161220245
-              }
-            ]
-          },
-          "model_probability": 0.05058560371760268,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.07604220406306314,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1227462",
@@ -6584,8 +7325,8 @@
               }
             ]
           },
-          "model_probability": 0.05226052764812944,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.06215921445434041,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1228703",
@@ -6645,8 +7386,8 @@
               }
             ]
           },
-          "model_probability": 0.06166868339618628,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.07334937263071374,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1230935",
@@ -6698,8 +7439,8 @@
               }
             ]
           },
-          "model_probability": 0.05132760569895364,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.06104958739702432,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "887687",
@@ -6759,8 +7500,8 @@
               }
             ]
           },
-          "model_probability": 0.060436806600612646,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.0718841655736218,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "968367",
@@ -6820,13 +7561,13 @@
               }
             ]
           },
-          "model_probability": 0.06820812399095538,
-          "equal_chance_reference": 0.058823529411764705
+          "model_probability": 0.08112745120425109,
+          "equal_chance_reference": 0.07142857142857142
         }
       ],
-      "runner_source_sha256": "413b9d08324e3d675f14f3a9ae05e3327ca95177985978b7f4f6688e95ddca2e",
-      "runner_observed_at_utc": "2026-11-06T01:40:46.753684+00:00",
-      "active_runner_count": 17,
+      "runner_source_sha256": "728c916fcf205b975a3b1143bacd7bcd1413056ce8b0b2b8ebe386b4331c4718",
+      "runner_observed_at_utc": "2026-11-06T14:09:14.925844+00:00",
+      "active_runner_count": 14,
       "research_only": true,
       "reference_only": false,
       "model_validation": "UNVALIDATED",
@@ -6837,23 +7578,23 @@
       "schedule_cross_checked": true,
       "secondary_schedule_receipt": {
         "url": "https://api.theracingapi.com/v1/racecards/free?day=today&region_codes=gb&region_codes=ire&limit=100&skip=0",
-        "sha256": "8573d6f342cbc7f0f4e4e1ca10ce87c6bbdb556b88be6d8edeadf80d5f7be535",
-        "observed_at_utc": "2026-11-06T01:40:50.490697+00:00",
+        "sha256": "440f375ea10875d136cc1d2951a3f580467b359d86c5d4b06df83612da72ba67",
+        "observed_at_utc": "2026-11-06T14:09:18.400575+00:00",
         "rate_limit_retries": 0
       },
       "historical_first_availability_verified": false,
       "odds": null,
       "expected_value": null,
       "limitation": "Untrained, uncalibrated form heuristic; parameters are exploratory. Ignores class, distance, going, weight, draw and trainer/jockey effects. Not verified betting value.",
-      "revision_of": null,
-      "record_sha256": "d6f43a9e6208c197c4a67dd3c2626644805569cbebfafca1b12571b75bc6b5e0"
+      "revision_of": "d6f43a9e6208c197c4a67dd3c2626644805569cbebfafca1b12571b75bc6b5e0",
+      "record_sha256": "1406f158e4c704b8bbcb5efecf915e0e6c6bd8459592c977ff29b6b6f3ecef6d"
     }
   ],
   "form_model_audit": {
     "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
-    "generated_forecasts": 9,
-    "new_archived_records": 1,
-    "archived_records": 44,
+    "generated_forecasts": 10,
+    "new_archived_records": 2,
+    "archived_records": 46,
     "skipped": [
       {
         "race_id": "947281",
@@ -6953,10 +7694,6 @@
       },
       {
         "race_id": "947469",
-        "reason": "INSUFFICIENT_FORM_FOR_FULL_FIELD"
-      },
-      {
-        "race_id": "947470",
         "reason": "INSUFFICIENT_FORM_FOR_FULL_FIELD"
       },
       {
@@ -7651,6 +8388,10 @@
       },
       {
         "race_id": "947301",
+        "reason": "WAITING_FOR_FINAL_RESULT"
+      },
+      {
+        "race_id": "947470",
         "reason": "WAITING_FOR_FINAL_RESULT"
       },
       {
@@ -8949,7 +9690,7 @@
   "current_field_checks": {
     "63718252e277a90ecb3bb05d2189f530694d8bb856c547307cd352f4d7056648": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-06T08:53:22.050525+00:00",
+      "runner_observed_at_utc": "2026-11-06T14:09:09.462158+00:00",
       "active_runner_ids": [
         "1061131",
         "1072674",
@@ -8967,11 +9708,11 @@
         "1220113"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-06T08:53:34.269559+00:00"
+      "checked_at_utc": "2026-11-06T14:09:21.030792+00:00"
     },
     "ab95dbf1f94161f6f06bddbec5dc5c732964b8568fb344b80d511a1e8f4c60a2": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-06T08:53:24.093036+00:00",
+      "runner_observed_at_utc": "2026-11-06T14:09:11.495554+00:00",
       "active_runner_ids": [
         "1216536",
         "1221402",
@@ -8986,11 +9727,11 @@
         "1236021"
       ],
       "active_runner_count": 11,
-      "checked_at_utc": "2026-11-06T08:53:34.269559+00:00"
+      "checked_at_utc": "2026-11-06T14:09:21.030792+00:00"
     },
     "c4c5b42a65850278247317455571f6a1dc9d5e0dcf33f76097850ff34e4c2349": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-06T08:53:25.036932+00:00",
+      "runner_observed_at_utc": "2026-11-06T14:09:11.775945+00:00",
       "active_runner_ids": [
         "1216497",
         "1222859",
@@ -8999,11 +9740,11 @@
         "1234242"
       ],
       "active_runner_count": 5,
-      "checked_at_utc": "2026-11-06T08:53:34.269559+00:00"
+      "checked_at_utc": "2026-11-06T14:09:21.030792+00:00"
     },
     "c7ad9f2978bc0258af6d9ade42449e6d054da82c113d1ffd04416c29c5a6d793": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-06T08:53:25.456829+00:00",
+      "runner_observed_at_utc": "2026-11-06T14:09:12.448375+00:00",
       "active_runner_ids": [
         "1057238",
         "1058190",
@@ -9021,11 +9762,11 @@
         "976246"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-06T08:53:34.269559+00:00"
+      "checked_at_utc": "2026-11-06T14:09:21.030792+00:00"
     },
     "aa6f7f94d49331b677912e76bde8086bb5d6ab23b958032b2c1fc3cfa4caea63": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-06T08:53:26.090430+00:00",
+      "runner_observed_at_utc": "2026-11-06T14:09:13.105670+00:00",
       "active_runner_ids": [
         "1018538",
         "1035805",
@@ -9043,11 +9784,11 @@
         "987752"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-06T08:53:34.269559+00:00"
+      "checked_at_utc": "2026-11-06T14:09:21.030792+00:00"
     },
     "0a8f709c021dfffb9aaa861e01c871545737b3c93decd71cb5b4440f1bbab599": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-06T08:53:26.778123+00:00",
+      "runner_observed_at_utc": "2026-11-06T14:09:13.747905+00:00",
       "active_runner_ids": [
         "1017849",
         "1061490",
@@ -9065,11 +9806,33 @@
         "992810"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-06T08:53:34.269559+00:00"
+      "checked_at_utc": "2026-11-06T14:09:21.030792+00:00"
+    },
+    "6b465b00bd86a370f70124570a927661ec16cc85cd56c098cb382753a2c7a9fa": {
+      "status": "FRESH_MATCHING_FIELD",
+      "runner_observed_at_utc": "2026-11-06T14:09:13.416759+00:00",
+      "active_runner_ids": [
+        "1099317",
+        "1120245",
+        "1121640",
+        "1140904",
+        "1161733",
+        "1162230",
+        "1182018",
+        "1184532",
+        "1188497",
+        "1191615",
+        "1192245",
+        "1192541",
+        "1195754",
+        "1208984"
+      ],
+      "active_runner_count": 14,
+      "checked_at_utc": "2026-11-06T14:09:21.030792+00:00"
     },
     "2aa89998dadf1c8be9cda5cbf81a6f428f61abbc3c0f79ea05cfda8330471945": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-06T08:53:27.423443+00:00",
+      "runner_observed_at_utc": "2026-11-06T14:09:13.862422+00:00",
       "active_runner_ids": [
         "1009615",
         "1039908",
@@ -9087,11 +9850,11 @@
         "1220694"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-06T08:53:34.269559+00:00"
+      "checked_at_utc": "2026-11-06T14:09:21.030792+00:00"
     },
     "6917bddaf8c86d2492e4184bced994b1939b9fcabd5abbe17bba1c0e04ba0f7e": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-06T08:53:28.083800+00:00",
+      "runner_observed_at_utc": "2026-11-06T14:09:15.484431+00:00",
       "active_runner_ids": [
         "1021374",
         "1096766",
@@ -9103,16 +9866,14 @@
         "1222181"
       ],
       "active_runner_count": 8,
-      "checked_at_utc": "2026-11-06T08:53:34.269559+00:00"
+      "checked_at_utc": "2026-11-06T14:09:21.030792+00:00"
     },
-    "d6f43a9e6208c197c4a67dd3c2626644805569cbebfafca1b12571b75bc6b5e0": {
+    "1406f158e4c704b8bbcb5efecf915e0e6c6bd8459592c977ff29b6b6f3ecef6d": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-06T08:53:28.480839+00:00",
+      "runner_observed_at_utc": "2026-11-06T14:09:14.925844+00:00",
       "active_runner_ids": [
-        "1037589",
         "1123080",
         "1124310",
-        "1146098",
         "1151660",
         "1168869",
         "1181017",
@@ -9120,15 +9881,14 @@
         "1190554",
         "1198739",
         "1208126",
-        "1208707",
         "1227462",
         "1228703",
         "1230935",
         "887687",
         "968367"
       ],
-      "active_runner_count": 17,
-      "checked_at_utc": "2026-11-06T08:53:34.269559+00:00"
+      "active_runner_count": 14,
+      "checked_at_utc": "2026-11-06T14:09:21.030792+00:00"
     }
   },
   "settled_forecasts": [
@@ -10725,12 +11485,12 @@
   ],
   "settled_history_limit": 20,
   "race_cycle_audit": {
-    "checked_at_utc": "2026-11-06T08:53:34.269559+00:00",
+    "checked_at_utc": "2026-11-06T14:09:21.030792+00:00",
     "race_date_uk": "2026-11-06",
     "collection_scope": "CURRENT_UK_DAY_ONLY",
-    "upcoming_observed_races": 36,
-    "upcoming_form_forecasts": 9,
-    "next_observed_start_utc": "2026-11-06T12:25:00+00:00",
+    "upcoming_observed_races": 27,
+    "upcoming_form_forecasts": 10,
+    "next_observed_start_utc": "2026-11-06T14:10:00+00:00",
     "status": "UPCOMING_FORECASTS_AVAILABLE"
   },
   "limitations": [
