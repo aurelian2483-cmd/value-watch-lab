@@ -29,6 +29,9 @@ class ChallengerTests(unittest.TestCase):
         result = paired_backtest([forecast], history, weight=.5, minimum=1)
         self.assertEqual(result["records"][0]["h2h_sample"], 0)
         self.assertEqual(result["baseline_mean_brier"], result["challenger_mean_brier"])
+        self.assertFalse(result["comparison_active"])
+        self.assertEqual(result["eligible_h2h_fixtures"], 0)
+        self.assertEqual(result["delta_brier_challenger_minus_baseline"], 0)
 
     def test_late_forecast_rejected(self):
         utc = dt.timezone.utc
