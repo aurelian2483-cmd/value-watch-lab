@@ -1,0 +1,46 @@
+name: H2H verified archive research backtest
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 9 * * 1'
+permissions:
+  contents: read
+jobs:
+  archive-backtest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/prospective-100
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run unit tests
+        run: |
+          python -m unittest discover -s tests -p 'test_football_h2h.py' -v
+          python -m unittest discover -s tests -p 'test_football_h2h_backtest.py' -v
+      - name: Run verified-ledger backtest if archived results exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h2h-evaluation
+          if [ -f research/football-expanded-results/v1/verified.json ]; then
+            python scripts/run_h2h_archive_backtest.py --verified-ledger /tmp/h2h-evaluation/report.json
+          else
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          Path('/tmp/h2h-evaluation/report.json').write_text(json.dumps({
+              'status':'MISSING_VERIFIED_LEDGER',
+              'model_validation':'UNVALIDATED',
+              'publication_gate':'BLOCKED',
+              'model_comparison_performed':False
+          },indent=2)+'\\n')
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h2h-verified-archive-research-report
+          path: /tmp/h2h-evaluation/report.json
+          retention-days: 30
