@@ -49,7 +49,7 @@ def paired_backtest(forecasts, history, weight=0.0, minimum=5):
         kickoff, generated = f["kickoff"], f["generated_at"]
         if kickoff.tzinfo is None or generated.tzinfo is None or generated >= kickoff:
             raise ValueError("Forecast must be timestamped before kickoff")
-        evidence = head_to_head(history, f["home"], f["away"], generated, limit=10)
+        evidence = head_to_head([row for row in history if row.get("league") == f.get("league")], f["home"], f["away"], generated, limit=10)
         base = tuple(f["probabilities"])
         challenger = challenger_probabilities(base, evidence, weight, minimum)
         b, l = _metrics(base, f["outcome"])
