@@ -5,6 +5,7 @@ separate earlier training period. Never use this module for betting publication.
 """
 import math
 from football_h2h import head_to_head
+from expanded_football import norm
 
 
 def _metrics(probabilities, outcome):
@@ -49,7 +50,9 @@ def paired_backtest(forecasts, history, weight=0.0, minimum=5):
         kickoff, generated = f["kickoff"], f["generated_at"]
         if kickoff.tzinfo is None or generated.tzinfo is None or generated >= kickoff:
             raise ValueError("Forecast must be timestamped before kickoff")
-        evidence = head_to_head([row for row in history if row.get("league") == f.get("league")], f["home"], f["away"], generated, limit=10)
+        evidence = head_to_head([{**row, "home": norm(row["home"]), "away": norm(row["away"])}
+                                 for row in history if row.get("league") == f.get("league")],
+                                norm(f["home"]), norm(f["away"]), generated, limit=10)
         base = tuple(f["probabilities"])
         challenger = challenger_probabilities(base, evidence, weight, minimum)
         b, l = _metrics(base, f["outcome"])
