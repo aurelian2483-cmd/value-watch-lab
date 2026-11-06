@@ -21,3 +21,10 @@ assert.equal(C.market({...r,race_stage:'PARADING'},now).favourites.length,0);
 const nr={...r,active_runner_count:2,runners:[{...r.runners[0],runner_status:'NONRUNNER',active_runner:false},r.runners[1],{horse_id:'c',name:'Gamma',runner_status:'RUNNER',active_runner:true}],market_observation:{...r.market_observation,quotes:[{horse_id:'b',decimal:3},{horse_id:'c',decimal:4}]}};
 assert.equal(C.market(nr,now).favourites[0].name,'Beta');
 assert.equal(C.market({...nr,market_observation:r.market_observation},now).favourites.length,0,'obsolete quotes containing a non-runner fail closed');
+
+for(const contradictory of [{...r.runners[0],active_runner:false},{...r.runners[0],runner_status:'NONRUNNER',active_runner:true}]){
+ const bad={...r,runners:[contradictory,...r.runners.slice(1)]};
+ assert.equal(C.market(bad,now).valid,false,'contradictory runner flags cannot produce a market favourite');
+ assert.equal(C.market(bad,now).favourites.length,0);
+}
+assert.equal(C.market({...r,runners:[...r.runners,{horse_id:'extra',name:'Ignored runner',runner_status:'RUNNER',active_runner:false}]},now).valid,false,'a hidden contradictory runner must invalidate an otherwise complete quoted field');
