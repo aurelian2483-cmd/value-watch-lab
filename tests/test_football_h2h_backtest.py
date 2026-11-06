@@ -20,11 +20,11 @@ class ChallengerTests(unittest.TestCase):
 
     def test_backtest_excludes_future_history(self):
         utc = dt.timezone.utc
-        forecast = {"home": "Home", "away": "Away",
+        forecast = {"league": "E1", "home": "Home", "away": "Away",
                     "generated_at": dt.datetime(2026, 1, 1, tzinfo=utc),
                     "kickoff": dt.datetime(2026, 1, 2, tzinfo=utc),
                     "probabilities": (.5, .3, .2), "outcome": 0}
-        history = [{"home": "Home", "away": "Away", "date": "2026-01-02",
+        history = [{"league": "E1", "home": "Home", "away": "Away", "date": "2026-01-02",
                     "score_home": 0, "score_away": 5}]
         result = paired_backtest([forecast], history, weight=.5, minimum=1)
         self.assertEqual(result["records"][0]["h2h_sample"], 0)
