@@ -105,7 +105,8 @@ def main():
     if len(sys.argv) != 3:
         raise SystemExit("Usage: run_h2h_archive_backtest.py HISTORY.json OUTPUT.json")
     root = Path(__file__).resolve().parents[1]
-    history = (verified_history_from_ledger(root) if sys.argv[1] == "--verified-ledger"\n               else json.loads(Path(sys.argv[1]).read_text()))
+    history = (verified_history_from_ledger(root) if sys.argv[1] == "--verified-ledger"
+               else json.loads(Path(sys.argv[1]).read_text()))
     if not isinstance(history, list):
         raise ValueError("History must be a list")
     forecasts = load_verified(root, history)
