@@ -30,6 +30,11 @@ class H2HTests(unittest.TestCase):
                          "H2H_DISAGREES_WITH_AWAY_FAVOURITE")
         self.assertEqual(conflict_with_forecast(evidence, .2, .2, .6), "INSUFFICIENT_H2H_SAMPLE")
 
+    def test_duplicate_history_rejected(self):
+        with self.assertRaisesRegex(ValueError, "Duplicate historical fixture"):
+            head_to_head(self.rows + [dict(self.rows[0])],
+                         "Derby County", "Bolton Wanderers", self.cutoff)
+
     def test_rejects_naive_cutoff(self):
         with self.assertRaises(ValueError):
             head_to_head(self.rows, "Derby County", "Bolton Wanderers", dt.datetime(2026, 11, 6))
