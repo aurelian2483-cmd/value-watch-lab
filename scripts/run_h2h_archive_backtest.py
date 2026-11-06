@@ -45,7 +45,7 @@ def load_verified(root, history):
             raise ValueError("Forecast and score fixture mismatch")
         hg, ag = entry["score_home"], entry["score_away"]
         records.append({
-            "home": forecast["home"], "away": forecast["away"],
+            "league": forecast["league"], "home": forecast["home"], "away": forecast["away"],
             "generated_at": parse(forecast["generated_at_utc"]),
             "kickoff": parse(forecast["kickoff_utc"]),
             "probabilities": (
