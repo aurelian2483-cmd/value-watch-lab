@@ -41,6 +41,20 @@ class EvidenceReceiptTests(unittest.TestCase):
             self.assertFalse(saved['independent_timestamp_attested'])
             self.assertEqual(saved['requested_raw_retention_days'], 90)
 
+    def test_cycle_prefix_matches_artifact_location_and_rejects_traversal(self):
+        with tempfile.TemporaryDirectory() as folder:
+            repo, work, _, _ = self.setup_evidence(folder)
+            env = dict(self.env, HORSE_EVIDENCE_ARTIFACT_PREFIX='cycle-02')
+            result = E.preserve(repo, work, environment=env)
+            self.assertEqual(result['sources'][0]['artifact_paths'], ['cycle-02/runner-sources/123.html'])
+            first = E.preserve(repo, work, environment=dict(self.env, HORSE_EVIDENCE_ARTIFACT_PREFIX='cycle-01'))
+            self.assertEqual(first['sources'][0]['artifact_paths'], ['cycle-01/runner-sources/123.html'])
+            self.assertNotEqual(first['record_sha256'], result['record_sha256'])
+            self.assertEqual(len(list((repo / 'research/horse-evidence-receipts/v1').glob('*.json'))), 2)
+            for prefix in ['../cycle-01', '/tmp/cycle-01', 'cycle-01/other']:
+                with self.assertRaisesRegex(ValueError, 'artifact prefix'):
+                    E.preserve(repo, work, environment=dict(self.env, HORSE_EVIDENCE_ARTIFACT_PREFIX=prefix))
+
     def test_missing_corrupt_bytes_are_not_claimed_recoverable(self):
         with tempfile.TemporaryDirectory() as folder:
             repo, work, raw, record = self.setup_evidence(folder)

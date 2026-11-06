@@ -86,6 +86,9 @@ def preserve(repo=ROOT, work=WORK, now=None, environment=None):
     run_id, attempt = env.get('GITHUB_RUN_ID', ''), env.get('GITHUB_RUN_ATTEMPT', '')
     if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', repository) or not run_id.isdigit() or not attempt.isdigit():
         raise ValueError('Evidence receipts require GitHub workflow run identity')
+    prefix = env.get('HORSE_EVIDENCE_ARTIFACT_PREFIX', '')
+    if prefix and not re.fullmatch(r'cycle-[0-9]{2}', prefix):
+        raise ValueError('Invalid evidence artifact prefix')
     directory = repo / 'research/horse-evidence-receipts/v1'
     for path in sorted(directory.glob('*.json')):
         verify_receipt(json.loads(path.read_text()), path)
@@ -107,7 +110,7 @@ def preserve(repo=ROOT, work=WORK, now=None, environment=None):
                 found.setdefault(sha, {'sha256': sha, 'byte_count': len(raw),
                                       'artifact_paths': [], 'source_urls': sorted(refs[sha]['sources']),
                                       'referenced_records': sorted(refs[sha]['records'])})
-                found[sha]['artifact_paths'].append(str(path.relative_to(work)))
+                found[sha]['artifact_paths'].append(('/'.join(filter(None, [prefix, str(path.relative_to(work))]))))
     body = {'schema_version': 1, 'kind': 'HORSE_SOURCE_ARTIFACT_RECEIPT',
             'research_only': True, 'model_validation': 'UNVALIDATED', 'publication_gate': 'BLOCKED',
             'independent_timestamp_attested': False,

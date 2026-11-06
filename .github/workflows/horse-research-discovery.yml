@@ -2,19 +2,48 @@ name: Horse racing experimental discovery
 on:
   push:
     branches: [main]
-    paths: ['scripts/preserve_horse_evidence.py', 'tests/test_horse_evidence.py', 'scripts/horse_context_pipeline.py', 'scripts/archive_horse_markets.py', 'tests/test_horse_context.py', 'tests/test_horse_market_archive.py', 'scripts/discover_horse_races.py', 'scripts/horse_reference_baseline.py', 'scripts/horse_secondary_source.py', 'tests/test_horse_discovery.py', 'tests/test_horse_reference.py', 'tests/test_horse_secondary.py', 'scripts/enrich_horse_runners.py', 'scripts/horse_market.py', 'tests/test_horse_market.py', 'tests/test_horse_runners.py', '.github/workflows/horse-research-discovery.yml', 'scripts/horse_model_pipeline.py', 'tests/test_horse_model.py', 'scripts/horse_challenger.py', 'tests/test_horse_challenger.py', 'research/horse-challenger/model-v1.json']
+    paths: ['scripts/horse_refresh_session.py', 'scripts/horse_refresh_cycle.sh', 'tests/test_horse_refresh_session.py', 'scripts/horse_refresh_gate.py', 'tests/test_horse_refresh_gate.py', 'scripts/preserve_horse_evidence.py', 'tests/test_horse_evidence.py', 'scripts/horse_context_pipeline.py', 'scripts/archive_horse_markets.py', 'tests/test_horse_context.py', 'tests/test_horse_market_archive.py', 'scripts/discover_horse_races.py', 'scripts/horse_reference_baseline.py', 'scripts/horse_secondary_source.py', 'tests/test_horse_discovery.py', 'tests/test_horse_reference.py', 'tests/test_horse_secondary.py', 'scripts/enrich_horse_runners.py', 'scripts/horse_market.py', 'tests/test_horse_market.py', 'tests/test_horse_runners.py', '.github/workflows/horse-research-discovery.yml', 'scripts/horse_model_pipeline.py', 'tests/test_horse_model.py', 'scripts/horse_challenger.py', 'tests/test_horse_challenger.py', 'research/horse-challenger/model-v1.json']
   schedule:
-    - cron: '5,25,45 6-22 * * *'
+    - cron: '5,25,45 6-21 * * *'
   workflow_dispatch:
+    inputs:
+      active_cycles:
+        description: 'Collection cycles, 20 minutes apart (1–6; only 06:00–22:00 UTC)'
+        required: false
+        default: '1'
+        type: choice
+        options: ['1', '2', '3', '4', '5', '6']
+  # Independent completion events provide a bounded fallback when cron is delayed.
+  # This workflow is deliberately absent from this list to prevent recursion.
+  workflow_run:
+    workflows: ['Refresh factual football fixtures', 'Tennis and NFL experimental research', 'Expanded football leagues research']
+    types: [completed]
+    branches: [main]
 permissions:
   contents: write
 concurrency:
   group: horse-research-discovery
   cancel-in-progress: false
 jobs:
-  discovery:
+  refresh_gate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    outputs:
+      refresh: ${{ steps.gate.outputs.refresh }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check bounded fallback refresh eligibility
+        id: gate
+        run: python scripts/horse_refresh_gate.py
+  discovery:
+    needs: refresh_gate
+    if: needs.refresh_gate.outputs.refresh == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 125
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,83 +53,15 @@ jobs:
           python-version: '3.12'
       - name: Test race discovery controls
         run: python -m unittest discover -s tests -p 'test_horse*.py'
-      - name: Collect single-source UK and Ireland race observations
-        run: python scripts/discover_horse_races.py
-      - name: Collect runner identities, non-runners and dated form
-        run: python scripts/enrich_horse_runners.py
-      - name: Archive source-observed prices and field changes
-        run: python scripts/archive_horse_markets.py
-      - name: Publish fresh racecards before model and result work
-        shell: bash
-        run: |
-          set -euo pipefail
-          cp /tmp/horse-research/racing-research-data.json racing-research-data.json
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- racing-research-data.json
-          if [ -d research/horse-market-archive ]; then git add -- research/horse-market-archive; fi
-          if ! git diff --cached --quiet; then
-            git commit -m "Refresh racecards and timestamped source-price observations"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
-      - name: Freeze equal-chance research references before races
-        run: python scripts/horse_reference_baseline.py
-      - name: Optional second-publisher race and result cross-check
+      - name: Collect and publish bounded racing refresh session
         env:
           RACING_API_USERNAME: ${{ secrets.RACING_API_USERNAME }}
           RACING_API_PASSWORD: ${{ secrets.RACING_API_PASSWORD }}
-        run: python scripts/horse_secondary_source.py
-      - name: Archive experimental form forecasts and track provisional final results
-        run: python scripts/horse_model_pipeline.py
-      - name: Freeze discipline-aware context research and evaluate archived results
-        run: python scripts/horse_context_pipeline.py
-      - name: Freeze trained challenger estimates separately
-        run: python scripts/horse_challenger.py
-      - name: Retain permanent hash receipts for recoverable raw evidence
-        run: python scripts/preserve_horse_evidence.py
+        run: python -u scripts/horse_refresh_session.py
       - uses: actions/upload-artifact@v4
-        with:
-          name: horse-research-discovery
-          path: |
-            /tmp/horse-research/racing-research-data.json
-            /tmp/horse-research/horse-model-data.json
-            /tmp/horse-research/horse-challenger-data.json
-            /tmp/horse-research/horse-context-data.json
-            /tmp/horse-research/*audit.json
-          retention-days: 90
-      - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: horse-research-source-snapshots
-          path: |
-            /tmp/horse-research/*.html
-            /tmp/horse-research/runner-sources/
-            /tmp/horse-research/result-sources/
-            /tmp/horse-research/secondary-source-snapshots/
+          path: /tmp/horse-session/
           retention-days: 90
-      - name: Publish experimental observations only
-        shell: bash
-        run: |
-          set -euo pipefail
-          cp /tmp/horse-research/racing-research-data.json racing-research-data.json
-          cp /tmp/horse-research/horse-model-data.json horse-model-data.json
-          cp /tmp/horse-research/horse-challenger-data.json horse-challenger-data.json
-          cp /tmp/horse-research/horse-context-data.json horse-context-data.json
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- racing-research-data.json horse-model-data.json horse-challenger-data.json horse-context-data.json
-          git add -- research/horse-challenger
-          if [ -d research/horse-evidence-receipts ]; then git add -- research/horse-evidence-receipts; fi
-          if [ -d research/horse-context-archive ]; then git add -- research/horse-context-archive; fi
-          if [ -d research/horse-context-results ]; then git add -- research/horse-context-results; fi
-          if [ -d research/horse-market-archive ]; then git add -- research/horse-market-archive; fi
-          if [ -d research/horse-reference-archive ]; then git add -- research/horse-reference-archive; fi
-          if [ -d research/horse-form-archive ]; then git add -- research/horse-form-archive; fi
-          if [ -d research/horse-results ]; then git add -- research/horse-results; fi
-          if [ -d research/horse-secondary-results ]; then git add -- research/horse-secondary-results; fi
-          if ! git diff --cached --quiet; then
-            git commit -m "Refresh experimental racing discovery observations"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
-
+          if-no-files-found: warn
