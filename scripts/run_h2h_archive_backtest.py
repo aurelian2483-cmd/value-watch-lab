@@ -62,11 +62,41 @@ def load_verified(root, history):
     return records
 
 
+def verified_history_from_ledger(root):
+    """Construct limited H2H history from two-source verified settled matches.
+
+    This is an archive-only coverage option, not a replacement for multi-season
+    independent historical sources. Match dates alone cannot attest availability.
+    """
+    path = root / "research/football-expanded-results/v1/verified.json"
+    if not path.exists():
+        raise FileNotFoundError(str(path))
+    entries = json.loads(path.read_text())["entries"]
+    seen = set()
+    history = []
+    for entry in entries:
+        if entry.get("verification") != "TWO_SOURCE_REGULATION_TIME_FINAL":
+            raise ValueError("Unverified historical result")
+        key = (entry["league"], entry["home"], entry["away"], entry["kickoff_utc"][:10])
+        if key in seen:
+            continue  # Multiple forecast revisions of one verified match.
+        seen.add(key)
+        history.append({
+            "league": entry["league"],
+            "home": entry["home"],
+            "away": entry["away"],
+            "date": entry["kickoff_utc"][:10],
+            "score_home": entry["score_home"],
+            "score_away": entry["score_away"],
+        })
+    return history
+
+
 def main():
     if len(sys.argv) != 3:
         raise SystemExit("Usage: run_h2h_archive_backtest.py HISTORY.json OUTPUT.json")
     root = Path(__file__).resolve().parents[1]
-    history = json.loads(Path(sys.argv[1]).read_text())
+    history = (verified_history_from_ledger(root) if sys.argv[1] == "--verified-ledger"\n               else json.loads(Path(sys.argv[1]).read_text()))
     if not isinstance(history, list):
         raise ValueError("History must be a list")
     forecasts = load_verified(root, history)
