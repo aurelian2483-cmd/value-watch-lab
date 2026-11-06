@@ -34,6 +34,15 @@ def load_verified(root, history):
         seen.add(sha)
         if entry.get("verification") != "TWO_SOURCE_REGULATION_TIME_FINAL":
             raise ValueError("Unverified outcome")
+        receipts = entry.get("source_receipts", [])
+        if (len(receipts) != 2 or
+                not receipts[0].get("url", "").startswith("https://site.api.espn.com/") or
+                not any(receipts[1].get("url", "").startswith(prefix) for prefix in (
+                    "https://www.football-data.co.uk/",
+                    "https://www.skysports.com/",
+                )) or
+                any(len(receipt.get("sha256", "")) != 64 for receipt in receipts)):
+            raise ValueError("Verified score source receipts missing or malformed")
         source = archive / (sha + ".json")
         if not source.exists():
             raise FileNotFoundError(str(source))
