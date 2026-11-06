@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from football_h2h_backtest import paired_backtest, challenger_probabilities
+from football_h2h_backtest import paired_backtest, challenger_probabilities, chronological_weight_selection
 
 
 class ChallengerTests(unittest.TestCase):
@@ -32,6 +32,26 @@ class ChallengerTests(unittest.TestCase):
         self.assertFalse(result["comparison_active"])
         self.assertEqual(result["eligible_h2h_fixtures"], 0)
         self.assertEqual(result["delta_brier_challenger_minus_baseline"], 0)
+
+    def test_chronological_split_rejects_overlap(self):
+        utc = dt.timezone.utc
+        f = {"league": "E1", "home": "Home", "away": "Away",
+             "generated_at": dt.datetime(2026, 1, 1, tzinfo=utc),
+             "kickoff": dt.datetime(2026, 1, 2, tzinfo=utc),
+             "probabilities": (.5, .3, .2), "outcome": 0}
+        with self.assertRaisesRegex(ValueError, "Calibration must finish"):
+            chronological_weight_selection([f], [f], [])
+
+    def test_small_calibration_keeps_zero_weight(self):
+        utc = dt.timezone.utc
+        def fixture(day):
+            return {"league": "E1", "home": "Home", "away": "Away",
+                    "generated_at": dt.datetime(2026, 1, day, tzinfo=utc),
+                    "kickoff": dt.datetime(2026, 1, day + 1, tzinfo=utc),
+                    "probabilities": (.5, .3, .2), "outcome": 0}
+        result = chronological_weight_selection([fixture(1)], [fixture(3)], [])
+        self.assertEqual(result["selected_weight"], 0.0)
+        self.assertFalse(result["evaluation"]["comparison_active"])
 
     def test_late_forecast_rejected(self):
         utc = dt.timezone.utc
