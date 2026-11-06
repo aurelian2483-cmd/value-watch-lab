@@ -388,6 +388,17 @@ def main():
     h2h_rows.extend(training)
   except Exception as exc:audit['training_errors'].append({'source':'prior','error':str(exc)})
   if code!='UCL':
+   # Extra seasons are research context only. Failure never blocks the baseline model.
+   # CSV dates have day precision, so the H2H helper excludes the fixture day.
+   for years_back in (2,3,4):
+    try:
+     season=f'{(int(season_code(now)[:2])-years_back)%100:02d}{(int(season_code(now)[:2])-years_back+1)%100:02d}'
+     raw,receipt=fetcher.get('https://www.football-data.co.uk/mmz4281/'+season+'/'+code+'.csv')
+     older=csv_rows(raw,code,now,season)
+     if len(older)<30:raise ValueError('Historical season coverage insufficient')
+     h2h_rows.extend(older)
+    except Exception as exc:
+     audit['training_errors'].append({'source':'h2h_context_'+str(years_back),'error':str(exc)})
    try:
     season=season_code(now);raw,receipt=fetcher.get('https://www.football-data.co.uk/mmz4281/'+season+'/'+code+'.csv');current_rows=csv_rows(raw,code,now,season);current=train_data(current_rows,[receipt]);h2h_rows.extend(current_rows)
    except Exception as exc:audit['training_errors'].append({'source':'current','error':str(exc)})
@@ -401,8 +412,8 @@ def main():
    # Descriptive only: available seasons may contain too few direct meetings.
    # Do not feed this evidence into the published probability model.
    if code!='UCL' and h2h_rows:
-    evidence=head_to_head(h2h_rows,f['home'],f['away'],when(f['kickoff_utc']))
-    evidence['coverage']='CURRENT_AND_PREVIOUS_LEAGUE_SEASONS_ONLY'
+    evidence=head_to_head([{**row,'home':norm(row['home']),'away':norm(row['away'])} for row in h2h_rows],norm(f['home']),norm(f['away']),when(f['kickoff_utc']))
+    evidence['coverage']='UP_TO_FIVE_LEAGUE_SEASONS_WITH_SOURCE_GAPS_POSSIBLE'
     evidence['source_status']='HISTORICAL_CSV_SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED'
     evidence['conflict']=conflict_with_forecast(evidence,model['prob_home'],model['prob_draw'],model['prob_away']) if model else 'NO_MODEL_FORECAST'
     item['head_to_head_research']=evidence
