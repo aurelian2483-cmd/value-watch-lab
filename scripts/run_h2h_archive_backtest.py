@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 from datetime import datetime
 from football_h2h_backtest import paired_backtest, chronological_weight_selection
-from expanded_football import digest, validate_forecast
+from expanded_football import digest, validate_forecast, norm
 
 
 def parse(value):
@@ -130,8 +130,9 @@ def main():
     for f in forecasts:
         league = f["league"]
         evidence = head_to_head(
-            [row for row in history if row.get("league") == league],
-            f["home"], f["away"], f["generated_at"], limit=10
+            [{**row, "home": norm(row["home"]), "away": norm(row["away"])}
+             for row in history if row.get("league") == league],
+            norm(f["home"]), norm(f["away"]), f["generated_at"], limit=10
         )
         bucket = coverage.setdefault(league, {
             "scored_fixtures": 0, "with_any_prior_h2h": 0,
