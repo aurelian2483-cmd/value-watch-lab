@@ -412,9 +412,11 @@ def main():
    # Descriptive only: available seasons may contain too few direct meetings.
    # Do not feed this evidence into the published probability model.
    if code!='UCL' and h2h_rows:
-    evidence=head_to_head([{**row,'home':norm(row['home']),'away':norm(row['away'])} for row in h2h_rows],norm(f['home']),norm(f['away']),when(f['kickoff_utc']))
+    evidence=head_to_head([{**row,'home':norm(row['home']),'away':norm(row['away'])} for row in h2h_rows],norm(f['home']),norm(f['away']),now)
     evidence['coverage']='UP_TO_FIVE_LEAGUE_SEASONS_WITH_SOURCE_GAPS_POSSIBLE'
     evidence['source_status']='HISTORICAL_CSV_SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED'
+    evidence['history_data_observed_at_utc']=stamp(now)
+    evidence['cutoff_basis']='FORECAST_GENERATION_TIME_NOT_KICKOFF'
     evidence['conflict']=conflict_with_forecast(evidence,model['prob_home'],model['prob_draw'],model['prob_away']) if model else 'NO_MODEL_FORECAST'
     item['head_to_head_research']=evidence
    fixtures.append(item)
