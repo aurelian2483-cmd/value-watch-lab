@@ -258,7 +258,9 @@ def archive_forecasts(forecasts,now,directory):
  for r in sorted(records,key=lambda r:r['generated_at_utc']):
   key=identity(r);previous=known.get(key)
   if previous and when(r['generated_at_utc'])==when(previous['generated_at_utc']):raise ValueError('Ambiguous forecast revision timestamp')
-  if r.get('revision_of') and (previous is None or r['revision_of']!=previous['record_sha256']):raise ValueError('Broken expanded revision chain')
+  if previous is None and r.get('revision_of'):raise ValueError('Orphan expanded revision')
+  if previous is not None and r.get('revision_of')!=previous['record_sha256']:raise ValueError('Broken expanded revision chain')
+  if previous is not None and when(r['generated_at_utc'])<=when(previous['generated_at_utc']):raise ValueError('Non-monotonic expanded revision timestamp')
   known[key]=r
  current=[];new=[];seen=set()
  for f in forecasts:
