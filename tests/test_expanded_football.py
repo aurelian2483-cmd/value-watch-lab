@@ -142,6 +142,17 @@ class ExpandedTests(unittest.TestCase):
   self.assertEqual(cycle['pending_reasons'],{'WAITING_FOR_FINAL':1})
   self.assertEqual(cycle['due_diagnostic_coverage'],{'due_fixtures':0,'diagnosed_due_fixtures':0,'complete':True})
 
+ def test_settlement_rejects_modified_selection_audit(self):
+  f=m.model_forecast(self.f,self.training)
+  _,records,_=m.archive_forecasts([f],self.now,self.root/'audit-tamper')
+  first=records[0];p=[first[k] for k in ('prob_home','prob_draw','prob_away')]
+  entry={'league':first['league'],'home':first['home'],'away':first['away'],'kickoff_utc':first['kickoff_utc'],'model':first['model'],'record_sha256':first['record_sha256'],'score_home':2,'score_away':1,'multiclass_brier_score':sum((v-int(i==0))**2 for i,v in enumerate(p)),'log_loss':-__import__('math').log(p[0]),'source_receipts':[{'url':'https://site.api.espn.com/test','sha256':'a'*64},{'url':'https://www.football-data.co.uk/test','sha256':'b'*64}],'verification':'TWO_SOURCE_REGULATION_TIME_FINAL','publication_gate':'BLOCKED','challenge_eligible':0,'selected_forecast_generated_at_utc':'2026-11-01T00:00:00Z','selection_reason':'LATEST_FROZEN_PREMATCH_REVISION_AT_FIRST_SETTLEMENT'}
+  path=self.root/'audit-tamper.json'
+  path.write_text(json.dumps({'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','entries':[entry]}))
+  class NoFetch:
+   def get(inner,url):raise AssertionError('Tampered ledger should fail before fetch')
+  with self.assertRaisesRegex(ValueError,'Selected forecast timestamp mismatch'):
+   m.score_results(records,NoFetch(),self.now+dt.timedelta(days=1),path)
  def test_new_settlement_records_forecast_selection_audit(self):
   f=m.model_forecast(self.f,self.training)
   _,records,_=m.archive_forecasts([f],self.now,self.root/'selection-audit')
