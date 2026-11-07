@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "experiment": 86,
-  "generated_at_utc": "2026-11-07T14:54:49.664361+00:00",
+  "generated_at_utc": "2026-11-07T21:56:29.643654+00:00",
   "research_only": true,
   "model_validation": "UNVALIDATED",
   "publication_gate": "BLOCKED",
@@ -11,18 +11,6 @@
     "status": "NOT_STARTED"
   },
   "upcoming_fixtures": [
-    {
-      "home": "Nottingham Forest",
-      "away": "Manchester City",
-      "kickoff_utc": "2026-11-07T17:30:00Z",
-      "verification": "SCHEDULE_CROSS_CHECK",
-      "paper_prediction": null,
-      "result": null,
-      "forecast_eligible": false,
-      "has_archived_paper_forecast": false,
-      "has_experimental_model_forecast": true,
-      "forecast_status": "EXPERIMENTAL_MODEL_FORECAST"
-    },
     {
       "home": "Brighton & Hove Albion",
       "away": "Brentford",
@@ -214,6 +202,42 @@
       "has_archived_paper_forecast": false,
       "has_experimental_model_forecast": true,
       "forecast_status": "EXPERIMENTAL_MODEL_FORECAST"
+    },
+    {
+      "home": "Leeds United",
+      "away": "Coventry City",
+      "kickoff_utc": "2026-11-28T15:00:00Z",
+      "verification": "SCHEDULE_CROSS_CHECK",
+      "paper_prediction": null,
+      "result": null,
+      "forecast_eligible": false,
+      "has_archived_paper_forecast": false,
+      "has_experimental_model_forecast": true,
+      "forecast_status": "EXPERIMENTAL_MODEL_FORECAST"
+    },
+    {
+      "home": "Manchester United",
+      "away": "Brentford",
+      "kickoff_utc": "2026-11-28T15:00:00Z",
+      "verification": "SCHEDULE_CROSS_CHECK",
+      "paper_prediction": null,
+      "result": null,
+      "forecast_eligible": false,
+      "has_archived_paper_forecast": false,
+      "has_experimental_model_forecast": true,
+      "forecast_status": "EXPERIMENTAL_MODEL_FORECAST"
+    },
+    {
+      "home": "Ipswich Town",
+      "away": "Aston Villa",
+      "kickoff_utc": "2026-11-28T17:30:00Z",
+      "verification": "SCHEDULE_CROSS_CHECK",
+      "paper_prediction": null,
+      "result": null,
+      "forecast_eligible": false,
+      "has_archived_paper_forecast": false,
+      "has_experimental_model_forecast": true,
+      "forecast_status": "EXPERIMENTAL_MODEL_FORECAST"
     }
   ],
   "paper_forecasts": [
@@ -353,22 +377,6 @@
     "independently_attested_forecasts": 0
   },
   "experimental_model_forecasts": [
-    {
-      "home": "Nottingham Forest",
-      "away": "Manchester City",
-      "kickoff_utc": "2026-11-07T17:30:00Z",
-      "prob_home": 0.16900471177716528,
-      "prob_draw": 0.24116522046285704,
-      "prob_away": 0.5898300677599777,
-      "model": "POISSON_BASELINE_2025_26_V1",
-      "training_basis": null,
-      "research_only": true,
-      "model_validation": "UNVALIDATED",
-      "publication_gate": "BLOCKED",
-      "challenge_eligible": 0,
-      "odds": null,
-      "expected_value": null
-    },
     {
       "home": "Brighton & Hove Albion",
       "away": "Brentford",
@@ -644,6 +652,64 @@
       "challenge_eligible": 0,
       "odds": null,
       "expected_value": null
+    },
+    {
+      "home": "Leeds United",
+      "away": "Coventry City",
+      "kickoff_utc": "2026-11-28T15:00:00Z",
+      "prob_home": 0.582064825617423,
+      "prob_draw": 0.24753779657289898,
+      "prob_away": 0.170397377809678,
+      "model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "training_basis": {
+        "home_matches": 4,
+        "away_matches": 4,
+        "league_average_pseudo_matches": 5,
+        "small_sample": true
+      },
+      "research_only": true,
+      "model_validation": "UNVALIDATED",
+      "publication_gate": "BLOCKED",
+      "challenge_eligible": 0,
+      "odds": null,
+      "expected_value": null
+    },
+    {
+      "home": "Manchester United",
+      "away": "Brentford",
+      "kickoff_utc": "2026-11-28T15:00:00Z",
+      "prob_home": 0.6005423564835783,
+      "prob_draw": 0.2001599394096078,
+      "prob_away": 0.19929770410681386,
+      "model": "POISSON_BASELINE_2025_26_V1",
+      "training_basis": null,
+      "research_only": true,
+      "model_validation": "UNVALIDATED",
+      "publication_gate": "BLOCKED",
+      "challenge_eligible": 0,
+      "odds": null,
+      "expected_value": null
+    },
+    {
+      "home": "Ipswich Town",
+      "away": "Aston Villa",
+      "kickoff_utc": "2026-11-28T17:30:00Z",
+      "prob_home": 0.42787613613483355,
+      "prob_draw": 0.26605326951011177,
+      "prob_away": 0.3060705943550547,
+      "model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "training_basis": {
+        "home_matches": 4,
+        "away_matches": 4,
+        "league_average_pseudo_matches": 5,
+        "small_sample": true
+      },
+      "research_only": true,
+      "model_validation": "UNVALIDATED",
+      "publication_gate": "BLOCKED",
+      "challenge_eligible": 0,
+      "odds": null,
+      "expected_value": null
     }
   ],
   "experimental_model_unavailable": [],
@@ -652,7 +718,7 @@
     "training_source": "https://www.football-data.co.uk/mmz4281/2526/E0.csv",
     "training_matches": 380,
     "training_sha256": "3e3a8352f9ada6789c508d6ca184424421fed56a30400904a4a327c583407e62",
-    "forecast_count": 17,
+    "forecast_count": 19,
     "fallback_audit": {
       "source": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
       "sha256": "c429b75f681dc7aaec5641a23320402409530b4b01a9f147bb7e386fe508159b",
@@ -663,16 +729,16 @@
       "limitation": "Small-sample current-season fallback; shrinkage is an unvalidated modelling choice, not evidence of accuracy."
     },
     "fallback_source_error": null,
-    "fallback_forecast_count": 4,
+    "fallback_forecast_count": 6,
     "limitation": "Uncalibrated prior-season baseline plus separately labelled small-sample current-season fallback; not archived or independently attested"
   },
   "prospective_archive_audit": {
     "status": "RESEARCH_ARCHIVE_UPDATED",
-    "new_primary_records": 0,
+    "new_primary_records": 3,
     "unchanged": 0,
-    "revisions": 17,
+    "revisions": 16,
     "skipped_started": 0,
-    "primary_records": 22,
+    "primary_records": 25,
     "publication_gate": "BLOCKED",
     "official_challenge": "0/100",
     "independent_timestamp_attested": false
@@ -681,15 +747,15 @@
     "status": "EXPERIMENTAL_OUTPUTS_AVAILABLE_UNVALIDATED",
     "counts": {
       "archived": 0,
-      "experimental_model": 17,
+      "experimental_model": 19,
       "schedule_unverified": 0,
       "model_unavailable": 0
     },
     "count_policy": "Exclusive primary status per upcoming fixture; availability counts may overlap.",
     "availability_counts": {
       "archived": 5,
-      "experimental_model": 17
+      "experimental_model": 19
     },
-    "automated_probabilities_generated": 17
+    "automated_probabilities_generated": 19
   }
 }
