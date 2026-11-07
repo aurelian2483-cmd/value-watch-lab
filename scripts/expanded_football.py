@@ -353,6 +353,7 @@ def score_results(records,fetcher,now,path):
 
  cycle={'checked_at_utc':stamp(now),'archived_unique_fixtures':len(latest),'scored_matches':len(entries),'not_started':len(future),'awaiting_settlement_buffer':len(waiting),'due_unresolved':len(due),
   'next_kickoff_utc':min((r['kickoff_utc'] for r in future),default=None),'next_result_check_eligible_utc':min((stamp(when(r['kickoff_utc'])+dt.timedelta(hours=3)) for r in latest.values() if r['record_sha256'] not in by_id),default=None),'pending_reasons':reasons,'due_unresolved_reason_counts':due_reason_counts,'due_unresolved_sample':due_pending[:20],
+  'due_diagnostic_coverage':{'due_fixtures':len(due),'diagnosed_due_fixtures':len(due_pending),'complete':len(due)==len(due_pending)},
   'status':'VERIFIED_RESULTS_AVAILABLE' if entries else 'RESULT_CHECK_REQUIRED' if due else 'AWAITING_FINAL_RESULTS' if waiting else 'AWAITING_FIRST_KICKOFF' if future else 'NO_ARCHIVED_FORECASTS'}
  return {'entries':entries,'pending':pending,'by_league':groups,'cycle_audit':cycle,'comparison_policy':'Same scored matches, model versus fixed 1/3 home/draw/away baseline. Lower scores are better; negative model-minus-baseline differences favour the model. This is a sanity benchmark, not a market or profitability comparison.','selection_policy':'Latest archived forecast per league/home/away/kickoff; no revision inflates sample size.'}
 
