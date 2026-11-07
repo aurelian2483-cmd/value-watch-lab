@@ -1,0 +1,44 @@
+name: Recover timed-out Pages deployment
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/pages-recovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+jobs:
+  cancel-stale-deployment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Cancel the known timed-out release through the Pages API
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+        shell: node {0}
+        run: |
+          const id = '3169f6f619285ed03a207e06631a14024b9d132c';
+          const endpoint = `https://api.github.com/repos/${process.env.GH_REPOSITORY}/pages/deployments/${id}`;
+          const headers = {Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'};
+          const terminal = new Set(['succeed','succeeded','success','failed','failure','cancelled','canceled']);
+          const read = async () => {
+            const response = await fetch(endpoint, {headers});
+            if (response.status === 404) return {status:'not_found'};
+            if (!response.ok) throw Error(`Cannot inspect Pages deployment: HTTP ${response.status}`);
+            return response.json();
+          };
+          const before = await read();
+          console.log(`Known stale deployment status: ${before.status}`);
+          if (before.status === 'not_found' || terminal.has(before.status)) process.exit(0);
+          const response = await fetch(endpoint + '/cancel', {method:'POST', headers});
+          console.log(`Pages cancellation response: HTTP ${response.status}`);
+          if (!response.ok) throw Error(`Pages cancellation rejected: HTTP ${response.status}`);
+          for (let attempt=0; attempt<12; attempt++) {
+            await new Promise(resolve=>setTimeout(resolve,5000));
+            const current = await read();
+            console.log(`Cancellation check ${attempt+1}: ${current.status}`);
+            if (current.status === 'not_found' || terminal.has(current.status)) process.exit(0);
+          }
+          throw Error('Pages accepted cancellation but has not released the stale deployment. No site settings were changed.');
+
