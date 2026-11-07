@@ -32,6 +32,13 @@ for(const r of entries.slice().sort((a,b)=>Date.parse(b.kickoff_utc)-Date.parse(
  const line=add(rows,'div','');line.style.cssText='border-top:1px solid #d7e2f0;padding:9px 0';
  add(line,'strong',r.home+' '+r.score_home+'–'+r.score_away+' '+r.away);
  add(line,'div','Model error '+r.multiclass_brier_score.toFixed(3)+' · '+(r.league||'Football')+' · source-backed result, model unvalidated');
+ const audit=add(line,'details','');audit.style.cssText='margin-top:7px;font-size:.88rem;color:#334c69';
+ add(audit,'summary','How was this result checked?').style.cursor='pointer';
+ const hasSelection=typeof r.selected_forecast_generated_at_utc==='string'&&Number.isFinite(Date.parse(r.selected_forecast_generated_at_utc));
+ add(audit,'p',hasSelection?'Selected model prediction recorded '+new Date(r.selected_forecast_generated_at_utc).toLocaleString('en-GB',{timeZone:'Europe/London'})+' UK.':'The published record does not yet include the selected prediction timestamp.');
+ add(audit,'p',r.selection_reason==='LATEST_FROZEN_PREMATCH_REVISION_AT_FIRST_SETTLEMENT'?'Selection rule: most recent archived pre-match forecast at first settlement.':'Selection reason not available in this published snapshot.');
+ add(audit,'p','Final score checked against '+(Array.isArray(r.source_receipts)?r.source_receipts.length:0)+' recorded source receipts. These checks do not independently certify the original prediction timestamp.');
+ add(audit,'p','Archive fingerprint: '+(typeof r.record_sha256==='string'?r.record_sha256.slice(0,12)+'…':'Unavailable')+'. Experimental research only; not a verified betting selection.');
 }
 if(!entries.length)add(rows,'p','No suitable paired research records in the latest snapshot.');
 }catch(e){stats.replaceChildren();rows.replaceChildren();status.textContent='Matched research comparison unavailable. No scores have been guessed.';}
