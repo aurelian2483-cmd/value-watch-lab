@@ -26,7 +26,7 @@ def challenger_probabilities(base, evidence, weight=0.0, minimum=5, prior=6.0):
     ensures no unvalidated adjustment is silently enabled.
     """
     _metrics(base, 0)
-    if not 0 <= weight <= 1 or prior <= 0 or minimum < 1:
+    if type(weight) not in (float, int) or not math.isfinite(weight) or not 0 <= weight <= 0.30 or prior <= 0 or minimum < 1:
         raise ValueError("Invalid challenger parameters")
     n = evidence["sample_size"]
     if n < minimum or weight == 0:
