@@ -58,6 +58,10 @@ jobs:
           assert report["model_validation"] == "UNVALIDATED"
           assert report["publication_gate"] == "BLOCKED"
           sensitivity = report.get("exploratory_fixed_weight_sensitivity")
+          if report.get("unique_verified_fixtures", 0) <= 0:
+              raise AssertionError("Backtest report contains no verified fixtures")
+          if not sensitivity:
+              raise AssertionError("Backtest did not produce the required seven-weight sensitivity analysis")
           if sensitivity:
               assert sensitivity["weights_selected"] is False
               assert sensitivity["predictive_validation"] is False
