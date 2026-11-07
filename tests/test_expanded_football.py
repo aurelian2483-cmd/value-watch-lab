@@ -97,7 +97,8 @@ class ExpandedTests(unittest.TestCase):
   self.assertEqual(m.settlement_readiness(records,now),
    {'eligible_now':1,'eligible_within_24h':2,'eligible_later':1,
     'next_24h_by_league':{code:(2 if code=='E1' else 0) for code in m.LEAGUES},
-    'next_24h_by_hour':{str(hour):(1 if hour in (0,22) else 0) for hour in range(24)}})
+    'next_24h_by_hour':{str(hour):(1 if hour in (0,22) else 0) for hour in range(24)},
+    'next_24h_first_eligible_utc':'2026-11-02T13:00:00Z'})
 
  def test_oldest_first_settlement_order_and_tie_break(self):
   fixtures=[
