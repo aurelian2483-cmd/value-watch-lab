@@ -104,6 +104,7 @@ class ExpandedTests(unittest.TestCase):
   self.assertEqual(cycle['due_unresolved_reason_counts'],{})
   self.assertEqual(cycle['due_unresolved_sample'],[])
   self.assertEqual(cycle['pending_reasons'],{'WAITING_FOR_FINAL':1})
+  self.assertEqual(cycle['due_diagnostic_coverage'],{'due_fixtures':0,'diagnosed_due_fixtures':0,'complete':True})
 
  def test_future_forecasts_never_request_results(self):
   f=m.model_forecast(self.f,self.training);_,records,_=m.archive_forecasts([f],self.now,self.root/'archive')
