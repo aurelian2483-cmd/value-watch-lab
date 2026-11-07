@@ -36,7 +36,7 @@ def run_session(cycles, clock=None, monotonic=time.monotonic, sleep=time.sleep, 
     started = monotonic(); completed = 0
     for index in range(cycles):
         now = clock().astimezone(dt.timezone.utc)
-        if not 6 <= now.hour < 22 or monotonic() - started >= MAX_SESSION_SECONDS:
+        if not 4 <= now.hour < 22 or monotonic() - started >= MAX_SESSION_SECONDS:
             break
         if index:
             delay = max(0, started + index * INTERVAL_SECONDS - monotonic())
@@ -48,7 +48,7 @@ def run_session(cycles, clock=None, monotonic=time.monotonic, sleep=time.sleep, 
                                   'next_due_utc': (now + dt.timedelta(seconds=delay)).isoformat()}), flush=True)
                 sleep(delay)
         now = clock().astimezone(dt.timezone.utc)
-        if not 6 <= now.hour < 22 or monotonic() - started >= MAX_SESSION_SECONDS:
+        if not 4 <= now.hour < 22 or monotonic() - started >= MAX_SESSION_SECONDS:
             break
         env = dict(os.environ, HORSE_SESSION_CYCLE=f'cycle-{index + 1:02d}')
         print(json.dumps({'status': 'COLLECTING', 'cycle': index + 1, 'maximum_cycles': cycles}), flush=True)
