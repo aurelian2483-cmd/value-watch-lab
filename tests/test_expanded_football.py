@@ -84,6 +84,17 @@ class ExpandedTests(unittest.TestCase):
   pending=m.score_results(all,Disagree(),self.now+dt.timedelta(days=1),self.root/'disagreement.json');self.assertEqual(pending['entries'],[])
   bad=json.loads((self.root/'results.json').read_text());bad['entries'][0]['source_receipts']=[];(self.root/'results.json').write_text(json.dumps(bad))
   with self.assertRaises(ValueError):m.score_results(all,Fetch(),self.now+dt.timedelta(days=1),self.root/'results.json')
+ def test_settlement_window_counts_without_double_counting(self):
+  now=self.now
+  def fixture(hours,digest):
+   return {'league':'E1','home':'Home '+digest,'away':'Away '+digest,
+    'kickoff_utc':m.stamp(now+dt.timedelta(hours=hours)),
+    'generated_at_utc':m.stamp(now-dt.timedelta(hours=1)),
+    'record_sha256':digest}
+  records=[fixture(-4,'a'),fixture(-2,'b'),fixture(20,'c'),fixture(30,'d')]
+  self.assertEqual(m.settlement_readiness(records,now),
+   {'eligible_now':1,'eligible_within_24h':2,'eligible_later':1})
+
  def test_oldest_first_settlement_order_and_tie_break(self):
   fixtures=[
    {'kickoff_utc':'2026-11-05T20:00:00Z','record_sha256':'c'},
