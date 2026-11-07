@@ -43,7 +43,8 @@ jobs:
           if [ -f research/football-expanded-results/v1/verified.json ]; then
             python scripts/run_h2h_archive_backtest.py /tmp/h2h-evaluation/history.json /tmp/h2h-evaluation/report.json
           else
-            printf '%s\\n' '{"status":"MISSING_VERIFIED_LEDGER","model_validation":"UNVALIDATED","publication_gate":"BLOCKED","model_comparison_performed":false}' > /tmp/h2h-evaluation/report.json
+            echo 'ERROR: verified result ledger missing; refusing to mark archive backtest successful' >&2
+            exit 1
           fi
       - name: Audit research report and print reproducible summary
         shell: bash
