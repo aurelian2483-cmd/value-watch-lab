@@ -175,6 +175,24 @@ def main():
             **{key: value for key, value in trial.items() if key != "records"},
             "h2h_eligible_subset": subset,
         })
+    # Show whether the largest tested adjustment helps every eligible fixture
+    # or merely improves the average. This is diagnostic, never model selection.
+    max_weight_rows = paired_backtest(forecasts, history, weight=0.30, minimum=5)["records"]
+    report["h2h_eligible_fixture_diagnostics_at_30pct"] = [
+        {
+            "league": f["league"], "home": f["home"], "away": f["away"],
+            "kickoff_utc": f["kickoff"].isoformat(),
+            "prior_h2h_sample": row["h2h_sample"],
+            "delta_brier": row["challenger_brier"] - row["baseline_brier"],
+            "delta_log_loss": row["challenger_log_loss"] - row["baseline_log_loss"],
+        }
+        for f, row in zip(forecasts, max_weight_rows)
+        if row["h2h_sample"] >= 5
+    ]
+    report["h2h_eligible_30pct_improved_both_metrics"] = sum(
+        item["delta_brier"] < 0 and item["delta_log_loss"] < 0
+        for item in report["h2h_eligible_fixture_diagnostics_at_30pct"]
+    )
     report["exploratory_fixed_weight_sensitivity"] = {
         "comparisons": exploratory,
         "status": "DESCRIPTIVE_ONLY_NO_HOLDOUT",
