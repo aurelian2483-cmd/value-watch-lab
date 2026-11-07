@@ -161,12 +161,12 @@ def main():
     total_eligible = sum(bucket["with_five_prior_h2h"] for bucket in coverage.values())
     report["chronological_readiness"] = {
         "verified_unique_fixtures": len(forecasts),
-        "minimum_unique_fixtures_for_split": 60,
-        "additional_unique_fixtures_to_split": max(0, 60 - len(forecasts)),
+        "minimum_unique_fixtures_for_split": 64,
+        "additional_unique_fixtures_to_split": max(0, 64 - len(forecasts)),
         "h2h_eligible_verified_fixtures": total_eligible,
         "minimum_h2h_eligible_in_calibration": 30,
         "calibration_coverage_requirement_met": None,
-        "status": "AWAITING_CHRONOLOGICAL_SPLIT" if len(forecasts) >= 60 else "NOT_READY",
+        "status": "AWAITING_CHRONOLOGICAL_SPLIT" if len(forecasts) >= 64 else "NOT_READY",
         "note": "Calibration eligibility must be assessed after chronological splitting; overall eligibility alone cannot satisfy it.",
     }
     # Diagnostic only: fixed weights are NOT fitted or selected on this sample.
@@ -215,7 +215,7 @@ def main():
         "predictive_validation": False,
         "publication_gate": "BLOCKED",
     }
-    if len(forecasts) >= 60:
+    if len(forecasts) >= 64:
         # Keep all matches on the boundary date in one partition.
         boundary = forecasts[int(len(forecasts) * 0.7)]["kickoff"].date()
         calibration = [f for f in forecasts if f["kickoff"].date() < boundary]
@@ -224,7 +224,7 @@ def main():
             comparison = chronological_weight_selection(calibration, evaluation, history)
             report["holdout"] = comparison
             report["chronological_readiness"]["calibration_coverage_requirement_met"] = (comparison["calibration_h2h_eligible"] >= 30)
-            report["chronological_readiness"]["status"] = "EVALUATED"
+            report["chronological_readiness"]["status"] = ("HOLDOUT_COMPARISON_ACTIVE" if comparison["evaluation"]["comparison_active"] else "HOLDOUT_BASELINE_ONLY")
             report["model_comparison_performed"] = comparison["evaluation"]["comparison_active"]
             report["reason"] = comparison["selection_reason"]
         else:
