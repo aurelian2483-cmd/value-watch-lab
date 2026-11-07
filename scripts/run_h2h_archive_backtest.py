@@ -161,7 +161,20 @@ def main():
     exploratory = []
     for weight in (0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30):
         trial = paired_backtest(forecasts, history, weight=weight, minimum=5)
-        exploratory.append({key: value for key, value in trial.items() if key != "records"})
+        eligible = [row for row in trial["records"] if row["h2h_sample"] >= 5]
+        subset = {"sample_size": len(eligible)}
+        for metric in ("brier", "log_loss"):
+            for variant in ("baseline", "challenger"):
+                key = variant + "_" + metric
+                subset[key] = (sum(row[key] for row in eligible) / len(eligible)
+                               if eligible else None)
+            subset["delta_" + metric + "_challenger_minus_baseline"] = (
+                subset["challenger_" + metric] - subset["baseline_" + metric]
+                if eligible else None)
+        exploratory.append({
+            **{key: value for key, value in trial.items() if key != "records"},
+            "h2h_eligible_subset": subset,
+        })
     report["exploratory_fixed_weight_sensitivity"] = {
         "comparisons": exploratory,
         "status": "DESCRIPTIVE_ONLY_NO_HOLDOUT",
