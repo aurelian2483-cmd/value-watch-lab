@@ -484,6 +484,14 @@ def main():
    'All 1X2 estimates and scores cover regulation time only. Extra time and penalties are excluded.',
    'Sky times interpreted in Europe/London. Missing or ambiguous source matches remain unverified.',
    'Schedules corroborated by two publishers do not prove historical source availability or independent timestamp attestation.']}
+ # Fail closed: newly created audit metadata must survive the public JSON export.
+ for entry in data['performance']['entries']:
+  if entry.get('selection_reason')=='LATEST_FROZEN_PREMATCH_REVISION_AT_FIRST_SETTLEMENT':
+   frozen_record=next((r for r in archived if r['record_sha256']==entry['record_sha256']),None)
+   if frozen_record is None or entry.get('selected_forecast_generated_at_utc')!=frozen_record['generated_at_utc'] or entry.get('revision_of')!=frozen_record.get('revision_of'):
+    raise ValueError('Published settlement audit does not match frozen forecast')
+  elif any(key in entry for key in ('selected_forecast_generated_at_utc','revision_of','selection_reason')):
+   raise ValueError('Incomplete published settlement audit')
  (OUT/'football-expanded-data.json').write_text(json.dumps(data,indent=2)+'\n')
  (OUT/'league-audit.json').write_text(json.dumps(league_audits,indent=2)+'\n')
  print(json.dumps({'fixtures':len(fixtures),'forecasts':len(frozen),'new_archive_records':added,'scored':len(performance['entries'])}))
