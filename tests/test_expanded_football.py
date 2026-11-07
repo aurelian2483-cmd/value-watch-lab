@@ -142,6 +142,18 @@ class ExpandedTests(unittest.TestCase):
   self.assertEqual(cycle['pending_reasons'],{'WAITING_FOR_FINAL':1})
   self.assertEqual(cycle['due_diagnostic_coverage'],{'due_fixtures':0,'diagnosed_due_fixtures':0,'complete':True})
 
+ def test_scoring_rejects_tampered_frozen_probabilities_and_late_capture(self):
+  f=m.model_forecast(self.f,self.training)
+  _,records,_=m.archive_forecasts([f],self.now,self.root/'scoring-archive')
+  class NoFetch:
+   def get(inner,url):raise AssertionError('Invalid forecast must fail before fetching')
+  corrupted=copy.deepcopy(records[0]);corrupted['prob_home']=.9
+  with self.assertRaisesRegex(ValueError,'intact frozen forecast digest'):
+   m.score_results([corrupted],NoFetch(),self.now,self.root/'corrupt-scoring.json')
+  late=copy.deepcopy(records[0]);late['generated_at_utc']='2026-11-02T19:59:00Z'
+  late['record_sha256']=m.digest({k:v for k,v in late.items() if k!='record_sha256'})
+  with self.assertRaisesRegex(ValueError,'at least five minutes'):
+   m.score_results([late],NoFetch(),self.now,self.root/'late-scoring.json')
  def test_future_forecasts_never_request_results(self):
   f=m.model_forecast(self.f,self.training);_,records,_=m.archive_forecasts([f],self.now,self.root/'archive')
   class NoFetch:
