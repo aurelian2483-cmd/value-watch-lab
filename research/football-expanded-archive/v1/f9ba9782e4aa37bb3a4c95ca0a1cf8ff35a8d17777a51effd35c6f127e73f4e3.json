@@ -1,0 +1,74 @@
+{
+  "league": "E1",
+  "home": "Blackburn Rovers",
+  "away": "Charlton Athletic",
+  "kickoff_utc": "2026-11-28T12:30:00Z",
+  "espn_event_id": "401880135",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261128&limit=100",
+      "sha256": "5e8e4698d3726487a09b1e2533f55ceb4b03cab220e562b3eed3a90cc9fdbbc8",
+      "observed_at_utc": "2026-11-07T15:08:04.533729Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-11-01",
+      "sha256": "6bfbf819c196dc75b9b9a9046593dabe08d48ac3d8fa93a5975e0eff1d33fccb",
+      "observed_at_utc": "2026-11-07T15:08:06.618215Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_PRIOR_SEASON",
+  "prob_home": 0.33357513233865227,
+  "prob_draw": 0.3214569242673076,
+  "prob_away": 0.34496794339404013,
+  "training_basis": {
+    "mode": "PRIOR_SEASON",
+    "home_matches": 23,
+    "away_matches": 23,
+    "league_average_pseudo_matches": 5,
+    "small_sample": false,
+    "training_matches": 552,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2526/E1.csv",
+        "sha256": "98954c319950f19158624b17a154ef1c56eb7b8d169ef317f28f06d11d0b9a74",
+        "observed_at_utc": "2026-11-07T15:08:08.539024Z"
+      }
+    ],
+    "training_sha256": "315a67cc752ded284f16fd6be5c4e2d5d90d6887654eb9afdd9ec2a75f349ed1",
+    "lambda_home": 0.923702051725972,
+    "lambda_away": 0.9448601852068058,
+    "home_venue_inputs": {
+      "hgf": 19,
+      "hga": 27,
+      "hn": 23,
+      "agf": 23,
+      "aga": 29,
+      "an": 23
+    },
+    "away_venue_inputs": {
+      "hgf": 23,
+      "hga": 26,
+      "hn": 23,
+      "agf": 21,
+      "aga": 32,
+      "an": 23
+    },
+    "league_home_mean": 1.4003623188405796,
+    "league_away_mean": 1.2047101449275361
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-07T15:08:49.179012Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "f9ba9782e4aa37bb3a4c95ca0a1cf8ff35a8d17777a51effd35c6f127e73f4e3"
+}

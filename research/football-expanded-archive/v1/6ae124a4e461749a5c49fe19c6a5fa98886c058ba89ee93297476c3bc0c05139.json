@@ -1,0 +1,74 @@
+{
+  "league": "D1",
+  "home": "SC Paderborn 07",
+  "away": "Schalke 04",
+  "kickoff_utc": "2026-11-28T14:30:00Z",
+  "espn_event_id": "401884719",
+  "league_name": "Bundesliga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=20261128&limit=100",
+      "sha256": "4a90ace97858948a0b4178ca92ab7edaa8c1fd290606ee100830881dcafa42c2",
+      "observed_at_utc": "2026-11-07T15:08:05.211551Z"
+    },
+    {
+      "url": "https://www.skysports.com/bundesliga-scores-fixtures/2026-11-01",
+      "sha256": "f781b3dbfba88b5109c12b9bf0a7f307894a63441d2d8de45ad03c5adb11c479",
+      "observed_at_utc": "2026-11-07T15:08:24.209897Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_D1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.4502180891335421,
+  "prob_draw": 0.2665680017170391,
+  "prob_away": 0.28321390914941885,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 4,
+    "away_matches": 4,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 72,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/D1.csv",
+        "sha256": "490b69c06ec2890be818372c7ea3bd5413b7fe6539185890d9eaeb6b59a6f22b",
+        "observed_at_utc": "2026-11-07T15:08:31.581188Z"
+      }
+    ],
+    "training_sha256": "dc027c43fda1bec8fc0e9420df5771aa9641a489a42e414af306ac064559b26e",
+    "lambda_home": 1.4125816993464053,
+    "lambda_away": 1.0618686868686866,
+    "home_venue_inputs": {
+      "hgf": 4,
+      "hga": 4,
+      "hn": 4,
+      "agf": 2,
+      "aga": 5,
+      "an": 4
+    },
+    "away_venue_inputs": {
+      "hgf": 0,
+      "hga": 3,
+      "hn": 4,
+      "agf": 4,
+      "aga": 6,
+      "an": 4
+    },
+    "league_home_mean": 2.125,
+    "league_away_mean": 1.375
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-07T15:08:49.179012Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "6ae124a4e461749a5c49fe19c6a5fa98886c058ba89ee93297476c3bc0c05139"
+}

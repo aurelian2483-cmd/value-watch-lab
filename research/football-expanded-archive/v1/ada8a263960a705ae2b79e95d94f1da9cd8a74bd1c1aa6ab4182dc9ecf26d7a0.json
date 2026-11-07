@@ -1,0 +1,74 @@
+{
+  "league": "SP1",
+  "home": "Real Betis",
+  "away": "Rayo Vallecano",
+  "kickoff_utc": "2026-11-28T13:00:00Z",
+  "espn_event_id": "401882796",
+  "league_name": "La Liga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=20261128&limit=100",
+      "sha256": "fcdd43ba656b78e4609905bf9716337bdbe8d3f27049bc54e576e2f55155fe4c",
+      "observed_at_utc": "2026-11-07T15:08:04.823502Z"
+    },
+    {
+      "url": "https://www.skysports.com/la-liga-scores-fixtures/2026-11-01",
+      "sha256": "d8fc482009bcc72b1e09f974502fe78adc5e30860e7bf7eab7d98a2d2c87bc67",
+      "observed_at_utc": "2026-11-07T15:08:15.977698Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_SP1_PRIOR_SEASON",
+  "prob_home": 0.5731020608678525,
+  "prob_draw": 0.2386890933759778,
+  "prob_away": 0.18820884575616958,
+  "training_basis": {
+    "mode": "PRIOR_SEASON",
+    "home_matches": 19,
+    "away_matches": 19,
+    "league_average_pseudo_matches": 5,
+    "small_sample": false,
+    "training_matches": 380,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2526/SP1.csv",
+        "sha256": "4ca2e285f3ee0702f6bc55fcaa4f5a15cb3aef6220735a1d15398131e21d63f5",
+        "observed_at_utc": "2026-11-07T15:08:17.644963Z"
+      }
+    ],
+    "training_sha256": "a769dedf32c99d6f114b60c0f88ca74f509e688c38c4abdd362998a44dad9791",
+    "lambda_home": 1.7029466826556354,
+    "lambda_away": 0.8613687179117592,
+    "home_venue_inputs": {
+      "hgf": 34,
+      "hga": 19,
+      "hn": 19,
+      "agf": 25,
+      "aga": 29,
+      "an": 19
+    },
+    "away_venue_inputs": {
+      "hgf": 24,
+      "hga": 15,
+      "hn": 19,
+      "agf": 17,
+      "aga": 29,
+      "an": 19
+    },
+    "league_home_mean": 1.5736842105263158,
+    "league_away_mean": 1.1210526315789473
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-07T15:08:49.179012Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "ada8a263960a705ae2b79e95d94f1da9cd8a74bd1c1aa6ab4182dc9ecf26d7a0"
+}

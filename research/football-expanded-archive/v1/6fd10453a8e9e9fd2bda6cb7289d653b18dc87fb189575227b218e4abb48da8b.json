@@ -1,0 +1,74 @@
+{
+  "league": "E1",
+  "home": "Birmingham City",
+  "away": "Bolton Wanderers",
+  "kickoff_utc": "2026-11-28T15:00:00Z",
+  "espn_event_id": "401880136",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261128&limit=100",
+      "sha256": "5e8e4698d3726487a09b1e2533f55ceb4b03cab220e562b3eed3a90cc9fdbbc8",
+      "observed_at_utc": "2026-11-07T15:08:04.533729Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-11-01",
+      "sha256": "6bfbf819c196dc75b9b9a9046593dabe08d48ac3d8fa93a5975e0eff1d33fccb",
+      "observed_at_utc": "2026-11-07T15:08:06.618215Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.5714146466042704,
+  "prob_draw": 0.21160645810128884,
+  "prob_away": 0.21697889529444067,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 7,
+    "away_matches": 7,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 168,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/E1.csv",
+        "sha256": "7e39aaedd53fe4cb351378f26e823622efcb4b9a4e1b8da3dc2043acebd984fd",
+        "observed_at_utc": "2026-11-07T15:08:15.085560Z"
+      }
+    ],
+    "training_sha256": "049e1a0e5ebd3ecc3081b4704a804053cfa8484b162b0023f8b14b17e753444c",
+    "lambda_home": 2.047899413388544,
+    "lambda_away": 1.1908695489844685,
+    "home_venue_inputs": {
+      "hgf": 17,
+      "hga": 7,
+      "hn": 7,
+      "agf": 9,
+      "aga": 6,
+      "an": 7
+    },
+    "away_venue_inputs": {
+      "hgf": 9,
+      "hga": 15,
+      "hn": 7,
+      "agf": 10,
+      "aga": 11,
+      "an": 7
+    },
+    "league_home_mean": 1.6428571428571428,
+    "league_away_mean": 1.2916666666666667
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-07T15:08:49.179012Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "6fd10453a8e9e9fd2bda6cb7289d653b18dc87fb189575227b218e4abb48da8b"
+}
