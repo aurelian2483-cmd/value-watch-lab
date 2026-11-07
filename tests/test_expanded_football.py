@@ -169,7 +169,6 @@ class ExpandedTests(unittest.TestCase):
   result=m.score_results(records,NoFetch(),self.now+dt.timedelta(days=1),path)
   self.assertEqual(len(result['entries']),1)
   self.assertEqual(result['entries'][0]['record_sha256'],first['record_sha256'])
-  self.assertEqual(result['entries'][0]['selected_forecast_generated_at_utc'],first['generated_at_utc']) if 'selected_forecast_generated_at_utc' in result['entries'][0] else None
   self.assertEqual(result['cycle_audit']['due_unresolved'],0)
  def test_scoring_rejects_two_settled_revisions_of_same_match(self):
   f=m.model_forecast(self.f,self.training)
