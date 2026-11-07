@@ -297,7 +297,8 @@ def settlement_readiness(records,now):
  due_at=[when(r['kickoff_utc'])+dt.timedelta(hours=3) for r in latest.values()]
  return {'eligible_now':sum(t<=now for t in due_at),
   'eligible_within_24h':sum(now<t<=now+dt.timedelta(hours=24) for t in due_at),
-  'eligible_later':sum(t>now+dt.timedelta(hours=24) for t in due_at)}
+  'eligible_later':sum(t>now+dt.timedelta(hours=24) for t in due_at),
+  'next_24h_by_league':{code:sum(now<when(r['kickoff_utc'])+dt.timedelta(hours=3)<=now+dt.timedelta(hours=24) for r in latest.values() if r['league']==code) for code in LEAGUES}}
 
 def score_results(records,fetcher,now,path):
  old=json.loads(path.read_text()) if path.exists() else {'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','entries':[]}
