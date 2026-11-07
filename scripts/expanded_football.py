@@ -345,7 +345,7 @@ def score_results(records,fetcher,now,path):
  pending=[];attempts=0
  # Oldest unresolved matches first: avoid starving older results when the archive grows.
  for r in oldest_first_unresolved(latest.values()):
-  if r['record_sha256'] in by_id:continue
+  if identity(r) in scored_fixture_keys:continue
   if now<when(r['kickoff_utc'])+dt.timedelta(hours=3):pending.append({'league':r['league'],'home':r['home'],'away':r['away'],'reason':'WAITING_FOR_FINAL'});continue
   if attempts>=50:pending.append({'league':r['league'],'reason':'DEFERRED_BATCH_LIMIT'});continue
   attempts+=1
@@ -363,12 +363,13 @@ def score_results(records,fetcher,now,path):
     secondary=corroborate(r,sky_rows(raw,code,month,'post'))
    if secondary is None or (e['score_home'],e['score_away'])!=(secondary['score_home'],secondary['score_away']):raise ValueError('Second-source regulation-time final missing or disagrees')
    hg,ag=e['score_home'],e['score_away'];idx=0 if hg>ag else 1 if hg==ag else 2;p=[r[k] for k in ('prob_home','prob_draw','prob_away')]
+   scored_fixture_keys.add(identity(r))
    by_id[r['record_sha256']]={'league':code,'home':r['home'],'away':r['away'],'kickoff_utc':r['kickoff_utc'],'model':r['model'],'record_sha256':r['record_sha256'],
     'score_home':hg,'score_away':ag,'multiclass_brier_score':sum((v-int(i==idx))**2 for i,v in enumerate(p)),'log_loss':-math.log(p[idx]),
     'source_receipts':[ereceipt,receipt],'verification':'TWO_SOURCE_REGULATION_TIME_FINAL','publication_gate':'BLOCKED','challenge_eligible':0}
   except Exception as exc:pending.append({'league':r['league'],'home':r['home'],'away':r['away'],'reason':str(exc)})
  old['entries']=sorted(by_id.values(),key=lambda x:(x['kickoff_utc'],x['record_sha256']));path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(old,indent=2)+'\n')
- selected={r['record_sha256'] for r in latest.values()};entries=[e for e in old['entries'] if e['record_sha256'] in selected]
+ selected={identity(r) for r in latest.values()};entries=[e for e in old['entries'] if identity(frozen[e['record_sha256']]) in selected]
  groups={}
  for code in LEAGUES:
   es=[e for e in entries if e['league']==code];n=len(es);groups[code]=comparison_summary(es)
