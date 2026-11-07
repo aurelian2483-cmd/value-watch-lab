@@ -53,6 +53,13 @@ class ChallengerTests(unittest.TestCase):
         self.assertEqual(result["selected_weight"], 0.0)
         self.assertFalse(result["evaluation"]["comparison_active"])
 
+    def test_chronological_default_grid_includes_every_five_percent_step(self):
+        from inspect import signature
+        weights = signature(chronological_weight_selection).parameters["candidate_weights"].default
+        self.assertEqual(weights, (0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30))
+        self.assertEqual(len(set(weights)), 7)
+        self.assertTrue(all(0 <= weight <= 0.30 for weight in weights))
+
     def test_late_forecast_rejected(self):
         utc = dt.timezone.utc
         instant = dt.datetime(2026, 1, 2, tzinfo=utc)
