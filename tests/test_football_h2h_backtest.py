@@ -33,7 +33,7 @@ class ChallengerTests(unittest.TestCase):
                     "probabilities": (.5, .3, .2), "outcome": 0}
         history = [{"league": "E1", "home": "Home", "away": "Away", "date": "2026-01-02",
                     "score_home": 0, "score_away": 5}]
-        result = paired_backtest([forecast], history, weight=.5, minimum=1)
+        result = paired_backtest([forecast], history, weight=.3, minimum=1)
         self.assertEqual(result["records"][0]["h2h_sample"], 0)
         self.assertEqual(result["baseline_mean_brier"], result["challenger_mean_brier"])
         self.assertFalse(result["comparison_active"])
