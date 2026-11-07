@@ -35,7 +35,22 @@ function render(){
   status.textContent='Racecard snapshot '+(horse.race_date_uk||'unknown')+' · '+upcoming+' upcoming observed races · '+forecasts.length+' pre-race form forecasts.';
   if(!fresh(horse.generated_at_utc)){add(cards,'p','The racing snapshot is outdated. New racecards and predictions must be collected before showing upcoming selections.');return;}
   if(!forecasts.length){add(cards,'p','No eligible pre-race horse forecasts in the current snapshot. The model currently covers qualifying all-weather races and must capture runners before the off. Racecards and historical results remain available below.');return;}
-  add(cards,'p',forecasts.length+' experimental form forecasts are in the current feed. Runner probabilities require separate field validation before they can be promoted to prediction cards.');return;
+  const now=Date.now();
+  const eligible=forecasts.filter(f=>Date.parse(f.startUTC)>now+300000&&Date.parse(f.generated_at_utc)<Date.parse(f.startUTC)-300000&&Array.isArray(f.runners)&&f.runners.length>=2&&f.runners.every(x=>typeof x.name==='string'&&Number.isFinite(x.model_probability)&&x.model_probability>=0&&x.model_probability<=1)&&Math.abs(f.runners.reduce((a,x)=>a+x.model_probability,0)-1)<.002&&f.publication_gate==='BLOCKED'&&f.model_validation==='UNVALIDATED').sort((a,b)=>Date.parse(a.startUTC)-Date.parse(b.startUTC)).slice(0,3);
+  status.textContent+=' · '+eligible.length+' upcoming research previews shown.';
+  eligible.forEach((f,i)=>{
+   const box=add(cards,'article','','background:#192f4b;border:1px solid #4a647e;border-radius:14px;padding:16px;min-width:0');
+   add(box,'div','RACE '+(i+1)+' · '+f.racecourse,'color:#a9c5e5;font-size:.78rem;font-weight:700');
+   add(box,'h3',f.race_name,'font-size:1.08rem;margin:8px 0');
+   add(box,'p',date(f.startUTC)+' · '+f.runners.length+' runners','color:#c2d3e8;font-size:.85rem');
+   const top=[...f.runners].sort((a,b)=>b.model_probability-a.model_probability).slice(0,3);
+   add(box,'strong','Form model ranks: '+top[0].name,'display:block;font-size:1.05rem;margin:10px 0');
+   top.forEach((x,n)=>{const line=add(box,'div','','margin:9px 0');add(line,'div',(n+1)+'. '+x.name+' · '+(100*x.model_probability).toFixed(1)+'% model estimate','font-size:.86rem');const track=add(line,'div','','height:7px;background:#38516c;border-radius:8px;overflow:hidden;margin-top:4px');add(track,'div','','height:100%;background:#83bbed;width:'+(100*x.model_probability)+'%');});
+   const detail=add(box,'details','','margin-top:12px;font-size:.84rem;color:#d7e4f2');add(detail,'summary','How was this estimated?','cursor:pointer;font-weight:650');add(detail,'p','Experimental, uncalibrated historical finishing-form heuristic. Does not incorporate going, draw, weight, jockey, trainer, class or distance. These are NOT validated winning probabilities, odds, value bets or recommendations.');
+   add(detail,'p','Recorded '+date(f.generated_at_utc)+' · Runner snapshot '+date(f.runner_observed_at_utc)+' · Independent timestamp not attested.');
+  });
+  if(!eligible.length)add(cards,'p','No current pre-race forecast passes the display checks. Existing racecards are available below.');
+  return;
  }
  const section=data?.sports?.[sport],events=Array.isArray(section?.events)?section.events:[];
  if(!fresh(section?.generated_at_utc)){status.textContent='Published '+sport.toUpperCase()+' research is outdated or unavailable.';add(cards,'p','No current forecasts displayed. The feed needs refreshing.');return;}
