@@ -93,7 +93,8 @@ class ExpandedTests(unittest.TestCase):
     'record_sha256':digest}
   records=[fixture(-4,'a'),fixture(-2,'b'),fixture(20,'c'),fixture(30,'d')]
   self.assertEqual(m.settlement_readiness(records,now),
-   {'eligible_now':1,'eligible_within_24h':2,'eligible_later':1})
+   {'eligible_now':1,'eligible_within_24h':2,'eligible_later':1,
+    'next_24h_by_league':{code:(2 if code=='E1' else 0) for code in m.LEAGUES}})
 
  def test_oldest_first_settlement_order_and_tie_break(self):
   fixtures=[
