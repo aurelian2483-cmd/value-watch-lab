@@ -142,6 +142,22 @@ class ExpandedTests(unittest.TestCase):
   self.assertEqual(cycle['pending_reasons'],{'WAITING_FOR_FINAL':1})
   self.assertEqual(cycle['due_diagnostic_coverage'],{'due_fixtures':0,'diagnosed_due_fixtures':0,'complete':True})
 
+ def test_existing_scored_revision_is_not_settled_again(self):
+  f=m.model_forecast(self.f,self.training)
+  _,records,_=m.archive_forecasts([f],self.now,self.root/'settled-once')
+  first=records[0]
+  p=[first[k] for k in ('prob_home','prob_draw','prob_away')]
+  entry={'league':first['league'],'home':first['home'],'away':first['away'],'kickoff_utc':first['kickoff_utc'],'model':first['model'],'record_sha256':first['record_sha256'],'score_home':2,'score_away':1,'multiclass_brier_score':sum((v-int(i==0))**2 for i,v in enumerate(p)),'log_loss':-__import__('math').log(p[0]),'source_receipts':[{'url':'https://site.api.espn.com/test','sha256':'a'*64},{'url':'https://www.football-data.co.uk/test','sha256':'b'*64}],'verification':'TWO_SOURCE_REGULATION_TIME_FINAL','publication_gate':'BLOCKED','challenge_eligible':0}
+  revised=copy.deepcopy(f);revised.update(prob_home=.5,prob_draw=.3,prob_away=.2)
+  _,records,_=m.archive_forecasts([revised],self.now+dt.timedelta(minutes=1),self.root/'settled-once')
+  path=self.root/'settled-once.json'
+  path.write_text(json.dumps({'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','entries':[entry]}))
+  class NoFetch:
+   def get(inner,url):raise AssertionError('Already settled match must not be fetched again')
+  result=m.score_results(records,NoFetch(),self.now+dt.timedelta(days=1),path)
+  self.assertEqual(len(result['entries']),1)
+  self.assertEqual(result['entries'][0]['record_sha256'],first['record_sha256'])
+  self.assertEqual(result['cycle_audit']['due_unresolved'],0)
  def test_scoring_rejects_two_settled_revisions_of_same_match(self):
   f=m.model_forecast(self.f,self.training)
   _,records,_=m.archive_forecasts([f],self.now,self.root/'duplicate-settled')
