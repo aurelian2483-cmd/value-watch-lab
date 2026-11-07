@@ -147,7 +147,7 @@ class ExpandedTests(unittest.TestCase):
   _,records,_=m.archive_forecasts([f],self.now,self.root/'scoring-archive')
   class NoFetch:
    def get(inner,url):raise AssertionError('Invalid forecast must fail before fetching')
-  corrupted=copy.deepcopy(records[0]);corrupted['prob_home']=.9
+  corrupted=copy.deepcopy(records[0]);corrupted['prob_home'],corrupted['prob_away']=corrupted['prob_away'],corrupted['prob_home']
   with self.assertRaisesRegex(ValueError,'intact frozen forecast digest'):
    m.score_results([corrupted],NoFetch(),self.now,self.root/'corrupt-scoring.json')
   late=copy.deepcopy(records[0]);late['generated_at_utc']='2026-11-02T19:59:00Z'
