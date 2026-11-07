@@ -1,7 +1,8 @@
 name: Research desk build and browser QA
 on:
   push:
-    branches: [codex/v3-research-desk]
+    branches: [main, codex/v3-research-desk]
+    paths: ['index.html', 'legacy-dashboard.html', 'paper-lab/**', 'package*.json', 'scripts/research_browser_qa.cjs', '.github/workflows/research-desk-release.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -21,7 +22,8 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install pinned build and test tooling
-        run: npm install --ignore-scripts --no-audit --no-fund
+        run: |
+          if [ -f package-lock.json ]; then npm ci --ignore-scripts --no-audit --no-fund; else npm install --ignore-scripts --no-audit --no-fund; fi
       - name: Compile static Tailwind CSS
         run: npm run build:css
       - name: Research regression
@@ -54,3 +56,4 @@ jobs:
             git commit -m "Save compiled Tailwind and rendered QA evidence"
             git push origin HEAD:codex/v3-research-desk
           fi
+
