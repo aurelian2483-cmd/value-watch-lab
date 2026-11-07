@@ -1,0 +1,74 @@
+{
+  "league": "D1",
+  "home": "VfB Stuttgart",
+  "away": "Eintracht Frankfurt",
+  "kickoff_utc": "2026-11-28T17:30:00Z",
+  "espn_event_id": "401884726",
+  "league_name": "Bundesliga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=20261128&limit=100",
+      "sha256": "59fbc98fbcf452c482193786449ecd74fd7628677248151c5fb9656f0059f0bb",
+      "observed_at_utc": "2026-11-07T22:16:31.571923Z"
+    },
+    {
+      "url": "https://www.skysports.com/bundesliga-scores-fixtures/2026-11-01",
+      "sha256": "33a20ae783d25867aefb1caa51de7eb52b509839bcdc94da54a93f6372424790",
+      "observed_at_utc": "2026-11-07T22:16:47.595626Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_D1_PRIOR_SEASON",
+  "prob_home": 0.5626180223722477,
+  "prob_draw": 0.20769278132540295,
+  "prob_away": 0.22968919630234932,
+  "training_basis": {
+    "mode": "PRIOR_SEASON",
+    "home_matches": 17,
+    "away_matches": 17,
+    "league_average_pseudo_matches": 5,
+    "small_sample": false,
+    "training_matches": 306,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2526/D1.csv",
+        "sha256": "618301a4b39918225a8ccc57f0f839d675e1abd92fa3a3ccd9a67acd7c79dd7f",
+        "observed_at_utc": "2026-11-07T22:16:48.716064Z"
+      }
+    ],
+    "training_sha256": "47dbfc7314590f3b8d14a7b8511610932f45d635139cc37b8b00d5b7fce2b83c",
+    "lambda_home": 2.119203397612488,
+    "lambda_away": 1.2969430159245752,
+    "home_venue_inputs": {
+      "hgf": 30,
+      "hga": 16,
+      "hn": 17,
+      "agf": 41,
+      "aga": 33,
+      "an": 17
+    },
+    "away_venue_inputs": {
+      "hgf": 29,
+      "hga": 27,
+      "hn": 17,
+      "agf": 32,
+      "aga": 38,
+      "an": 17
+    },
+    "league_home_mean": 1.7777777777777777,
+    "league_away_mean": 1.457516339869281
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-07T22:17:08.700648Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "2188b45dda46a29af45828a05c05c82c3de219f2da87c17e18540a8f23f3ea42"
+}
