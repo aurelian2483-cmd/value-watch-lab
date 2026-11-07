@@ -305,7 +305,8 @@ def score_results(records,fetcher,now,path):
   key=identity(r)
   if key not in latest or when(r['generated_at_utc'])>when(latest[key]['generated_at_utc']):latest[key]=r
  pending=[];attempts=0
- for r in latest.values():
+ # Oldest unresolved matches first: avoid starving older results when the archive grows.
+ for r in sorted(latest.values(),key=lambda item:(when(item['kickoff_utc']),item['record_sha256'])):
   if r['record_sha256'] in by_id:continue
   if now<when(r['kickoff_utc'])+dt.timedelta(hours=3):pending.append({'league':r['league'],'home':r['home'],'away':r['away'],'reason':'WAITING_FOR_FINAL'});continue
   if attempts>=50:pending.append({'league':r['league'],'reason':'DEFERRED_BATCH_LIMIT'});continue
