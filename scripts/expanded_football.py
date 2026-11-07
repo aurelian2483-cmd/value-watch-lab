@@ -365,6 +365,7 @@ def score_results(records,fetcher,now,path):
    hg,ag=e['score_home'],e['score_away'];idx=0 if hg>ag else 1 if hg==ag else 2;p=[r[k] for k in ('prob_home','prob_draw','prob_away')]
    scored_fixture_keys.add(identity(r))
    by_id[r['record_sha256']]={'league':code,'home':r['home'],'away':r['away'],'kickoff_utc':r['kickoff_utc'],'model':r['model'],'record_sha256':r['record_sha256'],
+    'selected_forecast_generated_at_utc':r['generated_at_utc'],'selection_reason':'LATEST_FROZEN_PREMATCH_REVISION_AT_FIRST_SETTLEMENT','revision_of':r.get('revision_of'),
     'score_home':hg,'score_away':ag,'multiclass_brier_score':sum((v-int(i==idx))**2 for i,v in enumerate(p)),'log_loss':-math.log(p[idx]),
     'source_receipts':[ereceipt,receipt],'verification':'TWO_SOURCE_REGULATION_TIME_FINAL','publication_gate':'BLOCKED','challenge_eligible':0}
   except Exception as exc:pending.append({'league':r['league'],'home':r['home'],'away':r['away'],'reason':str(exc)})
