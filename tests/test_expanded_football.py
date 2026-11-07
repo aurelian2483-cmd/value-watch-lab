@@ -94,6 +94,17 @@ class ExpandedTests(unittest.TestCase):
   self.assertEqual([r['record_sha256'] for r in ordered],['a','b','c'])
   self.assertEqual(fixtures[0]['record_sha256'],'c')
 
+ def test_unresolved_diagnostics_do_not_count_future_as_due(self):
+  f=m.model_forecast(self.f,self.training)
+  _,records,_=m.archive_forecasts([f],self.now,self.root/'archive')
+  class NoFetch:
+   def get(inner,url):raise AssertionError('Future result requested')
+  perf=m.score_results(records,NoFetch(),self.now,self.root/'future-diagnostics.json')
+  cycle=perf['cycle_audit']
+  self.assertEqual(cycle['due_unresolved_reason_counts'],{})
+  self.assertEqual(cycle['due_unresolved_sample'],[])
+  self.assertEqual(cycle['pending_reasons'],{'WAITING_FOR_FINAL':1})
+
  def test_future_forecasts_never_request_results(self):
   f=m.model_forecast(self.f,self.training);_,records,_=m.archive_forecasts([f],self.now,self.root/'archive')
   class NoFetch:
