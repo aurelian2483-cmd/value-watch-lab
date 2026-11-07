@@ -9,6 +9,7 @@ on:
       - 'scripts/expanded_football.py'
       - 'tests/test_football_h2h.py'
       - 'tests/test_football_h2h_backtest.py'
+      - 'tests/test_expanded_football.py'
       - '.github/workflows/football-h2h-tests.yml'
   workflow_dispatch:
 permissions:
@@ -26,5 +27,7 @@ jobs:
         run: python -m py_compile scripts/football_h2h.py scripts/football_h2h_backtest.py scripts/expanded_football.py
       - name: Compile verified-archive backtest runner
         run: python -m py_compile scripts/run_h2h_archive_backtest.py
+      - name: Run expanded football collector and settlement regression tests
+        run: python -m unittest discover -s tests -p 'test_expanded_football.py' -v
       - name: Run H2H evidence and challenger tests
         run: python -m unittest discover -s tests -p 'test_football_h2h*.py' -v
