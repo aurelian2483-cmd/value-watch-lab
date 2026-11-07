@@ -92,9 +92,12 @@ class ExpandedTests(unittest.TestCase):
     'generated_at_utc':m.stamp(now-dt.timedelta(hours=1)),
     'record_sha256':digest}
   records=[fixture(-4,'a'),fixture(-2,'b'),fixture(20,'c'),fixture(30,'d')]
+  readiness=m.settlement_readiness(records,now)
+  self.assertEqual(sum(readiness['next_24h_by_hour'].values()),readiness['eligible_within_24h'])
   self.assertEqual(m.settlement_readiness(records,now),
    {'eligible_now':1,'eligible_within_24h':2,'eligible_later':1,
-    'next_24h_by_league':{code:(2 if code=='E1' else 0) for code in m.LEAGUES}})
+    'next_24h_by_league':{code:(2 if code=='E1' else 0) for code in m.LEAGUES},
+    'next_24h_by_hour':{str(hour):(1 if hour in (0,22) else 0) for hour in range(24)}})
 
  def test_oldest_first_settlement_order_and_tie_break(self):
   fixtures=[
