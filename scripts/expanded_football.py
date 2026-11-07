@@ -378,8 +378,8 @@ def score_results(records,fetcher,now,path):
    sample=[e for e in es if e['model']==model];by_model[model]=comparison_summary(sample)
   groups[code]['by_model']=by_model
  future=[r for r in latest.values() if when(r['kickoff_utc'])>now]
- waiting=[r for r in latest.values() if r['record_sha256'] not in by_id and when(r['kickoff_utc'])<=now<when(r['kickoff_utc'])+dt.timedelta(hours=3)]
- due=[r for r in latest.values() if r['record_sha256'] not in by_id and now>=when(r['kickoff_utc'])+dt.timedelta(hours=3)]
+ waiting=[r for r in latest.values() if identity(r) not in scored_fixture_keys and when(r['kickoff_utc'])<=now<when(r['kickoff_utc'])+dt.timedelta(hours=3)]
+ due=[r for r in latest.values() if identity(r) not in scored_fixture_keys and now>=when(r['kickoff_utc'])+dt.timedelta(hours=3)]
  reasons={}
  for p in pending:reasons[p['reason']]=reasons.get(p['reason'],0)+1
  due_pending=[p for p in pending if p.get('reason')!='WAITING_FOR_FINAL']
@@ -387,9 +387,9 @@ def score_results(records,fetcher,now,path):
  for p in due_pending:due_reason_counts[p['reason']]=due_reason_counts.get(p['reason'],0)+1
 
  cycle={'checked_at_utc':stamp(now),'archived_unique_fixtures':len(latest),'scored_matches':len(entries),'not_started':len(future),'awaiting_settlement_buffer':len(waiting),'due_unresolved':len(due),
-  'next_kickoff_utc':min((r['kickoff_utc'] for r in future),default=None),'next_result_check_eligible_utc':min((stamp(when(r['kickoff_utc'])+dt.timedelta(hours=3)) for r in latest.values() if r['record_sha256'] not in by_id),default=None),'pending_reasons':reasons,'due_unresolved_reason_counts':due_reason_counts,'due_unresolved_sample':due_pending[:20],
+  'next_kickoff_utc':min((r['kickoff_utc'] for r in future),default=None),'next_result_check_eligible_utc':min((stamp(when(r['kickoff_utc'])+dt.timedelta(hours=3)) for r in latest.values() if identity(r) not in scored_fixture_keys),default=None),'pending_reasons':reasons,'due_unresolved_reason_counts':due_reason_counts,'due_unresolved_sample':due_pending[:20],
   'due_diagnostic_coverage':{'due_fixtures':len(due),'diagnosed_due_fixtures':len(due_pending),'complete':len(due)==len(due_pending)},
-  'settlement_window':settlement_readiness([r for r in latest.values() if r['record_sha256'] not in by_id],now),
+  'settlement_window':settlement_readiness([r for r in latest.values() if identity(r) not in scored_fixture_keys],now),
   'status':'VERIFIED_RESULTS_AVAILABLE' if entries else 'RESULT_CHECK_REQUIRED' if due else 'AWAITING_FINAL_RESULTS' if waiting else 'AWAITING_FIRST_KICKOFF' if future else 'NO_ARCHIVED_FORECASTS'}
  return {'entries':entries,'pending':pending,'by_league':groups,'cycle_audit':cycle,'comparison_policy':'Same scored matches, model versus fixed 1/3 home/draw/away baseline. Lower scores are better; negative model-minus-baseline differences favour the model. This is a sanity benchmark, not a market or profitability comparison.','selection_policy':'Latest archived forecast per league/home/away/kickoff; no revision inflates sample size.'}
 
