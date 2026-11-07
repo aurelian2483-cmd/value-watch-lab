@@ -1,0 +1,15 @@
+{
+  "name": "value-watch-research-desk",
+  "private": true,
+  "version": "3.0.0",
+  "scripts": {
+    "build:css": "tailwindcss -i paper-lab/tailwind.input.css -o paper-lab/tailwind.css --minify",
+    "test:browser": "node scripts/research_browser_qa.cjs"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.1.18",
+    "tailwindcss": "4.1.18",
+    "playwright": "1.56.1",
+    "@axe-core/playwright": "4.10.2"
+  }
+}

@@ -1,0 +1,59 @@
+name: Research desk build and browser QA
+on:
+  push:
+    branches: [main, codex/v3-research-desk]
+    paths: ['index.html', 'legacy-dashboard.html', 'paper-lab/**', 'package*.json', 'scripts/research_browser_qa.cjs', '.github/workflows/research-desk-release.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: research-desk-release-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  release-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned build and test tooling
+        run: |
+          if [ -f package-lock.json ]; then npm ci --ignore-scripts --no-audit --no-fund; else npm install --ignore-scripts --no-audit --no-fund; fi
+      - name: Compile static Tailwind CSS
+        run: npm run build:css
+      - name: Research regression
+        run: |
+          set -euo pipefail
+          for test in tests/*.cjs; do node "$test"; done
+          for script in paper-lab/*.js; do node --check "$script"; done
+          python -m unittest discover -s tests
+      - name: Install browser test runtime
+        run: npx playwright install --with-deps chromium
+      - name: Desktop, mobile, accessibility and interaction checks
+        run: npm run test:browser
+      - name: Retain rendered evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-desk-browser-evidence
+          path: work/browser-qa/
+          retention-days: 30
+      - name: Save generated stylesheet and dependency lock
+        if: always() && github.ref == 'refs/heads/codex/v3-research-desk'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p docs/preview
+          if [ -d work/browser-qa ]; then cp work/browser-qa/* docs/preview/; fi
+          git add -- paper-lab/tailwind.css package-lock.json docs/preview
+          if ! git diff --cached --quiet; then
+            git commit -m "Save compiled Tailwind and rendered QA evidence"
+            git push origin HEAD:codex/v3-research-desk
+          fi
+
