@@ -156,6 +156,19 @@ def main():
         "model_validation": "UNVALIDATED",
         "publication_gate": "BLOCKED",
     }
+    # Readiness is about independent scored fixtures and eligible H2H evidence,
+    # not the much larger number of retrospective historical source rows.
+    total_eligible = sum(bucket["with_five_prior_h2h"] for bucket in coverage.values())
+    report["chronological_readiness"] = {
+        "verified_unique_fixtures": len(forecasts),
+        "minimum_unique_fixtures_for_split": 60,
+        "additional_unique_fixtures_to_split": max(0, 60 - len(forecasts)),
+        "h2h_eligible_verified_fixtures": total_eligible,
+        "minimum_h2h_eligible_in_calibration": 30,
+        "calibration_coverage_requirement_met": False,
+        "status": "NOT_READY",
+        "note": "Calibration eligibility must be assessed after chronological splitting; overall eligibility alone cannot satisfy it.",
+    }
     # Diagnostic only: fixed weights are NOT fitted or selected on this sample.
     # These in-sample descriptive comparisons must never be used for publication.
     exploratory = []
