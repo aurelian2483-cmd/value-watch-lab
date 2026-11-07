@@ -100,7 +100,7 @@ def chronological_weight_selection(calibration, evaluation, history,
     weights = tuple(candidate_weights)
     if not weights or 0.0 not in weights or len(set(weights)) != len(weights):
         raise ValueError("Candidate weights must be unique and include baseline")
-    if any(type(w) not in (float, int) or not math.isfinite(w) or not 0 <= w <= 1 for w in weights):
+    if any(type(w) not in (float, int) or not math.isfinite(w) or not 0 <= w <= 0.30 for w in weights):
         raise ValueError("Invalid candidate weight")
     trials = [paired_backtest(calibration, history, weight=w, minimum=minimum)
               for w in weights]
