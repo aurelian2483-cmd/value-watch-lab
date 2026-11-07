@@ -26,6 +26,7 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_football_h2h.py' -v
           python -m unittest discover -s tests -p 'test_football_h2h_backtest.py' -v
+          python -m unittest discover -s tests -p 'test_expanded_football.py' -v
       - name: Collect historical H2H context with source receipts
         run: |
           mkdir -p /tmp/h2h-evaluation
