@@ -84,7 +84,7 @@ def paired_backtest(forecasts, history, weight=0.0, minimum=5):
 
 
 def chronological_weight_selection(calibration, evaluation, history,
-                                   candidate_weights=(0.0, 0.1, 0.2, 0.3),
+                                   candidate_weights=(0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30),
                                    minimum=5):
     """Choose weight on earlier fixtures, evaluate once on later fixtures.
 
