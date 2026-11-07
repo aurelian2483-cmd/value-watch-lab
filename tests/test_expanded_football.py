@@ -147,7 +147,7 @@ class ExpandedTests(unittest.TestCase):
   _,records,_=m.archive_forecasts([f],self.now,self.root/'selection-audit')
   class Fetch:
    def get(inner,url):
-    raw=self.espn() if 'espn.com' in url else b'Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,FTR\\nE1,02/11/2026,20:00,Coventry,Hull,2,1,H\\n'
+    raw=self.espn() if 'espn.com' in url else b'Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,FTR\nE1,02/11/2026,20:00,Coventry,Hull,2,1,H\n'
     return raw,{'url':url,'sha256':'a'*64}
   result=m.score_results(records,Fetch(),self.now+dt.timedelta(days=1),self.root/'selection-audit.json')
   entry=result['entries'][0]
