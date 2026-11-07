@@ -112,7 +112,7 @@
     for (const [tab, label] of [['h2h', 'H2H'], ['recent', 'Recent form'], ['rankings', 'Rankings'], ['sources', 'Sources']]) {
       const b = button(tabs, label, () => loadStats(id, tab, panel, buttons)); b.dataset.statsTab = tab; b.setAttribute('aria-pressed', 'false'); buttons.set(tab, b);
     }
-    evidence.addEventListener('toggle', () => { if (evidence.open && !panel.dataset.loaded) safely(() => loadStats(id, 'h2h', panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
+    evidence.addEventListener('toggle', () => { if (evidence.open && (!panel.dataset.loaded || panel.dataset.pending === 'true')) safely(() => loadStats(id, 'h2h', panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
     return { node: article, meta, time, title, status, conditions, market, explanation, evidence, panel, buttons, choices: new Map(), structural: '' };
   }
   function patchCard(record, event) {
@@ -146,11 +146,11 @@
   async function loadStats(id, tab, panel, buttons) {
     statsRequests.get(id)?.abort(); const controller = new AbortController(); statsRequests.set(id, controller);
     for (const [name, b] of buttons) { b.classList.toggle('active', name === tab); b.setAttribute('aria-pressed', String(name === tab)); }
-    panel.dataset.loaded = tab; panel.replaceChildren(); make(panel, 'p', 'Loading source-backed research…', 'muted');
+    panel.dataset.loaded = tab; panel.dataset.pending = 'true'; panel.replaceChildren(); make(panel, 'p', 'Loading source-backed research…', 'muted');
     const event = store.get().events.find(event => event.id === id); if (!event) return;
     try {
       const result = await statistics.load({ eventId: id, sport: event.sport_type, season: day(event.startUTC).slice(0, 4), source: event.observedAt, tab }, { signal: controller.signal });
-      if (controller.signal.aborted || statsRequests.get(id) !== controller) return; panel.replaceChildren();
+      if (controller.signal.aborted || statsRequests.get(id) !== controller) return; panel.dataset.pending = 'false'; panel.replaceChildren();
       const data = result.data;
       if (tab === 'sources') {
         provenance(panel, event.sources); make(panel, 'p', 'Snapshot ' + dateText(event.observedAt) + (event.model ? ' · model ' + event.model.name : '') + '. No executable price or independently calibrated edge is asserted.', 'small');
