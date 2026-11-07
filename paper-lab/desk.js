@@ -208,7 +208,7 @@
     root.querySelectorAll('details').forEach(element => { element.open = opened.has(element.dataset.key); });
   }
   function patchLeg(record, leg, position, slot) {
-    const signature = JSON.stringify([leg, position, slot.id, slot.legs.length, store.get().replacing]); if (record.signature === signature) return;
+    const signature = JSON.stringify([leg, position, slot.id, slot.legs.length, store.get().replacing], (key, value) => key === 'ageMs' ? undefined : value); if (record.signature === signature) return;
     const opened = record.node.querySelector('details')?.open; record.signature = signature; record.node.replaceChildren();
     const top = make(record.node, 'div', undefined, 'slip-selection-top'); make(top, 'strong', leg.label);
     button(top, '×', () => savePlan(E.removeSelection(store.get().plan, slot.id, leg.id)), 'remove-button').setAttribute('aria-label', 'Remove ' + leg.label);
@@ -239,7 +239,7 @@
     write($('slip-title'), slot.name); write($('slip-subtitle'), slot.description); write($('slip-count'), slot.legs.length + ' / 15'); write($('mobile-count'), state.plan.slots.reduce((sum, slot) => sum + slot.legs.length, 0));
     document.querySelectorAll('[data-slot]').forEach(element => { const active = Number(element.dataset.slot) === state.slot + 1; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
     if (document.activeElement !== $('stake')) $('stake').value = (slot.stakeMinor / 100).toFixed(2); $('slip-structure').value = slot.structure;
-    const signature = JSON.stringify([state.slot, evaluation, state.replacing]); if (slipSignature === signature) return; slipSignature = signature;
+    const signature = JSON.stringify([state.slot, evaluation, state.replacing], (key, value) => key === 'ageMs' ? undefined : value); if (slipSignature === signature) return; slipSignature = signature;
     const root = $('slip-content'); if (!legs.size) root.replaceChildren(); root.querySelectorAll('.slip-empty, .generation-note').forEach(element => element.remove());
     S.reconcile(root, evaluation.legs.map(leg => leg.id), legs, id => { const row = make(null, 'article', undefined, 'slip-selection'); row.dataset.legId = id; return { node: row, signature: '' }; }, (record, id) => { const position = evaluation.legs.findIndex(leg => leg.id === id); patchLeg(record, evaluation.legs[position], position, slot); });
     if (!slot.legs.length) empty(root, 'Your perspective starts here.', 'Choose an outcome or build a research shortlist. Empty slips are valid.').classList.add('slip-empty');

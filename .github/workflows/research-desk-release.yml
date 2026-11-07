@@ -42,13 +42,15 @@ jobs:
           path: work/browser-qa/
           retention-days: 30
       - name: Save generated stylesheet and dependency lock
-        if: success() && github.ref == 'refs/heads/codex/v3-research-desk'
+        if: always() && github.ref == 'refs/heads/codex/v3-research-desk'
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- paper-lab/tailwind.css package-lock.json
+          mkdir -p docs/preview
+          if [ -d work/browser-qa ]; then cp work/browser-qa/* docs/preview/; fi
+          git add -- paper-lab/tailwind.css package-lock.json docs/preview
           if ! git diff --cached --quiet; then
-            git commit -m "Build pinned Tailwind assets after browser verification"
+            git commit -m "Save compiled Tailwind and rendered QA evidence"
             git push origin HEAD:codex/v3-research-desk
           fi
