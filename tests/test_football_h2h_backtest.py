@@ -33,6 +33,17 @@ class ChallengerTests(unittest.TestCase):
         self.assertEqual(result["eligible_h2h_fixtures"], 0)
         self.assertEqual(result["delta_brier_challenger_minus_baseline"], 0)
 
+    def test_custom_h2h_weight_above_30_percent_rejected(self):
+        utc = dt.timezone.utc
+        def fixture(day):
+            return {"league": "E1", "home": "Home", "away": "Away",
+                    "generated_at": dt.datetime(2026, 1, day, tzinfo=utc),
+                    "kickoff": dt.datetime(2026, 1, day + 1, tzinfo=utc),
+                    "probabilities": (.5, .3, .2), "outcome": 0}
+        with self.assertRaisesRegex(ValueError, "Invalid candidate weight"):
+            chronological_weight_selection([fixture(1)], [fixture(3)], [],
+                                           candidate_weights=(0.0, 0.35))
+
     def test_chronological_split_rejects_overlap(self):
         utc = dt.timezone.utc
         f = {"league": "E1", "home": "Home", "away": "Away",
