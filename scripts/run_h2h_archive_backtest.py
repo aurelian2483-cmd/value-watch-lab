@@ -165,8 +165,8 @@ def main():
         "additional_unique_fixtures_to_split": max(0, 60 - len(forecasts)),
         "h2h_eligible_verified_fixtures": total_eligible,
         "minimum_h2h_eligible_in_calibration": 30,
-        "calibration_coverage_requirement_met": False,
-        "status": "NOT_READY",
+        "calibration_coverage_requirement_met": None,
+        "status": "AWAITING_CHRONOLOGICAL_SPLIT" if len(forecasts) >= 60 else "NOT_READY",
         "note": "Calibration eligibility must be assessed after chronological splitting; overall eligibility alone cannot satisfy it.",
     }
     # Diagnostic only: fixed weights are NOT fitted or selected on this sample.
@@ -223,6 +223,8 @@ def main():
         if len(calibration) >= 30 and len(evaluation) >= 20:
             comparison = chronological_weight_selection(calibration, evaluation, history)
             report["holdout"] = comparison
+            report["chronological_readiness"]["calibration_coverage_requirement_met"] = (comparison["calibration_h2h_eligible"] >= 30)
+            report["chronological_readiness"]["status"] = "EVALUATED"
             report["model_comparison_performed"] = comparison["evaluation"]["comparison_active"]
             report["reason"] = comparison["selection_reason"]
         else:
