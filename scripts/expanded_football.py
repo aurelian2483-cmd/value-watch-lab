@@ -308,7 +308,15 @@ def settlement_readiness(records,now):
 def score_results(records,fetcher,now,path):
  old=json.loads(path.read_text()) if path.exists() else {'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','entries':[]}
  if old.get('research_only') is not True or old.get('publication_gate')!='BLOCKED' or old.get('model_validation')!='UNVALIDATED':raise ValueError('Unsafe expanded result ledger')
- frozen={r['record_sha256']:r for r in records};by_id={}
+ frozen={}
+ for r in records:
+  validate_forecast(r)
+  unsigned={k:v for k,v in r.items() if k!='record_sha256'}
+  if not re.fullmatch('[a-f0-9]{64}',r.get('record_sha256','')) or digest(unsigned)!=r['record_sha256']:raise ValueError('Scoring requires an intact frozen forecast digest')
+  if 'generated_at_utc' not in r or when(r['generated_at_utc'])>=when(r['kickoff_utc'])-dt.timedelta(minutes=5):raise ValueError('Scoring requires a forecast frozen at least five minutes before kickoff')
+  if r['record_sha256'] in frozen:raise ValueError('Duplicate frozen forecast digest')
+  frozen[r['record_sha256']]=r
+ by_id={}
  for e in old['entries']:
   r=frozen.get(e['record_sha256'])
   if r is None or e.get('publication_gate')!='BLOCKED' or e.get('challenge_eligible')!=0 or e.get('verification')!='TWO_SOURCE_REGULATION_TIME_FINAL':raise ValueError('Invalid expanded result entry')
