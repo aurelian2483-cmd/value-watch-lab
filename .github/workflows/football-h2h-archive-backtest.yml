@@ -40,6 +40,40 @@ jobs:
           else
             printf '%s\\n' '{"status":"MISSING_VERIFIED_LEDGER","model_validation":"UNVALIDATED","publication_gate":"BLOCKED","model_comparison_performed":false}' > /tmp/h2h-evaluation/report.json
           fi
+      - name: Audit research report and print reproducible summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("/tmp/h2h-evaluation/report.json")
+          report = json.loads(p.read_text())
+          assert report["model_validation"] == "UNVALIDATED"
+          assert report["publication_gate"] == "BLOCKED"
+          sensitivity = report.get("exploratory_fixed_weight_sensitivity")
+          if sensitivity:
+              assert sensitivity["weights_selected"] is False
+              assert sensitivity["predictive_validation"] is False
+              weights = sensitivity["comparisons"]
+              assert len(weights) == 7
+              print("Unique verified fixtures:", report["unique_verified_fixtures"])
+              print("History rows:", report["history_rows_supplied"])
+              for item in weights:
+                  eligible = item["h2h_eligible_subset"]
+                  print(json.dumps({
+                      "weight": item["weight"],
+                      "eligible_fixtures": eligible["sample_size"],
+                      "eligible_delta_brier": eligible["delta_brier_challenger_minus_baseline"],
+                      "eligible_delta_log_loss": eligible["delta_log_loss_challenger_minus_baseline"],
+                  }, sort_keys=True))
+              print("30% fixture diagnostics:", json.dumps(
+                  report.get("h2h_eligible_fixture_diagnostics_at_30pct", []),
+                  sort_keys=True))
+          else:
+              print("No exploratory comparison; reason:", report.get("status"))
+          print("Research only. Model UNVALIDATED. Publication BLOCKED.")
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: h2h-verified-archive-research-report
