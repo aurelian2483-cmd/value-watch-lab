@@ -142,6 +142,18 @@ class ExpandedTests(unittest.TestCase):
   self.assertEqual(cycle['pending_reasons'],{'WAITING_FOR_FINAL':1})
   self.assertEqual(cycle['due_diagnostic_coverage'],{'due_fixtures':0,'diagnosed_due_fixtures':0,'complete':True})
 
+ def test_new_settlement_records_forecast_selection_audit(self):
+  f=m.model_forecast(self.f,self.training)
+  _,records,_=m.archive_forecasts([f],self.now,self.root/'selection-audit')
+  class Fetch:
+   def get(inner,url):
+    raw=self.espn() if 'espn.com' in url else b'Div,Date,Time,HomeTeam,AwayTeam,FTHG,FTAG,FTR\\nE1,02/11/2026,20:00,Coventry,Hull,2,1,H\\n'
+    return raw,{'url':url,'sha256':'a'*64}
+  result=m.score_results(records,Fetch(),self.now+dt.timedelta(days=1),self.root/'selection-audit.json')
+  entry=result['entries'][0]
+  self.assertEqual(entry['selected_forecast_generated_at_utc'],records[0]['generated_at_utc'])
+  self.assertEqual(entry['selection_reason'],'LATEST_FROZEN_PREMATCH_REVISION_AT_FIRST_SETTLEMENT')
+  self.assertIsNone(entry['revision_of'])
  def test_existing_scored_revision_is_not_settled_again(self):
   f=m.model_forecast(self.f,self.training)
   _,records,_=m.archive_forecasts([f],self.now,self.root/'settled-once')
@@ -157,6 +169,7 @@ class ExpandedTests(unittest.TestCase):
   result=m.score_results(records,NoFetch(),self.now+dt.timedelta(days=1),path)
   self.assertEqual(len(result['entries']),1)
   self.assertEqual(result['entries'][0]['record_sha256'],first['record_sha256'])
+  self.assertEqual(result['entries'][0]['selected_forecast_generated_at_utc'],first['generated_at_utc']) if 'selected_forecast_generated_at_utc' in result['entries'][0] else None
   self.assertEqual(result['cycle_audit']['due_unresolved'],0)
  def test_scoring_rejects_two_settled_revisions_of_same_match(self):
   f=m.model_forecast(self.f,self.training)
