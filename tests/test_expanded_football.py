@@ -35,6 +35,25 @@ class ExpandedTests(unittest.TestCase):
   late={**f,'kickoff_utc':'2026-11-02T12:03:00Z'};self.assertEqual(m.archive_forecasts([late],self.now,self.root/'late')[0],[])
   p=next(path.glob('*.json'));d=json.loads(p.read_text());d['prob_home']=.99;p.write_text(json.dumps(d))
   with self.assertRaises(ValueError):m.archive_forecasts([f],self.now,path)
+ def test_archive_rejects_orphan_revision_and_missing_link(self):
+  f=m.model_forecast(self.f,self.training)
+  path=self.root/'broken-revisions'
+  _,records,_=m.archive_forecasts([f],self.now,path)
+  original=records[0]
+  orphan=copy.deepcopy(original);orphan['revision_of']='a'*64
+  unsigned={k:v for k,v in orphan.items() if k!='record_sha256'}
+  orphan['record_sha256']=m.digest(unsigned)
+  (path/(orphan['record_sha256']+'.json')).write_text(json.dumps(orphan))
+  with self.assertRaises(ValueError):m.archive_forecasts([f],self.now+dt.timedelta(minutes=1),path)
+  (path/(orphan['record_sha256']+'.json')).unlink()
+  second=copy.deepcopy(f);second.update(prob_home=.5,prob_draw=.3,prob_away=.2)
+  _,records,_=m.archive_forecasts([second],self.now+dt.timedelta(minutes=1),path)
+  latest=records[-1];p=path/(latest['record_sha256']+'.json')
+  p.unlink()
+  tampered={**latest};tampered.pop('revision_of',None)
+  tampered['record_sha256']=m.digest({k:v for k,v in tampered.items() if k!='record_sha256'})
+  (path/(tampered['record_sha256']+'.json')).write_text(json.dumps(tampered))
+  with self.assertRaises(ValueError):m.archive_forecasts([f],self.now+dt.timedelta(minutes=2),path)
  def test_capture_requires_inputs_already_received(self):
   f=m.model_forecast(self.f,self.training);f['training_basis']['source_receipts']=[{'observed_at_utc':m.stamp(self.now+dt.timedelta(seconds=1))}]
   with self.assertRaises(ValueError):m.archive_forecasts([f],self.now,self.root/'future-input')
