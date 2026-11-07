@@ -103,7 +103,7 @@ class EvaluationTests(unittest.TestCase):
   records=[];entries=[]
   for i in range(n):
    records.append({'record_sha256':str(i),'model':'TEST','race_id':str(i),'startUTC':'2026-11-02T13:00:00Z','runners':[{'horse_id':'1','model_probability':.6},{'horse_id':'2','model_probability':.4}]})
-   entries.append({'record_sha256':str(i),'winner_horse_id':'1','multiclass_brier_score':.32,'log_loss':.51,'equal_chance_brier_score':.5,'equal_chance_log_loss':__import__('math').log(2)})
+   entries.append({'record_sha256':str(i),'winner_horse_id':'1','multiclass_brier_score':.32,'log_loss':-__import__('math').log(.6),'equal_chance_brier_score':.5,'equal_chance_log_loss':__import__('math').log(2)})
   return records,entries
  def test_no_invented_accuracy_and_small_sample_gate(self):
   self.assertEqual(evaluate([],[])['models'],{})

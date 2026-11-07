@@ -28,6 +28,12 @@ def evaluate(records,entries):
   if key in seen:raise ValueError('More than one scored revision per race/model')
   seen.add(key)
   if not all(type(e.get(k)) in (int,float) and math.isfinite(e[k]) and e[k]>=0 for k in ('multiclass_brier_score','log_loss','equal_chance_brier_score','equal_chance_log_loss')):raise ValueError('Invalid scored metric')
+  ids=[str(row['horse_id']) for row in r['runners']]
+  ps=[row['model_probability'] for row in r['runners']]
+  winner=str(e['winner_horse_id'])
+  if len(set(ids))!=len(ids) or winner not in ids or any(type(p) not in (int,float) or not math.isfinite(p) or not 0<p<1 for p in ps) or abs(sum(ps)-1)>1e-8:raise ValueError('Invalid evaluation vector or winner')
+  expected_brier=sum((p-int(h==winner))**2 for h,p in zip(ids,ps))
+  if abs(e['multiclass_brier_score']-expected_brier)>1e-10 or abs(e['log_loss']+math.log(ps[ids.index(winner)]))>1e-10:raise ValueError('Evaluation score does not match frozen vector')
   n=len(r['runners'])
   if n<2 or abs(e['equal_chance_brier_score']-(n-1)/n)>1e-10 or abs(e['equal_chance_log_loss']-math.log(n))>1e-10:raise ValueError('Uniform benchmark does not match frozen field')
   groups.setdefault((r['model'],parameter_fingerprint(r)),[]).append((r,e))
@@ -40,7 +46,7 @@ def evaluate(records,entries):
    for r,e in rows:
     for runner in r['runners']:
      p=runner['model_probability']
-     if lo<=p<hi:probabilities.append(p);wins+=int(runner['horse_id']==e['winner_horse_id'])
+     if lo<=p<hi:probabilities.append(p);wins+=int(str(runner['horse_id'])==str(e['winner_horse_id']))
    if probabilities:calibration.append({'lower':lo,'upper':min(hi,1),'runner_observations':len(probabilities),
     'mean_model_probability':sum(probabilities)/len(probabilities),'observed_win_frequency':wins/len(probabilities)})
   n=len(rows);b=[e['multiclass_brier_score']-e['equal_chance_brier_score'] for _,e in rows];l=[e['log_loss']-e['equal_chance_log_loss'] for _,e in rows]

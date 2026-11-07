@@ -106,3 +106,23 @@ class PairedModelComparison(unittest.TestCase):
 
 
 if __name__=='__main__':unittest.main()
+
+class EvaluationScoreIntegrity(unittest.TestCase):
+    def test_rejects_corrupted_model_scores(self):
+        for key in ('multiclass_brier_score','log_loss'):
+            r,e=fixture();e[key]+=.01
+            with self.assertRaisesRegex(ValueError,'Evaluation score'):
+                evaluate([r],[e])
+
+    def test_rejects_missing_winner_and_duplicate_field(self):
+        for issue in ('winner','field'):
+            r,e=fixture()
+            if issue=='winner':e['winner_horse_id']='unknown'
+            else:r['runners'][1]['horse_id']='1'
+            with self.assertRaises(ValueError):evaluate([r],[e])
+
+    def test_numeric_ids_calibrate_consistently(self):
+        r,e=fixture();r['runners'][0]['horse_id']=1
+        result=evaluate([r],[e])
+        bins=next(iter(result['models'].values()))['calibration_bins']
+        self.assertEqual(sum(b['observed_win_frequency']*b['runner_observations'] for b in bins),1)
