@@ -26,6 +26,10 @@ class HorseRefreshGateTests(unittest.TestCase):
             self.assertFalse(should_refresh('workflow_run', {}, self.now, upstream)[0])
         self.assertFalse(should_refresh('workflow_run', {}, self.now.replace(hour=23), self.upstream)[0])
 
+    def test_early_morning_fallback_collection(self):
+        self.assertTrue(should_refresh('workflow_run', {}, self.now.replace(hour=4), self.upstream)[0])
+        self.assertFalse(should_refresh('workflow_run', {}, self.now.replace(hour=3), self.upstream)[0])
+
     def test_primary_triggers_remain_available(self):
         for event in ['push', 'schedule', 'workflow_dispatch']:
             self.assertTrue(should_refresh(event, {}, self.now.replace(hour=1))[0])
