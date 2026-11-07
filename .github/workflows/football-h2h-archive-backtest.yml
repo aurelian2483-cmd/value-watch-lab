@@ -60,7 +60,7 @@ jobs:
               readiness = report["chronological_readiness"]
               assert readiness["verified_unique_fixtures"] == report["unique_verified_fixtures"]
               assert readiness["additional_unique_fixtures_to_split"] == max(
-                  0, 60 - report["unique_verified_fixtures"])
+                  0, 64 - report["unique_verified_fixtures"])
               assert readiness["h2h_eligible_verified_fixtures"] == sum(
                   league["with_five_prior_h2h"]
                   for league in report["h2h_coverage_by_league"].values())
