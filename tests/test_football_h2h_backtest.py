@@ -12,6 +12,13 @@ class ChallengerTests(unittest.TestCase):
         evidence = {"sample_size": 6, "home_team_wins": 6, "draws": 0, "away_team_wins": 0}
         self.assertEqual(challenger_probabilities((.2, .3, .5), evidence), (.2, .3, .5))
 
+    def test_probability_adjustment_rejects_weight_above_30_percent(self):
+        evidence = {"sample_size": 6, "home_team_wins": 6, "draws": 0, "away_team_wins": 0}
+        with self.assertRaisesRegex(ValueError, "Invalid challenger parameters"):
+            challenger_probabilities((.2, .3, .5), evidence, weight=.35)
+        with self.assertRaisesRegex(ValueError, "Invalid challenger parameters"):
+            challenger_probabilities((.2, .3, .5), evidence, weight=float("nan"))
+
     def test_adjustment_preserves_probability_sum(self):
         evidence = {"sample_size": 6, "home_team_wins": 6, "draws": 0, "away_team_wins": 0}
         p = challenger_probabilities((.2, .3, .5), evidence, weight=.25)
