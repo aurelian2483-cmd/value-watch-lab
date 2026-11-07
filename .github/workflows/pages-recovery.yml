@@ -21,7 +21,7 @@ jobs:
           const id = '3169f6f619285ed03a207e06631a14024b9d132c';
           const endpoint = `https://api.github.com/repos/${process.env.GH_REPOSITORY}/pages/deployments/${id}`;
           const headers = {Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'};
-          const terminal = new Set(['succeed','succeeded','success','failed','failure','cancelled','canceled']);
+          const terminal = new Set(['succeed','succeeded','success','failed','failure','cancelled','canceled','deployment_cancelled','deployment_failed']);
           const read = async () => {
             const response = await fetch(endpoint, {headers});
             if (response.status === 404) return {status:'not_found'};
