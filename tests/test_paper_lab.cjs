@@ -18,7 +18,10 @@ assert.equal(C.community('guaranteed winner','SECTIONALS','https://example.org')
 assert.equal(C.community('stable secret','BREEDING','https://example.org').verifiedROI,null);
 assert.equal(C.community('analysis','fake','').methodology,'UNVERIFIED_HEARSAY');
 assert.equal(C.status({...e,sources:[{url:'https://example.org',observed:'2026-11-01T00:00:00Z'}]},now),'SOURCE_STALE_OR_UNCONFIRMED');
-const archived=C.normalize('history',JSON.parse(fs.readFileSync('research-history.json','utf8')));
+// Synthetic result fixture tests the adapter without depending on the rolling public history size.
+const receipt=(host)=>({url:'https://'+host+'/result',sha256:'a'.repeat(64),received_at_utc:'2026-11-01T18:00:00Z'});
+const result={record_sha256:'b'.repeat(64),home:'Test Home',away:'Test Away',kickoff_utc:'2026-11-01T14:00:00Z',score_home:0,score_away:1,source_receipts:[receipt('example.org'),receipt('example.net')],model:'POISSON_BASELINE_2025_26_V1',publication_gate:'BLOCKED',challenge_eligible:0};
+const archived=C.normalize('history',{...doc,generated_at_utc:'2026-11-01T18:01:00Z',entries:[result,{...result,model:'LEGACY_ARCHIVE'}]});
 assert.equal(archived.length,1,'legacy alias is not an extra match');assert.equal(archived[0].score.value,'0 - 1');assert.equal(archived[0].score.sources.length,2);
 const raw={race_stage:'DORMANT',runner_data_status:'SINGLE_SOURCE_RUNNERS_OBSERVED',active_runner_count:2,startUTC:e.start,runner_source:'https://example.org/race',runner_source_sha256:'source',runners:[{horse_id:'a',active_runner:true,runner_status:'RUNNER'},{horse_id:'b',active_runner:true,runner_status:'RUNNER'}]};
 raw.market_observation={status:'COMPLETE_SOURCE_OBSERVATION',bookmaker:'Sky Bet',executable_verified:false,verification:'SOURCE_OBSERVED_UNVERIFIED',source_sha256:'source',source:raw.runner_source,bookmaker_market_id:'win',observed_at_utc:observed,quotes:[{horse_id:'a',decimal:2},{horse_id:'b',decimal:3}]};
@@ -29,3 +32,4 @@ for(const [kind,path]of [['football','research-dashboard-data.json'],['football'
  const rows=C.normalize(kind,JSON.parse(fs.readFileSync(path,'utf8')));assert.ok(rows.length);assert.equal(new Set(rows.map(r=>r.id)).size,rows.length);for(const r of rows){assert.ok(r.choices.length);assert.equal(C.quote(r,r.choices[0].id,Date.parse(r.start)+1000).executable,false)}
 }
 console.log('Paper lab: four slots, variable legs, provenance, expiry, history, date/DST, safety gates, community claims and real-feed adapters passed');
+
