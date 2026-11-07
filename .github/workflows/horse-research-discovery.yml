@@ -4,11 +4,11 @@ on:
     branches: [main]
     paths: ['scripts/horse_refresh_session.py', 'scripts/horse_refresh_cycle.sh', 'tests/test_horse_refresh_session.py', 'scripts/horse_refresh_gate.py', 'tests/test_horse_refresh_gate.py', 'scripts/preserve_horse_evidence.py', 'tests/test_horse_evidence.py', 'scripts/horse_context_pipeline.py', 'scripts/archive_horse_markets.py', 'tests/test_horse_context.py', 'tests/test_horse_market_archive.py', 'scripts/discover_horse_races.py', 'scripts/horse_reference_baseline.py', 'scripts/horse_secondary_source.py', 'tests/test_horse_discovery.py', 'tests/test_horse_reference.py', 'tests/test_horse_secondary.py', 'scripts/enrich_horse_runners.py', 'scripts/horse_market.py', 'tests/test_horse_market.py', 'tests/test_horse_runners.py', '.github/workflows/horse-research-discovery.yml', 'scripts/horse_model_pipeline.py', 'tests/test_horse_model.py', 'scripts/horse_challenger.py', 'tests/test_horse_challenger.py', 'research/horse-challenger/model-v1.json']
   schedule:
-    - cron: '5,25,45 6-21 * * *'
+    - cron: '5,25,45 4-21 * * *'
   workflow_dispatch:
     inputs:
       active_cycles:
-        description: 'Collection cycles, 20 minutes apart (1–6; only 06:00–22:00 UTC)'
+        description: 'Collection cycles, 20 minutes apart (1–6; only 04:00–22:00 UTC)'
         required: false
         default: '1'
         type: choice
