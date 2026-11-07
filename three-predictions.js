@@ -17,8 +17,15 @@ function syncSport(){
  panel.hidden=!visible;
  panel.style.display=visible?'':'none';
 }
-document.querySelector('.sport-strip')?.addEventListener('click',e=>{
- if(e.target.closest('[data-sport]'))queueMicrotask(syncSport);
+// The dashboard updates its active sport in a delegated document click handler.
+// Observe that actual state change rather than checking too early during bubbling.
+const sportStrip=document.querySelector('.sport-strip');
+if(sportStrip){
+ const observer=new MutationObserver(syncSport);
+ observer.observe(sportStrip,{subtree:true,attributes:true,attributeFilter:['class','aria-pressed']});
+}
+document.addEventListener('click',e=>{
+ if(e.target.closest('.sport-strip [data-sport]'))setTimeout(syncSport,0);
 });
 syncSport();
 function add(parent,tag,text,css){const n=document.createElement(tag);n.textContent=text;parent.append(n);if(css)n.style.cssText=css;return n;}
