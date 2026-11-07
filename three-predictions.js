@@ -10,6 +10,17 @@ const status=document.createElement('p');status.setAttribute('role','status');st
 const cards=document.createElement('div');cards.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px';panel.append(cards);
 const explainer=document.createElement('details');explainer.style.cssText='margin-top:16px;color:#d6e4f4;font-size:.92rem';const summary=document.createElement('summary');summary.textContent='What do these percentages mean?';summary.style.cursor='pointer';explainer.append(summary);const explanation=document.createElement('p');explanation.textContent='A 55% model estimate means the model assigns that outcome 55 chances in 100. It is not a guarantee, a proven accuracy rate, or evidence that a bet is good value. Predictions are experimental until independently validated.';explainer.append(explanation);panel.append(explainer);
 main.parentNode.insertBefore(panel,main);
+function syncSport(){
+ const active=document.querySelector('.sport-strip [data-sport].active');
+ const sport=active?active.getAttribute('data-sport'):'all';
+ const visible=sport==='all'||sport==='football';
+ panel.hidden=!visible;
+ panel.style.display=visible?'':'none';
+}
+document.querySelector('.sport-strip')?.addEventListener('click',e=>{
+ if(e.target.closest('[data-sport]'))queueMicrotask(syncSport);
+});
+syncSport();
 function add(parent,tag,text,css){const n=document.createElement(tag);n.textContent=text;parent.append(n);if(css)n.style.cssText=css;return n;}
 function pct(p){return (p*100).toFixed(1)+'%';}
 function time(s){return new Date(s).toLocaleString('en-GB',{timeZone:'Europe/London',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})+' UK';}
