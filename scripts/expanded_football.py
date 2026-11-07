@@ -334,6 +334,14 @@ def score_results(records,fetcher,now,path):
  for r in records:
   key=identity(r)
   if key not in latest or when(r['generated_at_utc'])>when(latest[key]['generated_at_utc']):latest[key]=r
+ # Historical revisions may remain in the ledger, but only the latest
+ # frozen forecast for each fixture is eligible for the scored sample.
+ # Reject a ledger that contains two scored revisions of one fixture.
+ scored_fixture_keys=set()
+ for e in old['entries']:
+  key=identity(frozen[e['record_sha256']])
+  if key in scored_fixture_keys:raise ValueError('Multiple scored revisions for one fixture')
+  scored_fixture_keys.add(key)
  pending=[];attempts=0
  # Oldest unresolved matches first: avoid starving older results when the archive grows.
  for r in oldest_first_unresolved(latest.values()):
