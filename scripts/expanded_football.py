@@ -300,7 +300,8 @@ def settlement_readiness(records,now):
   'eligible_later':sum(t>now+dt.timedelta(hours=24) for t in due_at),
   'next_24h_by_league':{code:sum(now<when(r['kickoff_utc'])+dt.timedelta(hours=3)<=now+dt.timedelta(hours=24) for r in latest.values() if r['league']==code) for code in LEAGUES},
   'next_24h_by_hour':{str(hour):sum(now+dt.timedelta(hours=hour)<t<=now+dt.timedelta(hours=hour+1) for t in due_at) for hour in range(24)},
-  'next_24h_first_eligible_utc':stamp(min((t for t in due_at if now<t<=now+dt.timedelta(hours=24)),default=None)) if any(now<t<=now+dt.timedelta(hours=24) for t in due_at) else None}
+  'next_24h_first_eligible_utc':stamp(min(t for t in due_at if now<t<=now+dt.timedelta(hours=24))) if any(now<t<=now+dt.timedelta(hours=24) for t in due_at) else None,
+  'next_24h_by_league_sum_matches_total':sum(sum(now<when(r['kickoff_utc'])+dt.timedelta(hours=3)<=now+dt.timedelta(hours=24) for r in latest.values() if r['league']==code) for code in LEAGUES)==sum(now<t<=now+dt.timedelta(hours=24) for t in due_at)}
 
 def score_results(records,fetcher,now,path):
  old=json.loads(path.read_text()) if path.exists() else {'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','entries':[]}
