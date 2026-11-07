@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-07T18:44:53.104356+00:00",
+  "generated_at_utc": "2026-11-07T20:46:27.376759+00:00",
   "research_only": true,
   "model_validation": "UNVALIDATED",
   "publication_gate": "BLOCKED",
@@ -837,15 +837,15 @@
   ],
   "current_field_checks": {},
   "performance": {
-    "scored_forecasts": 26,
+    "scored_forecasts": 27,
     "independently_verified_results": 0,
     "verification": "SINGLE_SOURCE_PROVISIONAL",
     "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
     "metrics": {
-      "mean_multiclass_brier_score": 0.91460424016567,
-      "mean_log_loss": 2.429166969773149,
-      "mean_equal_chance_brier_score": 0.9066512547281778,
-      "mean_equal_chance_log_loss": 2.398279108418757
+      "mean_multiclass_brier_score": 0.9116830324518754,
+      "mean_log_loss": 2.4104408668042927,
+      "mean_equal_chance_brier_score": 0.9064049119604675,
+      "mean_equal_chance_log_loss": 2.3947348856252493
     },
     "entries": [
       {
@@ -1471,13 +1471,33 @@
         "publication_gate": "BLOCKED",
         "result_recheck_status": "NOT_RECHECKED",
         "result_last_checked_at_utc": "2026-11-07T18:44:53.104356+00:00"
+      },
+      {
+        "record_sha256": "e845206fc35d8ff4f4f9091b365c716c62b09bd6fca3dfd0d699ee716b8a07fd",
+        "race_id": "947523",
+        "racecourse": "Southwell",
+        "startUTC": "2026-11-07T18:30:00+00:00",
+        "model": "AW_CONDITIONAL_LOGIT_PILOT_V1",
+        "winner_horse_id": "1130760",
+        "scored_at_utc": "2026-11-07T20:46:27.376759+00:00",
+        "multiclass_brier_score": 0.8357316318932189,
+        "log_loss": 1.9235621896140225,
+        "equal_chance_brier_score": 0.9,
+        "equal_chance_log_loss": 2.302585092994046,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-07/southwell/racecard/947523/join-the-midnite-movement-apprentice-handicap",
+          "sha256": "d40500032d16922b4d02a4695f77adc6f15b9f35fad8529c50de17a7e5bf79bf",
+          "observed_at_utc": "2026-11-07T20:46:27.376759+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-07T20:46:27.376759+00:00"
       }
     ],
     "pending": [
-      {
-        "race_id": "947523",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
       {
         "race_id": "947106",
         "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
@@ -1506,6 +1526,84 @@
     "selection_policy": "Latest archived forecast per race/model, captured at least five minutes before scheduled start."
   },
   "settled_forecasts": [
+    {
+      "record_sha256": "e845206fc35d8ff4f4f9091b365c716c62b09bd6fca3dfd0d699ee716b8a07fd",
+      "race_id": "947523",
+      "racecourse": "Southwell",
+      "race_name": "Join The Midnite Movement Apprentice Handicap",
+      "startUTC": "2026-11-07T18:30:00+00:00",
+      "generated_at_utc": "2026-11-07T09:17:30.419533+00:00",
+      "model": "AW_CONDITIONAL_LOGIT_PILOT_V1",
+      "runners": [
+        {
+          "horse_id": "1019607",
+          "name": "Sisterandbrother",
+          "model_probability": 0.17593097281787476,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1126658",
+          "name": "Fram Castle",
+          "model_probability": 0.16461428116872356,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1130760",
+          "name": "Sycamore Gap",
+          "model_probability": 0.14608564939117172,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1136434",
+          "name": "Trapper John",
+          "model_probability": 0.05879904290279479,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1137389",
+          "name": "Damzon",
+          "model_probability": 0.037382001226788586,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1161705",
+          "name": "Junkyard Dog",
+          "model_probability": 0.1633166091067495,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1173248",
+          "name": "Jack Langley",
+          "model_probability": 0.08901781078252517,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1179036",
+          "name": "Dollar's Dream",
+          "model_probability": 0.055874159065164866,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1199295",
+          "name": "New Bay Star",
+          "model_probability": 0.053806520124743025,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "957654",
+          "name": "Beggarman",
+          "model_probability": 0.055172953413464086,
+          "equal_chance_reference": 0.1
+        }
+      ],
+      "winner_horse_id": "1130760",
+      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-07T20:46:27.376759+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
     {
       "record_sha256": "622b446ed451c6aee429204da3c55030e2e9f865ea754f1484f04c6f36deab11",
       "race_id": "947522",
@@ -3194,108 +3292,6 @@
       "result_verification": "SINGLE_SOURCE_PROVISIONAL",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
       "result_last_checked_at_utc": "2026-11-07T09:17:30.419533+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
-    },
-    {
-      "record_sha256": "c018485be10273a5ce8ef099da783a3d76f9f86b3e7af59e54e0872121e52577",
-      "race_id": "946948",
-      "racecourse": "Kempton",
-      "race_name": "Try Unibet's Smartview Racecards Handicap",
-      "startUTC": "2026-11-04T18:30:00+00:00",
-      "generated_at_utc": "2026-11-04T00:36:46.067016+00:00",
-      "model": "AW_CONDITIONAL_LOGIT_PILOT_V1",
-      "runners": [
-        {
-          "horse_id": "1063758",
-          "name": "Foinix",
-          "model_probability": 0.057426512641174696,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1084330",
-          "name": "Fair Dinkum",
-          "model_probability": 0.04151724645422933,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1112836",
-          "name": "Super Hit",
-          "model_probability": 0.12014816620418255,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1147959",
-          "name": "Little Miss India",
-          "model_probability": 0.05708447243218326,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1189563",
-          "name": "Katalyst",
-          "model_probability": 0.0759864007120713,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1194374",
-          "name": "In The Post",
-          "model_probability": 0.048193914109670076,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1195438",
-          "name": "Tales Old As Time",
-          "model_probability": 0.04065037797509311,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1195439",
-          "name": "Three Socks On",
-          "model_probability": 0.07167831979031525,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1200304",
-          "name": "Head Girl",
-          "model_probability": 0.05323086793423905,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1203669",
-          "name": "Kurios Lady",
-          "model_probability": 0.11793609946589333,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1203760",
-          "name": "Ataturk",
-          "model_probability": 0.12174148498115944,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1209338",
-          "name": "Goldfinder",
-          "model_probability": 0.10559095579570575,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1227276",
-          "name": "Pseudonym",
-          "model_probability": 0.043249672478664854,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1238017",
-          "name": "Emerald Spirit",
-          "model_probability": 0.04556550902541812,
-          "equal_chance_reference": 0.07142857142857142
-        }
-      ],
-      "winner_horse_id": "1195439",
-      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-06T15:35:36.810032+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-07T18:44:47.193515+00:00",
+  "generated_at_utc": "2026-11-07T20:46:23.019560+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -10,7 +10,7 @@
     "provider": "The Racing API",
     "connection_status": "CONNECTED",
     "schedule_matches": 0,
-    "result_rows_cached": 241,
+    "result_rows_cached": 242,
     "errors": [],
     "verification_scope": "Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established."
   },
@@ -25,7 +25,7 @@
     "errors": [],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED",
-    "collection_completed_at_utc": "2026-11-07T18:44:41.008842+00:00"
+    "collection_completed_at_utc": "2026-11-07T20:46:17.614459+00:00"
   },
   "race_count": 46,
   "reference_baseline_audit": {
@@ -420,15 +420,15 @@
     "model_validation": "UNVALIDATED"
   },
   "performance": {
-    "scored_forecasts": 42,
+    "scored_forecasts": 43,
     "independently_verified_results": 0,
     "verification": "SINGLE_SOURCE_PROVISIONAL",
     "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
     "metrics": {
-      "mean_multiclass_brier_score": 0.8959144483014231,
-      "mean_log_loss": 2.3147817574834204,
-      "mean_equal_chance_brier_score": 0.9013016084444656,
-      "mean_equal_chance_log_loss": 2.3476920482884447
+      "mean_multiclass_brier_score": 0.8956435229131049,
+      "mean_log_loss": 2.31254438510715,
+      "mean_equal_chance_brier_score": 0.9012713384806408,
+      "mean_equal_chance_log_loss": 2.34664304932811
     },
     "entries": [
       {
@@ -1438,13 +1438,33 @@
         "publication_gate": "BLOCKED",
         "result_recheck_status": "NOT_RECHECKED",
         "result_last_checked_at_utc": "2026-11-07T18:44:47.193515+00:00"
+      },
+      {
+        "record_sha256": "a659fa119846f626e5106ad14c9e0a05973379153962230fc19cd5a82d815a37",
+        "race_id": "947523",
+        "racecourse": "Southwell",
+        "startUTC": "2026-11-07T18:30:00+00:00",
+        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+        "winner_horse_id": "1130760",
+        "scored_at_utc": "2026-11-07T20:46:23.019560+00:00",
+        "multiclass_brier_score": 0.8842646566037389,
+        "log_loss": 2.218574745303797,
+        "equal_chance_brier_score": 0.9,
+        "equal_chance_log_loss": 2.302585092994046,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-07/southwell/racecard/947523/join-the-midnite-movement-apprentice-handicap",
+          "sha256": "d40500032d16922b4d02a4695f77adc6f15b9f35fad8529c50de17a7e5bf79bf",
+          "observed_at_utc": "2026-11-07T20:46:23.019560+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-07T20:46:23.019560+00:00"
       }
     ],
     "pending": [
-      {
-        "race_id": "947523",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
       {
         "race_id": "947106",
         "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
@@ -1471,7 +1491,7 @@
     },
     "source_unavailable_rechecks": 0,
     "selection_policy": "Latest archived forecast per race/model, captured at least five minutes before scheduled start.",
-    "cross_source_verified_results": 39,
+    "cross_source_verified_results": 40,
     "cross_source_entries": [
       {
         "record_sha256": "61e99fd669a27075ca5ddab4ada773b0f088313bd469e31d3304ef25a34ad009",
@@ -3149,6 +3169,49 @@
           "publication_gate": "BLOCKED",
           "challenge_eligible": 0
         }
+      },
+      {
+        "record_sha256": "a659fa119846f626e5106ad14c9e0a05973379153962230fc19cd5a82d815a37",
+        "race_id": "947523",
+        "racecourse": "Southwell",
+        "startUTC": "2026-11-07T18:30:00+00:00",
+        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+        "winner_horse_id": "1130760",
+        "scored_at_utc": "2026-11-07T20:46:23.019560+00:00",
+        "multiclass_brier_score": 0.8842646566037389,
+        "log_loss": 2.218574745303797,
+        "equal_chance_brier_score": 0.9,
+        "equal_chance_log_loss": 2.302585092994046,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-07/southwell/racecard/947523/join-the-midnite-movement-apprentice-handicap",
+          "sha256": "d40500032d16922b4d02a4695f77adc6f15b9f35fad8529c50de17a7e5bf79bf",
+          "observed_at_utc": "2026-11-07T20:46:23.019560+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-07T20:46:23.019560+00:00",
+        "cross_source_evidence": {
+          "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
+          "record_sha256": "a659fa119846f626e5106ad14c9e0a05973379153962230fc19cd5a82d815a37",
+          "primary_receipt": {
+            "url": "https://www.sportinglife.com/racing/racecards/2026-11-07/southwell/racecard/947523/join-the-midnite-movement-apprentice-handicap",
+            "sha256": "d40500032d16922b4d02a4695f77adc6f15b9f35fad8529c50de17a7e5bf79bf",
+            "observed_at_utc": "2026-11-07T20:46:23.019560+00:00"
+          },
+          "secondary_receipt": {
+            "url": "https://api.theracingapi.com/v1/results/today/free?region=gb&region=ire&limit=100&skip=0",
+            "sha256": "04bcdcee2a52ece4a1369762c6cb6deb0ac4df4154460e98de6894db73ff3f74",
+            "observed_at_utc": "2026-11-07T20:46:22.893618+00:00",
+            "rate_limit_retries": 0
+          },
+          "secondary_race_id": "rac_32303840426",
+          "winner_horse_id": "1130760",
+          "publication_gate": "BLOCKED",
+          "challenge_eligible": 0
+        }
       }
     ],
     "cross_source_pending": [
@@ -3171,19 +3234,19 @@
         "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1": {
           "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
           "parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "scored_races": 42,
+          "scored_races": 43,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.005387160143042445,
-          "mean_log_loss_delta_vs_equal_chance": -0.03291029080502415,
+          "mean_brier_delta_vs_equal_chance": -0.005627815567535903,
+          "mean_log_loss_delta_vs_equal_chance": -0.03409866422095961,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.012597969066956857,
-            "upper": 0.001772773335466895,
+            "lower": -0.01295236782657053,
+            "upper": 0.0016570627980243351,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.06757675472111349,
-            "upper": 0.003937824437531741,
+            "lower": -0.06785843408017728,
+            "upper": -0.0018638012145033372,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -3198,16 +3261,16 @@
             {
               "lower": 0.05,
               "upper": 0.1,
-              "runner_observations": 300,
-              "mean_model_probability": 0.0786957451414303,
-              "observed_win_frequency": 0.07333333333333333
+              "runner_observations": 305,
+              "mean_model_probability": 0.0788612141728429,
+              "observed_win_frequency": 0.07213114754098361
             },
             {
               "lower": 0.1,
               "upper": 0.15,
-              "runner_observations": 137,
-              "mean_model_probability": 0.11545739889086065,
-              "observed_win_frequency": 0.1386861313868613
+              "runner_observations": 142,
+              "mean_model_probability": 0.11530786526591486,
+              "observed_win_frequency": 0.14084507042253522
             },
             {
               "lower": 0.15,
@@ -3239,19 +3302,19 @@
         "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1": {
           "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
           "parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "scored_races": 39,
+          "scored_races": 40,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.006355762333718376,
-          "mean_log_loss_delta_vs_equal_chance": -0.03659733399515068,
+          "mean_brier_delta_vs_equal_chance": -0.006590251860281946,
+          "mean_log_loss_delta_vs_equal_chance": -0.03778265933752813,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.014214417912284998,
-            "upper": 0.0016743443261595125,
+            "lower": -0.01442993710166525,
+            "upper": 0.0005763093486306047,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.07339896517047655,
-            "upper": 0.002833106470206839,
+            "lower": -0.07172546160111737,
+            "upper": -0.001437952813989557,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -3266,16 +3329,16 @@
             {
               "lower": 0.05,
               "upper": 0.1,
-              "runner_observations": 271,
-              "mean_model_probability": 0.07940600908940061,
-              "observed_win_frequency": 0.07380073800738007
+              "runner_observations": 276,
+              "mean_model_probability": 0.07957599725911436,
+              "observed_win_frequency": 0.07246376811594203
             },
             {
               "lower": 0.1,
               "upper": 0.15,
-              "runner_observations": 131,
-              "mean_model_probability": 0.11501633631163208,
-              "observed_win_frequency": 0.13740458015267176
+              "runner_observations": 136,
+              "mean_model_probability": 0.11487642115099855,
+              "observed_win_frequency": 0.13970588235294118
             },
             {
               "lower": 0.15,
@@ -3305,6 +3368,84 @@
   },
   "current_field_checks": {},
   "settled_forecasts": [
+    {
+      "record_sha256": "a659fa119846f626e5106ad14c9e0a05973379153962230fc19cd5a82d815a37",
+      "race_id": "947523",
+      "racecourse": "Southwell",
+      "race_name": "Join The Midnite Movement Apprentice Handicap",
+      "startUTC": "2026-11-07T18:30:00+00:00",
+      "generated_at_utc": "2026-11-07T09:17:09.263619+00:00",
+      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+      "runners": [
+        {
+          "horse_id": "1019607",
+          "name": "Sisterandbrother",
+          "model_probability": 0.10564216421103863,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1126658",
+          "name": "Fram Castle",
+          "model_probability": 0.1298619910641999,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1130760",
+          "name": "Sycamore Gap",
+          "model_probability": 0.10876401483139536,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1136434",
+          "name": "Trapper John",
+          "model_probability": 0.09282835362396488,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1137389",
+          "name": "Damzon",
+          "model_probability": 0.09012735360802894,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1161705",
+          "name": "Junkyard Dog",
+          "model_probability": 0.11032766760627905,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1173248",
+          "name": "Jack Langley",
+          "model_probability": 0.1014573819990886,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1179036",
+          "name": "Dollar's Dream",
+          "model_probability": 0.0883157913711664,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1199295",
+          "name": "New Bay Star",
+          "model_probability": 0.08281779727505001,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "957654",
+          "name": "Beggarman",
+          "model_probability": 0.08985748440978822,
+          "equal_chance_reference": 0.1
+        }
+      ],
+      "winner_horse_id": "1130760",
+      "result_verification": "TWO_PUBLISHER_CORROBORATED",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-07T20:46:23.019560+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
     {
       "record_sha256": "f43bc7aac0a3f34c864934b7440042db77f3e308ef473454adc6518e16872e08",
       "race_id": "947522",
@@ -4954,95 +5095,11 @@
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
-    },
-    {
-      "record_sha256": "b14fc69503ef8d2741692331e3346e4136b5968db78d0fb11a4046481905fccb",
-      "race_id": "947109",
-      "racecourse": "Chelmsford City",
-      "race_name": "AWC Season 14 Has Begun Handicap",
-      "startUTC": "2026-11-05T16:15:00+00:00",
-      "generated_at_utc": "2026-11-05T00:27:28.687388+00:00",
-      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
-      "runners": [
-        {
-          "horse_id": "1061816",
-          "name": "Bajan Bandit",
-          "model_probability": 0.12065983639514265,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1082230",
-          "name": "Hitched",
-          "model_probability": 0.07766956375393376,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1099453",
-          "name": "Kalamunda",
-          "model_probability": 0.07982532360738777,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1107387",
-          "name": "Havana Touch",
-          "model_probability": 0.10911352537788563,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1115607",
-          "name": "Golden Pharaoh",
-          "model_probability": 0.08090642811862198,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1148236",
-          "name": "The Hare Rail",
-          "model_probability": 0.10960358204525557,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1151903",
-          "name": "Sea Founder",
-          "model_probability": 0.06997990677313859,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1153425",
-          "name": "This Farh",
-          "model_probability": 0.08691384982595707,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1164770",
-          "name": "Nakaaha",
-          "model_probability": 0.0900941472618349,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1179128",
-          "name": "Mighty Vega",
-          "model_probability": 0.09271798064537078,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1202826",
-          "name": "Musashi",
-          "model_probability": 0.0825158561954714,
-          "equal_chance_reference": 0.09090909090909091
-        }
-      ],
-      "winner_horse_id": "1107387",
-      "result_verification": "TWO_PUBLISHER_CORROBORATED",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-07T09:17:09.263619+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
     }
   ],
   "settled_history_limit": 20,
   "race_cycle_audit": {
-    "checked_at_utc": "2026-11-07T18:44:47.193515+00:00",
+    "checked_at_utc": "2026-11-07T20:46:23.019560+00:00",
     "race_date_uk": "2026-11-07",
     "collection_scope": "CURRENT_UK_DAY_ONLY",
     "upcoming_observed_races": 0,
