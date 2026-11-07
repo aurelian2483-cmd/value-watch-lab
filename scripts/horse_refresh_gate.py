@@ -11,7 +11,7 @@ def should_refresh(event, data, now, upstream=None):
         return True, 'PRIMARY_TRIGGER'
     if not upstream or upstream.get('conclusion') != 'success' or upstream.get('head_branch') != 'main':
         return False, 'UPSTREAM_NOT_SUCCESSFUL_MAIN'
-    if not 6 <= now.hour < 22:
+    if not 4 <= now.hour < 22:
         return False, 'OUTSIDE_COLLECTION_WINDOW_UTC'
     try:
         observed = dt.datetime.fromisoformat(data['generated_at_utc'].replace('Z', '+00:00'))
