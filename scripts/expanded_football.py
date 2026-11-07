@@ -283,6 +283,10 @@ def validate_forecast(r):
  p=[r[k] for k in ('prob_home','prob_draw','prob_away')]
  if any(type(v) not in (int,float) or not math.isfinite(v) or not 0<v<1 for v in p) or abs(sum(p)-1)>1e-8:raise ValueError('Invalid probability vector')
 
+def oldest_first_unresolved(records):
+ """Deterministic settlement order; oldest kickoff first, digest breaks ties."""
+ return sorted(records,key=lambda item:(when(item['kickoff_utc']),item['record_sha256']))
+
 def score_results(records,fetcher,now,path):
  old=json.loads(path.read_text()) if path.exists() else {'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','entries':[]}
  if old.get('research_only') is not True or old.get('publication_gate')!='BLOCKED' or old.get('model_validation')!='UNVALIDATED':raise ValueError('Unsafe expanded result ledger')
@@ -306,7 +310,7 @@ def score_results(records,fetcher,now,path):
   if key not in latest or when(r['generated_at_utc'])>when(latest[key]['generated_at_utc']):latest[key]=r
  pending=[];attempts=0
  # Oldest unresolved matches first: avoid starving older results when the archive grows.
- for r in sorted(latest.values(),key=lambda item:(when(item['kickoff_utc']),item['record_sha256'])):
+ for r in oldest_first_unresolved(latest.values()):
   if r['record_sha256'] in by_id:continue
   if now<when(r['kickoff_utc'])+dt.timedelta(hours=3):pending.append({'league':r['league'],'home':r['home'],'away':r['away'],'reason':'WAITING_FOR_FINAL'});continue
   if attempts>=50:pending.append({'league':r['league'],'reason':'DEFERRED_BATCH_LIMIT'});continue
