@@ -39,7 +39,8 @@ class ActiveHorseSessionTests(unittest.TestCase):
     def test_normal_run_has_no_wait_and_night_does_not_collect(self):
         self.assertEqual(self.session(cycles=1)[2],[])
         self.assertEqual(self.session(start_hour=23)[0],0)
-        self.assertEqual(self.session(start_hour=5)[0],0)
+        self.assertEqual(self.session(start_hour=3)[0],0)
+        self.assertEqual(self.session(start_hour=4, cycles=1)[0],1)
         self.assertEqual(self.session(start_hour=21)[0],3)
 
     def test_source_or_cycle_failure_stops_instead_of_retrying_around_block(self):
