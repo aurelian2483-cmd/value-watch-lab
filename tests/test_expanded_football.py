@@ -84,6 +84,16 @@ class ExpandedTests(unittest.TestCase):
   pending=m.score_results(all,Disagree(),self.now+dt.timedelta(days=1),self.root/'disagreement.json');self.assertEqual(pending['entries'],[])
   bad=json.loads((self.root/'results.json').read_text());bad['entries'][0]['source_receipts']=[];(self.root/'results.json').write_text(json.dumps(bad))
   with self.assertRaises(ValueError):m.score_results(all,Fetch(),self.now+dt.timedelta(days=1),self.root/'results.json')
+ def test_oldest_first_settlement_order_and_tie_break(self):
+  fixtures=[
+   {'kickoff_utc':'2026-11-05T20:00:00Z','record_sha256':'c'},
+   {'kickoff_utc':'2026-11-02T20:00:00Z','record_sha256':'b'},
+   {'kickoff_utc':'2026-11-02T20:00:00Z','record_sha256':'a'},
+  ]
+  ordered=m.oldest_first_unresolved(fixtures)
+  self.assertEqual([r['record_sha256'] for r in ordered],['a','b','c'])
+  self.assertEqual(fixtures[0]['record_sha256'],'c')
+
  def test_future_forecasts_never_request_results(self):
   f=m.model_forecast(self.f,self.training);_,records,_=m.archive_forecasts([f],self.now,self.root/'archive')
   class NoFetch:
