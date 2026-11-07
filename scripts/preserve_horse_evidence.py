@@ -64,7 +64,7 @@ def references(repo):
                 'research/horse-challenger/results-v1.json']
     for pattern in patterns:
         for path in sorted(repo.glob(pattern)):
-            walk(json.loads(path.read_text()), str(path.relative_to(repo)))
+            walk(json.loads(path.read_text()), path.relative_to(repo).as_posix())
     return refs
 
 
@@ -110,7 +110,7 @@ def preserve(repo=ROOT, work=WORK, now=None, environment=None):
                 found.setdefault(sha, {'sha256': sha, 'byte_count': len(raw),
                                       'artifact_paths': [], 'source_urls': sorted(refs[sha]['sources']),
                                       'referenced_records': sorted(refs[sha]['records'])})
-                found[sha]['artifact_paths'].append(('/'.join(filter(None, [prefix, str(path.relative_to(work))]))))
+                found[sha]['artifact_paths'].append(('/'.join(filter(None, [prefix, path.relative_to(work).as_posix()]))))
     body = {'schema_version': 1, 'kind': 'HORSE_SOURCE_ARTIFACT_RECEIPT',
             'research_only': True, 'model_validation': 'UNVALIDATED', 'publication_gate': 'BLOCKED',
             'independent_timestamp_attested': False,
