@@ -542,7 +542,7 @@
   function matchCommunity(event) {
     if (event.sport !== 'racing' || !event.providerEventId) return [];
     return communityEntries.filter(entry => {
-      if (String(entry.race_id) !== String(event.providerEventId) || entry.stance !== 'support' || !['forum','blog','tipster'].includes(entry.group)) return false;
+      if (String(entry.race_id) !== String(event.providerEventId) || entry.stance !== 'support' || entry.verification === 'RSS_EXPLICIT_MENTION_REVIEW_REQUIRED' || !['forum','blog','tipster'].includes(entry.group)) return false;
       if (Date.parse(entry.startUTC) !== Date.parse(event.startUTC)) return false;
       const published = Date.parse(entry.published_at_utc), observed = Date.parse(entry.observed_at_utc);
       if (!Number.isFinite(published) || !Number.isFinite(observed) || published > Date.parse(event.startUTC) || observed < published) return false;
