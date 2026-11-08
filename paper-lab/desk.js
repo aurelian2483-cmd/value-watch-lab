@@ -421,6 +421,23 @@
     const state = store.get(), rows = filtered(state), visible = rows.slice(0, state.limit), root = $('events'); root.setAttribute('aria-busy', 'false');
     if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more').forEach(element => element.remove());
     S.reconcile(root, visible.map(event => event.id), cards, createCard, (record, id) => patchCard(record, visible.find(event => event.id === id)));
+    // Meeting fixtures are real observed meetings, never synthetic racecards or betting picks.
+    if(state.sport==='racing'){
+      let panel=$('racing-fixture-board');
+      if(!panel){panel=make(null,'section',undefined,'racing-fixture-board');root.before(panel);}
+      panel.replaceChildren();
+      const inRange=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to);
+      make(panel,'h3','Upcoming racing meetings · '+inRange.length,'');
+      make(panel,'p','Verified individual racecards: '+rows.length+' · Total source-observed meeting fixtures: '+racingFixtureMeetings.length+' · Feed: '+racingFixtureStatus,'small');
+      if(!inRange.length)make(panel,'p',racingFixtureMeetings.length?'No meetings in selected dates. Select Next 14 Days to view available fixtures.':'No meeting fixtures loaded. Check the feed status above.','muted');
+      for(const meeting of inRange.slice(0,70)){
+        const item=make(panel,'div',undefined,'research-row');
+        make(item,'strong',meeting.date+' · '+meeting.course);
+        make(item,'p','Meeting fixture only · Race times, runners and odds not verified','small');
+        const a=make(item,'a','View source meeting');
+        a.href=meeting.source_url;a.target='_blank';a.rel='noopener noreferrer';
+      }
+    }else{const panel=$('racing-fixture-board');if(panel)panel.remove();}
     if (!visible.length && state.sport === 'racing') {
       const dates = [...new Set(state.events.filter(event => event.sport === 'racing').map(event => day(event.startUTC)))].sort();
       const latest = dates.at(-1);
