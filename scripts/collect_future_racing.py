@@ -101,6 +101,34 @@ def collect_api(now=None, fetch_json=None):
    'Date-specific API source observations are not independent verification of declarations or odds.',
    'Provider plan may not cover all seven future days. Missing coverage must not be represented as no races.']}
 
+def validate_publishable_snapshot(data):
+ """Fail closed before overwriting the existing research snapshot."""
+ if data.get('schema_version')!=1 or data.get('research_only') is not True:
+  raise ValueError('Invalid research schema')
+ if data.get('publication_gate')!='BLOCKED' or data.get('model_validation')!='UNVALIDATED':
+  raise ValueError('Research safety gates are missing')
+ days=data.get('days')
+ if not isinstance(days,list) or len(days)!=7:
+  raise ValueError('Seven date-scoped collection results required')
+ dates=[day.get('date') for day in days if isinstance(day,dict)]
+ if len(set(dates))!=7 or any(not isinstance(day,str) for day in dates):
+  raise ValueError('Invalid or duplicate coverage dates')
+ races=data.get('races')
+ fixtures=data.get('fixture_meetings')
+ if not isinstance(races,list) or not isinstance(fixtures,list) or not (races or fixtures):
+  raise ValueError('Refusing to replace snapshot with no observed records')
+ for race in races:
+  if not isinstance(race,dict) or race.get('verification')!='SINGLE_SOURCE_UNVERIFIED':
+   raise ValueError('Race provenance invalid')
+ for meeting in fixtures:
+  if not isinstance(meeting,dict) or meeting.get('date') not in dates:
+   raise ValueError('Fixture date outside collection window')
+  if meeting.get('record_type')!='MEETING_FIXTURE' or meeting.get('race_times_status')!='NOT_SUPPLIED' or meeting.get('declarations_status')!='NOT_VERIFIED':
+   raise ValueError('Fixture status invalid')
+  if any(field in meeting for field in ('startUTC','runners','odds')):
+   raise ValueError('Fixture contains unsupported race details')
+ return True
+
 if __name__=='__main__':
  data=collect_api() if os.environ.get('HORSE_RACING_API_KEY') else collect()
  target_dates=[x['date'] for x in data['days']]
@@ -111,8 +139,10 @@ if __name__=='__main__':
  if fixture_result.get('error'):data['fixture_source_error']=fixture_result['error']
  data['limitations'].append('Meeting fixtures are not individual races and have no inferred post times or runners.')
  print(json.dumps({'generated_at_utc':data['generated_at_utc'],'races_discovered':len(data['races']),'daily_source_results':data['days']},indent=2),flush=True)
- if len(data['days'])!=7 or (not data['races'] and not data['fixture_meetings']):
-  raise SystemExit('No usable source-observed races or meeting fixtures: preserving existing published snapshot')
+ try:
+  validate_publishable_snapshot(data)
+ except ValueError as exc:
+  raise SystemExit('Preserving existing published snapshot: '+str(exc))
  data['failed_dates']=[day['date'] for day in data['days'] if day['status']=='COLLECTION_FAILED']
  data['collection_status']='PARTIAL_SOURCE_COVERAGE' if data['failed_dates'] or data['fixture_source_status']!='SOURCE_OBSERVED' else 'SOURCE_OBSERVED_NOT_COMPLETE'
  data['limitations'].append('A successful source request is not proof of complete racing coverage. Failed dates are explicitly reported.')
