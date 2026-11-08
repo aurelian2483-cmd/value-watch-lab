@@ -77,12 +77,16 @@ def main():
     known = {entry.get("id") for entry in entries}
     added = 0
     failures = []
+    source_health = []
     for source in config.get("sources", []):
         if not source.get("enabled", False):
             continue
         try:
             root = fetch(source["feed_url"])
+            scanned = 0
+            matched = 0
             for item in items(root):
+                scanned += 1
                 published = parse_date(item["published"])
                 if not published or published > NOW or (NOW-published).days > 3:
                     continue
@@ -135,12 +139,16 @@ def main():
                 })
                 known.add(identifier)
                 added += 1
+                matched += 1
+            source_health.append({'publisher':source['publisher'],'status':'fetched','items_scanned':scanned,'new_observations':matched})
         except Exception as error:
             failures.append({"publisher":source.get("publisher", "unknown"), "error":str(error)[:160]})
+            source_health.append({"publisher":source.get("publisher", "unknown"), "status":"error", "error":str(error)[:160]})
     feed["entries"] = entries
     feed["last_collector_run_utc"] = NOW.isoformat()
     feed["collector_added"] = added
     feed["collector_errors"] = failures
+    feed["collector_source_health"] = source_health
     feed["coverage"] = "Partial configured public RSS sources; mentions require editorial review and do not prove consensus."
     OUT.write_text(json.dumps(feed, indent=2, ensure_ascii=False)+"\n")
     print(json.dumps({"added":added,"sources":len(config.get("sources",[])),"errors":failures}))
