@@ -49,3 +49,17 @@ const cachedOther=JSON.parse(fs.readFileSync('other-sports-data.json','utf8'));
 for(const part of Object.values(cachedOther.sports))for(const row of part.events||[])row.source_collected_at_utc='2026-11-01T00:00:00Z';
 const cachedRows=E.normalizeFeeds([{kind:'other',path:'other-sports-data.json',document:cachedOther}],now);
 assert(cachedRows.length>0);assert(cachedRows.every(row=>row.observedAt==='2026-11-01T00:00:00Z'&&!E.statusOf(row,now).selectable),'a refreshed collector cannot freshen an old cached schedule receipt');
+
+
+const footballData=JSON.parse(fs.readFileSync('football-expanded-data.json','utf8'));
+const footballEvents=E.normalizeFeeds([{kind:'football',path:'football-expanded-data.json',document:footballData}],Date.parse('2026-11-08T01:45:00Z'));
+const napoli=footballEvents.find(row=>row.name==='Napoli vs Lazio');
+assert(napoli?.model,'Napoli historical model should remain visible');
+const napoliReview=E.footballEvidenceReview(napoli);
+assert.equal(napoliReview.status,'REVIEW_REQUIRED');
+assert(napoliReview.notes.some(note=>note.includes('prior-season scoring')));
+assert(napoliReview.notes.some(note=>note.includes('four')||note.includes('4 recorded meetings')));
+assert(napoliReview.notes.some(note=>note.includes('not eligible')));
+assert.equal(napoliReview.actionable,false);
+assert.equal(napoliReview.verifiedMarketComparison,false);
+assert.equal(E.footballEvidenceReview(event(1,'tennis')),null);
