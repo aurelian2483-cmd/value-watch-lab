@@ -57,7 +57,7 @@ def collect_api(now=None, fetch_json=None):
   raise RuntimeError('HORSE_RACING_API_KEY missing: configure repository Actions secret; do not publish sample fixtures')
  if fetch_json is None:
   def fetch_json(url):
-   req=urllib.request.Request(url,headers={'Authorization':'Bearer '+key,'Accept':'application/json','User-Agent':'ValueWatchResearch/1.0'})
+   req=urllib.request.Request(url,headers={'X-API-Key':key,'Accept':'application/json','User-Agent':'ValueWatchResearch/1.0'})
    with urllib.request.urlopen(req,timeout=30) as response:
     if response.status!=200:raise ValueError('Racecard API HTTP '+str(response.status))
     return json.load(response)
