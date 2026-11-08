@@ -33,9 +33,9 @@ def parse_fixture_links(raw,dates,observed,base=FIXTURE_URL):
   if not any(x in urlparse(url).path for x in ("/racing/meeting/","/racing/racecards/","/racing/going/","/racing/fixtures/","/racecards/")):continue
   path=urlparse(url).path
   m=DATE_RE.search(path)
-  if path.startswith("/racing/meeting/") and not re.fullmatch(r"/racing/meeting/20\\d{2}-\\d{2}-\\d{2}/[a-z0-9-]+/\\d+",path):continue
+  if path.startswith("/racing/meeting/") and not re.fullmatch(r"/racing/meeting/20\d{2}-\d{2}-\d{2}/[a-z0-9-]+/\d+",path):continue
   if not m or m.group() not in dates:continue
-  meeting_match=re.fullmatch(r"/racing/meeting/(20\\d{2}-\\d{2}-\\d{2})/([a-z0-9-]+)/([0-9]+)",path)
+  meeting_match=re.fullmatch(r"/racing/meeting/(20\d{2}-\d{2}-\d{2})/([a-z0-9-]+)/([0-9]+)",path)
   if meeting_match:
    # The dated meeting URL supplies the course identity even when anchor text contains going details.
    course=meeting_match.group(2).replace("-"," ").title()
