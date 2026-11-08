@@ -123,10 +123,16 @@
   function futureRacing(document,path,now) {
     if(document.research_only!==true||document.publication_gate!=='BLOCKED'||document.model_validation!=='UNVALIDATED')return [];
     return list(document.races).map(row=>{
-      const source=sourceRows([{url:row.source,observed_at_utc:row.observedAtUTC}],row.observedAtUTC,path);
+      const url=row.source_url||row.source;
+      const observed=row.observation_timestamp_utc||row.observedAtUTC;
+      const start=row.scheduled_start_time_utc||row.startUTC;
       const id=String(row.race_id||'');
-      if(!id||!/^https:\/\/www\.sportinglife\.com\/racing\/racecards\//.test(row.source||''))return null;
-      return makeEvent({sport:'racing',identity:id,providerId:id,competition:str(row.racecourse),name:str(row.racecourse)+' · '+str(row.name),participants:[{id:'awaiting-1',name:'Declarations pending'},{id:'awaiting-2',name:'Runners not yet confirmed'}],startUTC:row.startUTC,observedAt:row.observedAtUTC,sources:source,choices:[{id:'awaiting-1',label:'Declarations pending',quote:null,probability:null,market:'No market'},{id:'awaiting-2',label:'Runners unconfirmed',quote:null,probability:null,market:'No market'}],extra:{futureScheduleOnly:true,fieldConfirmed:false,providerStatus:'SCHEDULE_ONLY',predictionStatus:{code:'DECLARATIONS_PENDING',label:'Race scheduled; runners and odds not verified'}}},now);
+      if(!id||typeof url!=='string'||!/^https:\/\/www\.(racingpost|sportinglife)\.com\/racecards?\//.test(url.replace('/racing/racecards/','/racecards/')))return null;
+      if(!Number.isFinite(instant(start))||!Number.isFinite(instant(observed))||instant(observed)>=instant(start))return null;
+      const source=sourceRows([{url,observed_at_utc:observed}],observed,path);
+      const venue=str(row.venue||row.racecourse);
+      const name=str(row.race_name||row.name);
+      return makeEvent({sport:'racing',identity:id,providerId:id,competition:venue,name:venue+' · '+name,participants:[{id:'awaiting-1',name:'Declarations not independently verified'},{id:'awaiting-2',name:'Runner list unavailable'}],startUTC:start,observedAt:observed,sources:source,choices:[{id:'awaiting-1',label:'Declarations unverified',quote:null,probability:null,market:'No market'},{id:'awaiting-2',label:'Runners unavailable',quote:null,probability:null,market:'No market'}],extra:{futureScheduleOnly:true,fieldConfirmed:false,providerStatus:'SCHEDULE_ONLY',declarationStageReported:str(row.declaration_stage),sourceVerification:'USER_SUPPLIED_UNVERIFIED',predictionStatus:{code:'DECLARATIONS_PENDING',label:'Reported schedule; declarations and odds not independently verified'}}},now);
     }).filter(Boolean);
   }
 
