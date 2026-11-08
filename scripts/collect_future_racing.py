@@ -6,6 +6,7 @@ import json
 import os
 import urllib.request
 from pathlib import Path
+from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 from discover_horse_races import discover, PageData
 from collections import Counter
@@ -128,8 +129,14 @@ def validate_publishable_snapshot(data):
   if meeting.get('record_type')!='MEETING_FIXTURE' or meeting.get('race_times_status')!='NOT_SUPPLIED' or meeting.get('declarations_status')!='NOT_VERIFIED':
    raise ValueError('Fixture status invalid')
   source=meeting.get('source_url')
-  if not isinstance(source,str) or not source.startswith('https://www.sportinglife.com/racing/meeting/'+meeting['date']+'/'):
-   raise ValueError('Fixture source URL is not an observed dated Sporting Life meeting')
+  if not isinstance(source,str):
+   raise ValueError('Fixture source URL missing')
+  parsed=urlparse(source)
+  approved={'www.sportinglife.com','www.racingpost.com','racingpost.com','www.attheraces.com'}
+  if parsed.scheme!='https' or parsed.hostname not in approved or not parsed.path.startswith('/'):
+   raise ValueError('Fixture source URL is not from an approved provider')
+  if parsed.hostname in ('www.sportinglife.com','www.racingpost.com','racingpost.com') and meeting['date'] not in parsed.path:
+   raise ValueError('Dated fixture URL does not match observed meeting date')
   if any(field in meeting for field in ('startUTC','runners','odds')):
    raise ValueError('Fixture contains unsupported race details')
  return True
