@@ -73,6 +73,9 @@ def main():
     config = json.loads(CONFIG.read_text())
     feed = json.loads(OUT.read_text())
     races = json.loads(RACES.read_text()).get("races", [])
+    # Never treat a successful feed fetch as a usable racing prediction when
+    # the saved racecard has no future races. Surface the missing upstream feed.
+    future_races = [race for race in races if (start := parse_date(race.get("startUTC"))) and NOW < start <= NOW + dt.timedelta(days=2)]
     entries = list(feed.get("entries", []))
     known = {entry.get("id") for entry in entries}
     added = 0
@@ -149,6 +152,11 @@ def main():
     feed["collector_added"] = added
     feed["collector_errors"] = failures
     feed["collector_source_health"] = source_health
+    feed["racecard_health"] = {
+        "future_races": len(future_races),
+        "status": "ready" if future_races else "stale_or_no_upcoming_races",
+        "message": "Upcoming racecards available" if future_races else "No future races in racing-research-data.json; refresh the upstream racecard snapshot before community tips can match."
+    }
     feed["coverage"] = "Partial configured public RSS sources; mentions require editorial review and do not prove consensus."
     OUT.write_text(json.dumps(feed, indent=2, ensure_ascii=False)+"\n")
     print(json.dumps({"added":added,"sources":len(config.get("sources",[])),"errors":failures}))
