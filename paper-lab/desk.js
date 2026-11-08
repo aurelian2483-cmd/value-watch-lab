@@ -6,7 +6,7 @@
   const rootURL = new URL('../', document.currentScript.src);
   const sports = { all: 'All sports', football: 'Football', racing: 'Horse racing', tennis: 'Tennis', nfl: 'NFL' };
   const symbols = { football: '⚽', racing: '♞', tennis: '◉', nfl: '◆' };
-  const sources = { 'research-dashboard-data.json': ['football', 'Premier League'], 'football-expanded-data.json': ['football', 'Football leagues'], 'racing-research-data.json': ['racing', 'Racecards & source prices'], 'other-sports-data.json': ['other', 'Tennis & NFL'], 'research-history.json': ['history', 'Historical results'] };
+  const sources = { 'research-dashboard-data.json': ['football', 'Premier League'], 'football-expanded-data.json': ['football', 'Football leagues'], 'racing-research-data.json': ['racing', 'Racecards & source prices'], 'horse-predictions-data.json': ['racing-context', 'Racing model predictions'], 'other-sports-data.json': ['other', 'Tennis & NFL'], 'research-history.json': ['history', 'Historical results'] };
   const specs = Object.entries(sources).map(([file, [kind]]) => ({ kind, path: new URL(file, rootURL).pathname }));
   const key = 'value-watch-research-desk-v4';
   const day = E.day, today = () => day(new Date().toISOString());
@@ -106,6 +106,7 @@
     const header = make(article, 'div', undefined, 'event-card-header');
     const meta = make(header, 'span', '', 'event-meta'), time = make(header, 'time', '', 'event-time'), title = make(article, 'h3', '', 'event-title');
     const status = make(article, 'span', '', 'event-status'), conditions = make(article, 'p', '', 'event-conditions');
+    const prediction = make(article, 'div', '', 'prediction-summary'); prediction.setAttribute('aria-live', 'polite');
     const market = make(article, 'div', undefined, 'market-grid'), explanation = make(article, 'p', '', 'market-explanation');
     const tools = make(article, 'div', undefined, 'event-tools');
     const check = link(tools, 'Check prices on Oddschecker ↗', 'https://www.oddschecker.com/');
@@ -124,7 +125,7 @@
       const b = button(tabs, label, () => loadStats(id, tab, panel, buttons)); b.dataset.statsTab = tab; b.setAttribute('aria-pressed', 'false'); buttons.set(tab, b);
     }
     evidence.addEventListener('toggle', () => { if (evidence.open && (!panel.dataset.loaded || panel.dataset.pending === 'true')) safely(() => loadStats(id, preferredStats(store.get().events.find(event => event.id === id)), panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
-    return { node: article, meta, time, title, status, conditions, market, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
+    return { node: article, meta, time, title, status, conditions, prediction, market, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
   }
   function preferredStats(event) { return event?.stats?.h2h ? 'h2h' : Array.isArray(event?.stats?.recent) && event.stats.recent.length ? 'recent' : event?.stats?.rankings ? 'rankings' : 'sources'; }
   function patchCard(record, event) {
@@ -133,30 +134,37 @@
     write(record.meta, symbols[event.sport] + ' ' + event.competition); write(record.time, dateText(event.startUTC)); record.time.dateTime = event.startUTC; write(record.title, event.name);
     write(record.status, status.label); record.status.className = 'event-status ' + (status.selectable ? 'is-current' : status.code === 'STARTED' ? '' : 'is-warning');
     const conditions = event.stats?.conditions; write(record.conditions, conditions ? [conditions.distance, conditions.going, conditions.raceClass && 'Class ' + conditions.raceClass].filter(Boolean).join(' · ') : event.choices[0]?.market || 'Research outcome');
-    const structural = JSON.stringify([status.code === 'STARTED', event.choices.map(choice => [choice.id, choice.label])]);
+    const leaders = E.modelLeaders(event), ordered = event.sport === 'racing' ? [...leaders.map(leader => event.choices.find(choice => choice.id === leader.id)), ...event.choices.filter(choice => !leaders.some(leader => leader.id === choice.id))] : event.choices;
+    const structural = JSON.stringify([status.code === 'STARTED', ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id)]);
     if (record.structural !== structural) {
       record.structural = structural; record.market.replaceChildren(); record.choices.clear();
       if (status.code === 'STARTED') make(record.market, 'span', event.score?.label ? 'Recorded final: ' + event.score.label : 'Event has started or finished · additions closed', 'archived-status');
       else {
-        const shown = event.sport === 'racing' && event.choices.length > 6 ? event.choices.slice(0, 5) : event.choices;
-        const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), odds = make(b, 'small', '', 'selection-odds'); record.choices.set(choice.id, { element: b, name, price, caption, odds, previous: null }); };
+        const shown = event.sport === 'racing' && ordered.length > 6 ? ordered.slice(0, 5) : ordered;
+        const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), odds = make(b, 'small', '', 'selection-odds'); record.choices.set(choice.id, { element: b, modelBadge, name, price, caption, odds, previous: null }); };
         for (const choice of shown) append(record.market, choice);
-        if (shown.length < event.choices.length) { const rest = details(record.market, 'Show all ' + event.choices.length + ' runners', 'runner-disclosure'); const grid = make(rest, 'div', undefined, 'market-grid'); for (const choice of event.choices.slice(shown.length)) append(grid, choice); }
+        if (shown.length < event.choices.length) { const rest = details(record.market, 'Show all ' + event.choices.length + ' runners', 'runner-disclosure'); const grid = make(rest, 'div', undefined, 'market-grid'); for (const choice of ordered.slice(shown.length)) append(grid, choice); }
       }
     }
     for (const choice of event.choices) {
       const view = record.choices.get(choice.id); if (!view) continue;
       const chosen = selected.some(leg => leg.eventId === event.id && leg.choiceId === choice.id), priced = typeof choice.quote?.decimal === 'number';
       const estimated = event.model && typeof choice.probability === 'number';
+      const contextWeight = event.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT';
       const value = estimated ? pct(choice.probability) : priced ? choice.quote.decimal.toFixed(2) : 'No estimate';
-      write(view.price, value); write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (estimated ? 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
-      write(view.odds, priced ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker odds not connected');
+      write(view.price, value); write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
+      write(view.odds, priced ? estimated ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : 'Bookmaker odds not connected');
+      const leader = leaders.find(leader => leader.id === choice.id);
+      view.modelBadge.hidden = !leader; write(view.modelBadge, leader?.rank === 1 ? 'MODEL FIRST CHOICE' : 'MODEL ALTERNATIVE');
+      view.element.classList.toggle('is-model-first', leader?.rank === 1); view.element.classList.toggle('is-model-alternative', leader?.rank === 2);
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
-      view.element.setAttribute('aria-label', choice.label + ' · ' + value + ' · ' + (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name);
+      view.element.setAttribute('aria-label', choice.label + ' · ' + (leader ? leader.rank === 1 ? 'model first choice · ' : 'model alternative · ' : '') + value + (contextWeight ? ' context weight' : estimated ? ' model estimate' : ' source odds') + ' · ' + (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name);
       if (priced && view.previous !== null && view.previous !== choice.quote.decimal) { view.element.classList.remove('odds-up', 'odds-down'); view.element.classList.add(choice.quote.decimal > view.previous ? 'odds-up' : 'odds-down'); }
       view.previous = priced ? choice.quote.decimal : null;
     }
     if (record.matchView.open) renderMatchOverview(record.matchPanel, event);
+    record.prediction.hidden = !event.model && event.sport !== 'racing';
+    write(record.prediction, leaders.length ? leaders.map(leader => (leader.rank === 1 ? 'Model first choice: ' : 'Alternative: ') + event.choices.find(choice => choice.id === leader.id).label).join(' · ') + (event.model.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' · experimental form ranking, not calibrated win chances' : ' · experimental model ranking') : event.model ? 'Model estimates are tied or no longer current; no distinct current first choice.' : 'No model selection: ' + (event.predictionStatus?.label || 'Model inputs unavailable.'));
     const notes = state.claims.filter(note => note.eventId === event.id);
     record.notes.hidden = !notes.length;
     const noteSignature = JSON.stringify(notes);
@@ -172,9 +180,11 @@
       if (event.model) for (const choice of event.choices) {
         const row = make(record.modelPanel, 'div', undefined, 'stat-row'); make(row, 'span', choice.label); make(row, 'strong', pct(choice.probability));
       }
+      if (event.model?.limitation) make(record.modelPanel, 'p', event.model.limitation, 'small');
+      if (event.model?.recordHash) make(record.modelPanel, 'code', event.model.recordHash, 'source-digest');
       make(record.modelPanel, 'p', event.model ? 'Model ' + event.model.name + ' · UNVALIDATED · uncertainty unquantified. Percentages are estimates, not prices or verified value.' : 'No supported model estimate supplied.', 'small');
     }
-    write(record.explanation, event.model ? 'Experimental estimate · uncertainty unquantified · no verified EV' : event.sources.some(source => source.url) ? 'Source-observed event · no supported model estimate' : 'Paper hypothesis · event-level receipt unavailable');
+    write(record.explanation, event.model ? event.model.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? 'Experimental context weights · not calibrated win probabilities · no verified EV' : 'Experimental estimate · uncertainty unquantified · no verified EV' : event.sources.some(source => source.url) ? 'Source-observed event · no supported model estimate' : 'Paper hypothesis · event-level receipt unavailable');
   }
   async function loadStats(id, tab, panel, buttons) {
     statsRequests.get(id)?.abort(); const controller = new AbortController(); statsRequests.set(id, controller);
@@ -275,7 +285,7 @@
     button(top, '×', () => savePlan(E.removeSelection(store.get().plan, slot.id, leg.id)), 'remove-button').setAttribute('aria-label', 'Remove ' + leg.label);
     make(record.node, 'p', symbols[leg.sport] + ' ' + leg.event, 'slip-selection-meta'); make(record.node, 'p', dateText(leg.startUTC) + ' · ' + leg.market, 'slip-selection-meta');
     const state = E.statusOf(store.get().events.find(event => event.id === leg.eventId));
-    make(record.node, 'span', !leg.currentStatus?.selectable ? leg.currentStatus?.label || state.label : leg.quote?.decimal ? leg.quote.decimal.toFixed(2) + ' · unverified source price' : (typeof leg.probability === 'number' ? pct(leg.probability) + ' model win estimate · UNVALIDATED · odds not connected' : 'No model estimate · odds not connected'), 'leg-state' + (!leg.currentStatus?.selectable ? ' is-warning' : ''));
+    make(record.node, 'span', !leg.currentStatus?.selectable ? leg.currentStatus?.label || state.label : leg.quote?.decimal ? leg.quote.decimal.toFixed(2) + ' · unverified source price' : (typeof leg.probability === 'number' ? pct(leg.probability) + (leg.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' context weight' : ' model win estimate') + ' · UNVALIDATED · odds not connected' : 'No model estimate · odds not connected'), 'leg-state' + (!leg.currentStatus?.selectable ? ' is-warning' : ''));
     if (day(leg.startUTC) < store.get().plan.from || day(leg.startUTC) > store.get().plan.to) make(record.node, 'p', 'Outside your selected dates · original selection retained', 'warning-line');
     const actions = make(record.node, 'div', undefined, 'selection-actions');
     const up = button(actions, '↑', () => savePlan(E.moveSelection(store.get().plan, slot.id, leg.id, position - 1)), 'move-button'); up.disabled = position === 0; up.setAttribute('aria-label', 'Move ' + leg.label + ' up');

@@ -1,10 +1,10 @@
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core.js'), require('../research-audit-core.js'));
+    module.exports = factory(require('./core.js'), require('../research-audit-core.js'), require('../racecards-core.js'));
   } else {
-    root.ResearchEngine = factory(root.PaperLab, root.ResearchAudit);
+    root.ResearchEngine = factory(root.PaperLab, root.ResearchAudit, root.RaceCards);
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (Core, Audit) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (Core, Audit, Cards) {
   'use strict';
 
   const GATES = Object.freeze({ research_only: true, model_validation: 'UNVALIDATED', publication_gate: 'BLOCKED' });
@@ -85,19 +85,22 @@
     }).filter(Boolean);
   }
 
-  function racing(document, path, now) {
+  function racing(document, path, now, contextFeed) {
     return list(document.races).map(row => {
       const runners = list(row?.runners), active = runners.filter(horse => horse.active_runner === true && horse.runner_status === 'RUNNER');
       const observedAt = row.runner_observed_at_utc || row.observedAtUTC || document.generated_at_utc;
-      const sources = sourceRows([{ url: row.runner_source || row.source, observed_at_utc: observedAt, sha256: row.runner_source_sha256 }], observedAt, path);
+      const sources = sourceRows([{ url: row.runner_source || row.source, observed_at_utc: observedAt, sha256: row.runner_source_sha256 }, ...(row.going_basis === 'SECOND_PUBLISHER_STRUCTURED_GOING' && row.secondary_going_receipt ? [row.secondary_going_receipt] : [])], observedAt, path);
+      const checked = Cards.contextForecast(row, contextFeed, now);
+      const forecast = checked.valid && checked.fresh ? checked.record : null;
       const choices = active.map(horse => {
         const quote = Core.quote({ sport: 'racing', raw: row }, String(horse.horse_id), now);
-        return { id: String(horse.horse_id), label: str(horse.name), probability: null, uncertainty: null, market: 'Win', quote: quote.decimal === null ? null : { decimal: quote.decimal, source: quote.source, observedAt: quote.observed, bookmaker: quote.bookmaker, status: quote.status, executable: false } };
+        return { id: String(horse.horse_id), label: str(horse.name), probability: forecast?.runners.find(runner => String(runner.horse_id) === String(horse.horse_id))?.model_probability ?? null, uncertainty: null, market: 'Win', quote: quote.decimal === null ? null : { decimal: quote.decimal, source: quote.source, observedAt: quote.observed, bookmaker: quote.bookmaker, status: quote.status, executable: false } };
       });
       const recent = active.map(horse => ({ participantId: String(horse.horse_id), name: str(horse.name), runs: list(horse.previous_results).filter(run => /^\d{4}-\d{2}-\d{2}$/.test(run.date || '') && run.date < Core.day(row.startUTC) && run.date <= Core.day(observedAt)).slice(0, 10).map(run => ({ date: run.date, course: str(run.course_name), position: Number.isSafeInteger(run.position) ? run.position : null, runnerCount: Number.isSafeInteger(run.runner_count) ? run.runner_count : null, finishStatus: str(run.finish_status), going: str(run.going), distance: str(run.distance) })) }));
       return makeEvent({ sport: 'racing', identity: String(row.race_id), providerId: row.race_id, competition: str(row.racecourse), name: str(row.racecourse) + ' · ' + str(row.name), participants: active.map(horse => ({ id: String(horse.horse_id), name: str(horse.name) })), startUTC: row.startUTC, observedAt, sources, choices,
+        model: forecast ? { name: forecast.model, validation: 'UNVALIDATED', probabilityKind: 'EXPERIMENTAL_CONTEXT_WEIGHT', observedAt: forecast.generated_at_utc, recordHash: forecast.record_sha256, limitation: forecast.limitation || contextFeed.limitations?.[0] || 'Untrained context-weighted form heuristic; not calibrated win probabilities.', discipline: forecast.run_type } : null,
         stats: { h2h: null, recent, rankings: null, conditions: { going: str(row.going), distance: str(row.distance), surface: str(row.surface), raceClass: str(row.race_class), discipline: str(row.run_type), disciplineBasis: str(row.run_type_basis) } },
-        extra: { providerStatus: str(row.race_stage), fieldConfirmed: row.runner_data_status === 'SINGLE_SOURCE_RUNNERS_OBSERVED' && active.length >= 2 && active.length === row.active_runner_count && new Set(runners.map(horse => String(horse.horse_id))).size === runners.length && runners.every(horse => ['RUNNER', 'NONRUNNER', 'WITHDRAWN'].includes(horse.runner_status) && horse.active_runner === (horse.runner_status === 'RUNNER')), withdrawn: runners.filter(horse => !horse.active_runner).map(horse => ({ id: String(horse.horse_id), name: str(horse.name), status: str(horse.runner_status) })) }
+        extra: { predictionStatus: { code: forecast ? 'CURRENT_MODEL' : checked.reason || 'MODEL_UNAVAILABLE', label: forecast ? 'Current experimental context forecast' : checked.label }, providerStatus: str(row.race_stage), fieldConfirmed: row.runner_data_status === 'SINGLE_SOURCE_RUNNERS_OBSERVED' && active.length >= 2 && active.length === row.active_runner_count && new Set(runners.map(horse => String(horse.horse_id))).size === runners.length && runners.every(horse => ['RUNNER', 'NONRUNNER', 'WITHDRAWN'].includes(horse.runner_status) && horse.active_runner === (horse.runner_status === 'RUNNER')), withdrawn: runners.filter(horse => !horse.active_runner).map(horse => ({ id: String(horse.horse_id), name: str(horse.name), status: str(horse.runner_status) })) }
       }, now);
     }).filter(Boolean);
   }
@@ -142,7 +145,9 @@
   }
 
   function normalizeFeeds(documents, now = Date.now()) {
-    const adapters = { football, racing, other: otherSports, history: historical };
+    const adapters = { football, racing, other: otherSports, history: historical, 'racing-context': () => [] };
+    const contexts = list(documents).filter(item => item?.kind === 'racing-context' && Core.safe(item.document) && instant(item.document.generated_at_utc) <= now);
+    const contextFeed = contexts.length === 1 ? contexts[0].document : null;
     const index = new Map(), diagnostics = [];
     for (const item of list(documents)) {
       const document = item?.document;
@@ -150,7 +155,7 @@
         diagnostics.push({ path: str(item?.path), reason: 'Unsupported, unsafe or future-dated snapshot' }); continue;
       }
       try {
-        for (const event of adapters[item.kind](document, item.path, now)) {
+        for (const event of adapters[item.kind](document, item.path, now, contextFeed)) {
           const previous = index.get(event.id);
           if (previous && instant(previous.observedAt) === instant(event.observedAt) && key(previous.choices.map(c => [c.id, c.label])) !== key(event.choices.map(c => [c.id, c.label]))) { previous.identityConflict = true; previous.status = statusOf(previous, now); continue; }
           if (!previous || instant(event.observedAt) > instant(previous.observedAt) || (instant(event.observedAt) === instant(previous.observedAt) && event.sources.filter(s => s.url).length > previous.sources.filter(s => s.url).length)) index.set(event.id, event);
@@ -390,6 +395,16 @@
     return { ...snapshot, savedAt: new Date(now).toISOString(), recordType: 'LOCAL_PAPER_RESEARCH', independentlyAttested: false, settlementStatus: 'NOT_CONNECTED', roi: null, evaluations: snapshot.slots.map(slot => evaluateSlot(slot, events, now)), ...GATES };
   }
 
+  function modelLeaders(event, now = Date.now()) {
+    if (!event?.model || !statusOf(event, now).selectable || !vector(list(event.choices).map(choice => choice.probability))) return [];
+    const ordered = [...event.choices].sort((a, b) => b.probability - a.probability || a.id.localeCompare(b.id));
+    const equal = (a, b) => Math.abs(a.probability - b.probability) < 1e-10;
+    if (ordered.length > 1 && equal(ordered[0], ordered[1])) return [];
+    const leaders = [{ id: ordered[0].id, rank: 1, probability: ordered[0].probability }];
+    if (ordered.length === 2 || !equal(ordered[1], ordered[2])) leaders.push({ id: ordered[1].id, rank: 2, probability: ordered[1].probability });
+    return leaders;
+  }
+
   function candidateAssessment(event, choiceId, now = Date.now()) {
     const choice = event?.choices.find(item => item.id === choiceId), state = statusOf(event, now);
     const blockers = [];
@@ -412,5 +427,5 @@
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });
