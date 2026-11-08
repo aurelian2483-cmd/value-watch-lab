@@ -100,6 +100,23 @@ def main():
                 # Explicit recommendation phrasing is mandatory.
                 if not re.search(r"\b(tip|selection|nap|pick|fancy|backing)\b", text, re.I):
                     continue
+                # A direct, named headline selection can be linked without a
+                # course mention only when it uniquely identifies a single
+                # runner across the entire upcoming card for that date.
+                # General articles and descriptions still require the course.
+                title = item["title"]
+                headline_candidates = []
+                for candidate_race in future_races:
+                    start_candidate = parse_date(candidate_race.get("startUTC"))
+                    if start_candidate.date() != published.date() or published >= start_candidate:
+                        continue
+                    for runner in candidate_race.get("runners", []):
+                        if runner.get("active_runner") is not True or runner.get("runner_status") != "RUNNER":
+                            continue
+                        name = runner.get("name", "")
+                        if name and (re.search(r"\\b(?:tip|nap|pick|selection)\\s*[:–-]\\s*" + re.escape(name) + r"\\b", title, re.I)
+                                     or re.search(re.escape(name) + r"\\s*[:–-]\\s*(?:tip|nap|pick|selection)\\b", title, re.I)):
+                            headline_candidates.append((candidate_race, runner))
                 matches = []
                 for race in races:
                     start = parse_date(race.get("startUTC"))
@@ -115,7 +132,12 @@ def main():
                     if len(runners) == 1:
                         matches.append((race, runners[0]))
                 if len(matches) != 1:
-                    continue
+                    # A uniquely named explicit headline pick is independently
+                    # attributable even if the article omits the course name.
+                    if len(matches) == 0 and len(headline_candidates) == 1:
+                        matches = headline_candidates
+                    else:
+                        continue
                 race, horse = matches[0]
                 import hashlib
                 identifier = "rss-" + hashlib.sha256((source["feed_url"]+"|"+url+"|"+str(race["race_id"])).encode()).hexdigest()[:24]
