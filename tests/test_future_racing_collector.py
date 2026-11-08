@@ -3,6 +3,7 @@ import json
 import importlib.util
 import pathlib
 import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -120,6 +121,26 @@ class FutureRacingTests(unittest.TestCase):
             module.validate_publishable_snapshot({**data,'days':days[:-1]+[{'date':'2026-11-99'}]})
         with self.assertRaises(ValueError):
             module.validate_publishable_snapshot({**data,'days':days[:-1]+[days[0]]})
+
+    def test_snapshot_write_keeps_previous_file_when_validation_fails(self):
+        days=[{'date':'2026-11-%02d'%i} for i in range(9,16)]
+        fixture={'date':'2026-11-09','course':'Carlisle',
+                 'source_url':'https://www.sportinglife.com/racing/meeting/2026-11-09/carlisle/122465',
+                 'record_type':'MEETING_FIXTURE','race_times_status':'NOT_SUPPLIED',
+                 'declarations_status':'NOT_VERIFIED'}
+        data={'schema_version':1,'research_only':True,'publication_gate':'BLOCKED',
+              'model_validation':'UNVALIDATED','fixture_source_status':'SOURCE_OBSERVED',
+              'days':days,'races':[],'fixture_meetings':[fixture]}
+        with tempfile.TemporaryDirectory() as tmp:
+            target=pathlib.Path(tmp)/'racing-future-data.json'
+            target.write_text('previous-good-snapshot')
+            module.write_validated_snapshot(data,target)
+            published=json.loads(target.read_text())
+            self.assertEqual(published['fixture_meetings'][0]['course'],'Carlisle')
+            previous=target.read_text()
+            with self.assertRaises(ValueError):
+                module.write_validated_snapshot({**data,'publication_gate':'OPEN'},target)
+            self.assertEqual(target.read_text(),previous)
 
 if __name__=='__main__':
     unittest.main()
