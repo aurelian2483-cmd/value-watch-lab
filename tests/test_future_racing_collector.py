@@ -141,6 +141,12 @@ class FutureRacingTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 module.write_validated_snapshot({**data,'publication_gate':'OPEN'},target)
             self.assertEqual(target.read_text(),previous)
+            self.assertEqual(list(pathlib.Path(tmp).glob('*.tmp')),[])
+            with patch.object(module.os,'replace',side_effect=OSError('simulated interrupted replacement')):
+                with self.assertRaises(OSError):
+                    module.write_validated_snapshot(data,target)
+            self.assertEqual(target.read_text(),previous)
+            self.assertEqual(list(pathlib.Path(tmp).glob('*.tmp')),[])
 
 if __name__=='__main__':
     unittest.main()
