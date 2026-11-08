@@ -41,6 +41,7 @@ def collect(fetch=None, now=None):
 
 if __name__=='__main__':
  data=collect()
+ print(json.dumps({'generated_at_utc':data['generated_at_utc'],'races_discovered':len(data['races']),'daily_source_results':data['days']},indent=2),flush=True)
  if len(data['days'])!=7 or any(day['status']=='COLLECTION_FAILED' for day in data['days']) or not data['races']:
   raise SystemExit('Incomplete seven-day source collection: preserving existing published snapshot')
  OUT.write_text(json.dumps(data,indent=2)+'\n')
