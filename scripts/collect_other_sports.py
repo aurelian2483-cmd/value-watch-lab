@@ -219,6 +219,30 @@ def tennis_schedule(tour, now, ratings, counts, history):
             [{'id': event_id, 'reason': 'CONFLICTING_DAILY_SCHEDULE_OBSERVATIONS'} for event_id in sorted(conflicts)])
 
 
+def tennis_tournament_coverage(now):
+    """Source-observed tournament names by UK day, even if no singles draw is published."""
+    days = {}
+    for tour in ('atp', 'wta'):
+        for day, path in tennis_schedule_paths(tour, now):
+            date = day.isoformat()
+            bucket = days.setdefault(date, {'date': date, 'tournaments': [], 'draw_status': 'NO_CONFIRMED_MATCHES_IN_SOURCE'})
+            try:
+                doc = fetch(path)
+                if not isinstance(doc, dict) or not isinstance(doc.get('events'), list):
+                    raise ValueError('Missing source events')
+                for event in doc['events']:
+                    name = event.get('name')
+                    if not isinstance(name, str) or not name.strip():
+                        continue
+                    item = {'tour': tour.upper(), 'name': name.strip(),
+                            'source_url': BASE + path, 'verification': 'SOURCE_OBSERVED_TOURNAMENT_ONLY',
+                            'matchup_status': 'DRAW_OR_MATCHUP_NOT_CONFIRMED'}
+                    if item not in bucket['tournaments']:
+                        bucket['tournaments'].append(item)
+            except Exception as exc:
+                bucket.setdefault('source_errors', []).append(tour.upper()+': '+type(exc).__name__)
+    return [days[day] for day in sorted(days)]
+
 def tennis():
     histories = {'atp': [], 'wta': []}
     paths = []
@@ -243,9 +267,10 @@ def tennis():
         rows.extend(schedule)
         conflicts.extend(rejected)
     schedule_days = tennis_schedule_paths('atp', NOW)
+    tournament_days = tennis_tournament_coverage(NOW)
     return {'generated_at_utc': stamp(NOW), 'events': sorted(rows, key=lambda e: e['startUTC']),
             'schedule_window_uk': [schedule_days[0][0].isoformat(), schedule_days[-1][0].isoformat()],
-            'schedule_days_requested': 7, 'schedule_coverage': 'SOURCE_OBSERVED_NOT_COMPLETE_EXTERNAL_COVERAGE',
+            'schedule_days_requested': 7, 'tournament_schedule_days': tournament_days, 'schedule_coverage': 'SOURCE_OBSERVED_NOT_COMPLETE_EXTERNAL_COVERAGE',
             'schedule_conflicts': conflicts,
             'limitations': 'Seven UK calendar days requested from existing daily ATP/WTA scoreboards; future draws and confirmed participants may not yet be published. Conflicting repeated schedule observations are withheld. Fixed Elo baseline, separate ATP/WTA histories from January of the current year (history resets each January; early-year coverage can be insufficient). No surface, fitness, retirement or fatigue model. Scheduled times can move. Historical results are not a verified backtest.'}
 
