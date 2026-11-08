@@ -100,17 +100,21 @@ def main():
             matched = 0
             explicit_matches = 0
             review_matches = 0
+            reasons = {'invalid_date':0,'invalid_link':0,'no_tip_language':0,'no_runner_match':0,'already_recorded':0,'after_start':0}
             for item in items(root):
                 scanned += 1
                 published = parse_date(item["published"])
                 if not published or published > NOW or (NOW-published).days > 3:
+                    reasons["invalid_date"] += 1
                     continue
                 url = item["link"]
                 if urllib.parse.urlsplit(url).scheme != "https":
+                    reasons["invalid_link"] += 1
                     continue
                 text = item["title"] + " " + re.sub(r"<[^>]*>", " ", item["description"])
                 # Explicit recommendation phrasing is mandatory.
                 if not re.search(r"\b(tip|selection|nap|pick|fancy|backing)\b", text, re.I):
+                    reasons["no_tip_language"] += 1
                     continue
                 # A direct, named headline selection can be linked without a
                 # course mention only when it uniquely identifies a single
@@ -148,6 +152,7 @@ def main():
                 if len(headline_candidates) == 1:
                     matches = headline_candidates
                 elif len(headline_candidates) > 1 or len(matches) != 1:
+                    reasons["no_runner_match"] += 1
                     continue
                 race, horse = matches[0]
                 # Publication and first observation must both precede the
@@ -155,10 +160,12 @@ def main():
                 # runner or the upstream racecard is stale.
                 race_start = parse_date(race.get("startUTC"))
                 if not race_start or not (published <= NOW < race_start):
+                    reasons["after_start"] += 1
                     continue
                 import hashlib
                 identifier = "rss-" + hashlib.sha256((source["feed_url"]+"|"+url+"|"+str(race["race_id"])).encode()).hexdigest()[:24]
                 if identifier in known:
+                    reasons["already_recorded"] += 1
                     continue
                 # Only a direct headline selection is eligible for an automatic,
                 # explicitly UNVERIFIED experimental blue signal. A mere mention
@@ -182,7 +189,7 @@ def main():
                     explicit_matches += 1
                 else:
                     review_matches += 1
-            source_health.append({'publisher':source['publisher'],'status':'fetched','items_scanned':scanned,'new_observations':matched,'explicit_tip_observations':explicit_matches,'review_only_mentions':review_matches})
+            source_health.append({'publisher':source['publisher'],'status':'fetched','items_scanned':scanned,'new_observations':matched,'explicit_tip_observations':explicit_matches,'review_only_mentions':review_matches,'skip_reasons':reasons})
         except Exception as error:
             failures.append({"publisher":source.get("publisher", "unknown"), "error":str(error)[:160]})
             source_health.append({"publisher":source.get("publisher", "unknown"), "status":"error", "error":str(error)[:160]})
