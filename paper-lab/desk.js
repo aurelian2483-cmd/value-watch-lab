@@ -129,8 +129,18 @@
       add(supported[0].choice,'Community consensus','Independent source domains: '+supported[0].sources.size);
     else if (consensus.size) {
       const rankedCommunity = [...consensus.values()].sort((a,b)=>b.sources.size-a.sources.size || a.choice.id.localeCompare(b.choice.id));
-      if (rankedCommunity.length===1 || rankedCommunity[0].sources.size>rankedCommunity[1].sources.size)
-        add(rankedCommunity[0].choice,'Community experimental','Limited community evidence: '+rankedCommunity[0].sources.size+' independent source domain(s); unvalidated');
+      // When sources disagree equally, choose an explicitly labelled paper-only
+      // candidate using observed odds as a deterministic tie-breaker. Preserve
+      // both conflicting source records; never mislabel this as consensus.
+      const bestCount = rankedCommunity[0].sources.size;
+      const tied = rankedCommunity.filter(item=>item.sources.size===bestCount);
+      const rankedTied = tied.sort((a,b)=>{
+        const ao=Number.isFinite(a.choice.quote?.decimal)?a.choice.quote.decimal:Infinity;
+        const bo=Number.isFinite(b.choice.quote?.decimal)?b.choice.quote.decimal:Infinity;
+        return ao-bo || a.choice.id.localeCompare(b.choice.id);
+      });
+      if (rankedTied.length===1 || (Number.isFinite(rankedTied[0].choice.quote?.decimal) && rankedTied[0].choice.quote.decimal < (rankedTied[1].choice.quote?.decimal ?? Infinity)))
+        add(rankedTied[0].choice,'Community experimental',tied.length>1?'Conflicting community tips; observed-odds tie-breaker, not consensus':'Limited community evidence: '+bestCount+' independent source domain(s); unvalidated');
     }
     const ranked = event.choices.filter(choice => Number.isFinite(choice.quote?.decimal) && choice.quote.decimal > 1)
       .sort((a,b) => a.quote.decimal - b.quote.decimal || a.id.localeCompare(b.id));
