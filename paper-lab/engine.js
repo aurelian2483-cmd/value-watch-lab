@@ -120,6 +120,16 @@
     }).filter(Boolean);
   }
 
+  function futureRacing(document,path,now) {
+    if(document.research_only!==true||document.publication_gate!=='BLOCKED'||document.model_validation!=='UNVALIDATED')return [];
+    return list(document.races).map(row=>{
+      const source=sourceRows([{url:row.source,observed_at_utc:row.observedAtUTC}],row.observedAtUTC,path);
+      const id=String(row.race_id||'');
+      if(!id||!/^https:\/\/www\.sportinglife\.com\/racing\/racecards\//.test(row.source||''))return null;
+      return makeEvent({sport:'racing',identity:id,providerId:id,competition:str(row.racecourse),name:str(row.racecourse)+' · '+str(row.name),participants:[{id:'awaiting-1',name:'Declarations pending'},{id:'awaiting-2',name:'Runners not yet confirmed'}],startUTC:row.startUTC,observedAt:row.observedAtUTC,sources:source,choices:[{id:'awaiting-1',label:'Declarations pending',quote:null,probability:null,market:'No market'},{id:'awaiting-2',label:'Runners unconfirmed',quote:null,probability:null,market:'No market'}],extra:{futureScheduleOnly:true,fieldConfirmed:false,providerStatus:'SCHEDULE_ONLY',predictionStatus:{code:'DECLARATIONS_PENDING',label:'Race scheduled; runners and odds not verified'}}},now);
+    }).filter(Boolean);
+  }
+
   function otherSports(document, path, now) {
     return Object.entries(document.sports || {}).filter(([sport]) => ['tennis', 'nfl'].includes(sport)).flatMap(([sport, part]) => list(part.events).map(row => {
       const participants = list(row.participants).map(p => ({ id: String(p.id), name: str(p.name) }));
@@ -160,7 +170,7 @@
   }
 
   function normalizeFeeds(documents, now = Date.now()) {
-    const adapters = { football, racing, other: otherSports, history: historical, 'racing-context': () => [] };
+    const adapters = { football, racing, other: otherSports, history: historical, 'racing-context': () => [],'racing-future':futureRacing };
     const contexts = list(documents).filter(item => item?.kind === 'racing-context' && Core.safe(item.document) && instant(item.document.generated_at_utc) <= now);
     const contextFeed = contexts.length === 1 ? contexts[0].document : null;
     const index = new Map(), diagnostics = [];
