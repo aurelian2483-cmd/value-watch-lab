@@ -17,10 +17,10 @@ SPEC.loader.exec_module(collector)
 UTC=dt.timezone.utc
 
 class CollectorIntegration(unittest.TestCase):
-    def run_case(self, title, expected):
+    def run_case(self, title, expected, published='Sun, 08 Nov 2026 11:00:00 GMT'):
         now=dt.datetime(2026,11,8,12,0,tzinfo=UTC)
         start=now+dt.timedelta(hours=2)
-        xml=f"""<rss><channel><item><title>{title}</title><description>Naas racing preview</description><link>https://example.org/tip/123</link><pubDate>Sun, 08 Nov 2026 11:00:00 GMT</pubDate></item></channel></rss>"""
+        xml=f"""<rss><channel><item><title>{title}</title><description>Naas racing preview</description><link>https://example.org/tip/123</link><pubDate>{published}</pubDate></item></channel></rss>"""
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder)
             (root/"feeds.json").write_text(json.dumps({"sources":[{"publisher":"Test Tipster","type":"tipster","feed_url":"https://example.org/feed","enabled":True}]}))
@@ -44,6 +44,9 @@ class CollectorIntegration(unittest.TestCase):
 
     def test_preview_is_not_promoted_to_blue(self):
         self.run_case("Naas racing preview: The Mourne Rambler",0)
+
+    def test_previous_day_explicit_tip_is_archived(self):
+        self.run_case("NAP: The Mourne Rambler",1,published='Sat, 07 Nov 2026 21:00:00 GMT')
 
 if __name__=="__main__":
     unittest.main()
