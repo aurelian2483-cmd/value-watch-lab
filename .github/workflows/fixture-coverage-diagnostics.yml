@@ -1,0 +1,51 @@
+name: Football and tennis seven-day diagnostic
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'football-expanded-data.json'
+      - 'research-dashboard-data.json'
+      - 'other-sports-data.json'
+      - 'paper-lab/engine.js'
+      - 'paper-lab/desk.js'
+      - 'paper-lab/index.html'
+      - '.github/workflows/fixture-coverage-diagnostics.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check paper-lab/engine.js
+          node --check paper-lab/desk.js
+          node --check paper-lab/evidence-v3.js
+          node --check paper-lab/transport.js
+      - name: Run existing evidence regression
+        run: node --test tests/test_evidence_v3.cjs
+      - name: Check seven-day fixture source coverage
+        run: |
+          python - <<'PY'
+          import json,datetime
+          from collections import Counter
+          f=json.load(open('football-expanded-data.json'))
+          t=json.load(open('other-sports-data.json'))
+          m=json.load(open('research-dashboard-data.json'))
+          assert all(x['publication_gate']=='BLOCKED' and x['model_validation']=='UNVALIDATED' for x in (f,t,m))
+          start=datetime.date.today()
+          dates=[(start+datetime.timedelta(days=i)).isoformat() for i in range(7)]
+          football=f['upcoming_fixtures']+m['upcoming_fixtures']
+          tennis=t['sports']['tennis']['events']
+          for name,rows,key in [('football',football,'kickoff_utc'),('tennis',tennis,'startUTC')]:
+            counts=Counter(row[key][:10] for row in rows)
+            print(name, 'loaded total',len(rows),'daily counts',[(d,counts[d]) for d in dates])
+            print(name,'missing source-observed days',[d for d in dates if counts[d]==0])
+          print('tennis tournament schedule metadata',len(t['sports']['tennis'].get('tournament_schedule_days',[])))
+          assert len(football)>0 and len(tennis)>0
+          PY
