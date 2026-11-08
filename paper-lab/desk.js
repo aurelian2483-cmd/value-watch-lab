@@ -126,7 +126,12 @@
     }
     const supported = [...consensus.values()].filter(item => item.sources.size >= 2).sort((a,b)=>b.sources.size-a.sources.size || a.choice.id.localeCompare(b.choice.id));
     if (supported.length && (supported.length === 1 || supported[0].sources.size > supported[1].sources.size))
-      add(supported[0].choice,'Community','Independent community sources: '+supported[0].sources.size);
+      add(supported[0].choice,'Community consensus','Independent source domains: '+supported[0].sources.size);
+    else if (consensus.size) {
+      const rankedCommunity = [...consensus.values()].sort((a,b)=>b.sources.size-a.sources.size || a.choice.id.localeCompare(b.choice.id));
+      if (rankedCommunity.length===1 || rankedCommunity[0].sources.size>rankedCommunity[1].sources.size)
+        add(rankedCommunity[0].choice,'Community experimental','Limited community evidence: '+rankedCommunity[0].sources.size+' independent source domain(s); unvalidated');
+    }
     const ranked = event.choices.filter(choice => Number.isFinite(choice.quote?.decimal) && choice.quote.decimal > 1)
       .sort((a,b) => a.quote.decimal - b.quote.decimal || a.id.localeCompare(b.id));
     if (ranked.length && (ranked.length === 1 || ranked[0].quote.decimal < ranked[1].quote.decimal))
@@ -174,8 +179,8 @@
       make(record.racingPanel, 'strong', 'Horse racing · odds and community research (separate signals)');
       const picks = racingHighlights(event);
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
-      const hasConsensus = picks.some(pick => pick.labels.includes('Community'));
-      make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus confirmed' : communityTips.length ? '🔵 BLUE: evidence found but independent consensus NOT confirmed' : '🔵 BLUE: NO PICK — no verified current-race community tips; a second horse cannot be selected responsibly', 'small');
+      const hasConsensus = picks.some(pick => pick.labels.includes('Community consensus'));
+      make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus · research only' : picks.some(pick=>pick.labels.includes('Community experimental')) ? '🔵 BLUE: experimental single-source community candidate · unvalidated' : communityTips.length ? '🔵 BLUE: community evidence tied; no unique leading candidate' : '🔵 BLUE: no attributable current-race community selection', 'small');
       const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
       collector.textContent = 'Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+(communityHealth.errors.length ? communityHealth.errors.length+' source errors' : 'no reported source errors')+' · research only';
       collector.style.color = '#a9bed0';
