@@ -17,6 +17,33 @@ SPEC.loader.exec_module(collector)
 UTC=dt.timezone.utc
 
 class CollectorIntegration(unittest.TestCase):
+    def test_native_reply_reaches_checked_primary_archive(self):
+        now=dt.datetime(2026,11,8,12,tzinfo=UTC)
+        url='https://www.reddit.com/r/HorseRacingUK/comments/abc/tips/def/'
+        feed_url='https://www.reddit.com/r/HorseRacingUK/new/.rss'
+        xml=ET.fromstring(f'''<feed xmlns="http://www.w3.org/2005/Atom"><entry><id>t1_def</id><title>Tips Thread</title><content type="html">Naas: NAP: Test Horse</content><author><name>/u/TestAlice</name></author><published>2026-11-08T11:00:00Z</published><link href="{url}"/></entry></feed>''')
+        collector.FEED_RECEIPTS[id(xml)]={'url':feed_url,'sha256':'a'*64,'observed_at_utc':now.isoformat()}
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            (root/'feeds.json').write_text(json.dumps({'sources':[{'publisher':'Test Forum','type':'forum','feed_url':feed_url,'enabled':True}]}))
+            (root/'archive.json').write_text(json.dumps({'entries':[]}))
+            (root/'races.json').write_text(json.dumps({'races':[{'race_id':'test','name':'Naas 14:00','racecourse':'Naas','startUTC':(now+dt.timedelta(hours=2)).isoformat(),'runners':[{'horse_id':'horse','name':'Test Horse (IRE)','active_runner':True,'runner_status':'RUNNER'}]}]}))
+            with patch.object(collector,'CONFIG',root/'feeds.json'),patch.object(collector,'OUT',root/'archive.json'),patch.object(collector,'RACES',root/'races.json'),patch.object(collector,'NOW',now),patch.object(collector,'current_time',return_value=now),patch.object(collector,'fetch',return_value=xml):
+                collector.main()
+            archive=json.loads((root/'archive.json').read_text())
+            entry=archive['entries'][0]
+            self.assertEqual(entry['verification'],'PRIMARY_POST_CAPTURED')
+            self.assertEqual(entry['author'],'TestAlice')
+            self.assertEqual(entry['primary_capture']['method'],'NATIVE_FORUM_FEED_V1')
+            self.assertEqual(archive['community_pipeline']['checked_primary_posts'],1)
+        collector.FEED_RECEIPTS.pop(id(xml),None)
+
+    def test_native_atom_content_and_author_are_read_without_summary(self):
+        xml=ET.fromstring('''<feed xmlns="http://www.w3.org/2005/Atom"><entry><id>t1_abc</id><title>Monday's Tips Thread</title><content type="html">Naas: NAP: Test Horse</content><author><name>/u/TestAlice</name></author><published>2026-11-08T12:00:00Z</published><link rel="self" href="https://example.org/feed"/><link rel="alternate" href="https://www.reddit.com/r/HorseRacingUK/comments/post/tips/abc/"/></entry></feed>''')
+        item=list(collector.items(xml))[0]
+        self.assertIn('NAP: Test Horse',item['description']);self.assertEqual(item['author'],'/u/TestAlice')
+        self.assertTrue(item['full_content']);self.assertIn('/comments/',item['link'])
+
     def run_case(self, title, expected, published='Sun, 08 Nov 2026 11:00:00 GMT',future_only=False):
         now=dt.datetime(2026,11,8,12,0,tzinfo=UTC)
         start=now+dt.timedelta(hours=2)
@@ -46,6 +73,9 @@ class CollectorIntegration(unittest.TestCase):
 
     def test_explicit_pick_is_archived(self):
         self.run_case("NAP: The Mourne Rambler",1)
+
+    def test_plural_tips_headline_is_not_discarded(self):
+        self.run_case('Tips: The Mourne Rambler',1)
 
     def test_future_racecard_can_match_when_current_day_feed_has_finished(self):
         self.run_case('NAP: The Mourne Rambler',1,future_only=True)

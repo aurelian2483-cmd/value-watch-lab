@@ -82,12 +82,12 @@
       "disabled_reason": "HTTP 403; public RSS blocked"
     },
     {
-      "publisher": "Fat Jockey",
-      "type": "forum",
+      "publisher": "Fat Jockey articles",
+      "type": "blog",
       "feed_url": "https://www.fatjockey.com/feed",
       "enabled": true,
       "validation_status": "CANDIDATE_UNVERIFIED",
-      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+      "notes": "Article feed, not primary forum posts. Never counts as community agreement."
     },
     {
       "publisher": "The UK Betting Forum",
@@ -131,7 +131,8 @@
       "feed_url": "https://www.reddit.com/r/HorseRacingUK/new/.rss",
       "enabled": true,
       "validation_status": "CANDIDATE_UNVERIFIED",
-      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+      "notes": "Read full native Atom content and attributable author metadata. Public RSS support is announced to end on 13 November 2026; report failures without bypass.",
+      "provider_notice": "https://support.reddithelp.com/hc/en-us/articles/54353370049684-Changelog-October-8-2026"
     },
     {
       "publisher": "Reddit horseracing",
@@ -141,6 +142,14 @@
       "validation_status": "FAILED_LIVE_PROBE",
       "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
       "disabled_reason": "HTTP 429 rate-limited; pause until approved access or longer cooldown"
+    },
+    {
+      "publisher": "Fat Jockey Forum",
+      "type": "forum",
+      "feed_url": "https://www.fatjockey.com/forum/forums/-/index.rss",
+      "enabled": true,
+      "validation_status": "OFFICIAL_FORUM_ADVERTISED_RSS_PENDING_COLLECTION",
+      "notes": "Advertised RSS link on the public forum footer; primary attribution checks remain required."
     }
   ]
 }

@@ -4,10 +4,20 @@ window.ValueWatchEvidenceV3 = Object.freeze({
   communityEvidence(entry,event,now=Date.now()){
     const absent={primaryPostVerified:false,explicitBetSelectionVerified:false,timestampVerified:false,valueBackingVerified:false,verifiedThreadId:null};
     const p=entry?.primary_capture,r=p?.receipt;
-    if(entry?.verification!=='PRIMARY_POST_CAPTURED'||p?.method!=='JSONLD_DISCUSSION_POST_V1'||!r)return absent;
-    if(r.url!==entry.url||!/^[a-f0-9]{64}$/.test(r.sha256||'')||!/^[a-f0-9]{64}$/.test(p.text_sha256||''))return absent;
+    const native=p?.method==='NATIVE_FORUM_FEED_V1';
+    if(entry?.verification!=='PRIMARY_POST_CAPTURED'||(!native&&p?.method!=='JSONLD_DISCUSSION_POST_V1')||!r)return absent;
+    if((native?r.url!==entry.source_feed:r.url!==entry.url)||!/^[a-f0-9]{64}$/.test(r.sha256||'')||!/^[a-f0-9]{64}$/.test(p.text_sha256||''))return absent;
     let u;try{u=new URL(r.url);}catch{return absent;}
     if(u.protocol!=='https:'||!['theracingforum.co.uk','fatjockey.com','theukbettingforum.co.uk','forum.punterslounge.com','community.betfair.com','reddit.com','olbg.com'].includes(u.hostname.replace(/^www\./,''))||u.pathname==='/')return absent;
+    if(native){
+      let post;try{post=new URL(entry.url);}catch{return absent;}
+      if(post.protocol!=='https:'||post.hostname.replace(/^www\./,'')!==u.hostname.replace(/^www\./,'')||!p.feed_entry_id)return absent;
+      const parts=post.pathname.split('/').filter(Boolean);
+      if(p.native_platform==='REDDIT_ATOM'){
+        const id=parts.length>5?'t1_'+parts[5]:'t3_'+parts[3];
+        if(u.hostname.replace(/^www\./,'')!=='reddit.com'||!u.pathname.endsWith('.rss')||parts[0]!=='r'||parts[2]!=='comments'||p.feed_entry_id!==id)return absent;
+      }else if(p.native_platform!=='XENFORO_RSS'||u.hostname.replace(/^www\./,'')!=='fatjockey.com'||u.pathname!=='/forum/forums/-/index.rss'||!post.pathname.startsWith('/forum/threads/')||p.feed_entry_id.replace(/\/$/,'')!==entry.url.replace(/\/$/,''))return absent;
+    }
     if(p.post_url!==entry.url||p.race_id!==String(event.providerEventId)||Date.parse(p.race_start_utc)!==Date.parse(event.startUTC)||p.author!==entry.author||!p.author?.trim()||/^(unknown|missing|anonymous|deleted|\[deleted\])$/i.test(p.author.trim()))return absent;
     const choice=event.choices.find(c=>c.id===p.horse_id&&c.label.trim().toLowerCase()===String(entry.horse).trim().toLowerCase());
     const posted=Date.parse(p.published_at_utc),seen=Date.parse(r.observed_at_utc),off=Date.parse(event.startUTC);

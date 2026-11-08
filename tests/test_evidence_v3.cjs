@@ -41,4 +41,11 @@ const checked=context.window.ValueWatchEvidenceV3.communityEvidence(primary,prim
 assert.equal(checked.primaryPostVerified,true);assert.equal(checked.verifiedThreadId,'https://www.fatjockey.com/forum/topic/42');
 assert.equal(context.window.ValueWatchEvidenceV3.communityEvidence({...primary,verification:'RSS_EXPLICIT_HEADLINE_UNVERIFIED'},primaryEvent,now).primaryPostVerified,false);
 assert.equal(context.window.ValueWatchEvidenceV3.communityEvidence({...primary,primary_capture:{...primary.primary_capture,receipt:{url,sha256:'invalid',observed_at_utc:observedAt}}},primaryEvent,now).primaryPostVerified,false);
+const nativeUrl='https://www.reddit.com/r/HorseRacingUK/comments/post42/mondays_tips/comment2/';
+const nativeFeed='https://www.reddit.com/r/HorseRacingUK/comments/post42/mondays_tips/.rss';
+const native={...primary,url:nativeUrl,source_feed:nativeFeed,primary_capture:{...primary.primary_capture,
+  method:'NATIVE_FORUM_FEED_V1',native_platform:'REDDIT_ATOM',feed_entry_id:'t1_comment2',post_url:nativeUrl,
+  thread_url:'https://www.reddit.com/r/HorseRacingUK/comments/post42/mondays_tips/',receipt:{url:nativeFeed,sha256:'d'.repeat(64),observed_at_utc:observedAt}}};
+assert.equal(context.window.ValueWatchEvidenceV3.communityEvidence(native,primaryEvent,now).primaryPostVerified,true);
+assert.equal(context.window.ValueWatchEvidenceV3.communityEvidence({...native,primary_capture:{...native.primary_capture,feed_entry_id:'t1_other'}},primaryEvent,now).primaryPostVerified,false);
 console.log('Evidence v3 unit regression passed (all four sports, blocked/unlocked cases, same-thread gate).');

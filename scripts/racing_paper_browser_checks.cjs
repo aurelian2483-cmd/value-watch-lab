@@ -80,7 +80,12 @@ module.exports=async function checkRacingPaper(browser,base){
     row.market_observation={status:'COMPLETE_SOURCE_OBSERVATION',bookmaker:'Sky Bet',bookmaker_market_id:'synthetic-test-win',executable_verified:false,
       verification:'SOURCE_OBSERVED_UNVERIFIED',observed_at_utc:guard.generated_at_utc,source:row.runner_source,source_sha256:row.runner_source_sha256,
       quotes:[{horse_id:'1',decimal:3},{horse_id:'2',decimal:5}]};
-    community=[post('SyntheticAlice','2')];
+    const native=post('SyntheticAlice','2');
+    native.url='https://www.reddit.com/r/HorseRacingUK/comments/post42/tips/comment1/';
+    native.source_feed='https://www.reddit.com/r/HorseRacingUK/comments/post42/tips/.rss';
+    Object.assign(native.primary_capture,{method:'NATIVE_FORUM_FEED_V1',native_platform:'REDDIT_ATOM',feed_entry_id:'t1_comment1',post_url:native.url,thread_url:'https://www.reddit.com/r/HorseRacingUK/comments/post42/tips/'});
+    native.primary_capture.receipt.url=native.source_feed;
+    community=[native];
     await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
     await page.waitForFunction(()=>document.querySelector('#events [data-choice-id="2"]')?.dataset.evidenceBlue==='true');
     const other=page.locator('#events .selection-button[data-choice-id="2"]');

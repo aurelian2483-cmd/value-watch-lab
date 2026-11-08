@@ -212,7 +212,7 @@
       };
       signal('#b8ee79',green?.gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'GREEN · Forecast favourite':'GREEN · Odds favourite',green?.choice.label||'Unavailable',green?.gate.marketBasis||'Current source price or labelled publisher forecast required');
       signal('#60a5fa','BLUE · Community',blue.length?blue.map(x=>x.choice.label).join(', '):'Not awarded',blue.length?'Verified primary grassroots selection':'Primary post, author and verified pre-race timestamp required');
-      signal('#facc15','YELLOW · Agreement',yellow.length?yellow.map(x=>x.choice.label).join(', '):'Not awarded',yellow.length?'Verified same-thread multi-user value-betting consensus':'Requires verified same-thread multi-user value-betting consensus');
+      signal('#facc15','YELLOW · Agreement',yellow.length?yellow.map(x=>x.choice.label).join(', '):'Not awarded',yellow.length?'Checked same-thread value backing + observed-market favourite':'Requires current bookmaker prices and two checked same-thread value backers');
       const diagnostics=make(record.racingPanel,'details',undefined,'racing-audit-details');
       diagnostics.style.cssText='margin:12px 0;border:1px solid #49657b;border-radius:10px;padding:10px;background:#102431';
       make(diagnostics,'summary','Evidence audit & collector details');
@@ -224,6 +224,7 @@
       if(audit.discrepancy)make(diagnostics,'p','DISCREPANCY: Publisher/tipster selection observed, but forum backing is UNVERIFIED/ABSENT in collected evidence.','small');
       make(diagnostics,'p','CONFIRMED CONVERGENCE: NOT ESTABLISHED · press-naps count and comprehensive forum evidence unavailable','small');
       make(diagnostics,'p','Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+communityHealth.errors.length+' reported errors','small');
+      if(communityHealth.pipeline)make(diagnostics,'p','Community matching across the next 48 hours: '+communityHealth.pipeline.forum_items_scanned+' forum items scanned → '+communityHealth.pipeline.upcoming_forum_candidates+' race-matched candidates → '+communityHealth.pipeline.checked_primary_posts+' checked primary posts.','small');
       if(communityHealth.racecardHealth?.status==='stale_or_no_upcoming_races')make(diagnostics,'p','Upstream racecard stale: no future races for matching.','small');
       if(communityHealth.sourceHealth?.length){
         const sourceDetails=make(diagnostics,'details');
@@ -765,7 +766,7 @@
       const feed = await response.json();
       if (feed.schema_version !== 1 || !Array.isArray(feed.entries) || feed.entries.length > 10000) throw Error('Unsupported community archive');
       communityEntries = feed.entries;
-      communityHealth = {lastRun:feed.last_collector_run_utc || null,added:Number(feed.collector_added)||0,errors:Array.isArray(feed.collector_errors)?feed.collector_errors:[],configured:0,sourceHealth:Array.isArray(feed.collector_source_health)?feed.collector_source_health:[],racecardHealth:feed.racecard_health||null};
+      communityHealth = {lastRun:feed.last_collector_run_utc || null,added:Number(feed.collector_added)||0,errors:Array.isArray(feed.collector_errors)?feed.collector_errors:[],configured:0,sourceHealth:Array.isArray(feed.collector_source_health)?feed.collector_source_health:[],racecardHealth:feed.racecard_health||null,pipeline:feed.community_pipeline||null};
       try { const cfg = await fetch(new URL('racing-research/community-feeds.json',rootURL),{cache:'no-store'}); if(cfg.ok){const data=await cfg.json();communityHealth.configured=(data.sources||[]).filter(x=>x.enabled).length;} } catch {}
     } catch { communityEntries = []; communityHealth = {lastRun:null,added:0,errors:[],configured:0}; }
     store.update(state => ({...state, events:state.events.map(event => ({...event,communityTips:matchCommunity(event)})), eventVersion:state.eventVersion+1}));

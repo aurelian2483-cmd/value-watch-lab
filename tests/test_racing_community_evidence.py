@@ -29,8 +29,8 @@ class CommunityEvidenceTests(unittest.TestCase):
             if e.get('id','').startswith('rss-'):
                 self.assertIn(e.get('verification'),('RSS_EXPLICIT_MENTION_REVIEW_REQUIRED','RSS_EXPLICIT_HEADLINE_UNVERIFIED','PRIMARY_POST_CAPTURED'))
                 if e.get('verification')=='PRIMARY_POST_CAPTURED':
-                    self.assertEqual(e['primary_capture']['method'],'JSONLD_DISCUSSION_POST_V1')
-                    self.assertEqual(e['primary_capture']['receipt']['url'],e['url'])
+                    self.assertIn(e['primary_capture']['method'],('JSONLD_DISCUSSION_POST_V1','NATIVE_FORUM_FEED_V1'))
+                    self.assertEqual(e['primary_capture']['receipt']['url'],e['source_feed'] if e['primary_capture']['method']=='NATIVE_FORUM_FEED_V1' else e['url'])
                     self.assertEqual(len(e['primary_capture']['receipt']['sha256']),64)
                 if e.get('verification') == 'RSS_EXPLICIT_HEADLINE_UNVERIFIED':
                     self.assertEqual(e.get('extraction_method'),'explicit_headline')
