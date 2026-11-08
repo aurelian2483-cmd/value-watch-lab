@@ -41,5 +41,6 @@ def collect(fetch=None, now=None):
 
 if __name__=='__main__':
  data=collect()
- if not data['races'] or all(day['status']=='COLLECTION_FAILED' for day in data['days']):\n  raise SystemExit('No source-observed future racecards: preserving existing published snapshot')\n OUT.write_text(json.dumps(data,indent=2)+'\n')
+ if not data['races'] or all(day['status']=='COLLECTION_FAILED' for day in data['days']):
+  raise SystemExit('No source-observed future racecards: preserving existing published snapshot')\n OUT.write_text(json.dumps(data,indent=2)+'\n')
  print(json.dumps({'future_races':len(data['races']),'failed_days':sum(x['status']=='COLLECTION_FAILED' for x in data['days'])}))
