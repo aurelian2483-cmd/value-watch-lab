@@ -134,7 +134,12 @@
         if(!entry)return null;
         // Future entries can include dozens of horses before final declarations.
         // Preserve real names without treating the list as a confirmed field.
-        Object.assign(entry,{futureScheduleOnly:true,fieldConfirmed:false,model:null,
+        const active=list(row.runners).filter(horse=>horse.active_runner===true);
+        const numbered=active.every(horse=>Number.isSafeInteger(horse.cloth_number)&&horse.cloth_number>0)&&new Set(active.map(horse=>horse.cloth_number)).size===active.length;
+        const receipt=entry.sources.find(source=>source.kind==='PROVIDER_RECEIPT'&&source.sha256&&source.url);
+        const approvedReceipt=receipt&&/^https:\/\/www\.sportinglife\.com\/racing\/(?:meeting|racecards)\//.test(receipt.url)&&receipt.url.includes('/'+Core.day(start)+'/');
+        const paperEntry=Boolean(entry.fieldConfirmed&&numbered&&approvedReceipt);
+        Object.assign(entry,{futureScheduleOnly:!paperEntry,provisionalEntry:paperEntry,fieldConfirmed:false,model:null,
           declarationStageReported:str(row.declaration_stage),
           predictionStatus:{code:'DECLARATIONS_PENDING',label:'Source-observed entries; final declarations unverified'}});
         entry.choices=entry.choices.map(choice=>({...choice,quote:null,probability:null}));
@@ -179,11 +184,12 @@
     if (/CANCEL|ABANDON|VOID/.test(providerStatus)) return state('CANCELLED', 'Cancelled or abandoned');
     if (/POSTPON|SUSPEND|DELAY/.test(providerStatus)) return state('POSTPONED', 'Postponed or delayed · recheck required');
     if (instant(event.startUTC) <= now + 300000 || /FINAL|WEIGHEDIN|RACERESULT|FINISH|OFFTIME|RUNNING/.test(providerStatus)) return state('STARTED', 'Started, completed or inside five-minute cutoff');
-    if (event.sport === 'racing' && (!event.fieldConfirmed || !['DORMANT', 'GOINGDOWN', 'ATTHEPOST'].includes(providerStatus))) return state('FIELD_UNCONFIRMED', 'Current runner field or race status unconfirmed');
+    if (event.sport === 'racing' && ((!event.fieldConfirmed && !event.provisionalEntry) || !['DORMANT', 'GOINGDOWN', 'ATTHEPOST'].includes(providerStatus))) return state('FIELD_UNCONFIRMED', 'Current runner field or race status unconfirmed');
     const age = now - instant(event.observedAt);
     if (!Number.isFinite(age) || age < 0 || age > event.ttlMs) return state('STALE', age < 0 ? 'Observation time is unconfirmed' : 'Snapshot needs a refresh');
     const receipts = list(event.sources).filter(source => source.kind === 'PROVIDER_RECEIPT');
     if (receipts.some(source => { const sourceAge = now - instant(source.observedAt); return !Number.isFinite(sourceAge) || sourceAge < 0 || sourceAge > event.ttlMs; })) return state('STALE', 'Source evidence needs a refresh');
+    if(event.provisionalEntry)return receipts.length?state('PROVISIONAL_ENTRY','Manual paper research · final declarations unverified',true):state('UNVERIFIED_SOURCE','Entry receipt unavailable');
     return receipts.length ? state('READY', 'Available for paper research', true) : state('UNVERIFIED_SOURCE', 'Paper hypothesis · event receipt unavailable', true);
   }
 
@@ -243,7 +249,7 @@
     if (event.sport === 'football' && (!event.seasonComparison || !vector([event.seasonComparison.prob_home, event.seasonComparison.prob_draw, event.seasonComparison.prob_away]))) throw Error('Current-season football evidence unavailable; paper selection blocked.');
     const eventDate = Core.day(event.startUTC);
     if (eventDate < plan.from || eventDate > plan.to) throw Error('The event falls outside this research date range.');
-    return { id: key(event.id, choice.id), eventId: event.id, identity: event.identity, choiceId: choice.id, label: choice.label, event: event.name, sport: event.sport, sport_type: event.sport_type, competition: event.competition, startUTC: event.startUTC, market: choice.market, observedAt: event.observedAt, capturedAt: new Date(now).toISOString(), sources: clone(event.sources), probability: event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.id]] : choice.probability, uncertainty: null, model: event.sport === 'football' ? { name:'CURRENT_SEASON_POISSON_COMPARISON_V1', validation:'UNVALIDATED', probabilityKind:'EXPERIMENTAL_CURRENT_SEASON_COMPARISON', observedAt:event.observedAt, trainingMode:'CURRENT_SEASON_ONLY' } : clone(event.model), quote: clone(choice.quote), evidenceStatus: state.code, ...GATES };
+    return { id: key(event.id, choice.id), eventId: event.id, identity: event.identity, choiceId: choice.id, label: choice.label, event: event.name, sport: event.sport, sport_type: event.sport_type, competition: event.competition, startUTC: event.startUTC, market: choice.market, observedAt: event.observedAt, capturedAt: new Date(now).toISOString(), sources: clone(event.sources), probability: event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.id]] : choice.probability, uncertainty: null, model: event.sport === 'football' ? { name:'CURRENT_SEASON_POISSON_COMPARISON_V1', validation:'UNVALIDATED', probabilityKind:'EXPERIMENTAL_CURRENT_SEASON_COMPARISON', observedAt:event.observedAt, trainingMode:'CURRENT_SEASON_ONLY' } : clone(event.model), quote: clone(choice.quote), evidenceStatus: state.code, ...(event.provisionalEntry ? { provisionalEntry: true, declarationStatus: "NOT_VERIFIED" } : {}), ...GATES };
   }
 
   function addSelection(plan, slotId, event, choiceId, now = Date.now()) {
@@ -389,7 +395,7 @@
   function generateResearch(plan, events, now = Date.now()) {
     let next = clone(plan);
     const candidates = list(events).filter(event =>
-      statusOf(event, now).selectable &&
+      !event.provisionalEntry && statusOf(event, now).selectable &&
       Core.day(event.startUTC) >= plan.from && Core.day(event.startUTC) <= plan.to &&
       (event.sport !== 'football' || (event.seasonComparison && vector([event.seasonComparison.prob_home,event.seasonComparison.prob_draw,event.seasonComparison.prob_away])))
     ).map(event => {

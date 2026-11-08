@@ -285,7 +285,7 @@
     const racingPicks = racingHighlights(event);
     const review = E.footballEvidenceReview(event);
     const leaders = E.modelLeaders(event), ordered = event.sport === 'racing' ? [...leaders.map(leader => event.choices.find(choice => choice.id === leader.id)), ...event.choices.filter(choice => !leaders.some(leader => leader.id === choice.id))] : event.choices;
-    const structural = JSON.stringify([status.code === 'STARTED', ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id), racingPicks.map(pick => pick.choice.id)]);
+    const structural = JSON.stringify([status.code === 'STARTED',event.futureScheduleOnly,event.provisionalEntry, ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id), racingPicks.map(pick => pick.choice.id)]);
     if (record.structural !== structural) {
       record.structural = structural; record.market.replaceChildren(); record.choices.clear();
       if (event.futureScheduleOnly) {
@@ -298,6 +298,7 @@
       }
       else if (status.code === 'STARTED') make(record.market, 'span', event.score?.label ? 'Recorded final: ' + event.score.label : 'Event has started or finished · additions closed', 'archived-status');
       else {
+        if(event.provisionalEntry)make(record.market,'p','Choose a source-listed horse for manual paper research. Final declarations unverified; no model prediction or verified price.','provisional-entry-note small');
         const shown = event.sport === 'racing' && ordered.length > 6 ? ordered.slice(0, 5) : ordered;
         const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), odds = make(b, 'small', '', 'selection-odds'); record.choices.set(choice.id, { element: b, modelBadge, name, price, caption, odds, previous: null }); };
         for (const choice of shown) append(record.market, choice);
@@ -310,7 +311,7 @@
       const estimated = event.model && typeof choice.probability === 'number';
       const contextWeight = event.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT';
       const value = estimated ? pct(choice.probability) : priced ? choice.quote.decimal.toFixed(2) : 'No estimate';
-      write(view.price, value); write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
+      write(view.price, value); write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
       write(view.odds, priced ? estimated ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : 'Bookmaker odds not connected');
       const leader = leaders.find(leader => leader.id === choice.id);
       const racingPick = event.sport === 'racing' ? racingPicks.find(pick => pick.choice.id === choice.id) : null;
@@ -432,23 +433,6 @@
     const state = store.get(), rows = filtered(state), visible = rows.slice(0, state.limit), root = $('events'); root.setAttribute('aria-busy', 'false');
     if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more').forEach(element => element.remove());
     S.reconcile(root, visible.map(event => event.id), cards, createCard, (record, id) => patchCard(record, visible.find(event => event.id === id)));
-    // Meeting fixtures are real observed meetings, never synthetic racecards or betting picks.
-    if(state.sport==='racing'){
-      let panel=$('racing-fixture-board');
-      if(!panel){panel=make(null,'section',undefined,'racing-fixture-board');root.before(panel);}
-      panel.replaceChildren();
-      const inRange=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to);
-      make(panel,'h3','Upcoming racing meetings · '+inRange.length,'');
-      make(panel,'p','Source-observed racecards: '+rows.length+' · Total source-observed meeting fixtures: '+racingFixtureMeetings.length+' · Feed: '+racingFixtureStatus,'small');
-      if(!inRange.length)make(panel,'p',racingFixtureMeetings.length?'No meetings in selected dates. Select Next 14 Days to view available fixtures.':'No meeting fixtures loaded. Check the feed status above.','muted');
-      for(const meeting of inRange.slice(0,70)){
-        const item=make(panel,'div',undefined,'research-row');
-        make(item,'strong',meeting.date+' · '+meeting.course);
-        make(item,'p','Meeting fixture only · Race times, runners and odds not verified','small');
-        const a=make(item,'a','View source meeting');
-        a.href=meeting.source_url;a.target='_blank';a.rel='noopener noreferrer';
-      }
-    }else{const panel=$('racing-fixture-board');if(panel)panel.remove();}
     if (!visible.length && state.sport === 'racing') {
       const dates = [...new Set(state.events.filter(event => event.sport === 'racing').map(event => day(event.startUTC)))].sort();
       const latest = dates.at(-1);
@@ -459,11 +443,11 @@
     if (rows.length > visible.length) button(root, 'Show more events (' + (rows.length - visible.length) + ')', () => store.update(state => ({ ...state, limit: state.limit + 24 })), 'button button-secondary load-more');
     // Tournament-level source observations are informational, not fictitious match cards.
     let tournamentPanel=$('tennis-tournament-coverage');
-    if(!tournamentPanel){tournamentPanel=make(null,'div',undefined,'tennis-tournament-coverage');$('coverage-summary').after(tournamentPanel);}
+    if(!tournamentPanel){tournamentPanel=make(null,'details',undefined,'coverage-disclosure');tournamentPanel.id='tennis-tournament-coverage';$('coverage-summary').after(tournamentPanel);}
     tournamentPanel.replaceChildren();
     tournamentPanel.hidden=state.sport!=='tennis';
     if(!tournamentPanel.hidden){
-      make(tournamentPanel,'p','ATP/WTA tournament observations · draw-pending information (not match predictions)','small');
+      make(tournamentPanel,'summary','Tournament coverage and pending draws');
       const relevant=tournamentCoverage.filter(d=>d.date>=state.plan.from&&d.date<=state.plan.to);
       if(!relevant.length)make(tournamentPanel,'p','No verified tournament schedule metadata loaded yet. The next collector run must publish this feed.','muted');
       for(const dateRow of relevant){
@@ -473,17 +457,23 @@
     }
     // Coverage is a property of observed source records, not of the date picker.
     let coverage=$('racing-date-coverage');
-    if(!coverage){coverage=make(null,'div',undefined,'racing-date-coverage');$('coverage-summary').after(coverage);}
+    if(!coverage){coverage=make(null,'details',undefined,'coverage-disclosure');coverage.id='racing-date-coverage';$('coverage-summary').after(coverage);}
     coverage.replaceChildren();
-    if(state.sport==='racing'){
-      const fixtures=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to);
-      make(coverage,'p','Source-observed racecards: '+state.events.filter(e=>e.sport==='racing'&&e.startUTC&&day(e.startUTC)>=state.plan.from&&day(e.startUTC)<=state.plan.to).length+' · Upcoming meeting fixtures in selected dates: '+fixtures.length+' · Total loaded meeting fixtures: '+racingFixtureMeetings.length+' · Feed: '+racingFixtureStatus,'small');
-      for(const m of fixtures.slice(0,70))make(coverage,'p',m.date+' · '+m.course+' · race times and declarations pending','muted');
-    }
     const selectedSport=state.sport;
     coverage.hidden=!['racing','football','tennis','nfl'].includes(selectedSport);
     if(!coverage.hidden){
       const observed=state.events.filter(e=>e.sport===selectedSport);
+      const selectable=rows.filter(e=>E.statusOf(e).selectable).length;
+      make(coverage,'summary','Coverage details · '+rows.length+' matching events · '+selectable+' available for paper research');
+      if(selectedSport==='racing'){
+        const fixtures=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to);
+        const meetings=details(coverage,'Meeting fixtures ('+fixtures.length+')','meeting-fixture-disclosure');
+        make(meetings,'p','Meeting calendar only. Individual racecards below carry their own runner and source status.','small');
+        for(const m of fixtures.slice(0,70)){
+          const item=make(meetings,'div',undefined,'research-row');make(item,'strong',m.date+' · '+m.course);
+          const a=make(item,'a','View source meeting');a.href=m.source_url;a.target='_blank';a.rel='noopener noreferrer';
+        }
+      }
       const days=[];let d=state.plan.from;
       while(d<=state.plan.to&&days.length<31){days.push(d);d=plusDays(d,1);}
       const sportLabel={racing:'Racecards',football:'Football fixtures',tennis:'Tennis matches',nfl:'NFL games'}[selectedSport];
@@ -555,6 +545,7 @@
     make(record.node, 'p', symbols[leg.sport] + ' ' + leg.event, 'slip-selection-meta'); make(record.node, 'p', dateText(leg.startUTC) + ' · ' + leg.market, 'slip-selection-meta');
     const state = E.statusOf(store.get().events.find(event => event.id === leg.eventId));
     make(record.node, 'span', !leg.currentStatus?.selectable ? leg.currentStatus?.label || state.label : leg.quote?.decimal ? leg.quote.decimal.toFixed(2) + ' · unverified source price' : (typeof leg.probability === 'number' ? pct(leg.probability) + (leg.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' context weight' : ' model win estimate') + ' · UNVALIDATED · odds not connected' : 'No model estimate · odds not connected'), 'leg-state' + (!leg.currentStatus?.selectable ? ' is-warning' : ''));
+    if(leg.provisionalEntry)make(record.node,'p','Provisional paper entry · final declarations unverified','warning-line');
     // Mathematical hurdle only: this is not an estimated probability or positive-EV claim.
     if (Number.isFinite(leg.quote?.decimal) && leg.quote.decimal > 1) {
       const hurdle = 100 / leg.quote.decimal;

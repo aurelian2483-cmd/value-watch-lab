@@ -14,8 +14,9 @@ on:
       - 'tests/test_future_racing_collector.py'
       - '.github/workflows/future-racecards-7day.yml'
   schedule:
-    - cron: '40 5 * * *'
-    - cron: '40 17 * * *'
+    # Manual runner observations retain the desk's 30-minute freshness limit.
+    - cron: '10,30,50 4-21 * * *'
+    - cron: '10 0-3,22-23 * * *'
   workflow_dispatch:
 permissions:
   contents: write
