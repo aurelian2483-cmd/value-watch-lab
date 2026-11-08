@@ -173,7 +173,7 @@
     if (event.sport === 'racing') {
       make(record.racingPanel, 'strong', 'Horse racing · independent research highlights');
       const picks = racingHighlights(event);
-      make(record.racingPanel, 'p', 'Community tips: unavailable · no verified forum, blog or tipster consensus feed.', 'small');
+      make(record.racingPanel, 'p', picks.some(pick => pick.labels.includes('Community')) ? 'Community: two or more independent source domains support the highlighted runner.' : 'Community: no qualifying independent consensus for this race in the connected archive.', 'small');
       if (!picks.length) make(record.racingPanel, 'p', 'Odds/form highlight unavailable · no unique sourced price favourite.', 'small');
       for (const pick of picks) {
         const item = make(record.racingPanel, 'div', undefined, 'racing-highlight-item'); item.style.cssText = 'display:block;padding:10px 0;border-top:1px solid #52718b;color:#f1f5f9';
@@ -526,7 +526,35 @@
     for (const spec of specs) { const file = new URL(spec.path, rootURL).pathname.split('/').pop(), snapshot = result.snapshots.find(item => item.path === spec.path), error = result.errors.find(item => item.path === spec.path), row = make($('feeds'), 'div', undefined, 'source-row'); make(row, 'strong', sources[file][1], 'source-name'); make(row, 'span', error ? error.retained ? 'Refresh failed · last good snapshot retained' : 'Unavailable' : 'Snapshot ' + dateText(snapshot?.document.generated_at_utc), 'source-status'); const technical = details(row, 'Technical details', 'source-debug'); make(technical, 'code', file); if (snapshot) make(technical, 'p', snapshot.document.generated_at_utc, 'small'); if (error) make(technical, 'p', error.message, 'warning-line'); }
     write($('source-summary'), result.errors.length ? 'Sources · ' + result.errors.length + ' need attention' : 'Sources · ' + result.snapshots.length + ' snapshots');
   }
-  const transport = ResearchTransport.createSnapshotClient({ fetch: window.fetch.bind(window), onStatus(status) { $('refresh').disabled = status.status === 'loading'; $('events').setAttribute('aria-busy', String(status.status === 'loading' && !store.get().events.length)); }, onUpdate(result) { safely(() => { const events = E.normalizeFeeds(result.snapshots); store.update(state => ({ ...state, events, eventVersion: state.eventVersion + 1, snapshotState: result }));
+  // Curated, auditable community observations. The public browser never scrapes third-party sites.
+  // Match exact provider race ID, start time, runner name and publication chronology.
+  let communityEntries = [];
+  async function refreshCommunity() {
+    try {
+      const response = await fetch(new URL('racing-research/source-observations.json', rootURL), {cache:'no-store'});
+      if (!response.ok) throw Error('Community archive unavailable');
+      const feed = await response.json();
+      if (feed.schema_version !== 1 || !Array.isArray(feed.entries) || feed.entries.length > 10000) throw Error('Unsupported community archive');
+      communityEntries = feed.entries;
+    } catch { communityEntries = []; }
+    store.update(state => ({...state, events:state.events.map(event => ({...event,communityTips:matchCommunity(event)})), eventVersion:state.eventVersion+1}));
+  }
+  function matchCommunity(event) {
+    if (event.sport !== 'racing' || !event.providerEventId) return [];
+    return communityEntries.filter(entry => {
+      if (String(entry.race_id) !== String(event.providerEventId) || entry.stance !== 'support' || !['forum','blog','tipster'].includes(entry.group)) return false;
+      if (Date.parse(entry.startUTC) !== Date.parse(event.startUTC)) return false;
+      const published = Date.parse(entry.published_at_utc), observed = Date.parse(entry.observed_at_utc);
+      if (!Number.isFinite(published) || !Number.isFinite(observed) || published > Date.parse(event.startUTC) || observed < published) return false;
+      if (!/^https:\/\//i.test(entry.url || '')) return false;
+      return event.choices.some(choice => choice.label.trim().toLowerCase() === String(entry.horse || '').trim().toLowerCase());
+    }).map(entry => ({
+      choiceId:event.choices.find(choice => choice.label.trim().toLowerCase() === String(entry.horse).trim().toLowerCase()).id,
+      type:entry.group, sourceUrl:entry.url, observedAt:entry.observed_at_utc,
+      publisher:entry.publisher, author:entry.author, publishedAt:entry.published_at_utc
+    }));
+  }
+  const transport = ResearchTransport.createSnapshotClient({ fetch: window.fetch.bind(window), onStatus(status) { $('refresh').disabled = status.status === 'loading'; $('events').setAttribute('aria-busy', String(status.status === 'loading' && !store.get().events.length)); }, onUpdate(result) { safely(() => { const events = E.normalizeFeeds(result.snapshots).map(event => ({...event,communityTips:matchCommunity(event)})); store.update(state => ({ ...state, events, eventVersion: state.eventVersion + 1, snapshotState: result }));
       // Populate empty research slips automatically from the current published snapshots.
       // Preserve every existing leg, user edit and historical record on refresh.
       if (events.length && !persistence.failed) {
@@ -538,7 +566,7 @@
         }
       }
       renderSources(result); notice((result.errors.length ? 'Some sources need attention · ' : '') + events.length + ' total records loaded across all dates · snapshot files checked ' + dateText(result.checkedAt)); }); } });
-  const refresh = () => { lastRefresh = Date.now(); return transport.refresh(specs); };
+  const refresh = async () => { lastRefresh = Date.now(); await refreshCommunity(); return transport.refresh(specs); };
   let opener = null;
   function openSlip() { opener = document.activeElement; document.body.classList.add('paper-open'); $('paper-backdrop').hidden = false; $('paper-open').setAttribute('aria-expanded', 'true'); $('slip-panel').setAttribute('aria-modal', 'true'); $('slip-panel').setAttribute('role', 'dialog'); $('paper-close').focus(); }
   function closeSlip() { document.body.classList.remove('paper-open'); $('paper-backdrop').hidden = true; $('paper-open').setAttribute('aria-expanded', 'false'); $('slip-panel').removeAttribute('aria-modal'); $('slip-panel').removeAttribute('role'); opener?.focus(); }
