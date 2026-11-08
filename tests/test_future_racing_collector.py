@@ -115,6 +115,10 @@ class FutureRacingTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             module.validate_publishable_snapshot({**data,'fixture_meetings':[{**fixture,'source_url':'https://www.racingpost.com/racecards/2026-11-10/1/carlisle'}]})
         with self.assertRaises(ValueError):
+            module.validate_publishable_snapshot({**data,'days':days[:-1]+[{'date':'2026-11-17'}]})
+        with self.assertRaises(ValueError):
+            module.validate_publishable_snapshot({**data,'days':days[:-1]+[{'date':'2026-11-99'}]})
+        with self.assertRaises(ValueError):
             module.validate_publishable_snapshot({**data,'days':days[:-1]+[days[0]]})
 
 if __name__=='__main__':
