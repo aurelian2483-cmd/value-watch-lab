@@ -168,9 +168,10 @@
         make(item, 'p', pick.reasons.join(' · ') + ' · research only', 'small');
       }
     }
+    const racingPicks = racingHighlights(event);
     const review = E.footballEvidenceReview(event);
     const leaders = E.modelLeaders(event), ordered = event.sport === 'racing' ? [...leaders.map(leader => event.choices.find(choice => choice.id === leader.id)), ...event.choices.filter(choice => !leaders.some(leader => leader.id === choice.id))] : event.choices;
-    const structural = JSON.stringify([status.code === 'STARTED', ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id)]);
+    const structural = JSON.stringify([status.code === 'STARTED', ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id), racingPicks.map(pick => pick.choice.id)]);
     if (record.structural !== structural) {
       record.structural = structural; record.market.replaceChildren(); record.choices.clear();
       if (status.code === 'STARTED') make(record.market, 'span', event.score?.label ? 'Recorded final: ' + event.score.label : 'Event has started or finished · additions closed', 'archived-status');
@@ -190,7 +191,13 @@
       write(view.price, value); write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
       write(view.odds, priced ? estimated ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : 'Bookmaker odds not connected');
       const leader = leaders.find(leader => leader.id === choice.id);
-      view.modelBadge.hidden = !leader; write(view.modelBadge, leader?.rank === 1 ? 'MODEL FIRST CHOICE' : 'MODEL ALTERNATIVE');
+      const racingPick = event.sport === 'racing' ? racingPicks.find(pick => pick.choice.id === choice.id) : null;
+      view.modelBadge.hidden = !leader && !racingPick;
+      write(view.modelBadge, racingPick ? racingPick.labels.join(' + ').toUpperCase() : leader?.rank === 1 ? 'MODEL FIRST CHOICE' : 'MODEL ALTERNATIVE');
+      view.element.style.outline = racingPick ? '2px solid #b8ee79' : '';
+      view.element.style.outlineOffset = racingPick ? '-2px' : '';
+      view.element.style.background = racingPick ? '#203b36' : '';
+      view.element.style.color = racingPick ? '#f4ffe8' : '';
       view.element.classList.toggle('is-model-first', leader?.rank === 1); view.element.classList.toggle('is-model-alternative', leader?.rank === 2);
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
       view.element.setAttribute('aria-label', choice.label + ' · ' + (leader ? leader.rank === 1 ? 'model first choice · ' : 'model alternative · ' : '') + value + (contextWeight ? ' context weight' : estimated ? ' model estimate' : ' source odds') + ' · ' + (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name);
