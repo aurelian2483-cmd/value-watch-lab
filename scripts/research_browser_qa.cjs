@@ -41,8 +41,8 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   assert.equal(await p.locator('.selection-price').filter({hasText:'%'}).count(),0);
   assert.equal(await p.locator('.selection-button[aria-label*="% "]').count(),0);
   assert.equal(await p.locator('#build-scope option').count(),2);
-  const checkLink=p.locator('.event-tools a').first();assert.equal(await checkLink.getAttribute('href'),'https://www.oddschecker.com/football');
-  await p.locator('.model-details > summary').first().click();assert((await p.locator('.model-details').first().textContent()).includes('%'));
+  const checkLink=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.event-tools a');assert.equal(await checkLink.getAttribute('href'),'https://www.oddschecker.com/football');
+  const estimateBox=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.model-details').first();await estimateBox.locator('summary').click();assert((await estimateBox.textContent()).includes('%'));
   report.checks.push('manual stake default, hidden estimates, two build scopes and external price-check links');
   const first=p.locator('#events .event-card').filter({hasText:'Test Home 0'});await first.locator('.selection-button').first().click();await p.locator('#slip-content .slip-selection').waitFor();
   const second=p.locator('#events .event-card').filter({hasText:'Test Home 1'});await second.locator('.selection-button').first().click();await p.waitForFunction(()=>document.querySelectorAll('#slip-content .slip-selection').length===2);report.checks.push('cross-day selections');
