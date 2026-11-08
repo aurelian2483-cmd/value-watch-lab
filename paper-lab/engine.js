@@ -360,7 +360,29 @@
 
   function generateResearch(plan, events, now = Date.now()) {
     let next = clone(plan);
-    const candidates = list(events).filter(event => statusOf(event, now).selectable && Core.day(event.startUTC) >= plan.from && Core.day(event.startUTC) <= plan.to && (event.sport !== 'football' || (event.seasonComparison && vector([event.seasonComparison.prob_home,event.seasonComparison.prob_draw,event.seasonComparison.prob_away]))) && (event.sport === 'football' || event.model) && event.choices.some(choice => validProbability(event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.id]] : choice.probability))).map(event => ({ event, choice: [...event.choices].filter(choice => validProbability(event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.id]] : choice.probability)).sort((a, b) => (event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[b.id]] - event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[a.id]] : b.probability - a.probability) || a.id.localeCompare(b.id))[0], evidence: event.sources.filter(source => source.kind === 'PROVIDER_RECEIPT').length * 4 + (event.stats.h2h ? 2 : 0) + (event.stats.recent ? 1 : 0) })).sort((a, b) => b.evidence - a.evidence || instant(a.event.startUTC) - instant(b.event.startUTC) || a.event.id.localeCompare(b.event.id));
+    const candidates = list(events).filter(event =>
+      statusOf(event, now).selectable &&
+      Core.day(event.startUTC) >= plan.from && Core.day(event.startUTC) <= plan.to &&
+      (event.sport !== 'football' || (event.seasonComparison && vector([event.seasonComparison.prob_home,event.seasonComparison.prob_draw,event.seasonComparison.prob_away])))
+    ).map(event => {
+      const validChoices = event.choices.filter(choice => validProbability(event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.id]] : choice.probability));
+      const tips = event.sport === 'racing' && Array.isArray(event.communityTips) ? event.communityTips : [];
+      const counts = new Map();
+      for (const tip of tips) {
+        if (!event.choices.some(choice => choice.id === tip.choiceId) || !['forum','blog','tipster'].includes(tip.type) || typeof tip.sourceUrl !== 'string' || !/^https:\/\//.test(tip.sourceUrl)) continue;
+        try {
+          const domain = new URL(tip.sourceUrl).hostname.toLowerCase();
+          if (!counts.has(tip.choiceId)) counts.set(tip.choiceId, new Set());
+          counts.get(tip.choiceId).add(domain);
+        } catch {}
+      }
+      const community = [...counts].sort((a,b)=>b[1].size-a[1].size || a[0].localeCompare(b[0]));
+      const uniqueCommunity = community.length && (community.length === 1 || community[0][1].size > community[1][1].size);
+      const communityChoice = uniqueCommunity ? event.choices.find(choice => choice.id === community[0][0]) : null;
+      if (!communityChoice && (!event.model && event.sport !== 'football' || !validChoices.length)) return null;
+      const choice = communityChoice || [...validChoices].sort((a,b) => (event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[b.id]]-event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[a.id]] : b.probability-a.probability) || a.id.localeCompare(b.id))[0];
+      return {event, choice, evidence: (communityChoice ? community[0][1].size*5 : 0) + event.sources.filter(source=>source.kind==='PROVIDER_RECEIPT').length*4 + (event.stats.h2h?2:0) + (event.stats.recent?1:0), communityExperimental:Boolean(communityChoice)};
+    }).filter(Boolean).sort((a,b)=>b.evidence-a.evidence || instant(a.event.startUTC)-instant(b.event.startUTC) || a.event.id.localeCompare(b.event.id));
     const signatures = new Set(next.slots.filter(slot => slot.legs.length).map(slot => slot.legs.map(leg => leg.id).sort().join('|')));
     for (const approach of APPROACHES) {
       const current = getSlot(next, approach.id);
