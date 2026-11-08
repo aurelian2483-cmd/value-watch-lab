@@ -711,7 +711,7 @@
       if(!response.ok)throw Error('Fixture feed unavailable');
       const d=await response.json();
       if(d.schema_version!==1||d.research_only!==true||d.publication_gate!=='BLOCKED'||d.model_validation!=='UNVALIDATED')throw Error('Fixture feed research gates invalid');
-      racingFixtureMeetings=Array.isArray(d.fixture_meetings)?d.fixture_meetings.filter(m=>m.record_type==='MEETING_FIXTURE'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(m.date)&&typeof m.course==='string'&&m.course.length<80):[];
+      racingFixtureMeetings=Array.isArray(d.fixture_meetings)?d.fixture_meetings.filter(m=>m.record_type==='MEETING_FIXTURE'&&/^\d{4}-\d{2}-\d{2}$/.test(m.date)&&typeof m.course==='string'&&m.course.length<80):[];
       racingFixtureStatus=d.fixture_source_status||'NOT_AVAILABLE';
     }catch(error){racingFixtureMeetings=[];racingFixtureStatus='NOT_AVAILABLE';console.warn('Fixture coverage unavailable',error);}
     renderEvents();
