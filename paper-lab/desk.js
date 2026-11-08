@@ -237,7 +237,7 @@
     root.querySelectorAll('details').forEach(element => { element.open = opened.has(element.dataset.key); });
   }
   function patchLeg(record, leg, position, slot) {
-    const signature = JSON.stringify([leg, position, slot.id, slot.legs.length, store.get().replacing], (key, value) => key === 'ageMs' ? undefined : value); if (record.signature === signature) return;
+    const signature = JSON.stringify([leg, position, slot.id, slot.legs.length, store.get().replacing, store.get().claims], (key, value) => key === 'ageMs' ? undefined : value); if (record.signature === signature) return;
     const opened = record.node.querySelector('details')?.open; record.signature = signature; record.node.replaceChildren();
     const top = make(record.node, 'div', undefined, 'slip-selection-top'); make(top, 'strong', leg.label);
     button(top, '×', () => savePlan(E.removeSelection(store.get().plan, slot.id, leg.id)), 'remove-button').setAttribute('aria-label', 'Remove ' + leg.label);
@@ -250,6 +250,7 @@
     button(actions, store.get().replacing === leg.id ? 'Cancel replace' : 'Replace', () => { store.update(state => ({ ...state, view: 'events', replacing: state.replacing === leg.id ? null : leg.id })); closeSlip(); notice('Choose a board outcome to replace ' + leg.label + '.'); });
     const evidence = details(record.node, 'Captured evidence & price', 'leg-evidence'); evidence.open = Boolean(opened);
     make(evidence, 'p', 'Captured ' + dateText(leg.capturedAt) + ' · estimate ' + pct(leg.probability) + ' · uncertainty unquantified', 'small'); provenance(evidence, leg.sources);
+    for (const note of store.get().claims.filter(note => note.eventId === leg.eventId && (!note.choiceId || note.choiceId === leg.choiceId))) showNote(evidence, note);
     if (leg.quote) { link(evidence, 'Original price source', leg.quote.source); make(evidence, 'p', 'Observed ' + dateText(leg.quote.observedAt) + ' · not independently verified', 'small'); }
     if (leg.quoteState === 'PRICE_CHANGED') make(evidence, 'p', 'The source price changed. Replace this outcome explicitly to capture the current observation.', 'warning-line');
     if (state.selectable) {
@@ -270,7 +271,7 @@
     write($('slip-title'), slot.name); write($('slip-subtitle'), slot.description); write($('slip-count'), slot.legs.length + ' / 15'); write($('mobile-count'), state.plan.slots.reduce((sum, slot) => sum + slot.legs.length, 0));
     document.querySelectorAll('[data-slot]').forEach(element => { const active = Number(element.dataset.slot) === state.slot + 1; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
     if (document.activeElement !== $('stake')) $('stake').value = slot.stakeMinor ? (slot.stakeMinor / 100).toFixed(2) : ''; $('slip-structure').value = slot.structure;
-    const signature = JSON.stringify([state.slot, evaluation, state.replacing], (key, value) => key === 'ageMs' ? undefined : value); if (slipSignature === signature) return; slipSignature = signature;
+    const signature = JSON.stringify([state.slot, evaluation, state.replacing, state.claims], (key, value) => key === 'ageMs' ? undefined : value); if (slipSignature === signature) return; slipSignature = signature;
     const root = $('slip-content'); if (!legs.size) root.replaceChildren(); root.querySelectorAll('.slip-empty, .generation-note').forEach(element => element.remove());
     S.reconcile(root, evaluation.legs.map(leg => leg.id), legs, id => { const row = make(null, 'article', undefined, 'slip-selection'); row.dataset.legId = id; return { node: row, signature: '' }; }, (record, id) => { const position = evaluation.legs.findIndex(leg => leg.id === id); patchLeg(record, evaluation.legs[position], position, slot); });
     if (!slot.legs.length) empty(root, 'Your perspective starts here.', 'Choose an outcome or build a research shortlist. Empty slips are valid.').classList.add('slip-empty');
@@ -340,7 +341,7 @@
     for (const [index, record] of [...state.history].reverse().entries()) {
       const snapshot = record.snapshot, card = make(root, 'article', undefined, 'history-card'); make(card, 'span', 'Saved ' + dateText(snapshot.savedAt), 'event-meta'); make(card, 'h3', snapshot.from + ' → ' + snapshot.to); make(card, 'p', snapshot.slots.reduce((sum, slot) => sum + slot.legs.length, 0) + ' selections · original evidence retained · paper annotations below', 'muted');
       const evidence = details(card, 'Original slips & source observations');
-      for (const slot of snapshot.slots) { make(evidence, 'h4', slot.name + ' · ' + slot.legs.length + ' legs'); if (slot.legs.length) renderSettlement(evidence, snapshot, slot); for (const leg of slot.legs) { const row = make(evidence, 'div', undefined, 'history-leg'); make(row, 'strong', leg.label); make(row, 'p', leg.event + ' · ' + dateText(leg.startUTC), 'small'); make(row, 'p', 'Estimate ' + pct(leg.probability) + ' · observed price ' + (leg.quote?.decimal ?? 'not supplied'), 'small'); provenance(row, leg.sources); } }
+      for (const slot of snapshot.slots) { make(evidence, 'h4', slot.name + ' · ' + slot.legs.length + ' legs'); if (slot.legs.length) renderSettlement(evidence, snapshot, slot); for (const leg of slot.legs) { const row = make(evidence, 'div', undefined, 'history-leg'); make(row, 'strong', leg.label); make(row, 'p', leg.event + ' · ' + dateText(leg.startUTC), 'small'); make(row, 'p', 'Estimate ' + pct(leg.probability) + ' · observed price ' + (leg.quote?.decimal ?? 'not supplied'), 'small'); provenance(row, leg.sources); for (const note of state.claims.filter(note => note.eventId === leg.eventId && (!note.choiceId || note.choiceId === leg.choiceId))) showNote(row, note); } }
       const integrity = make(card, 'p', record.sha256 ? 'Checking local integrity…' : 'Local hash unavailable · not independently attested', 'small');
       if (record.sha256) S.verify(record).then(valid => { if (integrity.isConnected) write(integrity, valid ? 'Local SHA-256 matches · not independently attested' : 'Integrity mismatch · do not rely on this record'); }).catch(() => write(integrity, 'Integrity verification unavailable'));
       button(card, 'Export original snapshot', () => exportJSON(record, 'research-snapshot-' + snapshot.from + '-' + index + '.json'));
@@ -359,17 +360,28 @@
     if (note.concern) make(card, 'p', 'Concern: ' + note.concern, 'small');
     for (const source of note.sources || []) link(card, 'Original source ↗', source);
   }
+  function noteEvents() {
+    const state = store.get(), rows = new Map(state.events.map(event => [event.id, event]));
+    const captured = [...state.plan.slots, ...state.history.flatMap(record => record.snapshot.slots)].flatMap(slot => slot.legs);
+    for (const leg of captured) {
+      if (state.events.some(event => event.id === leg.eventId)) continue;
+      if (!rows.has(leg.eventId)) rows.set(leg.eventId, { id: leg.eventId, name: leg.event, choices: [] });
+      const event = rows.get(leg.eventId);
+      if (!event.choices.some(choice => choice.id === leg.choiceId)) event.choices.push({ id: leg.choiceId, label: leg.label });
+    }
+    return [...rows.values()];
+  }
   function renderNoteContext() {
     const select = $('note-event'), chosen = select.value; select.replaceChildren();
     const none = make(select, 'option', 'General research note'); none.value = '';
     const seen = new Set();
-    const rows = [...store.get().events, ...store.get().plan.slots.flatMap(slot => slot.legs.map(leg => ({ id: leg.eventId, name: leg.event, choices: [] })))];
+    const rows = noteEvents();
     for (const event of rows) if (!seen.has(event.id)) { seen.add(event.id); const option = make(select, 'option', event.name); option.value = event.id; }
     select.value = seen.has(chosen) ? chosen : ''; renderNoteChoices();
   }
   function renderNoteChoices() {
     const select = $('note-choice'); select.replaceChildren(); const none = make(select, 'option', 'Whole event'); none.value = '';
-    for (const choice of store.get().events.find(event => event.id === $('note-event').value)?.choices || []) { const option = make(select, 'option', choice.label); option.value = choice.id; }
+    for (const choice of noteEvents().find(event => event.id === $('note-event').value)?.choices || []) { const option = make(select, 'option', choice.label); option.value = choice.id; }
   }
   $('note-event').addEventListener('change', renderNoteChoices);
   function renderView() {
@@ -410,7 +422,7 @@
   $('freeze').addEventListener('click', () => safely(async () => { if (saving) return; saving = true; $('freeze').disabled = true; try { const state = store.get(); if (state.history.some(record => record.snapshot.id === state.plan.id && record.snapshot.revision === state.plan.revision)) { notice('This revision is already saved. Find it in Saved research.'); return; } if (state.history.length >= 200) throw Error('Local journal limit reached. Export your research.'); const record = await S.seal(E.freeze(state.plan, Date.now(), state.events)); saveEnvelope({ history: [...store.get().history, record] }); notice('Original research saved. Paper outcomes can be annotated in Saved research.'); } finally { saving = false; $('freeze').disabled = false; } }));
   $('community').addEventListener('submit', event => { event.preventDefault(); safely(() => {
     const reasoning = $('reasoning').value.trim(); if (!reasoning || reasoning.length > 3000) throw Error('Enter reasoning of up to 3,000 characters.');
-    const linkedEvent = store.get().events.find(item => item.id === $('note-event').value);
+    const linkedEvent = noteEvents().find(item => item.id === $('note-event').value);
     const choice = linkedEvent?.choices.find(item => item.id === $('note-choice').value);
     const context = { eventId: linkedEvent?.id || null, event: linkedEvent?.name || null, choiceId: choice?.id || null, choice: choice?.label || null, sourceDate: $('note-source-date').value || null, concern: $('note-concern').value.trim().slice(0, 1500), kind: $('note-kind').value };
     const result = I.classifyClaim(reasoning, $('methodology').value, [$('evidence').value]); const root = $('community-result'); root.replaceChildren();
