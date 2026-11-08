@@ -1,0 +1,31 @@
+name: Evidence v3 regression
+on:
+  push:
+    paths:
+      - 'paper-lab/**'
+      - 'tests/test_evidence_v3.cjs'
+      - '.github/workflows/evidence-v3-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify four-sport evidence gates
+        run: node tests/test_evidence_v3.cjs
+      - name: Check deployment HTML and critical assets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          h=Path('paper-lab/index.html').read_text()
+          for asset in ('evidence-v3.js','desk.js','engine.js','core.js'):
+              assert f'src="{asset}' in h, f'Missing asset: {asset}'
+              assert Path('paper-lab',asset).is_file(), f'Asset not found: {asset}'
+          assert 'Paper research' in h
+          print('Dashboard HTML and assets verified')
+          PY
