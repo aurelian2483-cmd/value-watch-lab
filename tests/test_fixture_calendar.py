@@ -16,7 +16,7 @@ class FixtureCalendarTests(unittest.TestCase):
   self.assertEqual(rows[0]['record_type'],'MEETING_FIXTURE')
   self.assertNotIn('startUTC',rows[0])
  def test_unverified_format_not_invented(self):
-  d=collect_fixtures(['2026-11-09'],self.now,fetch=lambda url:b'<html>Today's fixtures</html>')
+  d=collect_fixtures(['2026-11-09'],self.now,fetch=lambda url:b"<html>Today fixtures</html>")
   self.assertEqual(d['status'],'FORMAT_UNVERIFIED')
   self.assertEqual(d['meetings'],[])
  def test_failed_source_not_empty_calendar_claim(self):
