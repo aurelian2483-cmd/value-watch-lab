@@ -114,8 +114,8 @@ def main():
                         if runner.get("active_runner") is not True or runner.get("runner_status") != "RUNNER":
                             continue
                         name = runner.get("name", "")
-                        if name and (re.search(r"\\b(?:tip|nap|pick|selection)\\s*[:–-]\\s*" + re.escape(name) + r"\\b", title, re.I)
-                                     or re.search(re.escape(name) + r"\\s*[:–-]\\s*(?:tip|nap|pick|selection)\\b", title, re.I)):
+                        if name and (re.search(r"\b(?:tip|nap|pick|selection)\s*[:–-]\s*" + re.escape(name) + r"\b", title, re.I)
+                                     or re.search(re.escape(name) + r"\s*[:–-]\s*(?:tip|nap|pick|selection)\b", title, re.I)):
                             headline_candidates.append((candidate_race, runner))
                 matches = []
                 for race in races:
