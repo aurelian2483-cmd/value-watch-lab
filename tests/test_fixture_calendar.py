@@ -23,4 +23,14 @@ class FixtureCalendarTests(unittest.TestCase):
   d=collect_fixtures(['2026-11-09'],self.now,fetch=lambda url:(_ for _ in ()).throw(OSError('offline')))
   self.assertEqual(d['status'],'COLLECTION_FAILED')
   self.assertEqual(d['meetings'],[])
+ def test_sportinglife_dated_meeting_link_with_extra_anchor_text(self):
+  html=b'<a href="/racing/meeting/2026-11-09/carlisle/122465">Carlisle Going: Soft</a>'
+  rows=parse_fixture_links(html,{'2026-11-09'},self.now)
+  self.assertEqual(len(rows),1)
+  self.assertEqual(rows[0]['course'],'Carlisle')
+  self.assertEqual(rows[0]['record_type'],'MEETING_FIXTURE')
+  self.assertEqual(rows[0]['race_times_status'],'NOT_SUPPLIED')
+ def test_rejects_undated_and_external_links(self):
+  html=b'<a href="/racing/meeting/carlisle/122465">Carlisle</a><a href="https://example.org/racing/meeting/2026-11-09/carlisle/122465">Carlisle</a>'
+  self.assertEqual(parse_fixture_links(html,{'2026-11-09'},self.now),[])
 if __name__=='__main__':unittest.main()
