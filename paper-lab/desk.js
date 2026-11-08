@@ -447,6 +447,11 @@
     let coverage=$('racing-date-coverage');
     if(!coverage){coverage=make(null,'div',undefined,'racing-date-coverage');$('coverage-summary').after(coverage);}
     coverage.replaceChildren();
+    if(state.sport==='racing'){
+      const fixtures=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to);
+      make(coverage,'p','Scheduled meetings (not racecards): '+fixtures.length+' · '+racingFixtureStatus,'small');
+      for(const m of fixtures.slice(0,70))make(coverage,'p',m.date+' · '+m.course+' · race times and declarations pending','muted');
+    }
     const selectedSport=state.sport;
     coverage.hidden=!['racing','football','tennis'].includes(selectedSport);
     if(!coverage.hidden){
@@ -698,6 +703,19 @@
   // Curated, auditable community observations. The public browser never scrapes third-party sites.
   // Match exact provider race ID, start time, runner name and publication chronology.
   let tournamentCoverage = [];
+  let racingFixtureMeetings = [];
+  let racingFixtureStatus = 'NOT_LOADED';
+  async function refreshRacingFixtures(){
+    try{
+      const response=await fetch(new URL('racing-future-data.json',rootURL),{cache:'no-store'});
+      if(!response.ok)throw Error('Fixture feed unavailable');
+      const d=await response.json();
+      if(d.schema_version!==1||d.research_only!==true||d.publication_gate!=='BLOCKED'||d.model_validation!=='UNVALIDATED')throw Error('Fixture feed research gates invalid');
+      racingFixtureMeetings=Array.isArray(d.fixture_meetings)?d.fixture_meetings.filter(m=>m.record_type==='MEETING_FIXTURE'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(m.date)&&typeof m.course==='string'&&m.course.length<80):[];
+      racingFixtureStatus=d.fixture_source_status||'NOT_AVAILABLE';
+    }catch(error){racingFixtureMeetings=[];racingFixtureStatus='NOT_AVAILABLE';console.warn('Fixture coverage unavailable',error);}
+    renderEvents();
+  }
   async function refreshTournamentCoverage() {
     try {
       const response=await fetch(new URL('other-sports-data.json',rootURL),{cache:'no-store'});
@@ -763,7 +781,7 @@
         }
       }
       renderSources(result); notice((result.errors.length ? 'Some sources need attention · ' : '') + events.length + ' total records loaded across all dates · snapshot files checked ' + dateText(result.checkedAt)); }); } });
-  const refresh = async () => { lastRefresh = Date.now(); await Promise.all([refreshCommunity(),refreshTournamentCoverage()]); return transport.refresh(specs); };
+  const refresh = async () => { lastRefresh = Date.now(); await Promise.all([refreshCommunity(),refreshTournamentCoverage(),refreshRacingFixtures()]); return transport.refresh(specs); };
   let opener = null;
   function openSlip() { opener = document.activeElement; document.body.classList.add('paper-open'); $('paper-backdrop').hidden = false; $('paper-open').setAttribute('aria-expanded', 'true'); $('slip-panel').setAttribute('aria-modal', 'true'); $('slip-panel').setAttribute('role', 'dialog'); $('paper-close').focus(); }
   function closeSlip() { document.body.classList.remove('paper-open'); $('paper-backdrop').hidden = true; $('paper-open').setAttribute('aria-expanded', 'false'); $('slip-panel').removeAttribute('aria-modal'); $('slip-panel').removeAttribute('role'); opener?.focus(); }
