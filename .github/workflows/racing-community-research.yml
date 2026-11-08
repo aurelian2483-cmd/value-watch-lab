@@ -24,6 +24,7 @@ jobs:
           python -m json.tool racing-research/source-observations.json > /dev/null
           python -m unittest discover -s tests -p test_racing_community_evidence.py
           python -m unittest discover -s tests -p test_racing_collector_integration.py
+          python -m unittest discover -s tests -p test_racing_market_audit.py
       - name: Commit updated research archive
         run: |
           if ! git diff --quiet -- racing-research/source-observations.json; then
