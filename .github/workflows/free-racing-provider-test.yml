@@ -5,6 +5,7 @@ on:
       - 'scripts/fixture_calendar.py'
       - 'scripts/free_racing_sources.py'
       - 'scripts/atr_calendar.py'
+      - 'scripts/diagnose_free_racing.py'
       - 'tests/test_atr_calendar.py'
       - 'scripts/collect_future_racing.py'
       - 'tests/test_fixture_calendar.py'
@@ -27,6 +28,8 @@ jobs:
       - name: Fixture and fallback tests
         run: python -m unittest discover -s tests -p 'test_*racing_sources.py' -v && python -m unittest discover -s tests -p 'test_fixture_calendar.py' -v
       - run: python -m unittest discover -s tests -p 'test_atr_calendar.py' -v
+      - name: Inspect live provider HTML structure (no publishing)
+        run: python scripts/diagnose_free_racing.py
       - name: Read-only provider diagnostics (no publishing)
         run: |
           PYTHONPATH=scripts python - <<'PY'
