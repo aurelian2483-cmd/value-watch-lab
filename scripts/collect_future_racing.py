@@ -117,6 +117,8 @@ def validate_publishable_snapshot(data):
  fixtures=data.get('fixture_meetings')
  if not isinstance(races,list) or not isinstance(fixtures,list) or not (races or fixtures):
   raise ValueError('Refusing to replace snapshot with no observed records')
+ if fixtures and data.get('fixture_source_status')!='SOURCE_OBSERVED':
+  raise ValueError('Fixture records require observed source status')
  for race in races:
   if not isinstance(race,dict) or race.get('verification')!='SINGLE_SOURCE_UNVERIFIED':
    raise ValueError('Race provenance invalid')
