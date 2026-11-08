@@ -165,8 +165,11 @@
     const contenders=(event.choices||[]).filter(c=>window.ValueWatchEvidenceV3?.evaluate(event,c).green==='PROVISIONAL');
     const favourite=contenders.length===1?contenders[0]:null;
     const badges=favourite?window.ValueWatchEvidenceV3.evaluate(event,favourite):null;
-    make(evidencePanel,'p','GREEN · '+(favourite?favourite.label+' · Provisional observed-price favourite':'Not established')+'  |  BLUE · Not awarded  |  YELLOW · Not awarded','small');
-    make(evidencePanel,'small','Media tracked separately · no independently attested grassroots posts in this feed · official market verification unavailable','muted');
+    const gates=(event.choices||[]).map(choice=>({choice,gate:window.ValueWatchEvidenceV3.evaluate(event,choice)}));
+    const blueChoices=gates.filter(x=>x.gate.blue==='VERIFIED').map(x=>x.choice.label);
+    const yellowChoices=gates.filter(x=>x.gate.yellow==='MULTI_USER_CONSENSUS').map(x=>x.choice.label);
+    make(evidencePanel,'p','GREEN · '+(favourite?favourite.label+' · Provisional observed-price favourite':'Not established')+'  |  BLUE · '+(blueChoices.join(', ')||'Not awarded')+'  |  YELLOW · '+(yellowChoices.join(', ')||'Not awarded'),'small');
+    make(evidencePanel,'small','Media tracked separately · Blue/Yellow require independently verified primary posts · official market verification unavailable','muted');
     evidencePanel.style.cssText='padding:10px 12px;margin:10px 0;border:1px solid #52718b;border-radius:10px;background:#172b38;color:#f1f5f9';
     record.racingPanel.replaceChildren();
     record.racingPanel.hidden = event.sport !== 'racing';
@@ -177,9 +180,9 @@
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
       // Show the actual picks first; keep the evidence and collector diagnostics collapsed.
       const green = picks.find(p => p.labels.includes('Odds favourite'));
-      const blue = picks.filter(p => p.labels.some(label => label.startsWith('Community')));
-      const leader = null; // v3: no verified grassroots posts in legacy archive
-      const agreed = green && leader && green.choice.id === leader.choice.id;
+      const evaluations=(event.choices||[]).map(choice=>({choice,gate:window.ValueWatchEvidenceV3.evaluate(event,choice)}));
+      const blue=evaluations.filter(item=>item.gate.blue==='VERIFIED');
+      const yellow=evaluations.filter(item=>item.gate.yellow==='MULTI_USER_CONSENSUS');
       const summary = make(record.racingPanel,'div',undefined,'racing-colour-summary');
       summary.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin:12px 0';
       const signal=(colour,title,horse,detail)=>{
@@ -189,8 +192,8 @@
         make(tile,'div',horse,'small');make(tile,'small',detail,'muted');
       };
       signal('#b8ee79','GREEN · Odds favourite',green?.choice.label||'Unavailable','Lowest observed price; not validated');
-      signal('#60a5fa','BLUE · Community','Not awarded','Primary post, author and verified pre-race timestamp required');
-      signal('#facc15','YELLOW · Agreement','Not awarded','Requires verified multi-user value-betting consensus');
+      signal('#60a5fa','BLUE · Community',blue.length?blue.map(x=>x.choice.label).join(', '):'Not awarded',blue.length?'Verified primary grassroots selection':'Primary post, author and verified pre-race timestamp required');
+      signal('#facc15','YELLOW · Agreement',yellow.length?yellow.map(x=>x.choice.label).join(', '):'Not awarded',yellow.length?'Verified same-thread multi-user value-betting consensus':'Requires verified same-thread multi-user value-betting consensus');
       const diagnostics=make(record.racingPanel,'details',undefined,'racing-audit-details');
       diagnostics.style.cssText='margin:12px 0;border:1px solid #49657b;border-radius:10px;padding:10px;background:#102431';
       make(diagnostics,'summary','Evidence audit & collector details');
