@@ -30,4 +30,17 @@ class CommunityEvidenceTests(unittest.TestCase):
                 self.assertIn(e.get('verification'),('RSS_EXPLICIT_MENTION_REVIEW_REQUIRED','RSS_EXPLICIT_HEADLINE_UNVERIFIED'))
                 if e.get('verification') == 'RSS_EXPLICIT_HEADLINE_UNVERIFIED':
                     self.assertEqual(e.get('extraction_method'),'explicit_headline')
+    def test_explicit_headline_selection_rules(self):
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('racing_collector',ROOT/'scripts/collect_racing_community.py')
+        module=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        positive=('NAP: The Mourne Rambler','The Mourne Rambler - Tip','Pick: Low Kick')
+        for headline in positive:
+            horse='Low Kick' if 'Low Kick' in headline else 'The Mourne Rambler'
+            with self.subTest(headline=headline):
+                self.assertTrue(module.explicit_headline_pick(headline,horse))
+        for headline in ('Preview: The Mourne Rambler is running','Tips for Naas including The Mourne Rambler','NAP: Another Horse'):
+            with self.subTest(headline=headline):
+                self.assertFalse(module.explicit_headline_pick(headline,'The Mourne Rambler'))
 if __name__=='__main__':unittest.main()
