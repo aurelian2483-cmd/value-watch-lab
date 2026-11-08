@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "RSS candidate collection endpoints. Enabled means the scheduled job will attempt fetch, not that the feed is live or provides selections. Only explicit pre-race headlines can become unverified experimental tips; editorial mentions remain excluded.",
+  "description": "Best-effort public RSS collection. Enabled indicates an attempted endpoint, NOT verified availability or tip coverage. X/Twitter needs an authorized API or other permitted feed and is not automatically connected.",
   "sources": [
     {
       "publisher": "Get Your Tips Out",
@@ -71,6 +71,70 @@
       "enabled": true,
       "validation_status": "CANDIDATE_ENDPOINT_NOT_YET_LIVE_VERIFIED",
       "notes": "Candidate feed listed by public RSS directories; successful fetch and actual tip extraction not yet confirmed."
+    },
+    {
+      "publisher": "The Racing Forum",
+      "type": "forum",
+      "feed_url": "https://www.theracingforum.co.uk/forums/-/index.rss",
+      "enabled": true,
+      "validation_status": "CANDIDATE_UNVERIFIED",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+    },
+    {
+      "publisher": "Fat Jockey",
+      "type": "forum",
+      "feed_url": "https://www.fatjockey.com/feed",
+      "enabled": true,
+      "validation_status": "CANDIDATE_UNVERIFIED",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+    },
+    {
+      "publisher": "The UK Betting Forum",
+      "type": "forum",
+      "feed_url": "https://www.theukbettingforum.co.uk/forums/-/index.rss",
+      "enabled": true,
+      "validation_status": "CANDIDATE_UNVERIFIED",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+    },
+    {
+      "publisher": "Betfair Community Horse Racing",
+      "type": "forum",
+      "feed_url": "https://community.betfair.com/horse_racing/rss",
+      "enabled": true,
+      "validation_status": "CANDIDATE_UNVERIFIED",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+    },
+    {
+      "publisher": "Punters Lounge Forum",
+      "type": "forum",
+      "feed_url": "https://forum.punterslounge.com/forums/-/index.rss",
+      "enabled": true,
+      "validation_status": "CANDIDATE_UNVERIFIED",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+    },
+    {
+      "publisher": "OLBG Racing Community",
+      "type": "forum",
+      "feed_url": "https://www.olbg.com/forum/feed",
+      "enabled": true,
+      "validation_status": "CANDIDATE_UNVERIFIED",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+    },
+    {
+      "publisher": "Reddit HorseRacingUK",
+      "type": "forum",
+      "feed_url": "https://www.reddit.com/r/HorseRacingUK/new/.rss",
+      "enabled": true,
+      "validation_status": "CANDIDATE_UNVERIFIED",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+    },
+    {
+      "publisher": "Reddit horseracing",
+      "type": "forum",
+      "feed_url": "https://www.reddit.com/r/horseracing/new/.rss",
+      "enabled": true,
+      "validation_status": "CANDIDATE_UNVERIFIED",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
     }
   ]
 }
