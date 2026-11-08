@@ -52,3 +52,18 @@ The release branch workflow compiles pinned Tailwind, runs all regressions, then
 Rendered screenshots and the exact browser report are retained under `docs/preview/` on the review branch. A mobile animation offset found during visual review was fixed and added to the bounding-box regression.
 
 This is tested research software, not a guarantee of flawless behavior or a demonstrated betting advantage. Authenticated-service load tests and comprehensive physical-device/screen-reader certification have not been performed.
+
+## 3.1 personal research refinements
+
+- Keeps the existing design and four manually requested research approaches. Build scope can follow all current filters or explore all supported sports within the selected dates. Existing nonempty slips remain unchanged.
+- Model estimates appear inside expandable model details; the main outcome buttons show actual supplied source observations or Unpriced. Captured estimates remain intact.
+- New slips start without a chosen stake (zero internally); the user enters a paper stake per line. Existing saved amounts are preserved. Totals and structure comparisons remain illustrative.
+- Oddschecker sport comparison links are available on cards, selected legs and the tracker. Exact match URLs are used only when supplied by a source receipt. No event slugs, odds or automatic Oddschecker feed are invented. The site does not fetch or scrape Oddschecker, and clicking a link does not mark any quote checked.
+- Private notes can link to an event and outcome, retain a source/date, distinguish opinion/question/unverified sourced claims, and record a counterargument. Linked notes are visible on event cards and in saved research; nothing is sent to a public service.
+- A local append-only manual paper journal records pending/disputed/settled status, an HTTPS result source, reasoning and corrections. Settled monetary totals require original positive stakes and sourced pre-event prices. No payout is inferred. Latest corrections replace earlier totals; disputes are excluded. Mixed-sport slips are excluded from single-sport monetary views.
+- The small progress chart uses only actual manually recorded eligible paper outcomes, with sport, saved-date and approach filters. There are no illustrative profit curves. No entries means no chart. All records remain manually supplied and unverified.
+- Published snapshot files refresh about once per minute while visible and online, using the existing single-flight/last-good client. This does not collect fresh upstream data or create a live score service.
+
+### Integration limits checked for this release
+
+Sofascore officially offers free iframe widgets (https://corporate.sofascore.com/widgets), but its public API FAQ says data endpoints are not supplied (https://sofascore.helpscoutdocs.com/article/129-sports-data-api-availability). Event-specific approved embed URLs and identity mappings have not yet been verified for this feed. No speculative iframe, 2D player animation or horse-position tracking is enabled. Exact sourced Sofascore links can be displayed if supplied by event receipts. Oddschecker is an external price-check destination, not a connected automatic feed. Player pop-ups remain unavailable because sourced appearance/baseline records are missing. Existing H2H and recent-form tabs display only supplied records. Automatic market settlement is not connected; manual paper bookkeeping does not change model validation or publication gates. Storage remains browser-local; no cross-device sync or account statements are published.

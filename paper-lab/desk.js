@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const E = ResearchEngine, S = ResearchStore, I = ResearchInsights;
+  const E = ResearchEngine, S = ResearchStore, I = ResearchInsights, C = ResearchConnections, J = ResearchJournal;
   const $ = id => document.getElementById(id);
   const rootURL = new URL('../', document.currentScript.src);
   const sports = { all: 'All sports', football: 'Football', racing: 'Horse racing', tennis: 'Tennis', nfl: 'NFL' };
@@ -51,15 +51,16 @@
     if (!value || value.version !== 4 || !Array.isArray(value.history) || value.history.length > 200 || !Array.isArray(value.claims) || value.claims.length > 100) throw Error('Saved workspace is invalid.');
     E.restore(JSON.stringify(value.plan));
     for (const record of value.history) { if (!record?.snapshot || record.independentlyAttested !== false) throw Error('Saved history is invalid.'); E.restore(JSON.stringify(record.snapshot)); }
-    for (const claim of value.claims) if (!claim || typeof claim.reasoning !== 'string' || claim.reasoning.length > 3000 || typeof claim.createdAt !== 'string') throw Error('Saved claim is invalid.');
-    return value;
+    for (const claim of value.claims) if (!claim || typeof claim.reasoning !== 'string' || claim.reasoning.length > 3000 || typeof claim.createdAt !== 'string' || !Number.isFinite(Date.parse(claim.createdAt)) || (claim.concern !== undefined && (typeof claim.concern !== 'string' || claim.concern.length > 1500)) || (claim.eventId !== undefined && claim.eventId !== null && (typeof claim.eventId !== 'string' || claim.eventId.length > 4000))) throw Error('Saved claim is invalid.');
+    J.validateEntries(value.journal || []);
+    return { ...value, journal: value.journal || [] };
   }
   let storage;
   try { storage = window.localStorage; }
   catch { storage = { getItem() { throw Error(); }, setItem() { throw Error(); } }; }
   const persistence = S.createPersistence(storage, key, validateWorkspace, message => write($('storage'), message));
   const restored = persistence.read();
-  const initial = restored || { version: 4, plan: E.createPlan({ from: today(), to: plusDays(today(), 6) }), history: [], claims: [] };
+  const initial = restored || { version: 4, plan: E.createPlan({ from: today(), to: plusDays(today(), 6) }), history: [], claims: [], journal: [] };
   const store = S.createStore({ ...initial, events: [], eventVersion: 0, snapshotState: null, slot: 0, sport: 'all', competition: 'all', query: '', eventView: 'upcoming', view: 'events', limit: 24, replacing: null, clockTick: 0 });
   let legacy = [];
   try { const raw = storage.getItem('value-watch-paper-lab-v3'); legacy = Object.values(raw ? JSON.parse(raw) : {}).map(plan => PaperLab.restore(JSON.stringify(plan))); }
@@ -71,10 +72,10 @@
   } });
   function savePlan(plan) {
     E.restore(E.serialize(plan)); store.update(state => ({ ...state, plan, replacing: null }));
-    const state = store.get(); if (persistence.write({ version: 4, plan, history: state.history, claims: state.claims })) write($('storage'), 'Saved on this device · export a backup');
+    const state = store.get(); if (persistence.write({ version: 4, plan, history: state.history, claims: state.claims, journal: state.journal })) write($('storage'), 'Saved on this device · export a backup');
   }
   function saveEnvelope(changes) {
-    const state = store.get(), next = { version: 4, plan: state.plan, history: state.history, claims: state.claims, ...changes };
+    const state = store.get(), next = { version: 4, plan: state.plan, history: state.history, claims: state.claims, journal: state.journal, ...changes };
     if (!persistence.write(next)) throw Error('The change could not be saved. Export your research before continuing.');
     store.update(current => ({ ...current, ...changes }));
   }
@@ -106,6 +107,14 @@
     const meta = make(header, 'span', '', 'event-meta'), time = make(header, 'time', '', 'event-time'), title = make(article, 'h3', '', 'event-title');
     const status = make(article, 'span', '', 'event-status'), conditions = make(article, 'p', '', 'event-conditions');
     const market = make(article, 'div', undefined, 'market-grid'), explanation = make(article, 'p', '', 'market-explanation');
+    const tools = make(article, 'div', undefined, 'event-tools');
+    const check = link(tools, 'Check prices on Oddschecker ↗', 'https://www.oddschecker.com/');
+    const note = button(tools, 'Add private note', () => {
+      store.update(state => ({ ...state, view: 'community' })); renderNoteContext(); $('note-event').value = id; renderNoteChoices(); $('reasoning').focus();
+    });
+    const estimates = details(article, 'Experimental model details', 'model-details');
+    const modelPanel = make(estimates, 'div');
+    const notes = details(article, 'Private notes', 'model-details'), notesPanel = make(notes, 'div');
     const evidence = details(article, 'Statistics & evidence');
     const tabs = make(evidence, 'div', undefined, 'stats-tabs'), panel = make(evidence, 'div', undefined, 'stats-panel'), buttons = new Map();
     tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'Event statistics'); panel.setAttribute('aria-live', 'polite');
@@ -113,7 +122,7 @@
       const b = button(tabs, label, () => loadStats(id, tab, panel, buttons)); b.dataset.statsTab = tab; b.setAttribute('aria-pressed', 'false'); buttons.set(tab, b);
     }
     evidence.addEventListener('toggle', () => { if (evidence.open && (!panel.dataset.loaded || panel.dataset.pending === 'true')) safely(() => loadStats(id, 'h2h', panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
-    return { node: article, meta, time, title, status, conditions, market, explanation, evidence, panel, buttons, choices: new Map(), structural: '' };
+    return { node: article, meta, time, title, status, conditions, market, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, choices: new Map(), structural: '' };
   }
   function patchCard(record, event) {
     const state = store.get(), status = E.statusOf(event), selected = state.plan.slots[state.slot].legs;
@@ -134,12 +143,29 @@
     for (const choice of event.choices) {
       const view = record.choices.get(choice.id); if (!view) continue;
       const chosen = selected.some(leg => leg.eventId === event.id && leg.choiceId === choice.id), priced = typeof choice.quote?.decimal === 'number';
-      const value = priced ? choice.quote.decimal.toFixed(2) : choice.probability !== null ? pct(choice.probability) : 'Unpriced';
-      write(view.price, value); write(view.caption, chosen ? 'IN THIS SLIP' : priced ? 'SOURCE PRICE · UNVERIFIED' : choice.probability !== null ? 'EXPERIMENTAL ESTIMATE' : 'PAPER HYPOTHESIS');
+      const value = priced ? choice.quote.decimal.toFixed(2) : 'Unpriced';
+      write(view.price, value); write(view.caption, chosen ? 'IN THIS SLIP' : priced ? 'SOURCE PRICE · UNVERIFIED' : 'PAPER HYPOTHESIS');
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
       view.element.setAttribute('aria-label', choice.label + ' · ' + value + ' · ' + (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name);
       if (priced && view.previous !== null && view.previous !== choice.quote.decimal) { view.element.classList.remove('odds-up', 'odds-down'); view.element.classList.add(choice.quote.decimal > view.previous ? 'odds-up' : 'odds-down'); }
       view.previous = priced ? choice.quote.decimal : null;
+    }
+    const notes = state.claims.filter(note => note.eventId === event.id);
+    record.notes.hidden = !notes.length;
+    const noteSignature = JSON.stringify(notes);
+    if (record.notesPanel.dataset.signature !== noteSignature) {
+      record.notesPanel.dataset.signature = noteSignature; record.notesPanel.replaceChildren();
+      for (const note of notes) showNote(record.notesPanel, note);
+    }
+    record.check.href = C.eventLink(event, 'www.oddschecker.com') || C.oddschecker(event.sport);
+    record.check.title = 'Opens Oddschecker. Match the event, date, market and Sky Bet column; no price is imported.';
+    const modelSignature = JSON.stringify([event.model, event.choices.map(choice => [choice.label, choice.probability])]);
+    if (record.modelPanel.dataset.signature !== modelSignature) {
+      record.modelPanel.dataset.signature = modelSignature; record.modelPanel.replaceChildren();
+      if (event.model) for (const choice of event.choices) {
+        const row = make(record.modelPanel, 'div', undefined, 'stat-row'); make(row, 'span', choice.label); make(row, 'strong', pct(choice.probability));
+      }
+      make(record.modelPanel, 'p', event.model ? 'Model ' + event.model.name + ' · UNVALIDATED · uncertainty unquantified. Percentages are estimates, not prices or verified value.' : 'No supported model estimate supplied.', 'small');
     }
     write(record.explanation, event.model ? 'Experimental estimate · uncertainty unquantified · no verified EV' : event.sources.some(source => source.url) ? 'Source-observed event · no supported model estimate' : 'Paper hypothesis · event-level receipt unavailable');
   }
@@ -200,7 +226,10 @@
         const league = details(sportBox, competition, 'tracker-competition'); league.dataset.key = sport + ':' + competition;
         for (const event of matches.filter(event => event.competition === competition).slice(0, 20)) {
           const game = details(league, event.name, 'tracker-event'); game.dataset.key = event.id;
-          make(game, 'p', dateText(event.startUTC), 'small'); make(game, 'strong', event.score?.label ? 'Final · ' + event.score.label : E.statusOf(event).label); make(game, 'p', 'Snapshot ' + dateText(event.observedAt) + ' · no live connection', 'small'); if (event.score) provenance(game, event.score.sources);
+          make(game, 'p', dateText(event.startUTC), 'small'); make(game, 'strong', event.score?.label ? 'Final · ' + event.score.label : E.statusOf(event).label); make(game, 'p', 'Snapshot ' + dateText(event.observedAt) + ' · published data, not live tracking', 'small'); if (event.score) provenance(game, event.score.sources);
+          const sofa = C.eventLink(event, 'www.sofascore.com');
+          if (sofa) link(game, 'View sourced Sofascore event ↗', sofa);
+          link(game, 'Check prices on Oddschecker ↗', C.eventLink(event, 'www.oddschecker.com') || C.oddschecker(event.sport));
         }
       }
     }
@@ -226,11 +255,13 @@
     if (state.selectable) {
       const form = make(evidence, 'form', undefined, 'record-price-form');
       const field = (label, type, value) => { const wrap = make(form, 'label', label), input = make(wrap, 'input'); input.type = type; input.value = value; input.required = true; return input; };
+      link(evidence, 'Check prices on Oddschecker ↗', C.oddschecker(leg.sport));
       const price = field('Observed decimal price', 'number', leg.quote?.decimal || ''); price.min = '1.00000001'; price.max = '100000'; price.step = 'any';
+      const bookmaker = field('Bookmaker', 'text', leg.quote?.bookmaker || 'Sky Bet'); bookmaker.maxLength = 100;
       const source = field('Evidence source URL', 'url', leg.quote?.source || '');
       const seen = field('Observation time (UTC)', 'datetime-local', new Date().toISOString().slice(0, 16));
       const submit = make(form, 'button', 'Record unverified source price', 'button button-secondary'); submit.type = 'submit'; make(form, 'p', 'User-recorded evidence only. Source, market and availability require independent checking.', 'small');
-      form.addEventListener('submit', event => { event.preventDefault(); safely(() => savePlan(E.setRecordedQuote(store.get().plan, slot.id, leg.id, { decimal: Number(price.value), source: source.value, observedAt: new Date(seen.value + 'Z').toISOString(), bookmaker: 'User-recorded source' }))); });
+      form.addEventListener('submit', event => { event.preventDefault(); safely(() => savePlan(E.setRecordedQuote(store.get().plan, slot.id, leg.id, { decimal: Number(price.value), source: source.value, observedAt: new Date(seen.value + 'Z').toISOString(), bookmaker: bookmaker.value }))); });
     }
   }
   let slipSignature = '';
@@ -238,7 +269,7 @@
     const state = store.get(), slot = state.plan.slots[state.slot], evaluation = E.evaluateSlot(slot, state.events);
     write($('slip-title'), slot.name); write($('slip-subtitle'), slot.description); write($('slip-count'), slot.legs.length + ' / 15'); write($('mobile-count'), state.plan.slots.reduce((sum, slot) => sum + slot.legs.length, 0));
     document.querySelectorAll('[data-slot]').forEach(element => { const active = Number(element.dataset.slot) === state.slot + 1; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
-    if (document.activeElement !== $('stake')) $('stake').value = (slot.stakeMinor / 100).toFixed(2); $('slip-structure').value = slot.structure;
+    if (document.activeElement !== $('stake')) $('stake').value = slot.stakeMinor ? (slot.stakeMinor / 100).toFixed(2) : ''; $('slip-structure').value = slot.structure;
     const signature = JSON.stringify([state.slot, evaluation, state.replacing], (key, value) => key === 'ageMs' ? undefined : value); if (slipSignature === signature) return; slipSignature = signature;
     const root = $('slip-content'); if (!legs.size) root.replaceChildren(); root.querySelectorAll('.slip-empty, .generation-note').forEach(element => element.remove());
     S.reconcile(root, evaluation.legs.map(leg => leg.id), legs, id => { const row = make(null, 'article', undefined, 'slip-selection'); row.dataset.legId = id; return { node: row, signature: '' }; }, (record, id) => { const position = evaluation.legs.findIndex(leg => leg.id === id); patchLeg(record, evaluation.legs[position], position, slot); });
@@ -246,6 +277,7 @@
     if (slot.generation) make(root, 'p', slot.generation.reason, 'generation-note small');
     const metrics = $('slip-metrics'); metrics.replaceChildren();
     const metric = (label, value, primary = false) => { const row = make(metrics, 'div', undefined, primary ? 'metric-primary' : 'metric-row'); make(row, 'span', label); make(row, 'strong', value); };
+    if (!slot.stakeMinor) make(metrics, 'p', 'Enter your paper stake per line to calculate amounts.', 'small');
     metric('Lines × stake per line', evaluation.lineCount + ' × ' + money(slot.stakeMinor)); metric('Total hypothetical stake', money(evaluation.totalStakeMinor)); metric('Illustrative odds product', evaluation.combinedDecimal ? evaluation.combinedDecimal.toFixed(2) : '—'); metric('Gross if every leg wins', money(evaluation.grossReturnMinor), true); metric('Net if every leg wins', money(evaluation.netReturnMinor));
     const compare = details(metrics, 'Compare structures', 'structure-comparison');
     for (const structure of ['singles', 'doubles', 'trebles', 'accumulator']) { const result = E.evaluateSlot({ ...slot, structure }, state.events), row = make(compare, 'div', undefined, 'metric-row'); make(row, 'span', structure + ' · ' + result.lineCount + ' lines'); make(row, 'strong', result.grossReturnMinor === null ? 'Needs prices' : money(result.grossReturnMinor)); }
@@ -261,24 +293,89 @@
     if (!rows.length) empty(root, 'No corroborated finals in this feed', 'A missing result is not a loss and does not settle your slip. Finals appear only with source-backed evidence.');
     for (const event of rows.sort((a, b) => Date.parse(b.startUTC) - Date.parse(a.startUTC))) { const card = make(root, 'article', undefined, 'result-card'); make(card, 'span', event.competition + ' · ' + dateText(event.startUTC), 'event-meta'); make(card, 'h3', event.name); make(card, 'strong', event.score.label, 'result-score'); make(card, 'span', 'Two-publisher final · no slip settlement inferred', 'event-status'); provenance(details(card, 'Result sources'), event.score.sources); }
   }
+  let journalApproach = '';
+  function renderProgress(root) {
+    const state = store.get(), summary = J.summarize(state.history.map(record => record.snapshot), state.journal, { sport: state.sport, from: state.plan.from, to: state.plan.to, slotId: journalApproach || undefined });
+    const panel = make(root, 'section', undefined, 'surface journal-summary'); make(panel, 'h3', 'Paper progress');
+    const label = make(panel, 'label', 'Research approach '), select = make(label, 'select');
+    for (const [id, title] of [['', 'All four approaches'], ...E.APPROACHES.map(item => [item.id, item.name])]) { const option = make(select, 'option', title); option.value = id; }
+    select.value = journalApproach; select.addEventListener('change', () => { journalApproach = select.value; safely(renderHistory); });
+    make(panel, 'p', 'Saved-date filter: ' + state.plan.from + ' → ' + state.plan.to + ' · ' + sports[state.sport] + ' · manual, unverified paper outcomes', 'small');
+    const unannotated = state.history.reduce((total, record) => total + record.snapshot.slots.filter(slot => slot.legs.length && !state.journal.some(entry => entry.key === J.key(record.snapshot, slot.id))).length, 0);
+    make(panel, 'p', summary.settledCount + ' settled · ' + summary.pendingCount + ' pending · ' + summary.disputedCount + ' disputed · ' + unannotated + ' saved slips not annotated (all dates)', 'small');
+    if (summary.mixedExcluded) make(panel, 'p', summary.mixedExcluded + ' mixed-sport slips excluded from this single-sport total.', 'small');
+    if (summary.invalidCount) make(panel, 'p', summary.invalidCount + ' inconsistent records excluded. Check originals before relying on totals.', 'warning-line');
+    if (!summary.settledCount) { make(panel, 'p', 'Your chart starts when an eligible paper result is recorded. No example profits are shown.', 'muted'); return; }
+    make(panel, 'strong', 'Paper net ' + money(summary.netReturnMinor) + ' · stake ' + money(summary.totalStakeMinor) + ' · gross return ' + money(summary.grossReturnMinor));
+    const rows = summary.entries.filter(entry => entry.status === 'SETTLED').sort((a, b) => a.recordedAt.localeCompare(b.recordedAt) || a.key.localeCompare(b.key));
+    let cumulative = 0; const values = [0, ...rows.map(entry => cumulative += entry.grossReturnMinor - entry.stakeMinor)], low = Math.min(...values), high = Math.max(...values), span = Math.max(high - low, 1);
+    const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg'); svg.setAttribute('viewBox', '0 0 600 100'); svg.setAttribute('class', 'journal-chart'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Cumulative manually recorded paper net, ' + money(summary.netReturnMinor) + ' across ' + rows.length + ' settled slips. Corrections replace previous totals.');
+    const line = document.createElementNS(ns, 'polyline'); line.setAttribute('points', values.map((value, index) => (8 + index / (values.length - 1) * 584) + ',' + (90 - (value - low) / span * 80)).join(' ')); line.setAttribute('fill', 'none'); line.setAttribute('stroke', 'currentColor'); line.setAttribute('stroke-width', '2'); svg.append(line); panel.append(svg);
+    make(panel, 'p', 'Corrections recalculate this chart. Results are your paper records, not independently verified performance.', 'small');
+  }
+  function renderSettlement(parent, snapshot, slot) {
+    const state = store.get(), entries = state.journal.filter(entry => entry.key === J.key(snapshot, slot.id)), last = entries.at(-1);
+    const box = details(parent, 'Paper outcome · ' + (last?.status || 'NOT RECORDED'), 'model-details');
+    if (last) { make(box, 'p', 'Revision ' + last.revision + ' · ' + dateText(last.recordedAt) + ' · MANUAL / UNVERIFIED', 'small'); make(box, 'p', last.reason); link(box, 'Result source ↗', last.source); }
+    const form = make(box, 'form', undefined, 'journal-form');
+    const statusLabel = make(form, 'label', 'Paper status'), status = make(statusLabel, 'select');
+    for (const name of ['PENDING', 'DISPUTED', 'SETTLED']) { const option = make(status, 'option', name); option.value = name; } status.value = last?.status || 'PENDING';
+    const field = (title, type, value = '') => { const label = make(form, 'label', title), input = make(label, 'input'); input.type = type; input.value = value; return input; };
+    const gross = field('Gross paper return (£, includes returned stake; 0 = complete loss)', 'text', last?.grossReturnMinor === null || !last ? '' : (last.grossReturnMinor / 100).toFixed(2)); gross.inputMode = 'decimal'; gross.maxLength = 14;
+    const source = field('Result source URL', 'url', last?.source || ''); source.required = true; source.maxLength = 2000;
+    const reasonLabel = make(form, 'label', 'Explain the exact market settlement or correction'), reason = make(reasonLabel, 'textarea'); reason.maxLength = 2000; reason.required = true; reason.rows = 2;
+    const sync = () => { gross.disabled = status.value !== 'SETTLED'; gross.required = !gross.disabled; }; status.addEventListener('change', sync); sync();
+    const submit = make(form, 'button', last ? 'Append paper correction' : 'Record paper outcome', 'button button-secondary'); submit.type = 'submit';
+    make(form, 'p', 'Confirm settlement rules yourself, including voids, retirement, each-way and dead heats. Enter the actual paper gross amount; it is never inferred. Original prices and stake are required for settled totals.', 'small');
+    const feedback = make(form, 'p', '', 'warning-line'); feedback.setAttribute('role', 'status');
+    form.addEventListener('submit', event => { event.preventDefault(); safely(() => { try {
+      const journal = J.append(store.get().journal, snapshot, slot.id, { status: status.value, source: source.value, reason: reason.value, grossReturnMinor: status.value === 'SETTLED' ? E.moneyMinor(gross.value) : null });
+      saveEnvelope({ journal }); notice('Paper outcome appended; original evidence and prior corrections retained.');
+    } catch (error) { write(feedback, error.message); } }); });
+    if (entries.length) { const audit = details(box, 'Previous annotations · ' + entries.length); for (const entry of entries) { make(audit, 'p', 'Revision ' + entry.revision + ' · ' + entry.status + ' · ' + dateText(entry.recordedAt) + (entry.grossReturnMinor !== null ? ' · gross ' + money(entry.grossReturnMinor) : ''), 'small'); make(audit, 'p', entry.reason, 'small'); link(audit, 'Recorded source ↗', entry.source); } }
+  }
   function renderHistory() {
-    const root = $('history'), state = store.get(); root.replaceChildren();
+    const root = $('history'), state = store.get(); root.replaceChildren(); renderProgress(root);
     if (!state.history.length && !legacy.length) empty(root, 'Keep the original evidence.', 'Save a research snapshot to preserve selections, source prices and model versions. Captures are read-only and exportable.');
     for (const [index, record] of [...state.history].reverse().entries()) {
-      const snapshot = record.snapshot, card = make(root, 'article', undefined, 'history-card'); make(card, 'span', 'Saved ' + dateText(snapshot.savedAt), 'event-meta'); make(card, 'h3', snapshot.from + ' → ' + snapshot.to); make(card, 'p', snapshot.slots.reduce((sum, slot) => sum + slot.legs.length, 0) + ' selections · original evidence retained · settlement unavailable', 'muted');
+      const snapshot = record.snapshot, card = make(root, 'article', undefined, 'history-card'); make(card, 'span', 'Saved ' + dateText(snapshot.savedAt), 'event-meta'); make(card, 'h3', snapshot.from + ' → ' + snapshot.to); make(card, 'p', snapshot.slots.reduce((sum, slot) => sum + slot.legs.length, 0) + ' selections · original evidence retained · paper annotations below', 'muted');
       const evidence = details(card, 'Original slips & source observations');
-      for (const slot of snapshot.slots) { make(evidence, 'h4', slot.name + ' · ' + slot.legs.length + ' legs'); for (const leg of slot.legs) { const row = make(evidence, 'div', undefined, 'history-leg'); make(row, 'strong', leg.label); make(row, 'p', leg.event + ' · ' + dateText(leg.startUTC), 'small'); make(row, 'p', 'Estimate ' + pct(leg.probability) + ' · observed price ' + (leg.quote?.decimal ?? 'not supplied'), 'small'); provenance(row, leg.sources); } }
+      for (const slot of snapshot.slots) { make(evidence, 'h4', slot.name + ' · ' + slot.legs.length + ' legs'); if (slot.legs.length) renderSettlement(evidence, snapshot, slot); for (const leg of slot.legs) { const row = make(evidence, 'div', undefined, 'history-leg'); make(row, 'strong', leg.label); make(row, 'p', leg.event + ' · ' + dateText(leg.startUTC), 'small'); make(row, 'p', 'Estimate ' + pct(leg.probability) + ' · observed price ' + (leg.quote?.decimal ?? 'not supplied'), 'small'); provenance(row, leg.sources); } }
       const integrity = make(card, 'p', record.sha256 ? 'Checking local integrity…' : 'Local hash unavailable · not independently attested', 'small');
       if (record.sha256) S.verify(record).then(valid => { if (integrity.isConnected) write(integrity, valid ? 'Local SHA-256 matches · not independently attested' : 'Integrity mismatch · do not rely on this record'); }).catch(() => write(integrity, 'Integrity verification unavailable'));
       button(card, 'Export original snapshot', () => exportJSON(record, 'research-snapshot-' + snapshot.from + '-' + index + '.json'));
     }
     for (const plan of legacy) { const card = make(root, 'article', undefined, 'history-card'); make(card, 'h3', 'Earlier paper workspace · ' + plan.date); make(card, 'p', 'Original storage has not been modified.', 'small'); for (const slot of plan.slots) for (const leg of slot.legs) make(card, 'p', leg.label + ' · ' + leg.event); button(card, 'Export earlier plan', () => exportJSON(plan, 'earlier-paper-plan-' + plan.date + '.json')); }
-    if (state.claims.length) { const notes = details(root, 'Private community research notes · ' + state.claims.length); for (const claim of state.claims) { const card = make(notes, 'article', undefined, 'history-card'); make(card, 'h4', claim.classification.replaceAll('_', ' ').toLowerCase()); make(card, 'p', claim.reasoning); make(card, 'small', dateText(claim.createdAt), 'muted'); } }
+    if (state.claims.length) { const notes = details(root, 'Private community research notes · ' + state.claims.length); for (const claim of state.claims) { const card = make(notes, 'article', undefined, 'history-card'); make(card, 'h4', claim.classification.replaceAll('_', ' ').toLowerCase()); make(card, 'p', claim.reasoning); make(card, 'small', dateText(claim.createdAt), 'muted');
+      if (claim.event) make(card, 'p', claim.event + (claim.choice ? ' · ' + claim.choice : ''), 'small');
+      if (claim.kind) make(card, 'p', claim.kind + (claim.sourceDate ? ' · source dated ' + claim.sourceDate : ''), 'small');
+      if (claim.concern) make(card, 'p', 'Concern / counterargument: ' + claim.concern, 'small');
+      for (const source of claim.sources || []) link(card, 'Original source ↗', source); } }
   }
+  function showNote(parent, note) {
+    const card = make(parent, 'div', undefined, 'history-leg');
+    if (note.choice) make(card, 'strong', note.choice);
+    make(card, 'p', note.reasoning); make(card, 'small', (note.kind || 'Unverified claim') + ' · saved ' + dateText(note.createdAt), 'muted');
+    if (note.concern) make(card, 'p', 'Concern: ' + note.concern, 'small');
+    for (const source of note.sources || []) link(card, 'Original source ↗', source);
+  }
+  function renderNoteContext() {
+    const select = $('note-event'), chosen = select.value; select.replaceChildren();
+    const none = make(select, 'option', 'General research note'); none.value = '';
+    const seen = new Set();
+    const rows = [...store.get().events, ...store.get().plan.slots.flatMap(slot => slot.legs.map(leg => ({ id: leg.eventId, name: leg.event, choices: [] })))];
+    for (const event of rows) if (!seen.has(event.id)) { seen.add(event.id); const option = make(select, 'option', event.name); option.value = event.id; }
+    select.value = seen.has(chosen) ? chosen : ''; renderNoteChoices();
+  }
+  function renderNoteChoices() {
+    const select = $('note-choice'); select.replaceChildren(); const none = make(select, 'option', 'Whole event'); none.value = '';
+    for (const choice of store.get().events.find(event => event.id === $('note-event').value)?.choices || []) { const option = make(select, 'option', choice.label); option.value = choice.id; }
+  }
+  $('note-event').addEventListener('change', renderNoteChoices);
   function renderView() {
     const state = store.get(); for (const view of ['events', 'results', 'history', 'community']) $(view + '-view').hidden = state.view !== view;
     document.querySelectorAll('[data-view]').forEach(element => { const active = element.dataset.view === state.view; element.classList.toggle('active', active); if (active) element.setAttribute('aria-current', 'page'); else element.removeAttribute('aria-current'); });
-    if (state.view === 'results') renderResults(); if (state.view === 'history') renderHistory();
+    if (state.view === 'results') renderResults(); if (state.view === 'history') renderHistory(); if (state.view === 'community') renderNoteContext();
   }
   function renderSources(result) {
     $('feeds').replaceChildren();
@@ -286,7 +383,7 @@
     write($('source-summary'), result.errors.length ? 'Sources · ' + result.errors.length + ' need attention' : 'Sources · ' + result.snapshots.length + ' snapshots');
   }
   const transport = ResearchTransport.createSnapshotClient({ fetch: window.fetch.bind(window), onStatus(status) { $('refresh').disabled = status.status === 'loading'; $('events').setAttribute('aria-busy', String(status.status === 'loading' && !store.get().events.length)); }, onUpdate(result) { safely(() => { const events = E.normalizeFeeds(result.snapshots); store.update(state => ({ ...state, events, eventVersion: state.eventVersion + 1, snapshotState: result })); renderSources(result); notice((result.errors.length ? 'Some sources need attention · ' : '') + events.filter(event => E.statusOf(event).selectable).length + ' events available for paper research · checked ' + dateText(result.checkedAt)); }); } });
-  const refresh = () => transport.refresh(specs);
+  const refresh = () => { lastRefresh = Date.now(); return transport.refresh(specs); };
   let opener = null;
   function openSlip() { opener = document.activeElement; document.body.classList.add('paper-open'); $('paper-backdrop').hidden = false; $('paper-open').setAttribute('aria-expanded', 'true'); $('slip-panel').setAttribute('aria-modal', 'true'); $('slip-panel').setAttribute('role', 'dialog'); $('paper-close').focus(); }
   function closeSlip() { document.body.classList.remove('paper-open'); $('paper-backdrop').hidden = true; $('paper-open').setAttribute('aria-expanded', 'false'); $('slip-panel').removeAttribute('aria-modal'); $('slip-panel').removeAttribute('role'); opener?.focus(); }
@@ -303,29 +400,33 @@
   $('event-view').addEventListener('change', event => store.update(state => ({ ...state, eventView: event.target.value, limit: 24 })));
   let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
   $('refresh').addEventListener('click', () => safely(refresh));
-  $('generate').addEventListener('click', () => safely(() => { const state = store.get(); savePlan(E.generateResearch(state.plan, filtered(state))); notice('Distinct research shortlists created where supported. Non-empty slips are retained. This is an evidence-coverage comparison, not verified value.'); }));
+  $('generate').addEventListener('click', () => safely(() => { const state = store.get(); const scope = $('build-scope').value; const candidates = scope === 'all' ? state.events.filter(event => day(event.startUTC) >= state.plan.from && day(event.startUTC) <= state.plan.to) : filtered(state); savePlan(E.generateResearch(state.plan, candidates)); notice('Distinct research shortlists created where supported. Non-empty slips are retained. This is an evidence-coverage comparison, not verified value.'); }));
   $('slip-structure').addEventListener('change', event => safely(() => savePlan(E.setStructure(store.get().plan, store.get().slot + 1, event.target.value))));
-  $('stake').addEventListener('input', event => { try { savePlan(E.setStake(store.get().plan, store.get().slot + 1, event.target.value)); event.target.removeAttribute('aria-invalid'); } catch { event.target.setAttribute('aria-invalid', 'true'); } });
-  $('stake').addEventListener('blur', () => { $('stake').value = (store.get().plan.slots[store.get().slot].stakeMinor / 100).toFixed(2); $('stake').removeAttribute('aria-invalid'); });
+  $('stake').addEventListener('input', event => { try { savePlan(E.setStake(store.get().plan, store.get().slot + 1, event.target.value || '0')); event.target.removeAttribute('aria-invalid'); } catch { event.target.setAttribute('aria-invalid', 'true'); } });
+  $('stake').addEventListener('blur', () => { $('stake').value = store.get().plan.slots[store.get().slot].stakeMinor ? (store.get().plan.slots[store.get().slot].stakeMinor / 100).toFixed(2) : ''; $('stake').removeAttribute('aria-invalid'); });
   $('clear-slip').addEventListener('click', () => safely(() => savePlan(E.clearSlot(store.get().plan, store.get().slot + 1))));
-  $('export').addEventListener('click', () => safely(() => { const state = store.get(); exportJSON({ ...E.freeze(state.plan, Date.now(), state.events), savedHistory: state.history, privateNotes: state.claims }, 'value-watch-research-' + state.plan.from + '.json'); }));
+  $('export').addEventListener('click', () => safely(() => { const state = store.get(); exportJSON({ ...E.freeze(state.plan, Date.now(), state.events), savedHistory: state.history, privateNotes: state.claims, manualJournal: state.journal }, 'value-watch-research-' + state.plan.from + '.json'); }));
   let saving = false;
-  $('freeze').addEventListener('click', () => safely(async () => { if (saving) return; saving = true; $('freeze').disabled = true; try { const state = store.get(); if (state.history.length >= 200) throw Error('Local journal limit reached. Export your research.'); const record = await S.seal(E.freeze(state.plan, Date.now(), state.events)); saveEnvelope({ history: [...store.get().history, record] }); notice('Original research saved with local integrity evidence; not independently timestamped or settled.'); } finally { saving = false; $('freeze').disabled = false; } }));
+  $('freeze').addEventListener('click', () => safely(async () => { if (saving) return; saving = true; $('freeze').disabled = true; try { const state = store.get(); if (state.history.some(record => record.snapshot.id === state.plan.id && record.snapshot.revision === state.plan.revision)) { notice('This revision is already saved. Find it in Saved research.'); return; } if (state.history.length >= 200) throw Error('Local journal limit reached. Export your research.'); const record = await S.seal(E.freeze(state.plan, Date.now(), state.events)); saveEnvelope({ history: [...store.get().history, record] }); notice('Original research saved. Paper outcomes can be annotated in Saved research.'); } finally { saving = false; $('freeze').disabled = false; } }));
   $('community').addEventListener('submit', event => { event.preventDefault(); safely(() => {
     const reasoning = $('reasoning').value.trim(); if (!reasoning || reasoning.length > 3000) throw Error('Enter reasoning of up to 3,000 characters.');
+    const linkedEvent = store.get().events.find(item => item.id === $('note-event').value);
+    const choice = linkedEvent?.choices.find(item => item.id === $('note-choice').value);
+    const context = { eventId: linkedEvent?.id || null, event: linkedEvent?.name || null, choiceId: choice?.id || null, choice: choice?.label || null, sourceDate: $('note-source-date').value || null, concern: $('note-concern').value.trim().slice(0, 1500), kind: $('note-kind').value };
     const result = I.classifyClaim(reasoning, $('methodology').value, [$('evidence').value]); const root = $('community-result'); root.replaceChildren();
     const card = make(root, 'article', undefined, 'event-card community-review-card'); make(card, 'span', result.classification.replaceAll('_', ' ').toLowerCase(), 'event-status is-warning'); make(card, 'h3', 'Evidence review');
     make(result.highRisk ? details(card, 'High-risk claim · expand for review') : card, 'p', reasoning); make(card, 'p', 'Method: ' + result.methodology.replaceAll('_', ' ').toLowerCase(), 'small'); for (const source of result.sources || []) link(card, 'Submitted evidence', source);
     make(card, 'p', 'Classification is not fact verification or an allegation of fraud. Verified ROI, win rate and trust score remain unavailable.', 'muted');
-    button(card, 'Save private research note', () => { const state = store.get(); if (state.claims.length >= 100) throw Error('Private note limit reached. Export your research.'); saveEnvelope({ claims: [...state.claims, { reasoning, methodology: result.methodology, sources: result.sources, classification: result.classification, createdAt: new Date().toISOString() }] }); notice('Research note saved privately on this device.'); });
+    button(card, 'Save private research note', () => { const state = store.get(); if (state.claims.length >= 100) throw Error('Private note limit reached. Export your research.'); saveEnvelope({ claims: [...state.claims, { reasoning, methodology: result.methodology, sources: result.sources, classification: result.classification, createdAt: new Date().toISOString(), ...context }] }); notice('Research note saved privately on this device.'); });
   }); });
-  store.subscribe(state => JSON.stringify([state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderTracker(); }));
+  store.subscribe(state => JSON.stringify([state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick, state.claims]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderTracker(); }));
+  store.subscribe(state => JSON.stringify([state.sport, state.plan.from, state.plan.to]), () => { if (store.get().view === 'history') safely(renderHistory); });
   store.subscribe(state => state.view, () => safely(renderView));
-  store.subscribe(state => state.history, () => { if (store.get().view === 'history') safely(renderHistory); });
+  store.subscribe(state => JSON.stringify([state.history, state.journal, state.claims]), () => { if (store.get().view === 'history') safely(renderHistory); });
   store.subscribe(state => state.eventVersion, () => { if (store.get().view === 'results') safely(renderResults); });
   window.addEventListener('storage', event => { if (event.key === key || event.key === null) persistence.invalidate(); });
-  let timer = null;
-  function startClock() { if (timer === null) timer = setInterval(() => { if (!document.hidden) store.update(state => ({ ...state, clockTick: state.clockTick + 1 })); }, 30000); }
+  let timer = null, lastRefresh = 0;
+  function startClock() { if (timer === null) timer = setInterval(() => { if (!document.hidden) { store.update(state => ({ ...state, clockTick: state.clockTick + 1 })); if (navigator.onLine && Date.now() - lastRefresh >= 60000) safely(refresh); } }, 30000); }
   document.addEventListener('visibilitychange', () => { transport.setPaused(document.hidden); if (!document.hidden) safely(refresh); });
   window.addEventListener('online', () => { if (!document.hidden) safely(refresh); }); window.addEventListener('offline', () => notice('Offline · last good snapshots and saved research retained. Freshness checks still apply.'));
   window.addEventListener('pagehide', () => { clearInterval(timer); timer = null; transport.setPaused(true); for (const request of statsRequests.values()) request.abort(); });
