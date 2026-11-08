@@ -4,6 +4,7 @@ on:
     paths:
       - 'paper-lab/**'
       - 'tests/test_evidence_v3.cjs'
+      - 'racing-future-data.json'
       - '.github/workflows/evidence-v3-regression.yml'
   workflow_dispatch:
 permissions:
@@ -28,4 +29,21 @@ jobs:
               assert Path('paper-lab',asset).is_file(), f'Asset not found: {asset}'
           assert 'Paper research' in h
           print('Dashboard HTML and assets verified')
+          PY
+      - name: Validate six-day future racing payload
+        run: |
+          python - <<'PY'
+          import json,datetime
+          from pathlib import Path
+          x=json.loads(Path('racing-future-data.json').read_text())
+          races=x['races']
+          assert x['research_only'] is True and x['publication_gate']=='BLOCKED' and x['model_validation']=='UNVALIDATED'
+          assert len(races)==14 and len({r['race_id'] for r in races})==14
+          assert {r['date'] for r in races}=={'2026-11-09','2026-11-10','2026-11-11','2026-11-12','2026-11-13','2026-11-14'}
+          for r in races:
+              assert r['runners']==[]
+              assert r['scheduled_start_time_utc'][:10]==r['date']
+              assert r['source_url'].startswith('https://www.racingpost.com/racecards/')
+              assert datetime.datetime.fromisoformat(r['observation_timestamp_utc'].replace('Z','+00:00')) < datetime.datetime.fromisoformat(r['scheduled_start_time_utc'].replace('Z','+00:00'))
+          print('Future racing payload validated: 14 records, 6 dates, no synthetic runners')
           PY
