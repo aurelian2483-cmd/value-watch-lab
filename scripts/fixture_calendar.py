@@ -34,9 +34,18 @@ def parse_fixture_links(raw,dates,observed,base=FIXTURE_URL):
   path=urlparse(url).path
   m=DATE_RE.search(path)
   if path.startswith("/racing/meeting/") and not re.fullmatch(r"/racing/meeting/20\\d{2}-\\d{2}-\\d{2}/[a-z0-9-]+/\\d+",path):continue
-  if not m or m.group() not in dates or not COURSE_RE.fullmatch(label):continue
-  key=(m.group(),label.lower())
-  found[key]={"date":m.group(),"course":label,"source_url":url,"observed_at_utc":observed.isoformat(),
+  if not m or m.group() not in dates:continue
+  meeting_match=re.fullmatch(r"/racing/meeting/(20\\d{2}-\\d{2}-\\d{2})/([a-z0-9-]+)/([0-9]+)",path)
+  if meeting_match:
+   # The dated meeting URL supplies the course identity even when anchor text contains going details.
+   course=meeting_match.group(2).replace("-"," ").title()
+  elif COURSE_RE.fullmatch(label):
+   course=label
+  else:
+   continue
+  if not COURSE_RE.fullmatch(course):continue
+  key=(m.group(),course.casefold())
+  found[key]={"date":m.group(),"course":course,"source_url":url,"observed_at_utc":observed.isoformat(),
    "record_type":"MEETING_FIXTURE","race_times_status":"NOT_SUPPLIED","declarations_status":"NOT_VERIFIED"}
  return sorted(found.values(),key=lambda x:(x["date"],x["course"]))
 
