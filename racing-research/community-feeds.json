@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Publicly listed candidate RSS endpoints. Runtime verifies HTTPS/XML; failures are recorded. All extracted mentions remain REVIEW_REQUIRED, never automatically published as community consensus.",
+  "description": "RSS candidate collection endpoints. Enabled means the scheduled job will attempt fetch, not that the feed is live or provides selections. Only explicit pre-race headlines can become unverified experimental tips; editorial mentions remain excluded.",
   "sources": [
     {
       "publisher": "Get Your Tips Out",
@@ -14,6 +14,62 @@
       "feed_url": "https://raceadvisor.co.uk/blog/feed",
       "enabled": false,
       "disabled_reason": "Confirmed HTTP 404 on 2026-11-08; needs a working replacement"
+    },
+    {
+      "publisher": "Tipster Reviews",
+      "type": "blog",
+      "feed_url": "https://tipsterreviews.co.uk/feed",
+      "enabled": true,
+      "validation_status": "CANDIDATE_ENDPOINT_NOT_YET_LIVE_VERIFIED",
+      "notes": "Candidate feed listed by public RSS directories; successful fetch and actual tip extraction not yet confirmed."
+    },
+    {
+      "publisher": "JPW Racing Tipster",
+      "type": "tipster",
+      "feed_url": "https://jpwracingtipster.com/feed",
+      "enabled": true,
+      "validation_status": "CANDIDATE_ENDPOINT_NOT_YET_LIVE_VERIFIED",
+      "notes": "Candidate feed listed by public RSS directories; successful fetch and actual tip extraction not yet confirmed."
+    },
+    {
+      "publisher": "Mull It Over",
+      "type": "blog",
+      "feed_url": "https://mully1.wordpress.com/feed",
+      "enabled": true,
+      "validation_status": "CANDIDATE_ENDPOINT_NOT_YET_LIVE_VERIFIED",
+      "notes": "Candidate feed listed by public RSS directories; successful fetch and actual tip extraction not yet confirmed."
+    },
+    {
+      "publisher": "Paddy Power Racing News",
+      "type": "blog",
+      "feed_url": "https://news.paddypower.com/horse-racing/feed/",
+      "enabled": true,
+      "validation_status": "CANDIDATE_ENDPOINT_NOT_YET_LIVE_VERIFIED",
+      "notes": "Candidate feed listed by public RSS directories; successful fetch and actual tip extraction not yet confirmed."
+    },
+    {
+      "publisher": "British Horseracing Authority",
+      "type": "blog",
+      "feed_url": "https://britishhorseracing.com/feed",
+      "enabled": true,
+      "validation_status": "CANDIDATE_ENDPOINT_NOT_YET_LIVE_VERIFIED",
+      "notes": "Candidate feed listed by public RSS directories; successful fetch and actual tip extraction not yet confirmed."
+    },
+    {
+      "publisher": "BBC Horse Racing",
+      "type": "blog",
+      "feed_url": "https://feeds.bbci.co.uk/sport/horse-racing/rss.xml",
+      "enabled": true,
+      "validation_status": "CANDIDATE_ENDPOINT_NOT_YET_LIVE_VERIFIED",
+      "notes": "Candidate feed listed by public RSS directories; successful fetch and actual tip extraction not yet confirmed."
+    },
+    {
+      "publisher": "Richard Phillips Racing",
+      "type": "blog",
+      "feed_url": "https://richardphillipsracing.com/feed",
+      "enabled": true,
+      "validation_status": "CANDIDATE_ENDPOINT_NOT_YET_LIVE_VERIFIED",
+      "notes": "Candidate feed listed by public RSS directories; successful fetch and actual tip extraction not yet confirmed."
     }
   ]
 }
