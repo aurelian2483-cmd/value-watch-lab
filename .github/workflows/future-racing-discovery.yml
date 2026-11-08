@@ -1,0 +1,47 @@
+name: Future racing seven-day discovery
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 5,11,17 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/collect_future_racing.py'
+      - 'scripts/discover_horse_races.py'
+      - '.github/workflows/future-racing-discovery.yml'
+permissions:
+  contents: write
+concurrency:
+  group: future-racing-discovery
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Collect seven-day race schedules
+        run: python scripts/collect_future_racing.py
+      - name: Validate output
+        run: |
+          python -m json.tool racing-future-data.json > /dev/null
+          python - <<'PY'
+          import json
+          x=json.load(open('racing-future-data.json'))
+          assert x['publication_gate']=='BLOCKED' and x['model_validation']=='UNVALIDATED'
+          assert len(x['days'])==6
+          assert len({r['race_id'] for r in x['races']})==len(x['races'])
+          PY
+      - name: Publish source-observed schedules
+        run: |
+          if ! git diff --quiet -- racing-future-data.json; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add racing-future-data.json
+            git commit -m 'Refresh next six days of UK Ireland racing schedules'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
