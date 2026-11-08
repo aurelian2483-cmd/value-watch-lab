@@ -20,7 +20,12 @@ def paired_interval(values,repeats=1000):
   'limitation':'Exploratory descriptive interval; not independent model validation.'}
 
 def evaluate(records,entries):
- frozen={r['record_sha256']:r for r in records};groups={};seen=set()
+ frozen={};groups={};seen=set()
+ for record in records:
+  digest=record['record_sha256']
+  if digest in frozen and frozen[digest]!=record:
+   raise ValueError('Conflicting frozen records share an archive identity')
+  frozen[digest]=record
  for e in entries:
   r=frozen.get(e['record_sha256'])
   if r is None:raise ValueError('Scored outcome lacks a frozen forecast')

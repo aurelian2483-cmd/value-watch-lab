@@ -126,3 +126,18 @@ class EvaluationScoreIntegrity(unittest.TestCase):
         result=evaluate([r],[e])
         bins=next(iter(result['models'].values()))['calibration_bins']
         self.assertEqual(sum(b['observed_win_frequency']*b['runner_observations'] for b in bins),1)
+
+class FrozenIdentityIntegrity(unittest.TestCase):
+    def test_conflicting_archive_identity_rejected_in_either_order(self):
+        import copy
+        r,e=fixture();changed=copy.deepcopy(r)
+        changed['parameters']['temperature']=999
+        for records in ([r,changed],[changed,r]):
+            with self.assertRaisesRegex(ValueError,'Conflicting frozen'):
+                evaluate(records,[e])
+
+    def test_identical_repeated_record_does_not_duplicate_race(self):
+        import copy
+        r,e=fixture()
+        result=evaluate([r,copy.deepcopy(r)],[e])
+        self.assertEqual(next(iter(result['models'].values()))['scored_races'],1)
