@@ -45,6 +45,16 @@ jobs:
           assert d['publication_gate']=='BLOCKED' and d['model_validation']=='UNVALIDATED'
           assert len(d['days'])==7
           assert all(r['verification']=='SINGLE_SOURCE_UNVERIFIED' for r in d['races'])
+          fixtures=d.get('fixture_meetings',[])
+          assert isinstance(fixtures,list)
+          assert all(m['record_type']=='MEETING_FIXTURE' for m in fixtures)
+          assert all(m['race_times_status']=='NOT_SUPPLIED' and m['declarations_status']=='NOT_VERIFIED' for m in fixtures)
+          assert all('startUTC' not in m and 'runners' not in m and 'odds' not in m for m in fixtures)
+          assert all(m['date'] in {day['date'] for day in d['days']} for m in fixtures)
+          assert d.get('fixture_source_status') in ('SOURCE_OBSERVED','NO_VERIFIED_FIXTURE_SOURCE')
+          assert d['races'] or fixtures, 'Refuse to publish a source-empty snapshot'
+          print('Observed meeting fixtures (not races):',len(fixtures))
+          print('Fixture source status:',d['fixture_source_status'])
           print('Observed future races:',len(d['races']))
           print('Day statuses:',[(x['date'],x['status'],x['count']) for x in d['days']])
           PY
