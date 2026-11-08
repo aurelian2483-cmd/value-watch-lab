@@ -61,6 +61,10 @@
   const persistence = S.createPersistence(storage, key, validateWorkspace, message => write($('storage'), message));
   const restored = persistence.read();
   const initial = restored || { version: 4, plan: E.createPlan({ from: today(), to: plusDays(today(), 6) }), history: [], claims: [], journal: [] };
+  // Keep saved research, but do not strand every sport on a fully expired date range.
+  if(initial.plan && typeof initial.plan.to==='string' && initial.plan.to<today()){
+    initial.plan=E.createPlan({from:today(),to:plusDays(today(),13)});
+  }
   const store = S.createStore({ ...initial, events: [], eventVersion: 0, snapshotState: null, slot: 0, sport: 'all', competition: 'all', query: '', eventView: 'upcoming', view: 'events', limit: 24, replacing: null, clockTick: 0 });
   let legacy = [];
   try { const raw = storage.getItem('value-watch-paper-lab-v3'); legacy = Object.values(raw ? JSON.parse(raw) : {}).map(plan => PaperLab.restore(JSON.stringify(plan))); }
