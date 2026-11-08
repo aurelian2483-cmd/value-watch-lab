@@ -705,7 +705,7 @@
       const document=await response.json();
       if(document.schema_version!==1||document.research_only!==true||document.publication_gate!=='BLOCKED'||document.model_validation!=='UNVALIDATED')throw Error('Untrusted tournament feed');
       const days=document.sports?.tennis?.tournament_schedule_days;
-      tournamentCoverage=Array.isArray(days)?days.filter(d=>/^\\d{4}-\\d{2}-\\d{2}$/.test(d.date)&&Array.isArray(d.tournaments)).slice(0,14):[];
+      tournamentCoverage=Array.isArray(days)?days.filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d.date)&&Array.isArray(d.tournaments)).slice(0,14):[];
     }catch(error){tournamentCoverage=[];console.warn('Tennis tournament schedule unavailable',error);}
     renderEvents();
   }
