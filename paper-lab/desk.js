@@ -186,7 +186,7 @@
           const row = make(details, 'p', undefined, 'small');
           const link = make(row, 'a', (tip.publisher || tip.type) + ' · ' + (tip.author || 'source'), 'source-link');
           link.href = tip.sourceUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
-          make(row, 'span', ' · ' + (tip.publishedAt && /^\\d{4}-\\d{2}-\\d{2}$/.test(tip.publishedAt) ? tip.publishedAt + ' (time unknown)' : new Date(tip.publishedAt).toLocaleString('en-GB')));
+          make(row, 'span', ' · ' + (tip.publishedAt && /^\d{4}-\d{2}-\d{2}$/.test(tip.publishedAt) ? tip.publishedAt + ' (time unknown)' : new Date(tip.publishedAt).toLocaleString('en-GB')));
         }
       }
       if (!picks.length) make(record.racingPanel, 'p', 'Odds/form highlight unavailable · no unique sourced price favourite.', 'small');
@@ -564,7 +564,7 @@
       if (Date.parse(entry.startUTC) !== Date.parse(event.startUTC)) return false;
       const published = Date.parse(entry.published_at_utc), observed = Date.parse(entry.observed_at_utc);
       const start = Date.parse(event.startUTC);
-      const dated = /^\\d{4}-\\d{2}-\\d{2}$/.test(entry.publication_date || '') && entry.publication_date <= event.startUTC.slice(0,10);
+      const dated = /^\d{4}-\d{2}-\d{2}$/.test(entry.publication_date || '') && entry.publication_date <= event.startUTC.slice(0,10);
       if (!Number.isFinite(observed) || observed >= start || (Number.isFinite(published) ? published > start || observed < published : !dated)) return false;
       if (!/^https:\/\//i.test(entry.url || '')) return false;
       return event.choices.some(choice => choice.label.trim().toLowerCase() === String(entry.horse || '').trim().toLowerCase());
