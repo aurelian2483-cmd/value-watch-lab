@@ -449,7 +449,7 @@
     coverage.replaceChildren();
     if(state.sport==='racing'){
       const fixtures=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to);
-      make(coverage,'p','Scheduled meetings (not racecards): '+fixtures.length+' · '+racingFixtureStatus,'small');
+      make(coverage,'p','Verified racecards: '+state.events.filter(e=>e.sport==='racing'&&e.startUTC&&day(e.startUTC)>=state.plan.from&&day(e.startUTC)<=state.plan.to).length+' · Upcoming meeting fixtures in selected dates: '+fixtures.length+' · Total loaded meeting fixtures: '+racingFixtureMeetings.length+' · Feed: '+racingFixtureStatus,'small');
       for(const m of fixtures.slice(0,70))make(coverage,'p',m.date+' · '+m.course+' · race times and declarations pending','muted');
     }
     const selectedSport=state.sport;
