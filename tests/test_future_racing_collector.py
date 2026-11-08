@@ -88,5 +88,23 @@ class FutureRacingTests(unittest.TestCase):
         self.assertTrue(all(row['record_type']=='MEETING_FIXTURE' for row in result['meetings']))
         self.assertTrue(all('startUTC' not in row and 'runners' not in row for row in result['meetings']))
 
+    def test_publish_gate_accepts_observed_fixture_only_snapshot(self):
+        days=[{'date':'2026-11-%02d'%i} for i in range(9,16)]
+        fixture={'date':'2026-11-09','course':'Carlisle','record_type':'MEETING_FIXTURE',
+                 'race_times_status':'NOT_SUPPLIED','declarations_status':'NOT_VERIFIED'}
+        data={'schema_version':1,'research_only':True,'publication_gate':'BLOCKED',
+              'model_validation':'UNVALIDATED','days':days,'races':[],'fixture_meetings':[fixture]}
+        self.assertTrue(module.validate_publishable_snapshot(data))
+        for field,value in [('startUTC','2026-11-09T12:00:00Z'),('runners',[]),('odds',{})]:
+            invalid={**data,'fixture_meetings':[{**fixture,field:value}]}
+            with self.subTest(field=field),self.assertRaises(ValueError):
+                module.validate_publishable_snapshot(invalid)
+        with self.assertRaises(ValueError):
+            module.validate_publishable_snapshot({**data,'fixture_meetings':[]})
+        with self.assertRaises(ValueError):
+            module.validate_publishable_snapshot({**data,'publication_gate':'OPEN'})
+        with self.assertRaises(ValueError):
+            module.validate_publishable_snapshot({**data,'days':days[:-1]+[days[0]]})
+
 if __name__=='__main__':
     unittest.main()
