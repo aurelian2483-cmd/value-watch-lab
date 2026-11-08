@@ -21,6 +21,7 @@ const contextReasons={
  CONFLICTING_DISCIPLINE_SOURCES:'The sources disagree about the race type; a forecast is withheld.',
  UNKNOWN_RACE_SURFACE:'The current surface is unknown.',
  RACE_DISTANCE_UNAVAILABLE:'The current race distance is missing or invalid.',
+ CONFLICTING_GOING_SOURCES:'Current going sources disagree; the model is withheld.',
  CURRENT_GOING_UNAVAILABLE:'Current going is missing; conditions cannot be compared.',
  INSUFFICIENT_SAME_DISCIPLINE_HISTORY:'At least one runner has fewer than three usable dated races in the same discipline.',
  UNRESOLVED_HISTORY_OUTCOME:'A historical result cannot be interpreted safely; the full-field forecast is withheld.',
@@ -42,6 +43,7 @@ function reasonLabel(code){return contextReasons[code]||String(code||'Context in
 function contextForecast(r,feed,now=Date.now()){
  const unavailable=reason=>({valid:false,fresh:false,record:null,reason,label:reasonLabel(reason)});
  if(!feed||feed.research_only!==true||feed.model_validation!=='UNVALIDATED'||feed.publication_gate!=='BLOCKED'||!Number.isFinite(Date.parse(feed.generated_at_utc))||Date.parse(feed.generated_at_utc)>now+300000)return unavailable('CONTEXT_FEED_UNAVAILABLE');
+ if(r.going_conflict===true)return unavailable('CONFLICTING_GOING_SOURCES');
  if(r.runner_data_status!=='SINGLE_SOURCE_RUNNERS_OBSERVED')return unavailable(r.runner_data_status==='RUNNER_FIELD_UNCONFIRMED'?'RUNNER_FIELD_UNCONFIRMED':'RUNNER_DATA_UNAVAILABLE');
  const observedRows=r.runners||[],observedActive=observedRows.filter(h=>h.active_runner===true&&h.runner_status==='RUNNER');
  if(observedRows.some(h=>!['RUNNER','NONRUNNER','WITHDRAWN'].includes(h.runner_status)||h.active_runner!==(h.runner_status==='RUNNER'))||new Set(ids(observedRows)).size!==observedRows.length||observedActive.length<2||observedActive.length!==r.active_runner_count)return unavailable('INVALID_ACTIVE_FIELD');
