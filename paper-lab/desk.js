@@ -156,13 +156,14 @@
     const conditions = event.stats?.conditions; write(record.conditions, conditions ? [conditions.distance, conditions.going, conditions.raceClass && 'Class ' + conditions.raceClass].filter(Boolean).join(' · ') : event.choices[0]?.market || 'Research outcome');
     record.racingPanel.replaceChildren();
     record.racingPanel.hidden = event.sport !== 'racing';
+    record.racingPanel.style.cssText = event.sport === 'racing' ? 'display:block;visibility:visible;opacity:1;height:auto;min-height:0;overflow:visible;padding:14px 16px;margin:14px 0;border:1px solid #52718b;border-radius:12px;background:#172b38;color:#f1f5f9;line-height:1.55' : 'display:none';
     if (event.sport === 'racing') {
       make(record.racingPanel, 'strong', 'Horse racing · independent research highlights');
       const picks = racingHighlights(event);
       make(record.racingPanel, 'p', 'Community tips: unavailable · no verified forum, blog or tipster consensus feed.', 'small');
       if (!picks.length) make(record.racingPanel, 'p', 'Odds/form highlight unavailable · no unique sourced price favourite.', 'small');
       for (const pick of picks) {
-        const item = make(record.racingPanel, 'div', undefined, 'racing-highlight-item');
+        const item = make(record.racingPanel, 'div', undefined, 'racing-highlight-item'); item.style.cssText = 'display:block;padding:10px 0;border-top:1px solid #52718b;color:#f1f5f9';
         make(item, 'strong', pick.choice.label + ' · ' + pick.labels.join(' + '));
         make(item, 'p', pick.reasons.join(' · ') + ' · research only', 'small');
       }
