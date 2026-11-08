@@ -1,5 +1,8 @@
 name: Collect racing community research (candidate observations)
 on:
+  push:
+    branches: [main]
+    paths: ['scripts/collect_racing_community.py', 'racing-research/community-feeds.json', '.github/workflows/racing-community-collector.yml']
   schedule:
     - cron: '15 6,9,12,15 * * *'
   workflow_dispatch:
