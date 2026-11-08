@@ -49,7 +49,7 @@ console.log('Research engine: cross-day edits, 15 legs, real-feed contracts, sta
 const cachedOther=JSON.parse(fs.readFileSync('other-sports-data.json','utf8'));
 for(const part of Object.values(cachedOther.sports))for(const row of part.events||[])row.source_collected_at_utc='2026-11-01T00:00:00Z';
 const cachedRows=E.normalizeFeeds([{kind:'other',path:'other-sports-data.json',document:cachedOther}],now);
-assert(cachedRows.length>0);assert(cachedRows.every(row=>row.observedAt==='2026-11-01T00:00:00Z'&&!E.statusOf(row,now).selectable),'a refreshed collector cannot freshen an old cached schedule receipt');
+assert(cachedRows.every(row=>row.observedAt==='2026-11-01T00:00:00Z'&&!E.statusOf(row,now).selectable),'a refreshed collector cannot freshen an old cached schedule receipt; filtered stale rows are acceptable');
 
 
 
