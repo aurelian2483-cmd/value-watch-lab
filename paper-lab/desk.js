@@ -112,8 +112,21 @@
       if (prior) { prior.labels.push(label); prior.reasons.push(reason); }
       else picks.set(choice.id, { choice, labels: [label], reasons: [reason] });
     };
-    // Community records are not yet present in the trusted racing snapshot schema.
-    // An absent community feed is explicitly unavailable, never a zero-tip result.
+    // Accept only event-linked, independently sourced community records when present.
+    // Missing records never become synthetic tipster agreement.
+    const tips = Array.isArray(event.communityTips) ? event.communityTips : [];
+    const consensus = new Map();
+    for (const tip of tips) {
+      if (!tip || !['forum','blog','tipster'].includes(tip.type) || typeof tip.sourceUrl !== 'string' || !/^https:\/\//i.test(tip.sourceUrl) || !Number.isFinite(Date.parse(tip.observedAt))) continue;
+      const choice = event.choices.find(c => c.id === tip.choiceId);
+      if (!choice) continue;
+      const item = consensus.get(choice.id) || {choice, sources:new Set()};
+      try { item.sources.add(new URL(tip.sourceUrl).hostname.toLowerCase()); } catch { continue; }
+      consensus.set(choice.id,item);
+    }
+    const supported = [...consensus.values()].filter(item => item.sources.size >= 2).sort((a,b)=>b.sources.size-a.sources.size || a.choice.id.localeCompare(b.choice.id));
+    if (supported.length && (supported.length === 1 || supported[0].sources.size > supported[1].sources.size))
+      add(supported[0].choice,'Community','Independent community sources: '+supported[0].sources.size);
     const ranked = event.choices.filter(choice => Number.isFinite(choice.quote?.decimal) && choice.quote.decimal > 1)
       .sort((a,b) => a.quote.decimal - b.quote.decimal || a.id.localeCompare(b.id));
     if (ranked.length && (ranked.length === 1 || ranked[0].quote.decimal < ranked[1].quote.decimal))
@@ -196,8 +209,12 @@
       write(view.modelBadge, racingPick ? racingPick.labels.join(' + ').toUpperCase() : leader?.rank === 1 ? 'MODEL FIRST CHOICE' : 'MODEL ALTERNATIVE');
       // Explicit high-contrast styling survives disabled-button and mobile theme rules.
       view.element.classList.toggle('is-racing-highlight', Boolean(racingPick));
-      view.element.style.setProperty('border', racingPick ? '3px solid #b8ee79' : '', racingPick ? 'important' : '');
-      view.element.style.setProperty('background-color', racingPick ? '#203b36' : '', racingPick ? 'important' : '');
+      const hasCommunity = Boolean(racingPick?.labels.includes('Community'));
+      const hasOdds = Boolean(racingPick?.labels.includes('Odds favourite'));
+      const borderColour = hasCommunity && hasOdds ? '#8ac7ff' : hasCommunity ? '#60a5fa' : '#b8ee79';
+      view.element.style.setProperty('border', racingPick ? '3px solid '+borderColour : '', racingPick ? 'important' : '');
+      view.element.style.setProperty('box-shadow', hasCommunity && hasOdds ? 'inset 0 0 0 3px #b8ee79' : '', hasCommunity && hasOdds ? 'important' : '');
+      view.element.style.setProperty('background-color', racingPick ? hasCommunity && !hasOdds ? '#1c3049' : '#203b36' : '', racingPick ? 'important' : '');
       view.element.style.setProperty('color', racingPick ? '#f4ffe8' : '', racingPick ? 'important' : '');
       view.element.style.setProperty('opacity', racingPick ? '1' : '', racingPick ? 'important' : '');
       view.name.textContent = racingPick ? '★ ' + choice.label : choice.label;
