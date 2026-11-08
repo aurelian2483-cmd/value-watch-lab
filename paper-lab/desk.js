@@ -107,7 +107,7 @@
     const meta = make(header, 'span', '', 'event-meta'), time = make(header, 'time', '', 'event-time'), title = make(article, 'h3', '', 'event-title');
     const status = make(article, 'span', '', 'event-status'), conditions = make(article, 'p', '', 'event-conditions');
     const prediction = make(article, 'div', '', 'prediction-summary'); prediction.setAttribute('aria-live', 'polite');
-    const market = make(article, 'div', undefined, 'market-grid'), explanation = make(article, 'p', '', 'market-explanation');
+    const market = make(article, 'div', undefined, 'market-grid'), seasonPanel = make(article, 'section', undefined, 'season-comparison'), explanation = make(article, 'p', '', 'market-explanation'); seasonPanel.setAttribute('aria-label','Current-season-only model comparison');
     const tools = make(article, 'div', undefined, 'event-tools');
     const check = link(tools, 'Check prices on Oddschecker ↗', 'https://www.oddschecker.com/');
     const note = button(tools, 'Add private note', () => {
@@ -125,7 +125,7 @@
       const b = button(tabs, label, () => loadStats(id, tab, panel, buttons)); b.dataset.statsTab = tab; b.setAttribute('aria-pressed', 'false'); buttons.set(tab, b);
     }
     evidence.addEventListener('toggle', () => { if (evidence.open && (!panel.dataset.loaded || panel.dataset.pending === 'true')) safely(() => loadStats(id, preferredStats(store.get().events.find(event => event.id === id)), panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
-    return { node: article, meta, time, title, status, conditions, prediction, market, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
+    return { node: article, meta, time, title, status, conditions, prediction, market, seasonPanel, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
   }
   function preferredStats(event) { return event?.stats?.h2h ? 'h2h' : Array.isArray(event?.stats?.recent) && event.stats.recent.length ? 'recent' : event?.stats?.rankings ? 'rankings' : 'sources'; }
   function patchCard(record, event) {
@@ -162,6 +162,27 @@
       view.element.setAttribute('aria-label', choice.label + ' · ' + (leader ? leader.rank === 1 ? 'model first choice · ' : 'model alternative · ' : '') + value + (contextWeight ? ' context weight' : estimated ? ' model estimate' : ' source odds') + ' · ' + (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name);
       if (priced && view.previous !== null && view.previous !== choice.quote.decimal) { view.element.classList.remove('odds-up', 'odds-down'); view.element.classList.add(choice.quote.decimal > view.previous ? 'odds-up' : 'odds-down'); }
       view.previous = priced ? choice.quote.decimal : null;
+    }
+    const comparison = event.sport === 'football' ? event.seasonComparison : null;
+    const signature = JSON.stringify([event.sport,comparison,event.choices.map(choice=>choice.label)]);
+    if (record.seasonPanel.dataset.signature !== signature) {
+      record.seasonPanel.dataset.signature = signature;
+      record.seasonPanel.replaceChildren();
+      if (event.sport === 'football') {
+        make(record.seasonPanel,'strong','This season only · 2026/27','season-heading');
+        if (comparison) {
+          const summary = make(record.seasonPanel,'div',undefined,'season-probabilities');
+          const labels = [event.choices[0]?.label || 'Home','Draw',event.choices[2]?.label || 'Away'];
+          [comparison.prob_home,comparison.prob_draw,comparison.prob_away].forEach((probability,index)=>{
+            const cell = make(summary,'div',undefined,'season-probability');
+            make(cell,'span',labels[index],'season-label');
+            make(cell,'strong',pct(probability),'season-value');
+          });
+          make(record.seasonPanel,'p','Based only on completed current-season league matches · home venue sample '+comparison.home_venue_matches+' · away venue sample '+comparison.away_venue_matches+'. '+(comparison.small_sample?'SMALL SAMPLE · ':'')+'Unvalidated model comparison, not bookmaker odds or verified value.','small');
+        } else {
+          make(record.seasonPanel,'p','Current-season-only estimate unavailable: insufficient verified current-season scoring data for both teams, or feed not yet updated. No figures invented.','small');
+        }
+      }
     }
     if (record.matchView.open) renderMatchOverview(record.matchPanel, event);
     record.prediction.hidden = !event.model && event.sport !== 'racing';
