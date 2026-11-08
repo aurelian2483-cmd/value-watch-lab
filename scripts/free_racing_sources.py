@@ -4,7 +4,8 @@ import urllib.request
 from html.parser import HTMLParser
 from urllib.parse import urljoin,urlparse
 from fixture_calendar import parse_fixture_links
-SOURCES=(("sportinglife_going","https://www.sportinglife.com/racing/going"),("sportinglife_fixtures","https://www.sportinglife.com/racing/fixtures"),("racingpost_calendar","https://www.racingpost.com/racecards/"))
+from atr_calendar import parse_calendar
+SOURCES=(("sportinglife_going","https://www.sportinglife.com/racing/going"),("sportinglife_fixtures","https://www.sportinglife.com/racing/fixtures"),("racingpost_calendar","https://www.racingpost.com/racecards/"),("atr_calendar","https://www.attheraces.com/racing-calendar"))
 class Anchors(HTMLParser):
  def __init__(self):super().__init__();self.href=None;self.parts=[];self.links=[]
  def handle_starttag(self,tag,attrs):
@@ -38,7 +39,7 @@ def collect_free(dates,now,fetch=None):
   try:
    raw=fetch(url)
    if not raw or len(raw)>3000000:raise ValueError("Missing or oversized source")
-   meetings=parse_racingpost(raw,set(dates),now) if name=="racingpost_calendar" else parse_fixture_links(raw,set(dates),now,base=url)
+   meetings=parse_racingpost(raw,set(dates),now) if name=="racingpost_calendar" else parse_calendar(raw,set(dates),now) if name=="atr_calendar" else parse_fixture_links(raw,set(dates),now,base=url)
    receipts.append({"provider":name,"url":url,"status":"SOURCE_OBSERVED" if meetings else "FORMAT_UNVERIFIED","meetings":len(meetings)})
    for m in meetings:
     key=(m["date"],m["course"].casefold())
