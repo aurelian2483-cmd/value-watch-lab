@@ -171,11 +171,11 @@
     record.racingPanel.hidden = event.sport !== 'racing';
     record.racingPanel.style.cssText = event.sport === 'racing' ? 'display:block;visibility:visible;opacity:1;height:auto;min-height:0;overflow:visible;padding:14px 16px;margin:14px 0;border:1px solid #52718b;border-radius:12px;background:#172b38;color:#f1f5f9;line-height:1.55' : 'display:none';
     if (event.sport === 'racing') {
-      make(record.racingPanel, 'strong', 'Horse racing · independent research highlights');
+      make(record.racingPanel, 'strong', 'Horse racing · odds and community research (separate signals)');
       const picks = racingHighlights(event);
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
       const hasConsensus = picks.some(pick => pick.labels.includes('Community'));
-      make(record.racingPanel, 'p', hasConsensus ? '🔵 Community consensus available · supported by independent sources' : communityTips.length ? '🔵 Community evidence recorded · no independent consensus yet' : '🔵 Community research · no qualifying current-race tips in the connected archive', 'small');
+      make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus confirmed' : communityTips.length ? '🔵 BLUE: evidence found but independent consensus NOT confirmed' : '🔵 BLUE: NO PICK — no verified current-race community tips; a second horse cannot be selected responsibly', 'small');
       const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
       collector.textContent = 'Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+(communityHealth.errors.length ? communityHealth.errors.length+' source errors' : 'no reported source errors')+' · research only';
       collector.style.color = '#a9bed0';
