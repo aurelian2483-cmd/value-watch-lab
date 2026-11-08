@@ -32,12 +32,12 @@ class PageData(HTMLParser):
  def handle_data(self,data):
   if self.active:self.parts.append(data)
 
-def discover(raw,observed):
+def discover(raw,observed,target_date=None):
  parser=PageData();parser.feed(raw.decode('utf-8'))
  if parser.blocks!=1:raise ValueError('Missing or ambiguous structured page data')
  props=json.loads(''.join(parser.parts))['props']['pageProps']
  if props.get('hasError') is not False or not isinstance(props.get('meetings'),list):raise ValueError('Racecard source error/schema change')
- today=observed.astimezone(ZoneInfo('Europe/London')).date();races=[];seen=set();rejected=[];included_meetings=[];excluded_countries=[]
+ today=target_date or observed.astimezone(ZoneInfo('Europe/London')).date();races=[];seen=set();rejected=[];included_meetings=[];excluded_countries=[]
  for meeting in props['meetings']:
   summary=meeting['meeting_summary'];course=summary['course']
   raw_country=course.get('country',{}).get('short_name');canonical_country=country_code(raw_country)
@@ -49,7 +49,7 @@ def discover(raw,observed):
    if race.get('hidden') is True:continue
    try:
     day=dt.date.fromisoformat(race['date'])
-    if day!=today:raise ValueError('Race date differs from requested UK day')
+    if day!=today:continue
     if summary['date']!=race['date']:raise ValueError('Meeting/race date mismatch')
     kickoff=dt.datetime.combine(day,dt.time.fromisoformat(race['time']),ZoneInfo('Europe/London')).astimezone(dt.timezone.utc)
     race_id=str(race['race_summary_reference']['id'])
@@ -72,7 +72,8 @@ def discover(raw,observed):
      'forecast_status':'RUNNER_DATA_NOT_CONNECTED','prediction':None,'odds':None,'expected_value':None,
      'forecast_eligible':False,'challenge_eligible':0})
    except (ValueError,KeyError,TypeError) as exc:rejected.append({'race_id':str(race.get('race_summary_reference',{}).get('id','')),'reason':str(exc)})
- if not races or rejected:raise ValueError('Incomplete UK/Ireland discovery: '+json.dumps(rejected))
+ if rejected:raise ValueError('Incomplete UK/Ireland discovery: '+json.dumps(rejected))
+ if not races and target_date is None:raise ValueError('No current-day UK/Ireland races discovered')
  return {'schema_version':1,'kind':'HORSE_RACING_EXPERIMENTAL_RESEARCH','generated_at_utc':observed.isoformat(),
   'race_date_uk':today.isoformat(),'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
   'official_challenge':{'completed':0,'status':'NOT_STARTED'},'coverage_verified':False,
