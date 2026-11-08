@@ -3,6 +3,7 @@
 import datetime as dt
 import hashlib
 import json
+import os
 import urllib.request
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -47,8 +48,60 @@ def collect(fetch=None, now=None):
    days.append({'date':date.isoformat(),'status':'COLLECTION_FAILED','count':0,'url':url,'error':str(exc)[:240]})
  return {'schema_version':1,'kind':'FUTURE_RACING_SCHEDULE_RESEARCH','generated_at_utc':now.isoformat(),'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','coverage_verified':False,'days':days,'races':records,'limitations':['Future races are source-observed schedules, not verified declarations, odds or predictions.','Missing source coverage does not mean no scheduled races.']}
 
+
+def collect_api(now=None, fetch_json=None):
+ """Optional authenticated date-specific UK/Northern Ireland racecards; no inferred runners."""
+ now=now or dt.datetime.now(UTC)
+ key=os.environ.get('HORSE_RACING_API_KEY','').strip()
+ if not key and fetch_json is None:
+  raise RuntimeError('HORSE_RACING_API_KEY missing: configure repository Actions secret; do not publish sample fixtures')
+ if fetch_json is None:
+  def fetch_json(url):
+   req=urllib.request.Request(url,headers={'Authorization':'Bearer '+key,'Accept':'application/json','User-Agent':'ValueWatchResearch/1.0'})
+   with urllib.request.urlopen(req,timeout=30) as response:
+    if response.status!=200:raise ValueError('Racecard API HTTP '+str(response.status))
+    return json.load(response)
+ today=now.astimezone(ZoneInfo('Europe/London')).date()
+ days=[];records=[];seen=set()
+ for offset in range(1,8):
+  date=today+dt.timedelta(days=offset)
+  day=date.isoformat()
+  url='https://api.horseracingapi.co.uk/v1/racecards/'+day
+  try:
+   payload=fetch_json(url)
+   meetings=payload.get('data')
+   if not isinstance(meetings,list):raise ValueError('Missing meetings data array')
+   count=0
+   for meeting in meetings:
+    if meeting.get('date')!=day:raise ValueError('Provider meeting date differs from requested date')
+    course=meeting.get('course')
+    if not isinstance(course,str) or not course.strip():raise ValueError('Missing course')
+    for race in meeting.get('races',[]):
+     rid=str(race.get('race_id') or '')
+     clock=race.get('time')
+     if not rid or rid in seen or not isinstance(clock,str):raise ValueError('Invalid or repeated race ID/time')
+     start=dt.datetime.combine(date,dt.time.fromisoformat(clock),ZoneInfo('Europe/London')).astimezone(UTC)
+     if start<=now:continue
+     seen.add(rid)
+     records.append({'race_id':rid,'venue':course,'racecourse':course,'race_name':race.get('name') or 'Race name unavailable',
+       'name':race.get('name') or 'Race name unavailable','scheduled_start_time_utc':start.isoformat(),
+       'startUTC':start.isoformat(),'source_url':url,'source':url,
+       'observation_timestamp_utc':now.isoformat(),'observedAtUTC':now.isoformat(),
+       'declaration_stage':'NOT_VERIFIED','source_runner_count':race.get('runners'),
+       'verification':'SINGLE_SOURCE_UNVERIFIED','runners':[]})
+     count+=1
+   days.append({'date':day,'status':'SOURCE_OBSERVED' if count else 'NO_MATCHING_RACES_OBSERVED','count':count,'url':url})
+  except Exception as exc:
+   days.append({'date':day,'status':'COLLECTION_FAILED','count':0,'url':url,'error':str(exc)[:240]})
+ return {'schema_version':1,'kind':'FUTURE_RACING_SCHEDULE_RESEARCH','generated_at_utc':now.isoformat(),
+   'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','coverage_verified':False,
+   'days':days,'races':records,'source_provider':'HORSE_RACING_API_UK','failed_dates':[d['date'] for d in days if d['status']=='COLLECTION_FAILED'],
+   'limitations':['UK and Northern Ireland coverage only; Republic of Ireland not included.',
+   'Date-specific API source observations are not independent verification of declarations or odds.',
+   'Provider plan may not cover all seven future days. Missing coverage must not be represented as no races.']}
+
 if __name__=='__main__':
- data=collect()
+ data=collect_api() if os.environ.get('HORSE_RACING_API_KEY') else collect()
  print(json.dumps({'generated_at_utc':data['generated_at_utc'],'races_discovered':len(data['races']),'daily_source_results':data['days']},indent=2),flush=True)
  if len(data['days'])!=7 or not data['races']:
   raise SystemExit('No usable source-observed racecards: preserving existing published snapshot')
