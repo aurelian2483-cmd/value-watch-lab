@@ -84,14 +84,17 @@ module.exports=async function checkRacingPaper(browser,base){
     await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
     await page.waitForFunction(()=>document.querySelector('#events [data-choice-id="2"]')?.dataset.evidenceBlue==='true');
     const other=page.locator('#events .selection-button[data-choice-id="2"]');
+    await page.waitForFunction(()=>{const e=document.querySelector('#events [data-choice-id="2"]');return e&&getComputedStyle(e).borderTopColor==='rgb(96, 165, 250)';});
     assert.equal(await other.evaluate(e=>getComputedStyle(e).borderTopColor),'rgb(96, 165, 250)','A checked community pick can be blue without being the favourite');
     community=[post('SyntheticAlice'),post('SyntheticBob')];
     await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
     await page.waitForFunction(()=>document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceYellow==='true');
+    await page.waitForFunction(()=>{const e=document.querySelector('#events [data-choice-id="1"]');return e&&getComputedStyle(e).borderTopColor==='rgb(250, 204, 21)';});
     assert.equal(await choice.evaluate(e=>getComputedStyle(e).borderTopColor),'rgb(250, 204, 21)','Two checked same-thread value selections and an observed favourite produce yellow agreement');
     community[1].primary_capture.receipt.sha256='invalid';
     await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
     await page.waitForFunction(()=>document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceYellow==='false'&&document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceBlue==='true');
+    await page.waitForFunction(()=>{const e=document.querySelector('#events [data-choice-id="1"]');return e&&getComputedStyle(e).borderTopColor==='rgb(96, 165, 250)';});
     assert.equal(await choice.evaluate(e=>getComputedStyle(e).borderTopColor),'rgb(96, 165, 250)','Invalid post receipts cannot create yellow agreement');
     await page.clock.fastForward(31*60*1000);
     await page.waitForFunction(()=>document.querySelector('#events .selection-button')?.disabled===true);
