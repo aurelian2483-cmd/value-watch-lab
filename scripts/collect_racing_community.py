@@ -205,7 +205,7 @@ def main():
     }
     feed["coverage"] = "Partial configured public RSS sources; mentions require editorial review and do not prove consensus."
     OUT.write_text(json.dumps(feed, indent=2, ensure_ascii=False)+"\n")
-    print(json.dumps({"added":added,"sources":len(config.get("sources",[])),"errors":failures}))
+    print(json.dumps({"added":added,"sources":len(config.get("sources",[])),"errors":failures,"future_races":len(future_races),"explicit_tips":sum(x.get("explicit_tip_observations",0) for x in source_health),"skips":{key:sum(x.get("skip_reasons",{}).get(key,0) for x in source_health) for key in ("invalid_date","invalid_link","no_tip_language","no_runner_match","already_recorded","after_start")}}))
 
 if __name__ == "__main__":
     main()
