@@ -424,29 +424,41 @@
     if (!visible.length && state.sport === 'racing') {
       const dates = [...new Set(state.events.filter(event => event.sport === 'racing').map(event => day(event.startUTC)))].sort();
       const latest = dates.at(-1);
-      const box = empty(root, 'No upcoming racecards loaded for these dates', (latest ? 'The latest loaded racing cards cover ' + latest + '. ' : 'No usable racing snapshot is loaded. ') + 'The current racing feed collects the UK day only. Selecting 7 or 14 days does not yet fetch future racecards; missing dates are shown in the coverage strip.', { label: 'Show today’s racing', run: () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'upcoming' })); $('search').value = ''; $('event-view').value = 'upcoming'; preset('today'); } }); box.classList.add('event-empty');
+      const box = empty(root, 'No upcoming racecards loaded for these dates', (latest ? 'The latest loaded racing cards cover ' + latest + '. ' : 'No usable racing snapshot is loaded. ') + 'Future racecards may be incomplete or rejected by source checks; missing dates are shown in the coverage strip.', { label: 'Show today’s racing', run: () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'upcoming' })); $('search').value = ''; $('event-view').value = 'upcoming'; preset('today'); } }); box.classList.add('event-empty');
       if (latest && latest !== today()) button(box, 'View dated previous cards', () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'all' })); $('search').value = ''; $('event-view').value = 'all'; setRange(latest, latest); }, 'button button-quiet');
     }
     else if (!visible.length) { const box = empty(root, state.snapshotState?.status === 'unavailable' ? 'Research sources unavailable' : 'No events match this view', 'Try another sport or a wider date range. Saved research remains available; no events are invented to fill the board.', { label: 'Show next 14 days', run: () => preset('14') }); box.classList.add('event-empty'); }
     if (rows.length > visible.length) button(root, 'Show more events (' + (rows.length - visible.length) + ')', () => store.update(state => ({ ...state, limit: state.limit + 24 })), 'button button-secondary load-more');
-    // Report day-by-day racing feed coverage rather than implying a seven-day filter collected seven days.
+    // Coverage is a property of observed source records, not of the date picker.
     let coverage=$('racing-date-coverage');
     if(!coverage){coverage=make(null,'div',undefined,'racing-date-coverage');$('coverage-summary').after(coverage);}
-    coverage.replaceChildren();coverage.hidden=state.sport!=='racing';
-    if(state.sport==='racing'){
-      const racing=state.events.filter(e=>e.sport==='racing');
+    coverage.replaceChildren();
+    const selectedSport=state.sport;
+    coverage.hidden=!['racing','football','tennis'].includes(selectedSport);
+    if(!coverage.hidden){
+      const observed=state.events.filter(e=>e.sport===selectedSport);
       const days=[];let d=state.plan.from;
-      while(d<=state.plan.to && days.length<31){days.push(d);d=plusDays(d,1);}
-      const line=make(coverage,'p','Racecard coverage by selected day (loaded records only):','small');
+      while(d<=state.plan.to&&days.length<31){days.push(d);d=plusDays(d,1);}
+      const sportLabel={racing:'Racecards',football:'Football fixtures',tennis:'Tennis matches'}[selectedSport];
+      make(coverage,'p',sportLabel+' · day-by-day source coverage (loaded records, not a complete competition calendar):','small');
       const wrap=make(coverage,'div',undefined,'racing-day-chips');
       wrap.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px';
       for(const date of days){
-        const n=racing.filter(e=>day(e.startUTC)===date).length;
-        const chip=button(wrap,date.slice(5)+' · '+(n?n+' loaded':'not loaded'),()=>{setRange(date,date);store.update(x=>({...x,eventView:'all',competition:'all',query:''}));$('event-view').value='all';$('search').value='';},'button button-quiet');
+        const n=observed.filter(e=>day(e.startUTC)===date).length;
+        const chip=button(wrap,date.slice(5)+' · '+(n?n+' loaded':'not loaded'),()=>{
+          setRange(date,date);store.update(x=>({...x,eventView:'all',competition:'all',query:''}));
+          $('event-view').value='all';$('search').value='';
+        },'button button-quiet');
         chip.style.cssText='font-size:12px;padding:7px 9px;'+(n?'border-color:#52718b':'opacity:.75');
-        chip.title=n?'Show loaded races for this date':'No racecards have been collected for this date; not a claim that no races are scheduled';
+        chip.title=n?'View loaded records for this day':'No source-observed records loaded; this does not prove no events are scheduled';
       }
-      if(days.some(date=>!racing.some(e=>day(e.startUTC)===date)))make(coverage,'p','Some selected dates have no collected racecards. This is a source-coverage gap, not evidence of no scheduled racing.','muted');
+      if(days.some(date=>!observed.some(e=>day(e.startUTC)===date))){
+        make(coverage,'p',selectedSport==='tennis'
+          ?'Draws pending or schedule not supplied: future ATP/WTA matches cannot be shown until named players and start times are published. No fictitious matchups or probabilities are generated.'
+          :selectedSport==='football'
+          ?'Football fixture feed has gaps on the selected dates. Missing records are not evidence that leagues have no games; source collection and cross-checks must be expanded.'
+          :'Some selected dates have no collected racecards. This is a source-coverage gap, not evidence of no scheduled racing.','muted');
+      }
     }
     write($('coverage-summary'), rows.length + ' matching your filters · ' + state.events.length + ' total loaded records across all dates. Coverage is incomplete; zero means no matching records in these feeds.');
     write($('event-summary'), rows.length + ' ' + (state.eventView === 'upcoming' ? 'upcoming' : 'recorded') + ' event' + (rows.length === 1 ? '' : 's') + ' · ' + state.plan.from + ' → ' + state.plan.to + ' · UK time');
