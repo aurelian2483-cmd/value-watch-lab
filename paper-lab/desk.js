@@ -194,6 +194,40 @@
       directory.style.color = '#93c5fd';
       directory.style.display = 'inline-block';
       if (communityTips.length) {
+        // Display every independently attributed community candidate, including ties.
+        // Source domains are counted once per horse; this is evidence, not a win probability.
+        const grouped = new Map();
+        for (const tip of communityTips) {
+          const choice = event.choices.find(c => c.id === tip.choiceId);
+          if (!choice) continue;
+          let domain;
+          try { domain = new URL(tip.sourceUrl).hostname.toLowerCase().replace(/^www\\./,''); } catch { continue; }
+          const entry = grouped.get(choice.id) || {choice, domains:new Set(), tips:[]};
+          if (!entry.domains.has(domain)) entry.tips.push(tip);
+          entry.domains.add(domain);
+          grouped.set(choice.id,entry);
+        }
+        const ranked = [...grouped.values()].sort((a,b)=>b.domains.size-a.domains.size || a.choice.label.localeCompare(b.choice.label));
+        if (ranked.length) {
+          const section = make(record.racingPanel, 'div');
+          section.style.cssText = 'margin:12px 0;padding:12px;border:1px solid #47647c;border-radius:12px;background:#132536';
+          make(section, 'strong', 'Community selections · '+ranked.length+' horse'+(ranked.length===1?'':'s'));
+          const tied = ranked.length>1 && ranked[0].domains.size===ranked[1].domains.size;
+          if (tied) make(section,'p','Equal source support — no independent community leader; neither is an agreement pick.','small');
+          for (const entry of ranked) {
+            const row = make(section,'div');
+            row.style.cssText='padding:9px 0;border-top:1px solid #36546b';
+            const title=make(row,'strong',entry.choice.label+' · '+entry.domains.size+' independent source'+(entry.domains.size===1?'':'s'));
+            title.style.color='#93c5fd';
+            for (const tip of entry.tips) {
+              const link=make(row,'a',tip.publisher||new URL(tip.sourceUrl).hostname,'small');
+              link.href=tip.sourceUrl;link.target='_blank';link.rel='noopener noreferrer';
+              link.style.cssText='display:inline-block;margin:5px 12px 0 0;color:#a9d1ff;text-decoration:underline';
+            }
+          }
+        }
+      }
+      if (communityTips.length) {
         const details = make(record.racingPanel, 'details');
         make(details, 'summary', 'View community evidence (' + communityTips.length + ')');
         for (const tip of communityTips.slice(0,20)) {
