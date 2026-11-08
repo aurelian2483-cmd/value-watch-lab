@@ -78,11 +78,26 @@
       const participants = [{ id: key(league, row.home), name: str(row.home) }, { id: key(league, row.away), name: str(row.away) }];
       return makeEvent({ sport: 'football', identity: key(league, row.home, row.away), providerId: row.espn_event_id, competition: row.league_name || ({ PL: 'Premier League', E1: 'Championship' }[league] || league), name: row.home + ' vs ' + row.away, participants, startUTC: start, observedAt: document.generated_at_utc, sources,
         choices: [{ id: 'home', label: str(row.home), probability: model?.prob_home ?? null }, { id: 'draw', label: 'Draw', probability: model?.prob_draw ?? null }, { id: 'away', label: str(row.away), probability: model?.prob_away ?? null }].map(choice => ({ ...choice, uncertainty: null, quote: null, market: 'Match result · regulation time' })),
-        model: model ? { name: str(model.model), observedAt: model.generated_at_utc || document.generated_at_utc, validation: 'UNVALIDATED', probabilityKind: 'EXPERIMENTAL_MODEL_ESTIMATE', uncertainty: null } : null,
+        model: model ? { name: str(model.model), observedAt: model.generated_at_utc || document.generated_at_utc, validation: 'UNVALIDATED', probabilityKind: 'EXPERIMENTAL_MODEL_ESTIMATE', uncertainty: null, trainingMode: str(model.training_basis?.mode), trainingSource: str(model.training_basis?.source_receipts?.[0]?.url), trainingSampleSize: model.training_basis?.training_matches ?? null } : null,
         stats: { h2h: h2h && Number.isSafeInteger(h2h.sample_size) && h2h.sample_size >= 0 ? clone(h2h) : null, recent: null, rankings: null },
-        extra: { providerStatus: str(row.status || row.event_status), league, forecastStatus: str(row.forecast_status) }
+        extra: { providerStatus: str(row.status || row.event_status), league, forecastStatus: str(row.forecast_status), forecastEligible: row.forecast_eligible === true }
       }, now);
     }).filter(Boolean);
+  }
+
+  function footballEvidenceReview(event) {
+    if (!event || event.sport !== 'football' || !event.model) return null;
+    const notes = [];
+    if (event.model.trainingMode === 'PRIOR_SEASON') notes.push('Forecast uses prior-season scoring data; current-season form is not included in this estimate.');
+    if (!event.stats?.recent || !event.stats?.recent.length) notes.push('Recent five-match form is not supplied to this model.');
+    const h2h = event.stats?.h2h;
+    const venue = h2h?.at_current_home_venue;
+    if (venue && Number.isSafeInteger(venue.sample_size) && venue.sample_size >= 3 && venue.away_wins === venue.sample_size) {
+      notes.push('Historical H2H check: away team won all ' + venue.sample_size + ' recorded meetings at this home venue; descriptive evidence only.');
+    }
+    if (h2h?.status === 'DESCRIPTIVE_ONLY_NOT_VALIDATED') notes.push('Head-to-head history is descriptive and is not incorporated into the forecast probabilities.');
+    if (event.forecastEligible === false) notes.push('This event is not eligible for the official prospective prediction challenge.');
+    return { status: notes.length ? 'REVIEW_REQUIRED' : 'LIMITED_EVIDENCE', notes, verifiedMarketComparison: false, actionable: false };
   }
 
   function racing(document, path, now, contextFeed) {
@@ -427,5 +442,5 @@
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });
