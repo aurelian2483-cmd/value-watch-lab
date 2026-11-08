@@ -49,5 +49,30 @@ class FutureRacingTests(unittest.TestCase):
         self.assertTrue(all(x['status']=='COLLECTION_FAILED' for x in d['days']))
         self.assertEqual(d['races'],[])
 
+    def test_authenticated_api_seven_dates_and_research_gates(self):
+        now=dt.datetime(2026,11,8,12,tzinfo=dt.timezone.utc)
+        def fetch_json(url):
+            day=url.rsplit('/',1)[-1]
+            return {'data':[{'date':day,'course':'Test course','races':[{
+                'race_id':'race-'+day,'time':'13:30:00','name':'Test race','runners':8
+            }]}]}
+        d=module.collect_api(now=now,fetch_json=fetch_json)
+        self.assertEqual(len(d['days']),7)
+        self.assertEqual(len(d['races']),7)
+        self.assertEqual(d['failed_dates'],[])
+        self.assertEqual(d['publication_gate'],'BLOCKED')
+        self.assertEqual(d['model_validation'],'UNVALIDATED')
+        self.assertTrue(all(r['verification']=='SINGLE_SOURCE_UNVERIFIED' for r in d['races']))
+        self.assertTrue(all(r['runners']==[] for r in d['races']))
+
+    def test_authenticated_api_rejects_wrong_date_without_fabricating_coverage(self):
+        now=dt.datetime(2026,11,8,12,tzinfo=dt.timezone.utc)
+        def fetch_json(url):
+            return {'data':[{'date':'2026-11-08','course':'Test','races':[]}]}
+        d=module.collect_api(now=now,fetch_json=fetch_json)
+        self.assertEqual(d['races'],[])
+        self.assertEqual(len(d['failed_dates']),7)
+        self.assertTrue(all(day['status']=='COLLECTION_FAILED' for day in d['days']))
+
 if __name__=='__main__':
     unittest.main()
