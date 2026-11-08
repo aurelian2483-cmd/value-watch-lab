@@ -21,7 +21,13 @@ window.ValueWatchEvidenceV3 = Object.freeze({
     });
     const uniqueAuthors = new Set(tips.map(t=>t.author.trim().toLowerCase()));
     const blue = tips.length>0;
-    const yellow = blue && uniqueAuthors.size>=2 && tips.filter(t=>t.valueBackingVerified===true).length>=2 && isUniqueFavourite;
+    const threadGroups = new Map();
+    for (const t of tips.filter(t=>t.valueBackingVerified===true)) {
+      const thread = typeof t.verifiedThreadId==='string' && t.verifiedThreadId.trim();
+      if (!thread) continue;
+      const authors=threadGroups.get(thread)||new Set(); authors.add(t.author.trim().toLowerCase()); threadGroups.set(thread,authors);
+    }
+    const yellow = blue && isUniqueFavourite && [...threadGroups.values()].some(authors=>authors.size>=2);
     return {green,blue:blue?'VERIFIED':'NOT_AWARDED',yellow:yellow?'MULTI_USER_CONSENSUS':'NOT_AWARDED',media:'SEPARATE',qualifiedPosts:tips.length,verifiedAuthors:uniqueAuthors.size,marketBasis:'Observed source prices only; official SP not confirmed'};
   }
 });
