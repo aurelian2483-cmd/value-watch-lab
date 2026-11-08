@@ -38,12 +38,13 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   await p.route('**/research-history.json',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({...guard,entries:[]})}));
   await p.goto(base+'/',{waitUntil:'networkidle'});await waitBoard(p);assert.equal(await p.locator('#events .event-card').count(),7);
   assert.equal(await p.locator('#stake').inputValue(),'');
-  assert.equal(await p.locator('.selection-price').filter({hasText:'%'}).count(),0);
-  assert.equal(await p.locator('.selection-button[aria-label*="% "]').count(),0);
+  assert((await p.locator('.selection-price').filter({hasText:'%'}).count())>0);
   assert.equal(await p.locator('#build-scope option').count(),2);
   const checkLink=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.event-tools a');assert.equal(await checkLink.getAttribute('href'),'https://www.oddschecker.com/football');
+  const matchBox=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.match-overview');await matchBox.locator('summary').click();assert.equal(await matchBox.locator('svg.sport-diagram').count(),1);assert((await matchBox.textContent()).includes('Live action and positions are not connected'));
   const estimateBox=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.model-details').first();await estimateBox.locator('summary').click();assert((await estimateBox.textContent()).includes('%'));
-  report.checks.push('manual stake default, hidden estimates, two build scopes and external price-check links');
+  report.checks.push('manual stake default, visible labelled estimates, two build scopes and external price-check links');
+  await p.locator('[data-range=tomorrow]').click();assert((await p.locator('#coverage-summary').textContent()).includes('matching your filters'));await p.locator('[data-range="7"]').click();
   const first=p.locator('#events .event-card').filter({hasText:'Test Home 0'});await first.locator('.selection-button').first().click();await p.locator('#slip-content .slip-selection').waitFor();
   const second=p.locator('#events .event-card').filter({hasText:'Test Home 1'});await second.locator('.selection-button').first().click();await p.waitForFunction(()=>document.querySelectorAll('#slip-content .slip-selection').length===2);report.checks.push('cross-day selections');
   await p.locator('#slip-content .move-button[aria-label*="down"]').first().click();assert((await p.locator('#slip-content .slip-selection').first().textContent()).includes('Test Home 1'));report.checks.push('reorder selections');
