@@ -34,6 +34,8 @@ jobs:
           python -m unittest discover -s tests
       - name: Install browser test runtime
         run: npx playwright install --with-deps chromium
+      - name: Refresh real future colour inputs for integration checks
+        run: python scripts/collect_future_racing.py
       - name: Desktop, mobile, accessibility and interaction checks
         run: npm run test:browser
       - name: Four-sport snapshot-to-screen counts

@@ -119,7 +119,13 @@
   function racingHighlights(event) {
     if (event?.sport !== 'racing') return [];
     const choices=event.choices||[];
-    return choices.filter(c=>evaluateEvidenceSafe(event,c).green==='PROVISIONAL').map(choice=>({choice,labels:['Odds favourite'],reasons:['Provisional observed-price favourite; official SP unverified']}));
+    return choices.map(choice=>{
+      const gate=evaluateEvidenceSafe(event,choice),labels=[];
+      if(gate.green==='PROVISIONAL')labels.push(gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'Forecast favourite':'Odds favourite');
+      if(gate.blue==='VERIFIED')labels.push('Community selection');
+      if(gate.yellow==='MULTI_USER_CONSENSUS')labels.push('Verified agreement');
+      return {choice,gate,labels,reasons:[gate.marketBasis]};
+    }).filter(pick=>pick.labels.length);
   }
   function racingEvidenceAudit(event) {
     const tips = (Array.isArray(event.communityTips) ? event.communityTips : []).filter(t=>t.primaryPostVerified===true && t.explicitBetSelectionVerified===true && t.timestampVerified===true);
@@ -181,7 +187,7 @@
     const gates=(event.choices||[]).map(choice=>({choice,gate:evaluateEvidenceSafe(event,choice)}));
     const blueChoices=gates.filter(x=>x.gate.blue==='VERIFIED').map(x=>x.choice.label);
     const yellowChoices=gates.filter(x=>x.gate.yellow==='MULTI_USER_CONSENSUS').map(x=>x.choice.label);
-    make(evidencePanel,'p','GREEN · '+(favourite?favourite.label+' · Provisional observed-price favourite':'Not established')+'  |  BLUE · '+(blueChoices.join(', ')||'Not awarded')+'  |  YELLOW · '+(yellowChoices.join(', ')||'Not awarded'),'small');
+    make(evidencePanel,'p','GREEN · '+(favourite?favourite.label+(badges.greenBasis==='PUBLISHER_BETTING_FORECAST'?' · Provisional publisher forecast':' · Provisional observed-price favourite'):'Not established')+'  |  BLUE · '+(blueChoices.join(', ')||'Not awarded')+'  |  YELLOW · '+(yellowChoices.join(', ')||'Not awarded'),'small');
     make(evidencePanel,'small','Media tracked separately · Blue/Yellow require independently verified primary posts · official market verification unavailable','muted');
     evidencePanel.style.cssText='padding:10px 12px;margin:10px 0;border:1px solid #52718b;border-radius:10px;background:#172b38;color:#f1f5f9';
     record.racingPanel.replaceChildren();
@@ -192,7 +198,7 @@
       const picks = racingHighlights(event);
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
       // Show the actual picks first; keep the evidence and collector diagnostics collapsed.
-      const green = picks.find(p => p.labels.includes('Odds favourite'));
+      const green = picks.find(p => p.gate.green==='PROVISIONAL');
       const evaluations=(event.choices||[]).map(choice=>({choice,gate:evaluateEvidenceSafe(event,choice)}));
       const blue=evaluations.filter(item=>item.gate.blue==='VERIFIED');
       const yellow=evaluations.filter(item=>item.gate.yellow==='MULTI_USER_CONSENSUS');
@@ -204,7 +210,7 @@
         const heading=make(tile,'strong',title);heading.style.color=colour;
         make(tile,'div',horse,'small');make(tile,'small',detail,'muted');
       };
-      signal('#b8ee79','GREEN · Odds favourite',green?.choice.label||'Unavailable','Lowest observed price; not validated');
+      signal('#b8ee79',green?.gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'GREEN · Forecast favourite':'GREEN · Odds favourite',green?.choice.label||'Unavailable',green?.gate.marketBasis||'Current source price or labelled publisher forecast required');
       signal('#60a5fa','BLUE · Community',blue.length?blue.map(x=>x.choice.label).join(', '):'Not awarded',blue.length?'Verified primary grassroots selection':'Primary post, author and verified pre-race timestamp required');
       signal('#facc15','YELLOW · Agreement',yellow.length?yellow.map(x=>x.choice.label).join(', '):'Not awarded',yellow.length?'Verified same-thread multi-user value-betting consensus':'Requires verified same-thread multi-user value-betting consensus');
       const diagnostics=make(record.racingPanel,'details',undefined,'racing-audit-details');
@@ -307,21 +313,23 @@
     }
     for (const choice of event.choices) {
       const view = record.choices.get(choice.id); if (!view) continue;
-      const chosen = selected.some(leg => leg.eventId === event.id && leg.choiceId === choice.id), priced = typeof choice.quote?.decimal === 'number';
+      const chosen = selected.some(leg => leg.eventId === event.id && leg.choiceId === choice.id), priced = typeof choice.quote?.decimal === 'number', publishedForecast=typeof choice.forecastPrice?.decimal==='number';
       const estimated = event.model && typeof choice.probability === 'number';
       const contextWeight = event.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT';
-      const value = estimated ? pct(choice.probability) : priced ? choice.quote.decimal.toFixed(2) : 'No estimate';
+      const value = estimated ? pct(choice.probability) : priced ? choice.quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'No estimate';
       write(view.price, value); write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
-      write(view.odds, priced ? estimated ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : 'Bookmaker odds not connected');
+      write(view.odds, priced ? estimated ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'Bookmaker odds not connected');
       const leader = leaders.find(leader => leader.id === choice.id);
       const racingPick = event.sport === 'racing' ? racingPicks.find(pick => pick.choice.id === choice.id) : null;
+      view.element.dataset.evidenceGreen=String(racingPick?.gate.green==='PROVISIONAL');
+      view.element.dataset.evidenceBlue=String(racingPick?.gate.blue==='VERIFIED');
+      view.element.dataset.evidenceYellow=String(racingPick?.gate.yellow==='MULTI_USER_CONSENSUS');
       view.modelBadge.hidden = !leader && !racingPick;
       write(view.modelBadge, racingPick ? racingPick.labels.join(' + ').toUpperCase() : leader?.rank === 1 ? 'MODEL FIRST CHOICE' : 'MODEL ALTERNATIVE');
       // Explicit high-contrast styling survives disabled-button and mobile theme rules.
       view.element.classList.toggle('is-racing-highlight', Boolean(racingPick));
       const hasCommunity = Boolean(racingPick?.labels.some(label => label.startsWith('Community')));
-      const hasOdds = Boolean(racingPick?.labels.includes('Odds favourite'));
-      const agreement = hasCommunity && hasOdds && !racingPick.labels.includes('Community tied'); // A tied opinion is not a unique agreement.
+      const agreement = racingPick?.gate.yellow==='MULTI_USER_CONSENSUS';
       const borderColour = agreement ? '#facc15' : hasCommunity ? '#60a5fa' : '#b8ee79';
       view.element.style.setProperty('border', racingPick ? '3px solid '+borderColour : '', racingPick ? 'important' : '');
       view.element.style.setProperty('box-shadow', agreement ? '0 0 0 2px rgba(250,204,21,.24), inset 0 0 0 1px #fde68a' : '', agreement ? 'important' : '');
@@ -781,13 +789,14 @@
       const start = Date.parse(event.startUTC);
       const dated = /^\d{4}-\d{2}-\d{2}$/.test(entry.publication_date || '') && entry.publication_date <= event.startUTC.slice(0,10);
       if (!Number.isFinite(observed) || observed >= start || (Number.isFinite(published) ? published > start || observed < published : !dated)) return false;
-      if (!['PUBLIC_SELECTION_OBSERVED','POST_OBSERVED_OPINION_UNVERIFIED','PUBLICATION_OBSERVED_OPINION_UNVERIFIED','RSS_EXPLICIT_HEADLINE_UNVERIFIED'].includes(entry.verification)) return false;
+      if (!['PRIMARY_POST_CAPTURED','PUBLIC_SELECTION_OBSERVED','POST_OBSERVED_OPINION_UNVERIFIED','PUBLICATION_OBSERVED_OPINION_UNVERIFIED','RSS_EXPLICIT_HEADLINE_UNVERIFIED'].includes(entry.verification)) return false;
       if (!/^https:\/\//i.test(entry.url || '')) return false;
       return event.choices.some(choice => choice.label.trim().toLowerCase() === String(entry.horse || '').trim().toLowerCase());
     }).map(entry => ({
       choiceId:event.choices.find(choice => choice.label.trim().toLowerCase() === String(entry.horse).trim().toLowerCase()).id,
       type:entry.group, sourceUrl:entry.url, observedAt:entry.observed_at_utc,
-      publisher:entry.publisher, author:entry.author, publishedAt:entry.published_at_utc || entry.publication_date, primaryPostVerified:false, explicitBetSelectionVerified:false, timestampVerified:false
+      publisher:entry.publisher, author:entry.author, publishedAt:entry.published_at_utc || entry.publication_date,
+      ...(window.ValueWatchEvidenceV3?.communityEvidence?.(entry,event)||{primaryPostVerified:false,explicitBetSelectionVerified:false,timestampVerified:false})
     }));
   }
   const transport = ResearchTransport.createSnapshotClient({ fetch: window.fetch.bind(window), onStatus(status) { $('refresh').disabled = status.status === 'loading'; $('events').setAttribute('aria-busy', String(status.status === 'loading' && !store.get().events.length)); }, onUpdate(result) { safely(() => { const events = E.normalizeFeeds(result.snapshots).map(event => ({...event,communityTips:matchCommunity(event)})); store.update(state => ({ ...state, events, eventVersion: state.eventVersion + 1, snapshotState: result }));

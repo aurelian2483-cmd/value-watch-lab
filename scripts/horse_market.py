@@ -1,5 +1,37 @@
 """Observed Sky Bet win quotes via the racecard publisher; never verified executable prices."""
-import math,re
+import math,re,unicodedata
+
+
+def publisher_forecast(card,observed,source,digest,pre_event,field_confirmed):
+ """A publisher's explicitly labelled betting forecast is not a bookmaker quote."""
+ base={'status':'UNAVAILABLE','basis':'PUBLISHER_BETTING_FORECAST_NOT_BOOKMAKER_QUOTES',
+       'publisher':'Sporting Life','bookmaker':None,'executable_verified':False,
+       'observed_at_utc':observed.isoformat(),'source':source,'source_sha256':digest,'prices':[]}
+ if not pre_event or not field_confirmed:return {**base,'status':'FIELD_UNCONFIRMED'}
+ text=card.get('betting_forecast')
+ if not isinstance(text,str) or not text.strip() or len(text)>10000:return base
+ def name(value):
+  value=re.sub(r'\s*\((?:GB|IRE|FR|USA|GER|AUS|NZ)\)\s*$','',value,flags=re.I)
+  return re.sub(r'[^a-z0-9]','',unicodedata.normalize('NFKD',value).encode('ascii','ignore').decode().casefold())
+ runners=card.get('rides',[])
+ active={str(r['horse']['horse_reference']['id']):r for r in runners if r.get('ride_status')=='RUNNER'}
+ lookup={name(r['horse']['name']):str(r['horse']['horse_reference']['id']) for r in runners}
+ if len(active)<2 or len(lookup)!=len(runners):return {**base,'status':'AMBIGUOUS_FIELD'}
+ prices=[];seen=set()
+ for part in text.split(','):
+  match=re.fullmatch(r'\s*(.+?)\s+\((\d+(?:\.\d+)?/\d+(?:\.\d+)?|EVS|EVENS)\)\s*',part,re.I)
+  if not match or name(match[1]) not in lookup:return {**base,'status':'UNPARSED_FORECAST'}
+  hid=lookup[name(match[1])]
+  if hid in seen:return {**base,'status':'AMBIGUOUS_FORECAST'}
+  seen.add(hid)
+  fraction='1/1' if match[2].upper() in ('EVS','EVENS') else match[2]
+  a,b=map(float,fraction.split('/'))
+  if b<=0 or a<=0:return {**base,'status':'INVALID_FORECAST'}
+  decimal=1+a/b
+  if not math.isfinite(decimal) or not 1<decimal<=10000:return {**base,'status':'INVALID_FORECAST'}
+  if hid in active:prices.append({'horse_id':hid,'decimal':decimal,'fractional':fraction})
+ if set(active)!={p['horse_id'] for p in prices}:return {**base,'status':'INCOMPLETE_FORECAST'}
+ return {**base,'status':'COMPLETE_PUBLISHER_FORECAST','prices':prices}
 
 def quoted_market(rides,observed,source,digest,pre_event,field_confirmed):
  base={'bookmaker':'Sky Bet','publisher':'Sporting Life','verification':'SOURCE_OBSERVED_UNVERIFIED',

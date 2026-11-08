@@ -28,7 +28,10 @@ const server=http.createServer((req,res)=>{
         while(await page.locator('#events .load-more').count())await page.locator('#events .load-more').click();
         assert.equal(await page.locator('#events .event-card').count(),count);
         if(sport==='racing'&&count){assert((await page.locator('.source-entries').count())>0);assert((await page.locator('.source-entries p').count())>0);}
-        results.push({width:viewport.width,sport,displayed:count});
+        const greenExpected=sport==='racing'?expected.days.reduce((sum,d)=>sum+d.racing.green_publisher_forecast+d.racing.green_observed_market,0):null;
+        const greenDisplayed=sport==='racing'?await page.locator('#events [data-evidence-green="true"]').count():null;
+        if(sport==='racing')assert.equal(greenDisplayed,greenExpected,'Every qualifying real source favourite must reach a highlighted runner button');
+        results.push({width:viewport.width,sport,displayed:count,greenExpected,greenDisplayed});
       }
       assert.deepEqual(errors,[]);await page.close();
     }

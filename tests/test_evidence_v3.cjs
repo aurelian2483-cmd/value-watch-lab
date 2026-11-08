@@ -5,8 +5,10 @@ const root=require('node:path').resolve(__dirname,'..');
 const code=fs.readFileSync(root+'/paper-lab/evidence-v3.js','utf8');
 const context={window:{},URL};vm.runInNewContext(code,context);
 const gate=context.window.ValueWatchEvidenceV3.evaluate;
-const event={sport:'football',startUTC:'2026-11-08T15:00:00Z',choices:[{id:'a',quote:{decimal:1.5}},{id:'b',quote:{decimal:3}}],communityTips:[]};
-const run=()=>gate(event,event.choices[0]);
+const now=Date.parse('2026-11-08T13:00:00Z');
+const observedAt='2026-11-08T12:59:00Z';
+const event={sport:'football',startUTC:'2026-11-08T15:00:00Z',choices:[{id:'a',quote:{decimal:1.5,observedAt}},{id:'b',quote:{decimal:3,observedAt}}],communityTips:[]};
+const run=()=>gate(event,event.choices[0],now);
 assert.equal(run().green,'PROVISIONAL');assert.equal(run().blue,'NOT_AWARDED');assert.equal(run().yellow,'NOT_AWARDED');
 const post=(author,verified=true)=>({choiceId:'a',type:'forum',sourceUrl:'https://example.org/thread/42#'+author,author,publishedAt:'2026-11-08T12:00:00Z',primaryPostVerified:verified,explicitBetSelectionVerified:true,timestampVerified:true,valueBackingVerified:true,verifiedThreadId:'thread42'});
 event.communityTips=[post('Alice',false)];assert.equal(run().blue,'NOT_AWARDED');
@@ -19,5 +21,14 @@ event.communityTips=[{...post('Alice'),sourceUrl:'https://example.org/'},post('B
 for(const sport of ['racing','tennis','nfl']){event.sport=sport;event.communityTips=[];assert.equal(run().blue,'NOT_AWARDED');}
 const html=fs.readFileSync(root+'/paper-lab/index.html','utf8');
 assert.match(html,/evidence-v3\.js/);assert.match(html,/desk\.js/);
+const main=fs.readFileSync(root+'/index.html','utf8');
+assert.match(main,/evidence-v3\.js/,'The public entrypoint must load the colour evaluator');
+assert(main.indexOf('evidence-v3.js')<main.indexOf('/desk.js'));
 assert.match(code,/primaryPostVerified/);
+const forecasts={...event,sport:'racing',choices:event.choices.map(c=>({id:c.id,quote:null,forecastPrice:{kind:'PUBLISHER_BETTING_FORECAST',decimal:c.quote.decimal,observedAt}})),communityTips:[post('Alice'),post('Bob')]};
+const fg=gate(forecasts,forecasts.choices[0],now);
+assert.equal(fg.green,'PROVISIONAL');assert.equal(fg.greenBasis,'PUBLISHER_BETTING_FORECAST');assert.equal(fg.blue,'VERIFIED');
+assert.equal(fg.yellow,'NOT_AWARDED','A publisher forecast is not a current bookmaker market for yellow agreement');
+assert.equal(gate(forecasts,forecasts.choices[0],now+31*60000).green,'NOT_ESTABLISHED');
+assert.equal(gate({...forecasts,choices:[forecasts.choices[0],{id:'b'}]},forecasts.choices[0],now).green,'NOT_ESTABLISHED');
 console.log('Evidence v3 unit regression passed (all four sports, blocked/unlocked cases, same-thread gate).');

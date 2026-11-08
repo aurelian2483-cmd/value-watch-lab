@@ -262,4 +262,4 @@ if __name__=='__main__':
  data['collection_status']='PARTIAL_SOURCE_COVERAGE' if data['failed_dates'] or data['fixture_source_status']!='SOURCE_OBSERVED' else 'SOURCE_OBSERVED_NOT_COMPLETE'
  data['limitations'].append('A successful source request is not proof of complete racing coverage. Failed dates are explicitly reported.')
  write_validated_snapshot(data)
- print(json.dumps({'future_races':len(data['races']),'fixture_meetings':len(data['fixture_meetings']),'fixture_source_status':data['fixture_source_status'],'failed_index_days':len(data['failed_dates']),'meeting_page_failures':sum(x['status']=='COLLECTION_FAILED' for x in receipts)}))
+ print(json.dumps({'future_races':len(data['races']),'publisher_forecasts':sum(r.get('publisher_forecast',{}).get('status')=='COMPLETE_PUBLISHER_FORECAST' for r in data['races']),'fixture_meetings':len(data['fixture_meetings']),'fixture_source_status':data['fixture_source_status'],'failed_index_days':len(data['failed_dates']),'meeting_page_failures':sum(x['status']=='COLLECTION_FAILED' for x in receipts)}))

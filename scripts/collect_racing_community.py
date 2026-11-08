@@ -14,6 +14,7 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from primary_racing_posts import capture
 
 ROOT = Path(__file__).resolve().parents[1]
 UTC = dt.timezone.utc
@@ -21,6 +22,22 @@ NOW = dt.datetime.now(UTC)
 CONFIG = ROOT / "racing-research/community-feeds.json"
 OUT = ROOT / "racing-research/source-observations.json"
 RACES = ROOT / "racing-research-data.json"
+
+def load_races(path):
+    """Match community observations against current and future source racecards."""
+    races=list(json.loads(path.read_text(encoding='utf-8')).get('races',[]))
+    future=path.parent/'racing-future-data.json'
+    if future.exists():
+        document=json.loads(future.read_text(encoding='utf-8'))
+        if document.get('research_only') is True and document.get('publication_gate')=='BLOCKED' and document.get('model_validation')=='UNVALIDATED':
+            races+=document.get('races',[])
+    grouped={}
+    for race in races:grouped.setdefault(str(race['race_id']),[]).append(race)
+    result=[]
+    for observations in grouped.values():
+        if len({r.get('startUTC') for r in observations})!=1:continue
+        result.append(max(observations,key=lambda r:r.get('runner_observed_at_utc',r.get('observedAtUTC',''))))
+    return result
 
 def parse_date(value):
     if not value:
@@ -80,9 +97,9 @@ def explicit_headline_pick(title, horse_name):
     )
 
 def main():
-    config = json.loads(CONFIG.read_text())
-    feed = json.loads(OUT.read_text())
-    races = json.loads(RACES.read_text()).get("races", [])
+    config = json.loads(CONFIG.read_text(encoding='utf-8'))
+    feed = json.loads(OUT.read_text(encoding='utf-8'))
+    races = load_races(RACES)
     # Never treat a successful feed fetch as a usable racing prediction when
     # the saved racecard has no future races. Surface the missing upstream feed.
     future_races = [race for race in races if (start := parse_date(race.get("startUTC"))) and NOW < start <= NOW + dt.timedelta(days=2)]
@@ -91,6 +108,7 @@ def main():
     added = 0
     failures = []
     source_health = []
+    primary_checks=[]
     for source in config.get("sources", []):
         if not source.get("enabled", False):
             continue
@@ -176,7 +194,7 @@ def main():
                 title = item["title"]
                 explicit_title = explicit_headline_pick(title, horse["name"])
                 verification = "RSS_EXPLICIT_HEADLINE_UNVERIFIED" if explicit_title else "RSS_EXPLICIT_MENTION_REVIEW_REQUIRED"
-                entries.append({
+                record={
                     "id":identifier, "group":source["type"], "author":source.get("publisher"),
                     "publisher":source["publisher"], "race_id":str(race["race_id"]),
                     "event":race.get("name", ""), "startUTC":race["startUTC"],
@@ -184,7 +202,8 @@ def main():
                     "url":url, "summary":"Public feed item explicitly names this runner; full article not independently assessed.",
                     "verification":verification, "observed_at_utc":NOW.isoformat(),
                     "stance":"support", "source_feed":source["feed_url"], "extraction_method":"explicit_headline" if explicit_title else "mention_only"
-                })
+                }
+                entries.append(record)
                 known.add(identifier)
                 added += 1
                 matched += 1
@@ -196,15 +215,28 @@ def main():
         except Exception as error:
             failures.append({"publisher":source.get("publisher", "unknown"), "error":str(error)[:160]})
             source_health.append({"publisher":source.get("publisher", "unknown"), "status":"error", "error":str(error)[:160]})
+    # Recheck bounded upcoming forum candidates, including earlier RSS captures.
+    upcoming={str(r['race_id']):r for r in future_races}
+    candidates=[e for e in entries if e.get('group') in ('forum','social_forum') and e.get('verification')!='PRIMARY_POST_CAPTURED' and str(e.get('race_id')) in upcoming]
+    for record in candidates[-12:]:
+        race=upcoming[str(record['race_id'])]
+        if record.get('startUTC')!=race['startUTC']:continue
+        try:
+            proof=capture(record,race,dt.datetime.now(UTC))
+            record.update(primary_capture=proof,verification='PRIMARY_POST_CAPTURED',author=proof['author'],published_at_utc=proof['published_at_utc'])
+            primary_checks.append({'url':record['url'],'status':'PRIMARY_POST_CAPTURED'})
+        except Exception as exc:
+            primary_checks.append({'url':record['url'],'status':'PRIMARY_POST_UNVERIFIED','reason':str(exc)[:160]})
     feed["entries"] = entries
     feed["last_collector_run_utc"] = NOW.isoformat()
     feed["collector_added"] = added
     feed["collector_errors"] = failures
     feed["collector_source_health"] = source_health
+    feed['primary_post_checks']=primary_checks
     feed["racecard_health"] = {
         "future_races": len(future_races),
         "status": "ready" if future_races else "stale_or_no_upcoming_races",
-        "message": "Upcoming racecards available" if future_races else "No future races in racing-research-data.json; refresh the upstream racecard snapshot before community tips can match."
+        "message": "Current and future source racecards checked" if future_races else "No upcoming source racecards; refresh the racing snapshots before community tips can match."
     }
     feed["coverage"] = "Partial configured public RSS sources; mentions require editorial review and do not prove consensus."
     OUT.write_text(json.dumps(feed, indent=2, ensure_ascii=False)+"\n")

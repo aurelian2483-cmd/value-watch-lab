@@ -27,7 +27,11 @@ class CommunityEvidenceTests(unittest.TestCase):
     def test_no_collector_candidate_promoted(self):
         for e in self.feed['entries']:
             if e.get('id','').startswith('rss-'):
-                self.assertIn(e.get('verification'),('RSS_EXPLICIT_MENTION_REVIEW_REQUIRED','RSS_EXPLICIT_HEADLINE_UNVERIFIED'))
+                self.assertIn(e.get('verification'),('RSS_EXPLICIT_MENTION_REVIEW_REQUIRED','RSS_EXPLICIT_HEADLINE_UNVERIFIED','PRIMARY_POST_CAPTURED'))
+                if e.get('verification')=='PRIMARY_POST_CAPTURED':
+                    self.assertEqual(e['primary_capture']['method'],'JSONLD_DISCUSSION_POST_V1')
+                    self.assertEqual(e['primary_capture']['receipt']['url'],e['url'])
+                    self.assertEqual(len(e['primary_capture']['receipt']['sha256']),64)
                 if e.get('verification') == 'RSS_EXPLICIT_HEADLINE_UNVERIFIED':
                     self.assertEqual(e.get('extraction_method'),'explicit_headline')
     def test_explicit_headline_selection_rules(self):

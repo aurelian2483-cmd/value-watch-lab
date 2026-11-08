@@ -10,7 +10,7 @@ import urllib.parse
 import urllib.request
 from zoneinfo import ZoneInfo
 from discover_horse_races import PageData
-from horse_market import quoted_market
+from horse_market import quoted_market,publisher_forecast
 
 ROOT=Path('/tmp/horse-research')
 UTC=dt.timezone.utc
@@ -109,6 +109,7 @@ def parse_card_data(card,race,observed,raw):
  changed=[k for k,v in conditions.items() if k in race and race[k]!=v]
  return {**conditions,'conditions_changed_since_discovery':changed,'runners':runners,'runner_data_status':'RUNNER_FIELD_UNCONFIRMED' if uncertain else 'SINGLE_SOURCE_RUNNERS_OBSERVED',
   'market_observation':quoted_market(rides,observed,race['source'],hashlib.sha256(raw).hexdigest(),pre_event,not uncertain),
+  'publisher_forecast':publisher_forecast(card,observed,race['source'],hashlib.sha256(raw).hexdigest(),pre_event,not uncertain),
   'doubtful_runner_count':sum(r['runner_status']=='DOUBTFUL' for r in runners),
   'active_runner_count':active,'non_runner_count':sum(r['runner_status'] in ('NONRUNNER','WITHDRAWN') for r in runners),'withdrawn_count':sum(r['runner_status']=='WITHDRAWN' for r in runners),
   'runner_count_changed_since_discovery':active!=race['source_runner_count'],

@@ -100,6 +100,18 @@
     return { status: notes.length ? 'REVIEW_REQUIRED' : 'LIMITED_EVIDENCE', notes, verifiedMarketComparison: false, actionable: false };
   }
 
+  function publisherPrices(row,now){
+    const p=row.publisher_forecast,active=list(row.runners).filter(h=>h.active_runner===true&&h.runner_status==='RUNNER');
+    if(p?.status!=='COMPLETE_PUBLISHER_FORECAST'||p.basis!=='PUBLISHER_BETTING_FORECAST_NOT_BOOKMAKER_QUOTES'||p.bookmaker!==null||p.executable_verified!==false)return [];
+    if(row.runner_data_status!=='SINGLE_SOURCE_RUNNERS_OBSERVED'||active.length<2||active.length!==row.active_runner_count||list(row.runners).some(h=>!['RUNNER','NONRUNNER','WITHDRAWN'].includes(h.runner_status)))return [];
+    if(p.source!==row.runner_source||p.source_sha256!==row.runner_source_sha256||!/^[a-f0-9]{64}$/.test(p.source_sha256||''))return [];
+    if(!/^https:\/\/www\.sportinglife\.com\/racing\/(meeting|racecards)\//.test(p.source||'')||!p.source.includes('/'+Core.day(row.startUTC)+'/'))return [];
+    const seen=instant(p.observed_at_utc),start=instant(row.startUTC),prices=list(p.prices);
+    if(!Number.isFinite(seen)||seen!==instant(row.runner_observed_at_utc)||seen>now||now-seen>1800000||seen>=start||start<=now+300000||!['DORMANT','GOINGDOWN','ATTHEPOST'].includes(row.race_stage))return [];
+    if(prices.length!==active.length||new Set(prices.map(p=>String(p.horse_id))).size!==prices.length||prices.some(p=>!active.some(h=>String(h.horse_id)===String(p.horse_id))||!Number.isFinite(p.decimal)||p.decimal<=1||p.decimal>10000))return [];
+    return prices.map(price=>({...price,kind:'PUBLISHER_BETTING_FORECAST',source:p.source,sourceSha256:p.source_sha256,observedAt:p.observed_at_utc}));
+  }
+
   function racing(document, path, now, contextFeed) {
     return list(document.races).map(row => {
       const runners = list(row?.runners), active = runners.filter(horse => horse.active_runner === true && horse.runner_status === 'RUNNER');
@@ -107,9 +119,10 @@
       const sources = sourceRows([{ url: row.runner_source || row.source, observed_at_utc: observedAt, sha256: row.runner_source_sha256 }, ...(row.going_basis === 'SECOND_PUBLISHER_STRUCTURED_GOING' && row.secondary_going_receipt ? [row.secondary_going_receipt] : [])], observedAt, path);
       const checked = Cards.contextForecast(row, contextFeed, now);
       const forecast = checked.valid && checked.fresh ? checked.record : null;
+      const publishedPrices=publisherPrices(row,now);
       const choices = active.map(horse => {
         const quote = Core.quote({ sport: 'racing', raw: row }, String(horse.horse_id), now);
-        return { id: String(horse.horse_id), label: str(horse.name), probability: forecast?.runners.find(runner => String(runner.horse_id) === String(horse.horse_id))?.model_probability ?? null, uncertainty: null, market: 'Win', quote: quote.decimal === null ? null : { decimal: quote.decimal, source: quote.source, observedAt: quote.observed, bookmaker: quote.bookmaker, status: quote.status, executable: false } };
+        return { id: String(horse.horse_id), label: str(horse.name), probability: forecast?.runners.find(runner => String(runner.horse_id) === String(horse.horse_id))?.model_probability ?? null, uncertainty: null, market: 'Win', forecastPrice:publishedPrices.find(p=>String(p.horse_id)===String(horse.horse_id))||null, quote: quote.decimal === null ? null : { decimal: quote.decimal, source: quote.source, observedAt: quote.observed, bookmaker: quote.bookmaker, status: quote.status, executable: false } };
       });
       const recent = active.map(horse => ({ participantId: String(horse.horse_id), name: str(horse.name), runs: list(horse.previous_results).filter(run => /^\d{4}-\d{2}-\d{2}$/.test(run.date || '') && run.date < Core.day(row.startUTC) && run.date <= Core.day(observedAt)).slice(0, 10).map(run => ({ date: run.date, course: str(run.course_name), position: Number.isSafeInteger(run.position) ? run.position : null, runnerCount: Number.isSafeInteger(run.runner_count) ? run.runner_count : null, finishStatus: str(run.finish_status), going: str(run.going), distance: str(run.distance) })) }));
       return makeEvent({ sport: 'racing', identity: String(row.race_id), providerId: row.race_id, competition: str(row.racecourse), name: str(row.racecourse) + ' · ' + str(row.name), participants: active.map(horse => ({ id: String(horse.horse_id), name: str(horse.name) })), startUTC: row.startUTC, observedAt, sources, choices,
@@ -142,7 +155,7 @@
         Object.assign(entry,{futureScheduleOnly:!paperEntry,provisionalEntry:paperEntry,fieldConfirmed:false,model:null,
           declarationStageReported:str(row.declaration_stage),
           predictionStatus:{code:'DECLARATIONS_PENDING',label:'Source-observed entries; final declarations unverified'}});
-        entry.choices=entry.choices.map(choice=>({...choice,quote:null,probability:null}));
+        entry.choices=entry.choices.map(choice=>({...choice,quote:paperEntry?choice.quote:null,forecastPrice:paperEntry?choice.forecastPrice:null,probability:null}));
         entry.status=statusOf(entry,now);
         return entry;
       }

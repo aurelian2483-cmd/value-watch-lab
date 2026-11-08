@@ -17,7 +17,7 @@ SPEC.loader.exec_module(collector)
 UTC=dt.timezone.utc
 
 class CollectorIntegration(unittest.TestCase):
-    def run_case(self, title, expected, published='Sun, 08 Nov 2026 11:00:00 GMT'):
+    def run_case(self, title, expected, published='Sun, 08 Nov 2026 11:00:00 GMT',future_only=False):
         now=dt.datetime(2026,11,8,12,0,tzinfo=UTC)
         start=now+dt.timedelta(hours=2)
         xml=f"""<rss><channel><item><title>{title}</title><description>Naas racing preview</description><link>https://example.org/tip/123</link><pubDate>{published}</pubDate></item></channel></rss>"""
@@ -26,6 +26,11 @@ class CollectorIntegration(unittest.TestCase):
             (root/"feeds.json").write_text(json.dumps({"sources":[{"publisher":"Test Tipster","type":"tipster","feed_url":"https://example.org/feed","enabled":True}]}))
             (root/"archive.json").write_text(json.dumps({"schema_version":1,"entries":[]}))
             (root/"races.json").write_text(json.dumps({"races":[{"race_id":"test-123","name":"Naas 14:00","startUTC":start.isoformat(),"racecourse":"Naas","runners":[{"name":"The Mourne Rambler","active_runner":True,"runner_status":"RUNNER"},{"name":"Low Kick","active_runner":True,"runner_status":"RUNNER"}]}]}))
+            if future_only:
+                future=json.loads((root/'races.json').read_text())
+                future.update(research_only=True,publication_gate='BLOCKED',model_validation='UNVALIDATED')
+                (root/'racing-future-data.json').write_text(json.dumps(future))
+                (root/'races.json').write_text(json.dumps({'races':[]}))
             with patch.object(collector,"CONFIG",root/"feeds.json"),patch.object(collector,"OUT",root/"archive.json"),patch.object(collector,"RACES",root/"races.json"),patch.object(collector,"NOW",now),patch.object(collector,"fetch",return_value=ET.fromstring(xml)):
                 collector.main()
             archive=json.loads((root/"archive.json").read_text())
@@ -41,6 +46,9 @@ class CollectorIntegration(unittest.TestCase):
 
     def test_explicit_pick_is_archived(self):
         self.run_case("NAP: The Mourne Rambler",1)
+
+    def test_future_racecard_can_match_when_current_day_feed_has_finished(self):
+        self.run_case('NAP: The Mourne Rambler',1,future_only=True)
 
     def test_preview_is_not_promoted_to_blue(self):
         self.run_case("Naas racing preview: The Mourne Rambler",0)

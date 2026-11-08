@@ -4,7 +4,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const E = require('../paper-lab/engine.js');
+const vm=require('node:vm');
 const root = path.resolve(__dirname, '..');
+const evidenceContext={window:{},URL,Date};vm.runInNewContext(fs.readFileSync(path.join(root,'paper-lab/evidence-v3.js'),'utf8'),evidenceContext);
+const evidence=evidenceContext.window.ValueWatchEvidenceV3;
 const specs = [['football','research-dashboard-data.json'], ['football','football-expanded-data.json'],
   ['football','international-football-data.json'], ['racing','racing-research-data.json'],
   ['racing-future','racing-future-data.json'], ['other','other-sports-data.json']];
@@ -25,6 +28,9 @@ function report(from, to, now = Date.now()) {
         upcoming:upcoming.length,first_page:Math.min(24,upcoming.length),selectable:upcoming.filter(e=>E.statusOf(e,now).selectable).length};
     }
     row.racing.meeting_fixtures=(future?.fixture_meetings||[]).filter(m=>m.date===d).length;
+    const greens=events.filter(e=>e.sport==='racing'&&E.day(e.startUTC)===d).flatMap(e=>e.choices.map(c=>evidence.evaluate(e,c,now))).filter(g=>g.green==='PROVISIONAL');
+    row.racing.green_publisher_forecast=greens.filter(g=>g.greenBasis==='PUBLISHER_BETTING_FORECAST').length;
+    row.racing.green_observed_market=greens.filter(g=>g.greenBasis==='BOOKMAKER_SOURCE_OBSERVATION').length;
     days.push(row);
   }
   return {generated_at_utc:new Date(now).toISOString(),from,to,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
