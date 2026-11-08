@@ -54,6 +54,7 @@ module.exports=async function checkRacingPaper(browser,base){
     await page.screenshot({path:path.join(out,'racing-paper-'+viewport.width+'.png'),fullPage:false});
     await page.locator('#paper-open').isVisible().then(async visible=>{if(visible)await page.locator('#paper-open').click();});
     await page.locator('#freeze').click();
+    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4'))?.history?.length===1);
     const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')).history);
     assert.equal(saved.length,1);
     assert.equal(saved[0].snapshot.slots[0].legs[0].declarationStatus,'NOT_VERIFIED');

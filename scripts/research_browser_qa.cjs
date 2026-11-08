@@ -46,8 +46,11 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   const estimateBox=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.model-details').first();await estimateBox.locator('summary').click();assert((await estimateBox.textContent()).includes('%'));
   report.checks.push('manual stake default, visible labelled estimates, two build scopes and external price-check links');
   await p.locator('[data-range=tomorrow]').click();assert((await p.locator('#coverage-summary').textContent()).includes('matching your filters'));await p.locator('[data-sport=racing]').click();await p.locator('#events .event-empty').waitFor();assert((await p.locator('#events').textContent()).includes('scheduled meetings'));await p.locator('#events').getByRole('button',{name:'Show next 14 days',exact:true}).click();await p.locator('#events .event-card').waitFor();assert.equal(await p.locator('#date-from').inputValue(),'2026-11-08');assert.equal(await p.locator('#date-to').inputValue(),'2026-11-21');await p.locator('[data-sport=all]').click();await p.locator('[data-range="7"]').click();report.checks.push('racing coverage gap explains unavailable cards and offers working range recovery');
-  if(await p.locator('#clear-slip').isEnabled())await p.locator('#clear-slip').click();
-  const first=p.locator('#events .event-card').filter({hasText:'Test Home 0'});await first.locator('.selection-button').first().click();await p.locator('#slip-content .slip-selection').waitFor();
+  const first=p.locator('#events .event-card').filter({hasText:'Test Home 0'});
+  // Run clear + first manual click in one browser task so an asynchronous
+  // source refresh cannot auto-populate the empty slip between these actions.
+  await first.locator('.selection-button').first().evaluate(button=>{const clear=document.querySelector('#clear-slip');if(!clear.disabled)clear.click();button.click();});
+  await p.waitForFunction(()=>document.querySelectorAll('#slip-content .slip-selection').length===1);
   const second=p.locator('#events .event-card').filter({hasText:'Test Home 1'});await second.locator('.selection-button').first().click();await p.waitForFunction(()=>document.querySelectorAll('#slip-content .slip-selection').length===2);report.checks.push('cross-day selections');
   await p.locator('#slip-content .move-button[aria-label*="down"]').first().click();assert((await p.locator('#slip-content .slip-selection').first().textContent()).includes('Test Home 1'));report.checks.push('reorder selections');
   await first.locator('.evidence-details > summary').click();await first.locator('[data-stats-tab=h2h]').click();await first.locator('.stats-panel').getByText('Recorded meetings').waitFor();
