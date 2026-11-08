@@ -200,45 +200,46 @@
       make(record.racingPanel, 'strong', 'Horse racing · odds and community research (separate signals)');
       const picks = racingHighlights(event);
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
+      // Show the actual picks first; keep the evidence and collector diagnostics collapsed.
+      const green = picks.find(p => p.labels.includes('Odds favourite'));
+      const blue = picks.filter(p => p.labels.some(label => label.startsWith('Community')));
+      const leader = blue.find(p => !p.labels.includes('Community tied'));
+      const agreed = green && leader && green.choice.id === leader.choice.id;
+      const summary = make(record.racingPanel,'div',undefined,'racing-colour-summary');
+      summary.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin:12px 0';
+      const signal=(colour,title,horse,detail)=>{
+        const tile=make(summary,'div');
+        tile.style.cssText='border:1px solid '+colour+';border-left:5px solid '+colour+';border-radius:9px;padding:10px;background:#112636';
+        const heading=make(tile,'strong',title);heading.style.color=colour;
+        make(tile,'div',horse,'small');make(tile,'small',detail,'muted');
+      };
+      signal('#b8ee79','GREEN · Odds favourite',green?.choice.label||'Unavailable','Lowest observed price; not validated');
+      signal('#60a5fa','BLUE · Community',leader?.choice.label||(blue.length?'Tied selections':'No sourced selection'),blue.length?'Experimental source evidence':'Coverage incomplete');
+      signal('#facc15','YELLOW · Agreement',agreed?green.choice.label:'Not established','Unique community leader + odds favourite');
+      const diagnostics=make(record.racingPanel,'details',undefined,'racing-audit-details');
+      diagnostics.style.cssText='margin:12px 0;border:1px solid #49657b;border-radius:10px;padding:10px;background:#102431';
+      make(diagnostics,'summary','Evidence audit & collector details');
       const audit = racingEvidenceAudit(event);
-      const auditPanel = make(record.racingPanel, 'div', undefined, 'racing-evidence-audit');
-      auditPanel.style.cssText='margin:12px 0;padding:12px;border:1px solid #49657b;border-radius:10px;background:#102431';
-      make(auditPanel,'strong','Evidence audit · three independent layers');
-      make(auditPanel,'p','LAYER 1 · Market: '+(event.choices.some(c=>Number.isFinite(c.quote?.decimal))?'source prices observed; check freshness':'no usable observed prices')+' · no forum inference','small');
-      make(auditPanel,'p','LAYER 2 · Press/tipsters: '+audit.pressCount+' distinct sourced publisher/tipster observations · verified press naps: UNKNOWN','small');
-      make(auditPanel,'p','LAYER 3 · Forums: '+audit.forumCount+' distinct attributable backers · raw mentions: UNKNOWN · sentiment ratio: UNKNOWN','small');
-      make(auditPanel,'p','Forum collection coverage: '+audit.coverage+(audit.failed?' · '+audit.failed+' failed sources in last run':' · completeness not established'),'small');
-      if (audit.discrepancy) {
-        const warning=make(auditPanel,'p','DISCREPANCY: Publisher/tipster selection observed, but forum backing is UNVERIFIED/ABSENT in collected evidence.','small');
-        warning.style.color='#f5c785';
-      }
-      make(auditPanel,'p','CONFIRMED CONVERGENCE: NOT ESTABLISHED · no verified press-naps count or comprehensive forum evidence','small');
-      const hasConsensus = picks.some(pick => pick.labels.includes('Community consensus'));
-      make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus · research only' : picks.some(pick=>pick.labels.includes('Community experimental')) ? '🔵 BLUE: experimental single-source community candidate · unvalidated' : picks.some(pick=>pick.labels.includes('Community tied')) ? '🔵 BLUE: multiple tied community-supported horses highlighted · no consensus' : communityTips.length ? '🔵 BLUE: community evidence recorded without a unique leader' : '🔵 NO COMMUNITY DATA FOR THIS RACE — green is odds only; source coverage incomplete, not a negative tipster verdict', 'small');
-      const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
-      collector.textContent = 'Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+(communityHealth.errors.length ? communityHealth.errors.length+' source errors' : 'no reported source errors')+' · research only';
-      collector.style.color = '#a9bed0';
-      if (communityHealth.racecardHealth?.status === 'stale_or_no_upcoming_races') {
-        const stale = make(record.racingPanel, 'p', '⚠ Upstream racecard is stale: no future races available for automatic tip matching. Refresh racing-research-data.json.', 'small');
-        stale.style.cssText='padding:10px;border:1px solid #c08437;border-radius:8px;color:#fbd38d;background:#35281a';
-      }
-      if (communityHealth.sourceHealth.length) {
-        const sourceDetails = make(record.racingPanel, 'details');
-        make(sourceDetails, 'summary', 'Collector source health · '+communityHealth.sourceHealth.filter(x=>x.status==='fetched').length+' fetched / '+communityHealth.sourceHealth.length+' attempted');
-        for (const item of communityHealth.sourceHealth) {
-          const line=make(sourceDetails,'p',(item.status==='fetched'?'✓ ':'⚠ ')+item.publisher+' · '+(item.status==='fetched'?(item.items_scanned||0)+' scanned · '+(item.explicit_tip_observations||0)+' experimental tips · '+(item.review_only_mentions||0)+' review-only mentions'+(item.skip_reasons?' · '+Object.entries(item.skip_reasons).filter(([key,value])=>value).map(([key,value])=>key.replaceAll('_',' ')+': '+value).join(', '):''):item.error||'fetch failed'),'small');
-          line.style.color=item.status==='fetched'?'#a6d6bf':'#f2c28e';
+      make(diagnostics,'p','LAYER 1 · Market: '+(event.choices.some(c=>Number.isFinite(c.quote?.decimal))?'source prices observed; check freshness':'no usable observed prices')+'; never inferred from forums','small');
+      make(diagnostics,'p','LAYER 2 · Press/tipsters: '+audit.pressCount+' distinct sourced publisher/tipster observations; verified press naps: UNKNOWN','small');
+      make(diagnostics,'p','LAYER 3 · Forums: '+audit.forumCount+' distinct attributable backers; raw mentions: UNKNOWN; sentiment ratio: UNKNOWN','small');
+      make(diagnostics,'p','Forum collection coverage: '+audit.coverage+(audit.failed?' · '+audit.failed+' failed sources in last run':' · completeness not established'),'small');
+      if(audit.discrepancy)make(diagnostics,'p','DISCREPANCY: Publisher/tipster selection observed, but forum backing is UNVERIFIED/ABSENT in collected evidence.','small');
+      make(diagnostics,'p','CONFIRMED CONVERGENCE: NOT ESTABLISHED · press-naps count and comprehensive forum evidence unavailable','small');
+      make(diagnostics,'p','Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+communityHealth.errors.length+' reported errors','small');
+      if(communityHealth.racecardHealth?.status==='stale_or_no_upcoming_races')make(diagnostics,'p','Upstream racecard stale: no future races for matching.','small');
+      if(communityHealth.sourceHealth?.length){
+        const sourceDetails=make(diagnostics,'details');
+        make(sourceDetails,'summary','Collector source health · '+communityHealth.sourceHealth.filter(x=>x.status==='fetched').length+' fetched / '+communityHealth.sourceHealth.length+' attempted');
+        for(const item of communityHealth.sourceHealth){
+          make(sourceDetails,'p',item.publisher+' · '+(item.status==='fetched'?(item.items_scanned||0)+' scanned; '+(item.explicit_tip_observations||0)+' experimental tips':item.error||'fetch failed'),'small');
         }
       }
-      if (!communityTips.length) {
-        const notice = make(record.racingPanel, 'p', 'Research gap: no independently attributable community recommendation has been matched to this race. The source directory is not a count of live feeds. Do not interpret the green favourite as community agreement.', 'small');
-        notice.style.cssText = 'padding:10px;border:1px solid #b78a3c;border-radius:8px;color:#f6d18b;background:#30291e';
-      }
-      const directory = make(record.racingPanel, 'a', 'Browse racing research source directory ↗', 'small');
-      directory.href = new URL('racing-research/community-source-catalog.json', rootURL).href;
-      directory.target = '_blank'; directory.rel = 'noopener noreferrer';
-      directory.style.color = '#93c5fd';
-      directory.style.display = 'inline-block';
+      if(!communityTips.length)make(diagnostics,'p','No independently attributable community selection matched to this race; absence of collected evidence is not evidence of no support.','small');
+      const directory=make(diagnostics,'a','Browse racing research source directory ↗','small');
+      directory.href=new URL('racing-research/community-source-catalog.json',rootURL).href;
+      directory.target='_blank';directory.rel='noopener noreferrer';
+      directory.style.color='#93c5fd';
       if (communityTips.length) {
         // Display every independently attributed community candidate, including ties.
         // Source domains are counted once per horse; this is evidence, not a win probability.
