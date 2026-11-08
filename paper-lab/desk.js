@@ -104,10 +104,18 @@
   }
   // Research-only dual racing highlights. Community tips require independent sourced records;
   // never infer consensus from model rankings or bookmaker prices.
+  function evaluateEvidenceSafe(event,choice) {
+    try {
+      const evaluator=window.ValueWatchEvidenceV3?.evaluate;
+      if(typeof evaluator==='function')return evaluator(event,choice);
+    }catch(error){console.warn('Evidence validator unavailable; badges blocked',error);}
+    return {green:'NOT_ESTABLISHED',blue:'NOT_AWARDED',yellow:'NOT_AWARDED',media:'SEPARATE',qualifiedPosts:0,verifiedAuthors:0};
+  }
+
   function racingHighlights(event) {
     if (event?.sport !== 'racing') return [];
     const choices=event.choices||[];
-    return choices.filter(c=>window.ValueWatchEvidenceV3?.evaluate(event,c).green==='PROVISIONAL').map(choice=>({choice,labels:['Odds favourite'],reasons:['Provisional observed-price favourite; official SP unverified']}));
+    return choices.filter(c=>evaluateEvidenceSafe(event,c).green==='PROVISIONAL').map(choice=>({choice,labels:['Odds favourite'],reasons:['Provisional observed-price favourite; official SP unverified']}));
   }
   function racingEvidenceAudit(event) {
     const tips = (Array.isArray(event.communityTips) ? event.communityTips : []).filter(t=>t.primaryPostVerified===true && t.explicitBetSelectionVerified===true && t.timestampVerified===true);
@@ -163,10 +171,10 @@
     if(!evidencePanel){evidencePanel=make(record.node,'section',undefined,'universal-evidence-v3');record.prediction.after(evidencePanel);}
     evidencePanel.replaceChildren();
     const evidenceTitle=make(evidencePanel,'strong','Evidence v3 · '+(sports[event.sport]||event.sport));
-    const contenders=(event.choices||[]).filter(c=>window.ValueWatchEvidenceV3?.evaluate(event,c).green==='PROVISIONAL');
+    const contenders=(event.choices||[]).filter(c=>evaluateEvidenceSafe(event,c).green==='PROVISIONAL');
     const favourite=contenders.length===1?contenders[0]:null;
-    const badges=favourite?window.ValueWatchEvidenceV3.evaluate(event,favourite):null;
-    const gates=(event.choices||[]).map(choice=>({choice,gate:window.ValueWatchEvidenceV3.evaluate(event,choice)}));
+    const badges=favourite?evaluateEvidenceSafe(event,favourite):null;
+    const gates=(event.choices||[]).map(choice=>({choice,gate:evaluateEvidenceSafe(event,choice)}));
     const blueChoices=gates.filter(x=>x.gate.blue==='VERIFIED').map(x=>x.choice.label);
     const yellowChoices=gates.filter(x=>x.gate.yellow==='MULTI_USER_CONSENSUS').map(x=>x.choice.label);
     make(evidencePanel,'p','GREEN · '+(favourite?favourite.label+' · Provisional observed-price favourite':'Not established')+'  |  BLUE · '+(blueChoices.join(', ')||'Not awarded')+'  |  YELLOW · '+(yellowChoices.join(', ')||'Not awarded'),'small');
@@ -181,7 +189,7 @@
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
       // Show the actual picks first; keep the evidence and collector diagnostics collapsed.
       const green = picks.find(p => p.labels.includes('Odds favourite'));
-      const evaluations=(event.choices||[]).map(choice=>({choice,gate:window.ValueWatchEvidenceV3.evaluate(event,choice)}));
+      const evaluations=(event.choices||[]).map(choice=>({choice,gate:evaluateEvidenceSafe(event,choice)}));
       const blue=evaluations.filter(item=>item.gate.blue==='VERIFIED');
       const yellow=evaluations.filter(item=>item.gate.yellow==='MULTI_USER_CONSENSUS');
       const summary = make(record.racingPanel,'div',undefined,'racing-colour-summary');
