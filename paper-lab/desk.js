@@ -276,7 +276,8 @@
     const structural = JSON.stringify([status.code === 'STARTED', ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id), racingPicks.map(pick => pick.choice.id)]);
     if (record.structural !== structural) {
       record.structural = structural; record.market.replaceChildren(); record.choices.clear();
-      if (status.code === 'STARTED') make(record.market, 'span', event.score?.label ? 'Recorded final: ' + event.score.label : 'Event has started or finished · additions closed', 'archived-status');
+      if (event.futureScheduleOnly) make(record.market,'span','Scheduled race · runner declarations and prices not yet available · paper selections disabled','archived-status');
+      else if (status.code === 'STARTED') make(record.market, 'span', event.score?.label ? 'Recorded final: ' + event.score.label : 'Event has started or finished · additions closed', 'archived-status');
       else {
         const shown = event.sport === 'racing' && ordered.length > 6 ? ordered.slice(0, 5) : ordered;
         const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), odds = make(b, 'small', '', 'selection-odds'); record.choices.set(choice.id, { element: b, modelBadge, name, price, caption, odds, previous: null }); };
