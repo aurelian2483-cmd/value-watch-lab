@@ -29,6 +29,23 @@ class ExpandedTests(unittest.TestCase):
   current=copy.deepcopy(self.training)
   for v in current['teams'].values():v['hn']=v['an']=3
   r=m.model_forecast(self.f,{'teams':{}},current);self.assertTrue(r['training_basis']['small_sample'])
+ def test_season_only_comparison_is_separate_and_requires_observations(self):
+  current=copy.deepcopy(self.training)
+  current['matches']=80
+  for team in current['teams'].values():team.update(hn=4,an=4,hgf=7,hga=5,agf=5,aga=5)
+  compared=m.current_season_comparison(self.f,current)
+  self.assertIsNotNone(compared)
+  self.assertEqual(compared['method'],'CURRENT_SEASON_POISSON_COMPARISON_V1')
+  self.assertEqual(compared['home_venue_matches'],4)
+  self.assertEqual(compared['away_venue_matches'],4)
+  self.assertTrue(compared['small_sample'])
+  self.assertAlmostEqual(sum(compared[k] for k in ('prob_home','prob_draw','prob_away')),1)
+  self.assertIsNone(compared['odds'])
+  self.assertIsNone(compared['expected_value'])
+  self.assertEqual(compared['publication_gate'],'BLOCKED')
+  self.assertIsNone(m.current_season_comparison(self.f,None))
+  current['teams'][m.norm(self.f['home'])]['hn']=2
+  self.assertIsNone(m.current_season_comparison(self.f,current))
  def test_archive_repeat_tampering_and_time_buffer(self):
   f=m.model_forecast(self.f,self.training);path=self.root/'archive';r,a,n=m.archive_forecasts([f],self.now,path);self.assertEqual(n,1)
   r,a,n=m.archive_forecasts([f],self.now,path);self.assertEqual(n,0)
