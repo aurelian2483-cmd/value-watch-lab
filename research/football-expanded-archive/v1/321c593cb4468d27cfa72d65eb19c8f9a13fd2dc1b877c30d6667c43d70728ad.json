@@ -1,0 +1,74 @@
+{
+  "league": "D1",
+  "home": "TSG Hoffenheim",
+  "away": "FC Augsburg",
+  "kickoff_utc": "2026-11-29T16:30:00Z",
+  "espn_event_id": "401884725",
+  "league_name": "Bundesliga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=20261129&limit=100",
+      "sha256": "8850765127cea6b3a6c4ff5ebb41493903e573626203216da31fd711815102a8",
+      "observed_at_utc": "2026-11-08T22:28:37.258305Z"
+    },
+    {
+      "url": "https://www.skysports.com/bundesliga-scores-fixtures/2026-11-01",
+      "sha256": "9781fb46f1716bc7d3f35024828fceba670d8ac36939be9fafe9abccf5747606",
+      "observed_at_utc": "2026-11-08T22:28:58.202532Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_D1_PRIOR_SEASON",
+  "prob_home": 0.6119010586039761,
+  "prob_draw": 0.20222243962177983,
+  "prob_away": 0.18587650177424409,
+  "training_basis": {
+    "mode": "PRIOR_SEASON",
+    "home_matches": 17,
+    "away_matches": 17,
+    "league_average_pseudo_matches": 5,
+    "small_sample": false,
+    "training_matches": 306,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2526/D1.csv",
+        "sha256": "618301a4b39918225a8ccc57f0f839d675e1abd92fa3a3ccd9a67acd7c79dd7f",
+        "observed_at_utc": "2026-11-08T22:28:59.409398Z"
+      }
+    ],
+    "training_sha256": "47dbfc7314590f3b8d14a7b8511610932f45d635139cc37b8b00d5b7fce2b83c",
+    "lambda_home": 2.1366362488521577,
+    "lambda_away": 1.0942135195750218,
+    "home_venue_inputs": {
+      "hgf": 35,
+      "hga": 21,
+      "hn": 17,
+      "agf": 30,
+      "aga": 31,
+      "an": 17
+    },
+    "away_venue_inputs": {
+      "hgf": 25,
+      "hga": 28,
+      "hn": 17,
+      "agf": 20,
+      "aga": 33,
+      "an": 17
+    },
+    "league_home_mean": 1.7777777777777777,
+    "league_away_mean": 1.457516339869281
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-08T22:29:46.151649Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "321c593cb4468d27cfa72d65eb19c8f9a13fd2dc1b877c30d6667c43d70728ad"
+}
