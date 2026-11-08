@@ -105,10 +105,12 @@
   function otherSports(document, path, now) {
     return Object.entries(document.sports || {}).filter(([sport]) => ['tennis', 'nfl'].includes(sport)).flatMap(([sport, part]) => list(part.events).map(row => {
       const participants = list(row.participants).map(p => ({ id: String(p.id), name: str(p.name) }));
-      const observedAt = part.generated_at_utc || document.generated_at_utc;
-      const validModel = Audit.validateOtherForecast(row, sport, observedAt, now);
+      const generatedAt = part.generated_at_utc || document.generated_at_utc;
+      const observedAt = row.source_collected_at_utc ?? generatedAt;
+      if (!Number.isFinite(instant(observedAt)) || instant(observedAt) > instant(generatedAt) || instant(observedAt) > now) return null;
+      const validModel = Audit.validateOtherForecast(row, sport, generatedAt, now);
       const outcomes = validModel ? row.forecast.outcomes : participants.map(p => ({ id: p.id, name: p.name }));
-      return makeEvent({ sport, identity: String(row.id), providerId: row.id, competition: str(row.competition).replace(/\ufffd/g, '·'), name: row.name, participants, startUTC: row.startUTC, observedAt, sources: sourceRows([{ url: row.source, observed_at_utc: observedAt }], observedAt, path),
+      return makeEvent({ sport, identity: String(row.id), providerId: row.id, competition: str(row.competition).replace(/\ufffd/g, '·'), name: row.name, participants, startUTC: row.startUTC, observedAt, sources: sourceRows([{ url: row.source, observed_at_utc: observedAt, sha256: row.source_sha256 }], observedAt, path),
         choices: outcomes.map(outcome => ({ id: String(outcome.id), label: str(outcome.name), probability: validModel ? outcome.probability : null, uncertainty: null, quote: null, market: sport === 'nfl' ? 'Game result · including overtime' : 'Match winner' })),
         stats: { h2h: null, recent: null, rankings: null },
         model: validModel ? { name: str(row.forecast.model), observedAt: row.forecast.generated_at_utc || observedAt, validation: 'UNVALIDATED', probabilityKind: 'EXPERIMENTAL_MODEL_ESTIMATE', trainingMatches: row.forecast.training_matches, uncertainty: null } : null,

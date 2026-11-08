@@ -44,3 +44,8 @@ for(const [kind,path]of [['football','research-dashboard-data.json'],['football'
  for(const r of rows){assert(E.SPORTS[r.sport]===r.sport_type);assert.equal(r.publication_gate,'BLOCKED');assert.equal(r.model_validation,'UNVALIDATED');assert(r.sources.length);assert(r.choices.every(c=>c.quote?.executable!==true));}
 }
 console.log('Research engine: cross-day edits, 15 legs, real-feed contracts, stale/cancelled gates, exact paper arithmetic, immutable evidence and evidence-only generation passed');
+
+const cachedOther=JSON.parse(fs.readFileSync('other-sports-data.json','utf8'));
+for(const part of Object.values(cachedOther.sports))for(const row of part.events||[])row.source_collected_at_utc='2026-11-01T00:00:00Z';
+const cachedRows=E.normalizeFeeds([{kind:'other',path:'other-sports-data.json',document:cachedOther}],now);
+assert(cachedRows.length>0);assert(cachedRows.every(row=>row.observedAt==='2026-11-01T00:00:00Z'&&!E.statusOf(row,now).selectable),'a refreshed collector cannot freshen an old cached schedule receipt');
