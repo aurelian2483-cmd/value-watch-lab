@@ -567,10 +567,11 @@
     return communityEntries.filter(entry => {
       if (String(entry.race_id) !== String(event.providerEventId) || entry.stance !== 'support' || entry.verification === 'RSS_EXPLICIT_MENTION_REVIEW_REQUIRED' || !['forum','blog','tipster'].includes(entry.group)) return false;
       if (Date.parse(entry.startUTC) !== Date.parse(event.startUTC)) return false;
-      const published = Date.parse(entry.published_at_utc), observed = Date.parse(entry.observed_at_utc);
+      const published = entry.published_at_utc ? Date.parse(entry.published_at_utc) : NaN, observed = Date.parse(entry.observed_at_utc);
       const start = Date.parse(event.startUTC);
       const dated = /^\d{4}-\d{2}-\d{2}$/.test(entry.publication_date || '') && entry.publication_date <= event.startUTC.slice(0,10);
       if (!Number.isFinite(observed) || observed >= start || (Number.isFinite(published) ? published > start || observed < published : !dated)) return false;
+      if (!['PUBLIC_SELECTION_OBSERVED','POST_OBSERVED_OPINION_UNVERIFIED','PUBLICATION_OBSERVED_OPINION_UNVERIFIED'].includes(entry.verification)) return false;
       if (!/^https:\/\//i.test(entry.url || '')) return false;
       return event.choices.some(choice => choice.label.trim().toLowerCase() === String(entry.horse || '').trim().toLowerCase());
     }).map(entry => ({
