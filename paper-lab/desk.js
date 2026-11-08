@@ -240,6 +240,7 @@
       view.name.textContent = racingPick ? '★ ' + choice.label : choice.label;
       view.name.style.setProperty('color', racingPick ? '#e1ffae' : '', racingPick ? 'important' : '');
       view.modelBadge.style.setProperty('display', racingPick ? 'block' : '', racingPick ? 'important' : '');
+      if (racingPick) view.modelBadge.textContent = racingPick.labels.join(' + ').toUpperCase();
       view.modelBadge.style.setProperty('color', racingPick ? '#e1ffae' : '', racingPick ? 'important' : '');
       view.element.classList.toggle('is-model-first', leader?.rank === 1); view.element.classList.toggle('is-model-alternative', leader?.rank === 2);
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
