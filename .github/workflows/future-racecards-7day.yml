@@ -6,6 +6,9 @@ on:
       - 'scripts/collect_future_racing.py'
       - 'scripts/fixture_calendar.py'
       - 'scripts/free_racing_sources.py'
+      - 'scripts/discover_horse_races.py'
+      - 'scripts/enrich_horse_runners.py'
+      - 'tests/test_schedule_coverage.py'
       - 'tests/test_free_racing_sources.py'
       - 'tests/test_fixture_calendar.py'
       - 'tests/test_future_racing_collector.py'
@@ -32,6 +35,7 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_future_racing_collector.py'
       - run: python -m unittest discover -s tests -p 'test_fixture_calendar.py'
       - run: python -m unittest discover -s tests -p 'test_free_racing_sources.py'
+      - run: python -m unittest discover -s tests -p 'test_schedule_coverage.py'
       - name: Collect date-specific future racing
         env:
           HORSE_RACING_API_KEY: ${{ secrets.HORSE_RACING_API_KEY }}

@@ -288,7 +288,14 @@
     const structural = JSON.stringify([status.code === 'STARTED', ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id), racingPicks.map(pick => pick.choice.id)]);
     if (record.structural !== structural) {
       record.structural = structural; record.market.replaceChildren(); record.choices.clear();
-      if (event.futureScheduleOnly) make(record.market,'span','Scheduled race · runner declarations and prices not yet available · paper selections disabled','archived-status');
+      if (event.futureScheduleOnly) {
+        make(record.market,'span','Scheduled race · source entries may be listed; final declarations and prices unverified · paper selections disabled','archived-status');
+        if(event.choices.some(choice=>!choice.id.startsWith('awaiting-'))){
+          const entries=make(record.market,'details',undefined,'source-entries');
+          make(entries,'summary',event.choices.length+' source-observed active entries · final field unverified');
+          for(const choice of event.choices)make(entries,'p',choice.label,'small');
+        }
+      }
       else if (status.code === 'STARTED') make(record.market, 'span', event.score?.label ? 'Recorded final: ' + event.score.label : 'Event has started or finished · additions closed', 'archived-status');
       else {
         const shown = event.sport === 'racing' && ordered.length > 6 ? ordered.slice(0, 5) : ordered;
@@ -432,7 +439,7 @@
       panel.replaceChildren();
       const inRange=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to);
       make(panel,'h3','Upcoming racing meetings · '+inRange.length,'');
-      make(panel,'p','Verified individual racecards: '+rows.length+' · Total source-observed meeting fixtures: '+racingFixtureMeetings.length+' · Feed: '+racingFixtureStatus,'small');
+      make(panel,'p','Source-observed racecards: '+rows.length+' · Total source-observed meeting fixtures: '+racingFixtureMeetings.length+' · Feed: '+racingFixtureStatus,'small');
       if(!inRange.length)make(panel,'p',racingFixtureMeetings.length?'No meetings in selected dates. Select Next 14 Days to view available fixtures.':'No meeting fixtures loaded. Check the feed status above.','muted');
       for(const meeting of inRange.slice(0,70)){
         const item=make(panel,'div',undefined,'research-row');
@@ -470,16 +477,16 @@
     coverage.replaceChildren();
     if(state.sport==='racing'){
       const fixtures=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to);
-      make(coverage,'p','Verified racecards: '+state.events.filter(e=>e.sport==='racing'&&e.startUTC&&day(e.startUTC)>=state.plan.from&&day(e.startUTC)<=state.plan.to).length+' · Upcoming meeting fixtures in selected dates: '+fixtures.length+' · Total loaded meeting fixtures: '+racingFixtureMeetings.length+' · Feed: '+racingFixtureStatus,'small');
+      make(coverage,'p','Source-observed racecards: '+state.events.filter(e=>e.sport==='racing'&&e.startUTC&&day(e.startUTC)>=state.plan.from&&day(e.startUTC)<=state.plan.to).length+' · Upcoming meeting fixtures in selected dates: '+fixtures.length+' · Total loaded meeting fixtures: '+racingFixtureMeetings.length+' · Feed: '+racingFixtureStatus,'small');
       for(const m of fixtures.slice(0,70))make(coverage,'p',m.date+' · '+m.course+' · race times and declarations pending','muted');
     }
     const selectedSport=state.sport;
-    coverage.hidden=!['racing','football','tennis'].includes(selectedSport);
+    coverage.hidden=!['racing','football','tennis','nfl'].includes(selectedSport);
     if(!coverage.hidden){
       const observed=state.events.filter(e=>e.sport===selectedSport);
       const days=[];let d=state.plan.from;
       while(d<=state.plan.to&&days.length<31){days.push(d);d=plusDays(d,1);}
-      const sportLabel={racing:'Racecards',football:'Football fixtures',tennis:'Tennis matches'}[selectedSport];
+      const sportLabel={racing:'Racecards',football:'Football fixtures',tennis:'Tennis matches',nfl:'NFL games'}[selectedSport];
       make(coverage,'p',sportLabel+' · day-by-day source coverage (loaded records, not a complete competition calendar):','small');
       const wrap=make(coverage,'div',undefined,'racing-day-chips');
       wrap.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px';
@@ -495,6 +502,8 @@
       if(days.some(date=>!observed.some(e=>day(e.startUTC)===date))){
         make(coverage,'p',selectedSport==='tennis'
           ?'Draws pending or schedule not supplied: future ATP/WTA matches cannot be shown until named players and start times are published. No fictitious matchups or probabilities are generated.'
+          :selectedSport==='nfl'
+          ?'NFL games are collected from the current and next regular-season weekly slates. Bye weeks and UK date changes affect daily counts; an empty day is not proof of a complete schedule.'
           :selectedSport==='football'
           ?'Football fixture feed has gaps on the selected dates. Missing records are not evidence that leagues have no games; source collection and cross-checks must be expanded.'
           :'Some selected dates have no collected racecards. This is a source-coverage gap, not evidence of no scheduled racing.','muted');

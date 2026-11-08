@@ -7,7 +7,7 @@ import hashlib
 import json
 import math
 import re
-from collections import defaultdict
+from collections import defaultdict, Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
@@ -164,16 +164,49 @@ def tennis_schedule_paths(tour, now):
             for offset in range(7)]
 
 
-def tennis_schedule(tour, now, ratings, counts, history):
+def tennis_source_counts(doc, tour, now):
+    """Tournaments are not matches; classify each singles observation once.
+
+    ESPN daily pages can contain an entire draw on other dates, including TBD
+    slots. Report actual competition dates rather than assigning the query date.
+    """
+    slug = 'mens-singles' if tour == 'atp' else 'womens-singles'
+    days = {}
+    for event in doc.get('events', []):
+        for group in event.get('groupings', []):
+            if group.get('grouping', {}).get('slug') != slug:
+                continue
+            for c in group.get('competitions', []):
+                try:
+                    when = dt(c['date'])
+                    day = when.astimezone(ZoneInfo('Europe/London')).date().isoformat()
+                except (KeyError, ValueError, TypeError):
+                    day = 'INVALID_DATE'
+                bucket = days.setdefault(day, Counter())
+                if day == 'INVALID_DATE': reason = 'invalid_date'
+                elif not pair(c, 'athlete'): reason = 'participants_unconfirmed'
+                elif c.get('timeValid') is not True: reason = 'time_unconfirmed'
+                elif c.get('status', {}).get('type', {}).get('state') != 'pre': reason = 'not_pre_event'
+                elif when <= now+timedelta(minutes=5): reason = 'started_or_too_soon'
+                else: reason = 'eligible_before_window_and_identity_checks'
+                bucket['raw_singles_slots'] += 1
+                bucket[reason] += 1
+    return {'tournaments': len(doc.get('events', [])), 'actual_date_counts': days}
+
+
+def tennis_schedule(tour, now, ratings, counts, history, diagnostics=None):
     """Deduplicate daily observations; omit ambiguous reschedules entirely."""
     paths = tennis_schedule_paths(tour, now)
     docs = batch([path for _, path in paths])
     first_day, last_day = paths[0][0], paths[-1][0]
     rows, identities, conflicts = {}, {}, set()
     slug = 'mens-singles' if tour == 'atp' else 'womens-singles'
-    for (_, path), doc in zip(paths, docs):
+    for (requested_day, path), doc in zip(paths, docs):
         if not isinstance(doc, dict) or not isinstance(doc.get('events'), list):
             raise ValueError('Tennis daily schedule response missing its event list')
+        if diagnostics is not None:
+            diagnostics.append({'tour': tour.upper(), 'requested_date': requested_day.isoformat(),
+                                'url': BASE+path, **tennis_source_counts(doc, tour, now)})
         for event in doc['events']:
             for group in event.get('groupings', []):
                 if group.get('grouping', {}).get('slug') != slug:
@@ -257,21 +290,26 @@ def tennis():
                 if g.get('grouping', {}).get('slug') != ('mens-singles' if tour == 'atp' else 'womens-singles'):
                     continue
                 histories[tour].extend(r for c in g.get('competitions', []) if (r := final(c, 'athlete')))
-    rows, conflicts = [], []
+    rows, conflicts, diagnostics = [], [], []
     for tour in histories:
         history = unique(histories[tour])
         if len(history) < 100:
             raise ValueError('Insufficient tennis training coverage: ' + tour)
         ratings, counts = fit(history)
-        schedule, rejected = tennis_schedule(tour, NOW, ratings, counts, history)
+        schedule, rejected = tennis_schedule(tour, NOW, ratings, counts, history, diagnostics)
         rows.extend(schedule)
         conflicts.extend(rejected)
     schedule_days = tennis_schedule_paths('atp', NOW)
     tournament_days = tennis_tournament_coverage(NOW)
+    for day in tournament_days:
+        day['confirmed_match_count'] = sum(dt(r['startUTC']).astimezone(ZoneInfo('Europe/London')).date().isoformat() == day['date'] for r in rows)
+        if day['confirmed_match_count']:
+            day['draw_status'] = 'SOURCE_OBSERVED_CONFIRMED_MATCHES'
     return {'generated_at_utc': stamp(NOW), 'events': sorted(rows, key=lambda e: e['startUTC']),
             'schedule_window_uk': [schedule_days[0][0].isoformat(), schedule_days[-1][0].isoformat()],
             'schedule_days_requested': 7, 'tournament_schedule_days': tournament_days, 'schedule_coverage': 'SOURCE_OBSERVED_NOT_COMPLETE_EXTERNAL_COVERAGE',
             'schedule_conflicts': conflicts,
+            'schedule_source_diagnostics': diagnostics,
             'limitations': 'Seven UK calendar days requested from existing daily ATP/WTA scoreboards; future draws and confirmed participants may not yet be published. Conflicting repeated schedule observations are withheld. Fixed Elo baseline, separate ATP/WTA histories from January of the current year (history resets each January; early-year coverage can be insufficient). No surface, fitness, retirement or fatigue model. Scheduled times can move. Historical results are not a verified backtest.'}
 
 def validate_nfl_coverage(rows, previous_year):
@@ -285,6 +323,48 @@ def validate_nfl_coverage(rows, previous_year):
         raise ValueError('Previous NFL regular-season coverage incomplete; expected 272 games and 17 per team')
     return {'previous_season': previous_year, 'previous_season_completed_games': len(previous),
             'previous_season_teams': len(counts), 'verification': 'SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED'}
+
+def nfl_schedule(year, week, ratings, counts, history):
+    """Explicit weekly slates; a default scoreboard stops at the current week.
+
+    Keep both full slates (including UK Monday/Tuesday games), never assume a
+    fixed number of games: bye weeks differ. Week 18 must not wrap to preseason.
+    """
+    paths = [(w, f'football/nfl/scoreboard?dates={year}&seasontype=2&week={w}&limit=100')
+             for w in range(week, min(week+1, 18)+1)]
+    docs = batch([path for _, path in paths])
+    events, seen, diagnostics = [], set(), []
+    for (w, path), doc in zip(paths, docs):
+        if (doc.get('season', {}).get('year') != year or doc.get('season', {}).get('type') != 2
+                or doc.get('week', {}).get('number') != w or not isinstance(doc.get('events'), list)):
+            raise ValueError('NFL schedule season/week mismatch')
+        accepted = 0
+        for e in doc['events']:
+            if e.get('season', {}).get('year') != year or e.get('season', {}).get('type') != 2:
+                raise ValueError('NFL schedule event season mismatch')
+            for c in e.get('competitions', []):
+                ps = upcoming(c, 'team')
+                if not ps:
+                    continue
+                cid = str(c['id'])
+                if cid in seen:
+                    raise ValueError('Duplicate NFL schedule competition')
+                seen.add(cid)
+                source = BASE + path
+                receipt = next((r for r in reversed(RECEIPTS) if r.get('url') == source), None)
+                row = {'id': 'nfl-'+cid, 'name': ' vs '.join(p['team']['displayName'] for p in ps),
+                       'competition': f'NFL · Week {w}', 'startUTC': c['date'],
+                       'participants': [{'id': str(p['id']), 'name': p['team']['displayName']} for p in ps],
+                       'source': source, 'forecast': forecast(ps, ratings, counts, history, 'team'),
+                       'unavailable_reason': 'Requires eight source-observed prior completed games per team.'}
+                if receipt:
+                    row.update(source_collected_at_utc=receipt['collected_at_utc'], source_sha256=receipt['sha256'])
+                events.append(row)
+                accepted += 1
+        diagnostics.append({'week': w, 'url': BASE+path, 'raw_events': len(doc['events']),
+                            'accepted_upcoming_games': accepted,
+                            'teams_on_bye': [str(t['id']) for t in doc.get('week', {}).get('teamsOnBye', [])]})
+    return sorted(events, key=lambda e: e['startUTC']), diagnostics
 
 def nfl():
     current = fetch('football/nfl/scoreboard?limit=100')
@@ -307,19 +387,9 @@ def nfl():
     history = unique(rows)
     coverage = validate_nfl_coverage(history, year-1)
     ratings, counts = fit(history)
-    events = []
-    for e in current.get('events', []):
-        for c in e.get('competitions', []):
-            ps = upcoming(c,'team')
-            if not ps:
-                continue
-            events.append({'id':'nfl-'+str(c['id']), 'name':' vs '.join(p['team']['displayName'] for p in ps),
-                           'competition':f'NFL · Week {week}', 'startUTC':c['date'],
-                           'participants':[{'id':str(p['id']),'name':p['team']['displayName']}for p in ps],
-                           'source':BASE+'football/nfl/scoreboard?limit=100',
-                           'forecast':forecast(ps,ratings,counts,history,'team'),
-                           'unavailable_reason':'Requires eight source-observed prior completed games per team.'})
+    events, schedule_coverage = nfl_schedule(year, week, ratings, counts, history)
     return {'generated_at_utc':stamp(NOW),'events':sorted(events,key=lambda e:e['startUTC']), 'training_coverage':coverage,
+            'schedule_week_coverage': schedule_coverage,
             'limitations':'Regular-season NFL only; postseason and off-season forecasts are not implemented. Fixed Elo baseline; no home advantage, quarterback, injury, weather or spread model. Three-way result including overtime; tie prior is smoothed historical frequency. No verified value selections.'}
 
 def finalize_part(part, started, completed):

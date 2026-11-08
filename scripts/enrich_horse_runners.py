@@ -57,7 +57,15 @@ def parse_card(raw,race,observed):
  if p.blocks!=1:raise ValueError('Structured racecard missing or ambiguous')
  props=json.loads(''.join(p.parts))['props']['pageProps']
  if props.get('hasError') is not False:raise ValueError('Racecard source reports an error')
- card=props['race'];summary=card['race_summary']
+ return parse_card_data(props['race'],race,observed,raw)
+
+
+def parse_card_data(card,race,observed,raw):
+ """Validate the same structured card embedded in a source-linked meeting page.
+
+ raw is the original provider response, used for the receipt and market digest.
+ """
+ summary=card['race_summary']
  if str(summary['race_summary_reference']['id'])!=race['race_id']:raise ValueError('Race ID mismatch')
  if summary['course_name'].strip().casefold()!=race['racecourse'].strip().casefold():raise ValueError('Course mismatch')
  kickoff=dt.datetime.combine(dt.date.fromisoformat(summary['date']),dt.time.fromisoformat(summary['time']),ZoneInfo('Europe/London')).astimezone(UTC)

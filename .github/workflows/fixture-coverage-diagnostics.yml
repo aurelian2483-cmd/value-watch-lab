@@ -9,6 +9,7 @@ on:
       - 'paper-lab/engine.js'
       - 'paper-lab/desk.js'
       - 'paper-lab/index.html'
+      - 'scripts/sports_coverage_report.cjs'
       - '.github/workflows/fixture-coverage-diagnostics.yml'
   workflow_dispatch:
 permissions:
@@ -29,6 +30,13 @@ jobs:
           node --check paper-lab/transport.js
       - name: Run existing evidence regression
         run: node --test tests/test_evidence_v3.cjs
+      - name: Trace all four sports through the production normalizer
+        run: node scripts/sports_coverage_report.cjs > sports-coverage-report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sports-coverage-report
+          path: sports-coverage-report.json
+          retention-days: 30
       - name: Check seven-day fixture source coverage
         run: |
           python - <<'PY'

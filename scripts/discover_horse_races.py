@@ -32,10 +32,10 @@ class PageData(HTMLParser):
  def handle_data(self,data):
   if self.active:self.parts.append(data)
 
-def discover(raw,observed,target_date=None):
+def discover(raw,observed,target_date=None,*,page_props=None):
  parser=PageData();parser.feed(raw.decode('utf-8'))
  if parser.blocks!=1:raise ValueError('Missing or ambiguous structured page data')
- props=json.loads(''.join(parser.parts))['props']['pageProps']
+ props=page_props if page_props is not None else json.loads(''.join(parser.parts))['props']['pageProps']
  if props.get('hasError') is not False or not isinstance(props.get('meetings'),list):raise ValueError('Racecard source error/schema change')
  today=target_date or observed.astimezone(ZoneInfo('Europe/London')).date();races=[];seen=set();rejected=[];included_meetings=[];excluded_countries=[]
  for meeting in props['meetings']:

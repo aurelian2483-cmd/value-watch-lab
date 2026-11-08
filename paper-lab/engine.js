@@ -129,6 +129,18 @@
       const id=String(row.race_id||'');
       if(!id||typeof url!=='string'||!/^https:\/\/www\.(racingpost|sportinglife)\.com\/racecards?\//.test(url.replace('/racing/racecards/','/racecards/')))return null;
       if(!Number.isFinite(instant(start))||!Number.isFinite(instant(observed))||instant(observed)>=instant(start))return null;
+      if(list(row.runners).length){
+        const entry=racing({races:[row],generated_at_utc:document.generated_at_utc},path,now,null)[0];
+        if(!entry)return null;
+        // Future entries can include dozens of horses before final declarations.
+        // Preserve real names without treating the list as a confirmed field.
+        Object.assign(entry,{futureScheduleOnly:true,fieldConfirmed:false,model:null,
+          declarationStageReported:str(row.declaration_stage),
+          predictionStatus:{code:'DECLARATIONS_PENDING',label:'Source-observed entries; final declarations unverified'}});
+        entry.choices=entry.choices.map(choice=>({...choice,quote:null,probability:null}));
+        entry.status=statusOf(entry,now);
+        return entry;
+      }
       const source=sourceRows([{url,observed_at_utc:observed}],observed,path);
       const venue=str(row.venue||row.racecourse);
       const name=str(row.race_name||row.name);

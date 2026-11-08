@@ -2,7 +2,7 @@ name: Tennis and NFL experimental research
 on:
   push:
     branches: [main]
-    paths: ['scripts/collect_other_sports.py', 'tests/test_other_sports.py', '.github/workflows/other-sports-research.yml']
+    paths: ['scripts/collect_other_sports.py', 'tests/test_other_sports.py', 'tests/test_schedule_coverage.py', '.github/workflows/other-sports-research.yml']
   schedule:
     - cron: '15 * * * *'
   workflow_dispatch:
@@ -28,8 +28,10 @@ jobs:
           key: other-sports-sources-v1-${{ github.run_id }}
           restore-keys: other-sports-sources-v1-
       - run: python -m unittest discover -s tests -p 'test_other_sports.py'
+      - run: python -m unittest discover -s tests -p 'test_schedule_coverage.py'
       - run: python scripts/collect_other_sports.py
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: other-sports-source-snapshots
           path: /tmp/value-watch-sports-sources/

@@ -36,6 +36,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Desktop, mobile, accessibility and interaction checks
         run: npm run test:browser
+      - name: Four-sport snapshot-to-screen counts
+        run: node scripts/sports_coverage_browser.cjs
       - name: Retain rendered evidence
         if: always()
         uses: actions/upload-artifact@v4
