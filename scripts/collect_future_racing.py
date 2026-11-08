@@ -147,6 +147,12 @@ def validate_publishable_snapshot(data):
    raise ValueError('Fixture contains unsupported race details')
  return True
 
+def write_validated_snapshot(data,target=OUT):
+ """Publish only after the same validation used by the scheduled collector."""
+ validate_publishable_snapshot(data)
+ target.write_text(json.dumps(data,indent=2)+'\\n')
+ return target
+
 if __name__=='__main__':
  data=collect_api() if os.environ.get('HORSE_RACING_API_KEY') else collect()
  target_dates=[x['date'] for x in data['days']]
@@ -164,5 +170,5 @@ if __name__=='__main__':
  data['failed_dates']=[day['date'] for day in data['days'] if day['status']=='COLLECTION_FAILED']
  data['collection_status']='PARTIAL_SOURCE_COVERAGE' if data['failed_dates'] or data['fixture_source_status']!='SOURCE_OBSERVED' else 'SOURCE_OBSERVED_NOT_COMPLETE'
  data['limitations'].append('A successful source request is not proof of complete racing coverage. Failed dates are explicitly reported.')
- OUT.write_text(json.dumps(data,indent=2)+'\n')
+ write_validated_snapshot(data)
  print(json.dumps({'future_races':len(data['races']),'fixture_meetings':len(data['fixture_meetings']),'fixture_source_status':data['fixture_source_status'],'failed_days':sum(x['status']=='COLLECTION_FAILED' for x in data['days'])}))
