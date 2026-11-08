@@ -311,6 +311,9 @@ def main():
                            'Discipline provenance is retained; historical outcomes never include capture/race day. No prospective improvement is established before forward scoring.',
                            'This lane is separate from the existing all-weather baseline and failed held-out AW challenger.']}
     (WORK/'horse-context-data.json').write_text(json.dumps(public,indent=2)+'\n')
+    live = {key:public[key] for key in ('schema_version','generated_at_utc','research_only','publication_gate','model_validation','model','parameters','forecasts','skipped','current_field_checks','coverage','limitations')}
+    live['race_date_uk'] = data['race_date_uk']
+    (WORK/'horse-predictions-data.json').write_text(json.dumps(live,indent=2)+'\n')
     print(json.dumps({'context_forecasts':len(current),'disciplines':disciplines,'skipped':len(skipped),'scored':performance['scored_forecasts']}))
 
 if __name__=='__main__':main()

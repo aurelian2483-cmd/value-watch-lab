@@ -28,7 +28,7 @@ python scripts/horse_model_pipeline.py
 python scripts/horse_context_pipeline.py
 python scripts/horse_challenger.py
 HORSE_EVIDENCE_ARTIFACT_PREFIX="$HORSE_SESSION_CYCLE" python scripts/preserve_horse_evidence.py
-for feed in racing-research-data horse-model-data horse-challenger-data horse-context-data; do cp "/tmp/horse-research/$feed.json" "$feed.json"; git add -- "$feed.json"; done
+for feed in racing-research-data horse-model-data horse-challenger-data horse-context-data horse-predictions-data; do cp "/tmp/horse-research/$feed.json" "$feed.json"; git add -- "$feed.json"; done
 for archive in horse-challenger horse-evidence-receipts horse-context-archive horse-context-results horse-market-archive horse-reference-archive horse-form-archive horse-results horse-secondary-results; do
   if [ -d "research/$archive" ]; then git add -- "research/$archive"; fi
 done
