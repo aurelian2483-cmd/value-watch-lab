@@ -117,7 +117,7 @@
     const tips = Array.isArray(event.communityTips) ? event.communityTips : [];
     const consensus = new Map();
     for (const tip of tips) {
-      if (!tip || !['forum','blog','tipster'].includes(tip.type) || typeof tip.sourceUrl !== 'string' || !/^https:\/\//i.test(tip.sourceUrl) || !Number.isFinite(Date.parse(tip.observedAt))) continue;
+      if (!tip || !['forum','social_forum','blog','tipster'].includes(tip.type) || typeof tip.sourceUrl !== 'string' || !/^https:\/\//i.test(tip.sourceUrl) || !Number.isFinite(Date.parse(tip.observedAt))) continue;
       const choice = event.choices.find(c => c.id === tip.choiceId);
       if (!choice) continue;
       const item = consensus.get(choice.id) || {choice, sources:new Set()};
@@ -143,6 +143,21 @@
     if (ranked.length && (ranked.length === 1 || ranked[0].quote.decimal < ranked[1].quote.decimal))
       add(ranked[0], 'Odds favourite', 'Lowest observed source price; not a verified edge or form consensus');
     return [...picks.values()];
+  }
+  function racingEvidenceAudit(event) {
+    const tips = Array.isArray(event.communityTips) ? event.communityTips : [];
+    const forum = tips.filter(t => ['forum','social_forum'].includes(t.type));
+    const press = tips.filter(t => !['forum','social_forum'].includes(t.type));
+    const unique = rows => new Set(rows.map(t => (t.author || t.publisher || new URL(t.sourceUrl).hostname).trim().toLowerCase())).size;
+    const forumCount = unique(forum), pressCount = unique(press);
+    // These records do not contain press-naps totals or complete forum post corpora.
+    // Never equate publisher observations with press naps or selections with all mentions.
+    const health = Array.isArray(communityHealth.sourceHealth) ? communityHealth.sourceHealth : [];
+    const failed = health.filter(h => h.status !== 'fetched').length;
+    return { forumCount, pressCount, failed, coverage:'PARTIAL / UNKNOWN',
+      pressNaps:null, rawMentions:null, positiveRatio:null,
+      discrepancy:pressCount > 0 && !forumCount,
+      convergence:false };
   }
   function createCard(id) {
     const article = make(null, 'article', undefined, 'event-card'); article.dataset.eventId = id;
@@ -185,6 +200,19 @@
       make(record.racingPanel, 'strong', 'Horse racing · odds and community research (separate signals)');
       const picks = racingHighlights(event);
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
+      const audit = racingEvidenceAudit(event);
+      const auditPanel = make(record.racingPanel, 'div', undefined, 'racing-evidence-audit');
+      auditPanel.style.cssText='margin:12px 0;padding:12px;border:1px solid #49657b;border-radius:10px;background:#102431';
+      make(auditPanel,'strong','Evidence audit · three independent layers');
+      make(auditPanel,'p','LAYER 1 · Market: '+(event.choices.some(c=>Number.isFinite(c.quote?.decimal))?'source prices observed; check freshness':'no usable observed prices')+' · no forum inference','small');
+      make(auditPanel,'p','LAYER 2 · Press/tipsters: '+audit.pressCount+' distinct sourced publisher/tipster observations · verified press naps: UNKNOWN','small');
+      make(auditPanel,'p','LAYER 3 · Forums: '+audit.forumCount+' distinct attributable backers · raw mentions: UNKNOWN · sentiment ratio: UNKNOWN','small');
+      make(auditPanel,'p','Forum collection coverage: '+audit.coverage+(audit.failed?' · '+audit.failed+' failed sources in last run':' · completeness not established'),'small');
+      if (audit.discrepancy) {
+        const warning=make(auditPanel,'p','DISCREPANCY: Publisher/tipster selection observed, but forum backing is UNVERIFIED/ABSENT in collected evidence.','small');
+        warning.style.color='#f5c785';
+      }
+      make(auditPanel,'p','CONFIRMED CONVERGENCE: NOT ESTABLISHED · no verified press-naps count or comprehensive forum evidence','small');
       const hasConsensus = picks.some(pick => pick.labels.includes('Community consensus'));
       make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus · research only' : picks.some(pick=>pick.labels.includes('Community experimental')) ? '🔵 BLUE: experimental single-source community candidate · unvalidated' : picks.some(pick=>pick.labels.includes('Community tied')) ? '🔵 BLUE: multiple tied community-supported horses highlighted · no consensus' : communityTips.length ? '🔵 BLUE: community evidence recorded without a unique leader' : '🔵 NO COMMUNITY DATA FOR THIS RACE — green is odds only; source coverage incomplete, not a negative tipster verdict', 'small');
       const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
@@ -203,10 +231,10 @@
         }
       }
       if (!communityTips.length) {
-        const notice = make(record.racingPanel, 'p', 'Research gap: no independently attributable community recommendation has been matched to this race. The 12-source directory is not 12 live feeds. Do not interpret the green favourite as community agreement.', 'small');
+        const notice = make(record.racingPanel, 'p', 'Research gap: no independently attributable community recommendation has been matched to this race. The source directory is not a count of live feeds. Do not interpret the green favourite as community agreement.', 'small');
         notice.style.cssText = 'padding:10px;border:1px solid #b78a3c;border-radius:8px;color:#f6d18b;background:#30291e';
       }
-      const directory = make(record.racingPanel, 'a', 'Browse 12 racing research sources ↗', 'small');
+      const directory = make(record.racingPanel, 'a', 'Browse racing research source directory ↗', 'small');
       directory.href = new URL('racing-research/community-source-catalog.json', rootURL).href;
       directory.target = '_blank'; directory.rel = 'noopener noreferrer';
       directory.style.color = '#93c5fd';
@@ -638,7 +666,7 @@
   function matchCommunity(event) {
     if (event.sport !== 'racing' || !event.providerEventId) return [];
     return communityEntries.filter(entry => {
-      if (String(entry.race_id) !== String(event.providerEventId) || entry.stance !== 'support' || entry.verification === 'RSS_EXPLICIT_MENTION_REVIEW_REQUIRED' || !['forum','blog','tipster'].includes(entry.group)) return false;
+      if (String(entry.race_id) !== String(event.providerEventId) || entry.stance !== 'support' || entry.verification === 'RSS_EXPLICIT_MENTION_REVIEW_REQUIRED' || !['forum','social_forum','blog','tipster'].includes(entry.group)) return false;
       if (Date.parse(entry.startUTC) !== Date.parse(event.startUTC)) return false;
       const published = entry.published_at_utc ? Date.parse(entry.published_at_utc) : NaN, observed = Date.parse(entry.observed_at_utc);
       const start = Date.parse(event.startUTC);
