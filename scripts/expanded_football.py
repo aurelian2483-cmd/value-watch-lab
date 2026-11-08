@@ -221,7 +221,7 @@ def current_season_comparison(fixture,current):
  h=current['teams'].get(norm(fixture['home']))
  a=current['teams'].get(norm(fixture['away']))
  if not h or not a or min(h['hn'],a['an'])<3:return None
- compared=model_forecast(fixture,current)
+ compared=model_forecast(fixture,{'teams':{}},current)
  if not compared:return None
  basis=compared['training_basis']
  return {'method':'CURRENT_SEASON_POISSON_COMPARISON_V1','season':season_code(when(fixture['kickoff_utc'])),
