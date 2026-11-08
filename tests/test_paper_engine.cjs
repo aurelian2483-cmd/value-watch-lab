@@ -2,10 +2,11 @@
 const assert = require('node:assert/strict'), fs = require('node:fs');
 const E = require('../paper-lab/engine.js');
 const now = Date.parse('2026-11-08T09:00:00Z');
-const event = (i, sport = 'football') => ({ id:'event-'+i, identity:'identity-'+i, sport, sport_type:E.SPORTS[sport], name:'Synthetic test event '+i, competition:'Test competition', participants:[{id:'a',name:'A'},{id:'b',name:'B'}], startUTC:'2026-11-'+(i%2 ? '09':'08')+'T18:00:00Z', observedAt:'2026-11-08T08:59:00Z', ttlMs:36*3600000, providerStatus:'SCHEDULED', sources:[{url:'https://example.org/event/'+i,kind:'PROVIDER_RECEIPT',observedAt:'2026-11-08T08:59:00Z',sha256:null}], model:{name:'SYNTHETIC_TEST_MODEL',validation:'UNVALIDATED'}, choices:[{id:'a',label:'A',probability:.6,uncertainty:null,market:'Match winner',quote:null},{id:'b',label:'B',probability:.4,uncertainty:null,market:'Match winner',quote:null}],stats:{h2h:null,recent:null,rankings:null} });
+const event = (i, sport = 'tennis') => ({ id:'event-'+i, identity:'identity-'+i, sport, sport_type:E.SPORTS[sport], name:'Synthetic test event '+i, competition:'Test competition', participants:[{id:'a',name:'A'},{id:'b',name:'B'}], startUTC:'2026-11-'+(i%2 ? '09':'08')+'T18:00:00Z', observedAt:'2026-11-08T08:59:00Z', ttlMs:36*3600000, providerStatus:'SCHEDULED', sources:[{url:'https://example.org/event/'+i,kind:'PROVIDER_RECEIPT',observedAt:'2026-11-08T08:59:00Z',sha256:null}], model:{name:'SYNTHETIC_TEST_MODEL',validation:'UNVALIDATED'}, choices:[{id:'a',label:'A',probability:.6,uncertainty:null,market:'Match winner',quote:null},{id:'b',label:'B',probability:.4,uncertainty:null,market:'Match winner',quote:null}],stats:{h2h:null,recent:null,rankings:null} });
 let p=E.createPlan({from:'2026-11-08',to:'2026-11-09',createdAt:new Date(now).toISOString()});
 assert.equal(p.slots.length,4);assert.equal(p.slots[3].name,'Experimental Longshot');
 const a=event(0),b=event(1,'tennis'),c=event(2,'nfl'),events=[a,b,c];
+assert.throws(()=>E.addSelection(p,1,event(99,'football'),'a',now),/Current-season football evidence unavailable/,'football selection remains blocked without season evidence');
 p=E.addSelection(p,1,a,'a',now);p=E.addSelection(p,1,b,'b',now);
 assert.equal(p.slots[0].legs.length,2,'cross-day and cross-sport accepted');
 assert.throws(()=>E.addSelection(p,1,a,'b',now));
