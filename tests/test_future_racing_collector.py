@@ -91,7 +91,8 @@ class FutureRacingTests(unittest.TestCase):
     def test_publish_gate_accepts_observed_fixture_only_snapshot(self):
         days=[{'date':'2026-11-%02d'%i} for i in range(9,16)]
         fixture={'date':'2026-11-09','course':'Carlisle','record_type':'MEETING_FIXTURE',
-                 'race_times_status':'NOT_SUPPLIED','declarations_status':'NOT_VERIFIED'}
+                 'race_times_status':'NOT_SUPPLIED','declarations_status':'NOT_VERIFIED',
+                 'source_url':'https://www.sportinglife.com/racing/meeting/2026-11-09/carlisle/122465'}
         data={'schema_version':1,'research_only':True,'publication_gate':'BLOCKED',
               'model_validation':'UNVALIDATED','fixture_source_status':'SOURCE_OBSERVED','days':days,'races':[],'fixture_meetings':[fixture]}
         self.assertTrue(module.validate_publishable_snapshot(data))
@@ -105,6 +106,8 @@ class FutureRacingTests(unittest.TestCase):
             module.validate_publishable_snapshot({**data,'publication_gate':'OPEN'})
         with self.assertRaises(ValueError):
             module.validate_publishable_snapshot({**data,'fixture_source_status':'COLLECTION_FAILED'})
+        with self.assertRaises(ValueError):
+            module.validate_publishable_snapshot({**data,'fixture_meetings':[{**fixture,'source_url':'https://example.org/racing/meeting/2026-11-09/carlisle/122465'}]})
         with self.assertRaises(ValueError):
             module.validate_publishable_snapshot({**data,'days':days[:-1]+[days[0]]})
 
