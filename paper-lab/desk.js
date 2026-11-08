@@ -429,6 +429,20 @@
     }
     else if (!visible.length) { const box = empty(root, state.snapshotState?.status === 'unavailable' ? 'Research sources unavailable' : 'No events match this view', 'Try another sport or a wider date range. Saved research remains available; no events are invented to fill the board.', { label: 'Show next 14 days', run: () => preset('14') }); box.classList.add('event-empty'); }
     if (rows.length > visible.length) button(root, 'Show more events (' + (rows.length - visible.length) + ')', () => store.update(state => ({ ...state, limit: state.limit + 24 })), 'button button-secondary load-more');
+    // Tournament-level source observations are informational, not fictitious match cards.
+    let tournamentPanel=$('tennis-tournament-coverage');
+    if(!tournamentPanel){tournamentPanel=make(null,'div',undefined,'tennis-tournament-coverage');$('coverage-summary').after(tournamentPanel);}
+    tournamentPanel.replaceChildren();
+    tournamentPanel.hidden=state.sport!=='tennis';
+    if(!tournamentPanel.hidden){
+      make(tournamentPanel,'p','ATP/WTA tournament observations · draw-pending information (not match predictions)','small');
+      const relevant=tournamentCoverage.filter(d=>d.date>=state.plan.from&&d.date<=state.plan.to);
+      if(!relevant.length)make(tournamentPanel,'p','No verified tournament schedule metadata loaded yet. The next collector run must publish this feed.','muted');
+      for(const dateRow of relevant){
+        const names=[...new Set(dateRow.tournaments.filter(t=>t&&typeof t.name==='string'&&['ATP','WTA'].includes(t.tour)).map(t=>t.tour+' · '+t.name))].slice(0,12);
+        make(tournamentPanel,'p',dateRow.date+': '+(names.length?names.join(' | '):'No source-observed tournament names'),'small');
+      }
+    }
     // Coverage is a property of observed source records, not of the date picker.
     let coverage=$('racing-date-coverage');
     if(!coverage){coverage=make(null,'div',undefined,'racing-date-coverage');$('coverage-summary').after(coverage);}
@@ -683,6 +697,18 @@
   }
   // Curated, auditable community observations. The public browser never scrapes third-party sites.
   // Match exact provider race ID, start time, runner name and publication chronology.
+  let tournamentCoverage = [];
+  async function refreshTournamentCoverage() {
+    try {
+      const response=await fetch(new URL('other-sports-data.json',rootURL),{cache:'no-store'});
+      if(!response.ok)throw Error('Tournament metadata unavailable');
+      const document=await response.json();
+      if(document.schema_version!==1||document.research_only!==true||document.publication_gate!=='BLOCKED'||document.model_validation!=='UNVALIDATED')throw Error('Untrusted tournament feed');
+      const days=document.sports?.tennis?.tournament_schedule_days;
+      tournamentCoverage=Array.isArray(days)?days.filter(d=>/^\\d{4}-\\d{2}-\\d{2}$/.test(d.date)&&Array.isArray(d.tournaments)).slice(0,14):[];
+    }catch(error){tournamentCoverage=[];console.warn('Tennis tournament schedule unavailable',error);}
+    renderEvents();
+  }
   let communityEntries = [];
   let communityHealth = {lastRun:null, added:0, errors:[], configured:0, sourceHealth:[]};
   async function refreshCommunity() {
