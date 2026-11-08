@@ -171,7 +171,7 @@
     range(from, to);
     if (!Number.isFinite(instant(createdAt))) throw Error('Invalid plan creation timestamp.');
     return { schemaVersion: 3, id: key('research-plan', createdAt, from, to), from, to, createdAt, updatedAt: createdAt, revision: 0,
-      slots: APPROACHES.map(approach => ({ ...approach, stakeMinor: 100, legs: [], generation: null })), ...GATES };
+      slots: APPROACHES.map(approach => ({ ...approach, stakeMinor: 0, legs: [], generation: null })), ...GATES };
   }
 
   function getSlot(plan, slotId) {
@@ -315,8 +315,9 @@
     if (checked.some(leg => leg.quoteState === 'UNPRICED')) warnings.add('Missing prices: no return is inferred from model percentages.');
     if (checked.length && !lines.length) warnings.add('This structure needs more selections.');
     if (checked.length >= 12) warnings.add('Experimental longshot comparison: more legs compound failure risk; a larger payout is not evidence of value.');
+    if (!slot.stakeMinor && checked.length) warnings.add('Enter your paper stake per line; no stake has been chosen for you.');
     let calculationStatus = checked.length ? 'UNAVAILABLE' : 'EMPTY';
-    if (lines.length && checked.every(leg => leg.canCalculate)) {
+    if (lines.length && slot.stakeMinor > 0 && checked.every(leg => leg.canCalculate)) {
       let gross = 0n, overflow = false;
       for (const line of lines) {
         let numerator = BigInt(slot.stakeMinor), denominator = 1n;

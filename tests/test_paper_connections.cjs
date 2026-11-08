@@ -1,0 +1,10 @@
+'use strict';
+const assert = require('node:assert/strict');
+const C = require('../paper-lab/connections.js');
+assert.equal(C.oddschecker('racing'), 'https://www.oddschecker.com/horse-racing');
+assert.equal(C.oddschecker('nfl'), 'https://www.oddschecker.com/american-football');
+assert.throws(() => C.oddschecker('__proto__'));
+assert.equal(C.eventLink({sources:[{url:'https://www.oddschecker.com/football/example'}]}, 'www.oddschecker.com'), 'https://www.oddschecker.com/football/example');
+for(const url of ['https://www.oddschecker.com.evil.test/football','https://u:p@www.oddschecker.com/football','javascript:alert(1)','http://www.oddschecker.com/football',null]) assert.equal(C.eventLink({sources:[{url}]}, 'www.oddschecker.com'), null);
+assert.equal(C.eventLink({sources:[]}, 'evil.test'), null);
+console.log('External price-check links validated; no match slugs or prices inferred.');
