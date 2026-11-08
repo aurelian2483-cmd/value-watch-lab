@@ -127,6 +127,9 @@ def validate_publishable_snapshot(data):
    raise ValueError('Fixture date outside collection window')
   if meeting.get('record_type')!='MEETING_FIXTURE' or meeting.get('race_times_status')!='NOT_SUPPLIED' or meeting.get('declarations_status')!='NOT_VERIFIED':
    raise ValueError('Fixture status invalid')
+  source=meeting.get('source_url')
+  if not isinstance(source,str) or not source.startswith('https://www.sportinglife.com/racing/meeting/'+meeting['date']+'/'):
+   raise ValueError('Fixture source URL is not an observed dated Sporting Life meeting')
   if any(field in meeting for field in ('startUTC','runners','odds')):
    raise ValueError('Fixture contains unsupported race details')
  return True
