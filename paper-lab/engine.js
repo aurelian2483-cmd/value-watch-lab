@@ -14,7 +14,7 @@
     { id: 'explorer', name: 'Cross-Sport Explorer', description: 'Explore evidence across available sports.', structure: 'accumulator' },
     { id: 'longshot', name: 'Experimental Longshot', description: 'Larger combinations, with dependence and uncertainty unresolved.', structure: 'accumulator' }
   ]);
-  const SPORTS = Object.freeze({ football: 'FOOTBALL', racing: 'HORSE_RACING', tennis: 'TENNIS', nfl: 'NFL' });
+  const SPORTS = Object.freeze({ football: 'FOOTBALL', racing: 'HORSE_RACING', tennis: 'TENNIS', nfl: 'NFL', rugby_union: 'RUGBY_UNION', rugby_league: 'RUGBY_LEAGUE' });
   const STRUCTURES = new Set(['singles', 'doubles', 'trebles', 'accumulator']);
   const MAX_LEGS = 15;
   const MAX_STAKE_MINOR = 100000000;
@@ -175,8 +175,24 @@
     return receipts.length ? state('READY', 'Available for paper research', true) : state('UNVERIFIED_SOURCE', 'Paper hypothesis · event receipt unavailable', true);
   }
 
+  // Separate codes and identities prevent Rugby Union and Rugby League models/data mixing.
+  function rugby(document,path,now) {
+    return list(document.upcoming_fixtures).map(row=>{
+      const sport=row.code==='RU'?'rugby_union':row.code==='RL'?'rugby_league':null;
+      if(!sport||!str(row.home)||!str(row.away)||row.home===row.away)return null;
+      const participants=[{id:key(sport,row.home),name:str(row.home)},{id:key(sport,row.away),name:str(row.away)}];
+      return makeEvent({sport,identity:key(row.competition_code,row.event_id),providerId:row.event_id,
+        competition:str(row.competition_name),name:row.home+' vs '+row.away,participants,
+        startUTC:row.kickoff_utc,observedAt:document.generated_at_utc,
+        sources:sourceRows(row.source_receipts,document.generated_at_utc,path),
+        choices:participants.map(p=>({id:p.id,label:p.name,probability:null,uncertainty:null,quote:null,market:'Match winner · research only'})),
+        stats:{h2h:null,recent:null,rankings:null},model:null,
+        extra:{rugbyCode:row.code,forecastStatus:'SCHEDULE_ONLY_NO_VALIDATED_MODEL',scheduleOnly:true}},now);
+    }).filter(Boolean);
+  }
+
   function normalizeFeeds(documents, now = Date.now()) {
-    const adapters = { football, racing, other: otherSports, history: historical, 'racing-context': () => [],'racing-future':futureRacing };
+    const adapters = { football, rugby, racing, other: otherSports, history: historical, 'racing-context': () => [],'racing-future':futureRacing };
     const contexts = list(documents).filter(item => item?.kind === 'racing-context' && Core.safe(item.document) && instant(item.document.generated_at_utc) <= now);
     const contextFeed = contexts.length === 1 ? contexts[0].document : null;
     const index = new Map(), diagnostics = [];
