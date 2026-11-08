@@ -494,6 +494,12 @@
     } else {
       make(record.node,'p','Breakeven hurdle: UNKNOWN · no captured decimal price','slip-selection-meta');
     }
+    if (leg.sport === 'racing') {
+      const marketAudit = details(record.node, 'Exchange movement & closing line · research', 'leg-market-audit');
+      make(marketAudit,'p','Exchange trend: UNKNOWN · no verified timestamped Betfair exchange price pair or matched-volume evidence is connected.','small');
+      make(marketAudit,'p','Betfair SP / Closing Line Value: UNKNOWN · no independently attributable BSP benchmark is connected.','small');
+      make(marketAudit,'p','No steamer, drifter, 20% drift, convergence or CLV claim is inferred from bookmaker prices.','small');
+    }
     if (day(leg.startUTC) < store.get().plan.from || day(leg.startUTC) > store.get().plan.to) make(record.node, 'p', 'Outside your selected dates · original selection retained', 'warning-line');
     const actions = make(record.node, 'div', undefined, 'selection-actions');
     const up = button(actions, '↑', () => savePlan(E.moveSelection(store.get().plan, slot.id, leg.id, position - 1)), 'move-button'); up.disabled = position === 0; up.setAttribute('aria-label', 'Move ' + leg.label + ' up');
