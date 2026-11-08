@@ -148,5 +148,35 @@ class FutureRacingTests(unittest.TestCase):
             self.assertEqual(target.read_text(),previous)
             self.assertEqual(list(pathlib.Path(tmp).glob('*.tmp')),[])
 
+    def test_fixture_provider_to_published_dashboard_contract(self):
+        from free_racing_sources import collect_free
+        now=dt.datetime(2026,11,8,12,tzinfo=dt.timezone.utc)
+        dates=[(now.date()+dt.timedelta(days=i)).isoformat() for i in range(1,8)]
+        href='/racing/meeting/2026-11-09/carlisle/122465'
+        raw=('<html><a href="'+href+'">Carlisle</a></html>').encode()
+        def fetch(url):
+            if url=='https://www.sportinglife.com/racing/going':
+                return raw
+            raise OSError('provider unavailable')
+        collected=collect_free(dates,now,fetch=fetch)
+        self.assertEqual(collected['status'],'SOURCE_OBSERVED')
+        self.assertEqual(len(collected['meetings']),1)
+        data={'schema_version':1,'research_only':True,'publication_gate':'BLOCKED',
+              'model_validation':'UNVALIDATED','fixture_source_status':collected['status'],
+              'days':[{'date':day,'status':'COLLECTION_FAILED','count':0} for day in dates],
+              'races':[],'fixture_meetings':collected['meetings']}
+        with tempfile.TemporaryDirectory() as tmp:
+            output=pathlib.Path(tmp)/'racing-future-data.json'
+            module.write_validated_snapshot(data,output)
+            dashboard=json.loads(output.read_text())
+        fixture=dashboard['fixture_meetings'][0]
+        self.assertEqual(fixture['record_type'],'MEETING_FIXTURE')
+        self.assertEqual(fixture['date'],'2026-11-09')
+        self.assertTrue(fixture['source_url'].startswith('https://www.sportinglife.com/'))
+        self.assertEqual(fixture['race_times_status'],'NOT_SUPPLIED')
+        self.assertEqual(fixture['declarations_status'],'NOT_VERIFIED')
+        self.assertNotIn('runners',fixture)
+        self.assertNotIn('odds',fixture)
+
 if __name__=='__main__':
     unittest.main()
