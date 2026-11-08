@@ -31,4 +31,14 @@ assert.equal(fg.green,'PROVISIONAL');assert.equal(fg.greenBasis,'PUBLISHER_BETTI
 assert.equal(fg.yellow,'NOT_AWARDED','A publisher forecast is not a current bookmaker market for yellow agreement');
 assert.equal(gate(forecasts,forecasts.choices[0],now+31*60000).green,'NOT_ESTABLISHED');
 assert.equal(gate({...forecasts,choices:[forecasts.choices[0],{id:'b'}]},forecasts.choices[0],now).green,'NOT_ESTABLISHED');
+const primaryEvent={...event,providerEventId:'paper-qa',choices:[{id:'1',label:'Synthetic Horse 1'},{id:'2',label:'Synthetic Horse 2'}]};
+const url='https://www.fatjockey.com/forum/topic/42#post-1';
+const primary={verification:'PRIMARY_POST_CAPTURED',url,author:'Synthetic Alice',horse:'Synthetic Horse 2',published_at_utc:'2026-11-08T12:00:00Z',
+  primary_capture:{method:'JSONLD_DISCUSSION_POST_V1',post_url:url,author:'Synthetic Alice',race_id:'paper-qa',race_start_utc:event.startUTC,horse_id:'2',
+    published_at_utc:'2026-11-08T12:00:00Z',explicit_selection:true,explicit_value_backing:true,thread_url:'https://www.fatjockey.com/forum/topic/42',
+    text_sha256:'c'.repeat(64),receipt:{url,sha256:'d'.repeat(64),observed_at_utc:observedAt}}};
+const checked=context.window.ValueWatchEvidenceV3.communityEvidence(primary,primaryEvent,now);
+assert.equal(checked.primaryPostVerified,true);assert.equal(checked.verifiedThreadId,'https://www.fatjockey.com/forum/topic/42');
+assert.equal(context.window.ValueWatchEvidenceV3.communityEvidence({...primary,verification:'RSS_EXPLICIT_HEADLINE_UNVERIFIED'},primaryEvent,now).primaryPostVerified,false);
+assert.equal(context.window.ValueWatchEvidenceV3.communityEvidence({...primary,primary_capture:{...primary.primary_capture,receipt:{url,sha256:'invalid',observed_at_utc:observedAt}}},primaryEvent,now).primaryPostVerified,false);
 console.log('Evidence v3 unit regression passed (all four sports, blocked/unlocked cases, same-thread gate).');
