@@ -167,6 +167,7 @@
     if (/CANCEL|ABANDON|VOID/.test(providerStatus)) return state('CANCELLED', 'Cancelled or abandoned');
     if (/POSTPON|SUSPEND|DELAY/.test(providerStatus)) return state('POSTPONED', 'Postponed or delayed · recheck required');
     if (instant(event.startUTC) <= now + 300000 || /FINAL|WEIGHEDIN|RACERESULT|FINISH|OFFTIME|RUNNING/.test(providerStatus)) return state('STARTED', 'Started, completed or inside five-minute cutoff');
+    if (event.scheduleOnly) return state('SCHEDULE_ONLY', 'Fixture confirmed · rugby model not validated', false);
     if (event.sport === 'racing' && (!event.fieldConfirmed || !['DORMANT', 'GOINGDOWN', 'ATTHEPOST'].includes(providerStatus))) return state('FIELD_UNCONFIRMED', 'Current runner field or race status unconfirmed');
     const age = now - instant(event.observedAt);
     if (!Number.isFinite(age) || age < 0 || age > event.ttlMs) return state('STALE', age < 0 ? 'Observation time is unconfirmed' : 'Snapshot needs a refresh');
