@@ -169,7 +169,8 @@
       record.seasonPanel.dataset.signature = signature;
       record.seasonPanel.replaceChildren();
       if (event.sport === 'football') {
-        make(record.seasonPanel,'strong','This season only · 2026/27','season-heading');
+        const seasonText = comparison && /^\d{4}$/.test(comparison.season) ? '20'+comparison.season.slice(0,2)+'/20'+comparison.season.slice(2) : 'current season';
+        make(record.seasonPanel,'strong','This season only · '+seasonText,'season-heading');
         if (comparison) {
           const summary = make(record.seasonPanel,'div',undefined,'season-probabilities');
           const labels = [event.choices[0]?.label || 'Home','Draw',event.choices[2]?.label || 'Away'];
