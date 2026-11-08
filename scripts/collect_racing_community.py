@@ -120,8 +120,8 @@ def main():
                 title = item["title"]
                 explicit_title = (
                     mentions(title, horse["name"])
-                    and bool(re.search(r"\\b(?:tip|nap|pick|selection)\\s*[:\\-–]\\s*" + re.escape(horse["name"]) + r"\\b", title, re.I)
-                             or re.search(re.escape(horse["name"]) + r"\\s*[:\\-–]\\s*(?:tip|nap|pick|selection)\\b", title, re.I))
+                    and bool(re.search(r"\b(?:tip|nap|pick|selection)\s*[:–-]\s*" + re.escape(horse["name"]) + r"\b", title, re.I)
+                             or re.search(re.escape(horse["name"]) + r"\s*[:–-]\s*(?:tip|nap|pick|selection)\b", title, re.I))
                 )
                 verification = "RSS_EXPLICIT_HEADLINE_UNVERIFIED" if explicit_title else "RSS_EXPLICIT_MENTION_REVIEW_REQUIRED"
                 entries.append({
