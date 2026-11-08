@@ -129,18 +129,12 @@
       add(supported[0].choice,'Community consensus','Independent source domains: '+supported[0].sources.size);
     else if (consensus.size) {
       const rankedCommunity = [...consensus.values()].sort((a,b)=>b.sources.size-a.sources.size || a.choice.id.localeCompare(b.choice.id));
-      // When sources disagree equally, choose an explicitly labelled paper-only
-      // candidate using observed odds as a deterministic tie-breaker. Preserve
-      // both conflicting source records; never mislabel this as consensus.
-      const bestCount = rankedCommunity[0].sources.size;
-      const tied = rankedCommunity.filter(item=>item.sources.size===bestCount);
-      const rankedTied = tied.sort((a,b)=>{
-        const ao=Number.isFinite(a.choice.quote?.decimal)?a.choice.quote.decimal:Infinity;
-        const bo=Number.isFinite(b.choice.quote?.decimal)?b.choice.quote.decimal:Infinity;
-        return ao-bo || a.choice.id.localeCompare(b.choice.id);
-      });
-      if (rankedTied.length===1 || (Number.isFinite(rankedTied[0].choice.quote?.decimal) && rankedTied[0].choice.quote.decimal < (rankedTied[1].choice.quote?.decimal ?? Infinity)))
-        add(rankedTied[0].choice,'Community experimental',tied.length>1?'Conflicting community tips; observed-odds tie-breaker, not consensus':'Limited community evidence: '+bestCount+' independent source domain(s); unvalidated');
+      // Community ranking must remain independent of observed odds.
+      // Equal leading source counts are a genuine tie: do not manufacture
+      // agreement with the odds favourite.
+      if (rankedCommunity.length === 1 || rankedCommunity[0].sources.size > rankedCommunity[1].sources.size)
+        add(rankedCommunity[0].choice,'Community experimental','Unique community leader: '+rankedCommunity[0].sources.size+' independent source domain(s); unvalidated');
+
     }
     const ranked = event.choices.filter(choice => Number.isFinite(choice.quote?.decimal) && choice.quote.decimal > 1)
       .sort((a,b) => a.quote.decimal - b.quote.decimal || a.id.localeCompare(b.id));
@@ -190,7 +184,7 @@
       const picks = racingHighlights(event);
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
       const hasConsensus = picks.some(pick => pick.labels.includes('Community consensus'));
-      make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus · research only' : picks.some(pick=>pick.labels.includes('Community experimental')) ? '🔵 BLUE: experimental single-source community candidate · unvalidated' : communityTips.length ? '🔵 BLUE: community evidence tied; no unique leading candidate' : '🔵 BLUE: no attributable current-race community selection', 'small');
+      make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus · research only' : picks.some(pick=>pick.labels.includes('Community experimental')) ? '🔵 BLUE: experimental single-source community candidate · unvalidated' : communityTips.length ? '🔵 BLUE: community sources disagree or tie · no independent leader; all opinions retained' : '🔵 BLUE: no attributable current-race community selection', 'small');
       const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
       collector.textContent = 'Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+(communityHealth.errors.length ? communityHealth.errors.length+' source errors' : 'no reported source errors')+' · research only';
       collector.style.color = '#a9bed0';
@@ -246,7 +240,7 @@
       view.element.classList.toggle('is-racing-highlight', Boolean(racingPick));
       const hasCommunity = Boolean(racingPick?.labels.some(label => label.startsWith('Community')));
       const hasOdds = Boolean(racingPick?.labels.includes('Odds favourite'));
-      const agreement = hasCommunity && hasOdds;
+      const agreement = hasCommunity && hasOdds; // Only independent community selection can trigger yellow.
       const borderColour = agreement ? '#facc15' : hasCommunity ? '#60a5fa' : '#b8ee79';
       view.element.style.setProperty('border', racingPick ? '3px solid '+borderColour : '', racingPick ? 'important' : '');
       view.element.style.setProperty('box-shadow', agreement ? '0 0 0 2px rgba(250,204,21,.24), inset 0 0 0 1px #fde68a' : '', agreement ? 'important' : '');
