@@ -190,6 +190,14 @@
       const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
       collector.textContent = 'Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+(communityHealth.errors.length ? communityHealth.errors.length+' source errors' : 'no reported source errors')+' · research only';
       collector.style.color = '#a9bed0';
+      if (communityHealth.sourceHealth.length) {
+        const sourceDetails = make(record.racingPanel, 'details');
+        make(sourceDetails, 'summary', 'Collector source health · '+communityHealth.sourceHealth.filter(x=>x.status==='fetched').length+' fetched / '+communityHealth.sourceHealth.length+' attempted');
+        for (const item of communityHealth.sourceHealth) {
+          const line=make(sourceDetails,'p',(item.status==='fetched'?'✓ ':'⚠ ')+item.publisher+' · '+(item.status==='fetched'?(item.items_scanned||0)+' items scanned, '+(item.new_observations||0)+' new observations':item.error||'fetch failed'),'small');
+          line.style.color=item.status==='fetched'?'#a6d6bf':'#f2c28e';
+        }
+      }
       if (!communityTips.length) {
         const notice = make(record.racingPanel, 'p', 'Research gap: no independently attributable community recommendation has been matched to this race. The 12-source directory is not 12 live feeds. Do not interpret the green favourite as community agreement.', 'small');
         notice.style.cssText = 'padding:10px;border:1px solid #b78a3c;border-radius:8px;color:#f6d18b;background:#30291e';
@@ -600,7 +608,7 @@
   // Curated, auditable community observations. The public browser never scrapes third-party sites.
   // Match exact provider race ID, start time, runner name and publication chronology.
   let communityEntries = [];
-  let communityHealth = {lastRun:null, added:0, errors:[], configured:0};
+  let communityHealth = {lastRun:null, added:0, errors:[], configured:0, sourceHealth:[]};
   async function refreshCommunity() {
     try {
       const response = await fetch(new URL('racing-research/source-observations.json', rootURL), {cache:'no-store'});
@@ -608,7 +616,7 @@
       const feed = await response.json();
       if (feed.schema_version !== 1 || !Array.isArray(feed.entries) || feed.entries.length > 10000) throw Error('Unsupported community archive');
       communityEntries = feed.entries;
-      communityHealth = {lastRun:feed.last_collector_run_utc || null,added:Number(feed.collector_added)||0,errors:Array.isArray(feed.collector_errors)?feed.collector_errors:[],configured:0};
+      communityHealth = {lastRun:feed.last_collector_run_utc || null,added:Number(feed.collector_added)||0,errors:Array.isArray(feed.collector_errors)?feed.collector_errors:[],configured:0,sourceHealth:Array.isArray(feed.collector_source_health)?feed.collector_source_health:[]};
       try { const cfg = await fetch(new URL('racing-research/community-feeds.json',rootURL),{cache:'no-store'}); if(cfg.ok){const data=await cfg.json();communityHealth.configured=(data.sources||[]).filter(x=>x.enabled).length;} } catch {}
     } catch { communityEntries = []; communityHealth = {lastRun:null,added:0,errors:[],configured:0}; }
     store.update(state => ({...state, events:state.events.map(event => ({...event,communityTips:matchCommunity(event)})), eventVersion:state.eventVersion+1}));
