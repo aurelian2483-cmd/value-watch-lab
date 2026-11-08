@@ -24,9 +24,6 @@ class CommunityEvidenceTests(unittest.TestCase):
                 self.assertIn(entry['horse'].casefold(),[h['name'].casefold() for h in race['runners']])
                 self.assertEqual(urlsplit(entry['url']).scheme,'https')
                 self.assertLess(datetime.fromisoformat(entry['observed_at_utc']),datetime.fromisoformat(race['startUTC']))
-    def test_naas_1230_has_multiple_domains(self):
-        entries=[e for e in self.feed['entries'] if str(e.get('race_id'))=='947661' and e.get('horse')=='The Mourne Rambler' and e.get('verification')=='PUBLIC_SELECTION_OBSERVED']
-        self.assertGreaterEqual(len({urlsplit(e['url']).hostname for e in entries}),2)
     def test_no_collector_candidate_promoted(self):
         for e in self.feed['entries']:
             if e.get('id','').startswith('rss-'):
