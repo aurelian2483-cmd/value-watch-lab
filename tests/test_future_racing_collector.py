@@ -13,7 +13,7 @@ class FutureRacingTests(unittest.TestCase):
     def test_seven_days_and_dashboard_fields(self):
         now=dt.datetime(2026,11,8,12,tzinfo=dt.timezone.utc)
         def fetch(url):
-            return b'<html>source snapshot</html>'
+            return ('<html>source snapshot '+url+'</html>').encode('utf-8')
         def discover(raw,observed,target_date):
             start=dt.datetime.combine(target_date,dt.time(13),dt.timezone.utc).isoformat()
             return {'races':[{'race_id':target_date.isoformat(),'racecourse':'Test course',
@@ -30,6 +30,16 @@ class FutureRacingTests(unittest.TestCase):
         self.assertTrue(all(r['source_url'] and r['scheduled_start_time_utc'] for r in d['races']))
         self.assertTrue(all(r['declaration_stage']=='NOT_VERIFIED' for r in d['races']))
         self.assertEqual(d['publication_gate'],'BLOCKED')
+
+    def test_repeated_source_pages_are_rejected(self):
+        now=dt.datetime(2026,11,8,12,tzinfo=dt.timezone.utc)
+        def fake_discover(raw,observed,target_date):
+            return {'races':[]}
+        with patch.object(module,'discover',fake_discover):
+            d=module.collect(fetch=lambda url:b'<html>same page</html>',now=now)
+        self.assertEqual(d['days'][0]['status'],'NO_MATCHING_RACES_OBSERVED')
+        self.assertTrue(all(x['status']=='COLLECTION_FAILED' for x in d['days'][1:]))
+        self.assertTrue(all('Identical response' in x['error'] for x in d['days'][1:]))
 
     def test_source_failure_is_not_a_zero_race_claim(self):
         now=dt.datetime(2026,11,8,12,tzinfo=dt.timezone.utc)
