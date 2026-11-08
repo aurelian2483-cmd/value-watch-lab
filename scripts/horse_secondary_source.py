@@ -47,6 +47,83 @@ def candidates(race,rows):
   except (KeyError,ValueError,TypeError,AttributeError):continue
  return matches
 
+
+# The documented RacecardBasic.going field is a standardised condition string.
+# Intervals deliberately compare broad conditions without pretending that small
+# wording differences are contradictory racecourse measurements.
+GOING_CONDITIONS={
+ 'hard':('TURF',0,0),'firm':('TURF',1,1),'good to firm':('TURF',1,2),
+ 'good':('TURF',2,2),'good to soft':('TURF',2,4),
+ 'good to yielding':('TURF',2,3),'yielding':('TURF',3,3),
+ 'yielding to soft':('TURF',3,4),'soft':('TURF',4,4),
+ 'soft to heavy':('TURF',4,5),'very soft':('TURF',4,5),
+ 'heavy':('TURF',5,5),'holding':('TURF',4,5),
+ 'standard':('AW',0,0),'standard to fast':('AW',-1,0),
+ 'standard to slow':('AW',0,1),'fast':('AW',-1,-1),'slow':('AW',1,1),
+ 'muddy':('DIRT',1,1),'sloppy':('DIRT',2,2),
+}
+
+
+def standard_going(value):
+ """Accept only the provider's documented standardised going vocabulary."""
+ if not isinstance(value,str) or not value.strip() or len(value)>160:return None
+ normalized=re.sub(r'[-_\s]+',' ',value.strip().casefold()).strip(' .')
+ if normalized not in GOING_CONDITIONS:return None
+ return value.strip(),GOING_CONDITIONS[normalized]
+
+
+def primary_going_interval(value):
+ """Compare ordinary primary qualifiers; never interpret discipline clauses."""
+ direct=standard_going(value)
+ if direct:return direct[1]
+ if not isinstance(value,str) or len(value)>300:return None
+ normalized=re.sub(r'[-_\s]+',' ',value.casefold()).strip(' .')
+ if re.search(r'[:;/]|\b(?:hurdle|chase|flat|nhf)\b',normalized):return None
+ # Parenthesised/local qualifiers are useful provenance but not distinct
+ # standardised observations. Restrict the whole string to recognised phrases.
+ tokens=[]
+ for condition in sorted(GOING_CONDITIONS,key=len,reverse=True):
+  pattern=r'(?<![a-z])'+re.escape(condition)+r'(?![a-z])'
+  if re.search(pattern,normalized):
+   tokens.append(GOING_CONDITIONS[condition]);normalized=re.sub(pattern,' ',normalized)
+ normalized=re.sub(r'\bin places\b|\band\b|\bto\b|[(),\s]+','',normalized)
+ if normalized or not tokens or len({item[0] for item in tokens})!=1:return None
+ return tokens[0][0],min(item[1] for item in tokens),max(item[2] for item in tokens)
+
+
+def apply_secondary_going(race,row,now):
+ """Fill a missing condition only after unique schedule identity is established.
+
+ Source: /v1/racecards/free -> RacecardsBasicPage -> RacecardBasic.going in
+ https://api.theracingapi.com/openapi.json. Composite discipline descriptions
+ are intentionally unsupported, rather than guessed from a substring.
+ """
+ race['going_conflict']=False
+ supplied=standard_going(row.get('going'))
+ if not supplied:
+  race['going_comparison_status']='SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED';return
+ receipt=row.get('_source_receipt') or {}
+ url=urllib.parse.urlsplit(str(receipt.get('url','')))
+ try:
+  observed=stamp(receipt['observed_at_utc']);age=(now-observed).total_seconds()
+  valid_receipt=(url.scheme=='https' and url.hostname=='api.theracingapi.com' and url.path=='/v1/racecards/free' and not url.username and not url.password and
+                 re.fullmatch(r'[a-f0-9]{64}',str(receipt.get('sha256',''))) and -300<=age<=1800 and observed<stamp(race['startUTC']))
+ except (KeyError,ValueError,TypeError,AttributeError):valid_receipt=False
+ if race.get('schedule_cross_checked') is not True or not valid_receipt:
+  race['going_comparison_status']='SECONDARY_GOING_RECEIPT_UNCONFIRMED';return
+ source_text,secondary=supplied
+ race['secondary_going']=source_text;race['secondary_going_receipt']=receipt
+ primary=race.get('going')
+ missing=primary is None or (isinstance(primary,str) and primary.strip().casefold() in ('','-','unknown','unavailable','n/a','not available','not supplied'))
+ if missing:
+  race['going']=re.sub(r'[-_\s]+',' ',source_text).strip(' .');race['going_basis']='SECOND_PUBLISHER_STRUCTURED_GOING';race['going_source_receipt']=receipt
+  race['going_comparison_status']='MISSING_PRIMARY_FILLED_FROM_SECOND_PUBLISHER';return
+ mapped=primary_going_interval(primary)
+ if mapped is None:
+  race['going_comparison_status']='PRIMARY_DESCRIPTION_UNMAPPED';return
+ race['going_conflict']=mapped[0]!=secondary[0] or max(mapped[1],secondary[1])>min(mapped[2],secondary[2])
+ race['going_comparison_status']='MATERIAL_DISAGREEMENT' if race['going_conflict'] else 'AGREES_AT_BROAD_CONDITION_LEVEL'
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
  def redirect_request(self,req,fp,code,msg,headers,newurl):raise ValueError('Provider redirect rejected')
 
@@ -140,6 +217,7 @@ def collect(data,now,client=None,cache=None):
   race['schedule_cross_checked']=False
   if len(matches)==1 and matches[0].get('race_status') in ('declared','weighed') and matches[0].get('is_abandoned') is not True and stamp(race['startUTC'])>now:
    row=matches[0];race['schedule_cross_checked']=True;race['secondary_schedule_receipt']=row['_source_receipt'];race['secondary_race_id']=row['race_id'];audit['schedule_matches']+=1
+   apply_secondary_going(race,row,now)
    family={'flat':'FLAT','hurdle':'HURDLE','chase':'CHASE','nh_flat':'NH_FLAT'}.get(str(row.get('type','')).strip().casefold().replace(' ','_'))
    if family:
     race['secondary_run_type']=family;race['secondary_run_type_receipt']=row['_source_receipt']

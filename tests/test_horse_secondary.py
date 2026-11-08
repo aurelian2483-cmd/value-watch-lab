@@ -46,6 +46,66 @@ class SecondaryTests(unittest.TestCase):
   self.assertEqual(output['races'][0]['secondary_run_type'],'HURDLE')
   self.assertTrue(output['races'][0]['discipline_conflict'])
   self.assertEqual(output['races'][0]['secondary_run_type_receipt'],self.receipt)
+ def going_collect(self,going,primary=None,**row_updates):
+  receipt={**self.receipt,'url':'https://api.theracingapi.com/v1/racecards/free?day=today&region_codes=gb'}
+  row={**copy.deepcopy(self.row),'going':going,'_source_receipt':receipt,**row_updates}
+  class Client:
+   def pages(inner,path,key,query):return ([row] if key=='racecards' else []),[]
+  race={**self.race,'going':primary}
+  output,_,_=s.collect({'races':[race]},self.now,client=Client(),cache=self.root/'going')
+  return output['races'][0],receipt
+ def test_documented_secondary_going_fills_only_missing_primary_with_receipt(self):
+  for primary in [None,'','  ','-','Unknown','not supplied']:
+   with self.subTest(primary=primary):
+    race,receipt=self.going_collect('Good To Yielding',primary)
+    self.assertEqual(race['going'],'Good To Yielding')
+    self.assertEqual(race['going_basis'],'SECOND_PUBLISHER_STRUCTURED_GOING')
+    self.assertEqual(race['going_source_receipt'],receipt)
+    self.assertEqual(race['secondary_going_receipt'],receipt)
+    self.assertEqual(race['secondary_going'],'Good To Yielding')
+    self.assertFalse(race['going_conflict'])
+ def test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict(self):
+  for primary,secondary in [('Good to Soft (Good in places)','good_to_soft'),('Good-good to soft in places','Good To Soft'),('STANDARD','standard'),('Good to Firm','good-to-firm')]:
+   with self.subTest(primary=primary):
+    race,_=self.going_collect(secondary,primary)
+    self.assertEqual(race['going'],primary)
+    self.assertFalse(race['going_conflict'])
+    self.assertEqual(race['going_comparison_status'],'AGREES_AT_BROAD_CONDITION_LEVEL')
+    self.assertNotIn('going_source_receipt',race)
+ def test_material_disagreement_is_flagged_without_overwriting_primary(self):
+  race,receipt=self.going_collect('Firm','Soft')
+  self.assertEqual(race['going'],'Soft');self.assertEqual(race['secondary_going'],'Firm')
+  self.assertTrue(race['going_conflict'])
+  self.assertEqual(race['going_comparison_status'],'MATERIAL_DISAGREEMENT')
+  self.assertEqual(race['secondary_going_receipt'],receipt)
+ def test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed(self):
+  for value in [None,'','Unknown','API error','Good_Request_Error','Good'*60,'Hurdle: soft; chase: good-good to firm in places','Soft / Good','<script>Good</script>',{'going':'Good'}]:
+   with self.subTest(value=value):
+    race,_=self.going_collect(value)
+    self.assertIsNone(race['going'])
+    self.assertNotIn('secondary_going',race)
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+ def test_receipt_must_be_fresh_supported_endpoint_and_hash(self):
+  for updates in [{'url':'https://api.theracingapi.com/v1/results/today/free'}, {'url':'https://evil.invalid/v1/racecards/free'}, {'sha256':'invalid'}, {'observed_at_utc':(self.now-dt.timedelta(hours=1)).isoformat()}, {'observed_at_utc':(self.now+dt.timedelta(minutes=6)).isoformat()}]:
+   with self.subTest(updates=updates):
+    receipt={**self.receipt,'url':'https://api.theracingapi.com/v1/racecards/free',**updates}
+    race,_=self.going_collect('Good',_source_receipt=receipt)
+    self.assertIsNone(race['going']);self.assertNotIn('secondary_going',race)
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_RECEIPT_UNCONFIRMED')
+ def test_ambiguous_or_wrong_race_match_cannot_supply_going(self):
+  row={**self.row,'going':'Good','_source_receipt':{**self.receipt,'url':'https://api.theracingapi.com/v1/racecards/free'}}
+  class Client:
+   def pages(inner,path,key,query):return ([row,row] if key=='racecards' else []),[]
+  output,_,_=s.collect({'races':[{**self.race,'going':None}]},self.now,client=Client(),cache=self.root/'ambiguous-going')
+  self.assertIsNone(output['races'][0]['going']);self.assertNotIn('secondary_going',output['races'][0])
+  race,_=self.going_collect('Good',course='Wrong Course')
+  self.assertIsNone(race['going']);self.assertNotIn('secondary_going',race)
+ def test_unmapped_primary_description_is_preserved_without_claiming_agreement(self):
+  primary='Hurdle: soft; chase: good-good to firm in places'
+  race,_=self.going_collect('Good',primary)
+  self.assertEqual(race['going'],primary)
+  self.assertEqual(race['going_comparison_status'],'PRIMARY_DESCRIPTION_UNMAPPED')
+  self.assertFalse(race['going_conflict'])
  def test_full_field_and_winner_must_agree(self):
   e,reason=s.corroborate(self.record,self.entry,[self.row]);self.assertIsNone(reason);self.assertEqual(e['verification'],'TWO_PUBLISHER_RESULT_CORROBORATED')
   for change in ['field','winner','receipt','ambiguous']:

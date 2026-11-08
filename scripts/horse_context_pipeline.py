@@ -50,6 +50,8 @@ def yards(value):
 
 def going(value):
     s = str(value or '').casefold()
+    if re.search(r'[:;/]|\b(?:hurdle|chase|nhf)\b', s):
+        return None
     # Broad bins deliberately do not claim exact surface/rail/track equivalence.
     if s.startswith('standard') or s in ('fast','slow'):
         return ('AW', 0)
@@ -166,6 +168,8 @@ def context_features(runner,race,cutoff):
             'effective_recency_runs':effective,'history':rows},None
 
 def forecast(race,now):
+    if race.get('going_conflict') is True:
+        return None,'CONFLICTING_GOING_SOURCES'
     target,basis=discipline(race)
     if basis=='CONFLICTING_DISCIPLINE_SOURCES':
         return None,basis
@@ -184,7 +188,7 @@ def forecast(race,now):
         return None,'STALE_RUNNER_DATA'
     if yards(race.get('distance')) is None:
         return None,'RACE_DISTANCE_UNAVAILABLE'
-    if going(race.get('going')) is None:
+    if race.get('going_comparison_status') == 'PRIMARY_DESCRIPTION_UNMAPPED' or going(race.get('going')) is None:
         return None,'CURRENT_GOING_UNAVAILABLE'
     runners=race.get('runners',[])
     if any(r.get('runner_status') not in ('RUNNER','NONRUNNER','WITHDRAWN') or r.get('active_runner')!=(r.get('runner_status')=='RUNNER') for r in runners):
@@ -209,7 +213,7 @@ def forecast(race,now):
     return {'schema_version':1,'model':MODEL,'race_id':race['race_id'],'racecourse':race['racecourse'],
             'race_name':race['name'],'startUTC':race['startUTC'],'source':race['source'],'generated_at_utc':now.isoformat(),
             'parameters':PARAMETERS,'runners':rows,'active_runner_count':len(rows),'run_type':target,'run_type_basis':basis,
-            'surface':race['surface'],'going':race.get('going'),'distance':race['distance'],'race_class':race.get('race_class'),
+            'surface':race['surface'],'going':race.get('going'),'going_basis':race.get('going_basis','PRIMARY_RACECARD'),'going_source_receipt':race.get('secondary_going_receipt') if race.get('going_basis')=='SECOND_PUBLISHER_STRUCTURED_GOING' else None,'distance':race['distance'],'race_class':race.get('race_class'),
             'discipline_source_receipt':race.get('secondary_run_type_receipt') if basis=='SECOND_PUBLISHER_STRUCTURED_TYPE' else None,
             'context_signature':context_signature(race),'runner_source_sha256':race['runner_source_sha256'],
             'runner_observed_at_utc':race['runner_observed_at_utc'],'research_only':True,'reference_only':False,

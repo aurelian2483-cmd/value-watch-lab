@@ -22,6 +22,14 @@ def race():
                                              {'horse_id':'b','name':'Beta','active_runner':True,'runner_status':'RUNNER','previous_results':[history(20,4),history(21,4),history(22,4)]}]}
 
 class ContextControls(unittest.TestCase):
+    def test_mixed_discipline_going_is_not_flattened(self):
+        r = race(); r['going'] = 'Hurdle: soft; chase: good to firm'
+        self.assertEqual(m.forecast(r,NOW)[1],'CURRENT_GOING_UNAVAILABLE')
+
+    def test_conflicting_current_going_withholds_forecast(self):
+        r = race(); r['going_conflict'] = True
+        self.assertEqual(m.forecast(r,NOW)[1],'CONFLICTING_GOING_SOURCES')
+
     def test_turf_supported_with_provenance_and_unvalidated_vector(self):
         r,reason=m.forecast(race(),NOW)
         self.assertIsNone(reason);self.assertEqual(r['model'],m.MODEL);self.assertEqual(r['run_type'],'FLAT')
