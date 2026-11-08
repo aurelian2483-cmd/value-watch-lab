@@ -215,6 +215,23 @@ def model_forecast(fixture,training,current=None):
    'lambda_home':lh,'lambda_away':la,'home_venue_inputs':h,'away_venue_inputs':a,'league_home_mean':ah,'league_away_mean':aa},
   'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED','challenge_eligible':0,'forecast_eligible':False,'odds':None,'expected_value':None}
 
+def current_season_comparison(fixture,current):
+ """Independent descriptive 2026/27 comparison, not an archived prediction or actionable odds."""
+ if not current or current.get('matches',0)<30:return None
+ h=current['teams'].get(norm(fixture['home']))
+ a=current['teams'].get(norm(fixture['away']))
+ if not h or not a or min(h['hn'],a['an'])<3:return None
+ compared=model_forecast(fixture,current)
+ if not compared:return None
+ basis=compared['training_basis']
+ return {'method':'CURRENT_SEASON_POISSON_COMPARISON_V1','season':season_code(when(fixture['kickoff_utc'])),
+         'prob_home':compared['prob_home'],'prob_draw':compared['prob_draw'],'prob_away':compared['prob_away'],
+         'home_venue_matches':basis['home_matches'],'away_venue_matches':basis['away_matches'],
+         'training_matches':basis['training_matches'],'training_sha256':basis['training_sha256'],
+         'source_receipts':basis['source_receipts'],'cutoff_utc':stamp(when(fixture['kickoff_utc'])),
+         'unvalidated':True,'research_only':True,'publication_gate':'BLOCKED',
+         'odds':None,'expected_value':None,'small_sample':min(h['hn'],a['an'])<10}
+
 def train_data(rows,receipts):
  teams,ah,aa=stats(rows)
  return {'teams':teams,'avg_home_goals':ah,'avg_away_goals':aa,'matches':len(rows),'training_sha256':digest(rows),'source_receipts':receipts}
@@ -458,6 +475,7 @@ def main():
    item['schedule_source_receipts']=[receipt for receipt in receipts[code] if 'dates='+when(f['kickoff_utc']).strftime('%Y%m%d') in receipt['url']]+[receipt for receipt in secondary_receipts if f['kickoff_utc'][:7] in receipt['url']]
    model=None
    if checked and audit['days_succeeded']==22 and prior is not None:model=model_forecast(item,prior,current)
+   item['current_season_comparison']=current_season_comparison(item,current) if checked else None
    item['forecast_status']='EXPERIMENTAL_MODEL_FORECAST' if model else 'SCHEDULE_UNVERIFIED' if not checked else 'MODEL_INPUTS_UNAVAILABLE'
    # Descriptive only: available seasons may contain too few direct meetings.
    # Do not feed this evidence into the published probability model.
