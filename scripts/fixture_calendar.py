@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 
 FIXTURE_URL="https://www.sportinglife.com/racing/going"
 COURSE_RE=re.compile(r"^[A-Za-z][A-Za-z .'-]{2,55}$")
-DATE_RE=re.compile(r"20\\d{2}-\\d{2}-\\d{2}")
+DATE_RE=re.compile(r"20\d{2}-\d{2}-\d{2}")
 
 class FixtureLinks(HTMLParser):
  def __init__(self):
@@ -29,8 +29,8 @@ def parse_fixture_links(raw,dates,observed,base=FIXTURE_URL):
  found={}
  for href,label in p.links:
   url=urljoin(base,href)
-  if urlparse(url).netloc!="www.sportinglife.com":continue
-  if not any(x in urlparse(url).path for x in ("/racing/racecards/","/racing/going/","/racing/fixtures/")):continue
+  if urlparse(url).netloc not in ("www.sportinglife.com","www.racingpost.com"):continue
+  if not any(x in urlparse(url).path for x in ("/racing/racecards/","/racing/going/","/racing/fixtures/","/racecards/")):continue
   m=DATE_RE.search(urlparse(url).path)
   if not m or m.group() not in dates or not COURSE_RE.fullmatch(label):continue
   key=(m.group(),label.lower())
@@ -38,7 +38,7 @@ def parse_fixture_links(raw,dates,observed,base=FIXTURE_URL):
    "record_type":"MEETING_FIXTURE","race_times_status":"NOT_SUPPLIED","declarations_status":"NOT_VERIFIED"}
  return sorted(found.values(),key=lambda x:(x["date"],x["course"]))
 
-def collect_fixtures(dates,now,fetch=None):
+def collect_fixtures(dates,now,fetch=None,source_url=FIXTURE_URL):
  if fetch is None:
   def fetch(url):
    req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (compatible; ValueWatchResearch/1.0)"})
@@ -46,9 +46,9 @@ def collect_fixtures(dates,now,fetch=None):
     if response.status!=200:raise ValueError("Fixture HTTP failure")
     return response.read(3000001)
  try:
-  raw=fetch(FIXTURE_URL)
+  raw=fetch(source_url)
   if not raw or len(raw)>3000000:raise ValueError("Missing or oversized fixture source")
-  meetings=parse_fixture_links(raw,set(dates),now)
-  return {"status":"SOURCE_OBSERVED" if meetings else "FORMAT_UNVERIFIED","meetings":meetings,"url":FIXTURE_URL}
+  meetings=parse_fixture_links(raw,set(dates),now,base=source_url)
+  return {"status":"SOURCE_OBSERVED" if meetings else "FORMAT_UNVERIFIED","meetings":meetings,"url":source_url}
  except Exception as exc:
   return {"status":"COLLECTION_FAILED","meetings":[],"url":FIXTURE_URL,"error":str(exc)[:240]}
