@@ -36,9 +36,11 @@ class ActiveHorseSessionTests(unittest.TestCase):
         self.assertTrue(all(c[2]==['timeout', '--signal=TERM', '--kill-after=30s', '600s'] for c in calls))
         self.assertEqual(len(waits),5)
 
-    def test_normal_run_has_no_wait_and_night_does_not_collect(self):
+    def test_single_run_any_time_but_multiple_night_cycles_remain_blocked(self):
         self.assertEqual(self.session(cycles=1)[2],[])
         self.assertEqual(self.session(start_hour=23)[0],0)
+        self.assertEqual(self.session(start_hour=23,cycles=1)[0],1)
+        self.assertEqual(self.session(start_hour=1,cycles=1)[0],1)
         self.assertEqual(self.session(start_hour=3)[0],0)
         self.assertEqual(self.session(start_hour=4, cycles=1)[0],1)
         self.assertEqual(self.session(start_hour=21)[0],3)

@@ -11,14 +11,13 @@ def should_refresh(event, data, now, upstream=None):
         return True, 'PRIMARY_TRIGGER'
     if not upstream or upstream.get('conclusion') != 'success' or upstream.get('head_branch') != 'main':
         return False, 'UPSTREAM_NOT_SUCCESSFUL_MAIN'
-    if not 4 <= now.hour < 22:
-        return False, 'OUTSIDE_COLLECTION_WINDOW_UTC'
+    minimum_age_seconds = (15 if 4 <= now.hour < 22 else 60) * 60
     try:
         observed = dt.datetime.fromisoformat(data['generated_at_utc'].replace('Z', '+00:00'))
         if observed.tzinfo is None:
             raise ValueError('Timezone required')
         age = (now - observed).total_seconds()
-        if 0 <= age < 15 * 60:
+        if 0 <= age < minimum_age_seconds:
             return False, 'RECENT_RACECARDS_ALREADY_PUBLISHED'
     except (KeyError, ValueError, TypeError, AttributeError):
         pass
