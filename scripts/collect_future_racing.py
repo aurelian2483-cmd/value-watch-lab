@@ -112,9 +112,9 @@ if __name__=='__main__':
  data['limitations'].append('Meeting fixtures are not individual races and have no inferred post times or runners.')
  print(json.dumps({'generated_at_utc':data['generated_at_utc'],'races_discovered':len(data['races']),'daily_source_results':data['days']},indent=2),flush=True)
  if len(data['days'])!=7 or (not data['races'] and not data['fixture_meetings']):
-  raise SystemExit('No usable source-observed racecards: preserving existing published snapshot')
+  raise SystemExit('No usable source-observed races or meeting fixtures: preserving existing published snapshot')
  data['failed_dates']=[day['date'] for day in data['days'] if day['status']=='COLLECTION_FAILED']
  data['collection_status']='PARTIAL_SOURCE_COVERAGE' if data['failed_dates'] or data['fixture_source_status']!='SOURCE_OBSERVED' else 'SOURCE_OBSERVED_NOT_COMPLETE'
  data['limitations'].append('A successful source request is not proof of complete racing coverage. Failed dates are explicitly reported.')
  OUT.write_text(json.dumps(data,indent=2)+'\n')
- print(json.dumps({'future_races':len(data['races']),'failed_days':sum(x['status']=='COLLECTION_FAILED' for x in data['days'])}))
+ print(json.dumps({'future_races':len(data['races']),'fixture_meetings':len(data['fixture_meetings']),'fixture_source_status':data['fixture_source_status'],'failed_days':sum(x['status']=='COLLECTION_FAILED' for x in data['days'])}))
