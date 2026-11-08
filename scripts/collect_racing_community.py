@@ -124,7 +124,10 @@ def main():
                 headline_candidates = []
                 for candidate_race in future_races:
                     start_candidate = parse_date(candidate_race.get("startUTC"))
-                    if start_candidate.date() != published.date() or published >= start_candidate:
+                    # Ante-post or next-day tips can be published the day before.
+                    # Require a unique runner on the upcoming 48-hour card;
+                    # the observed timestamp must still precede race start.
+                    if published >= start_candidate:
                         continue
                     for runner in candidate_race.get("runners", []):
                         if runner.get("active_runner") is not True or runner.get("runner_status") != "RUNNER":
