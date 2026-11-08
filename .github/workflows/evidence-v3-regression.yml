@@ -30,20 +30,26 @@ jobs:
           assert 'Paper research' in h
           print('Dashboard HTML and assets verified')
           PY
-      - name: Validate six-day future racing payload
+      - name: Validate source-observed future racing payload
         run: |
           python - <<'PY'
-          import json,datetime
+          import json,sys,datetime
           from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from collect_future_racing import validate_publishable_snapshot
           x=json.loads(Path('racing-future-data.json').read_text())
+          validate_publishable_snapshot(x)
           races=x['races']
-          assert x['research_only'] is True and x['publication_gate']=='BLOCKED' and x['model_validation']=='UNVALIDATED'
-          assert len(races)==14 and len({r['race_id'] for r in races})==14
-          assert {r['date'] for r in races}=={'2026-11-09','2026-11-10','2026-11-11','2026-11-12','2026-11-13','2026-11-14'}
+          assert len({r['race_id'] for r in races})==len(races)
+          dates={d['date'] for d in x['days']}
           for r in races:
-              assert r['runners']==[]
-              assert r['scheduled_start_time_utc'][:10]==r['date']
-              assert r['source_url'].startswith('https://www.racingpost.com/racecards/')
+              assert r['scheduled_start_time_utc'][:10] in dates
               assert datetime.datetime.fromisoformat(r['observation_timestamp_utc'].replace('Z','+00:00')) < datetime.datetime.fromisoformat(r['scheduled_start_time_utc'].replace('Z','+00:00'))
-          print('Future racing payload validated: 14 records, 6 dates, no synthetic runners')
+              if r.get('runners'):
+                  assert r['runner_source'] and len(r['runner_source_sha256'])==64
+                  assert len({h['horse_id'] for h in r['runners']})==len(r['runners'])
+                  assert all(h['win_probability'] is None for h in r['runners'])
+                  assert r['forecast_eligible'] is False
+                  assert r['declaration_stage']=='NOT_VERIFIED'
+          print('Seven-day source payload validated; counts are provider observations, not fixed fixtures')
           PY

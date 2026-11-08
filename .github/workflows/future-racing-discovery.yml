@@ -12,7 +12,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: future-racing-discovery
+  group: future-racecards-7day
   cancel-in-progress: false
 jobs:
   collect:
@@ -32,7 +32,7 @@ jobs:
           import json
           x=json.load(open('racing-future-data.json'))
           assert x['publication_gate']=='BLOCKED' and x['model_validation']=='UNVALIDATED'
-          assert len(x['days'])==6
+          assert len(x['days'])==7
           assert len({r['race_id'] for r in x['races']})==len(x['races'])
           PY
       - name: Publish source-observed schedules
@@ -41,7 +41,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add racing-future-data.json
-            git commit -m 'Refresh next six days of UK Ireland racing schedules'
+            git commit -m 'Refresh seven-day source-observed racing schedules'
             git pull --rebase origin main
             git push origin HEAD:main
           fi
