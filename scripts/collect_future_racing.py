@@ -22,7 +22,7 @@ def collect(fetch=None, now=None):
     if response.status!=200:raise ValueError('Non-200 future racecard source')
     return response.read(3000001)
  records=[];days=[];seen=set()
- for offset in range(1,7):
+ for offset in range(1,8):
   date=today+dt.timedelta(days=offset)
   url='https://www.sportinglife.com/racing/racecards/'+date.isoformat()
   try:
@@ -33,7 +33,7 @@ def collect(fetch=None, now=None):
    for race in rows:
     if race['race_id'] in seen:raise ValueError('Duplicate race ID across dates')
     seen.add(race['race_id'])
-    records.append({k:race[k] for k in ('race_id','racecourse','name','startUTC','source','source_link_type','source_runner_count','observedAtUTC','verification')})
+    records.append({**{k:race[k] for k in ('race_id','racecourse','name','startUTC','source','source_link_type','source_runner_count','observedAtUTC','verification')}, 'venue':race['racecourse'], 'race_name':race['name'], 'scheduled_start_time_utc':race['startUTC'], 'source_url':race['source'], 'observation_timestamp_utc':race['observedAtUTC'], 'declaration_stage':'NOT_VERIFIED', 'runners':[]})
    days.append({'date':date.isoformat(),'status':'SOURCE_OBSERVED' if rows else 'NO_UK_IRELAND_RACES_IN_SOURCE','count':len(rows),'url':url,'sha256':hashlib.sha256(raw).hexdigest()})
   except Exception as exc:
    days.append({'date':date.isoformat(),'status':'COLLECTION_FAILED','count':0,'url':url,'error':str(exc)[:240]})
@@ -41,5 +41,5 @@ def collect(fetch=None, now=None):
 
 if __name__=='__main__':
  data=collect()
- OUT.write_text(json.dumps(data,indent=2)+'\n')
+ if not data['races'] or all(day['status']=='COLLECTION_FAILED' for day in data['days']):\n  raise SystemExit('No source-observed future racecards: preserving existing published snapshot')\n OUT.write_text(json.dumps(data,indent=2)+'\n')
  print(json.dumps({'future_races':len(data['races']),'failed_days':sum(x['status']=='COLLECTION_FAILED' for x in data['days'])}))
