@@ -99,7 +99,10 @@ def main():
                     if not start or published >= start or start-NOW > dt.timedelta(days=2) or start < NOW:
                         continue
                     course = race.get("racecourse", "")
-                    if not course or not mentions(text, course) or not mentions(text, start.strftime("%d %B")):
+                    # Daily articles often omit the calendar date. Require the course
+                    # plus either explicit race time or a unique runner across the
+                    # day's entire card; never use name-only matching.
+                    if not course or not mentions(text, course):
                         continue
                     runners = [h for h in race.get("runners", []) if h.get("active_runner") is True and h.get("runner_status") == "RUNNER" and mentions(text, h.get("name", ""))]
                     if len(runners) == 1:
