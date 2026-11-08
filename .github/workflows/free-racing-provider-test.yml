@@ -4,6 +4,8 @@ on:
     paths:
       - 'scripts/fixture_calendar.py'
       - 'scripts/free_racing_sources.py'
+      - 'scripts/atr_calendar.py'
+      - 'tests/test_atr_calendar.py'
       - 'scripts/collect_future_racing.py'
       - 'tests/test_fixture_calendar.py'
       - 'tests/test_free_racing_sources.py'
@@ -21,9 +23,10 @@ jobs:
         with:
           python-version: '3.12'
       - name: Syntax checks
-        run: python -m py_compile scripts/fixture_calendar.py scripts/free_racing_sources.py scripts/collect_future_racing.py
+        run: python -m py_compile scripts/fixture_calendar.py scripts/free_racing_sources.py scripts/atr_calendar.py scripts/collect_future_racing.py
       - name: Fixture and fallback tests
         run: python -m unittest discover -s tests -p 'test_*racing_sources.py' -v && python -m unittest discover -s tests -p 'test_fixture_calendar.py' -v
+      - run: python -m unittest discover -s tests -p 'test_atr_calendar.py' -v
       - name: Read-only provider diagnostics (no publishing)
         run: |
           PYTHONPATH=scripts python - <<'PY'
