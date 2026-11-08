@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 import importlib.util
 import pathlib
 import sys
@@ -13,7 +14,7 @@ class FutureRacingTests(unittest.TestCase):
     def test_seven_days_and_dashboard_fields(self):
         now=dt.datetime(2026,11,8,12,tzinfo=dt.timezone.utc)
         def fetch(url):
-            return ('<html>source snapshot '+url+'</html>').encode('utf-8')
+            return ('<html><script id="__NEXT_DATA__" type="application/json">'+json.dumps({'props':{'pageProps':{'meetings':[{'meeting_summary':{'date':url.split('date=')[-1]}}]}}})+'</script></html>').encode('utf-8')
         def discover(raw,observed,target_date):
             start=dt.datetime.combine(target_date,dt.time(13),dt.timezone.utc).isoformat()
             return {'races':[{'race_id':target_date.isoformat(),'racecourse':'Test course',
@@ -36,7 +37,7 @@ class FutureRacingTests(unittest.TestCase):
         def fake_discover(raw,observed,target_date):
             return {'races':[]}
         with patch.object(module,'discover',fake_discover):
-            d=module.collect(fetch=lambda url:b'<html>same page</html>',now=now)
+            d=module.collect(fetch=lambda url:b'<html><script id="__NEXT_DATA__">{"props":{"pageProps":{"meetings":[]}}}</script></html>',now=now)
         self.assertEqual(d['days'][0]['status'],'NO_MATCHING_RACES_OBSERVED')
         self.assertTrue(all(x['status']=='COLLECTION_FAILED' for x in d['days'][1:]))
         self.assertTrue(all('Identical response' in x['error'] for x in d['days'][1:]))
