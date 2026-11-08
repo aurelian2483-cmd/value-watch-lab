@@ -362,12 +362,13 @@
       "stance": "support"
     }
   ],
-  "last_collector_run_utc": "2026-11-08T22:05:54.226576+00:00",
+  "last_collector_run_utc": "2026-11-08T22:53:56.287839+00:00",
   "collector_added": 0,
   "collector_errors": [],
   "collector_source_health": [
     {
       "publisher": "Get Your Tips Out",
+      "source_type": "tipster",
       "status": "fetched",
       "items_scanned": 10,
       "new_observations": 0,
@@ -376,14 +377,15 @@
       "skip_reasons": {
         "invalid_date": 1,
         "invalid_link": 0,
-        "no_tip_language": 4,
-        "no_runner_match": 5,
+        "no_tip_language": 0,
+        "no_runner_match": 9,
         "already_recorded": 0,
         "after_start": 0
       }
     },
     {
       "publisher": "Tipster Reviews",
+      "source_type": "blog",
       "status": "fetched",
       "items_scanned": 10,
       "new_observations": 0,
@@ -400,6 +402,7 @@
     },
     {
       "publisher": "JPW Racing Tipster",
+      "source_type": "tipster",
       "status": "fetched",
       "items_scanned": 10,
       "new_observations": 0,
@@ -416,6 +419,7 @@
     },
     {
       "publisher": "Mull It Over",
+      "source_type": "blog",
       "status": "fetched",
       "items_scanned": 10,
       "new_observations": 0,
@@ -424,14 +428,15 @@
       "skip_reasons": {
         "invalid_date": 8,
         "invalid_link": 0,
-        "no_tip_language": 2,
-        "no_runner_match": 0,
+        "no_tip_language": 1,
+        "no_runner_match": 1,
         "already_recorded": 0,
         "after_start": 0
       }
     },
     {
       "publisher": "British Horseracing Authority",
+      "source_type": "blog",
       "status": "fetched",
       "items_scanned": 10,
       "new_observations": 0,
@@ -448,6 +453,7 @@
     },
     {
       "publisher": "BBC Horse Racing",
+      "source_type": "blog",
       "status": "fetched",
       "items_scanned": 11,
       "new_observations": 0,
@@ -464,6 +470,7 @@
     },
     {
       "publisher": "Richard Phillips Racing",
+      "source_type": "blog",
       "status": "fetched",
       "items_scanned": 10,
       "new_observations": 0,
@@ -479,7 +486,8 @@
       }
     },
     {
-      "publisher": "Fat Jockey",
+      "publisher": "Fat Jockey articles",
+      "source_type": "blog",
       "status": "fetched",
       "items_scanned": 10,
       "new_observations": 0,
@@ -496,6 +504,7 @@
     },
     {
       "publisher": "Reddit HorseRacingUK",
+      "source_type": "forum",
       "status": "fetched",
       "items_scanned": 25,
       "new_observations": 0,
@@ -504,8 +513,25 @@
       "skip_reasons": {
         "invalid_date": 17,
         "invalid_link": 0,
-        "no_tip_language": 8,
-        "no_runner_match": 0,
+        "no_tip_language": 4,
+        "no_runner_match": 4,
+        "already_recorded": 0,
+        "after_start": 0
+      }
+    },
+    {
+      "publisher": "Fat Jockey Forum",
+      "source_type": "forum",
+      "status": "fetched",
+      "items_scanned": 20,
+      "new_observations": 0,
+      "explicit_tip_observations": 0,
+      "review_only_mentions": 0,
+      "skip_reasons": {
+        "invalid_date": 4,
+        "invalid_link": 0,
+        "no_tip_language": 13,
+        "no_runner_match": 3,
         "already_recorded": 0,
         "after_start": 0
       }
@@ -516,5 +542,25 @@
     "status": "ready",
     "message": "Current and future source racecards checked"
   },
-  "primary_post_checks": []
+  "primary_post_checks": [],
+  "community_pipeline": {
+    "upcoming_races": 42,
+    "forum_items_scanned": 45,
+    "upcoming_forum_candidates": 0,
+    "checked_primary_posts": 0,
+    "distinct_checked_authors": 0,
+    "limitation": "Blue requires a checked primary post; yellow additionally needs distinct same-thread value backers and an observed bookmaker favourite."
+  },
+  "thread_source_checks": [
+    {
+      "url": "https://www.reddit.com/r/HorseRacingUK/comments/1xr2fpm/mondays_tips_thread/.rss",
+      "status": "SOURCE_UNAVAILABLE",
+      "error": "HTTP Error 429: Too Many Requests"
+    },
+    {
+      "url": "https://www.reddit.com/r/HorseRacingUK/comments/1xqagxg/sundays_tips_thread/.rss",
+      "status": "SOURCE_UNAVAILABLE",
+      "error": "HTTP Error 429: Too Many Requests"
+    }
+  ]
 }
