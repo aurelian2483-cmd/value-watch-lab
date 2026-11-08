@@ -1,0 +1,47 @@
+{
+  "home": "Crystal Palace",
+  "away": "Hull City",
+  "kickoff_utc": "2026-11-29T14:05:00Z",
+  "model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+  "prob_home": 0.3242394380675135,
+  "prob_draw": 0.23927041431203297,
+  "prob_away": 0.4364901476204536,
+  "league": "E0",
+  "generated_at_utc": "2026-11-08T15:14:23.045789+00:00",
+  "feed_generated_at_utc": "2026-11-08T15:14:16.877529+00:00",
+  "source_feed_sha256": "25678c5df09f436019f7677d2af4e44bac41455694253d2c7432dc4229df2434",
+  "model_input_audit": {
+    "model": "POISSON_BASELINE_2025_26_V1",
+    "training_source": "https://www.football-data.co.uk/mmz4281/2526/E0.csv",
+    "training_matches": 380,
+    "training_sha256": "3e3a8352f9ada6789c508d6ca184424421fed56a30400904a4a327c583407e62",
+    "forecast_count": 19,
+    "fallback_audit": {
+      "source": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+      "sha256": "c429b75f681dc7aaec5641a23320402409530b4b01a9f147bb7e386fe508159b",
+      "training_matches": 90,
+      "cutoff_exclusive_utc_date": "2026-11-08",
+      "minimum_matches_per_relevant_venue": 3,
+      "league_average_pseudo_matches": 5,
+      "limitation": "Small-sample current-season fallback; shrinkage is an unvalidated modelling choice, not evidence of accuracy."
+    },
+    "fallback_source_error": null,
+    "fallback_forecast_count": 6,
+    "limitation": "Uncalibrated prior-season baseline plus separately labelled small-sample current-season fallback; not archived or independently attested"
+  },
+  "training_basis": {
+    "home_matches": 4,
+    "away_matches": 4,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "source_first_availability_verified": false,
+  "independent_timestamp_attested": false,
+  "record_sha256": "2dfac29834cfc4ef06d335a0dc7d0778779b2e749c49ac183945c7f69e1b8d72"
+}
