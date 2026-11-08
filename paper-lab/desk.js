@@ -134,6 +134,7 @@
     write(record.meta, symbols[event.sport] + ' ' + event.competition); write(record.time, dateText(event.startUTC)); record.time.dateTime = event.startUTC; write(record.title, event.name);
     write(record.status, status.label); record.status.className = 'event-status ' + (status.selectable ? 'is-current' : status.code === 'STARTED' ? '' : 'is-warning');
     const conditions = event.stats?.conditions; write(record.conditions, conditions ? [conditions.distance, conditions.going, conditions.raceClass && 'Class ' + conditions.raceClass].filter(Boolean).join(' · ') : event.choices[0]?.market || 'Research outcome');
+    const review = E.footballEvidenceReview(event);
     const leaders = E.modelLeaders(event), ordered = event.sport === 'racing' ? [...leaders.map(leader => event.choices.find(choice => choice.id === leader.id)), ...event.choices.filter(choice => !leaders.some(leader => leader.id === choice.id))] : event.choices;
     const structural = JSON.stringify([status.code === 'STARTED', ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id)]);
     if (record.structural !== structural) {
@@ -164,7 +165,8 @@
     }
     if (record.matchView.open) renderMatchOverview(record.matchPanel, event);
     record.prediction.hidden = !event.model && event.sport !== 'racing';
-    write(record.prediction, leaders.length ? leaders.map(leader => (leader.rank === 1 ? 'Model first choice: ' : 'Alternative: ') + event.choices.find(choice => choice.id === leader.id).label).join(' · ') + (event.model.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' · experimental form ranking, not calibrated win chances' : ' · experimental model ranking') : event.model ? 'Model estimates are tied or no longer current; no distinct current first choice.' : 'No model selection: ' + (event.predictionStatus?.label || 'Model inputs unavailable.'));
+    write(record.prediction, leaders.length ? leaders.map(leader => (leader.rank === 1 ? 'Model first choice: ' : 'Alternative: ') + event.choices.find(choice => choice.id === leader.id).label).join(' · ') + (event.model.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' · experimental form ranking, not calibrated win chances' : ' · experimental model ranking') + (review?.notes.length ? ' · EVIDENCE REVIEW REQUIRED — model ranking is NOT a betting recommendation' : '') : event.model ? 'Model estimates are tied or no longer current; no distinct current first choice.' : 'No model selection: ' + (event.predictionStatus?.label || 'Model inputs unavailable.'));
+    record.prediction.classList.toggle('evidence-review-required', Boolean(review?.notes.length));
     const notes = state.claims.filter(note => note.eventId === event.id);
     record.notes.hidden = !notes.length;
     const noteSignature = JSON.stringify(notes);
@@ -174,12 +176,13 @@
     }
     record.check.href = C.eventLink(event, 'www.oddschecker.com') || C.oddschecker(event.sport);
     record.check.title = 'Opens Oddschecker. Match the event, date, market and Sky Bet column; no price is imported.';
-    const modelSignature = JSON.stringify([event.model, event.choices.map(choice => [choice.label, choice.probability])]);
+    const modelSignature = JSON.stringify([event.model, review, event.choices.map(choice => [choice.label, choice.probability])]);
     if (record.modelPanel.dataset.signature !== modelSignature) {
       record.modelPanel.dataset.signature = modelSignature; record.modelPanel.replaceChildren();
       if (event.model) for (const choice of event.choices) {
         const row = make(record.modelPanel, 'div', undefined, 'stat-row'); make(row, 'span', choice.label); make(row, 'strong', pct(choice.probability));
       }
+      if (review?.notes.length) { const heading = make(record.modelPanel, 'strong', 'Evidence review required — model ranking is not a recommendation'); heading.classList.add('evidence-review-heading'); for (const note of review.notes) make(record.modelPanel, 'p', '• ' + note, 'small'); make(record.modelPanel, 'p', 'No verified Sky Bet price or validated expected value is connected. Do not infer a betting edge from this ranking.', 'small'); }
       if (event.model?.limitation) make(record.modelPanel, 'p', event.model.limitation, 'small');
       if (event.model?.recordHash) make(record.modelPanel, 'code', event.model.recordHash, 'source-digest');
       make(record.modelPanel, 'p', event.model ? 'Model ' + event.model.name + ' · UNVALIDATED · uncertainty unquantified. Percentages are estimates, not prices or verified value.' : 'No supported model estimate supplied.', 'small');
