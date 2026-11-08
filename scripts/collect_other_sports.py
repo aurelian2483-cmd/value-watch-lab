@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 import urllib.request
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 NOW = datetime.now(timezone.utc)
@@ -153,6 +154,71 @@ def upcoming(c, kind):
     except (ValueError, KeyError, TypeError):
         return None
 
+def tennis_schedule_paths(tour, now):
+    """Seven UK calendar days, using the existing daily scoreboard endpoint."""
+    if tour not in ('atp', 'wta') or now.tzinfo is None:
+        raise ValueError('Supported tour and timezone-aware collection time required')
+    today = now.astimezone(ZoneInfo('Europe/London')).date()
+    return [(today + timedelta(days=offset),
+             f'tennis/{tour}/scoreboard?dates={today + timedelta(days=offset):%Y%m%d}&limit=100')
+            for offset in range(7)]
+
+
+def tennis_schedule(tour, now, ratings, counts, history):
+    """Deduplicate daily observations; omit ambiguous reschedules entirely."""
+    paths = tennis_schedule_paths(tour, now)
+    docs = batch([path for _, path in paths])
+    first_day, last_day = paths[0][0], paths[-1][0]
+    rows, identities, conflicts = {}, {}, set()
+    slug = 'mens-singles' if tour == 'atp' else 'womens-singles'
+    for (_, path), doc in zip(paths, docs):
+        if not isinstance(doc, dict) or not isinstance(doc.get('events'), list):
+            raise ValueError('Tennis daily schedule response missing its event list')
+        for event in doc['events']:
+            for group in event.get('groupings', []):
+                if group.get('grouping', {}).get('slug') != slug:
+                    continue
+                for competition in group.get('competitions', []):
+                    cid = competition.get('id')
+                    if isinstance(cid, bool) or not isinstance(cid, (str, int)) or not str(cid).strip() or len(str(cid)) > 100:
+                        continue
+                    event_id = tour + '-' + str(cid)
+                    players = pair(competition, 'athlete')
+                    try:
+                        when = dt(competition['date'])
+                        signature = digest({
+                            'date': stamp(when),
+                            'participants': sorted((str(p['id']), p['athlete']['displayName']) for p in players) if players else None,
+                            'competition': event.get('name'),
+                            'state': competition.get('status', {}).get('type', {}).get('state'),
+                            'time_valid': competition.get('timeValid') is True,
+                        })
+                    except (KeyError, ValueError, TypeError):
+                        conflicts.add(event_id)
+                        continue
+                    if event_id in identities and identities[event_id] != signature:
+                        conflicts.add(event_id)
+                    identities[event_id] = signature
+                    local_day = when.astimezone(ZoneInfo('Europe/London')).date()
+                    if event_id in conflicts or event_id in rows or not first_day <= local_day <= last_day or not upcoming(competition, 'athlete') or not isinstance(event.get('name'), str) or not event['name'].strip():
+                        continue
+                    source = BASE + path
+                    receipt = next((r for r in reversed(RECEIPTS) if r.get('url') == source), None)
+                    row = {
+                        'id': event_id, 'name': ' vs '.join(p['athlete']['displayName'] for p in players),
+                        'competition': tour.upper() + ' · ' + event['name'], 'startUTC': stamp(when),
+                        'participants': [{'id': str(p['id']), 'name': p['athlete']['displayName']} for p in players],
+                        'source': source, 'forecast': forecast(players, ratings, counts, history, 'athlete'),
+                        'unavailable_reason': 'Requires eight source-observed prior completed singles matches per player.',
+                    }
+                    if receipt:
+                        row['source_collected_at_utc'] = receipt['collected_at_utc']
+                        row['source_sha256'] = receipt['sha256']
+                    rows[event_id] = row
+    return ([row for event_id, row in rows.items() if event_id not in conflicts],
+            [{'id': event_id, 'reason': 'CONFLICTING_DAILY_SCHEDULE_OBSERVATIONS'} for event_id in sorted(conflicts)])
+
+
 def tennis():
     histories = {'atp': [], 'wta': []}
     paths = []
@@ -167,31 +233,21 @@ def tennis():
                 if g.get('grouping', {}).get('slug') != ('mens-singles' if tour == 'atp' else 'womens-singles'):
                     continue
                 histories[tour].extend(r for c in g.get('competitions', []) if (r := final(c, 'athlete')))
-    rows = []
+    rows, conflicts = [], []
     for tour in histories:
         history = unique(histories[tour])
         if len(history) < 100:
             raise ValueError('Insufficient tennis training coverage: ' + tour)
         ratings, counts = fit(history)
-        doc = fetch(f'tennis/{tour}/scoreboard?dates={NOW:%Y%m%d}&limit=100')
-        seen = set()
-        for e in doc.get('events', []):
-            for g in e.get('groupings', []):
-                if g.get('grouping', {}).get('slug') != ('mens-singles' if tour == 'atp' else 'womens-singles'):
-                    continue
-                for c in g.get('competitions', []):
-                    ps = upcoming(c, 'athlete')
-                    if not ps or c['id'] in seen:
-                        continue
-                    seen.add(c['id'])
-                    rows.append({'id': tour+'-'+str(c['id']), 'name': ' vs '.join(p['athlete']['displayName'] for p in ps),
-                                 'competition': tour.upper()+' · '+e['name'], 'startUTC': c['date'],
-                                 'participants': [{'id': str(p['id']), 'name': p['athlete']['displayName']} for p in ps],
-                                 'source': BASE+f'tennis/{tour}/scoreboard?dates={NOW:%Y%m%d}&limit=100',
-                                 'forecast': forecast(ps, ratings, counts, history, 'athlete'),
-                                 'unavailable_reason': 'Requires eight source-observed prior completed singles matches per player.'})
+        schedule, rejected = tennis_schedule(tour, NOW, ratings, counts, history)
+        rows.extend(schedule)
+        conflicts.extend(rejected)
+    schedule_days = tennis_schedule_paths('atp', NOW)
     return {'generated_at_utc': stamp(NOW), 'events': sorted(rows, key=lambda e: e['startUTC']),
-            'limitations': 'Fixed Elo baseline, separate ATP/WTA histories from January of the current year (history resets each January; early-year coverage can be insufficient). No surface, fitness, retirement or fatigue model. Scheduled times can move. Historical results are not a verified backtest.'}
+            'schedule_window_uk': [schedule_days[0][0].isoformat(), schedule_days[-1][0].isoformat()],
+            'schedule_days_requested': 7, 'schedule_coverage': 'SOURCE_OBSERVED_NOT_COMPLETE_EXTERNAL_COVERAGE',
+            'schedule_conflicts': conflicts,
+            'limitations': 'Seven UK calendar days requested from existing daily ATP/WTA scoreboards; future draws and confirmed participants may not yet be published. Conflicting repeated schedule observations are withheld. Fixed Elo baseline, separate ATP/WTA histories from January of the current year (history resets each January; early-year coverage can be insufficient). No surface, fitness, retirement or fatigue model. Scheduled times can move. Historical results are not a verified backtest.'}
 
 def validate_nfl_coverage(rows, previous_year):
     previous = unique([r for r in rows if r.get('season') == previous_year])

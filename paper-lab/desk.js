@@ -115,16 +115,20 @@
     const estimates = details(article, 'Experimental model details', 'model-details');
     const modelPanel = make(estimates, 'div');
     const notes = details(article, 'Private notes', 'model-details'), notesPanel = make(notes, 'div');
+    const matchView = details(article, '2D match overview', 'match-overview'); const matchPanel = make(matchView, 'div');
+    matchView.addEventListener('toggle', () => { if (matchView.open) renderMatchOverview(matchPanel, store.get().events.find(event => event.id === id)); });
     const evidence = details(article, 'Statistics & evidence');
     const tabs = make(evidence, 'div', undefined, 'stats-tabs'), panel = make(evidence, 'div', undefined, 'stats-panel'), buttons = new Map();
     tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'Event statistics'); panel.setAttribute('aria-live', 'polite');
     for (const [tab, label] of [['h2h', 'H2H'], ['recent', 'Recent form'], ['rankings', 'Rankings'], ['sources', 'Sources']]) {
       const b = button(tabs, label, () => loadStats(id, tab, panel, buttons)); b.dataset.statsTab = tab; b.setAttribute('aria-pressed', 'false'); buttons.set(tab, b);
     }
-    evidence.addEventListener('toggle', () => { if (evidence.open && (!panel.dataset.loaded || panel.dataset.pending === 'true')) safely(() => loadStats(id, 'h2h', panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
-    return { node: article, meta, time, title, status, conditions, market, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, choices: new Map(), structural: '' };
+    evidence.addEventListener('toggle', () => { if (evidence.open && (!panel.dataset.loaded || panel.dataset.pending === 'true')) safely(() => loadStats(id, preferredStats(store.get().events.find(event => event.id === id)), panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
+    return { node: article, meta, time, title, status, conditions, market, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
   }
+  function preferredStats(event) { return event?.stats?.h2h ? 'h2h' : Array.isArray(event?.stats?.recent) && event.stats.recent.length ? 'recent' : event?.stats?.rankings ? 'rankings' : 'sources'; }
   function patchCard(record, event) {
+    for (const [tab, button] of record.buttons) { const available = tab === 'sources' || (tab === 'recent' ? Array.isArray(event.stats?.recent) && event.stats.recent.length > 0 : Boolean(event.stats?.[tab])); button.disabled = !available; button.title = available ? '' : 'Not supplied by the connected feed for this event'; }
     const state = store.get(), status = E.statusOf(event), selected = state.plan.slots[state.slot].legs;
     write(record.meta, symbols[event.sport] + ' ' + event.competition); write(record.time, dateText(event.startUTC)); record.time.dateTime = event.startUTC; write(record.title, event.name);
     write(record.status, status.label); record.status.className = 'event-status ' + (status.selectable ? 'is-current' : status.code === 'STARTED' ? '' : 'is-warning');
@@ -135,7 +139,7 @@
       if (status.code === 'STARTED') make(record.market, 'span', event.score?.label ? 'Recorded final: ' + event.score.label : 'Event has started or finished · additions closed', 'archived-status');
       else {
         const shown = event.sport === 'racing' && event.choices.length > 6 ? event.choices.slice(0, 5) : event.choices;
-        const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'); record.choices.set(choice.id, { element: b, name, price, caption, previous: null }); };
+        const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), odds = make(b, 'small', '', 'selection-odds'); record.choices.set(choice.id, { element: b, name, price, caption, odds, previous: null }); };
         for (const choice of shown) append(record.market, choice);
         if (shown.length < event.choices.length) { const rest = details(record.market, 'Show all ' + event.choices.length + ' runners', 'runner-disclosure'); const grid = make(rest, 'div', undefined, 'market-grid'); for (const choice of event.choices.slice(shown.length)) append(grid, choice); }
       }
@@ -143,13 +147,16 @@
     for (const choice of event.choices) {
       const view = record.choices.get(choice.id); if (!view) continue;
       const chosen = selected.some(leg => leg.eventId === event.id && leg.choiceId === choice.id), priced = typeof choice.quote?.decimal === 'number';
-      const value = priced ? choice.quote.decimal.toFixed(2) : 'Unpriced';
-      write(view.price, value); write(view.caption, chosen ? 'IN THIS SLIP' : priced ? 'SOURCE PRICE · UNVERIFIED' : 'PAPER HYPOTHESIS');
+      const estimated = event.model && typeof choice.probability === 'number';
+      const value = estimated ? pct(choice.probability) : priced ? choice.quote.decimal.toFixed(2) : 'No estimate';
+      write(view.price, value); write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (estimated ? 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
+      write(view.odds, priced ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker odds not connected');
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
       view.element.setAttribute('aria-label', choice.label + ' · ' + value + ' · ' + (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name);
       if (priced && view.previous !== null && view.previous !== choice.quote.decimal) { view.element.classList.remove('odds-up', 'odds-down'); view.element.classList.add(choice.quote.decimal > view.previous ? 'odds-up' : 'odds-down'); }
       view.previous = priced ? choice.quote.decimal : null;
     }
+    if (record.matchView.open) renderMatchOverview(record.matchPanel, event);
     const notes = state.claims.filter(note => note.eventId === event.id);
     record.notes.hidden = !notes.length;
     const noteSignature = JSON.stringify(notes);
@@ -194,19 +201,38 @@
       } else empty(panel, tab === 'rankings' ? 'Rankings not supplied' : tab === 'h2h' ? 'No sourced H2H record' : 'Recent form unavailable', 'This feed does not contain the records needed for this view. No statistics have been inferred.');
     } catch (error) { if (error.name !== 'AbortError' && !controller.signal.aborted) { panel.replaceChildren(); make(panel, 'p', 'Statistics unavailable. Your event and selections are preserved.', 'warning-line'); } }
   }
+  function renderMatchOverview(panel, event) {
+    if (!event) return;
+    const signature = JSON.stringify([event.id, event.score, E.statusOf(event).code, event.observedAt]);
+    if (panel.dataset.signature === signature) return; panel.dataset.signature = signature; panel.replaceChildren();
+    make(panel, 'p', event.participants.map(item => item.name).join(' vs '), 'match-participants');
+    const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg'); svg.setAttribute('viewBox', '0 0 600 260'); svg.setAttribute('class', 'sport-diagram'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', sports[event.sport] + ' schematic. No player, ball or runner positions are available.');
+    const draw = (tag, attributes) => { const node = document.createElementNS(ns, tag); for (const [key, value] of Object.entries(attributes)) node.setAttribute(key, value); svg.append(node); return node; };
+    draw('rect', { x: 20, y: 20, width: 560, height: 220, rx: event.sport === 'racing' ? 100 : 2, fill: '#142c29', stroke: '#8db6a4', 'stroke-width': 2 });
+    if (event.sport === 'football') { draw('line', {x1:300,y1:20,x2:300,y2:240,stroke:'#8db6a4'}); draw('circle',{cx:300,cy:130,r:35,fill:'none',stroke:'#8db6a4'}); for (const x of [20,510]) draw('rect',{x,y:75,width:70,height:110,fill:'none',stroke:'#8db6a4'}); }
+    if (event.sport === 'tennis') { draw('line',{x1:300,y1:20,x2:300,y2:240,stroke:'#edf3fc','stroke-width':3}); for (const y of [48,212]) draw('line',{x1:20,y1:y,x2:580,y2:y,stroke:'#8db6a4'}); for (const x of [165,435]) draw('line',{x1:x,y1:48,x2:x,y2:212,stroke:'#8db6a4'}); draw('line',{x1:165,y1:130,x2:435,y2:130,stroke:'#8db6a4'}); }
+    if (event.sport === 'nfl') for(let x=70;x<580;x+=46) draw('line',{x1:x,y1:20,x2:x,y2:240,stroke:'#8db6a4','stroke-dasharray':'5 5'});
+    if (event.sport === 'racing') { draw('rect',{x:60,y:60,width:480,height:140,rx:70,fill:'none',stroke:'#8db6a4'}); draw('line',{x1:300,y1:20,x2:300,y2:60,stroke:'#edf3fc','stroke-width':4}); }
+    panel.append(svg);
+    make(panel, 'strong', event.score?.label ? 'Source-backed final · ' + event.score.label : 'Scheduled ' + dateText(event.startUTC) + ' · score not supplied', 'match-score');
+    make(panel, 'p', '2D schematic only. Live action and positions are not connected. Snapshot observed ' + dateText(event.observedAt) + '.', 'small');
+    if (event.score) provenance(panel, event.score.sources);
+  }
   function renderEvents() {
     const state = store.get(), rows = filtered(state), visible = rows.slice(0, state.limit), root = $('events'); root.setAttribute('aria-busy', 'false');
     if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more').forEach(element => element.remove());
     S.reconcile(root, visible.map(event => event.id), cards, createCard, (record, id) => patchCard(record, visible.find(event => event.id === id)));
     if (!visible.length) { const box = empty(root, state.snapshotState?.status === 'unavailable' ? 'Research sources unavailable' : 'No events match this view', 'Try another sport or a wider date range. Saved research remains available; no events are invented to fill the board.', { label: 'Show next 14 days', run: () => preset('14') }); box.classList.add('event-empty'); }
     if (rows.length > visible.length) button(root, 'Show more events (' + (rows.length - visible.length) + ')', () => store.update(state => ({ ...state, limit: state.limit + 24 })), 'button button-secondary load-more');
-    write($('event-summary'), rows.length + ' ' + (state.eventView === 'upcoming' ? 'upcoming' : 'recorded') + ' events · ' + state.plan.from + ' → ' + state.plan.to + ' · UK time');
+    write($('coverage-summary'), rows.length + ' matching your filters · ' + state.events.length + ' total loaded records across all dates. Coverage is incomplete; zero means no matching records in these feeds.');
+    write($('event-summary'), rows.length + ' ' + (state.eventView === 'upcoming' ? 'upcoming' : 'recorded') + ' event' + (rows.length === 1 ? '' : 's') + ' · ' + state.plan.from + ' → ' + state.plan.to + ' · UK time');
   }
   function renderNavigation() {
     const state = store.get(); $('sport').value = state.sport;
     document.querySelectorAll('[data-sport]').forEach(element => { const active = element.dataset.sport === state.sport; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
-    document.querySelectorAll('[data-count]').forEach(element => write(element, state.events.filter(event => (element.dataset.count === 'all' || event.sport === element.dataset.count) && day(event.startUTC) >= state.plan.from && day(event.startUTC) <= state.plan.to && Date.parse(event.startUTC) > Date.now() + 300000).length));
-    const competitions = [...new Set(state.events.filter(event => state.sport === 'all' || state.sport === event.sport).map(event => event.competition))].sort(), signature = JSON.stringify(competitions);
+    document.querySelectorAll('[data-count]').forEach(element => write(element, filtered({ ...state, sport: element.dataset.count }).length));
+    const competitions = [...new Set(filtered({ ...state, competition: 'all' }).map(event => event.competition))].sort(), signature = JSON.stringify(competitions);
+    if (state.competition !== 'all' && !competitions.includes(state.competition)) store.update(current => ({ ...current, competition: 'all', limit: 24 }));
     if ($('competition').dataset.signature !== signature) {
       $('competition').dataset.signature = signature; $('competition').replaceChildren(); const all = make($('competition'), 'option', 'All competitions'); all.value = 'all';
       for (const name of competitions) { const option = make($('competition'), 'option', name); option.value = name; }
@@ -217,7 +243,7 @@
   }
   let trackerSignature = '';
   function renderTracker() {
-    const rows = filtered(store.get(), true), signature = JSON.stringify(rows.map(event => [event.id, event.score, E.statusOf(event).code])); if (signature === trackerSignature) return; trackerSignature = signature;
+    const rows = filtered(store.get()), signature = JSON.stringify(rows.map(event => [event.id, event.score, E.statusOf(event).code])); if (signature === trackerSignature) return; trackerSignature = signature;
     const root = $('tracker'), opened = new Set([...root.querySelectorAll('details[open]')].map(element => element.dataset.key)); root.replaceChildren();
     for (const sport of Object.keys(sports).filter(name => name !== 'all')) {
       const matches = rows.filter(event => event.sport === sport); if (!matches.length) continue;
@@ -237,13 +263,14 @@
     root.querySelectorAll('details').forEach(element => { element.open = opened.has(element.dataset.key); });
   }
   function patchLeg(record, leg, position, slot) {
-    const signature = JSON.stringify([leg, position, slot.id, slot.legs.length, store.get().replacing, store.get().claims], (key, value) => key === 'ageMs' ? undefined : value); if (record.signature === signature) return;
+    const signature = JSON.stringify([leg, position, slot.id, slot.legs.length, store.get().replacing, store.get().claims, store.get().plan.from, store.get().plan.to], (key, value) => key === 'ageMs' ? undefined : value); if (record.signature === signature) return;
     const opened = record.node.querySelector('details')?.open; record.signature = signature; record.node.replaceChildren();
     const top = make(record.node, 'div', undefined, 'slip-selection-top'); make(top, 'strong', leg.label);
     button(top, '×', () => savePlan(E.removeSelection(store.get().plan, slot.id, leg.id)), 'remove-button').setAttribute('aria-label', 'Remove ' + leg.label);
     make(record.node, 'p', symbols[leg.sport] + ' ' + leg.event, 'slip-selection-meta'); make(record.node, 'p', dateText(leg.startUTC) + ' · ' + leg.market, 'slip-selection-meta');
     const state = E.statusOf(store.get().events.find(event => event.id === leg.eventId));
-    make(record.node, 'span', !leg.currentStatus?.selectable ? leg.currentStatus?.label || state.label : leg.quote?.decimal ? leg.quote.decimal.toFixed(2) + ' · unverified source price' : 'Unpriced · paper hypothesis', 'leg-state' + (!leg.currentStatus?.selectable ? ' is-warning' : ''));
+    make(record.node, 'span', !leg.currentStatus?.selectable ? leg.currentStatus?.label || state.label : leg.quote?.decimal ? leg.quote.decimal.toFixed(2) + ' · unverified source price' : (typeof leg.probability === 'number' ? pct(leg.probability) + ' model win estimate · UNVALIDATED · odds not connected' : 'No model estimate · odds not connected'), 'leg-state' + (!leg.currentStatus?.selectable ? ' is-warning' : ''));
+    if (day(leg.startUTC) < store.get().plan.from || day(leg.startUTC) > store.get().plan.to) make(record.node, 'p', 'Outside your selected dates · original selection retained', 'warning-line');
     const actions = make(record.node, 'div', undefined, 'selection-actions');
     const up = button(actions, '↑', () => savePlan(E.moveSelection(store.get().plan, slot.id, leg.id, position - 1)), 'move-button'); up.disabled = position === 0; up.setAttribute('aria-label', 'Move ' + leg.label + ' up');
     const down = button(actions, '↓', () => savePlan(E.moveSelection(store.get().plan, slot.id, leg.id, position + 1)), 'move-button'); down.disabled = position === slot.legs.length - 1; down.setAttribute('aria-label', 'Move ' + leg.label + ' down');
@@ -271,7 +298,7 @@
     write($('slip-title'), slot.name); write($('slip-subtitle'), slot.description); write($('slip-count'), slot.legs.length + ' / 15'); write($('mobile-count'), state.plan.slots.reduce((sum, slot) => sum + slot.legs.length, 0));
     document.querySelectorAll('[data-slot]').forEach(element => { const active = Number(element.dataset.slot) === state.slot + 1; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
     if (document.activeElement !== $('stake')) $('stake').value = slot.stakeMinor ? (slot.stakeMinor / 100).toFixed(2) : ''; $('slip-structure').value = slot.structure;
-    const signature = JSON.stringify([state.slot, evaluation, state.replacing, state.claims], (key, value) => key === 'ageMs' ? undefined : value); if (slipSignature === signature) return; slipSignature = signature;
+    const signature = JSON.stringify([state.slot, evaluation, state.replacing, state.claims, state.plan.from, state.plan.to], (key, value) => key === 'ageMs' ? undefined : value); if (slipSignature === signature) return; slipSignature = signature;
     const root = $('slip-content'); if (!legs.size) root.replaceChildren(); root.querySelectorAll('.slip-empty, .generation-note').forEach(element => element.remove());
     S.reconcile(root, evaluation.legs.map(leg => leg.id), legs, id => { const row = make(null, 'article', undefined, 'slip-selection'); row.dataset.legId = id; return { node: row, signature: '' }; }, (record, id) => { const position = evaluation.legs.findIndex(leg => leg.id === id); patchLeg(record, evaluation.legs[position], position, slot); });
     if (!slot.legs.length) empty(root, 'Your perspective starts here.', 'Choose an outcome or build a research shortlist. Empty slips are valid.').classList.add('slip-empty');
@@ -394,7 +421,7 @@
     for (const spec of specs) { const file = new URL(spec.path, rootURL).pathname.split('/').pop(), snapshot = result.snapshots.find(item => item.path === spec.path), error = result.errors.find(item => item.path === spec.path), row = make($('feeds'), 'div', undefined, 'source-row'); make(row, 'strong', sources[file][1], 'source-name'); make(row, 'span', error ? error.retained ? 'Refresh failed · last good snapshot retained' : 'Unavailable' : 'Snapshot ' + dateText(snapshot?.document.generated_at_utc), 'source-status'); const technical = details(row, 'Technical details', 'source-debug'); make(technical, 'code', file); if (snapshot) make(technical, 'p', snapshot.document.generated_at_utc, 'small'); if (error) make(technical, 'p', error.message, 'warning-line'); }
     write($('source-summary'), result.errors.length ? 'Sources · ' + result.errors.length + ' need attention' : 'Sources · ' + result.snapshots.length + ' snapshots');
   }
-  const transport = ResearchTransport.createSnapshotClient({ fetch: window.fetch.bind(window), onStatus(status) { $('refresh').disabled = status.status === 'loading'; $('events').setAttribute('aria-busy', String(status.status === 'loading' && !store.get().events.length)); }, onUpdate(result) { safely(() => { const events = E.normalizeFeeds(result.snapshots); store.update(state => ({ ...state, events, eventVersion: state.eventVersion + 1, snapshotState: result })); renderSources(result); notice((result.errors.length ? 'Some sources need attention · ' : '') + events.filter(event => E.statusOf(event).selectable).length + ' events available for paper research · checked ' + dateText(result.checkedAt)); }); } });
+  const transport = ResearchTransport.createSnapshotClient({ fetch: window.fetch.bind(window), onStatus(status) { $('refresh').disabled = status.status === 'loading'; $('events').setAttribute('aria-busy', String(status.status === 'loading' && !store.get().events.length)); }, onUpdate(result) { safely(() => { const events = E.normalizeFeeds(result.snapshots); store.update(state => ({ ...state, events, eventVersion: state.eventVersion + 1, snapshotState: result })); renderSources(result); notice((result.errors.length ? 'Some sources need attention · ' : '') + events.length + ' total records loaded across all dates · snapshot files checked ' + dateText(result.checkedAt)); }); } });
   const refresh = () => { lastRefresh = Date.now(); return transport.refresh(specs); };
   let opener = null;
   function openSlip() { opener = document.activeElement; document.body.classList.add('paper-open'); $('paper-backdrop').hidden = false; $('paper-open').setAttribute('aria-expanded', 'true'); $('slip-panel').setAttribute('aria-modal', 'true'); $('slip-panel').setAttribute('role', 'dialog'); $('paper-close').focus(); }

@@ -67,3 +67,11 @@ This is tested research software, not a guarantee of flawless behavior or a demo
 ### Integration limits checked for this release
 
 Sofascore officially offers free iframe widgets (https://corporate.sofascore.com/widgets), but its public API FAQ says data endpoints are not supplied (https://sofascore.helpscoutdocs.com/article/129-sports-data-api-availability). Event-specific approved embed URLs and identity mappings have not yet been verified for this feed. No speculative iframe, 2D player animation or horse-position tracking is enabled. Exact sourced Sofascore links can be displayed if supplied by event receipts. Oddschecker is an external price-check destination, not a connected automatic feed. Player pop-ups remain unavailable because sourced appearance/baseline records are missing. Existing H2H and recent-form tabs display only supplied records. Automatic market settlement is not connected; manual paper bookkeeping does not change model validation or publication gates. Storage remains browser-local; no cross-device sync or account statements are published.
+
+## 3.2 clarity correction
+
+Restores model win percentages directly on outcome buttons at the user's request; model estimates are labelled UNVALIDATED and bookmaker prices remain a separate line. A missing price no longer replaces a supplied probability. Current slip selections show the captured model estimate when no price exists.
+
+Competition choices, sidebar counts and the event tracker now follow the selected dates, search, sport and event-status filters. A competition unavailable after a range change resets to All competitions. Coverage text distinguishes matching events from all loaded records. Captured selections outside the current date range carry an inline warning and remain intact.
+
+The expandable 2D match overview draws a sport-specific pitch, tennis court, NFL field or racing-track schematic with actual supplied participant names, schedule and source-backed final scores where present. It explicitly does not animate players/balls/runners or claim a live tracking connection. No guessed Sofascore match identity is used. Official live widget integration remains blocked on verified embed mapping and delivery, rather than represented by a fake live display.

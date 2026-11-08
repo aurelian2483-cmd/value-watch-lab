@@ -98,4 +98,108 @@ class CollectionIntegrity(unittest.TestCase):
             c['competitors'][0]['score'] = score
             self.assertIsNone(m.final(c, 'team'))
 
+class TennisScheduleCoverage(unittest.TestCase):
+    """Synthetic schedule payloads test the real collector without network access."""
+    def setUp(self):
+        self.now = m.datetime(2026, 11, 8, 10, 0, tzinfo=m.timezone.utc)
+        self.history = [{'id': str(i), 'date': '2026-01-02T12:00:00Z', 'a': 'a', 'b': 'b', 'result': 1.0} for i in range(100)]
+        self.ratings, self.counts = m.fit(self.history)
+
+    def competition(self, identifier='match', days=1, **updates):
+        return {'id': identifier, 'date': m.stamp(self.now+m.timedelta(days=days)),
+                'status': {'type': {'state': 'pre'}}, 'timeValid': True,
+                'competitors': [{'id': 'a', 'type': 'athlete', 'athlete': {'displayName': 'Test Player A'}},
+                                {'id': 'b', 'type': 'athlete', 'athlete': {'displayName': 'Test Player B'}}], **updates}
+
+    def document(self, rows, tour='atp'):
+        return {'events': [{'name': 'Synthetic Test Tournament', 'groupings': [
+            {'grouping': {'slug': 'mens-singles' if tour == 'atp' else 'womens-singles'}, 'competitions': rows}]}]}
+
+    def collect(self, docs, tour='atp'):
+        with patch.object(m, 'NOW', self.now), patch.object(m, 'batch', return_value=docs) as fetch:
+            rows, rejected = m.tennis_schedule(tour, self.now, self.ratings, self.counts, self.history)
+            self.assertEqual(len(fetch.call_args.args[0]), 7, 'requests remain bounded per tour')
+            return rows, rejected
+
+    def test_paths_are_seven_uk_days_including_summer_midnight(self):
+        paths = m.tennis_schedule_paths('atp', m.datetime(2026, 6, 1, 23, 30, tzinfo=m.timezone.utc))
+        self.assertEqual(len(paths), 7)
+        self.assertEqual(paths[0][0].isoformat(), '2026-06-02')
+        self.assertEqual(paths[-1][0].isoformat(), '2026-06-08')
+        self.assertIn('dates=20260602&', paths[0][1])
+        year_end = m.tennis_schedule_paths('wta', m.datetime(2026, 12, 29, 12, tzinfo=m.timezone.utc))
+        self.assertEqual(year_end[-1][0].isoformat(), '2027-01-04')
+        with self.assertRaises(ValueError):
+            m.tennis_schedule_paths('unknown', self.now)
+
+    def test_daily_duplicates_keep_actual_source_and_original_baseline(self):
+        match = self.competition(days=3)
+        docs = [self.document([]), self.document([match]), self.document([match])]+[self.document([]) for _ in range(4)]
+        rows, conflicts = self.collect(docs)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(conflicts, [])
+        self.assertEqual(rows[0]['id'], 'atp-match')
+        self.assertEqual(rows[0]['source'], m.BASE+'tennis/atp/scoreboard?dates=20261109&limit=100')
+        self.assertEqual(rows[0]['forecast'], m.forecast(match['competitors'], self.ratings, self.counts, self.history, 'athlete'))
+
+    def test_conflicting_reschedule_is_withheld_instead_of_replaced(self):
+        docs = [self.document([self.competition('changed', 1), self.competition('safe', 2)]),
+                self.document([self.competition('changed', 3)])]+[self.document([]) for _ in range(5)]
+        rows, conflicts = self.collect(docs)
+        self.assertEqual([row['id'] for row in rows], ['atp-safe'])
+        self.assertEqual(conflicts, [{'id': 'atp-changed', 'reason': 'CONFLICTING_DAILY_SCHEDULE_OBSERVATIONS'}])
+
+    def test_cancellation_on_another_daily_page_invalidates_prior_pre_event(self):
+        docs = [self.document([self.competition()]), self.document([self.competition(status={'type': {'state': 'post'}})])]+[self.document([]) for _ in range(5)]
+        rows, conflicts = self.collect(docs)
+        self.assertEqual(rows, [])
+        self.assertEqual(conflicts[0]['id'], 'atp-match')
+
+    def test_future_draw_unknown_times_and_outside_window_are_not_invented(self):
+        unknown = self.competition('unknown')
+        unknown['competitors'][0]['athlete']['displayName'] = 'TBD'
+        doubles = self.competition('doubles')
+        doubles['competitors'][0]['type'] = 'team'
+        docs = [self.document([self.competition('outside', 7), self.competition('too-soon', date=m.stamp(self.now+m.timedelta(minutes=4))),
+                               self.competition('no-time', timeValid=False), unknown, doubles])]+[self.document([]) for _ in range(6)]
+        rows, _ = self.collect(docs)
+        self.assertEqual(rows, [])
+
+    def test_receipts_retain_original_source_collection_time(self):
+        source = m.BASE+'tennis/atp/scoreboard?dates=20261108&limit=100'
+        receipt = {'url': source, 'collected_at_utc': '2026-11-08T09:50:00Z', 'sha256': 'a'*64}
+        with patch.object(m, 'RECEIPTS', [receipt]):
+            rows, _ = self.collect([self.document([self.competition()])]+[self.document([]) for _ in range(6)])
+        self.assertEqual(rows[0]['source_collected_at_utc'], receipt['collected_at_utc'])
+        self.assertEqual(rows[0]['source_sha256'], receipt['sha256'])
+
+    def test_missing_daily_response_does_not_claim_complete_collection(self):
+        with self.assertRaisesRegex(ValueError, 'event list'):
+            self.collect([self.document([]), {}]+[self.document([]) for _ in range(5)])
+
+    def test_full_tennis_collects_both_tours_without_changing_training_window(self):
+        calls = []
+        def fake_batch(paths):
+            calls.append(paths)
+            documents = []
+            for path in paths:
+                tour = path.split('/')[1]
+                if '-' in path.split('dates=')[1].split('&')[0]:
+                    rows = [self.competition('history-'+str(i), date='2026-01-02T12:00:00Z', status={'type': {'name': 'STATUS_FINAL', 'completed': True}},
+                                             competitors=[{'id': 'a', 'type': 'athlete', 'winner': True, 'athlete': {'displayName': 'Test Player A'}},
+                                                          {'id': 'b', 'type': 'athlete', 'winner': False, 'athlete': {'displayName': 'Test Player B'}}]) for i in range(100)]
+                    documents.append(self.document(rows, tour))
+                else:
+                    documents.append(self.document([self.competition(tour+'-future', 3)], tour))
+            return documents
+        with patch.object(m, 'NOW', self.now), patch.object(m, 'batch', side_effect=fake_batch):
+            result = m.tennis()
+        self.assertEqual(result['schedule_window_uk'], ['2026-11-08', '2026-11-14'])
+        self.assertEqual(result['schedule_days_requested'], 7)
+        self.assertEqual(len(result['events']), 2)
+        self.assertEqual([len(call) for call in calls], [22, 7, 7])
+        self.assertTrue(all(event['forecast']['training_latest_start_utc'] == '2026-01-02T12:00:00Z' for event in result['events']))
+        self.assertTrue(all(event['forecast']['odds'] is None and event['forecast']['expected_value'] is None for event in result['events']))
+
+
 if __name__=='__main__':unittest.main()
