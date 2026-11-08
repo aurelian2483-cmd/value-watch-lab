@@ -1,5 +1,18 @@
 {
   "schema_version": 1,
-  "description": "Only explicitly authorised public RSS/Atom feeds. Add publisher, type (forum/blog/tipster), feed_url, enabled after validating source terms and coverage. No feeds have been verified yet.",
-  "sources": []
+  "description": "Publicly listed candidate RSS endpoints. Runtime verifies HTTPS/XML; failures are recorded. All extracted mentions remain REVIEW_REQUIRED, never automatically published as community consensus.",
+  "sources": [
+    {
+      "publisher": "Get Your Tips Out",
+      "type": "tipster",
+      "feed_url": "https://getyourtipsout.co.uk/feed",
+      "enabled": true
+    },
+    {
+      "publisher": "The Race Advisor",
+      "type": "blog",
+      "feed_url": "https://raceadvisor.co.uk/blog/feed",
+      "enabled": true
+    }
+  ]
 }
