@@ -150,7 +150,7 @@ def validate_publishable_snapshot(data):
 def write_validated_snapshot(data,target=OUT):
  """Publish only after the same validation used by the scheduled collector."""
  validate_publishable_snapshot(data)
- target.write_text(json.dumps(data,indent=2)+'\\n')
+ target.write_text(json.dumps(data,indent=2)+'\n')
  return target
 
 if __name__=='__main__':
