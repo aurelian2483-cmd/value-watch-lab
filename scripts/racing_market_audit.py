@@ -56,7 +56,7 @@ def audit_exchange(opening, latest, minimum_matched_gbp=1000):
     return {"status": "OBSERVED" if liquid else "LOW_LIQUIDITY",
             "trend": "Drifter" if delta > 0 else "Steamer" if delta < 0 else "Stable",
             "decimal_price_change_pct": round(delta, 2),
-            "drift_20pct_warning": bool(liquid and delta >= 20),
+            "drift_20pct_warning": bool(liquid and delta >= 20 - 1e-9),
             "volume_gbp": latest["matched_volume_gbp"],
             "source_urls": [opening["source_url"], latest["source_url"]],
             "note": "Price movement is not a win-probability or positive-value estimate."}
