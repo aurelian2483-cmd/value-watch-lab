@@ -6,7 +6,8 @@ import json
 import urllib.request
 from pathlib import Path
 from zoneinfo import ZoneInfo
-from discover_horse_races import discover
+from discover_horse_races import discover, PageData
+from collections import Counter
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'racing-future-data.json'
@@ -32,13 +33,16 @@ def collect(fetch=None, now=None):
    if digest in response_hashes:
     raise ValueError('Identical response to '+response_hashes[digest]+'; date selector ignored by source')
    response_hashes[digest]=date.isoformat()
+   parser=PageData();parser.feed(raw.decode('utf-8'))
+   props=json.loads(''.join(parser.parts))['props']['pageProps']
+   source_dates=Counter(str(m.get('meeting_summary',{}).get('date','UNKNOWN')) for m in props.get('meetings',[]))
    parsed=discover(raw,now,target_date=date)
    rows=parsed['races']
    for race in rows:
     if race['race_id'] in seen:raise ValueError('Duplicate race ID across dates')
     seen.add(race['race_id'])
     records.append({**{k:race[k] for k in ('race_id','racecourse','name','startUTC','source','source_link_type','source_runner_count','observedAtUTC','verification')}, 'venue':race['racecourse'], 'race_name':race['name'], 'scheduled_start_time_utc':race['startUTC'], 'source_url':race['source'], 'observation_timestamp_utc':race['observedAtUTC'], 'declaration_stage':'NOT_VERIFIED', 'runners':[]})
-   days.append({'date':date.isoformat(),'status':'SOURCE_OBSERVED' if rows else 'NO_MATCHING_RACES_OBSERVED','count':len(rows),'url':url,'sha256':digest})
+   days.append({'date':date.isoformat(),'status':'SOURCE_OBSERVED' if rows else 'NO_MATCHING_RACES_OBSERVED','count':len(rows),'url':url,'sha256':digest,'source_meeting_dates':dict(source_dates),'source_meeting_count':len(props.get('meetings',[]))})
   except Exception as exc:
    days.append({'date':date.isoformat(),'status':'COLLECTION_FAILED','count':0,'url':url,'error':str(exc)[:240]})
  return {'schema_version':1,'kind':'FUTURE_RACING_SCHEDULE_RESEARCH','generated_at_utc':now.isoformat(),'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','coverage_verified':False,'days':days,'races':records,'limitations':['Future races are source-observed schedules, not verified declarations, odds or predictions.','Missing source coverage does not mean no scheduled races.']}
