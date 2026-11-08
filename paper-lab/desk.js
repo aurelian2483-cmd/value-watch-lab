@@ -763,7 +763,7 @@
         }
       }
       renderSources(result); notice((result.errors.length ? 'Some sources need attention · ' : '') + events.length + ' total records loaded across all dates · snapshot files checked ' + dateText(result.checkedAt)); }); } });
-  const refresh = async () => { lastRefresh = Date.now(); await refreshCommunity(); return transport.refresh(specs); };
+  const refresh = async () => { lastRefresh = Date.now(); await Promise.all([refreshCommunity(),refreshTournamentCoverage()]); return transport.refresh(specs); };
   let opener = null;
   function openSlip() { opener = document.activeElement; document.body.classList.add('paper-open'); $('paper-backdrop').hidden = false; $('paper-open').setAttribute('aria-expanded', 'true'); $('slip-panel').setAttribute('aria-modal', 'true'); $('slip-panel').setAttribute('role', 'dialog'); $('paper-close').focus(); }
   function closeSlip() { document.body.classList.remove('paper-open'); $('paper-backdrop').hidden = true; $('paper-open').setAttribute('aria-expanded', 'false'); $('slip-panel').removeAttribute('aria-modal'); $('slip-panel').removeAttribute('role'); opener?.focus(); }
