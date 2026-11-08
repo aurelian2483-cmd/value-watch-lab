@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Best-effort public RSS collection. Enabled indicates an attempted endpoint, NOT verified availability or tip coverage. X/Twitter needs an authorized API or other permitted feed and is not automatically connected.",
+  "description": "Only previously fetched public RSS feeds are enabled. Blocked, missing, malformed or rate-limited feeds are disabled; no bypass. Enabled does not imply useful selection coverage.",
   "sources": [
     {
       "publisher": "Get Your Tips Out",
@@ -76,9 +76,10 @@
       "publisher": "The Racing Forum",
       "type": "forum",
       "feed_url": "https://www.theracingforum.co.uk/forums/-/index.rss",
-      "enabled": true,
-      "validation_status": "CANDIDATE_UNVERIFIED",
-      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+      "enabled": false,
+      "validation_status": "FAILED_LIVE_PROBE",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
+      "disabled_reason": "HTTP 403; public RSS blocked"
     },
     {
       "publisher": "Fat Jockey",
@@ -92,33 +93,37 @@
       "publisher": "The UK Betting Forum",
       "type": "forum",
       "feed_url": "https://www.theukbettingforum.co.uk/forums/-/index.rss",
-      "enabled": true,
-      "validation_status": "CANDIDATE_UNVERIFIED",
-      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+      "enabled": false,
+      "validation_status": "FAILED_LIVE_PROBE",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
+      "disabled_reason": "HTTP 404; candidate RSS endpoint missing"
     },
     {
       "publisher": "Betfair Community Horse Racing",
       "type": "forum",
       "feed_url": "https://community.betfair.com/horse_racing/rss",
-      "enabled": true,
-      "validation_status": "CANDIDATE_UNVERIFIED",
-      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+      "enabled": false,
+      "validation_status": "FAILED_LIVE_PROBE",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
+      "disabled_reason": "HTTP 403; public RSS blocked"
     },
     {
       "publisher": "Punters Lounge Forum",
       "type": "forum",
       "feed_url": "https://forum.punterslounge.com/forums/-/index.rss",
-      "enabled": true,
-      "validation_status": "CANDIDATE_UNVERIFIED",
-      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+      "enabled": false,
+      "validation_status": "FAILED_LIVE_PROBE",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
+      "disabled_reason": "HTTP 403; public RSS blocked"
     },
     {
       "publisher": "OLBG Racing Community",
       "type": "forum",
       "feed_url": "https://www.olbg.com/forum/feed",
-      "enabled": true,
-      "validation_status": "CANDIDATE_UNVERIFIED",
-      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+      "enabled": false,
+      "validation_status": "FAILED_LIVE_PROBE",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
+      "disabled_reason": "Response is not XML RSS/Atom"
     },
     {
       "publisher": "Reddit HorseRacingUK",
@@ -132,9 +137,10 @@
       "publisher": "Reddit horseracing",
       "type": "forum",
       "feed_url": "https://www.reddit.com/r/horseracing/new/.rss",
-      "enabled": true,
-      "validation_status": "CANDIDATE_UNVERIFIED",
-      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence."
+      "enabled": false,
+      "validation_status": "FAILED_LIVE_PROBE",
+      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
+      "disabled_reason": "HTTP 429 rate-limited; pause until approved access or longer cooldown"
     }
   ]
 }
