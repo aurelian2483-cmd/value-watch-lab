@@ -194,10 +194,16 @@
       const racingPick = event.sport === 'racing' ? racingPicks.find(pick => pick.choice.id === choice.id) : null;
       view.modelBadge.hidden = !leader && !racingPick;
       write(view.modelBadge, racingPick ? racingPick.labels.join(' + ').toUpperCase() : leader?.rank === 1 ? 'MODEL FIRST CHOICE' : 'MODEL ALTERNATIVE');
-      view.element.style.outline = racingPick ? '2px solid #b8ee79' : '';
-      view.element.style.outlineOffset = racingPick ? '-2px' : '';
-      view.element.style.background = racingPick ? '#203b36' : '';
-      view.element.style.color = racingPick ? '#f4ffe8' : '';
+      // Explicit high-contrast styling survives disabled-button and mobile theme rules.
+      view.element.classList.toggle('is-racing-highlight', Boolean(racingPick));
+      view.element.style.setProperty('border', racingPick ? '3px solid #b8ee79' : '', racingPick ? 'important' : '');
+      view.element.style.setProperty('background-color', racingPick ? '#203b36' : '', racingPick ? 'important' : '');
+      view.element.style.setProperty('color', racingPick ? '#f4ffe8' : '', racingPick ? 'important' : '');
+      view.element.style.setProperty('opacity', racingPick ? '1' : '', racingPick ? 'important' : '');
+      view.name.textContent = racingPick ? '★ ' + choice.label : choice.label;
+      view.name.style.setProperty('color', racingPick ? '#e1ffae' : '', racingPick ? 'important' : '');
+      view.modelBadge.style.setProperty('display', racingPick ? 'block' : '', racingPick ? 'important' : '');
+      view.modelBadge.style.setProperty('color', racingPick ? '#e1ffae' : '', racingPick ? 'important' : '');
       view.element.classList.toggle('is-model-first', leader?.rank === 1); view.element.classList.toggle('is-model-alternative', leader?.rank === 2);
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
       view.element.setAttribute('aria-label', choice.label + ' · ' + (leader ? leader.rank === 1 ? 'model first choice · ' : 'model alternative · ' : '') + value + (contextWeight ? ' context weight' : estimated ? ' model estimate' : ' source odds') + ' · ' + (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name);
