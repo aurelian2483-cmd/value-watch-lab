@@ -1,0 +1,44 @@
+name: Free racing providers - isolated verification
+on:
+  pull_request:
+    paths:
+      - 'scripts/fixture_calendar.py'
+      - 'scripts/free_racing_sources.py'
+      - 'scripts/atr_calendar.py'
+      - 'scripts/diagnose_free_racing.py'
+      - 'tests/test_atr_calendar.py'
+      - 'scripts/collect_future_racing.py'
+      - 'tests/test_fixture_calendar.py'
+      - 'tests/test_free_racing_sources.py'
+      - '.github/workflows/free-racing-provider-test.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax checks
+        run: python -m py_compile scripts/fixture_calendar.py scripts/free_racing_sources.py scripts/atr_calendar.py scripts/collect_future_racing.py
+      - name: Fixture and fallback tests
+        run: python -m unittest discover -s tests -p 'test_*racing_sources.py' -v && python -m unittest discover -s tests -p 'test_fixture_calendar.py' -v
+      - run: python -m unittest discover -s tests -p 'test_atr_calendar.py' -v
+      - name: Inspect live provider HTML structure (no publishing)
+        run: python scripts/diagnose_free_racing.py
+      - name: Read-only provider diagnostics (no publishing)
+        run: |
+          PYTHONPATH=scripts python - <<'PY'
+          import datetime as dt,json
+          from zoneinfo import ZoneInfo
+          from free_racing_sources import collect_free
+          now=dt.datetime.now(dt.timezone.utc)
+          today=now.astimezone(ZoneInfo('Europe/London')).date()
+          dates=[(today+dt.timedelta(days=i)).isoformat() for i in range(1,8)]
+          result=collect_free(dates,now)
+          print(json.dumps({'dates':dates,'status':result['status'],'provider_results':result['provider_results'],'observed_meetings':result['meetings'][:20],'meeting_count':len(result['meetings'])},indent=2))
+          PY

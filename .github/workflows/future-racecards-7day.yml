@@ -4,6 +4,10 @@ on:
     branches: [main]
     paths:
       - 'scripts/collect_future_racing.py'
+      - 'scripts/fixture_calendar.py'
+      - 'scripts/free_racing_sources.py'
+      - 'tests/test_free_racing_sources.py'
+      - 'tests/test_fixture_calendar.py'
       - 'tests/test_future_racing_collector.py'
       - '.github/workflows/future-racecards-7day.yml'
   schedule:
@@ -24,8 +28,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m py_compile scripts/collect_future_racing.py scripts/discover_horse_races.py
+      - run: python -m py_compile scripts/collect_future_racing.py scripts/discover_horse_races.py scripts/fixture_calendar.py scripts/free_racing_sources.py
       - run: python -m unittest discover -s tests -p 'test_future_racing_collector.py'
+      - run: python -m unittest discover -s tests -p 'test_fixture_calendar.py'
+      - run: python -m unittest discover -s tests -p 'test_free_racing_sources.py'
       - name: Collect date-specific future racing
         env:
           HORSE_RACING_API_KEY: ${{ secrets.HORSE_RACING_API_KEY }}
@@ -39,6 +45,16 @@ jobs:
           assert d['publication_gate']=='BLOCKED' and d['model_validation']=='UNVALIDATED'
           assert len(d['days'])==7
           assert all(r['verification']=='SINGLE_SOURCE_UNVERIFIED' for r in d['races'])
+          fixtures=d.get('fixture_meetings',[])
+          assert isinstance(fixtures,list)
+          assert all(m['record_type']=='MEETING_FIXTURE' for m in fixtures)
+          assert all(m['race_times_status']=='NOT_SUPPLIED' and m['declarations_status']=='NOT_VERIFIED' for m in fixtures)
+          assert all('startUTC' not in m and 'runners' not in m and 'odds' not in m for m in fixtures)
+          assert all(m['date'] in {day['date'] for day in d['days']} for m in fixtures)
+          assert d.get('fixture_source_status') in ('SOURCE_OBSERVED','NO_VERIFIED_FIXTURE_SOURCE')
+          assert d['races'] or fixtures, 'Refuse to publish a source-empty snapshot'
+          print('Observed meeting fixtures (not races):',len(fixtures))
+          print('Fixture source status:',d['fixture_source_status'])
           print('Observed future races:',len(d['races']))
           print('Day statuses:',[(x['date'],x['status'],x['count']) for x in d['days']])
           PY

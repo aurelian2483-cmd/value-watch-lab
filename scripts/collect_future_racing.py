@@ -4,11 +4,14 @@ import datetime as dt
 import hashlib
 import json
 import os
+import tempfile
 import urllib.request
 from pathlib import Path
+from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 from discover_horse_races import discover, PageData
 from collections import Counter
+from free_racing_sources import collect_free
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'racing-future-data.json'
@@ -100,13 +103,86 @@ def collect_api(now=None, fetch_json=None):
    'Date-specific API source observations are not independent verification of declarations or odds.',
    'Provider plan may not cover all seven future days. Missing coverage must not be represented as no races.']}
 
+def validate_publishable_snapshot(data):
+ """Fail closed before overwriting the existing research snapshot."""
+ if data.get('schema_version')!=1 or data.get('research_only') is not True:
+  raise ValueError('Invalid research schema')
+ if data.get('publication_gate')!='BLOCKED' or data.get('model_validation')!='UNVALIDATED':
+  raise ValueError('Research safety gates are missing')
+ days=data.get('days')
+ if not isinstance(days,list) or len(days)!=7:
+  raise ValueError('Seven date-scoped collection results required')
+ dates=[day.get('date') for day in days if isinstance(day,dict)]
+ if len(set(dates))!=7 or any(not isinstance(day,str) for day in dates):
+  raise ValueError('Invalid or duplicate coverage dates')
+ try:
+  parsed_dates=[dt.date.fromisoformat(day) for day in dates]
+ except ValueError as exc:
+  raise ValueError('Invalid calendar date in coverage') from exc
+ if parsed_dates!=[parsed_dates[0]+dt.timedelta(days=i) for i in range(7)]:
+  raise ValueError('Coverage must contain seven consecutive dates')
+ races=data.get('races')
+ fixtures=data.get('fixture_meetings')
+ if not isinstance(races,list) or not isinstance(fixtures,list) or not (races or fixtures):
+  raise ValueError('Refusing to replace snapshot with no observed records')
+ if fixtures and data.get('fixture_source_status')!='SOURCE_OBSERVED':
+  raise ValueError('Fixture records require observed source status')
+ for race in races:
+  if not isinstance(race,dict) or race.get('verification')!='SINGLE_SOURCE_UNVERIFIED':
+   raise ValueError('Race provenance invalid')
+ for meeting in fixtures:
+  if not isinstance(meeting,dict) or meeting.get('date') not in dates:
+   raise ValueError('Fixture date outside collection window')
+  if meeting.get('record_type')!='MEETING_FIXTURE' or meeting.get('race_times_status')!='NOT_SUPPLIED' or meeting.get('declarations_status')!='NOT_VERIFIED':
+   raise ValueError('Fixture status invalid')
+  source=meeting.get('source_url')
+  if not isinstance(source,str):
+   raise ValueError('Fixture source URL missing')
+  parsed=urlparse(source)
+  approved={'www.sportinglife.com','www.racingpost.com','racingpost.com','www.attheraces.com'}
+  if parsed.scheme!='https' or parsed.hostname not in approved or not parsed.path.startswith('/'):
+   raise ValueError('Fixture source URL is not from an approved provider')
+  if parsed.hostname in ('www.sportinglife.com','www.racingpost.com','racingpost.com') and meeting['date'] not in parsed.path:
+   raise ValueError('Dated fixture URL does not match observed meeting date')
+  if any(field in meeting for field in ('startUTC','runners','odds')):
+   raise ValueError('Fixture contains unsupported race details')
+ return True
+
+def write_validated_snapshot(data,target=OUT):
+ """Publish only after the same validation used by the scheduled collector."""
+ validate_publishable_snapshot(data)
+ target=Path(target)
+ payload=json.dumps(data,indent=2)+'\n'
+ temporary=None
+ try:
+  with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=target.parent,prefix='.'+target.name+'.',suffix='.tmp',delete=False) as stream:
+   temporary=Path(stream.name)
+   stream.write(payload)
+   stream.flush()
+   os.fsync(stream.fileno())
+  os.replace(temporary,target)
+ except BaseException:
+  if temporary is not None:
+   temporary.unlink(missing_ok=True)
+  raise
+ return target
+
 if __name__=='__main__':
  data=collect_api() if os.environ.get('HORSE_RACING_API_KEY') else collect()
+ target_dates=[x['date'] for x in data['days']]
+ fixture_result=collect_free(target_dates,dt.datetime.now(UTC))
+ data['fixture_meetings']=fixture_result['meetings']
+ data['fixture_source_status']=fixture_result['status']
+ data['fixture_provider_results']=fixture_result['provider_results']
+ if fixture_result.get('error'):data['fixture_source_error']=fixture_result['error']
+ data['limitations'].append('Meeting fixtures are not individual races and have no inferred post times or runners.')
  print(json.dumps({'generated_at_utc':data['generated_at_utc'],'races_discovered':len(data['races']),'daily_source_results':data['days']},indent=2),flush=True)
- if len(data['days'])!=7 or not data['races']:
-  raise SystemExit('No usable source-observed racecards: preserving existing published snapshot')
+ try:
+  validate_publishable_snapshot(data)
+ except ValueError as exc:
+  raise SystemExit('Preserving existing published snapshot: '+str(exc))
  data['failed_dates']=[day['date'] for day in data['days'] if day['status']=='COLLECTION_FAILED']
- data['collection_status']='PARTIAL_SOURCE_COVERAGE' if data['failed_dates'] else 'SEVEN_DATES_FETCHED'
+ data['collection_status']='PARTIAL_SOURCE_COVERAGE' if data['failed_dates'] or data['fixture_source_status']!='SOURCE_OBSERVED' else 'SOURCE_OBSERVED_NOT_COMPLETE'
  data['limitations'].append('A successful source request is not proof of complete racing coverage. Failed dates are explicitly reported.')
- OUT.write_text(json.dumps(data,indent=2)+'\n')
- print(json.dumps({'future_races':len(data['races']),'failed_days':sum(x['status']=='COLLECTION_FAILED' for x in data['days'])}))
+ write_validated_snapshot(data)
+ print(json.dumps({'future_races':len(data['races']),'fixture_meetings':len(data['fixture_meetings']),'fixture_source_status':data['fixture_source_status'],'failed_days':sum(x['status']=='COLLECTION_FAILED' for x in data['days'])}))
