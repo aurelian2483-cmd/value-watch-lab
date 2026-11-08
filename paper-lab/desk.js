@@ -173,7 +173,21 @@
     if (event.sport === 'racing') {
       make(record.racingPanel, 'strong', 'Horse racing · independent research highlights');
       const picks = racingHighlights(event);
-      make(record.racingPanel, 'p', picks.some(pick => pick.labels.includes('Community')) ? 'Community: two or more independent source domains support the highlighted runner.' : 'Community: no qualifying independent consensus for this race in the connected archive.', 'small');
+      const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
+      const hasConsensus = picks.some(pick => pick.labels.includes('Community'));
+      make(record.racingPanel, 'p', hasConsensus ? '🔵 Community consensus available · supported by independent sources' : communityTips.length ? '🔵 Community evidence recorded · no independent consensus yet' : '🔵 Community research · no qualifying current-race tips in the connected archive', 'small');
+      const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
+      collector.style.color = '#a9bed0';
+      if (communityTips.length) {
+        const details = make(record.racingPanel, 'details');
+        make(details, 'summary', 'View community evidence (' + communityTips.length + ')');
+        for (const tip of communityTips.slice(0,20)) {
+          const row = make(details, 'p', undefined, 'small');
+          const link = make(row, 'a', (tip.publisher || tip.type) + ' · ' + (tip.author || 'source'), 'source-link');
+          link.href = tip.sourceUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
+          make(row, 'span', ' · ' + new Date(tip.publishedAt).toLocaleString('en-GB'));
+        }
+      }
       if (!picks.length) make(record.racingPanel, 'p', 'Odds/form highlight unavailable · no unique sourced price favourite.', 'small');
       for (const pick of picks) {
         const item = make(record.racingPanel, 'div', undefined, 'racing-highlight-item'); item.style.cssText = 'display:block;padding:10px 0;border-top:1px solid #52718b;color:#f1f5f9';
