@@ -108,6 +108,12 @@ class FutureRacingTests(unittest.TestCase):
             module.validate_publishable_snapshot({**data,'fixture_source_status':'COLLECTION_FAILED'})
         with self.assertRaises(ValueError):
             module.validate_publishable_snapshot({**data,'fixture_meetings':[{**fixture,'source_url':'https://example.org/racing/meeting/2026-11-09/carlisle/122465'}]})
+        atr_fixture={**fixture,'source_url':'https://www.attheraces.com/racing-calendar'}
+        self.assertTrue(module.validate_publishable_snapshot({**data,'fixture_meetings':[atr_fixture]}))
+        racingpost_fixture={**fixture,'source_url':'https://www.racingpost.com/racecards/2026-11-09/1/carlisle'}
+        self.assertTrue(module.validate_publishable_snapshot({**data,'fixture_meetings':[racingpost_fixture]}))
+        with self.assertRaises(ValueError):
+            module.validate_publishable_snapshot({**data,'fixture_meetings':[{**fixture,'source_url':'https://www.racingpost.com/racecards/2026-11-10/1/carlisle'}]})
         with self.assertRaises(ValueError):
             module.validate_publishable_snapshot({**data,'days':days[:-1]+[days[0]]})
 
