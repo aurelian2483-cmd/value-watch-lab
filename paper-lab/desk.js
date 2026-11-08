@@ -194,6 +194,11 @@
       const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
       collector.textContent = 'Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+(communityHealth.errors.length ? communityHealth.errors.length+' source errors' : 'no reported source errors')+' · research only';
       collector.style.color = '#a9bed0';
+      const directory = make(record.racingPanel, 'a', 'Browse 12 racing research sources ↗', 'small');
+      directory.href = new URL('racing-research/community-source-catalog.json', rootURL).href;
+      directory.target = '_blank'; directory.rel = 'noopener noreferrer';
+      directory.style.color = '#93c5fd';
+      directory.style.display = 'inline-block';
       if (communityTips.length) {
         const details = make(record.racingPanel, 'details');
         make(details, 'summary', 'View community evidence (' + communityTips.length + ')');
