@@ -7,7 +7,10 @@ Only aggregate, provenance-bearing research results are suitable for public rele
 import argparse
 import json
 from pathlib import Path
-from scripts.racing_market_audit import audit_exchange, closing_line_value, breakeven
+try:
+    from scripts.racing_market_audit import audit_exchange, closing_line_value, breakeven
+except ModuleNotFoundError:
+    from racing_market_audit import audit_exchange, closing_line_value, breakeven
 
 
 def compile_research(payload):
