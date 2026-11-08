@@ -487,6 +487,13 @@
     make(record.node, 'p', symbols[leg.sport] + ' ' + leg.event, 'slip-selection-meta'); make(record.node, 'p', dateText(leg.startUTC) + ' · ' + leg.market, 'slip-selection-meta');
     const state = E.statusOf(store.get().events.find(event => event.id === leg.eventId));
     make(record.node, 'span', !leg.currentStatus?.selectable ? leg.currentStatus?.label || state.label : leg.quote?.decimal ? leg.quote.decimal.toFixed(2) + ' · unverified source price' : (typeof leg.probability === 'number' ? pct(leg.probability) + (leg.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' context weight' : ' model win estimate') + ' · UNVALIDATED · odds not connected' : 'No model estimate · odds not connected'), 'leg-state' + (!leg.currentStatus?.selectable ? ' is-warning' : ''));
+    // Mathematical hurdle only: this is not an estimated probability or positive-EV claim.
+    if (Number.isFinite(leg.quote?.decimal) && leg.quote.decimal > 1) {
+      const hurdle = 100 / leg.quote.decimal;
+      make(record.node,'p','Breakeven hurdle: '+hurdle.toFixed(1)+'% at captured decimal odds '+leg.quote.decimal.toFixed(2)+(leg.quote.decimal < 2 ? ' · heavy-favourite price resistance: a high win rate is required' : '')+' · price unverified','slip-selection-meta');
+    } else {
+      make(record.node,'p','Breakeven hurdle: UNKNOWN · no captured decimal price','slip-selection-meta');
+    }
     if (day(leg.startUTC) < store.get().plan.from || day(leg.startUTC) > store.get().plan.to) make(record.node, 'p', 'Outside your selected dates · original selection retained', 'warning-line');
     const actions = make(record.node, 'div', undefined, 'selection-actions');
     const up = button(actions, '↑', () => savePlan(E.moveSelection(store.get().plan, slot.id, leg.id, position - 1)), 'move-button'); up.disabled = position === 0; up.setAttribute('aria-label', 'Move ' + leg.label + ' up');
@@ -526,7 +533,18 @@
     metric('Lines × stake per line', evaluation.lineCount + ' × ' + money(slot.stakeMinor)); metric('Total hypothetical stake', money(evaluation.totalStakeMinor)); metric('Illustrative odds product', evaluation.combinedDecimal ? evaluation.combinedDecimal.toFixed(2) : '—'); metric('Gross if every leg wins', money(evaluation.grossReturnMinor), true); metric('Net if every leg wins', money(evaluation.netReturnMinor));
     const compare = details(metrics, 'Compare structures', 'structure-comparison');
     for (const structure of ['singles', 'doubles', 'trebles', 'accumulator']) { const result = E.evaluateSlot({ ...slot, structure }, state.events), row = make(compare, 'div', undefined, 'metric-row'); make(row, 'span', structure + ' · ' + result.lineCount + ' lines'); make(row, 'strong', result.grossReturnMinor === null ? 'Needs prices' : money(result.grossReturnMinor)); }
+    // Informational dependency audit: no claims of independent legs or forced exclusions.
+    const racingLegs = evaluation.legs.filter(leg => leg.sport === 'racing');
+    const racingByEvent = new Map();
+    for (const leg of racingLegs) {
+      const key = leg.eventId || leg.event;
+      racingByEvent.set(key, (racingByEvent.get(key) || 0) + 1);
+    }
     $('slip-warnings').replaceChildren();
+    if ([...racingByEvent.values()].some(count => count > 1))
+      make($('slip-warnings'),'p','DEPENDENCY WARNING: multiple horses from the same race appear on this paper slip. Treat the outcomes as correlated, not independent.','warning-line');
+    if (racingLegs.length > 1)
+      make($('slip-warnings'),'p','MULTI-LEG RESEARCH: shared weather, going, trainer and market exposure have not been independently checked; combined odds are illustrative only.','warning-line');
     if (state.replacing) make($('slip-warnings'), 'p', 'Replacement mode: choose an outcome on the board.', 'warning-line');
     for (const warning of evaluation.warnings) make($('slip-warnings'), 'p', warning, 'warning-line');
     if (slot.legs.some(leg => day(leg.startUTC) < state.plan.from || day(leg.startUTC) > state.plan.to)) make($('slip-warnings'), 'p', 'Captured events outside the current date filter have been retained.', 'warning-line');
