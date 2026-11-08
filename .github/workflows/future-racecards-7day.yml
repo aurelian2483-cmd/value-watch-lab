@@ -1,0 +1,49 @@
+name: Seven-day future racecard discovery
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/collect_future_racing.py'
+      - '.github/workflows/future-racecards-7day.yml'
+  schedule:
+    - cron: '40 5 * * *'
+    - cron: '40 17 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: future-racecards-7day
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m py_compile scripts/collect_future_racing.py scripts/discover_horse_races.py
+      - run: python -u scripts/collect_future_racing.py
+      - name: Validate research gates and date coverage
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('racing-future-data.json'))
+          assert d['schema_version']==1 and d['research_only'] is True
+          assert d['publication_gate']=='BLOCKED' and d['model_validation']=='UNVALIDATED'
+          assert len(d['days'])==7
+          assert all(r['verification']=='SINGLE_SOURCE_UNVERIFIED' for r in d['races'])
+          print('Observed future races:',len(d['races']))
+          print('Day statuses:',[(x['date'],x['status'],x['count']) for x in d['days']])
+          PY
+      - name: Publish source-observed schedule
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- racing-future-data.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh seven-day future racecards'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
