@@ -177,6 +177,7 @@
       const hasConsensus = picks.some(pick => pick.labels.includes('Community'));
       make(record.racingPanel, 'p', hasConsensus ? '🔵 Community consensus available · supported by independent sources' : communityTips.length ? '🔵 Community evidence recorded · no independent consensus yet' : '🔵 Community research · no qualifying current-race tips in the connected archive', 'small');
       const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
+      collector.textContent = 'Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+(communityHealth.errors.length ? communityHealth.errors.length+' source errors' : 'no reported source errors')+' · research only';
       collector.style.color = '#a9bed0';
       if (communityTips.length) {
         const details = make(record.racingPanel, 'details');
@@ -543,6 +544,7 @@
   // Curated, auditable community observations. The public browser never scrapes third-party sites.
   // Match exact provider race ID, start time, runner name and publication chronology.
   let communityEntries = [];
+  let communityHealth = {lastRun:null, added:0, errors:[], configured:0};
   async function refreshCommunity() {
     try {
       const response = await fetch(new URL('racing-research/source-observations.json', rootURL), {cache:'no-store'});
@@ -550,7 +552,9 @@
       const feed = await response.json();
       if (feed.schema_version !== 1 || !Array.isArray(feed.entries) || feed.entries.length > 10000) throw Error('Unsupported community archive');
       communityEntries = feed.entries;
-    } catch { communityEntries = []; }
+      communityHealth = {lastRun:feed.last_collector_run_utc || null,added:Number(feed.collector_added)||0,errors:Array.isArray(feed.collector_errors)?feed.collector_errors:[],configured:0};
+      try { const cfg = await fetch(new URL('racing-research/community-feeds.json',rootURL),{cache:'no-store'}); if(cfg.ok){const data=await cfg.json();communityHealth.configured=(data.sources||[]).filter(x=>x.enabled).length;} } catch {}
+    } catch { communityEntries = []; communityHealth = {lastRun:null,added:0,errors:[],configured:0}; }
     store.update(state => ({...state, events:state.events.map(event => ({...event,communityTips:matchCommunity(event)})), eventVersion:state.eventVersion+1}));
   }
   function matchCommunity(event) {
