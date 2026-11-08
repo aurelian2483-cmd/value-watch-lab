@@ -34,14 +34,14 @@ def collect(fetch=None, now=None):
     if race['race_id'] in seen:raise ValueError('Duplicate race ID across dates')
     seen.add(race['race_id'])
     records.append({**{k:race[k] for k in ('race_id','racecourse','name','startUTC','source','source_link_type','source_runner_count','observedAtUTC','verification')}, 'venue':race['racecourse'], 'race_name':race['name'], 'scheduled_start_time_utc':race['startUTC'], 'source_url':race['source'], 'observation_timestamp_utc':race['observedAtUTC'], 'declaration_stage':'NOT_VERIFIED', 'runners':[]})
-   days.append({'date':date.isoformat(),'status':'SOURCE_OBSERVED' if rows else 'NO_UK_IRELAND_RACES_IN_SOURCE','count':len(rows),'url':url,'sha256':hashlib.sha256(raw).hexdigest()})
+   days.append({'date':date.isoformat(),'status':'SOURCE_OBSERVED' if rows else 'NO_MATCHING_RACES_OBSERVED','count':len(rows),'url':url,'sha256':hashlib.sha256(raw).hexdigest()})
   except Exception as exc:
    days.append({'date':date.isoformat(),'status':'COLLECTION_FAILED','count':0,'url':url,'error':str(exc)[:240]})
  return {'schema_version':1,'kind':'FUTURE_RACING_SCHEDULE_RESEARCH','generated_at_utc':now.isoformat(),'research_only':True,'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','coverage_verified':False,'days':days,'races':records,'limitations':['Future races are source-observed schedules, not verified declarations, odds or predictions.','Missing source coverage does not mean no scheduled races.']}
 
 if __name__=='__main__':
  data=collect()
- if not data['races'] or all(day['status']=='COLLECTION_FAILED' for day in data['days']):
-  raise SystemExit('No source-observed future racecards: preserving existing published snapshot')
+ if len(data['days'])!=7 or any(day['status']=='COLLECTION_FAILED' for day in data['days']) or not data['races']:
+  raise SystemExit('Incomplete seven-day source collection: preserving existing published snapshot')
  OUT.write_text(json.dumps(data,indent=2)+'\n')
  print(json.dumps({'future_races':len(data['races']),'failed_days':sum(x['status']=='COLLECTION_FAILED' for x in data['days'])}))
