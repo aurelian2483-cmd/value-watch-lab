@@ -1,0 +1,83 @@
+{
+  "version": "3.0",
+  "name": "Universal Record Commit Protocol",
+  "scope": "past_current_future_racecard_candidates",
+  "badges": {
+    "green": {
+      "provisional": "Forecast favourite or market contender before official settlement",
+      "verified": "Official SP confirmed against regulated results and matched to correct race and runner",
+      "note": "Green is market status, not positive EV."
+    },
+    "blue": {
+      "default": "NOT_AWARDED",
+      "requirements": [
+        "Direct primary grassroots post URL",
+        "Named author or handle",
+        "Verified pre-race timestamp",
+        "Explicit betting selection"
+      ],
+      "disallowed": [
+        "Synthetic summary",
+        "AI inference",
+        "Third-party mention",
+        "Media preview alone"
+      ]
+    },
+    "yellow": {
+      "default": "NOT_AWARDED",
+      "requirements": [
+        "Qualified blue evidence",
+        "Independently verified agreement from multiple distinct users in same thread",
+        "Explicit backing as value betting selection",
+        "Confirmed favourite or contender status"
+      ],
+      "disallowed": [
+        "Price resistance",
+        "Ability discussion without executable selection",
+        "Press/media consensus"
+      ]
+    }
+  },
+  "media": {
+    "separate_from_community": true,
+    "types": [
+      "Journalism",
+      "Press naps",
+      "Trainer or jockey columns"
+    ],
+    "never_unlocks": [
+      "BLUE",
+      "YELLOW"
+    ]
+  },
+  "default_record_table": [
+    {
+      "signal": "Green",
+      "status": "Provisional / Verified",
+      "evidence_requirement": "Forecast contender or confirmed official SP."
+    },
+    {
+      "signal": "Blue",
+      "status": "Not awarded (or Verified URL)",
+      "evidence_requirement": "Primary grassroots link, named author, pre-race timestamp and explicit selection."
+    },
+    {
+      "signal": "Yellow",
+      "status": "Not awarded (or Multi-User Consensus)",
+      "evidence_requirement": "Blue qualification plus independently verified multi-user backing as value selection and confirmed favourite/contender status."
+    },
+    {
+      "signal": "Media",
+      "status": "Recorded / Not recorded",
+      "evidence_requirement": "Syndicated press naps and editorial previews, separate from grassroots evidence."
+    }
+  ],
+  "integrity": {
+    "unknown_is_not_zero": true,
+    "model_status": "UNVALIDATED",
+    "betting_publication": "BLOCKED",
+    "source_verification": "Never set verified solely because input claims verification",
+    "historical_prices": "Do not use SP as pre-race executable odds"
+  },
+  "note": "User supplied template ended during Media row. Complete Media requirement inferred from immediately preceding explicit rule. This file is a policy record; application code is not modified by this commit."
+}
