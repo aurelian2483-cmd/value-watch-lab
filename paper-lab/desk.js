@@ -124,23 +124,25 @@
       try { item.sources.add(new URL(tip.sourceUrl).hostname.toLowerCase()); } catch { continue; }
       consensus.set(choice.id,item);
     }
-    const supported = [...consensus.values()].filter(item => item.sources.size >= 2).sort((a,b)=>b.sources.size-a.sources.size || a.choice.id.localeCompare(b.choice.id));
-    if (supported.length && (supported.length === 1 || supported[0].sources.size > supported[1].sources.size))
-      add(supported[0].choice,'Community consensus','Independent source domains: '+supported[0].sources.size);
-    else if (consensus.size) {
-      const rankedCommunity = [...consensus.values()].sort((a,b)=>b.sources.size-a.sources.size || a.choice.id.localeCompare(b.choice.id));
-      // Community ranking must remain independent of observed odds.
-      // Equal leading source counts are a genuine tie: do not manufacture
-      // agreement with the odds favourite.
-      if (rankedCommunity.length === 1 || rankedCommunity[0].sources.size > rankedCommunity[1].sources.size)
-        add(rankedCommunity[0].choice,'Community experimental','Unique community leader: '+rankedCommunity[0].sources.size+' independent source domain(s); unvalidated');
-
+    const rankedCommunity = [...consensus.values()].sort((a,b)=>b.sources.size-a.sources.size || a.choice.label.localeCompare(b.choice.label));
+    const uniqueLeader = rankedCommunity.length > 0 && (rankedCommunity.length === 1 || rankedCommunity[0].sources.size > rankedCommunity[1].sources.size);
+    if (uniqueLeader) {
+      const leader = rankedCommunity[0];
+      add(leader.choice,leader.sources.size>=2?'Community consensus':'Community experimental',
+        'Independent community leader: '+leader.sources.size+' source domain(s); unvalidated');
+    } else if (rankedCommunity.length) {
+      // Show ALL tied leaders, rather than suppressing the blue highlight.
+      // Ties are not consensus and must never trigger a yellow agreement badge.
+      const highest = rankedCommunity[0].sources.size;
+      for (const item of rankedCommunity.filter(item=>item.sources.size===highest)) {
+        add(item.choice,'Community tied','Community source support: '+item.sources.size+' domain(s); tied, no unique leader');
+      }
     }
     const ranked = event.choices.filter(choice => Number.isFinite(choice.quote?.decimal) && choice.quote.decimal > 1)
       .sort((a,b) => a.quote.decimal - b.quote.decimal || a.id.localeCompare(b.id));
     if (ranked.length && (ranked.length === 1 || ranked[0].quote.decimal < ranked[1].quote.decimal))
       add(ranked[0], 'Odds favourite', 'Lowest observed source price; not a verified edge or form consensus');
-    return [...picks.values()].slice(0,2);
+    return [...picks.values()];
   }
   function createCard(id) {
     const article = make(null, 'article', undefined, 'event-card'); article.dataset.eventId = id;
@@ -184,7 +186,7 @@
       const picks = racingHighlights(event);
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
       const hasConsensus = picks.some(pick => pick.labels.includes('Community consensus'));
-      make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus · research only' : picks.some(pick=>pick.labels.includes('Community experimental')) ? '🔵 BLUE: experimental single-source community candidate · unvalidated' : communityTips.length ? '🔵 BLUE: community sources disagree or tie · no independent leader; all opinions retained' : '🔵 BLUE: no attributable current-race community selection', 'small');
+      make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus · research only' : picks.some(pick=>pick.labels.includes('Community experimental')) ? '🔵 BLUE: experimental single-source community candidate · unvalidated' : picks.some(pick=>pick.labels.includes('Community tied')) ? '🔵 BLUE: multiple tied community-supported horses highlighted · no consensus' : communityTips.length ? '🔵 BLUE: community evidence recorded without a unique leader' : '🔵 BLUE: no attributable current-race community selection', 'small');
       const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
       collector.textContent = 'Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+(communityHealth.errors.length ? communityHealth.errors.length+' source errors' : 'no reported source errors')+' · research only';
       collector.style.color = '#a9bed0';
@@ -274,7 +276,7 @@
       view.element.classList.toggle('is-racing-highlight', Boolean(racingPick));
       const hasCommunity = Boolean(racingPick?.labels.some(label => label.startsWith('Community')));
       const hasOdds = Boolean(racingPick?.labels.includes('Odds favourite'));
-      const agreement = hasCommunity && hasOdds; // Only independent community selection can trigger yellow.
+      const agreement = hasCommunity && hasOdds && !racingPick.labels.includes('Community tied'); // A tied opinion is not a unique agreement.
       const borderColour = agreement ? '#facc15' : hasCommunity ? '#60a5fa' : '#b8ee79';
       view.element.style.setProperty('border', racingPick ? '3px solid '+borderColour : '', racingPick ? 'important' : '');
       view.element.style.setProperty('box-shadow', agreement ? '0 0 0 2px rgba(250,204,21,.24), inset 0 0 0 1px #fde68a' : '', agreement ? 'important' : '');
