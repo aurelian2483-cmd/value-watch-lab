@@ -88,6 +88,8 @@ def main():
             root = fetch(source["feed_url"])
             scanned = 0
             matched = 0
+            explicit_matches = 0
+            review_matches = 0
             for item in items(root):
                 scanned += 1
                 published = parse_date(item["published"])
@@ -131,13 +133,13 @@ def main():
                     runners = [h for h in race.get("runners", []) if h.get("active_runner") is True and h.get("runner_status") == "RUNNER" and mentions(text, h.get("name", ""))]
                     if len(runners) == 1:
                         matches.append((race, runners[0]))
-                if len(matches) != 1:
-                    # A uniquely named explicit headline pick is independently
-                    # attributable even if the article omits the course name.
-                    if len(matches) == 0 and len(headline_candidates) == 1:
-                        matches = headline_candidates
-                    else:
-                        continue
+                # If a headline explicitly names one candidate, prioritise
+                # that recommendation over unrelated runners mentioned in the
+                # article body. Reject conflicting or ambiguous headline picks.
+                if len(headline_candidates) == 1:
+                    matches = headline_candidates
+                elif len(headline_candidates) > 1 or len(matches) != 1:
+                    continue
                 race, horse = matches[0]
                 import hashlib
                 identifier = "rss-" + hashlib.sha256((source["feed_url"]+"|"+url+"|"+str(race["race_id"])).encode()).hexdigest()[:24]
@@ -165,7 +167,11 @@ def main():
                 known.add(identifier)
                 added += 1
                 matched += 1
-            source_health.append({'publisher':source['publisher'],'status':'fetched','items_scanned':scanned,'new_observations':matched})
+                if explicit_title:
+                    explicit_matches += 1
+                else:
+                    review_matches += 1
+            source_health.append({'publisher':source['publisher'],'status':'fetched','items_scanned':scanned,'new_observations':matched,'explicit_tip_observations':explicit_matches,'review_only_mentions':review_matches})
         except Exception as error:
             failures.append({"publisher":source.get("publisher", "unknown"), "error":str(error)[:160]})
             source_health.append({"publisher":source.get("publisher", "unknown"), "status":"error", "error":str(error)[:160]})
