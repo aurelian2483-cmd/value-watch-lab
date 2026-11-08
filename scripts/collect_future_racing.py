@@ -4,6 +4,7 @@ import datetime as dt
 import hashlib
 import json
 import os
+import tempfile
 import urllib.request
 from pathlib import Path
 from urllib.parse import urlparse
@@ -150,7 +151,20 @@ def validate_publishable_snapshot(data):
 def write_validated_snapshot(data,target=OUT):
  """Publish only after the same validation used by the scheduled collector."""
  validate_publishable_snapshot(data)
- target.write_text(json.dumps(data,indent=2)+'\n')
+ target=Path(target)
+ payload=json.dumps(data,indent=2)+'\n'
+ temporary=None
+ try:
+  with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=target.parent,prefix='.'+target.name+'.',suffix='.tmp',delete=False) as stream:
+   temporary=Path(stream.name)
+   stream.write(payload)
+   stream.flush()
+   os.fsync(stream.fileno())
+  os.replace(temporary,target)
+ except BaseException:
+  if temporary is not None:
+   temporary.unlink(missing_ok=True)
+  raise
  return target
 
 if __name__=='__main__':
