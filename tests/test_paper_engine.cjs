@@ -80,7 +80,7 @@ const simulatedFootball={
 const comparisonTime=Date.parse('2026-11-08T01:45:00Z');
 let syntheticRows=E.normalizeFeeds([{kind:'football',path:'synthetic-football.json',document:simulatedFootball}],comparisonTime);
 let syntheticNapoli=syntheticRows.find(row=>row.name==='Synthetic Napoli vs Synthetic Lazio');
-assert(syntheticNapoli?.model,'Synthetic prior-season model must remain visible');
+assert(syntheticNapoli?.model,'Synthetic prior-season model must remain visible: '+JSON.stringify({diagnostics:syntheticRows.diagnostics,events:syntheticRows.map(row=>({name:row.name,model:row.model}))}));
 const review=E.footballEvidenceReview(syntheticNapoli);
 assert.equal(review.status,'REVIEW_REQUIRED');
 assert(review.notes.some(note=>note.includes('prior-season')));
