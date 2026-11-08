@@ -141,6 +141,12 @@ def main():
                 elif len(headline_candidates) > 1 or len(matches) != 1:
                     continue
                 race, horse = matches[0]
+                # Publication and first observation must both precede the
+                # selected race, even when a headline names a different-day
+                # runner or the upstream racecard is stale.
+                race_start = parse_date(race.get("startUTC"))
+                if not race_start or not (published <= NOW < race_start):
+                    continue
                 import hashlib
                 identifier = "rss-" + hashlib.sha256((source["feed_url"]+"|"+url+"|"+str(race["race_id"])).encode()).hexdigest()[:24]
                 if identifier in known:
