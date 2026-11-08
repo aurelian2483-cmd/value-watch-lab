@@ -222,7 +222,13 @@
     const state = store.get(), rows = filtered(state), visible = rows.slice(0, state.limit), root = $('events'); root.setAttribute('aria-busy', 'false');
     if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more').forEach(element => element.remove());
     S.reconcile(root, visible.map(event => event.id), cards, createCard, (record, id) => patchCard(record, visible.find(event => event.id === id)));
-    if (!visible.length) { const box = empty(root, state.snapshotState?.status === 'unavailable' ? 'Research sources unavailable' : 'No events match this view', 'Try another sport or a wider date range. Saved research remains available; no events are invented to fill the board.', { label: 'Show next 14 days', run: () => preset('14') }); box.classList.add('event-empty'); }
+    if (!visible.length && state.sport === 'racing') {
+      const dates = [...new Set(state.events.filter(event => event.sport === 'racing').map(event => day(event.startUTC)))].sort();
+      const latest = dates.at(-1);
+      const box = empty(root, 'No upcoming racecards loaded for these dates', (latest ? 'The latest loaded racing cards cover ' + latest + '. ' : 'No usable racing snapshot is loaded. ') + 'The current racing feed covers one day only. An empty view does not mean there is no racing.', { label: 'Show today’s racing', run: () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'upcoming' })); $('search').value = ''; $('event-view').value = 'upcoming'; preset('today'); } }); box.classList.add('event-empty');
+      if (latest && latest !== today()) button(box, 'View dated previous cards', () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'all' })); $('search').value = ''; $('event-view').value = 'all'; setRange(latest, latest); }, 'button button-quiet');
+    }
+    else if (!visible.length) { const box = empty(root, state.snapshotState?.status === 'unavailable' ? 'Research sources unavailable' : 'No events match this view', 'Try another sport or a wider date range. Saved research remains available; no events are invented to fill the board.', { label: 'Show next 14 days', run: () => preset('14') }); box.classList.add('event-empty'); }
     if (rows.length > visible.length) button(root, 'Show more events (' + (rows.length - visible.length) + ')', () => store.update(state => ({ ...state, limit: state.limit + 24 })), 'button button-secondary load-more');
     write($('coverage-summary'), rows.length + ' matching your filters · ' + state.events.length + ' total loaded records across all dates. Coverage is incomplete; zero means no matching records in these feeds.');
     write($('event-summary'), rows.length + ' ' + (state.eventView === 'upcoming' ? 'upcoming' : 'recorded') + ' event' + (rows.length === 1 ? '' : 's') + ' · ' + state.plan.from + ' → ' + state.plan.to + ' · UK time');
