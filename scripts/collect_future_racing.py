@@ -42,7 +42,10 @@ def collect(fetch=None, now=None):
 if __name__=='__main__':
  data=collect()
  print(json.dumps({'generated_at_utc':data['generated_at_utc'],'races_discovered':len(data['races']),'daily_source_results':data['days']},indent=2),flush=True)
- if len(data['days'])!=7 or any(day['status']=='COLLECTION_FAILED' for day in data['days']) or not data['races']:
-  raise SystemExit('Incomplete seven-day source collection: preserving existing published snapshot')
+ if len(data['days'])!=7 or not data['races']:
+  raise SystemExit('No usable source-observed racecards: preserving existing published snapshot')
+ data['failed_dates']=[day['date'] for day in data['days'] if day['status']=='COLLECTION_FAILED']
+ data['collection_status']='PARTIAL_SOURCE_COVERAGE' if data['failed_dates'] else 'SEVEN_DATES_FETCHED'
+ data['limitations'].append('A successful source request is not proof of complete racing coverage. Failed dates are explicitly reported.')
  OUT.write_text(json.dumps(data,indent=2)+'\n')
  print(json.dumps({'future_races':len(data['races']),'failed_days':sum(x['status']=='COLLECTION_FAILED' for x in data['days'])}))
