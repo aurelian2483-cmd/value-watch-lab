@@ -290,7 +290,7 @@
       view.name.textContent = racingPick ? '★ ' + choice.label : choice.label;
       view.name.style.setProperty('color', racingPick ? agreement ? '#fef08a' : hasCommunity ? '#bfdbfe' : '#e1ffae' : '', racingPick ? 'important' : '');
       view.modelBadge.style.setProperty('display', racingPick ? 'block' : '', racingPick ? 'important' : '');
-      if (racingPick) view.modelBadge.textContent = agreement ? '🟡 AGREEMENT · ODDS + COMMUNITY' : racingPick.labels.join(' + ').toUpperCase();
+      if (racingPick) view.modelBadge.textContent = agreement ? '🟡 EXPERIMENTAL AGREEMENT · ODDS + COMMUNITY' : racingPick.labels.join(' + ').toUpperCase();
       view.modelBadge.style.setProperty('color', racingPick ? agreement ? '#fef08a' : hasCommunity ? '#bfdbfe' : '#e1ffae' : '', racingPick ? 'important' : '');
       view.element.classList.toggle('is-model-first', leader?.rank === 1); view.element.classList.toggle('is-model-alternative', leader?.rank === 2);
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
@@ -622,7 +622,7 @@
       const start = Date.parse(event.startUTC);
       const dated = /^\d{4}-\d{2}-\d{2}$/.test(entry.publication_date || '') && entry.publication_date <= event.startUTC.slice(0,10);
       if (!Number.isFinite(observed) || observed >= start || (Number.isFinite(published) ? published > start || observed < published : !dated)) return false;
-      if (!['PUBLIC_SELECTION_OBSERVED','POST_OBSERVED_OPINION_UNVERIFIED','PUBLICATION_OBSERVED_OPINION_UNVERIFIED'].includes(entry.verification)) return false;
+      if (!['PUBLIC_SELECTION_OBSERVED','POST_OBSERVED_OPINION_UNVERIFIED','PUBLICATION_OBSERVED_OPINION_UNVERIFIED','RSS_EXPLICIT_HEADLINE_UNVERIFIED'].includes(entry.verification)) return false;
       if (!/^https:\/\//i.test(entry.url || '')) return false;
       return event.choices.some(choice => choice.label.trim().toLowerCase() === String(entry.horse || '').trim().toLowerCase());
     }).map(entry => ({
