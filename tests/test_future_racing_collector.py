@@ -74,5 +74,19 @@ class FutureRacingTests(unittest.TestCase):
         self.assertEqual(len(d['failed_dates']),7)
         self.assertTrue(all(day['status']=='COLLECTION_FAILED' for day in d['days']))
 
+    def test_fixture_fallback_preserves_separate_meeting_records(self):
+        now=dt.datetime(2026,11,8,12,tzinfo=dt.timezone.utc)
+        dates=[(now.date()+dt.timedelta(days=i)).isoformat() for i in range(1,8)]
+        fixture_html=(''.join('<a href="/racing/meeting/{}/carlisle/{}">Carlisle</a>'.format(day,122400+i) for i,day in enumerate(dates))).encode()
+        def fetch(url):
+            if url.endswith('/racing/going'):return fixture_html
+            raise OSError('unavailable')
+        from free_racing_sources import collect_free
+        result=collect_free(dates,now,fetch=fetch)
+        self.assertEqual(len(result['meetings']),7)
+        self.assertEqual(result['status'],'SOURCE_OBSERVED')
+        self.assertTrue(all(row['record_type']=='MEETING_FIXTURE' for row in result['meetings']))
+        self.assertTrue(all('startUTC' not in row and 'runners' not in row for row in result['meetings']))
+
 if __name__=='__main__':
     unittest.main()
