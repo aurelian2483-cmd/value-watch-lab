@@ -114,14 +114,24 @@ def main():
                 identifier = "rss-" + hashlib.sha256((source["feed_url"]+"|"+url+"|"+str(race["race_id"])).encode()).hexdigest()[:24]
                 if identifier in known:
                     continue
+                # Only a direct headline selection is eligible for an automatic,
+                # explicitly UNVERIFIED experimental blue signal. A mere mention
+                # in a preview remains review-required and never becomes a vote.
+                title = item["title"]
+                explicit_title = (
+                    mentions(title, horse["name"])
+                    and bool(re.search(r"\\b(?:tip|nap|pick|selection)\\s*[:\\-–]\\s*" + re.escape(horse["name"]) + r"\\b", title, re.I)
+                             or re.search(re.escape(horse["name"]) + r"\\s*[:\\-–]\\s*(?:tip|nap|pick|selection)\\b", title, re.I))
+                )
+                verification = "RSS_EXPLICIT_HEADLINE_UNVERIFIED" if explicit_title else "RSS_EXPLICIT_MENTION_REVIEW_REQUIRED"
                 entries.append({
                     "id":identifier, "group":source["type"], "author":source.get("publisher"),
                     "publisher":source["publisher"], "race_id":str(race["race_id"]),
                     "event":race.get("name", ""), "startUTC":race["startUTC"],
                     "horse":horse["name"], "market":"WIN", "published_at_utc":published.isoformat(),
                     "url":url, "summary":"Public feed item explicitly names this runner; full article not independently assessed.",
-                    "verification":"RSS_EXPLICIT_MENTION_REVIEW_REQUIRED", "observed_at_utc":NOW.isoformat(),
-                    "stance":"support", "source_feed":source["feed_url"]
+                    "verification":verification, "observed_at_utc":NOW.isoformat(),
+                    "stance":"support", "source_feed":source["feed_url"], "extraction_method":"explicit_headline" if explicit_title else "mention_only"
                 })
                 known.add(identifier)
                 added += 1
