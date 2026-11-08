@@ -69,6 +69,16 @@ def items(root):
             "published": item.findtext(ns + "published") or item.findtext(ns + "updated") or "",
         }
 
+def explicit_headline_pick(title, horse_name):
+    """Only a directly labelled selection counts as an experimental tip."""
+    if not horse_name or not mentions(title, horse_name):
+        return False
+    name = re.escape(horse_name)
+    return bool(
+        re.search(r"\b(?:tip|nap|pick|selection)\s*[:–-]\s*" + name + r"\b", title, re.I)
+        or re.search(name + r"\s*[:–-]\s*(?:tip|nap|pick|selection)\b", title, re.I)
+    )
+
 def main():
     config = json.loads(CONFIG.read_text())
     feed = json.loads(OUT.read_text())
@@ -116,8 +126,7 @@ def main():
                         if runner.get("active_runner") is not True or runner.get("runner_status") != "RUNNER":
                             continue
                         name = runner.get("name", "")
-                        if name and (re.search(r"\b(?:tip|nap|pick|selection)\s*[:–-]\s*" + re.escape(name) + r"\b", title, re.I)
-                                     or re.search(re.escape(name) + r"\s*[:–-]\s*(?:tip|nap|pick|selection)\b", title, re.I)):
+                        if explicit_headline_pick(title, name):
                             headline_candidates.append((candidate_race, runner))
                 matches = []
                 for race in races:
@@ -155,11 +164,7 @@ def main():
                 # explicitly UNVERIFIED experimental blue signal. A mere mention
                 # in a preview remains review-required and never becomes a vote.
                 title = item["title"]
-                explicit_title = (
-                    mentions(title, horse["name"])
-                    and bool(re.search(r"\b(?:tip|nap|pick|selection)\s*[:–-]\s*" + re.escape(horse["name"]) + r"\b", title, re.I)
-                             or re.search(re.escape(horse["name"]) + r"\s*[:–-]\s*(?:tip|nap|pick|selection)\b", title, re.I))
-                )
+                explicit_title = explicit_headline_pick(title, horse["name"])
                 verification = "RSS_EXPLICIT_HEADLINE_UNVERIFIED" if explicit_title else "RSS_EXPLICIT_MENTION_REVIEW_REQUIRED"
                 entries.append({
                     "id":identifier, "group":source["type"], "author":source.get("publisher"),
