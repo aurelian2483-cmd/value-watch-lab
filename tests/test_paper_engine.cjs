@@ -53,6 +53,7 @@ assert(cachedRows.length>0);assert(cachedRows.every(row=>row.observedAt==='2026-
 
 
 const simulatedFootball={
+ schema_version:1,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
  generated_at_utc:'2026-11-08T01:30:00Z',
  upcoming_fixtures:[{
   league:'I1',home:'Synthetic Napoli',away:'Synthetic Lazio',
