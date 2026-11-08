@@ -114,6 +114,12 @@ def validate_publishable_snapshot(data):
  dates=[day.get('date') for day in days if isinstance(day,dict)]
  if len(set(dates))!=7 or any(not isinstance(day,str) for day in dates):
   raise ValueError('Invalid or duplicate coverage dates')
+ try:
+  parsed_dates=[dt.date.fromisoformat(day) for day in dates]
+ except ValueError as exc:
+  raise ValueError('Invalid calendar date in coverage') from exc
+ if parsed_dates!=[parsed_dates[0]+dt.timedelta(days=i) for i in range(7)]:
+  raise ValueError('Coverage must contain seven consecutive dates')
  races=data.get('races')
  fixtures=data.get('fixture_meetings')
  if not isinstance(races,list) or not isinstance(fixtures,list) or not (races or fixtures):
