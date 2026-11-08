@@ -198,7 +198,7 @@
         const sourceDetails = make(record.racingPanel, 'details');
         make(sourceDetails, 'summary', 'Collector source health · '+communityHealth.sourceHealth.filter(x=>x.status==='fetched').length+' fetched / '+communityHealth.sourceHealth.length+' attempted');
         for (const item of communityHealth.sourceHealth) {
-          const line=make(sourceDetails,'p',(item.status==='fetched'?'✓ ':'⚠ ')+item.publisher+' · '+(item.status==='fetched'?(item.items_scanned||0)+' items scanned, '+(item.new_observations||0)+' new observations':item.error||'fetch failed'),'small');
+          const line=make(sourceDetails,'p',(item.status==='fetched'?'✓ ':'⚠ ')+item.publisher+' · '+(item.status==='fetched'?(item.items_scanned||0)+' scanned · '+(item.explicit_tip_observations||0)+' experimental tips · '+(item.review_only_mentions||0)+' review-only mentions':item.error||'fetch failed'),'small');
           line.style.color=item.status==='fetched'?'#a6d6bf':'#f2c28e';
         }
       }
