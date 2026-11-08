@@ -624,6 +624,16 @@
       try { const cfg = await fetch(new URL('racing-research/community-feeds.json',rootURL),{cache:'no-store'}); if(cfg.ok){const data=await cfg.json();communityHealth.configured=(data.sources||[]).filter(x=>x.enabled).length;} } catch {}
     } catch { communityEntries = []; communityHealth = {lastRun:null,added:0,errors:[],configured:0}; }
     store.update(state => ({...state, events:state.events.map(event => ({...event,communityTips:matchCommunity(event)})), eventVersion:state.eventVersion+1}));
+    // Community data arrives asynchronously after the initial racecard snapshot.
+    // Fill only empty paper slips; never replace user choices or historical legs.
+    if (!persistence.failed) {
+      const state = store.get();
+      const eligible = state.events.filter(event => day(event.startUTC) >= state.plan.from && day(event.startUTC) <= state.plan.to);
+      if (eligible.length && state.plan.slots.some(slot => !slot.legs.length)) {
+        const generated = E.generateResearch(state.plan, eligible);
+        if (generated.slots.some((slot,index) => slot.legs.length !== state.plan.slots[index].legs.length)) savePlan(generated);
+      }
+    }
   }
   function matchCommunity(event) {
     if (event.sport !== 'racing' || !event.providerEventId) return [];
