@@ -190,6 +190,10 @@
       const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
       collector.textContent = 'Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+(communityHealth.errors.length ? communityHealth.errors.length+' source errors' : 'no reported source errors')+' · research only';
       collector.style.color = '#a9bed0';
+      if (communityHealth.racecardHealth?.status === 'stale_or_no_upcoming_races') {
+        const stale = make(record.racingPanel, 'p', '⚠ Upstream racecard is stale: no future races available for automatic tip matching. Refresh racing-research-data.json.', 'small');
+        stale.style.cssText='padding:10px;border:1px solid #c08437;border-radius:8px;color:#fbd38d;background:#35281a';
+      }
       if (communityHealth.sourceHealth.length) {
         const sourceDetails = make(record.racingPanel, 'details');
         make(sourceDetails, 'summary', 'Collector source health · '+communityHealth.sourceHealth.filter(x=>x.status==='fetched').length+' fetched / '+communityHealth.sourceHealth.length+' attempted');
@@ -616,7 +620,7 @@
       const feed = await response.json();
       if (feed.schema_version !== 1 || !Array.isArray(feed.entries) || feed.entries.length > 10000) throw Error('Unsupported community archive');
       communityEntries = feed.entries;
-      communityHealth = {lastRun:feed.last_collector_run_utc || null,added:Number(feed.collector_added)||0,errors:Array.isArray(feed.collector_errors)?feed.collector_errors:[],configured:0,sourceHealth:Array.isArray(feed.collector_source_health)?feed.collector_source_health:[]};
+      communityHealth = {lastRun:feed.last_collector_run_utc || null,added:Number(feed.collector_added)||0,errors:Array.isArray(feed.collector_errors)?feed.collector_errors:[],configured:0,sourceHealth:Array.isArray(feed.collector_source_health)?feed.collector_source_health:[],racecardHealth:feed.racecard_health||null};
       try { const cfg = await fetch(new URL('racing-research/community-feeds.json',rootURL),{cache:'no-store'}); if(cfg.ok){const data=await cfg.json();communityHealth.configured=(data.sources||[]).filter(x=>x.enabled).length;} } catch {}
     } catch { communityEntries = []; communityHealth = {lastRun:null,added:0,errors:[],configured:0}; }
     store.update(state => ({...state, events:state.events.map(event => ({...event,communityTips:matchCommunity(event)})), eventVersion:state.eventVersion+1}));
