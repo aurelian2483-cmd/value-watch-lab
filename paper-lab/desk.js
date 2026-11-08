@@ -4,9 +4,9 @@
   const E = ResearchEngine, S = ResearchStore, I = ResearchInsights, C = ResearchConnections, J = ResearchJournal;
   const $ = id => document.getElementById(id);
   const rootURL = new URL('../', document.currentScript.src);
-  const sports = { all: 'All sports', football: 'Football', racing: 'Horse racing', tennis: 'Tennis', nfl: 'NFL', rugby_union: 'Rugby Union', rugby_league: 'Rugby League' };
-  const symbols = { football: '⚽', racing: '♞', tennis: '◉', nfl: '◆', rugby_union: '🏉', rugby_league: '🏉' };
-  const sources = { 'research-dashboard-data.json': ['football', 'Premier League'], 'football-expanded-data.json': ['football', 'Football leagues'], 'international-football-data.json': ['football', 'International football'], 'rugby-research-data.json': ['rugby', 'Rugby Union & League'], 'racing-research-data.json': ['racing', 'Racecards & source prices'], 'racing-future-data.json': ['racing-future', 'Future race schedules'], 'horse-predictions-data.json': ['racing-context', 'Racing model predictions'], 'other-sports-data.json': ['other', 'Tennis & NFL'], 'research-history.json': ['history', 'Historical results'] };
+  const sports = { all: 'All sports', football: 'Football', racing: 'Horse racing', tennis: 'Tennis', nfl: 'NFL' };
+  const symbols = { football: '⚽', racing: '♞', tennis: '◉', nfl: '◆' };
+  const sources = { 'research-dashboard-data.json': ['football', 'Premier League'], 'football-expanded-data.json': ['football', 'Football leagues'], 'international-football-data.json': ['football', 'International football'], 'racing-research-data.json': ['racing', 'Racecards & source prices'], 'racing-future-data.json': ['racing-future', 'Future race schedules'], 'horse-predictions-data.json': ['racing-context', 'Racing model predictions'], 'other-sports-data.json': ['other', 'Tennis & NFL'], 'research-history.json': ['history', 'Historical results'] };
   const specs = Object.entries(sources).map(([file, [kind]]) => ({ kind, path: new URL(file, rootURL).pathname }));
   const key = 'value-watch-research-desk-v4';
   const day = E.day, today = () => new Intl.DateTimeFormat('sv-SE', {timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
