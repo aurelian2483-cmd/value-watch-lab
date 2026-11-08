@@ -186,10 +186,14 @@
       const picks = racingHighlights(event);
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
       const hasConsensus = picks.some(pick => pick.labels.includes('Community consensus'));
-      make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus · research only' : picks.some(pick=>pick.labels.includes('Community experimental')) ? '🔵 BLUE: experimental single-source community candidate · unvalidated' : picks.some(pick=>pick.labels.includes('Community tied')) ? '🔵 BLUE: multiple tied community-supported horses highlighted · no consensus' : communityTips.length ? '🔵 BLUE: community evidence recorded without a unique leader' : '🔵 BLUE: no attributable current-race community selection', 'small');
+      make(record.racingPanel, 'p', hasConsensus ? '🔵 BLUE: independent community consensus · research only' : picks.some(pick=>pick.labels.includes('Community experimental')) ? '🔵 BLUE: experimental single-source community candidate · unvalidated' : picks.some(pick=>pick.labels.includes('Community tied')) ? '🔵 BLUE: multiple tied community-supported horses highlighted · no consensus' : communityTips.length ? '🔵 BLUE: community evidence recorded without a unique leader' : '🔵 NO COMMUNITY DATA FOR THIS RACE — green is odds only; source coverage incomplete, not a negative tipster verdict', 'small');
       const collector = make(record.racingPanel, 'p', 'Research collector: scheduled · source coverage incomplete · no live tip guarantee', 'small');
       collector.textContent = 'Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+(communityHealth.errors.length ? communityHealth.errors.length+' source errors' : 'no reported source errors')+' · research only';
       collector.style.color = '#a9bed0';
+      if (!communityTips.length) {
+        const notice = make(record.racingPanel, 'p', 'Research gap: no independently attributable community recommendation has been matched to this race. The 12-source directory is not 12 live feeds. Do not interpret the green favourite as community agreement.', 'small');
+        notice.style.cssText = 'padding:10px;border:1px solid #b78a3c;border-radius:8px;color:#f6d18b;background:#30291e';
+      }
       const directory = make(record.racingPanel, 'a', 'Browse 12 racing research sources ↗', 'small');
       directory.href = new URL('racing-research/community-source-catalog.json', rootURL).href;
       directory.target = '_blank'; directory.rel = 'noopener noreferrer';
