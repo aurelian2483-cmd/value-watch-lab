@@ -63,3 +63,21 @@ assert(napoliReview.notes.some(note=>note.includes('not eligible')));
 assert.equal(napoliReview.actionable,false);
 assert.equal(napoliReview.verifiedMarketComparison,false);
 assert.equal(E.footballEvidenceReview(event(1,'tennis')),null);
+
+
+const withSeason=JSON.parse(fs.readFileSync('football-expanded-data.json','utf8'));
+const seasonFixture=withSeason.upcoming_fixtures.find(row=>row.home==='Napoli'&&row.away==='Lazio');
+assert(seasonFixture,'Expected dated Napoli vs Lazio fixture for season comparison regression');
+seasonFixture.current_season_comparison={
+ method:'CURRENT_SEASON_POISSON_COMPARISON_V1',season:'2627',
+ prob_home:.25,prob_draw:.28,prob_away:.47,home_venue_matches:4,away_venue_matches:5,
+ training_matches:70,source_receipts:[],research_only:true,publication_gate:'BLOCKED',odds:null,expected_value:null,small_sample:true
+};
+let comparedEvents=E.normalizeFeeds([{kind:'football',path:'football-expanded-data.json',document:withSeason}],Date.parse('2026-11-08T01:45:00Z'));
+let compared=comparedEvents.find(row=>row.name==='Napoli vs Lazio');
+assert.equal(compared.seasonComparison.prob_away,.47);
+assert.equal(compared.choices[0].probability.toFixed(3),'0.461','original prior-season forecast must not change');
+seasonFixture.current_season_comparison.prob_away=1.47;
+comparedEvents=E.normalizeFeeds([{kind:'football',path:'football-expanded-data.json',document:withSeason}],Date.parse('2026-11-08T01:45:00Z'));
+compared=comparedEvents.find(row=>row.name==='Napoli vs Lazio');
+assert.equal(compared.seasonComparison,null,'invalid comparison must never display');
