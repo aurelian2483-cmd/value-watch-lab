@@ -101,12 +101,32 @@
     const next = state.replacing ? E.replaceSelection(state.plan, state.slot + 1, state.replacing, event, choiceId) : existing?.choiceId === choiceId ? E.removeSelection(state.plan, state.slot + 1, existing.id) : existing ? E.replaceSelection(state.plan, state.slot + 1, existing.id, event, choiceId) : E.addSelection(state.plan, state.slot + 1, event, choiceId);
     savePlan(next); notice('Selection recorded in ' + next.slots[state.slot].name + '. Original source evidence is preserved.');
   }
+  // Research-only dual racing highlights. Community tips require independent sourced records;
+  // never infer consensus from model rankings or bookmaker prices.
+  function racingHighlights(event) {
+    if (event?.sport !== 'racing') return [];
+    const picks = new Map();
+    const add = (choice, label, reason) => {
+      if (!choice) return;
+      const prior = picks.get(choice.id);
+      if (prior) { prior.labels.push(label); prior.reasons.push(reason); }
+      else picks.set(choice.id, { choice, labels: [label], reasons: [reason] });
+    };
+    // Community records are not yet present in the trusted racing snapshot schema.
+    // An absent community feed is explicitly unavailable, never a zero-tip result.
+    const ranked = event.choices.filter(choice => Number.isFinite(choice.quote?.decimal) && choice.quote.decimal > 1)
+      .sort((a,b) => a.quote.decimal - b.quote.decimal || a.id.localeCompare(b.id));
+    if (ranked.length && (ranked.length === 1 || ranked[0].quote.decimal < ranked[1].quote.decimal))
+      add(ranked[0], 'Odds favourite', 'Lowest observed source price; not a verified edge or form consensus');
+    return [...picks.values()].slice(0,2);
+  }
   function createCard(id) {
     const article = make(null, 'article', undefined, 'event-card'); article.dataset.eventId = id;
     const header = make(article, 'div', undefined, 'event-card-header');
     const meta = make(header, 'span', '', 'event-meta'), time = make(header, 'time', '', 'event-time'), title = make(article, 'h3', '', 'event-title');
     const status = make(article, 'span', '', 'event-status'), conditions = make(article, 'p', '', 'event-conditions');
     const prediction = make(article, 'div', '', 'prediction-summary'); prediction.setAttribute('aria-live', 'polite');
+    const racingPanel = make(article, 'section', undefined, 'racing-highlights'); racingPanel.setAttribute('aria-label', 'Horse racing research highlights');
     const market = make(article, 'div', undefined, 'market-grid'), seasonPanel = make(article, 'section', undefined, 'season-comparison'), explanation = make(article, 'p', '', 'market-explanation'); seasonPanel.setAttribute('aria-label','Current-season-only model comparison');
     const tools = make(article, 'div', undefined, 'event-tools');
     const check = link(tools, 'Check prices on Oddschecker ↗', 'https://www.oddschecker.com/');
@@ -125,7 +145,7 @@
       const b = button(tabs, label, () => loadStats(id, tab, panel, buttons)); b.dataset.statsTab = tab; b.setAttribute('aria-pressed', 'false'); buttons.set(tab, b);
     }
     evidence.addEventListener('toggle', () => { if (evidence.open && (!panel.dataset.loaded || panel.dataset.pending === 'true')) safely(() => loadStats(id, preferredStats(store.get().events.find(event => event.id === id)), panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
-    return { node: article, meta, time, title, status, conditions, prediction, market, seasonPanel, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
+    return { node: article, meta, time, title, status, conditions, prediction, market, racingPanel, seasonPanel, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
   }
   function preferredStats(event) { return event?.stats?.h2h ? 'h2h' : Array.isArray(event?.stats?.recent) && event.stats.recent.length ? 'recent' : event?.stats?.rankings ? 'rankings' : 'sources'; }
   function patchCard(record, event) {
@@ -134,6 +154,19 @@
     write(record.meta, symbols[event.sport] + ' ' + event.competition); write(record.time, dateText(event.startUTC)); record.time.dateTime = event.startUTC; write(record.title, event.name);
     write(record.status, status.label); record.status.className = 'event-status ' + (status.selectable ? 'is-current' : status.code === 'STARTED' ? '' : 'is-warning');
     const conditions = event.stats?.conditions; write(record.conditions, conditions ? [conditions.distance, conditions.going, conditions.raceClass && 'Class ' + conditions.raceClass].filter(Boolean).join(' · ') : event.choices[0]?.market || 'Research outcome');
+    record.racingPanel.replaceChildren();
+    record.racingPanel.hidden = event.sport !== 'racing';
+    if (event.sport === 'racing') {
+      make(record.racingPanel, 'strong', 'Horse racing · independent research highlights');
+      const picks = racingHighlights(event);
+      make(record.racingPanel, 'p', 'Community tips: unavailable · no verified forum, blog or tipster consensus feed.', 'small');
+      if (!picks.length) make(record.racingPanel, 'p', 'Odds/form highlight unavailable · no unique sourced price favourite.', 'small');
+      for (const pick of picks) {
+        const item = make(record.racingPanel, 'div', undefined, 'racing-highlight-item');
+        make(item, 'strong', pick.choice.label + ' · ' + pick.labels.join(' + '));
+        make(item, 'p', pick.reasons.join(' · ') + ' · research only', 'small');
+      }
+    }
     const review = E.footballEvidenceReview(event);
     const leaders = E.modelLeaders(event), ordered = event.sport === 'racing' ? [...leaders.map(leader => event.choices.find(choice => choice.id === leader.id)), ...event.choices.filter(choice => !leaders.some(leader => leader.id === choice.id))] : event.choices;
     const structural = JSON.stringify([status.code === 'STARTED', ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id)]);
