@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-11-08T01:30:45.422876+00:00",
+  "research_only": true,
+  "publication_gate": "BLOCKED",
+  "model_validation": "UNVALIDATED",
+  "model": "CONTEXT_FORM_RESEARCH_V1",
+  "parameters": {
+    "minimum_form_runs": 3,
+    "maximum_form_runs": 6,
+    "maximum_age_days": 730,
+    "recency_half_life_days": 90,
+    "neutral_prior_runs": 5,
+    "softmax_temperature_inverse": 2,
+    "capture_buffer_minutes": 5,
+    "maximum_runner_age_minutes": 30,
+    "distance_log_scale": 0.25,
+    "similarity_bonus": {
+      "distance": 1.0,
+      "going": 1.0,
+      "class": 0.5,
+      "course": 0.5
+    },
+    "known_non_finisher_percentile": 0.0
+  },
+  "forecasts": [],
+  "skipped": [
+    {
+      "race_id": "947660",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "CHASE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947661",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947494",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947501",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947662",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947495",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947502",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947663",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947496",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947503",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947664",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947497",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947504",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947665",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "CHASE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947498",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947505",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "NH_FLAT",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947666",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "CHASE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947499",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "HURDLE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947506",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "CHASE",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947667",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": null,
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947500",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "NH_FLAT",
+      "surface": "TURF"
+    },
+    {
+      "race_id": "947507",
+      "reason": "CURRENT_GOING_UNAVAILABLE",
+      "run_type": "CHASE",
+      "surface": "TURF"
+    }
+  ],
+  "current_field_checks": {},
+  "coverage": {
+    "observed_races": 22,
+    "forecast_count": 0,
+    "archived_forecast_count": 59,
+    "discipline_counts": {
+      "CHASE": 0,
+      "FLAT": 0,
+      "HURDLE": 0,
+      "NH_FLAT": 0
+    },
+    "skipped_count": 22
+  },
+  "limitations": [
+    "Untrained context-weighted form research, not calibrated win probabilities. Distance, broad going, class similarity and course history reweight dated same-discipline outcomes using declared exploratory choices. No learned draw/pace bias, weight or official-rating effect, trainer/jockey statistics, fitness, market odds or verified EV. Inferred race discipline and sparse contextual evidence remain uncertain.",
+    "Every active runner requires three dated same-discipline resolved outcomes. Known non-finishes receive zero finish percentile; unresolved outcomes block forecasts.",
+    "Discipline provenance is retained; historical outcomes never include capture/race day. No prospective improvement is established before forward scoring.",
+    "This lane is separate from the existing all-weather baseline and failed held-out AW challenger."
+  ],
+  "race_date_uk": "2026-11-08"
+}
