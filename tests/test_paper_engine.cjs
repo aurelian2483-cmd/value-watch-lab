@@ -39,7 +39,7 @@ assert(generated.slots.some(s=>s.legs.length));assert(generated.slots.every(s=>s
 const nonempty=generated.slots.find(s=>s.legs.length),again=E.generateResearch(generated,[...events,event(3)],now);assert.deepEqual(again.slots.find(s=>s.id===nonempty.id).legs,nonempty.legs);
 assert.equal(E.generateResearch(E.createPlan({from:'2026-11-08'}),[],now).slots.reduce((n,s)=>n+s.legs.length,0),0);
 for(const [kind,path]of [['football','research-dashboard-data.json'],['football','football-expanded-data.json'],['racing','racing-research-data.json'],['other','other-sports-data.json'],['history','research-history.json']]){
- const d=JSON.parse(fs.readFileSync(path,'utf8')),rows=E.normalizeFeeds([{kind,path,document:d}],Date.parse('2026-11-08T00:00:00Z'));
+ const d=JSON.parse(fs.readFileSync(path,'utf8')),rows=E.normalizeFeeds([{kind,path,document:d}],Date.now());
  assert.equal(rows.diagnostics.length,0);assert.equal(new Set(rows.map(e=>e.id)).size,rows.length);
  for(const r of rows){assert(E.SPORTS[r.sport]===r.sport_type);assert.equal(r.publication_gate,'BLOCKED');assert.equal(r.model_validation,'UNVALIDATED');assert(r.sources.length);assert(r.choices.every(c=>c.quote?.executable!==true));}
 }
