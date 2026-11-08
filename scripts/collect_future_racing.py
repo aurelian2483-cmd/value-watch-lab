@@ -9,7 +9,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 from discover_horse_races import discover, PageData
 from collections import Counter
-from fixture_calendar import collect_fixtures
+from free_racing_sources import collect_free
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'racing-future-data.json'
@@ -104,10 +104,10 @@ def collect_api(now=None, fetch_json=None):
 if __name__=='__main__':
  data=collect_api() if os.environ.get('HORSE_RACING_API_KEY') else collect()
  target_dates=[x['date'] for x in data['days']]
- fixture_result=collect_fixtures(target_dates,dt.datetime.now(UTC))
+ fixture_result=collect_free(target_dates,dt.datetime.now(UTC))
  data['fixture_meetings']=fixture_result['meetings']
  data['fixture_source_status']=fixture_result['status']
- data['fixture_source_url']=fixture_result['url']
+ data['fixture_provider_results']=fixture_result['provider_results']
  if fixture_result.get('error'):data['fixture_source_error']=fixture_result['error']
  data['limitations'].append('Meeting fixtures are not individual races and have no inferred post times or runners.')
  print(json.dumps({'generated_at_utc':data['generated_at_utc'],'races_discovered':len(data['races']),'daily_source_results':data['days']},indent=2),flush=True)
