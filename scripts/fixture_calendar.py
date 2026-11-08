@@ -30,8 +30,10 @@ def parse_fixture_links(raw,dates,observed,base=FIXTURE_URL):
  for href,label in p.links:
   url=urljoin(base,href)
   if urlparse(url).netloc not in ("www.sportinglife.com","www.racingpost.com"):continue
-  if not any(x in urlparse(url).path for x in ("/racing/racecards/","/racing/going/","/racing/fixtures/","/racecards/")):continue
-  m=DATE_RE.search(urlparse(url).path)
+  if not any(x in urlparse(url).path for x in ("/racing/meeting/","/racing/racecards/","/racing/going/","/racing/fixtures/","/racecards/")):continue
+  path=urlparse(url).path
+  m=DATE_RE.search(path)
+  if path.startswith("/racing/meeting/") and not re.fullmatch(r"/racing/meeting/20\\d{2}-\\d{2}-\\d{2}/[a-z0-9-]+/\\d+",path):continue
   if not m or m.group() not in dates or not COURSE_RE.fullmatch(label):continue
   key=(m.group(),label.lower())
   found[key]={"date":m.group(),"course":label,"source_url":url,"observed_at_utc":observed.isoformat(),
