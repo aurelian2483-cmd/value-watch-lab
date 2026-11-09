@@ -6,6 +6,11 @@ on:
   schedule:
     - cron: '15 6,9,12,15 * * *'
   workflow_dispatch:
+  # Read opinions only after newly published individual card receipts exist.
+  workflow_run:
+    workflows: ['Seven-day future racecard discovery', 'Future racing seven-day discovery']
+    types: [completed]
+    branches: [main]
 permissions:
   contents: write
 concurrency:
@@ -13,6 +18,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   collect:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
