@@ -467,7 +467,24 @@
     make(panel, 'p', '2D schematic only. Live action and positions are not connected. Snapshot observed ' + dateText(event.observedAt) + '.', 'small');
     if (event.score) provenance(panel, event.score.sources);
   }
+  let racingCandidatesRequested=false;
+  function renderRacingCandidates(){
+    const panel=$('racing-candidates');if(!panel)return;
+    panel.hidden=!racingCandidatesRequested;if(panel.hidden)return;
+    panel.replaceChildren();const state=store.get();
+    const rows=E.racingCandidates(state.events,state.plan.from,state.plan.to,window.ValueWatchEvidenceV3?.evaluate);
+    make(panel,'h3',rows.length+' of 4 racing research candidates');
+    make(panel,'p',state.plan.from+' → '+state.plan.to+' · selected dates, all racing competitions. Ranked by agreement, then source leader, then favourite; ties use race time. One horse per race. Experimental evidence ranking, not best bets or verified value.','small');
+    if(!rows.length)make(panel,'p','No eligible candidates. Fresh racecards and a qualifying source or favourite signal are required. Refresh loads the latest published snapshot; no selections are invented.','small');
+    for(const row of rows){
+      const item=make(panel,'div',undefined,'research-row');make(item,'strong',row.choice.label+' · '+row.event.competition+' · '+dateText(row.event.startUTC));
+      make(item,'p',row.reasons.join(' · ')+(row.event.provisionalEntry?' · Final declarations unverified':''),'small');
+      const selected=state.plan.slots[state.slot].legs.some(leg=>leg.eventId===row.event.id&&leg.choiceId===row.choice.id);
+      const add=button(item,selected?'In current paper slip':'Choose for current paper slip',()=>select(row.event.id,row.choice.id));add.disabled=selected;
+    }
+  }
   function renderEvents() {
+    renderRacingCandidates();
     const state = store.get(), rows = filtered(state), visible = rows.slice(0, state.limit), root = $('events'); root.setAttribute('aria-busy', 'false');
     if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more').forEach(element => element.remove());
     S.reconcile(root, visible.map(event => event.id), cards, createCard, (record, id) => patchCard(record, visible.find(event => event.id === id)));
@@ -927,6 +944,7 @@
   $('event-view').addEventListener('change', event => store.update(state => ({ ...state, eventView: event.target.value, limit: 24 })));
   let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
   $('refresh').addEventListener('click', () => safely(refresh));
+  $('find-racing')?.addEventListener('click',()=>safely(()=>{racingCandidatesRequested=true;renderRacingCandidates();$('racing-candidates')?.scrollIntoView?.({block:'nearest'});}));
   $('generate').addEventListener('click', () => safely(() => { const state = store.get(); const scope = $('build-scope').value; const candidates = scope === 'all' ? state.events.filter(event => day(event.startUTC) >= state.plan.from && day(event.startUTC) <= state.plan.to) : filtered(state); savePlan(E.generateResearch(state.plan, candidates)); notice('Distinct research shortlists created where supported. Non-empty slips are retained. This is an evidence-coverage comparison, not verified value.'); }));
   $('slip-structure').addEventListener('change', event => safely(() => savePlan(E.setStructure(store.get().plan, store.get().slot + 1, event.target.value))));
   $('stake').addEventListener('input', event => { try { savePlan(E.setStake(store.get().plan, store.get().slot + 1, event.target.value || '0')); event.target.removeAttribute('aria-invalid'); } catch { event.target.setAttribute('aria-invalid', 'true'); } });

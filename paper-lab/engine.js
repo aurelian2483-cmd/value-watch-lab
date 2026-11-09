@@ -508,10 +508,30 @@
     return 1 + numerator / denominator;
   }
 
+  function racingCandidates(events, from, to, evaluate, now = Date.now()) {
+    range(from,to);
+    if(typeof evaluate!=='function')return [];
+    const rows=[];
+    for(const event of list(events)){
+      if(event.sport!=='racing'||event.futureScheduleOnly||!list(event.sources).some(s=>s.kind==='PROVIDER_RECEIPT')||!statusOf(event,now).selectable||Core.day(event.startUTC)<from||Core.day(event.startUTC)>to)continue;
+      const choices=[];
+      for(const choice of event.choices){
+        const gate=evaluate(event,choice,now);
+        const green=gate.green==='PROVISIONAL',blue=['VERIFIED','EXPERIMENTAL'].includes(gate.blue),yellow=['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(gate.yellow);
+        if(!green&&!blue)continue;
+        choices.push({event,choice,rank:yellow?3:blue?2:1,reasons:[...(green?[gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'Publisher forecast favourite':'Observed-price favourite']:[]),...(blue?['Unique source leader']:[]),...(yellow?['Source and favourite agree']:[])]});
+      }
+      choices.sort((a,b)=>b.rank-a.rank||a.choice.id.localeCompare(b.choice.id));
+      if(choices.length)rows.push(choices[0]);
+    }
+    rows.sort((a,b)=>b.rank-a.rank||instant(a.event.startUTC)-instant(b.event.startUTC)||a.event.id.localeCompare(b.event.id));
+    return rows.filter((row,index)=>rows.findIndex(other=>other.event.id===row.event.id)===index).slice(0,4);
+  }
+
   function impliedProbability(decimal) {
     if (!decimalRatio(decimal)) throw Error('A supported decimal price above 1 is required.');
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });

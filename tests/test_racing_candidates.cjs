@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict'),E=require('../paper-lab/engine.js');
+const now=Date.parse('2026-11-10T10:00:00Z');
+const race=(id,rank=1)=>({id,identity:id,sport:'racing',startUTC:'2026-11-10T14:00:00Z',observedAt:'2026-11-10T09:59:00Z',ttlMs:1800000,fieldConfirmed:true,providerStatus:'DORMANT',sources:[{kind:'PROVIDER_RECEIPT',observedAt:'2026-11-10T09:59:00Z'}],choices:[{id:'a',rank},{id:'b',rank:0}]});
+const gate=(e,c)=>({green:c.rank===1||c.rank===3?'PROVISIONAL':'NOT_ESTABLISHED',blue:c.rank>=2?'EXPERIMENTAL':'NOT_AWARDED',yellow:c.rank===3?'EXPERIMENTAL_AGREEMENT':'NOT_AWARDED'});
+const run=rows=>E.racingCandidates(rows,'2026-11-10','2026-11-10',gate,now);
+const rows=[race('green'),race('blue',2),race('yellow',3),race('fourth'),race('fifth')];const before=JSON.stringify(rows);
+assert.equal(run(rows).length,4);assert.equal(run(rows)[0].event.id,'yellow');assert.equal(run(rows)[1].event.id,'blue');assert.equal(JSON.stringify(rows),before);
+assert.equal(run([race('one')]).length,1);assert.equal(run([race('none',0)]).length,0);
+for(const changes of [{sport:'football'},{observedAt:'2026-11-10T09:00:00Z'},{futureScheduleOnly:true},{providerStatus:'CANCELLED'},{startUTC:'2026-11-11T14:00:00Z'},{startUTC:'2026-11-10T10:04:00Z'},{sources:[]}])assert.equal(run([{...race('blocked'),...changes}]).length,0);
+assert.equal(run([race('duplicate'),race('duplicate')]).length,1);
+const multi=race('multi',3);multi.choices.push({id:'c',rank:2});assert.equal(run([multi]).length,1);
+assert.deepEqual(E.racingCandidates(rows,'2026-11-10','2026-11-10',null,now),[]);
+console.log('Racing shortlist: four maximum, one per race, evidence ranking, dates, stale/cancelled/source gates and immutable input passed');
