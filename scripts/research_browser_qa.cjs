@@ -25,7 +25,7 @@ async function waitBoard(page){await page.waitForFunction(()=>document.querySele
 async function noOverflow(page,label){const result=await page.evaluate(()=>({width:innerWidth,body:document.documentElement.scrollWidth}));assert(result.body<=result.width+1,label+' horizontal overflow '+JSON.stringify(result));report.checks.push(label+' no horizontal overflow');}
 async function audit(page,label){const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();report.accessibility.push({label,violations:result.violations});const important=result.violations.filter(v=>['critical','serious'].includes(v.impact));assert.equal(important.length,0,label+' accessibility: '+important.map(x=>x.id+': '+x.nodes.map(n=>n.target).join(',')).join('; '));}
 (async()=>{
- await listen();const browser=await chromium.launch({headless:true});
+ await listen();const browser=await chromium.launch({headless:true, ...(process.env.PLAYWRIGHT_CHANNEL ? {channel:process.env.PLAYWRIGHT_CHANNEL} : {})});
  try{
   const live=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1,locale:'en-GB'});const page=await live.newPage();page.on('pageerror',error=>report.pageErrors.push(error.message));
   await page.goto(base+'/',{waitUntil:'networkidle'});await waitBoard(page);await noOverflow(page,'real desktop');
@@ -45,6 +45,43 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   const matchBox=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.match-overview');await matchBox.locator('summary').click();await matchBox.locator('svg.sport-diagram').waitFor();assert.equal(await matchBox.locator('svg.sport-diagram').count(),1);assert((await matchBox.textContent()).includes('Live action and positions are not connected'));
   const estimateBox=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.model-details').first();await estimateBox.locator('summary').click();assert((await estimateBox.textContent()).includes('%'));
   report.checks.push('manual stake default, visible labelled estimates, two build scopes and external price-check links');
+  const legacy24 = JSON.stringify({data:Array.from({length:24},(_,i)=>({id:'saved-paper-'+i})),selected:[]});
+  await p.evaluate(value=>localStorage.setItem('vw26-prototype-v2',value),legacy24);
+  const workspaceBefore = await p.evaluate(()=>localStorage.getItem('value-watch-research-desk-v4'));
+  assert.equal(await p.locator('[data-engine=current]').getAttribute('aria-pressed'),'true');
+  await p.locator('[data-engine=experimental]').focus(); await p.keyboard.press('Enter');
+  assert.equal(await p.locator('[data-engine=experimental]').getAttribute('aria-pressed'),'true');
+  assert((await p.locator('#engine-analysis').textContent()).includes('ILLUSTRATIVE'));
+  assert((await p.locator('#engine-analysis').textContent()).includes('Unavailable'));
+  await p.locator('[data-engine=compare]').click();
+  assert((await p.locator('#engine-analysis').textContent()).includes('Current Engine 2.5'));
+  assert.equal(await p.evaluate(()=>localStorage.getItem('value-watch-research-desk-v4')),workspaceBefore);
+  await p.reload({waitUntil:'networkidle'}); await waitBoard(p);
+  assert.equal(await p.locator('[data-engine=compare]').getAttribute('aria-pressed'),'true');
+  assert.equal(await p.evaluate(()=>localStorage.getItem('vw26-prototype-v2')),legacy24);
+  await audit(p,'engine comparison');
+  await p.setViewportSize({width:390,height:844}); await noOverflow(p,'engine switch mobile');
+  await p.setViewportSize({width:1440,height:1000});
+  await p.locator('[data-engine=current]').click();
+  assert(await p.locator('#engine-analysis').isHidden());
+  await p.evaluate(fixture=>{
+    const E=ResearchEngine,t=Date.parse('2026-11-08T09:00:00Z'),event=E.normalizeFeeds([{kind:'football',path:'synthetic-qa-only.json',document:fixture}],t)[0];
+    let plan=E.createPlan({from:'2026-11-08',to:'2026-11-14',createdAt:new Date(t).toISOString()});
+    plan=E.addSelection(plan,1,event,'home',t);
+    plan=E.setRecordedQuote(plan,1,0,{decimal:2.5,source:'https://example.org/synthetic-qa-price',observedAt:new Date(t).toISOString(),bookmaker:'Synthetic QA only'},t);
+    const workspace=JSON.parse(localStorage.getItem('value-watch-research-desk-v4'));workspace.plan=plan;
+    localStorage.setItem('value-watch-research-desk-v4',JSON.stringify(workspace));
+  },football);
+  await p.reload({waitUntil:'networkidle'}); await waitBoard(p);
+  await p.locator('[data-engine=compare]').click();
+  assert((await p.locator('#engine-analysis').textContent()).includes('Central EV: 12.5%'));
+  assert((await p.locator('#engine-analysis').textContent()).includes('variance: 1.5469'));
+  await p.clock.setSystemTime(new Date('2026-11-08T09:31:00Z')); await p.locator('[data-engine=experimental]').click();
+  assert((await p.locator('#engine-analysis').textContent()).includes('Unavailable'));
+  await p.clock.setSystemTime(new Date('2026-11-08T09:00:00Z'));
+  await p.evaluate(value=>localStorage.setItem('value-watch-research-desk-v4',value),workspaceBefore);
+  await p.locator('[data-engine=current]').click(); await p.reload({waitUntil:'networkidle'}); await waitBoard(p);
+  report.checks.push('keyboard engine switch, comparison, missing inputs, persistence, unchanged workspace, mobile layout and accessibility');
   await p.locator('[data-range=tomorrow]').click();assert((await p.locator('#coverage-summary').textContent()).includes('matching your filters'));await p.locator('[data-sport=racing]').click();await p.locator('#events .event-empty').waitFor();assert((await p.locator('#events').textContent()).includes('scheduled meetings'));await p.locator('#events').getByRole('button',{name:'Show next 14 days',exact:true}).click();await p.locator('#events .event-card').waitFor();assert.equal(await p.locator('#date-from').inputValue(),'2026-11-08');assert.equal(await p.locator('#date-to').inputValue(),'2026-11-21');await p.locator('[data-sport=all]').click();await p.locator('[data-range="7"]').click();report.checks.push('racing coverage gap explains unavailable cards and offers working range recovery');
   const first=p.locator('#events .event-card').filter({hasText:'Test Home 0'});
   // Run clear + first manual click in one browser task so an asynchronous

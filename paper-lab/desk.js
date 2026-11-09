@@ -591,9 +591,45 @@
       form.addEventListener('submit', event => { event.preventDefault(); safely(() => savePlan(E.setRecordedQuote(store.get().plan, slot.id, leg.id, { decimal: Number(price.value), source: source.value, observedAt: new Date(seen.value + 'Z').toISOString(), bookmaker: bookmaker.value }))); });
     }
   }
+  const X = ResearchExperimental;
+  let engineView = 'current';
+  try { engineView = X.mode(storage.getItem(X.preferenceKey)); } catch { /* Default view remains usable without storage. */ }
+  function renderEngine(evaluation) {
+    document.querySelectorAll('[data-engine]').forEach(element => element.setAttribute('aria-pressed', String(element.dataset.engine === engineView)));
+    write($('engine-status'), ({current:'Current Engine 2.5 · existing research workflow.', experimental:'Experimental Engine 3.0 · illustrative, uncalibrated research mathematics.', compare:'Side-by-Side Compare · same captured inputs; no reranking.'})[engineView]);
+    const root = $('engine-analysis'); root.hidden = engineView === 'current'; root.replaceChildren();
+    if (root.hidden) return;
+    make(root, 'h3', 'Selected paper slip · ' + store.get().plan.slots[store.get().slot].name);
+    make(root, 'p', 'ILLUSTRATIVE: ±3 percentage points is a sensitivity scenario, not measured uncertainty. Calibration, Bayesian uncertainty, adaptive ranking and backtesting are not implemented here. No joint probability or portfolio EV is inferred.', 'small');
+    if (!evaluation.legs.length) make(root, 'p', 'Choose an outcome to inspect its supplied inputs. No example probabilities or prices are substituted.');
+    for (const leg of evaluation.legs) {
+      const row = make(root, 'article', undefined, 'engine-comparison');
+      make(row, 'h4', leg.event + ' · ' + leg.label);
+      const current = make(row, 'div');
+      if (engineView === 'compare') make(current, 'h4', 'Current Engine 2.5');
+      make(current, 'p', 'Captured estimate: ' + pct(leg.probability) + ' · ' + (leg.model?.probabilityKind || 'No model input') + ' · UNVALIDATED');
+      make(current, 'p', 'Source decimal price: ' + (leg.quote?.decimal ?? 'Unavailable') + ' · ' + leg.quoteState + ' · not executable', 'small');
+      const experimental = make(row, 'div');
+      make(experimental, 'h4', 'Experimental Engine 3.0');
+      const result = leg.canCalculate && leg.currentStatus.selectable ? X.calculate(leg.probability, leg.quote?.decimal) : null;
+      if (!result) { make(experimental, 'p', 'Unavailable: a supplied model input and a current source-matched price for a selectable outcome are required. No probability or odds inferred.'); continue; }
+      make(experimental, 'p', 'Conditional arithmetic only. Racing context weights are not calibrated win probabilities; these results do not establish value.', 'small');
+      make(experimental, 'p', 'Central EV: ' + pct(result.centralEV) + ' · break-even p: ' + pct(result.breakEven));
+      make(experimental, 'p', 'Sensitivity p: ' + pct(result.low) + ' / ' + pct(result.probability) + ' / ' + pct(result.high) + ' → EV: ' + pct(result.lowEV) + ' / ' + pct(result.centralEV) + ' / ' + pct(result.highEV));
+      make(experimental, 'p', 'Fragility (p − 1/o): ' + (result.fragility * 100).toFixed(2) + ' percentage points. A nonpositive margin means no positive central EV.');
+      make(experimental, 'p', 'Unit-stake payoff variance: ' + result.variance.toFixed(4) + ' · EV sensitivity dEV/dp: ' + result.sensitivity.toFixed(4));
+    }
+    make(root, 'p', 'Formulae: EV = p×o−1; break-even = 1/o; fragility = p−1/o; variance = o²p(1−p). Unit stake = 1; no actual stake or settlement implied.', 'small');
+  }
+  document.querySelectorAll('[data-engine]').forEach(element => element.addEventListener('click', () => safely(() => {
+    engineView = X.mode(element.dataset.engine);
+    renderSlip();
+    try { storage.setItem(X.preferenceKey, engineView); } catch { write($('engine-status'), $('engine-status').textContent + ' View preference could not be saved on this device.'); }
+  })));
   let slipSignature = '';
   function renderSlip() {
     const state = store.get(), slot = state.plan.slots[state.slot], evaluation = E.evaluateSlot(slot, state.events);
+    renderEngine(evaluation);
     write($('slip-title'), slot.name); write($('slip-subtitle'), slot.description); write($('slip-count'), slot.legs.length + ' / 15'); write($('mobile-count'), state.plan.slots.reduce((sum, slot) => sum + slot.legs.length, 0));
     document.querySelectorAll('[data-slot]').forEach(element => { const active = Number(element.dataset.slot) === state.slot + 1; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
     if (document.activeElement !== $('stake')) $('stake').value = slot.stakeMinor ? (slot.stakeMinor / 100).toFixed(2) : ''; $('slip-structure').value = slot.structure;
