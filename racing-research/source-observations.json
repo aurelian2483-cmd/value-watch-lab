@@ -3286,8 +3286,8 @@
       }
     }
   ],
-  "last_collector_run_utc": "2026-11-09T12:43:34.246115+00:00",
-  "collector_added": 2,
+  "last_collector_run_utc": "2026-11-09T16:12:57.711997+00:00",
+  "collector_added": 0,
   "collector_errors": [
     {
       "publisher": "The Racing Forum",
@@ -3302,6 +3302,10 @@
       "publisher": "Reddit HorseRacingUK replies",
       "url": "https://www.reddit.com/r/HorseRacingUK/comments/1xqagxg/sundays_tips_thread/.rss",
       "error": "HTTP Error 429: Too Many Requests"
+    },
+    {
+      "publisher": "OLBG aggregate tips",
+      "error": "No structured OLBG tip rows; source layout unavailable"
     }
   ],
   "collector_source_health": [
@@ -3473,9 +3477,9 @@
       "explicit_tip_observations": 0,
       "review_only_mentions": 0,
       "skip_reasons": {
-        "invalid_date": 5,
+        "invalid_date": 4,
         "invalid_link": 0,
-        "no_tip_language": 12,
+        "no_tip_language": 13,
         "no_runner_match": 3,
         "already_recorded": 0,
         "after_start": 0
@@ -3486,8 +3490,8 @@
       "source_type": "tipster",
       "status": "fetched",
       "items_scanned": 22,
-      "matched_selections": 17,
-      "explicit_tip_observations": 17,
+      "matched_selections": 0,
+      "explicit_tip_observations": 0,
       "url": "https://www.sportinglife.com/racing/timeform-racing-tips-today"
     },
     {
@@ -3495,32 +3499,28 @@
       "source_type": "tipster",
       "status": "fetched",
       "items_scanned": 57,
-      "matched_selections": 47,
-      "explicit_tip_observations": 47,
+      "matched_selections": 0,
+      "explicit_tip_observations": 0,
       "url": "https://www.sportinglife.com/racing/naps-table"
     },
     {
       "publisher": "OLBG aggregate tips",
       "source_type": "tipster",
       "url": "https://www.olbg.com/betting-tips/Horse_Racing/2",
-      "status": "fetched",
-      "items_scanned": 20,
-      "matched_selections": 16,
-      "explicit_tip_observations": 16,
-      "rejected_rows": 4,
-      "limitation": "Partial first-page aggregate coverage; counts are not independently verified individual authors."
+      "status": "error",
+      "error": "No structured OLBG tip rows; source layout unavailable"
     }
   ],
   "racecard_health": {
-    "future_races": 39,
+    "future_races": 44,
     "status": "ready",
     "message": "Current and future source racecards checked"
   },
   "primary_post_checks": [],
   "community_pipeline": {
-    "upcoming_races": 39,
-    "upcoming_source_selections": 86,
-    "publisher_selections_matched": 80,
+    "upcoming_races": 44,
+    "upcoming_source_selections": 0,
+    "publisher_selections_matched": 0,
     "forum_items_scanned": 45,
     "upcoming_forum_candidates": 0,
     "checked_primary_posts": 0,
