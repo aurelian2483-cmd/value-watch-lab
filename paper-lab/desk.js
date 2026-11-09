@@ -200,6 +200,12 @@
       const communityTips = Array.isArray(event.communityTips) ? event.communityTips : [];
       // Show the actual picks first; keep the evidence and collector diagnostics collapsed.
       const green = picks.find(p => p.gate.green==='PROVISIONAL');
+      const forecastCoverage=event.publisherForecastCoverage;
+      const unavailableReason=event.publisherForecastStatus==='INCOMPLETE_FORECAST'
+        ? 'Source forecast is incomplete'+(Number.isInteger(forecastCoverage?.priced)&&Number.isInteger(forecastCoverage?.active)?' ('+forecastCoverage.priced+' of '+forecastCoverage.active+' active runners priced)':'')+'. No full-field favourite established.'
+        : event.publisherForecastStatus==='UNAVAILABLE'?'Publisher has not supplied a usable forecast for this race.'
+        : event.publisherForecastStatus==='FIELD_UNCONFIRMED'?'Source runner field is not confirmed.'
+        : 'No unique favourite from a complete, fresh source price or labelled publisher forecast.';
       const evaluations=(event.choices||[]).map(choice=>({choice,gate:evaluateEvidenceSafe(event,choice)}));
       const blue=evaluations.filter(item=>['VERIFIED','EXPERIMENTAL'].includes(item.gate.blue));
       const yellow=evaluations.filter(item=>['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(item.gate.yellow));
@@ -211,7 +217,7 @@
         const heading=make(tile,'strong',title);heading.style.color=colour;
         make(tile,'div',horse,'small');make(tile,'small',detail,'muted');
       };
-      signal('#b8ee79',green?.gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'GREEN · Forecast favourite':'GREEN · Odds favourite',green?.choice.label||'Unavailable',green?.gate.marketBasis||'Current source price or labelled publisher forecast required');
+      signal('#b8ee79',green?.gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'GREEN · Forecast favourite':'GREEN · Odds favourite',green?.choice.label||'Unavailable for this race',green?.gate.marketBasis||unavailableReason);
       signal('#60a5fa','BLUE · Source leader',blue.length?blue.map(x=>x.choice.label).join(', '):(sourceTie?'No clear leader':'Not awarded'),blue.length?'Unique source leader · experimental / unverified':sourceTie?'Equal source support; no blue horse awarded':'No dated source selection matched');
       signal('#facc15','YELLOW · Agreement',yellow.length?yellow.map(x=>x.choice.label).join(', '):'Not awarded',yellow.length?'Unique source leader + price/forecast favourite · unverified':'Requires a unique source leader matching the price/forecast favourite');
       const diagnostics=make(record.racingPanel,'details',undefined,'racing-audit-details');
@@ -341,7 +347,7 @@
       view.element.style.setProperty('opacity', racingPick ? '1' : '', racingPick ? 'important' : '');
       view.name.textContent = racingPick ? '★ ' + choice.label : choice.label;
       view.name.style.setProperty('color', racingPick ? agreement ? '#fef08a' : hasCommunity ? '#bfdbfe' : '#e1ffae' : '', racingPick ? 'important' : '');
-      view.modelBadge.style.setProperty('display', racingPick ? 'block' : '', racingPick ? 'important' : '');
+      view.modelBadge.style.setProperty('display', racingPick||leader ? 'block' : 'none', 'important');
       if (racingPick) view.modelBadge.textContent = agreement ? '🟡 EXPERIMENTAL AGREEMENT · PRICE/FORECAST + SOURCE' : racingPick.labels.join(' + ').toUpperCase();
       view.modelBadge.style.setProperty('color', racingPick ? agreement ? '#fef08a' : hasCommunity ? '#bfdbfe' : '#e1ffae' : '', racingPick ? 'important' : '');
       view.element.classList.toggle('is-model-first', leader?.rank === 1); view.element.classList.toggle('is-model-alternative', leader?.rank === 2);
@@ -509,6 +515,26 @@
           ?'Football fixture feed has gaps on the selected dates. Missing records are not evidence that leagues have no games; source collection and cross-checks must be expanded.'
           :'Some selected dates have no collected racecards. This is a source-coverage gap, not evidence of no scheduled racing.','muted');
       }
+    }
+    let highlightCoverage=$('racing-highlight-coverage');
+    if(!highlightCoverage){highlightCoverage=make(null,'div',undefined,'coverage-summary');highlightCoverage.id='racing-highlight-coverage';$('coverage-summary').after(highlightCoverage);}
+    highlightCoverage.hidden=state.sport!=='racing';
+    if(state.sport==='racing'){
+      const racingRows=rows.filter(event=>event.sport==='racing'),counts={green:0,blue:0,yellow:0};let first=null;
+      for(const event of racingRows){
+        const gates=event.choices.map(choice=>evaluateEvidenceSafe(event,choice));
+        const green=gates.some(g=>g.green==='PROVISIONAL'),blue=gates.some(g=>['VERIFIED','EXPERIMENTAL'].includes(g.blue)),yellow=gates.some(g=>['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(g.yellow));
+        counts.green+=Number(green);counts.blue+=Number(blue);counts.yellow+=Number(yellow);
+        if(!first&&(green||blue||yellow))first=event;
+      }
+      highlightCoverage.replaceChildren();
+      make(highlightCoverage,'p',counts.green+' of '+racingRows.length+' races have a green source favourite · '+counts.blue+' blue source leaders · '+counts.yellow+' yellow agreements. Counts cover your selected dates, including races further down the list.');
+      if(racingRows.length&&!counts.blue)make(highlightCoverage,'p','No blue leader established from current matched source selections; yellow also needs that leader.');
+      if(first)button(highlightCoverage,'Go to first highlighted race',()=>{
+        const id=first.id,index=rows.findIndex(event=>event.id===id);
+        store.update(state=>({...state,limit:Math.max(state.limit,index+1)}));
+        setTimeout(()=>{const card=cards.get(id)?.node;const target=card?.querySelector('[data-evidence-green="true"], [data-evidence-blue="true"], [data-evidence-yellow="true"]');const disclosure=target?.closest('.runner-disclosure');if(disclosure)disclosure.open=true;target?.scrollIntoView({block:'center'});target?.focus({preventScroll:true});},0);
+      },'button button-secondary');
     }
     write($('coverage-summary'), rows.length + ' matching your filters · ' + state.events.length + ' total loaded records across all dates. Coverage is incomplete; zero means no matching records in these feeds.');
     write($('event-summary'), rows.length + ' ' + (state.eventView === 'upcoming' ? 'upcoming' : 'recorded') + ' event' + (rows.length === 1 ? '' : 's') + ' · ' + state.plan.from + ' → ' + state.plan.to + ' · UK time');

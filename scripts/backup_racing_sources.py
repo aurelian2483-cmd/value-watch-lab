@@ -46,6 +46,18 @@ class Tip(HTMLParser):
         if tag==self.capture:
             (self.names if tag=='h4' else self.events).append(''.join(self.parts).strip());self.capture=None
 
+class PageState(HTMLParser):
+    def __init__(self):
+        super().__init__();self.canonical=False;self.hidden=0;self.text=[]
+    def handle_starttag(self,tag,attrs):
+        a=dict(attrs)
+        if tag=='link' and a.get('rel')=='canonical' and a.get('href')==OLBG:self.canonical=True
+        if tag in ('script','style'):self.hidden+=1
+    def handle_endtag(self,tag):
+        if tag in ('script','style'):self.hidden=max(0,self.hidden-1)
+    def handle_data(self,text):
+        if not self.hidden:self.text.append(text)
+
 def collect(races,now,fetch=None):
     if fetch is None:
         def fetch(url):
@@ -57,8 +69,13 @@ def collect(races,now,fetch=None):
     try:
         raw=fetch(OLBG)
         if not raw or len(raw)>2_000_000:raise ValueError('OLBG page missing or oversized')
-        parser=Rows();parser.feed(raw.decode('utf-8'))
-        if not parser.rows:raise ValueError('No structured OLBG tip rows; source layout unavailable')
+        html=raw.decode('utf-8');parser=Rows();parser.feed(html)
+        if not parser.rows:
+            page=PageState();page.feed(html)
+            if page.canonical and re.search(r'\bNo tips found\.', ' '.join(page.text),re.I):
+                health.update(status='fetched',source_state='NO_TIPS_PUBLISHED',items_scanned=0,matched_selections=0,explicit_tip_observations=0,limitation='Source explicitly reports no tips for this page; no selections inferred.')
+                return [],[health]
+            raise ValueError('No structured OLBG tip rows; source layout unavailable')
         entries=[];seen=set();rejected=0
         for row in parser.rows:
             tip=Tip();tip.feed(row)

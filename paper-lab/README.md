@@ -121,6 +121,8 @@ Current runner/market observations, future racecards and publisher selections re
 
 ## One blue leader and additional backups
 
+The racing view includes a count of green favourites, blue leaders and yellow agreements across the selected dates and a jump to the first highlighted race. Individual missing forecasts explain incomplete/unpublished fields, rather than implying the whole range has no evidence. The publisher's explicit “No Forecast Available” and OLBG's canonical “No tips found” page are source absences, not parser failures. No model badge is shown on an unranked runner.
+
 Racing blue now marks only the unique leader by distinct captured source identities. Equal support displays No clear leader and awards no blue or yellow. Named publications in the source-backed Naps table count once per horse, and duplicate Timeform records share one identity. Other sites contribute one domain vote per horse; OLBG aggregate totals never become multiple verified authors. Yellow still requires that unique leader to be the observed-price or publisher-forecast favourite. Other source opinions remain visible without blue borders.
 
 OLBG public win-tip rows are a supplemental source, matched by exact start time, course and active horse name. First-page coverage is partial. The Racing Forum official advertised RSS is conditionally monitored: one probe returned ten dated posts, another returned 403. Only positive own-body selections with same-day publication, matching course, runner and off time can become experimental source observations. Quotes, negations and undated/ambiguous mentions remain review-only. Punters Lounge returned 403; Betfair Community returned a browser compatibility challenge. Both remain manual links, not active automated backups.

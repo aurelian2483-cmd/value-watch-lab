@@ -32,5 +32,10 @@ class BackupSources(unittest.TestCase):
         self.assertEqual(len(self.run_case(self.html*2)[0]),1)
     def test_layout_failure_is_reported(self):
         rows,health=self.run_case('<html>Login or challenge</html>');self.assertEqual(rows,[]);self.assertEqual(health[0]['status'],'error')
+    def test_explicit_empty_page_is_available_not_a_layout_failure(self):
+        rows,health=self.run_case('<link rel="canonical" href="https://www.olbg.com/betting-tips/Horse_Racing/2"><p>No tips found.</p>')
+        self.assertEqual(rows,[]);self.assertEqual(health[0]['status'],'fetched');self.assertEqual(health[0]['source_state'],'NO_TIPS_PUBLISHED')
+        _,challenge=self.run_case('<script>No tips found.</script><title>Challenge</title>')
+        self.assertEqual(challenge[0]['status'],'error')
 
 if __name__=='__main__':unittest.main()

@@ -63,6 +63,10 @@ module.exports=async function checkRacingPaper(browser,base){
     assert.equal(await choice.isEnabled(),true);
     assert.equal(await page.evaluate(()=>typeof window.ValueWatchEvidenceV3?.evaluate),'function');
     assert((await choice.textContent()).includes('FORECAST FAVOURITE'),'A source-labelled publisher forecast must restore provisional green');
+    assert((await page.locator('#racing-highlight-coverage').textContent()).includes('1 of 1 races have a green source favourite'));
+    await page.locator('#racing-highlight-coverage button').click();
+    await page.waitForFunction(()=>document.activeElement?.dataset.choiceId==='1');
+    assert.equal(await page.locator('#events [data-choice-id="2"] .model-pick-badge').isVisible(),false,'A runner without a model or source highlight must not show MODEL ALTERNATIVE');
     await choice.click();
     assert((await page.locator('#slip-content').textContent()).includes('Synthetic Horse 1'));
     assert((await page.locator('#slip-content').textContent()).includes('Provisional paper entry'));

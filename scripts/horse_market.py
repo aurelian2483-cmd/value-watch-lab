@@ -10,6 +10,7 @@ def publisher_forecast(card,observed,source,digest,pre_event,field_confirmed):
  if not pre_event or not field_confirmed:return {**base,'status':'FIELD_UNCONFIRMED'}
  text=card.get('betting_forecast')
  if not isinstance(text,str) or not text.strip() or len(text)>10000:return base
+ if re.fullmatch(r'\s*No Forecast Available\.?\s*',text,re.I):return {**base,'reason':'FORECAST_NOT_PUBLISHED'}
  def name(value):
   value=re.sub(r'\s*\((?:GB|IRE|FR|USA|GER|AUS|NZ)\)\s*$','',value,flags=re.I)
   return re.sub(r'[^a-z0-9]','',unicodedata.normalize('NFKD',value).encode('ascii','ignore').decode().casefold())
@@ -30,7 +31,7 @@ def publisher_forecast(card,observed,source,digest,pre_event,field_confirmed):
   decimal=1+a/b
   if not math.isfinite(decimal) or not 1<decimal<=10000:return {**base,'status':'INVALID_FORECAST'}
   if hid in active:prices.append({'horse_id':hid,'decimal':decimal,'fractional':fraction})
- if set(active)!={p['horse_id'] for p in prices}:return {**base,'status':'INCOMPLETE_FORECAST'}
+ if set(active)!={p['horse_id'] for p in prices}:return {**base,'status':'INCOMPLETE_FORECAST','priced_active_count':len(prices),'active_runner_count':len(active)}
  return {**base,'status':'COMPLETE_PUBLISHER_FORECAST','prices':prices}
 
 def quoted_market(rides,observed,source,digest,pre_event,field_confirmed):
