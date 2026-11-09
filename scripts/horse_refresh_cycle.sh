@@ -22,6 +22,14 @@ cp /tmp/horse-research/racing-research-data.json racing-research-data.json
 git add -- racing-research-data.json
 if [ -d research/horse-market-archive ]; then git add -- research/horse-market-archive; fi
 publish "Refresh racecards and timestamped source-price observations"
+if python scripts/collect_future_racing.py; then
+  git add -- racing-future-data.json
+else
+  echo "::warning::Future source refresh failed; retained existing future snapshot"
+fi
+python scripts/collect_racing_community.py
+git add -- racing-research/source-observations.json
+publish "Refresh future racecards and source-linked published racing selections"
 python scripts/horse_reference_baseline.py
 python scripts/horse_secondary_source.py
 python scripts/horse_model_pipeline.py

@@ -225,6 +225,7 @@
       make(diagnostics,'p','CONFIRMED CONVERGENCE: NOT ESTABLISHED · press-naps count and comprehensive forum evidence unavailable','small');
       make(diagnostics,'p','Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+communityHealth.errors.length+' reported errors','small');
       if(communityHealth.pipeline)make(diagnostics,'p','Community matching across the next 48 hours: '+communityHealth.pipeline.forum_items_scanned+' forum items scanned → '+communityHealth.pipeline.upcoming_forum_candidates+' race-matched candidates → '+communityHealth.pipeline.checked_primary_posts+' checked primary posts.','small');
+      if(communityHealth.pipeline?.publisher_selections_matched)make(diagnostics,'p','Published selections matched to captured runners: '+communityHealth.pipeline.publisher_selections_matched+' · publisher opinions, not verified forum consensus.','small');
       for(const failure of communityHealth.errors)make(diagnostics,'p',(failure.publisher||'Community source')+' · '+(failure.error||'unavailable'),'small');
       if(communityHealth.racecardHealth?.status==='stale_or_no_upcoming_races')make(diagnostics,'p','Upstream racecard stale: no future races for matching.','small');
       if(communityHealth.sourceHealth?.length){
@@ -804,7 +805,7 @@
       if (feed.schema_version !== 1 || !Array.isArray(feed.entries) || feed.entries.length > 10000) throw Error('Unsupported community archive');
       communityEntries = feed.entries;
       communityHealth = {lastRun:feed.last_collector_run_utc || null,added:Number(feed.collector_added)||0,errors:Array.isArray(feed.collector_errors)?feed.collector_errors:[],configured:0,sourceHealth:Array.isArray(feed.collector_source_health)?feed.collector_source_health:[],racecardHealth:feed.racecard_health||null,pipeline:feed.community_pipeline||null};
-      try { const cfg = await fetch(new URL('racing-research/community-feeds.json',rootURL),{cache:'no-store'}); if(cfg.ok){const data=await cfg.json();communityHealth.configured=(data.sources||[]).filter(x=>x.enabled).length;} } catch {}
+      try { const cfg = await fetch(new URL('racing-research/community-feeds.json',rootURL),{cache:'no-store'}); if(cfg.ok){const data=await cfg.json();communityHealth.configured=(data.sources||[]).filter(x=>x.enabled).length+Number(feed.publisher_sources_attempted||0);} } catch {}
     } catch { communityEntries = []; communityHealth = {lastRun:null,added:0,errors:[],configured:0}; }
     store.update(state => ({...state, events:state.events.map(event => ({...event,communityTips:matchCommunity(event)})), eventVersion:state.eventVersion+1}));
     // Community data arrives asynchronously after the initial racecard snapshot.

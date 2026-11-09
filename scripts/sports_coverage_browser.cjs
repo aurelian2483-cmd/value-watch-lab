@@ -31,7 +31,12 @@ const server=http.createServer((req,res)=>{
         const greenExpected=sport==='racing'?expected.days.reduce((sum,d)=>sum+d.racing.green_publisher_forecast+d.racing.green_observed_market,0):null;
         const greenDisplayed=sport==='racing'?await page.locator('#events [data-evidence-green="true"]').count():null;
         if(sport==='racing')assert.equal(greenDisplayed,greenExpected,'Every qualifying real source favourite must reach a highlighted runner button');
-        results.push({width:viewport.width,sport,displayed:count,greenExpected,greenDisplayed});
+        const blueExpected=sport==='racing'?expected.days.reduce((sum,d)=>sum+d.racing.blue_source_selections,0):null;
+        const yellowExpected=sport==='racing'?expected.days.reduce((sum,d)=>sum+d.racing.yellow_agreements,0):null;
+        if(sport==='racing')await page.waitForFunction(({blue,yellow})=>document.querySelectorAll('#events [data-evidence-blue="true"]').length===blue&&document.querySelectorAll('#events [data-evidence-yellow="true"]').length===yellow,{blue:blueExpected,yellow:yellowExpected});
+        const blueDisplayed=sport==='racing'?await page.locator('#events [data-evidence-blue="true"]').count():null;
+        const yellowDisplayed=sport==='racing'?await page.locator('#events [data-evidence-yellow="true"]').count():null;
+        results.push({width:viewport.width,sport,displayed:count,greenExpected,greenDisplayed,blueExpected,blueDisplayed,yellowExpected,yellowDisplayed});
       }
       assert.deepEqual(errors,[]);await page.close();
     }

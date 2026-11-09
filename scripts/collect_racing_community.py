@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from primary_racing_posts import capture,capture_native_feed
+from published_racing_selections import collect as collect_published
 
 ROOT = Path(__file__).resolve().parents[1]
 UTC = dt.timezone.utc
@@ -257,6 +258,13 @@ def main():
         except Exception as error:
             failures.append({"publisher":source.get("publisher", "unknown"), "error":str(error)[:160]})
             source_health.append({"publisher":source.get("publisher", "unknown"), "source_type":source.get('type'), "status":"error", "error":str(error)[:160]})
+    published, publisher_health=collect_published(races,current_time())
+    source_health+=publisher_health
+    for health in publisher_health:
+        if health['status']=='error':failures.append({'publisher':health['publisher'],'error':health['error']})
+    for record in published:
+        if record['id'] not in known:
+            entries.append(record);known.add(record['id']);added+=1
     # Recheck bounded upcoming forum candidates, including earlier RSS captures.
     upcoming={str(r['race_id']):r for r in future_races}
     candidates=[e for e in entries if e.get('group') in ('forum','social_forum') and e.get('verification')!='PRIMARY_POST_CAPTURED' and str(e.get('race_id')) in upcoming]
@@ -271,6 +279,8 @@ def main():
             primary_checks.append({'url':record['url'],'status':'PRIMARY_POST_UNVERIFIED','reason':str(exc)[:160]})
     active_posts=[e for e in entries if e.get('verification')=='PRIMARY_POST_CAPTURED' and str(e.get('race_id')) in upcoming and e.get('startUTC')==upcoming[str(e['race_id'])]['startUTC']]
     feed['community_pipeline']={'upcoming_races':len(future_races),
+        'upcoming_source_selections':sum(str(e.get('race_id')) in upcoming and e.get('startUTC')==upcoming[str(e['race_id'])]['startUTC'] and e.get('verification') in ('PUBLIC_SELECTION_OBSERVED','PRIMARY_POST_CAPTURED','RSS_EXPLICIT_HEADLINE_UNVERIFIED') for e in entries),
+        'publisher_selections_matched':len(published),
         'forum_items_scanned':sum(h.get('items_scanned',0) for h in source_health if h.get('source_type') in ('forum','social_forum')),
         'upcoming_forum_candidates':sum(e.get('group') in ('forum','social_forum') and str(e.get('race_id')) in upcoming for e in entries),
         'checked_primary_posts':len(active_posts),'distinct_checked_authors':len({e['author'].casefold() for e in active_posts}),
@@ -280,6 +290,7 @@ def main():
     feed["collector_added"] = added
     feed["collector_errors"] = failures
     feed["collector_source_health"] = source_health
+    feed['publisher_sources_attempted']=len(publisher_health)
     feed['primary_post_checks']=primary_checks
     feed['thread_source_checks']=thread_checks
     feed["racecard_health"] = {

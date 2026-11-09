@@ -17,6 +17,9 @@ SPEC.loader.exec_module(collector)
 UTC=dt.timezone.utc
 
 class CollectorIntegration(unittest.TestCase):
+    def setUp(self):
+        published=patch.object(collector,'collect_published',return_value=([],[]))
+        published.start();self.addCleanup(published.stop)
     def test_native_reply_reaches_checked_primary_archive(self):
         now=dt.datetime(2026,11,8,12,tzinfo=UTC)
         url='https://www.reddit.com/r/HorseRacingUK/comments/abc/tips/def/'

@@ -2,7 +2,7 @@ name: Horse racing experimental discovery
 on:
   push:
     branches: [main]
-    paths: ['scripts/horse_refresh_session.py', 'scripts/horse_refresh_cycle.sh', 'tests/test_horse_refresh_session.py', 'scripts/horse_refresh_gate.py', 'tests/test_horse_refresh_gate.py', 'scripts/preserve_horse_evidence.py', 'tests/test_horse_evidence.py', 'scripts/horse_context_pipeline.py', 'scripts/archive_horse_markets.py', 'tests/test_horse_context.py', 'tests/test_horse_market_archive.py', 'scripts/discover_horse_races.py', 'scripts/horse_reference_baseline.py', 'scripts/horse_secondary_source.py', 'tests/test_horse_discovery.py', 'tests/test_horse_reference.py', 'tests/test_horse_secondary.py', 'scripts/enrich_horse_runners.py', 'scripts/horse_market.py', 'tests/test_horse_market.py', 'tests/test_horse_runners.py', '.github/workflows/horse-research-discovery.yml', 'scripts/horse_model_pipeline.py', 'tests/test_horse_model.py', 'scripts/horse_challenger.py', 'tests/test_horse_challenger.py', 'research/horse-challenger/model-v1.json']
+    paths: ['scripts/published_racing_selections.py', 'scripts/collect_racing_community.py', 'tests/test_published_racing_selections.py', 'scripts/horse_refresh_session.py', 'scripts/horse_refresh_cycle.sh', 'tests/test_horse_refresh_session.py', 'scripts/horse_refresh_gate.py', 'tests/test_horse_refresh_gate.py', 'scripts/preserve_horse_evidence.py', 'tests/test_horse_evidence.py', 'scripts/horse_context_pipeline.py', 'scripts/archive_horse_markets.py', 'tests/test_horse_context.py', 'tests/test_horse_market_archive.py', 'scripts/discover_horse_races.py', 'scripts/horse_reference_baseline.py', 'scripts/horse_secondary_source.py', 'tests/test_horse_discovery.py', 'tests/test_horse_reference.py', 'tests/test_horse_secondary.py', 'scripts/enrich_horse_runners.py', 'scripts/horse_market.py', 'tests/test_horse_market.py', 'tests/test_horse_runners.py', '.github/workflows/horse-research-discovery.yml', 'scripts/horse_model_pipeline.py', 'tests/test_horse_model.py', 'scripts/horse_challenger.py', 'tests/test_horse_challenger.py', 'research/horse-challenger/model-v1.json']
   schedule:
     - cron: '5,25,45 4-21 * * *'
     - cron: '5 0-3,22-23 * * *'
@@ -17,7 +17,7 @@ on:
   # Independent completion events provide a bounded fallback when cron is delayed.
   # This workflow is deliberately absent from this list to prevent recursion.
   workflow_run:
-    workflows: ['Refresh factual football fixtures', 'Tennis and NFL experimental research', 'Expanded football leagues research']
+    workflows: ['Full research regression', 'Refresh factual football fixtures', 'Tennis and NFL experimental research', 'Expanded football leagues research']
     types: [completed]
     branches: [main]
 permissions:
