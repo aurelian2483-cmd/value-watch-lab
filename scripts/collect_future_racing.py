@@ -14,7 +14,7 @@ from zoneinfo import ZoneInfo
 from discover_horse_races import discover, PageData
 from collections import Counter
 from free_racing_sources import collect_free
-from enrich_horse_runners import parse_card_data
+from enrich_horse_runners import parse_card_data, parse_card
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'racing-future-data.json'
@@ -75,6 +75,32 @@ def collect_meeting_cards(fixtures, now, fetch=None):
    except Exception as exc:
     receipts.append({'url':meeting['source_url'],'date':meeting['date'],'status':'COLLECTION_FAILED','error':str(exc)[:240]})
  return rows,receipts
+
+def collect_individual_cards(races,now,fetch=None):
+ """Bounded 48-hour refresh; retain discovered rows on individual source failure."""
+ if fetch is None:
+  def fetch(url):
+   req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 (compatible; ValueWatchResearch/1.0)'})
+   with urllib.request.urlopen(req,timeout=20) as response:
+    if response.status!=200 or response.geturl()!=url:raise ValueError('Racecard HTTP failure or redirect')
+    return response.read(3000001)
+ selected=sorted((r for r in races if now<dt.datetime.fromisoformat(r['startUTC'])<=now+dt.timedelta(days=2)),key=lambda r:(r['startUTC'],r['race_id']))[:64]
+ def one(row):
+  url=row['source'];u=urlparse(url)
+  day=dt.datetime.fromisoformat(row['startUTC']).astimezone(ZoneInfo('Europe/London')).date().isoformat()
+  if u.scheme!='https' or u.netloc!='www.sportinglife.com' or not u.path.startswith('/racing/racecards/'+day+'/') or '/racecard/'+str(row['race_id'])+'/' not in u.path:raise ValueError('Unapproved dated racecard URL')
+  raw=fetch(url)
+  if not raw or len(raw)>3000000:raise ValueError('Missing or oversized racecard')
+  fields=parse_card(raw,row,now)
+  return fields,{'race_id':row['race_id'],'url':url,'status':'SOURCE_OBSERVED','sha256':hashlib.sha256(raw).hexdigest(),'observed_at_utc':now.isoformat(),'market_status':fields['market_observation']['status'],'verdict_status':fields['publisher_verdict']['status']}
+ receipts=[]
+ with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+  for row,future in [(r,pool.submit(one,r)) for r in selected]:
+   try:
+    fields,receipt=future.result();row.update(fields);receipts.append(receipt)
+   except Exception as exc:receipts.append({'race_id':row['race_id'],'url':row['source'],'status':'COLLECTION_FAILED','error':str(exc)[:240]})
+ return receipts
+
 
 def collect(fetch=None, now=None):
  now=now or dt.datetime.now(UTC)
@@ -243,6 +269,7 @@ if __name__=='__main__':
  existing={r['race_id']:r for r in data['races']}
  existing.update({r['race_id']:r for r in recovered})
  data['races']=sorted(existing.values(),key=lambda r:(r['startUTC'],r['race_id']))
+ data['individual_card_results']=collect_individual_cards(data['races'],dt.datetime.now(UTC))
  data['meeting_card_results']=receipts
  data['collection_started_at_utc']=data['generated_at_utc']
  data['generated_at_utc']=dt.datetime.now(UTC).isoformat()

@@ -22,7 +22,7 @@ function report(from, to, now = Date.now()) {
     event.choices.some(c=>c.label.trim().toLowerCase()===String(entry.horse).trim().toLowerCase())
   ).map(entry=>({choiceId:event.choices.find(c=>c.label.trim().toLowerCase()===String(entry.horse).trim().toLowerCase()).id,
     type:entry.group,sourceUrl:entry.url,observedAt:entry.observed_at_utc,publishedAt:entry.published_at_utc||entry.publication_date,
-    author:entry.author,publisher:entry.publisher,sourceIdentity:entry.source_identity,sourceSelectionObserved:entry.verification!=='PRIMARY_POST_CAPTURED',...evidence.communityEvidence(entry,event,now)}));
+    author:entry.author,publisher:entry.publisher,sourceIdentity:entry.source_identity,sourceSelectionObserved:entry.extraction_method==='RANKED_RACECARD_VERDICT_V1'?false:entry.verification!=='PRIMARY_POST_CAPTURED',...evidence.selectionAvailability(entry,event,now),...evidence.communityEvidence(entry,event,now)}));
   const saved = snapshots.flatMap(s => s.kind === 'other' ? Object.entries(s.data.sports).flatMap(([sport,p]) => p.events.map(e=>({sport,start:e.startUTC}))) : s.kind === 'football' ? s.data.upcoming_fixtures.map(e=>({sport:'football',start:e.kickoff_utc})) : s.data.races.map(e=>({sport:'racing',start:e.startUTC})));
   const future = snapshots.find(s=>s.kind==='racing-future')?.data;
   const other = snapshots.find(s=>s.kind==='other')?.data;

@@ -8,6 +8,20 @@ function capturedRacingSourceIdentity(tip){
 }
 window.ValueWatchEvidenceV3 = Object.freeze({
   sourceIdentity:capturedRacingSourceIdentity,
+  selectionAvailability(entry,event,now=Date.now()){
+    const absent={preRaceAvailabilityVerified:false};
+    if(entry?.extraction_method!=='RANKED_RACECARD_VERDICT_V1')return absent;
+    const r=entry.selection_receipt,v=event.publisherVerdict;
+    if(entry.verification!=='PUBLIC_SELECTION_OBSERVED'||!r||!v||r.status!=='EXPLICIT_FIRST_CHOICE_OBSERVED'||r.rank!==1)return absent;
+    let u;try{u=new URL(entry.url);}catch{return absent;}
+    if(u.protocol!=='https:'||u.host!=='www.sportinglife.com'||!u.pathname.startsWith('/racing/racecards/'+event.startUTC.slice(0,10)+'/')||!u.pathname.includes('/racecard/'+event.providerEventId+'/'))return absent;
+    if(r.url!==entry.url||r.race_id!==String(event.providerEventId)||Date.parse(r.startUTC)!==Date.parse(event.startUTC)||!/^[a-f0-9]{64}$/.test(r.sha256||'')||!/^[a-f0-9]{64}$/.test(r.verdict_sha256||''))return absent;
+    if(!event.choices.some(c=>c.id===r.horse_id&&c.label===r.horse&&r.horse===entry.horse))return absent;
+    for(const k of ['status','rank','race_id','startUTC','horse_id','horse','url','sha256','verdict_sha256','observed_at_utc'])if(r[k]!==v[k])return absent;
+    const seen=Date.parse(r.observed_at_utc),off=Date.parse(event.startUTC);
+    if(!Number.isFinite(seen)||seen>now||seen>=off||Date.parse(entry.observed_at_utc)!==seen)return absent;
+    return {preRaceAvailabilityVerified:true,availableAt:r.observed_at_utc,sourceSelectionObserved:true};
+  },
   communityEvidence(entry,event,now=Date.now()){
     const absent={primaryPostVerified:false,explicitBetSelectionVerified:false,timestampVerified:false,valueBackingVerified:false,verifiedThreadId:null};
     const p=entry?.primary_capture,r=p?.receipt;
@@ -50,7 +64,7 @@ window.ValueWatchEvidenceV3 = Object.freeze({
         if(!all.some(c=>c.id===t.choiceId)||!['forum','social_forum','blog','tipster'].includes(t.type))return false;
         if(t.sourceSelectionObserved!==true&&!(t.primaryPostVerified===true&&t.explicitBetSelectionVerified===true&&t.timestampVerified===true))return false;
         try{const u=new URL(t.sourceUrl);if(u.protocol!=='https:'||u.username||u.pathname==='/'&&!u.search&&!u.hash)return false;}catch{return false;}
-        const posted=Date.parse(t.publishedAt),seen=Date.parse(t.observedAt||t.publishedAt),off=Date.parse(event.startUTC);
+        const posted=Date.parse(t.preRaceAvailabilityVerified?t.availableAt:t.publishedAt),seen=Date.parse(t.observedAt||t.publishedAt),off=Date.parse(event.startUTC);
         return Number.isFinite(posted)&&Number.isFinite(seen)&&posted<=seen&&seen<=now&&posted<off&&seen<off&&off>now+300000;
       });
       const support=new Map();

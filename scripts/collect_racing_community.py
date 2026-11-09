@@ -284,6 +284,10 @@ def main():
     for record in published:
         if record['id'] not in known:
             entries.append(record);known.add(record['id']);added+=1
+        elif record.get('extraction_method')=='RANKED_RACECARD_VERDICT_V1':
+            original=next(e for e in entries if e.get('id')==record['id'])
+            first=original.get('first_observed_at_utc',original.get('observed_at_utc'))
+            original.update(record);original['first_observed_at_utc']=first
         elif record.get('source_identity'):
             # Attribute already captured selections without rewriting first-seen
             # times or pretending that an old receipt is a new observation.

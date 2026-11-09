@@ -24,6 +24,26 @@ def collect(races,now,fetch=None):
                 return response.read(3_000_001)
     upcoming=[r for r in races if now<dt.datetime.fromisoformat(r['startUTC'].replace('Z','+00:00'))<=now+dt.timedelta(days=2)]
     entries=[];health=[]
+    native=0
+    for race in upcoming:
+        v=race.get('publisher_verdict') or {}
+        if v.get('status')!='EXPLICIT_FIRST_CHOICE_OBSERVED' or v.get('rank')!=1:continue
+        if v.get('race_id')!=str(race['race_id']) or v.get('startUTC')!=race['startUTC'] or v.get('url')!=race.get('runner_source') or v.get('sha256')!=race.get('runner_source_sha256'):continue
+        horses=[h for h in race.get('runners',[]) if h.get('active_runner') and str(h['horse_id'])==v.get('horse_id') and h['name']==v.get('horse')]
+        if len(horses)!=1 or not re.fullmatch('[a-f0-9]{64}',v.get('sha256','')):continue
+        seen=dt.datetime.fromisoformat(v['observed_at_utc'])
+        if not seen<=now<dt.datetime.fromisoformat(race['startUTC']):continue
+        identity='verdict-'+hashlib.sha256('|'.join([str(race['race_id']),race['startUTC'],v['horse_id'],'timeform']).encode()).hexdigest()[:24]
+        entries.append({'id':identity,'group':'tipster','author':'Timeform','publisher':'Timeform via Sporting Life',
+            'source_identity':'publisher:timeform','race_id':str(race['race_id']),'startUTC':race['startUTC'],
+            'horse':v['horse'],'market':'WIN','stance':'support','url':v['url'],'source_feed':v['url'],
+            'publication_date':None,'published_at_utc':None,'observed_at_utc':v['observed_at_utc'],
+            'verification':'PUBLIC_SELECTION_OBSERVED','extraction_method':'RANKED_RACECARD_VERDICT_V1',
+            'summary':'Explicit first ranked racecard verdict observed before the race; original publication time unknown. Experimental source support only.',
+            'selection_receipt':v})
+        native+=1
+    if any(r.get('publisher_verdict') for r in upcoming):health.append({'publisher':'Timeform race-specific verdicts','source_type':'tipster','status':'fetched','items_scanned':len(upcoming),'matched_selections':native,'explicit_tip_observations':native,'url':'https://www.sportinglife.com/racing/racecards'})
+
     def add(race,horse,publisher,author,url,raw,day):
         identity='publisher-'+hashlib.sha256('|'.join([url,race['race_id'],race['startUTC'],str(horse['horse_id']),publisher,author,day]).encode()).hexdigest()[:24]
         source_identity='publisher:'+('timeform' if publisher.casefold().startswith('timeform') else re.sub(r'[^a-z0-9]','',publisher.casefold()))

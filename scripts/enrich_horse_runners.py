@@ -5,6 +5,7 @@ import datetime as dt
 import hashlib
 import json
 import re
+from html import unescape
 from pathlib import Path
 import urllib.parse
 import urllib.request
@@ -60,6 +61,21 @@ def parse_card(raw,race,observed):
  return parse_card_data(props['race'],race,observed,raw)
 
 
+def publisher_verdict(summary,runners,race,observed,raw):
+ """Only the explicit first ranked editorial selection; never infer from odds."""
+ text=summary.get('verdict') or ''
+ lists=re.findall(r'<ol\b[^>]*>(.*?)</ol>',text,re.S|re.I)
+ picks=re.findall(r'<li\b[^>]*>\s*<b>(.*?)</b>',lists[0],re.S|re.I) if len(lists)==1 else []
+ key=lambda x:re.sub(r'[^a-z0-9]','',re.sub(r'\s*\([A-Z]{2,3}\)\s*$','',unescape(x)).casefold())
+ matches=[h for h in runners if picks and h['active_runner'] and key(h['name'])==key(picks[0])]
+ if len(matches)!=1 or observed>=stamp(race['startUTC']):return {'status':'NO_EXPLICIT_PRE_RACE_FIRST_CHOICE'}
+ return {'status':'EXPLICIT_FIRST_CHOICE_OBSERVED','extraction_method':'RANKED_RACECARD_VERDICT_V1',
+  'rank':1,'race_id':str(race['race_id']),'startUTC':race['startUTC'],'horse_id':matches[0]['horse_id'],
+  'horse':matches[0]['name'],'url':race['source'],'sha256':hashlib.sha256(raw).hexdigest(),
+  'verdict_sha256':hashlib.sha256(text.encode()).hexdigest(),'observed_at_utc':observed.isoformat(),
+  'original_publication_at_utc':None}
+
+
 def parse_card_data(card,race,observed,raw):
  """Validate the same structured card embedded in a source-linked meeting page.
 
@@ -109,6 +125,7 @@ def parse_card_data(card,race,observed,raw):
  changed=[k for k,v in conditions.items() if k in race and race[k]!=v]
  return {**conditions,'conditions_changed_since_discovery':changed,'runners':runners,'runner_data_status':'RUNNER_FIELD_UNCONFIRMED' if uncertain else 'SINGLE_SOURCE_RUNNERS_OBSERVED',
   'market_observation':quoted_market(rides,observed,race['source'],hashlib.sha256(raw).hexdigest(),pre_event,not uncertain),
+  'publisher_verdict':publisher_verdict(summary,runners,race,observed,raw),
   'publisher_forecast':publisher_forecast(card,observed,race['source'],hashlib.sha256(raw).hexdigest(),pre_event,not uncertain),
   'doubtful_runner_count':sum(r['runner_status']=='DOUBTFUL' for r in runners),
   'active_runner_count':active,'non_runner_count':sum(r['runner_status'] in ('NONRUNNER','WITHDRAWN') for r in runners),'withdrawn_count':sum(r['runner_status']=='WITHDRAWN' for r in runners),
