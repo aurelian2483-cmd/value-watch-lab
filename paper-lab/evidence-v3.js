@@ -1,6 +1,13 @@
 'use strict';
 /* Value Watch v3: fail-closed, sport-agnostic evidence gate. Research only. */
+function capturedRacingSourceIdentity(tip){
+  try{
+    const host=new URL(tip.sourceUrl).hostname.replace(/^www\./,'');
+    return host==='sportinglife.com'&&/^publisher:[a-z0-9]{1,100}$/.test(tip.sourceIdentity||'')?tip.sourceIdentity:host;
+  }catch{return null;}
+}
 window.ValueWatchEvidenceV3 = Object.freeze({
+  sourceIdentity:capturedRacingSourceIdentity,
   communityEvidence(entry,event,now=Date.now()){
     const absent={primaryPostVerified:false,explicitBetSelectionVerified:false,timestampVerified:false,valueBackingVerified:false,verifiedThreadId:null};
     const p=entry?.primary_capture,r=p?.receipt;
@@ -48,10 +55,10 @@ window.ValueWatchEvidenceV3 = Object.freeze({
       });
       const support=new Map();
       for(const tip of candidates){
-        const sources=support.get(tip.choiceId)||new Set(),host=new URL(tip.sourceUrl).hostname.replace(/^www\./,'');
+        const sources=support.get(tip.choiceId)||new Set();
         // Captured Naps publications retain their attributed identity; an
         // aggregate site (including its tip counts) contributes only one vote.
-        const identity=host==='sportinglife.com'&&/^publisher:[a-z0-9]{1,100}$/.test(tip.sourceIdentity||'')?tip.sourceIdentity:host;
+        const identity=capturedRacingSourceIdentity(tip);
         sources.add(identity);support.set(tip.choiceId,sources);
       }
       const counts=[...support].map(([id,sources])=>({id,count:sources.size})).sort((a,b)=>b.count-a.count);

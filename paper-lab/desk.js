@@ -248,24 +248,23 @@
         for (const tip of communityTips) {
           const choice = event.choices.find(c => c.id === tip.choiceId);
           if (!choice) continue;
-          let domain;
-          try { domain = new URL(tip.sourceUrl).hostname.toLowerCase().replace(/^www\\./,''); } catch { continue; }
-          const entry = grouped.get(choice.id) || {choice, domains:new Set(), tips:[]};
-          if (!entry.domains.has(domain)) entry.tips.push(tip);
-          entry.domains.add(domain);
+          const identity=window.ValueWatchEvidenceV3?.sourceIdentity?.(tip);
+          if(!identity)continue;
+          const entry = grouped.get(choice.id) || {choice, sources:new Set(), tips:[]};
+          if (!entry.sources.has(identity)) entry.tips.push(tip);
+          entry.sources.add(identity);
           grouped.set(choice.id,entry);
         }
-        const ranked = [...grouped.values()].sort((a,b)=>b.domains.size-a.domains.size || a.choice.label.localeCompare(b.choice.label));
+        const ranked = [...grouped.values()].sort((a,b)=>b.sources.size-a.sources.size || a.choice.label.localeCompare(b.choice.label));
         if (ranked.length) {
           const section = make(record.racingPanel, 'div');
           section.style.cssText = 'margin:12px 0;padding:12px;border:1px solid #47647c;border-radius:12px;background:#132536';
-          make(section, 'strong', 'Community selections · '+ranked.length+' horse'+(ranked.length===1?'':'s'));
-          const tied = ranked.length>1 && ranked[0].domains.size===ranked[1].domains.size;
-          if (tied) make(section,'p','Equal source support — no independent community leader; neither is an agreement pick.','small');
+          make(section, 'strong', 'Captured source selections · '+ranked.length+' horse'+(ranked.length===1?'':'s'));
+          if (sourceTie) make(section,'p','Equal source support · no clear leader; no blue or yellow awarded.','small');
           for (const entry of ranked) {
             const row = make(section,'div');
             row.style.cssText='padding:9px 0;border-top:1px solid #36546b';
-            const title=make(row,'strong',entry.choice.label+' · '+entry.domains.size+' source site'+(entry.domains.size===1?'':'s'));
+            const title=make(row,'strong',entry.choice.label+' · '+entry.sources.size+' attributed source'+(entry.sources.size===1?'':'s'));
             title.style.color='#93c5fd';
             for (const tip of entry.tips) {
               const link=make(row,'a',tip.publisher||new URL(tip.sourceUrl).hostname,'small');
