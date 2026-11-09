@@ -3222,7 +3222,7 @@
       }
     }
   ],
-  "last_collector_run_utc": "2026-11-09T09:24:54.068173+00:00",
+  "last_collector_run_utc": "2026-11-09T09:39:24.082334+00:00",
   "collector_added": 0,
   "collector_errors": [
     {
@@ -3238,6 +3238,10 @@
       "publisher": "Reddit HorseRacingUK replies",
       "url": "https://www.reddit.com/r/HorseRacingUK/comments/1xqagxg/sundays_tips_thread/.rss",
       "error": "HTTP Error 429: Too Many Requests"
+    },
+    {
+      "publisher": "OLBG aggregate tips",
+      "error": "The read operation timed out"
     }
   ],
   "collector_source_health": [
@@ -3318,9 +3322,9 @@
       "explicit_tip_observations": 0,
       "review_only_mentions": 0,
       "skip_reasons": {
-        "invalid_date": 9,
+        "invalid_date": 10,
         "invalid_link": 0,
-        "no_tip_language": 1,
+        "no_tip_language": 0,
         "no_runner_match": 0,
         "already_recorded": 0,
         "after_start": 0
@@ -3422,8 +3426,8 @@
       "source_type": "tipster",
       "status": "fetched",
       "items_scanned": 22,
-      "matched_selections": 22,
-      "explicit_tip_observations": 22,
+      "matched_selections": 21,
+      "explicit_tip_observations": 21,
       "url": "https://www.sportinglife.com/racing/timeform-racing-tips-today"
     },
     {
@@ -3431,20 +3435,16 @@
       "source_type": "tipster",
       "status": "fetched",
       "items_scanned": 57,
-      "matched_selections": 55,
-      "explicit_tip_observations": 55,
+      "matched_selections": 54,
+      "explicit_tip_observations": 54,
       "url": "https://www.sportinglife.com/racing/naps-table"
     },
     {
       "publisher": "OLBG aggregate tips",
       "source_type": "tipster",
       "url": "https://www.olbg.com/betting-tips/Horse_Racing/2",
-      "status": "fetched",
-      "items_scanned": 20,
-      "matched_selections": 17,
-      "explicit_tip_observations": 17,
-      "rejected_rows": 3,
-      "limitation": "Partial first-page aggregate coverage; counts are not independently verified individual authors."
+      "status": "error",
+      "error": "The read operation timed out"
     }
   ],
   "racecard_health": {
@@ -3456,7 +3456,7 @@
   "community_pipeline": {
     "upcoming_races": 42,
     "upcoming_source_selections": 99,
-    "publisher_selections_matched": 94,
+    "publisher_selections_matched": 75,
     "forum_items_scanned": 45,
     "upcoming_forum_candidates": 0,
     "checked_primary_posts": 0,
