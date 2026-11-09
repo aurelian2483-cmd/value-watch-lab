@@ -37,6 +37,26 @@ window.ValueWatchEvidenceV3 = Object.freeze({
     const isUniqueFavourite = Boolean(choice&&prices.length>=2&&choice.id===prices[0].id&&prices[0][basis].decimal<prices[1][basis].decimal);
     // An observed quote is not an official SP, verified current bookmaker price, or positive EV.
     const green = isUniqueFavourite ? 'PROVISIONAL' : 'NOT_ESTABLISHED';
+    if(event.sport==='racing'){
+      // Experimental source support is separate from independently verified posts.
+      const candidates=(event.communityTips||[]).filter(t=>{
+        if(!all.some(c=>c.id===t.choiceId)||!['forum','social_forum','blog','tipster'].includes(t.type))return false;
+        if(t.sourceSelectionObserved!==true&&!(t.primaryPostVerified===true&&t.explicitBetSelectionVerified===true&&t.timestampVerified===true))return false;
+        try{const u=new URL(t.sourceUrl);if(u.protocol!=='https:'||u.username||u.pathname==='/'&&!u.search&&!u.hash)return false;}catch{return false;}
+        const posted=Date.parse(t.publishedAt),seen=Date.parse(t.observedAt||t.publishedAt),off=Date.parse(event.startUTC);
+        return Number.isFinite(posted)&&Number.isFinite(seen)&&posted<=seen&&seen<=now&&posted<off&&seen<off&&off>now+300000;
+      });
+      const support=new Map();
+      for(const tip of candidates){const sources=support.get(tip.choiceId)||new Set();sources.add(new URL(tip.sourceUrl).hostname.replace(/^www\./,''));support.set(tip.choiceId,sources);}
+      const counts=[...support].map(([id,sources])=>({id,count:sources.size})).sort((a,b)=>b.count-a.count);
+      const blue=candidates.some(t=>t.choiceId===choice?.id);
+      const leader=counts.length&&(!counts[1]||counts[0].count>counts[1].count)?counts[0].id:null;
+      const yellow=blue&&isUniqueFavourite&&leader===choice?.id;
+      return {green,greenBasis:realMarket?'BOOKMAKER_SOURCE_OBSERVATION':forecastMarket?'PUBLISHER_BETTING_FORECAST':null,
+        blue:blue?'EXPERIMENTAL':'NOT_AWARDED',yellow:yellow?'EXPERIMENTAL_AGREEMENT':'NOT_AWARDED',media:'SEPARATE',
+        qualifiedPosts:candidates.filter(t=>t.choiceId===choice?.id).length,verifiedAuthors:new Set(candidates.filter(t=>t.choiceId===choice?.id&&t.primaryPostVerified).map(t=>t.author)).size,
+        marketBasis:forecastMarket?'Publisher forecast + experimental source support; UNVERIFIED':'Observed prices + experimental source support; UNVERIFIED'};
+    }
     const tips = (Array.isArray(event?.communityTips) ? event.communityTips : []).filter(t => {
       if (!choice || t.choiceId!==choice.id || !['forum','social_forum'].includes(t.type)) return false;
       if (typeof t.sourceUrl!=='string' || !/^https:\/\//i.test(t.sourceUrl)) return false;

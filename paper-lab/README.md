@@ -101,6 +101,9 @@ BLUE requires an attributable primary forum post captured before the race with a
 The collector reads full Atom content, RSS content:encoded, original authors and alternate post permalinks; plural tips/selection headings are recognised. Native full-content Reddit and XenForo records can establish a primary post only with same-origin source receipts, platform post IDs, an attributable author, pre-race chronology and a positive unambiguous horse/course selection. Summaries, third-party headlines and quoted replies do not qualify. At most two observed public Reddit tips-thread feeds are followed to inspect reply selections. No access blocks or rate limits are bypassed. The active Fat Jockey forum feed comes from its advertised RSS link; its older article feed remains a separate blog source.
 
 Community matching counts are exposed in the collapsed audit details. Yellow still requires a current observed bookmaker market and two distinct checked same-thread value backers. A publisher forecast, media endorsement or missing community evidence does not create yellow agreement. Reddit has announced public RSS support ending 13 November 2026: https://support.reddithelp.com/hc/en-us/articles/54353370049684-Changelog-October-8-2026 .
+# Racing experimental colours
+
+At the user's request, racing blue accepts dated source-linked forum, social-forum, blog and tipster selections without primary-post verification. Review-only mentions remain excluded. Yellow means a unique leader by distinct source domains also matches the complete fresh observed-price or publisher-forecast favourite. Ties do not award yellow. Both colours are explicitly experimental/unverified, not verified consensus or positive expected value. Primary verification metadata remains available separately; other sports' strict gates, paper-only use, UNVALIDATED and BLOCKED publication remain unchanged.
 
 ## Engine view comparison
 

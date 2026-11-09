@@ -122,8 +122,8 @@
     return choices.map(choice=>{
       const gate=evaluateEvidenceSafe(event,choice),labels=[];
       if(gate.green==='PROVISIONAL')labels.push(gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'Forecast favourite':'Odds favourite');
-      if(gate.blue==='VERIFIED')labels.push('Community selection');
-      if(gate.yellow==='MULTI_USER_CONSENSUS')labels.push('Verified agreement');
+      if(['VERIFIED','EXPERIMENTAL'].includes(gate.blue))labels.push('Experimental source selection');
+      if(['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(gate.yellow))labels.push('Experimental agreement · unverified');
       return {choice,gate,labels,reasons:[gate.marketBasis]};
     }).filter(pick=>pick.labels.length);
   }
@@ -185,10 +185,10 @@
     const favourite=contenders.length===1?contenders[0]:null;
     const badges=favourite?evaluateEvidenceSafe(event,favourite):null;
     const gates=(event.choices||[]).map(choice=>({choice,gate:evaluateEvidenceSafe(event,choice)}));
-    const blueChoices=gates.filter(x=>x.gate.blue==='VERIFIED').map(x=>x.choice.label);
-    const yellowChoices=gates.filter(x=>x.gate.yellow==='MULTI_USER_CONSENSUS').map(x=>x.choice.label);
+    const blueChoices=gates.filter(x=>['VERIFIED','EXPERIMENTAL'].includes(x.gate.blue)).map(x=>x.choice.label);
+    const yellowChoices=gates.filter(x=>['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(x.gate.yellow)).map(x=>x.choice.label);
     make(evidencePanel,'p','GREEN · '+(favourite?favourite.label+(badges.greenBasis==='PUBLISHER_BETTING_FORECAST'?' · Provisional publisher forecast':' · Provisional observed-price favourite'):'Not established')+'  |  BLUE · '+(blueChoices.join(', ')||'Not awarded')+'  |  YELLOW · '+(yellowChoices.join(', ')||'Not awarded'),'small');
-    make(evidencePanel,'small','Media tracked separately · Blue/Yellow require independently verified primary posts · official market verification unavailable','muted');
+    make(evidencePanel,'small','Publisher and forum sources labelled · Blue/Yellow are experimental source signals, not verified consensus · official market verification unavailable','muted');
     evidencePanel.style.cssText='padding:10px 12px;margin:10px 0;border:1px solid #52718b;border-radius:10px;background:#172b38;color:#f1f5f9';
     record.racingPanel.replaceChildren();
     record.racingPanel.hidden = event.sport !== 'racing';
@@ -200,8 +200,8 @@
       // Show the actual picks first; keep the evidence and collector diagnostics collapsed.
       const green = picks.find(p => p.gate.green==='PROVISIONAL');
       const evaluations=(event.choices||[]).map(choice=>({choice,gate:evaluateEvidenceSafe(event,choice)}));
-      const blue=evaluations.filter(item=>item.gate.blue==='VERIFIED');
-      const yellow=evaluations.filter(item=>item.gate.yellow==='MULTI_USER_CONSENSUS');
+      const blue=evaluations.filter(item=>['VERIFIED','EXPERIMENTAL'].includes(item.gate.blue));
+      const yellow=evaluations.filter(item=>['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(item.gate.yellow));
       const summary = make(record.racingPanel,'div',undefined,'racing-colour-summary');
       summary.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin:12px 0';
       const signal=(colour,title,horse,detail)=>{
@@ -211,8 +211,8 @@
         make(tile,'div',horse,'small');make(tile,'small',detail,'muted');
       };
       signal('#b8ee79',green?.gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'GREEN · Forecast favourite':'GREEN · Odds favourite',green?.choice.label||'Unavailable',green?.gate.marketBasis||'Current source price or labelled publisher forecast required');
-      signal('#60a5fa','BLUE · Community',blue.length?blue.map(x=>x.choice.label).join(', '):'Not awarded',blue.length?'Verified primary grassroots selection':'Primary post, author and verified pre-race timestamp required');
-      signal('#facc15','YELLOW · Agreement',yellow.length?yellow.map(x=>x.choice.label).join(', '):'Not awarded',yellow.length?'Checked same-thread value backing + observed-market favourite':'Requires current bookmaker prices and two checked same-thread value backers');
+      signal('#60a5fa','BLUE · Source selection',blue.length?blue.map(x=>x.choice.label).join(', '):'Not awarded',blue.length?'Sourced selection · experimental / unverified':'No dated source selection matched');
+      signal('#facc15','YELLOW · Agreement',yellow.length?yellow.map(x=>x.choice.label).join(', '):'Not awarded',yellow.length?'Unique source leader + price/forecast favourite · unverified':'Requires a unique source leader matching the price/forecast favourite');
       const diagnostics=make(record.racingPanel,'details',undefined,'racing-audit-details');
       diagnostics.style.cssText='margin:12px 0;border:1px solid #49657b;border-radius:10px;padding:10px;background:#102431';
       make(diagnostics,'summary','Evidence audit & collector details');
@@ -324,14 +324,14 @@
       const leader = leaders.find(leader => leader.id === choice.id);
       const racingPick = event.sport === 'racing' ? racingPicks.find(pick => pick.choice.id === choice.id) : null;
       view.element.dataset.evidenceGreen=String(racingPick?.gate.green==='PROVISIONAL');
-      view.element.dataset.evidenceBlue=String(racingPick?.gate.blue==='VERIFIED');
-      view.element.dataset.evidenceYellow=String(racingPick?.gate.yellow==='MULTI_USER_CONSENSUS');
+      view.element.dataset.evidenceBlue=String(['VERIFIED','EXPERIMENTAL'].includes(racingPick?.gate.blue));
+      view.element.dataset.evidenceYellow=String(['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(racingPick?.gate.yellow));
       view.modelBadge.hidden = !leader && !racingPick;
       write(view.modelBadge, racingPick ? racingPick.labels.join(' + ').toUpperCase() : leader?.rank === 1 ? 'MODEL FIRST CHOICE' : 'MODEL ALTERNATIVE');
       // Explicit high-contrast styling survives disabled-button and mobile theme rules.
       view.element.classList.toggle('is-racing-highlight', Boolean(racingPick));
       const hasCommunity = Boolean(racingPick?.labels.some(label => label.startsWith('Community')));
-      const agreement = racingPick?.gate.yellow==='MULTI_USER_CONSENSUS';
+      const agreement = ['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(racingPick?.gate.yellow);
       const borderColour = agreement ? '#facc15' : hasCommunity ? '#60a5fa' : '#b8ee79';
       view.element.style.setProperty('border', racingPick ? '3px solid '+borderColour : '', racingPick ? 'important' : '');
       view.element.style.setProperty('box-shadow', agreement ? '0 0 0 2px rgba(250,204,21,.24), inset 0 0 0 1px #fde68a' : '', agreement ? 'important' : '');
@@ -341,7 +341,7 @@
       view.name.textContent = racingPick ? '★ ' + choice.label : choice.label;
       view.name.style.setProperty('color', racingPick ? agreement ? '#fef08a' : hasCommunity ? '#bfdbfe' : '#e1ffae' : '', racingPick ? 'important' : '');
       view.modelBadge.style.setProperty('display', racingPick ? 'block' : '', racingPick ? 'important' : '');
-      if (racingPick) view.modelBadge.textContent = agreement ? '🟡 EXPERIMENTAL AGREEMENT · ODDS + COMMUNITY' : racingPick.labels.join(' + ').toUpperCase();
+      if (racingPick) view.modelBadge.textContent = agreement ? '🟡 EXPERIMENTAL AGREEMENT · PRICE/FORECAST + SOURCE' : racingPick.labels.join(' + ').toUpperCase();
       view.modelBadge.style.setProperty('color', racingPick ? agreement ? '#fef08a' : hasCommunity ? '#bfdbfe' : '#e1ffae' : '', racingPick ? 'important' : '');
       view.element.classList.toggle('is-model-first', leader?.rank === 1); view.element.classList.toggle('is-model-alternative', leader?.rank === 2);
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
@@ -821,7 +821,7 @@
   function matchCommunity(event) {
     if (event.sport !== 'racing' || !event.providerEventId) return [];
     return communityEntries.filter(entry => {
-      if (String(entry.race_id) !== String(event.providerEventId) || entry.stance !== 'support' || entry.verification === 'RSS_EXPLICIT_MENTION_REVIEW_REQUIRED' || !['forum','social_forum'].includes(entry.group)) return false;
+      if (String(entry.race_id) !== String(event.providerEventId) || entry.stance !== 'support' || entry.verification === 'RSS_EXPLICIT_MENTION_REVIEW_REQUIRED' || !['forum','social_forum','blog','tipster'].includes(entry.group)) return false;
       if (Date.parse(entry.startUTC) !== Date.parse(event.startUTC)) return false;
       const published = entry.published_at_utc ? Date.parse(entry.published_at_utc) : NaN, observed = Date.parse(entry.observed_at_utc);
       const start = Date.parse(event.startUTC);
@@ -833,6 +833,7 @@
     }).map(entry => ({
       choiceId:event.choices.find(choice => choice.label.trim().toLowerCase() === String(entry.horse).trim().toLowerCase()).id,
       type:entry.group, sourceUrl:entry.url, observedAt:entry.observed_at_utc,
+      sourceSelectionObserved:entry.verification!=='PRIMARY_POST_CAPTURED',
       publisher:entry.publisher, author:entry.author, publishedAt:entry.published_at_utc || entry.publication_date,
       ...(window.ValueWatchEvidenceV3?.communityEvidence?.(entry,event)||{primaryPostVerified:false,explicitBetSelectionVerified:false,timestampVerified:false})
     }));

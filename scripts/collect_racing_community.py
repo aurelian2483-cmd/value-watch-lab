@@ -274,7 +274,7 @@ def main():
         'forum_items_scanned':sum(h.get('items_scanned',0) for h in source_health if h.get('source_type') in ('forum','social_forum')),
         'upcoming_forum_candidates':sum(e.get('group') in ('forum','social_forum') and str(e.get('race_id')) in upcoming for e in entries),
         'checked_primary_posts':len(active_posts),'distinct_checked_authors':len({e['author'].casefold() for e in active_posts}),
-        'limitation':'Blue requires a checked primary post; yellow additionally needs distinct same-thread value backers and an observed bookmaker favourite.'}
+        'limitation':'Racing blue is an experimental dated source selection; yellow is a unique source leader matching the price/forecast favourite. Neither proves verified consensus.'}
     feed["entries"] = entries
     feed["last_collector_run_utc"] = NOW.isoformat()
     feed["collector_added"] = added

@@ -96,15 +96,19 @@ module.exports=async function checkRacingPaper(browser,base){
     await page.waitForFunction(()=>document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceYellow==='true');
     await page.waitForFunction(()=>{const e=document.querySelector('#events [data-choice-id="1"]');return e&&getComputedStyle(e).borderTopColor==='rgb(250, 204, 21)';});
     assert.equal(await choice.evaluate(e=>getComputedStyle(e).borderTopColor),'rgb(250, 204, 21)','Two checked same-thread value selections and an observed favourite produce yellow agreement');
-    community[1].primary_capture.receipt.sha256='invalid';
+    community=[{...post('SyntheticPublisher'),group:'tipster',verification:'RSS_EXPLICIT_HEADLINE_UNVERIFIED'}];
+    delete community[0].primary_capture;
+    row.market_observation=null;
     await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
-    await page.waitForFunction(()=>document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceYellow==='false'&&document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceBlue==='true');
-    await page.waitForFunction(()=>{const e=document.querySelector('#events [data-choice-id="1"]');return e&&getComputedStyle(e).borderTopColor==='rgb(96, 165, 250)';});
-    assert.equal(await choice.evaluate(e=>getComputedStyle(e).borderTopColor),'rgb(96, 165, 250)','Invalid post receipts cannot create yellow agreement');
+    await page.waitForFunction(()=>document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceYellow==='true');
+    assert((await page.locator('#events').textContent()).includes('experimental / unverified'));
+    community[0].verification='RSS_EXPLICIT_MENTION_REVIEW_REQUIRED';
+    await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
+    await page.waitForFunction(()=>document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceBlue==='false'&&document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceYellow==='false');
     await page.clock.fastForward(31*60*1000);
     await page.waitForFunction(()=>document.querySelector('#events .selection-button')?.disabled===true);
     assert.deepEqual(errors,[]);
-    results.push({width:viewport.width,manualPaperChoice:true,savedWithProvisionalLabel:true,staleChoiceBlocked:true,duplicatePanels:0,forecastGreen:true,communityOnlyBlue:true,checkedAgreementYellow:true,invalidReceiptRejected:true});
+    results.push({width:viewport.width,manualPaperChoice:true,savedWithProvisionalLabel:true,staleChoiceBlocked:true,duplicatePanels:0,forecastGreen:true,communityOnlyBlue:true,experimentalAgreementYellow:true,reviewOnlyMentionRejected:true});
     await context.close();
   }
   return results;

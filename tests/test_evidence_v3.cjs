@@ -27,8 +27,8 @@ assert(main.indexOf('evidence-v3.js')<main.indexOf('/desk.js'));
 assert.match(code,/primaryPostVerified/);
 const forecasts={...event,sport:'racing',choices:event.choices.map(c=>({id:c.id,quote:null,forecastPrice:{kind:'PUBLISHER_BETTING_FORECAST',decimal:c.quote.decimal,observedAt}})),communityTips:[post('Alice'),post('Bob')]};
 const fg=gate(forecasts,forecasts.choices[0],now);
-assert.equal(fg.green,'PROVISIONAL');assert.equal(fg.greenBasis,'PUBLISHER_BETTING_FORECAST');assert.equal(fg.blue,'VERIFIED');
-assert.equal(fg.yellow,'NOT_AWARDED','A publisher forecast is not a current bookmaker market for yellow agreement');
+assert.equal(fg.green,'PROVISIONAL');assert.equal(fg.greenBasis,'PUBLISHER_BETTING_FORECAST');assert.equal(fg.blue,'EXPERIMENTAL');
+assert.equal(fg.yellow,'EXPERIMENTAL_AGREEMENT','A forecast favourite may match an experimental source leader without claiming verified consensus');
 assert.equal(gate(forecasts,forecasts.choices[0],now+31*60000).green,'NOT_ESTABLISHED');
 assert.equal(gate({...forecasts,choices:[forecasts.choices[0],{id:'b'}]},forecasts.choices[0],now).green,'NOT_ESTABLISHED');
 const primaryEvent={...event,providerEventId:'paper-qa',choices:[{id:'1',label:'Synthetic Horse 1'},{id:'2',label:'Synthetic Horse 2'}]};
@@ -49,3 +49,13 @@ const native={...primary,url:nativeUrl,source_feed:nativeFeed,primary_capture:{.
 assert.equal(context.window.ValueWatchEvidenceV3.communityEvidence(native,primaryEvent,now).primaryPostVerified,true);
 assert.equal(context.window.ValueWatchEvidenceV3.communityEvidence({...native,primary_capture:{...native.primary_capture,feed_entry_id:'t1_other'}},primaryEvent,now).primaryPostVerified,false);
 console.log('Evidence v3 unit regression passed (all four sports, blocked/unlocked cases, same-thread gate).');
+
+const experimental={...forecasts,communityTips:[{...post('Publisher',false),type:'tipster',observedAt,sourceSelectionObserved:true}]};
+assert.equal(gate(experimental,experimental.choices[0],now).blue,'EXPERIMENTAL');
+assert.equal(gate(experimental,experimental.choices[0],now).yellow,'EXPERIMENTAL_AGREEMENT');
+experimental.communityTips.push({...experimental.communityTips[0],choiceId:'b',sourceUrl:'https://other.example/tip/2'});
+assert.equal(gate(experimental,experimental.choices[0],now).yellow,'NOT_AWARDED','Equal support cannot create a unique agreement');
+experimental.communityTips=[{...experimental.communityTips[0],publishedAt:'2026-11-09T12:00:00Z'}];
+assert.equal(gate(experimental,experimental.choices[0],now).blue,'NOT_AWARDED','Future posts stay excluded');
+experimental.communityTips=[{...post('Publisher',false),type:'tipster',sourceSelectionObserved:false}];
+assert.equal(gate(experimental,experimental.choices[0],now).blue,'NOT_AWARDED','A mere mention is not a selection');
