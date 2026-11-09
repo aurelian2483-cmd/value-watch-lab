@@ -1,0 +1,75 @@
+{
+  "league": "D1",
+  "home": "SV Elversberg",
+  "away": "SC Freiburg",
+  "kickoff_utc": "2026-11-21T14:30:00Z",
+  "espn_event_id": "401884728",
+  "league_name": "Bundesliga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=20261121&limit=100",
+      "sha256": "f64bbf67fed18dd126220996268e31e514550611c6c3f5cb50952317d90da876",
+      "observed_at_utc": "2026-11-09T19:07:08.046308Z"
+    },
+    {
+      "url": "https://www.skysports.com/bundesliga-scores-fixtures/2026-11-01",
+      "sha256": "2e7855a1469e561ce820f3df934e5bf6178e95e121472642fec65ca6f3ec1f3e",
+      "observed_at_utc": "2026-11-09T19:07:24.006537Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_D1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.46039408600962245,
+  "prob_draw": 0.2110428071937355,
+  "prob_away": 0.3285631067966421,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 4,
+    "away_matches": 4,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 81,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/D1.csv",
+        "sha256": "85b5ff5199866f452016473e927ff2431c05c7b2ae045b5edd3b7f5bb5847d2a",
+        "observed_at_utc": "2026-11-09T19:07:28.781718Z"
+      }
+    ],
+    "training_sha256": "9a2dd5a7a5c71a8d150b77f94e2d2a78abb2ebf83d5ab78030fe8aad2b289d74",
+    "lambda_home": 2.0536078235379605,
+    "lambda_away": 1.7197045904864834,
+    "home_venue_inputs": {
+      "hgf": 12,
+      "hga": 8,
+      "hn": 4,
+      "agf": 5,
+      "aga": 10,
+      "an": 5
+    },
+    "away_venue_inputs": {
+      "hgf": 14,
+      "hga": 5,
+      "hn": 5,
+      "agf": 6,
+      "aga": 5,
+      "an": 4
+    },
+    "league_home_mean": 2.123456790123457,
+    "league_away_mean": 1.3580246913580247
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-09T19:07:43.268067Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "3c684c728fbfc54a23f0ac6118607030c6c77bd8ff4107849850a92422b2a865",
+  "record_sha256": "51964003c2c0a6c8a3ebf5b85e5d097fe1d082dff98c48b6d9e71d04399b4847"
+}

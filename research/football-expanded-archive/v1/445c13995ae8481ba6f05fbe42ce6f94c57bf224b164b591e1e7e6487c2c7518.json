@@ -1,0 +1,75 @@
+{
+  "league": "D1",
+  "home": "Schalke 04",
+  "away": "VfB Stuttgart",
+  "kickoff_utc": "2026-11-21T17:30:00Z",
+  "espn_event_id": "401884729",
+  "league_name": "Bundesliga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=20261121&limit=100",
+      "sha256": "f64bbf67fed18dd126220996268e31e514550611c6c3f5cb50952317d90da876",
+      "observed_at_utc": "2026-11-09T19:07:08.046308Z"
+    },
+    {
+      "url": "https://www.skysports.com/bundesliga-scores-fixtures/2026-11-01",
+      "sha256": "2e7855a1469e561ce820f3df934e5bf6178e95e121472642fec65ca6f3ec1f3e",
+      "observed_at_utc": "2026-11-09T19:07:24.006537Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_D1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.349627551656772,
+  "prob_draw": 0.28143919312518684,
+  "prob_away": 0.3689332552180411,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 4,
+    "away_matches": 5,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 81,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/D1.csv",
+        "sha256": "85b5ff5199866f452016473e927ff2431c05c7b2ae045b5edd3b7f5bb5847d2a",
+        "observed_at_utc": "2026-11-09T19:07:28.781718Z"
+      }
+    ],
+    "training_sha256": "9a2dd5a7a5c71a8d150b77f94e2d2a78abb2ebf83d5ab78030fe8aad2b289d74",
+    "lambda_home": 1.1454046639231825,
+    "lambda_away": 1.184703828407532,
+    "home_venue_inputs": {
+      "hgf": 0,
+      "hga": 3,
+      "hn": 4,
+      "agf": 5,
+      "aga": 8,
+      "an": 5
+    },
+    "away_venue_inputs": {
+      "hgf": 7,
+      "hga": 5,
+      "hn": 4,
+      "agf": 8,
+      "aga": 10,
+      "an": 5
+    },
+    "league_home_mean": 2.123456790123457,
+    "league_away_mean": 1.3580246913580247
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-09T19:07:43.268067Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "ba9f5c9bf8ec69e61c0e6f997467fd10a10d7ff627d01e6889e658237a90e2bf",
+  "record_sha256": "445c13995ae8481ba6f05fbe42ce6f94c57bf224b164b591e1e7e6487c2c7518"
+}
