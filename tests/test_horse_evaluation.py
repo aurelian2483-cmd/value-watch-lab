@@ -141,3 +141,16 @@ class FrozenIdentityIntegrity(unittest.TestCase):
         r,e=fixture()
         result=evaluate([r,copy.deepcopy(r)],[e])
         self.assertEqual(next(iter(result['models'].values()))['scored_races'],1)
+
+class BootstrapOrderIntegrity(unittest.TestCase):
+    def test_identical_race_deltas_have_order_independent_intervals(self):
+        from horse_evaluation import paired_interval
+        values=[i/100 for i in range(-20,20)]
+        expected=paired_interval(values)
+        self.assertEqual(expected,paired_interval(list(reversed(values))))
+        self.assertEqual(expected,paired_interval(values[13:]+values[:13]))
+        self.assertLess(expected['lower'],expected['upper'])
+
+    def test_small_sample_still_has_no_interval(self):
+        from horse_evaluation import paired_interval
+        self.assertIsNone(paired_interval([.1]*29))

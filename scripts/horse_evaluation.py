@@ -13,6 +13,8 @@ def parameter_fingerprint(record):
 
 def paired_interval(values,repeats=1000):
  if len(values)<30:return None
+ # Input file ordering must not alter uncertainty for the same race deltas.
+ values=sorted(values)
  seed=int(hashlib.sha256(json.dumps(values).encode()).hexdigest()[:16],16)
  rng=random.Random(seed);n=len(values);means=sorted(sum(values[rng.randrange(n)] for _ in range(n))/n for _ in range(repeats))
  return {'lower':means[int(.025*repeats)],'upper':means[int(.975*repeats)-1],
