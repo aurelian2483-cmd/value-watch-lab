@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'scripts/collect_international_football.py'
+      - 'scripts/international_football_analysis.py'
+      - 'tests/test_international_analysis.py'
       - '.github/workflows/international-football-research.yml'
   schedule:
     - cron: '25 6 * * *'
@@ -24,7 +26,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m py_compile scripts/collect_international_football.py
+      - run: python -m unittest discover -s tests -p 'test_international_analysis.py'
       - run: python -u scripts/collect_international_football.py
+      - name: Collect and analyse national-team results separately
+        run: python -u scripts/international_football_analysis.py
       - name: Validate safeguards and publish
         run: |
           python - <<'PY'
@@ -32,13 +37,13 @@ jobs:
           d=json.load(open('international-football-data.json'))
           assert d['schema_version']==1 and d['research_only'] is True
           assert d['model_validation']=='UNVALIDATED' and d['publication_gate']=='BLOCKED'
-          assert d['experimental_model_forecasts']==[]
+          assert all(x['research_only'] is True and x['model_validation']=='UNVALIDATED' and x['publication_gate']=='BLOCKED' and x['odds'] is None and x['expected_value'] is None for x in d['experimental_model_forecasts'])
           assert all(x['international'] is True and x['forecast_eligible'] is False for x in d['upcoming_fixtures'])
           print('International fixtures:',len(d['upcoming_fixtures']))
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- international-football-data.json
+          git add -- international-football-data.json international-analysis-data.json
           if ! git diff --cached --quiet; then
             git commit -m 'Refresh source-observed international football fixtures'
             git pull --rebase origin main

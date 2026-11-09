@@ -363,11 +363,26 @@
       view.previous = priced ? choice.quote.decimal : null;
     }
     const comparison = event.sport === 'football' ? event.seasonComparison : null;
-    const signature = JSON.stringify([event.sport,comparison,event.choices.map(choice=>choice.label)]);
+    const signature = JSON.stringify([event.sport,event.international,event.internationalAnalysis,comparison,event.choices.map(choice=>choice.label)]);
     if (record.seasonPanel.dataset.signature !== signature) {
       record.seasonPanel.dataset.signature = signature;
       record.seasonPanel.replaceChildren();
-      if (event.sport === 'football') {
+      if (event.sport === 'football' && event.international) {
+        const analysis=event.internationalAnalysis;
+        make(record.seasonPanel,'strong','International teams · recent captured results','season-heading');
+        make(record.seasonPanel,'p','Separate national-team analysis · up to 10 captured regulation-time results per team within 365 days. Coverage is partial.','small');
+        if(analysis){
+          for(const [side,index] of [['home',0],['away',2]]){
+            const rows=Array.isArray(analysis[side+'_sample'])?analysis[side+'_sample']:[];
+            const box=details(record.seasonPanel,(event.choices[index]?.label||side)+' · '+rows.length+' captured matches · '+rows.map(r=>r.result).join(' '));
+            for(const row of rows){
+              const line=make(box,'p',String(row.date).slice(0,10)+' · '+row.result+' · '+row.goals_for+'–'+row.goals_against+' vs '+row.opponent,'small');
+              if(/^https:\/\/site\.api\.espn\.com\//.test(row.source_receipt?.url||'')){const link=make(line,'a',' Source result');link.href=row.source_receipt.url;link.target='_blank';link.rel='noopener noreferrer';}
+            }
+          }
+          make(record.seasonPanel,'p',analysis.status==='EXPERIMENTAL_COMPARISON_AVAILABLE'?'Experimental scoring comparison shown above; minimum five results per team. No opponent-strength, squad or venue adjustment. Friendlies and competitive games combined. UNVALIDATED; no verified betting value.':'Comparison unavailable: fewer than five captured regulation results for at least one team. No estimate invented.','small');
+        }else make(record.seasonPanel,'p','International result analysis has not been captured for this fixture yet.','small');
+      } else if (event.sport === 'football') {
         const seasonText = comparison && /^\d{4}$/.test(comparison.season) ? '20'+comparison.season.slice(0,2)+'/20'+comparison.season.slice(2) : 'current season';
         make(record.seasonPanel,'strong','This season only · '+seasonText,'season-heading');
         if (comparison) {

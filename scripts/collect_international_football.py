@@ -65,7 +65,7 @@ def collect(now=None, fetch=None):
                     except (KeyError,TypeError,ValueError):continue
                     identity=code+':'+event_id
                     row={'league':'INT:'+code,'league_name':label,'international':True,
-                         'home':h,'away':a,'kickoff_utc':stamp(start),
+                         'home':h,'away':a,'home_team_id':str(home[0]['team'].get('id','')),'away_team_id':str(away[0]['team'].get('id','')),'kickoff_utc':stamp(start),
                          'espn_event_id':event_id,'forecast_status':'SCHEDULE_ONLY_NO_INTERNATIONAL_MODEL',
                          'forecast_eligible':False,'schedule_source_receipts':[receipt]}
                     if identity in fixtures and fixtures[identity]['kickoff_utc']!=row['kickoff_utc']:
