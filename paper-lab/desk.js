@@ -330,7 +330,7 @@
       write(view.modelBadge, racingPick ? racingPick.labels.join(' + ').toUpperCase() : leader?.rank === 1 ? 'MODEL FIRST CHOICE' : 'MODEL ALTERNATIVE');
       // Explicit high-contrast styling survives disabled-button and mobile theme rules.
       view.element.classList.toggle('is-racing-highlight', Boolean(racingPick));
-      const hasCommunity = Boolean(racingPick?.labels.some(label => label.startsWith('Community')));
+      const hasCommunity = ['VERIFIED','EXPERIMENTAL'].includes(racingPick?.gate.blue);
       const agreement = ['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(racingPick?.gate.yellow);
       const borderColour = agreement ? '#facc15' : hasCommunity ? '#60a5fa' : '#b8ee79';
       view.element.style.setProperty('border', racingPick ? '3px solid '+borderColour : '', racingPick ? 'important' : '');
