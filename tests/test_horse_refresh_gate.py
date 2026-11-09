@@ -34,7 +34,21 @@ class HorseRefreshGateTests(unittest.TestCase):
         for event in ['push', 'schedule', 'workflow_dispatch']:
             self.assertTrue(should_refresh(event, {}, self.now.replace(hour=1))[0])
 
-    def test_overnight_fallback_is_hourly_not_every_upstream_run(self):
+    def test_overnight_fallback_keeps_prices_within_thirty_minute_limit(self):
         now = self.now.replace(hour=1)
-        self.assertFalse(should_refresh('workflow_run', {'generated_at_utc':'2026-11-06T00:01:00Z'}, now, self.upstream)[0])
-        self.assertTrue(should_refresh('workflow_run', {'generated_at_utc':'2026-11-06T00:00:00Z'}, now, self.upstream)[0])
+        self.assertFalse(should_refresh('workflow_run', {'generated_at_utc':'2026-11-06T00:46:00Z'}, now, self.upstream)[0])
+        self.assertTrue(should_refresh('workflow_run', {'generated_at_utc':'2026-11-06T00:45:00Z'}, now, self.upstream)[0])
+
+    def test_recent_today_cannot_hide_stale_or_missing_future(self):
+        today={'generated_at_utc':'2026-11-06T13:59:00Z'}
+        for future in [{}, {'generated_at_utc':'2026-11-06T13:30:00Z'}]:
+            run,reason=should_refresh('workflow_run',today,self.now,self.upstream,future=future)
+            self.assertTrue(run);self.assertEqual(reason,'STALE_OR_MISSING_FUTURE_RACECARDS')
+        self.assertFalse(should_refresh('workflow_run',today,self.now,self.upstream,future=today)[0])
+
+    def test_new_envelope_cannot_hide_old_upcoming_runner_capture(self):
+        today={'generated_at_utc':'2026-11-06T13:59:00Z'}
+        future={**today,'races':[{'startUTC':'2026-11-07T13:00:00Z','runners':[{'name':'Synthetic'}],'runner_observed_at_utc':'2026-11-06T13:00:00Z'}]}
+        self.assertTrue(should_refresh('workflow_run',today,self.now,self.upstream,future=future)[0])
+        future['races'][0]['runner_observed_at_utc']='2026-11-06T13:59:00Z'
+        self.assertFalse(should_refresh('workflow_run',today,self.now,self.upstream,future=future)[0])
