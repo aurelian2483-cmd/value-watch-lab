@@ -149,6 +149,7 @@ def main():
                         thread_checks.append({'url':url,'status':'FETCHED','items':len(replies)})
                     except Exception as exc:
                         thread_checks.append({'url':url,'status':'SOURCE_UNAVAILABLE','error':str(exc)[:160]})
+                        failures.append({'publisher':source['publisher']+' replies','url':url,'error':str(exc)[:160]})
             scanned = 0
             matched = 0
             explicit_matches = 0

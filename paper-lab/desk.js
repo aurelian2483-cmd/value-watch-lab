@@ -225,6 +225,7 @@
       make(diagnostics,'p','CONFIRMED CONVERGENCE: NOT ESTABLISHED · press-naps count and comprehensive forum evidence unavailable','small');
       make(diagnostics,'p','Community collector · '+communityHealth.configured+' configured sources · '+(communityHealth.lastRun ? 'last run '+new Date(communityHealth.lastRun).toLocaleString('en-GB') : 'not yet run')+' · '+communityHealth.errors.length+' reported errors','small');
       if(communityHealth.pipeline)make(diagnostics,'p','Community matching across the next 48 hours: '+communityHealth.pipeline.forum_items_scanned+' forum items scanned → '+communityHealth.pipeline.upcoming_forum_candidates+' race-matched candidates → '+communityHealth.pipeline.checked_primary_posts+' checked primary posts.','small');
+      for(const failure of communityHealth.errors)make(diagnostics,'p',(failure.publisher||'Community source')+' · '+(failure.error||'unavailable'),'small');
       if(communityHealth.racecardHealth?.status==='stale_or_no_upcoming_races')make(diagnostics,'p','Upstream racecard stale: no future races for matching.','small');
       if(communityHealth.sourceHealth?.length){
         const sourceDetails=make(diagnostics,'details');
