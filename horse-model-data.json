@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-09T09:39:59.693777+00:00",
+  "generated_at_utc": "2026-11-09T12:43:50.120255+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -9,8 +9,8 @@
   "secondary_source_audit": {
     "provider": "The Racing API",
     "connection_status": "CONNECTED",
-    "schedule_matches": 22,
-    "result_rows_cached": 289,
+    "schedule_matches": 18,
+    "result_rows_cached": 291,
     "errors": [],
     "verification_scope": "Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established."
   },
@@ -19,21 +19,42 @@
     "status": "RUNNER_OBSERVATIONS_COLLECTED",
     "races_received": 22,
     "races_enriched": 22,
-    "active_runner_observations": 202,
-    "non_runner_observations": 6,
-    "pre_event_races": 22,
+    "active_runner_observations": 200,
+    "non_runner_observations": 8,
+    "pre_event_races": 17,
     "errors": [],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED",
-    "collection_completed_at_utc": "2026-11-09T09:39:15.337373+00:00"
+    "collection_completed_at_utc": "2026-11-09T12:43:26.301307+00:00"
   },
   "race_count": 22,
   "reference_baseline_audit": {
     "status": "REFERENCE_BENCHMARKS_ONLY",
     "model": "EQUAL_CHANCE_REFERENCE_V1",
-    "available_references": 22,
+    "available_references": 17,
     "new_archived_records": 1,
-    "skipped": [],
+    "skipped": [
+      {
+        "race_id": "947804",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947675",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947805",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947668",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "947676",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      }
+    ],
     "reference_only": true,
     "publication_gate": "BLOCKED",
     "independent_schedule_verification": "NOT_CONNECTED",
@@ -2958,14 +2979,14 @@
           "mean_brier_delta_vs_equal_chance": -0.005627815567535903,
           "mean_log_loss_delta_vs_equal_chance": -0.03409866422095961,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.01295236782657053,
-            "upper": 0.0016570627980243351,
+            "lower": -0.01309856240991463,
+            "upper": 0.0020843873095769457,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.06785843408017728,
-            "upper": -0.0018638012145033372,
+            "lower": -0.07025231044792381,
+            "upper": -0.0019154283888854478,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -3026,14 +3047,14 @@
           "mean_brier_delta_vs_equal_chance": -0.006590251860281946,
           "mean_log_loss_delta_vs_equal_chance": -0.03778265933752813,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.01442993710166525,
-            "upper": 0.0005763093486306047,
+            "lower": -0.014125609156711464,
+            "upper": 0.0013018929612578223,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.07172546160111737,
-            "upper": -0.001437952813989557,
+            "lower": -0.07499751210421898,
+            "upper": -0.0011272510962881178,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -4818,12 +4839,12 @@
   ],
   "settled_history_limit": 20,
   "race_cycle_audit": {
-    "checked_at_utc": "2026-11-09T09:39:59.693777+00:00",
+    "checked_at_utc": "2026-11-09T12:43:50.120255+00:00",
     "race_date_uk": "2026-11-09",
     "collection_scope": "CURRENT_UK_DAY_ONLY",
-    "upcoming_observed_races": 22,
+    "upcoming_observed_races": 18,
     "upcoming_form_forecasts": 0,
-    "next_observed_start_utc": "2026-11-09T12:00:00+00:00",
+    "next_observed_start_utc": "2026-11-09T12:50:00+00:00",
     "status": "NO_SUPPORTED_UPCOMING_FORECASTS"
   },
   "limitations": [
