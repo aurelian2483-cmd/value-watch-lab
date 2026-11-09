@@ -2,7 +2,7 @@ name: Collect racing community research (candidate observations)
 on:
   push:
     branches: [main]
-    paths: ['scripts/collect_racing_community.py', 'scripts/primary_racing_posts.py', 'scripts/published_racing_selections.py', 'racing-research/community-feeds.json', '.github/workflows/racing-community-collector.yml']
+    paths: ['scripts/backup_racing_sources.py', 'tests/test_backup_racing_sources.py', 'scripts/collect_racing_community.py', 'scripts/primary_racing_posts.py', 'scripts/published_racing_selections.py', 'racing-research/community-feeds.json', '.github/workflows/racing-community-collector.yml']
   schedule:
     - cron: '15 6,9,12,15 * * *'
   workflow_dispatch:
@@ -23,6 +23,7 @@ jobs:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -p 'test_primary_racing_posts.py'
       - run: python -m unittest discover -s tests -p 'test_published_racing_selections.py'
+      - run: python -m unittest discover -s tests -p 'test_backup_racing_sources.py'
       - name: Collect public candidate observations
         run: python scripts/collect_racing_community.py
       - name: Commit evidence with no publication promotion

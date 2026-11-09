@@ -15,8 +15,9 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
 from pathlib import Path
-from primary_racing_posts import capture,capture_native_feed
+from primary_racing_posts import capture,capture_native_feed,selection_text
 from published_racing_selections import collect as collect_published
+from backup_racing_sources import collect as collect_backups
 
 ROOT = Path(__file__).resolve().parents[1]
 UTC = dt.timezone.utc
@@ -229,7 +230,21 @@ def main():
                 # post is checked below. Headlines alone never award blue.
                 title = item["title"]
                 explicit_title = explicit_headline_pick(title, horse["name"])
+                explicit_body=False
+                if source.get('selection_mode')=='EXPLICIT_BODY' and source['feed_url']=='https://theracingforum.co.uk/forums/forum/daily-lays-and-plays/feed/':
+                    receipt=item.get('feed_receipt') or {};post=urllib.parse.urlsplit(url)
+                    if (receipt.get('url')==source['feed_url'] and re.fullmatch(r'[a-f0-9]{64}',receipt.get('sha256','')) and item.get('author')
+                        and post.scheme=='https' and post.hostname=='theracingforum.co.uk' and post.path.startswith('/forums/topic/') and re.fullmatch(r'post-\d+',post.fragment)
+                        and item.get('id')==url):
+                        try:
+                            from zoneinfo import ZoneInfo
+                            own=selection_text(item['description'],race,horse['name'],title)[2]
+                            local_off=race_start.astimezone(ZoneInfo('Europe/London'))
+                            explicit_body=published.astimezone(ZoneInfo('Europe/London')).date()==local_off.date() and bool(re.search(r'\b'+local_off.strftime('%H')+r'[:.]'+local_off.strftime('%M')+r'\b',own))
+                        except ValueError:pass
                 verification = "RSS_EXPLICIT_HEADLINE_UNVERIFIED" if explicit_title else "RSS_EXPLICIT_MENTION_REVIEW_REQUIRED"
+                if source.get('selection_mode')=='EXPLICIT_BODY':verification='RSS_EXPLICIT_MENTION_REVIEW_REQUIRED'
+                if explicit_body:verification='POST_OBSERVED_OPINION_UNVERIFIED'
                 record={
                     "id":identifier, "group":source["type"], "author":item.get('author') or source.get("publisher"),
                     "publisher":source["publisher"], "race_id":str(race["race_id"]),
@@ -239,6 +254,8 @@ def main():
                     "verification":verification, "observed_at_utc":NOW.isoformat(),
                     "stance":"support", "source_feed":(item.get("feed_receipt") or {}).get("url",source["feed_url"]), "extraction_method":"explicit_headline" if explicit_title else "mention_only"
                 }
+                if explicit_body:
+                    record.update(extraction_method='TRF_EXPLICIT_RSS_BODY_V1',summary='Explicit forum selection observed in the advertised first-party feed; opinion and author identity not independently verified.',selection_receipt=item['feed_receipt'])
                 if source['type'] in ('forum','social_forum') and item.get('feed_receipt'):
                     try:
                         proof=capture_native_feed(item,race,record,current_time())
@@ -259,12 +276,19 @@ def main():
             failures.append({"publisher":source.get("publisher", "unknown"), "error":str(error)[:160]})
             source_health.append({"publisher":source.get("publisher", "unknown"), "source_type":source.get('type'), "status":"error", "error":str(error)[:160]})
     published, publisher_health=collect_published(races,current_time())
+    backups,backup_health=collect_backups(races,current_time())
+    published+=backups;publisher_health+=backup_health
     source_health+=publisher_health
     for health in publisher_health:
         if health['status']=='error':failures.append({'publisher':health['publisher'],'error':health['error']})
     for record in published:
         if record['id'] not in known:
             entries.append(record);known.add(record['id']);added+=1
+        elif record.get('source_identity'):
+            # Attribute already captured selections without rewriting first-seen
+            # times or pretending that an old receipt is a new observation.
+            original=next(e for e in entries if e.get('id')==record['id'])
+            original['source_identity']=record['source_identity']
     # Recheck bounded upcoming forum candidates, including earlier RSS captures.
     upcoming={str(r['race_id']):r for r in future_races}
     candidates=[e for e in entries if e.get('group') in ('forum','social_forum') and e.get('verification')!='PRIMARY_POST_CAPTURED' and str(e.get('race_id')) in upcoming]

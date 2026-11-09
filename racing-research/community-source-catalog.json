@@ -89,13 +89,13 @@
     },
     {
       "name": "The Racing Forum",
-      "url": "https://www.theracingforum.co.uk",
+      "url": "https://theracingforum.co.uk/forums/forum/daily-lays-and-plays/",
       "role": "forum",
       "coverage": "Form study, welfare, pedigree and governance",
-      "status": "public_feed_failed",
+      "status": "conditional_intermittent_feed",
       "priority": "secondary",
-      "ingestion": "rss_disabled_after_probe",
-      "notes": "User-supplied discovery target. No automatic access or source-specific selection extraction verified."
+      "ingestion": "advertised_rss_explicit_selection",
+      "notes": "2026-11-09: official feed returned 10 attributed posts once; subsequent collector request returned 403. Sparse mixed discussion, no matched current selections. Conditional monitoring only, not a dependable backup."
     },
     {
       "name": "Fat Jockey",
@@ -125,7 +125,7 @@
       "status": "public_feed_failed",
       "priority": "secondary",
       "ingestion": "rss_disabled_after_probe",
-      "notes": "User-supplied discovery target. No automatic access or source-specific selection extraction verified."
+      "notes": "2026-11-09: public forum returned a browser compatibility challenge, not posts. Manual source only."
     },
     {
       "name": "Punters Lounge Forum",
@@ -135,17 +135,17 @@
       "status": "public_feed_failed",
       "priority": "priority",
       "ingestion": "rss_disabled_after_probe",
-      "notes": "User-supplied discovery target. No automatic access or source-specific selection extraction verified."
+      "notes": "2026-11-09: HTTP 403 on canonical forum home. Search visibility does not establish collector access. Manual source only."
     },
     {
       "name": "OLBG Racing Community",
-      "url": "https://www.olbg.com/forum",
-      "role": "forum",
+      "url": "https://www.olbg.com/betting-tips/Horse_Racing/2",
+      "role": "aggregator",
       "coverage": "Tipster competitions and community selections",
-      "status": "public_feed_failed",
+      "status": "structured_page_access_confirmed",
       "priority": "priority",
-      "ingestion": "rss_disabled_after_probe",
-      "notes": "User-supplied discovery target. No automatic access or source-specific selection extraction verified."
+      "ingestion": "public_win_tip_rows",
+      "notes": "2026-11-09: public dated win-tip rows match captured active runners. Partial first-page coverage; one source vote per horse, not verified individual authors."
     },
     {
       "name": "Reddit HorseRacingUK",

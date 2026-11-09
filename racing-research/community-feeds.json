@@ -75,11 +75,11 @@
     {
       "publisher": "The Racing Forum",
       "type": "forum",
-      "feed_url": "https://www.theracingforum.co.uk/forums/-/index.rss",
-      "enabled": false,
-      "validation_status": "FAILED_LIVE_PROBE",
-      "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
-      "disabled_reason": "HTTP 403; public RSS blocked"
+      "feed_url": "https://theracingforum.co.uk/forums/forum/daily-lays-and-plays/feed/",
+      "enabled": true,
+      "selection_mode": "EXPLICIT_BODY",
+      "validation_status": "INTERMITTENT_PUBLIC_FEED_ACCESS",
+      "notes": "2026-11-09: official advertised RSS returned 10 attributed posts, but the subsequent collector request returned 403. Conditional monitored source, not a dependable backup. Explicit positive current-runner selections only; general chat is not a pick."
     },
     {
       "publisher": "Fat Jockey articles",
@@ -105,7 +105,7 @@
       "enabled": false,
       "validation_status": "FAILED_LIVE_PROBE",
       "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
-      "disabled_reason": "HTTP 403; public RSS blocked"
+      "disabled_reason": "2026-11-09: canonical public forum redirected to Browser Settings Incompatible instead of posts; manual source only."
     },
     {
       "publisher": "Punters Lounge Forum",
@@ -114,7 +114,7 @@
       "enabled": false,
       "validation_status": "FAILED_LIVE_PROBE",
       "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
-      "disabled_reason": "HTTP 403; public RSS blocked"
+      "disabled_reason": "2026-11-09: canonical public forum returned HTTP 403 to the collector; manual source only."
     },
     {
       "publisher": "OLBG Racing Community",
@@ -123,7 +123,7 @@
       "enabled": false,
       "validation_status": "FAILED_LIVE_PROBE",
       "notes": "Best-effort public RSS endpoint probe. May return 403/404, may not provide tips; no login, bypass or invented evidence.",
-      "disabled_reason": "Response is not XML RSS/Atom"
+      "disabled_reason": "Old forum endpoint is not RSS. Public aggregate win-tip pages are collected separately; aggregate counts are not verified individual authors."
     },
     {
       "publisher": "Reddit HorseRacingUK",

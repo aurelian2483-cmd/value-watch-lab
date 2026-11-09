@@ -36,6 +36,7 @@ const server=http.createServer((req,res)=>{
         if(sport==='racing')await page.waitForFunction(({blue,yellow})=>document.querySelectorAll('#events [data-evidence-blue="true"]').length===blue&&document.querySelectorAll('#events [data-evidence-yellow="true"]').length===yellow,{blue:blueExpected,yellow:yellowExpected});
         const blueDisplayed=sport==='racing'?await page.locator('#events [data-evidence-blue="true"]').count():null;
         const yellowDisplayed=sport==='racing'?await page.locator('#events [data-evidence-yellow="true"]').count():null;
+        if(sport==='racing')assert(await page.locator('#events .event-card').evaluateAll(cards=>cards.every(c=>c.querySelectorAll('[data-evidence-blue="true"]').length<=1&&c.querySelectorAll('[data-evidence-yellow="true"]').length<=1)),'Every race has at most one blue leader and one yellow agreement');
         results.push({width:viewport.width,sport,displayed:count,greenExpected,greenDisplayed,blueExpected,blueDisplayed,yellowExpected,yellowDisplayed});
       }
       assert.deepEqual(errors,[]);await page.close();

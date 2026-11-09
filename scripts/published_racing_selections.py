@@ -26,7 +26,8 @@ def collect(races,now,fetch=None):
     entries=[];health=[]
     def add(race,horse,publisher,author,url,raw,day):
         identity='publisher-'+hashlib.sha256('|'.join([url,race['race_id'],race['startUTC'],str(horse['horse_id']),publisher,author,day]).encode()).hexdigest()[:24]
-        entries.append({'id':identity,'group':'tipster','author':author,'publisher':publisher,'race_id':str(race['race_id']),
+        source_identity='publisher:'+('timeform' if publisher.casefold().startswith('timeform') else re.sub(r'[^a-z0-9]','',publisher.casefold()))
+        entries.append({'id':identity,'group':'tipster','author':author,'publisher':publisher,'source_identity':source_identity,'race_id':str(race['race_id']),
             'event':race.get('name',''),'startUTC':race['startUTC'],'horse':horse['name'],'market':'WIN','stance':'support',
             'url':url,'source_feed':url,'publication_date':day,'observed_at_utc':now.isoformat(),
             'verification':'PUBLIC_SELECTION_OBSERVED','extraction_method':'PUBLISHER_STRUCTURED_SELECTION_V1',

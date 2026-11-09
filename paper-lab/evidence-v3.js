@@ -47,13 +47,20 @@ window.ValueWatchEvidenceV3 = Object.freeze({
         return Number.isFinite(posted)&&Number.isFinite(seen)&&posted<=seen&&seen<=now&&posted<off&&seen<off&&off>now+300000;
       });
       const support=new Map();
-      for(const tip of candidates){const sources=support.get(tip.choiceId)||new Set();sources.add(new URL(tip.sourceUrl).hostname.replace(/^www\./,''));support.set(tip.choiceId,sources);}
+      for(const tip of candidates){
+        const sources=support.get(tip.choiceId)||new Set(),host=new URL(tip.sourceUrl).hostname.replace(/^www\./,'');
+        // Captured Naps publications retain their attributed identity; an
+        // aggregate site (including its tip counts) contributes only one vote.
+        const identity=host==='sportinglife.com'&&/^publisher:[a-z0-9]{1,100}$/.test(tip.sourceIdentity||'')?tip.sourceIdentity:host;
+        sources.add(identity);support.set(tip.choiceId,sources);
+      }
       const counts=[...support].map(([id,sources])=>({id,count:sources.size})).sort((a,b)=>b.count-a.count);
-      const blue=candidates.some(t=>t.choiceId===choice?.id);
       const leader=counts.length&&(!counts[1]||counts[0].count>counts[1].count)?counts[0].id:null;
+      const blue=Boolean(leader&&leader===choice?.id);
       const yellow=blue&&isUniqueFavourite&&leader===choice?.id;
       return {green,greenBasis:realMarket?'BOOKMAKER_SOURCE_OBSERVATION':forecastMarket?'PUBLISHER_BETTING_FORECAST':null,
         blue:blue?'EXPERIMENTAL':'NOT_AWARDED',yellow:yellow?'EXPERIMENTAL_AGREEMENT':'NOT_AWARDED',media:'SEPARATE',
+        sourceTie:counts.length>1&&counts[0].count===counts[1].count,sourceSupport:support.get(choice?.id)?.size||0,
         qualifiedPosts:candidates.filter(t=>t.choiceId===choice?.id).length,verifiedAuthors:new Set(candidates.filter(t=>t.choiceId===choice?.id&&t.primaryPostVerified).map(t=>t.author)).size,
         marketBasis:forecastMarket?'Publisher forecast + experimental source support; UNVERIFIED':'Observed prices + experimental source support; UNVERIFIED'};
     }

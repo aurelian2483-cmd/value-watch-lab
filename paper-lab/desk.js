@@ -122,7 +122,7 @@
     return choices.map(choice=>{
       const gate=evaluateEvidenceSafe(event,choice),labels=[];
       if(gate.green==='PROVISIONAL')labels.push(gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'Forecast favourite':'Odds favourite');
-      if(['VERIFIED','EXPERIMENTAL'].includes(gate.blue))labels.push('Experimental source selection');
+      if(['VERIFIED','EXPERIMENTAL'].includes(gate.blue))labels.push('Experimental source leader');
       if(['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(gate.yellow))labels.push('Experimental agreement · unverified');
       return {choice,gate,labels,reasons:[gate.marketBasis]};
     }).filter(pick=>pick.labels.length);
@@ -186,8 +186,9 @@
     const badges=favourite?evaluateEvidenceSafe(event,favourite):null;
     const gates=(event.choices||[]).map(choice=>({choice,gate:evaluateEvidenceSafe(event,choice)}));
     const blueChoices=gates.filter(x=>['VERIFIED','EXPERIMENTAL'].includes(x.gate.blue)).map(x=>x.choice.label);
+    const sourceTie=gates.some(x=>x.gate.sourceTie===true);
     const yellowChoices=gates.filter(x=>['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(x.gate.yellow)).map(x=>x.choice.label);
-    make(evidencePanel,'p','GREEN · '+(favourite?favourite.label+(badges.greenBasis==='PUBLISHER_BETTING_FORECAST'?' · Provisional publisher forecast':' · Provisional observed-price favourite'):'Not established')+'  |  BLUE · '+(blueChoices.join(', ')||'Not awarded')+'  |  YELLOW · '+(yellowChoices.join(', ')||'Not awarded'),'small');
+    make(evidencePanel,'p','GREEN · '+(favourite?favourite.label+(badges.greenBasis==='PUBLISHER_BETTING_FORECAST'?' · Provisional publisher forecast':' · Provisional observed-price favourite'):'Not established')+'  |  BLUE · '+(blueChoices.join(', ')||(sourceTie?'No clear leader · tied support':'Not awarded'))+'  |  YELLOW · '+(yellowChoices.join(', ')||'Not awarded'),'small');
     make(evidencePanel,'small','Publisher and forum sources labelled · Blue/Yellow are experimental source signals, not verified consensus · official market verification unavailable','muted');
     evidencePanel.style.cssText='padding:10px 12px;margin:10px 0;border:1px solid #52718b;border-radius:10px;background:#172b38;color:#f1f5f9';
     record.racingPanel.replaceChildren();
@@ -211,7 +212,7 @@
         make(tile,'div',horse,'small');make(tile,'small',detail,'muted');
       };
       signal('#b8ee79',green?.gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'GREEN · Forecast favourite':'GREEN · Odds favourite',green?.choice.label||'Unavailable',green?.gate.marketBasis||'Current source price or labelled publisher forecast required');
-      signal('#60a5fa','BLUE · Source selection',blue.length?blue.map(x=>x.choice.label).join(', '):'Not awarded',blue.length?'Sourced selection · experimental / unverified':'No dated source selection matched');
+      signal('#60a5fa','BLUE · Source leader',blue.length?blue.map(x=>x.choice.label).join(', '):(sourceTie?'No clear leader':'Not awarded'),blue.length?'Unique source leader · experimental / unverified':sourceTie?'Equal source support; no blue horse awarded':'No dated source selection matched');
       signal('#facc15','YELLOW · Agreement',yellow.length?yellow.map(x=>x.choice.label).join(', '):'Not awarded',yellow.length?'Unique source leader + price/forecast favourite · unverified':'Requires a unique source leader matching the price/forecast favourite');
       const diagnostics=make(record.racingPanel,'details',undefined,'racing-audit-details');
       diagnostics.style.cssText='margin:12px 0;border:1px solid #49657b;border-radius:10px;padding:10px;background:#102431';
@@ -264,7 +265,7 @@
           for (const entry of ranked) {
             const row = make(section,'div');
             row.style.cssText='padding:9px 0;border-top:1px solid #36546b';
-            const title=make(row,'strong',entry.choice.label+' · '+entry.domains.size+' independent source'+(entry.domains.size===1?'':'s'));
+            const title=make(row,'strong',entry.choice.label+' · '+entry.domains.size+' source site'+(entry.domains.size===1?'':'s'));
             title.style.color='#93c5fd';
             for (const tip of entry.tips) {
               const link=make(row,'a',tip.publisher||new URL(tip.sourceUrl).hostname,'small');
@@ -835,7 +836,7 @@
       choiceId:event.choices.find(choice => choice.label.trim().toLowerCase() === String(entry.horse).trim().toLowerCase()).id,
       type:entry.group, sourceUrl:entry.url, observedAt:entry.observed_at_utc,
       sourceSelectionObserved:entry.verification!=='PRIMARY_POST_CAPTURED',
-      publisher:entry.publisher, author:entry.author, publishedAt:entry.published_at_utc || entry.publication_date,
+      publisher:entry.publisher, sourceIdentity:entry.source_identity, author:entry.author, publishedAt:entry.published_at_utc || entry.publication_date,
       ...(window.ValueWatchEvidenceV3?.communityEvidence?.(entry,event)||{primaryPostVerified:false,explicitBetSelectionVerified:false,timestampVerified:false})
     }));
   }

@@ -105,10 +105,19 @@ module.exports=async function checkRacingPaper(browser,base){
     community[0].verification='RSS_EXPLICIT_MENTION_REVIEW_REQUIRED';
     await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
     await page.waitForFunction(()=>document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceBlue==='false'&&document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceYellow==='false');
+    const unverified=(author,horse)=>{const entry={...post(author,horse),verification:'RSS_EXPLICIT_HEADLINE_UNVERIFIED'};delete entry.primary_capture;return entry;};
+    community=[unverified('TestPublisherA','1'),unverified('TestPublisherB','2')];
+    await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
+    assert.equal(await page.locator('#events [data-evidence-blue="true"]').count(),0,'Tied source support must not colour multiple horses blue');
+    assert((await page.locator('.racing-colour-summary').textContent()).includes('No clear leader'));
+    community.push({...unverified('TestAggregate','2'),group:'tipster',url:'https://www.olbg.com/betting-tips/Horse_Racing/UK/Test/13:00_Test/2?event_id=123'});
+    await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
+    assert.equal(await page.locator('#events [data-evidence-blue="true"]').count(),1,'Only the unique source leader is blue');
+    assert.equal(await other.getAttribute('data-evidence-blue'),'true');
     await page.clock.fastForward(31*60*1000);
     await page.waitForFunction(()=>document.querySelector('#events .selection-button')?.disabled===true);
     assert.deepEqual(errors,[]);
-    results.push({width:viewport.width,manualPaperChoice:true,savedWithProvisionalLabel:true,staleChoiceBlocked:true,duplicatePanels:0,forecastGreen:true,communityOnlyBlue:true,experimentalAgreementYellow:true,reviewOnlyMentionRejected:true});
+    results.push({width:viewport.width,manualPaperChoice:true,savedWithProvisionalLabel:true,staleChoiceBlocked:true,duplicatePanels:0,forecastGreen:true,communityOnlyBlue:true,experimentalAgreementYellow:true,reviewOnlyMentionRejected:true,oneBlueLeader:true,tiedSupportWithheld:true});
     await context.close();
   }
   return results;
