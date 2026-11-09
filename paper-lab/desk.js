@@ -308,7 +308,13 @@
         if(event.choices.some(choice=>!choice.id.startsWith('awaiting-'))){
           const entries=make(record.market,'details',undefined,'source-entries');
           make(entries,'summary',event.choices.length+' source-observed active entries · final field unverified');
-          for(const choice of event.choices)make(entries,'p',choice.label,'small');
+          for(const choice of event.choices){
+            const pick=racingPicks.find(p=>p.choice.id===choice.id),line=make(entries,'p',choice.label+(pick?' · '+pick.labels.join(' + '):''),'small');
+            line.dataset.evidenceGreen=String(pick?.gate.green==='PROVISIONAL');
+            line.dataset.evidenceBlue=String(['VERIFIED','EXPERIMENTAL'].includes(pick?.gate.blue));
+            line.dataset.evidenceYellow=String(['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(pick?.gate.yellow));
+            if(pick){line.classList.add('is-racing-highlight');line.style.cssText='border-left:3px solid #60a5fa;padding:8px;color:#bfdbfe';}
+          }
         }
       }
       else if (status.code === 'STARTED') make(record.market, 'span', event.score?.label ? 'Recorded final: ' + event.score.label : 'Event has started or finished · additions closed', 'archived-status');
