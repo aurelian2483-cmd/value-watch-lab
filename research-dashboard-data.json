@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "experiment": 86,
-  "generated_at_utc": "2026-11-10T16:26:34.348896+00:00",
+  "generated_at_utc": "2026-11-10T23:28:02.083780+00:00",
   "research_only": true,
   "model_validation": "UNVALIDATED",
   "publication_gate": "BLOCKED",
@@ -243,6 +243,18 @@
       "home": "Arsenal",
       "away": "Manchester City",
       "kickoff_utc": "2026-11-29T16:30:00Z",
+      "verification": "SCHEDULE_CROSS_CHECK",
+      "paper_prediction": null,
+      "result": null,
+      "forecast_eligible": false,
+      "has_archived_paper_forecast": false,
+      "has_experimental_model_forecast": true,
+      "forecast_status": "EXPERIMENTAL_MODEL_FORECAST"
+    },
+    {
+      "home": "Coventry City",
+      "away": "Ipswich Town",
+      "kickoff_utc": "2026-12-01T20:00:00Z",
       "verification": "SCHEDULE_CROSS_CHECK",
       "paper_prediction": null,
       "result": null,
@@ -738,6 +750,27 @@
       "challenge_eligible": 0,
       "odds": null,
       "expected_value": null
+    },
+    {
+      "home": "Coventry City",
+      "away": "Ipswich Town",
+      "kickoff_utc": "2026-12-01T20:00:00Z",
+      "prob_home": 0.4145331882536743,
+      "prob_draw": 0.21106349031550176,
+      "prob_away": 0.37440332143082394,
+      "model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "training_basis": {
+        "home_matches": 5,
+        "away_matches": 5,
+        "league_average_pseudo_matches": 5,
+        "small_sample": true
+      },
+      "research_only": true,
+      "model_validation": "UNVALIDATED",
+      "publication_gate": "BLOCKED",
+      "challenge_eligible": 0,
+      "odds": null,
+      "expected_value": null
     }
   ],
   "experimental_model_unavailable": [],
@@ -746,7 +779,7 @@
     "training_source": "https://www.football-data.co.uk/mmz4281/2526/E0.csv",
     "training_matches": 380,
     "training_sha256": "3e3a8352f9ada6789c508d6ca184424421fed56a30400904a4a327c583407e62",
-    "forecast_count": 20,
+    "forecast_count": 21,
     "fallback_audit": {
       "source": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
       "sha256": "d598a5f681e1a9a4acf9dad9fb203b68da6f67e2d195678dbe99e95fbba14593",
@@ -757,16 +790,16 @@
       "limitation": "Small-sample current-season fallback; shrinkage is an unvalidated modelling choice, not evidence of accuracy."
     },
     "fallback_source_error": null,
-    "fallback_forecast_count": 6,
+    "fallback_forecast_count": 7,
     "limitation": "Uncalibrated prior-season baseline plus separately labelled small-sample current-season fallback; not archived or independently attested"
   },
   "prospective_archive_audit": {
     "status": "RESEARCH_ARCHIVE_UPDATED",
-    "new_primary_records": 0,
+    "new_primary_records": 1,
     "unchanged": 0,
     "revisions": 20,
     "skipped_started": 0,
-    "primary_records": 31,
+    "primary_records": 32,
     "publication_gate": "BLOCKED",
     "official_challenge": "0/100",
     "independent_timestamp_attested": false
@@ -775,15 +808,15 @@
     "status": "EXPERIMENTAL_OUTPUTS_AVAILABLE_UNVALIDATED",
     "counts": {
       "archived": 0,
-      "experimental_model": 20,
+      "experimental_model": 21,
       "schedule_unverified": 0,
       "model_unavailable": 0
     },
     "count_policy": "Exclusive primary status per upcoming fixture; availability counts may overlap.",
     "availability_counts": {
       "archived": 0,
-      "experimental_model": 20
+      "experimental_model": 21
     },
-    "automated_probabilities_generated": 20
+    "automated_probabilities_generated": 21
   }
 }
