@@ -8,7 +8,7 @@ const capturedAt = '2026-11-01T10:00:00Z';
 const now = Date.parse('2026-11-03T12:00:00Z');
 const gates = { research_only: true, model_validation: 'UNVALIDATED', publication_gate: 'BLOCKED' };
 function leg(id, sport = 'football') {
-  return { id: 'leg-' + id, eventId: 'event-' + id, sport, choiceId: 'home', label: 'Synthetic test selection', startUTC: '2026-11-02T14:00:00Z', quote: { decimal: 2.25, source: 'https://example.org/observed-price', observedAt: capturedAt, bookmaker: 'Synthetic test source', executable: false } };
+  return { id: 'leg-' + id, eventId: 'event-' + id, sport, capturedAt, choiceId: 'home', label: 'Synthetic test selection', startUTC: '2026-11-02T14:00:00Z', quote: { decimal: 2.25, source: 'https://example.org/observed-price', observedAt: capturedAt, bookmaker: 'Synthetic test source', executable: false } };
 }
 function snapshot(legs = [leg('a')], structure = 'accumulator', stakeMinor = 100) {
   return { id: 'synthetic-plan', savedAt: '2026-11-01T10:01:00Z', independentlyAttested: false, slots: [{ id: 'best-evidence', structure, stakeMinor, legs }], ...gates };
@@ -79,3 +79,32 @@ assert.equal(J.summarize([original], [entries[0]], { from: '2026-11-02' }).settl
 assert.equal(J.summarize([original], [entries[0]], { slotId: 'balanced' }).settledCount, 0);
 assert.throws(() => J.summarize([original], [], { from: '2026-02-31' }));
 console.log('Paper journal: append-only corrections, original-price gates, zero losses, exact stakes, snapshot identity, disputed exclusions and mixed-sport attribution passed');
+
+// Chronology: later manual observations are permitted only before freezing.
+const beforeSave = snapshot([{ ...leg('later-quote'), quote: { ...leg('later-quote').quote, observedAt: '2026-11-01T10:00:30Z' } }]);
+assert.equal(J.append([], beforeSave, 'best-evidence', input, now).length, 1);
+const invalidChronologies = [
+  snapshot([{ ...leg('after-save'), quote: { ...leg('after-save').quote, observedAt: '2026-11-01T10:02:00Z' } }]),
+  { ...snapshot(), savedAt: '2026-11-02T14:00:00Z' },
+  { ...snapshot(), savedAt: '2026-11-02T15:00:00Z' },
+  snapshot([{ ...leg('missing-capture'), capturedAt: undefined }]),
+  snapshot([{ ...leg('future-capture'), capturedAt: '2026-11-01T10:02:00Z' }]),
+  snapshot([{ ...leg('bad-capture'), capturedAt: 'not a date' }]),
+];
+for (const invalid of invalidChronologies) {
+  assert.throws(() => J.append([], invalid, 'best-evidence', input, now), /original price/);
+  const review = J.append([], invalid, 'best-evidence', { status: 'PENDING', source: input.source, reason: 'Chronology missing or retrospective; retain for review.' }, now);
+  assert.equal(J.summarize([invalid], review).pendingCount, 1);
+  // Simulate a previously accepted imported settlement without changing its
+  // frozen evidence. Validation retains it, monetary summary excludes it.
+  const legacySettled = review.map(e => ({ ...e, status: 'SETTLED', grossReturnMinor: 225 }));
+  const serialized = JSON.stringify(legacySettled);
+  assert.equal(J.validateEntries(legacySettled, now).length, 1);
+  const totals = J.summarize([invalid], legacySettled);
+  assert.equal(totals.invalidCount, 1);
+  assert.equal(totals.settledCount, 0);
+  assert.equal(totals.totalStakeMinor, 0);
+  assert.equal(totals.roiPercent, null);
+  assert.equal(JSON.stringify(legacySettled), serialized, 'historical entries are never rewritten');
+}
+console.log('Paper chronology: pre-save prices, pre-race capture/save, missing timestamps and legacy exclusion passed');

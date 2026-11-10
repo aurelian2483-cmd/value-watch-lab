@@ -191,6 +191,7 @@
     make(evidencePanel,'p','GREEN · '+(favourite?favourite.label+(badges.greenBasis==='PUBLISHER_BETTING_FORECAST'?' · Provisional publisher forecast':' · Provisional observed-price favourite'):'Not established')+'  |  BLUE · '+(blueChoices.join(', ')||(sourceTie?'No clear leader · tied support':'Not awarded'))+'  |  YELLOW · '+(yellowChoices.join(', ')||'Not awarded'),'small');
     make(evidencePanel,'small','Publisher and forum sources labelled · Blue/Yellow are experimental source signals, not verified consensus · official market verification unavailable','muted');
     evidencePanel.style.cssText='padding:10px 12px;margin:10px 0;border:1px solid #52718b;border-radius:10px;background:#172b38;color:#f1f5f9';
+    const communitySourcesOpen = Boolean(record.racingPanel.querySelector('.community-source-list')?.open);
     record.racingPanel.replaceChildren();
     record.racingPanel.hidden = event.sport !== 'racing';
     record.racingPanel.style.cssText = event.sport === 'racing' ? 'display:block;visibility:visible;opacity:1;height:auto;min-height:0;overflow:visible;padding:14px 16px;margin:14px 0;border:1px solid #52718b;border-radius:12px;background:#172b38;color:#f1f5f9;line-height:1.55' : 'display:none';
@@ -220,6 +221,8 @@
       signal('#b8ee79',green?.gate.greenBasis==='PUBLISHER_BETTING_FORECAST'?'GREEN · Forecast favourite':'GREEN · Odds favourite',green?.choice.label||'Unavailable for this race',green?.gate.marketBasis||unavailableReason);
       signal('#60a5fa','BLUE · Source leader',blue.length?blue.map(x=>x.choice.label).join(', '):(sourceTie?'No clear leader':'Not awarded'),blue.length?'Unique source leader · experimental / unverified':sourceTie?'Equal source support; no blue horse awarded':'No dated source selection matched');
       signal('#facc15','YELLOW · Agreement',yellow.length?yellow.map(x=>x.choice.label).join(', '):'Not awarded',yellow.length?'Unique source leader + price/forecast favourite · unverified':'Requires a unique source leader matching the price/forecast favourite');
+      const communityPanel = window.CommunityEvidence?.render(record.racingPanel, communityEntries, event);
+      if (communityPanel) communityPanel.querySelector('.community-source-list').open = communitySourcesOpen;
       const diagnostics=make(record.racingPanel,'details',undefined,'racing-audit-details');
       diagnostics.style.cssText='margin:12px 0;border:1px solid #49657b;border-radius:10px;padding:10px;background:#102431';
       make(diagnostics,'summary','Evidence audit & collector details');
@@ -278,16 +281,6 @@
               link.style.cssText='display:inline-block;margin:5px 12px 0 0;color:#a9d1ff;text-decoration:underline';
             }
           }
-        }
-      }
-      if (communityTips.length) {
-        const details = make(record.racingPanel, 'details');
-        make(details, 'summary', 'View community evidence (' + communityTips.length + ')');
-        for (const tip of communityTips.slice(0,20)) {
-          const row = make(details, 'p', undefined, 'small');
-          const link = make(row, 'a', (tip.publisher || tip.type) + ' · ' + (tip.author || 'source'), 'source-link');
-          link.href = tip.sourceUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
-          make(row, 'span', ' · ' + (tip.preRaceAvailabilityVerified ? 'Observed before race '+new Date(tip.availableAt).toLocaleString('en-GB')+'; original publication time unknown' : tip.publishedAt && /^\d{4}-\d{2}-\d{2}$/.test(tip.publishedAt) ? tip.publishedAt + ' (time unknown)' : new Date(tip.publishedAt).toLocaleString('en-GB')));
         }
       }
       if (!picks.length) make(record.racingPanel, 'p', 'Odds/form highlight unavailable · no unique sourced price favourite.', 'small');
@@ -886,6 +879,7 @@
   function matchCommunity(event) {
     if (event.sport !== 'racing' || !event.providerEventId) return [];
     return communityEntries.filter(entry => {
+      if (!entry || typeof entry !== 'object') return false;
       if (String(entry.race_id) !== String(event.providerEventId) || entry.stance !== 'support' || entry.verification === 'RSS_EXPLICIT_MENTION_REVIEW_REQUIRED' || !['forum','social_forum','blog','tipster'].includes(entry.group)) return false;
       if (Date.parse(entry.startUTC) !== Date.parse(event.startUTC)) return false;
       const published = entry.published_at_utc ? Date.parse(entry.published_at_utc) : NaN, observed = Date.parse(entry.observed_at_utc);
@@ -895,7 +889,7 @@
       const dated = /^\d{4}-\d{2}-\d{2}$/.test(entry.publication_date || '') && entry.publication_date <= event.startUTC.slice(0,10);
       if (!Number.isFinite(observed) || observed >= start || (Number.isFinite(published) ? published > start || observed < published : !dated && !availability.preRaceAvailabilityVerified)) return false;
       if (!['PRIMARY_POST_CAPTURED','PUBLIC_SELECTION_OBSERVED','POST_OBSERVED_OPINION_UNVERIFIED','PUBLICATION_OBSERVED_OPINION_UNVERIFIED','RSS_EXPLICIT_HEADLINE_UNVERIFIED'].includes(entry.verification)) return false;
-      if (!/^https:\/\//i.test(entry.url || '')) return false;
+      if (!PaperLab.url(entry.url)) return false;
       return event.choices.some(choice => choice.label.trim().toLowerCase() === String(entry.horse || '').trim().toLowerCase());
     }).map(entry => ({
       choiceId:event.choices.find(choice => choice.label.trim().toLowerCase() === String(entry.horse).trim().toLowerCase()).id,

@@ -79,11 +79,17 @@
     });
   }
 
-  function validOriginalPrices(slot, recordedAt) {
+  // A quote may be entered after choosing a leg, but it must already exist
+  // when the complete paper snapshot is frozen. Neither a late save nor a
+  // settlement-time price can establish a prospective paper return.
+  function validOriginalPrices(snapshot, slot, recordedAt) {
+    const saved = timestamp(snapshot.savedAt);
+    if (!Number.isFinite(saved) || saved > recordedAt) return false;
     return slot.legs.every(leg => {
-      const quote = leg.quote, observed = timestamp(quote?.observedAt), start = timestamp(leg.startUTC);
+      const quote = leg.quote, observed = timestamp(quote?.observedAt), start = timestamp(leg.startUTC), captured = timestamp(leg.capturedAt);
       return quote && typeof quote.decimal === 'number' && Number.isFinite(quote.decimal) && quote.decimal > 1 && quote.decimal <= 100000 &&
-        https(quote.source) && quote.executable === false && Number.isFinite(observed) && observed <= recordedAt && observed < start;
+        https(quote.source) && quote.executable === false && Number.isFinite(observed) && observed <= saved &&
+        Number.isFinite(captured) && captured <= saved && saved < start;
     });
   }
 
@@ -116,7 +122,7 @@
     if (previous && (previous.snapshotBasis !== snapshotBasis || recorded < timestamp(previous.recordedAt))) throw Error('The original snapshot changed or the correction precedes an earlier annotation.');
     if (input.status === 'SETTLED') {
       if (!money(input.grossReturnMinor)) throw Error('Enter a non-negative gross return in whole minor currency units; zero records a complete loss.');
-      if (slot.stakeMinor <= 0 || count === 0 || stakeMinor <= 0 || !validOriginalPrices(slot, recorded)) throw Error('Settlement totals require a positive original stake and a sourced original price captured before every event. Keep this record pending or disputed.');
+      if (slot.stakeMinor <= 0 || count === 0 || stakeMinor <= 0 || !validOriginalPrices(snapshot, slot, recorded)) throw Error('Settlement totals require a positive original stake and a sourced original price observed by the snapshot save, with selection capture and save before every event. Keep this record pending or disputed.');
       if (slot.legs.some(leg => timestamp(leg.startUTC) > recorded)) throw Error('An event has not started; its research outcome cannot yet be recorded as settled.');
     } else if (input.grossReturnMinor !== undefined && input.grossReturnMinor !== null) throw Error('Pending and disputed entries cannot record returns.');
     const revision = (previous?.revision || 0) + 1;
@@ -170,7 +176,7 @@
       if (basis(match.snapshot, original.slot) !== entry.snapshotBasis || original.stakeMinor !== entry.stakeMinor) { result.invalidCount++; continue; }
       const sports = new Set(original.slot.legs.map(leg => leg.sport));
       if (sport && (!sports.has(sport) || sports.size > 1)) { if (sports.has(sport) && sports.size > 1) result.mixedExcluded++; continue; }
-      if (entry.status === 'SETTLED' && (!validOriginalPrices(original.slot, timestamp(entry.recordedAt)) || original.slot.legs.some(leg => timestamp(leg.startUTC) > timestamp(entry.recordedAt)))) { result.invalidCount++; continue; }
+      if (entry.status === 'SETTLED' && (!validOriginalPrices(match.snapshot, original.slot, timestamp(entry.recordedAt)) || original.slot.legs.some(leg => timestamp(leg.startUTC) > timestamp(entry.recordedAt)))) { result.invalidCount++; continue; }
       if (entry.status === 'PENDING') result.pendingCount++;
       if (entry.status === 'DISPUTED') result.disputedCount++;
       if (entry.status === 'SETTLED') {
