@@ -1,0 +1,48 @@
+{
+  "home": "Tottenham Hotspur",
+  "away": "Ipswich Town",
+  "kickoff_utc": "2026-11-21T15:00:00Z",
+  "model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+  "prob_home": 0.4886330307342077,
+  "prob_draw": 0.21752194248238982,
+  "prob_away": 0.29384502678340246,
+  "league": "E0",
+  "generated_at_utc": "2026-11-10T01:37:09.093290+00:00",
+  "feed_generated_at_utc": "2026-11-10T01:37:05.985455+00:00",
+  "source_feed_sha256": "2f1230bfbd060a5d69525d5a3a38bb4b17529539546a9e8f017069c2ad2e074e",
+  "model_input_audit": {
+    "model": "POISSON_BASELINE_2025_26_V1",
+    "training_source": "https://www.football-data.co.uk/mmz4281/2526/E0.csv",
+    "training_matches": 380,
+    "training_sha256": "3e3a8352f9ada6789c508d6ca184424421fed56a30400904a4a327c583407e62",
+    "forecast_count": 20,
+    "fallback_audit": {
+      "source": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+      "sha256": "d598a5f681e1a9a4acf9dad9fb203b68da6f67e2d195678dbe99e95fbba14593",
+      "training_matches": 100,
+      "cutoff_exclusive_utc_date": "2026-11-10",
+      "minimum_matches_per_relevant_venue": 3,
+      "league_average_pseudo_matches": 5,
+      "limitation": "Small-sample current-season fallback; shrinkage is an unvalidated modelling choice, not evidence of accuracy."
+    },
+    "fallback_source_error": null,
+    "fallback_forecast_count": 6,
+    "limitation": "Uncalibrated prior-season baseline plus separately labelled small-sample current-season fallback; not archived or independently attested"
+  },
+  "training_basis": {
+    "home_matches": 5,
+    "away_matches": 5,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "source_first_availability_verified": false,
+  "independent_timestamp_attested": false,
+  "revision_of": "cf8661a74429767594bc85dfff25961f7db1a6c38d794f0590cb18081d833500",
+  "record_sha256": "303c30415c91fe8e3b5db960d6bf6416bdce996eec8db449259e47ead7d3e8b7"
+}
