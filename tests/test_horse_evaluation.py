@@ -154,3 +154,18 @@ class BootstrapOrderIntegrity(unittest.TestCase):
     def test_small_sample_still_has_no_interval(self):
         from horse_evaluation import paired_interval
         self.assertIsNone(paired_interval([.1]*29))
+
+class RevisionTieIntegrity(unittest.TestCase):
+    def test_conflicting_capture_time_ties_rejected_in_both_orders(self):
+        import copy
+        c,ce=fixture();b,be=fixture(context=False)
+        other=copy.deepcopy(c);other['record_sha256']='d'*64
+        for records in ([c,other],[other,c]):
+            with self.assertRaisesRegex(ValueError,'Ambiguous latest forecast'):
+                compare_models(records,[ce],[b],[be])
+
+    def test_identical_duplicate_capture_remains_one_pair(self):
+        import copy
+        c,ce=fixture();b,be=fixture(context=False)
+        result=compare_models([c,copy.deepcopy(c)],[ce],[b],[be])
+        self.assertEqual(result['matched_races'],1)

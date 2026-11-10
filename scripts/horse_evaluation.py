@@ -110,6 +110,8 @@ def compare_models(context_records,context_entries,baseline_records,baseline_ent
   out={}
   for r in records:
    key=(str(r['race_id']),_instant(r['startUTC']),str(r['racecourse']).casefold())
+   if key in out and _instant(r['generated_at_utc'])==_instant(out[key]['generated_at_utc']) and r!=out[key]:
+    raise ValueError('Ambiguous latest forecast: conflicting records have the same capture time')
    if key not in out or _instant(r['generated_at_utc'])>_instant(out[key]['generated_at_utc']):out[key]=r
   return out
  contexts=latest(context_records);baselines=latest(baseline_records)
