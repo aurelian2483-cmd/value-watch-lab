@@ -103,6 +103,10 @@
         throw Error('Paper research was edited while feeds refreshed. Existing selections are unchanged; please retry.');
       if (!result?.snapshots?.length)
         throw Error('No source snapshots were loaded. Previous paper research was preserved.');
+      // A retained last-good snapshot is not a successful fresh refresh.
+      // Fail closed for explicitly requested new daily slips; existing research remains intact.
+      if (result.errors?.length)
+        throw Error('Some research feeds failed to refresh. Previous paper slips were preserved; review Sources and retry before generating fresh daily slips.');
       const current = before.plan;
       // The user explicitly starts a new 7-day plan; saved historical legs are immutable.
       const from = today(), to = plusDays(from,6), now = Date.now();
