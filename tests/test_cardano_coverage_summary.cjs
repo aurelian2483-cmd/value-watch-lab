@@ -4,6 +4,7 @@ const {summary}=require('../scripts/cardano_coverage_summary.cjs');
 const sports=['football','racing','tennis','nfl'];
 const fixture={
   research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
+  snapshots:[{path:'racing-research-data.json',age_minutes:47,status:'OLDER_THAN_EVENT_TTL'}],
   shortlist_diagnostics:{
     coverage:sports.map((sport,i)=>({
       sport,inRange:4,selectable:3,eligible:i===0?2:0,
@@ -18,6 +19,8 @@ const fixture={
 };
 const output=summary(fixture);
 assert.match(output,/ELIGIBLE_BUT_NOT_SELECTED/);
+assert.match(output,/OLDER_THAN_EVENT_TTL/);
+assert.match(output,/racing-research-data\.json/);
 assert.match(output,/SELECTABLE_BUT_NOT_EVIDENCE_ELIGIBLE/);
 assert.match(output,/No current-season comparison \(2\)/);
 assert.match(output,/Research-only · Models UNVALIDATED · Publication BLOCKED/);
