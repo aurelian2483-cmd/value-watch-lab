@@ -27,6 +27,8 @@ function fakeTransport(status,parts){
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,[])}),/Empty/);
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,[Buffer.alloc(C.MAX_BYTES+1)])}),/size limit/);
  assert.throws(()=>capture('https://example.org',{allowedHosts:hosts,timeoutMs:1}),/Invalid timeout/);
+ const neverTransport={get(){throw Error('Transport must not start before DNS resolves')}};
+ await assert.rejects(()=>C.capture('https://example.org',{allowedHosts:hosts,timeoutMs:1000,resolver:()=>new Promise(()=>{}),transport:neverTransport}),/DNS resolution timed out/);
  const timeoutTransport={get(_url,_options,_cb){const req=new EventEmitter();req.destroy=error=>req.emit('error',error||new Error('Request destroyed'));process.nextTick(()=>req.emit('timeout'));return req;}};
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,timeoutMs:1000,transport:timeoutTransport}),/timed out/);
  console.log('PASS Cardano HTTPS capture transport tests (mocked; no live network)');
