@@ -566,6 +566,28 @@
     });
   }
 
+  // Keep the evidence-score order strict. Within an equal-score tier only,
+  // rotate eligible sports so earlier fixtures in one sport do not crowd out
+  // equally sourced research in another sport. No quotas or invented events.
+  function evidenceBalancedOrder(candidates) {
+    const tiers = new Map();
+    for (const candidate of candidates) {
+      if (!tiers.has(candidate.evidence)) tiers.set(candidate.evidence, new Map());
+      const groups = tiers.get(candidate.evidence);
+      if (!groups.has(candidate.event.sport)) groups.set(candidate.event.sport, []);
+      groups.get(candidate.event.sport).push(candidate);
+    }
+    const ordered = [];
+    for (const groups of tiers.values()) {
+      let layer = 0;
+      while ([...groups.values()].some(group => group.length > layer)) {
+        for (const group of groups.values()) if (group[layer]) ordered.push(group[layer]);
+        layer++;
+      }
+    }
+    return ordered;
+  }
+
   function generateResearch(plan, events, now = Date.now()) {
     let next = clone(plan);
     const {candidates} = researchCandidatePool(plan, events, now);
@@ -573,7 +595,7 @@
     for (const approach of APPROACHES) {
       const current = getSlot(next, approach.id);
       if (current.legs.length) continue;
-      let rows = candidates;
+      let rows = evidenceBalancedOrder(candidates);
       if (approach.id === 'explorer') {
         const groups = new Map(['football','racing','tennis','nfl'].map(sport => [sport, []]));
         for (const row of candidates) groups.get(row.event.sport)?.push(row);
@@ -592,7 +614,7 @@
       }
       signatures.add(signature);
       for (const row of rows) next = addSelection(next, approach.id, row.event, row.choice.id, now);
-      next = change(next, approach.id, slot => { slot.generation = { at: new Date(now).toISOString(), status: 'EXPERIMENTAL_RESEARCH_SHORTLIST', candidateCount: candidates.length, policy: 'EVIDENCE_COVERAGE_V1', reason: 'Ranked by source coverage and available descriptive research; the chosen outcome has the largest existing experimental model estimate. Not an EV ranking or validated recommendation.' }; }, now);
+      next = change(next, approach.id, slot => { slot.generation = { at: new Date(now).toISOString(), status: 'EXPERIMENTAL_RESEARCH_SHORTLIST', candidateCount: candidates.length, policy: 'EVIDENCE_COVERAGE_EQUAL_SCORE_ROTATION_V1', reason: 'Ranked by source coverage, with sport rotation only when evidence scores are equal. The chosen outcome has the largest existing experimental model estimate. No sports are forced and this is not an EV ranking or validated recommendation.' }; }, now);
     }
     return next;
   }
