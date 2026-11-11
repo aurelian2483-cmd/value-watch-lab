@@ -106,3 +106,42 @@ simulatedFootball.upcoming_fixtures[0].current_season_comparison.prob_away=1.47;
 syntheticRows=E.normalizeFeeds([{kind:'football',path:'synthetic-football.json',document:simulatedFootball}],comparisonTime);
 syntheticNapoli=syntheticRows.find(row=>row.name==='Synthetic Napoli vs Synthetic Lazio');
 assert.equal(syntheticNapoli.seasonComparison,null,'invalid season comparison is not presented');
+
+ 
+// Four-sport audit must use the exact same candidate gates as automatic generation.
+const auditPlan=E.createPlan({from:'2026-11-08',to:'2026-11-09',createdAt:new Date(now).toISOString()});
+const footballEligible={...event(201,'football'),seasonComparison:{prob_home:.54,prob_draw:.27,prob_away:.19}};
+const fourSports=[footballEligible,event(202,'racing'),event(203,'tennis'),event(204,'nfl')];
+const fourAudit=E.paperEligibilityAudit(auditPlan,fourSports,now);
+assert.deepEqual(fourAudit.map(row=>[row.sport,row.eligible,row.excluded]),[['football',1,0],['racing',1,0],['tennis',1,0],['nfl',1,0]]);
+const fourGenerated=E.generateResearch(auditPlan,fourSports,now);
+assert.deepEqual(new Set(fourGenerated.slots[2].legs.map(leg=>leg.sport)),new Set(['football','racing','tennis','nfl']),
+  'Cross-Sport Explorer rotates between all eligible sports rather than repeating tennis');
+const oneSport=E.generateResearch(auditPlan,[event(205,'tennis')],now);
+assert(oneSport.slots.every(slot=>slot.legs.every(leg=>leg.sport==='tennis')),
+  'No other sport may be forced when only tennis qualifies');
+const exclusions=E.paperEligibilityAudit(auditPlan,[
+  event(207,'football'),{...event(208,'racing'),provisionalEntry:true},
+  {...event(209,'nfl'),observedAt:'2026-11-01T00:00:00Z'},
+  event(210,'tennis')
+],now);
+assert.equal(exclusions.find(row=>row.sport==='football').reasons['No current-season comparison'],1);
+assert.equal(exclusions.find(row=>row.sport==='racing').reasons['Provisional event / declarations'],1);
+assert.equal(exclusions.find(row=>row.sport==='nfl').reasons['Unavailable, stale or unconfirmed status'],1);
+assert.equal(exclusions.find(row=>row.sport==='tennis').eligible,1);
+let savedExplorer=E.addSelection(auditPlan,3,fourSports[2],'a',now);
+const originalExplorer=JSON.stringify(savedExplorer);
+const snapshotAudit=E.paperEligibilityAudit(savedExplorer,fourSports,now);
+assert.equal(snapshotAudit.find(row=>row.sport==='tennis').selected,1);
+assert.equal(JSON.stringify(savedExplorer),originalExplorer,'Audit must not mutate browser-local plans');
+const keptExplorer=E.generateResearch(savedExplorer,fourSports,now);
+assert.deepEqual(keptExplorer.slots[2].legs,savedExplorer.slots[2].legs,
+  'Existing manually chosen Cross-Sport Explorer legs must never be replaced');
+for(const path of ['index.html','paper-lab/index.html']){
+  const content=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
+  assert(content.includes('id="paper-eligibility-audit"'),path+' must expose eligibility disclosure');
+  assert(content.includes('engine.js?v=3.4.58'),path+' must load updated engine');
+  assert(content.includes('desk.js?v=3.4.59'),path+' must load updated disclosure');
+  assert(content.includes('style.css?v=3.4.46'),path+' must load updated styling');
+}
+console.log('Four-sport eligibility, zero-forced-picks and preserved manual paper plans passed');
