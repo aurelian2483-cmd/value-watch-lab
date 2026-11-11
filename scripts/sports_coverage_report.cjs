@@ -95,7 +95,16 @@ function report(from, to, now = Date.now()) {
   }))};
   return {generated_at_utc:new Date(now).toISOString(),from,to,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
     interpretation:'Default upcoming filters per sport, empty search, all competitions. First page is capped at 24 with Show more. Saved counts can include duplicate football observations; normalized counts deduplicate. Meeting fixtures are separate from races.',
-    snapshots:snapshots.map(s=>({path:s.path,generated_at_utc:s.data.generated_at_utc})),normalizer_diagnostics:events.diagnostics,shortlist_diagnostics:shortlist,
+    snapshots:snapshots.map(snapshot=>{
+      const generated=snapshot.data.generated_at_utc;
+      const timestamp=Date.parse(generated);
+      return {path:snapshot.path,generated_at_utc:generated||null,
+        age_minutes:Number.isFinite(timestamp)?Math.round((now-timestamp)/60000):null,
+        status:!Number.isFinite(timestamp)?'MISSING_OR_INVALID_TIMESTAMP':
+          timestamp>now?'FUTURE_TIMESTAMP':
+          now-timestamp> (snapshot.kind==='racing'?1800000:129600000)?'OLDER_THAN_EVENT_TTL':'WITHIN_EVENT_TTL',
+        note:'Source-level age only; individual event receipts and statuses may impose stricter gates'};
+    }),normalizer_diagnostics:events.diagnostics,shortlist_diagnostics:shortlist,
     source_diagnostics:{tennis:other?.sports?.tennis?.schedule_source_diagnostics||[],nfl:other?.sports?.nfl?.schedule_week_coverage||[],racing_index:future?.days||[],racing_meetings:future?.meeting_card_results||[]},days};
 }
 module.exports={report};
