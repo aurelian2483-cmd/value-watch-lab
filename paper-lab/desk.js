@@ -878,8 +878,11 @@
   }
   function matchCommunity(event) {
     if (event.sport !== 'racing' || !event.providerEventId) return [];
+    // The descriptive panel is optional; missing scripts must not stop a feed refresh.
+    const eligible = window.CommunityEvidence?.eligible;
+    if (typeof eligible !== 'function') return [];
     return communityEntries.filter(entry => {
-      if(!window.CommunityEvidence.eligible(entry,event))return false;
+      if(!eligible(entry,event))return false;
       return entry.stance === 'support';
     }).map(entry => ({
       choiceId:event.choices.find(choice => choice.label.trim().toLowerCase() === String(entry.horse).trim().toLowerCase()).id,
