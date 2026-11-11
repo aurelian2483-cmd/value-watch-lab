@@ -33,3 +33,66 @@ jobs:
           name: pr-browser-qa-evidence
           path: work/browser-qa/
           retention-days: 14
+
+  main-data-integration:
+    name: Combined PR code with current main snapshots (no deployment)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Overlay current main's tracked research snapshots in runner only
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Tested combined code HEAD: $(git rev-parse HEAD)"
+          git fetch --no-tags --depth=1 origin main
+          echo "Main data commit: $(git rev-parse FETCH_HEAD)"
+          # Only data, never scripts, workflows, HTML, CSS or model code.
+          files=(
+            football-expanded-data.json
+            horse-challenger-data.json
+            horse-context-data.json
+            horse-model-data.json
+            horse-predictions-data.json
+            international-analysis-data.json
+            international-football-data.json
+            other-sports-data.json
+            racing-future-data.json
+            racing-research-data.json
+            racing-research/source-observations.json
+            research-dashboard-data.json
+            research-history.json
+          )
+          for path in "${files[@]}"; do
+            git cat-file -e "FETCH_HEAD:$path"
+            git restore --source=FETCH_HEAD --worktree -- "$path"
+          done
+          echo "Overlay verified: ${#files[@]} current-main data snapshots"
+          git diff --name-only
+          # Files are overlaid in ephemeral checkout only. Nothing is committed.
+      - name: Install pinned QA tools
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Run JS and Python regression against overlaid snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          for test in tests/*.cjs; do node "$test"; done
+          for script in paper-lab/*.js; do node --check "$script"; done
+          python -m unittest discover -s tests
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Test real-main snapshots and synthetic browser workflows
+        run: npm run test:browser
+      - name: Retain integration QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-data-integration-evidence
+          path: work/browser-qa/
+          retention-days: 14
