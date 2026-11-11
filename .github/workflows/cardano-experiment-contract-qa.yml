@@ -12,6 +12,7 @@ on:
       - 'tests/cardano_uncertainty.cjs'
       - 'tests/cardano_temporal_backtest.cjs'
       - 'tests/cardano_multiple_testing.cjs'
+      - 'tests/cardano_experiment_family.cjs'
       - '.github/workflows/cardano-experiment-contract-qa.yml'
   pull_request:
     paths:
@@ -24,6 +25,7 @@ on:
       - 'tests/cardano_uncertainty.cjs'
       - 'tests/cardano_temporal_backtest.cjs'
       - 'tests/cardano_multiple_testing.cjs'
+      - 'tests/cardano_experiment_family.cjs'
       - '.github/workflows/cardano-experiment-contract-qa.yml'
   workflow_dispatch:
 jobs:
@@ -45,6 +47,7 @@ jobs:
           node --check cardano-lab/uncertainty.js
           node --check cardano-lab/temporal-backtest.js
           node --check cardano-lab/multiple-testing.js
+          node --check cardano-lab/experiment-family.js
       - name: Run ledger contract and negative tests
         run: |
           node tests/cardano_experiment_ledger.cjs
@@ -55,3 +58,4 @@ jobs:
           node tests/cardano_uncertainty.cjs
           node tests/cardano_temporal_backtest.cjs
           node tests/cardano_multiple_testing.cjs
+          node tests/cardano_experiment_family.cjs
