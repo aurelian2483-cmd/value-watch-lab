@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - 'race-video-lab/**'
+      - 'cardano-lab/**'
+      - 'tests/cardano_memory_browser.cjs'
       - 'cardano-lab-widget.*'
       - 'index.html'
       - 'paper-lab/index.html'
@@ -26,3 +28,5 @@ jobs:
         run: node tests/race_video_browser.cjs
       - name: Main dashboard Cardano widget smoke test
         run: node tests/cardano_lab_widget_browser.cjs
+      - name: Cardano memory browser smoke test
+        run: node tests/cardano_memory_browser.cjs
