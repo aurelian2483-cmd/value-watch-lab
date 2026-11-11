@@ -605,7 +605,8 @@
     if (!Number.isFinite(now)) throw Error('Invalid refresh timestamp.');
     const createdAt = new Date(now).toISOString();
     const plan = createPlan({ from, to, createdAt });
-    if (plan.id === previous.id) throw Error('The fresh plan must have a distinct identity.');
+    if (plan.id === previous.id || (Date.parse(previous.createdAt) === now && previous.from === from && previous.to === to))
+      throw Error('The fresh plan must have a distinct identity.');
     return generateResearch(plan, events, now);
   }
 
