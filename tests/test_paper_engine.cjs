@@ -286,3 +286,38 @@ assert.equal(JSON.stringify(preservedMixed.slots.map(slot=>slot.legs)),
  'Regeneration must preserve previously saved legs');
 assert.equal(JSON.stringify(mixedGenerated),originalMixed,'Generation must not mutate saved originals');
 console.log('Equal-evidence cross-sport rotation, strict evidence precedence, no forced picks and saved-slip preservation passed');
+
+
+// Regression: a paper research entry can have an unverified market observation
+// that is not persistable. The plan must capture an UNPRICED selection rather
+// than fail after making the whole seven-day shortlist.
+const pricePlan=E.createPlan({from:'2026-11-08',to:'2026-11-09',createdAt:new Date(now).toISOString()});
+const basePriceRace={...event(741,'racing'),fieldConfirmed:true,providerStatus:'DORMANT'};
+const malformedPrice={...basePriceRace,choices:basePriceRace.choices.map((choice,i)=>({...choice,quote:i===0?
+ {decimal:1.123456789012,source:'https://example.org/race',status:'SOURCE_OBSERVED_UNVERIFIED',
+  bookmaker:'Sky Bet',observedAt:'2026-11-08T08:59:00Z',executable:false}:null}))};
+const beforeBad=JSON.stringify(malformedPrice);
+const corrected=E.addSelection(pricePlan,1,malformedPrice,'a',now);
+assert.equal(corrected.slots[0].legs[0].quote,null,'Invalid decimal precision must not poison captured paper research');
+assert.doesNotThrow(()=>E.serialize(corrected),'Generated research must pass persisted-price validation');
+assert.equal(JSON.stringify(malformedPrice),beforeBad,'Source event and its invalid observation remain unchanged');
+const seeded=E.generateResearch(pricePlan,[malformedPrice,event(742,'tennis'),event(743,'nfl')],now);
+assert(seeded.slots.some(slot=>slot.legs.some(leg=>leg.sport==='racing')),
+ 'A source-backed racing hypothesis can remain research-only without a persistable price');
+assert.doesNotThrow(()=>E.serialize(seeded),'Four-sport generation must be serializable');
+assert(seeded.slots.flatMap(slot=>slot.legs).every(leg=>leg.quote===null),
+ 'Unverified unsupported event prices may not be promoted to recorded paper quotes');
+const validPrice={...basePriceRace,choices:basePriceRace.choices.map((choice,i)=>({...choice,quote:i===0?
+ {decimal:2.5,source:'https://example.org/verified-race',status:'SOURCE_OBSERVED_UNVERIFIED',
+  bookmaker:'Sky Bet',observedAt:'2026-11-08T08:59:00Z',executable:false}:null}))};
+const withPrice=E.addSelection(pricePlan,1,validPrice,'a',now);
+assert.equal(withPrice.slots[0].legs[0].quote.decimal,2.5,'Valid current observed prices must still be retained');
+assert.doesNotThrow(()=>E.serialize(withPrice));
+const stalePrice={...validPrice,choices:validPrice.choices.map(choice=>({...choice,
+ quote:choice.quote?{...choice.quote,observedAt:'2026-11-08T07:59:00Z'}:null}))};
+assert.equal(E.addSelection(pricePlan,1,stalePrice,'a',now).slots[0].legs[0].quote,null,
+ 'Stale source prices must not become a current price in a new plan');
+assert.throws(()=>E.restore(JSON.stringify({...withPrice,slots:withPrice.slots.map(slot=>({...slot,
+ legs:slot.legs.map(leg=>({...leg,quote:{...leg.quote,source:'http://untrusted.invalid/odds'}}))}))})),
+ /Invalid saved price observation/,'Invalid persisted quotes must still fail closed');
+console.log('Unpersistable racing market observations are never copied into paper plans; valid quotes survive');
