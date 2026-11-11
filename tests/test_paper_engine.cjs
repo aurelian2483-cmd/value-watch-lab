@@ -146,3 +146,31 @@ for(const path of ['index.html','paper-lab/index.html']){
   assert(content.includes('style.css?v=3.4.46'),path+' must load updated styling');
 }
 console.log('Four-sport eligibility, zero-forced-picks and preserved manual paper plans passed');
+
+
+// Football form maturity: count only venue-specific current-season observations.
+// This is descriptive and must not modify probabilities or auto-selection gates.
+const maturityFootball={...event(301,'football'),seasonComparison:{prob_home:.53,prob_draw:.26,prob_away:.21,home_venue_matches:4,away_venue_matches:6}};
+const immature=E.footballSeasonMaturity(maturityFootball);
+assert.equal(immature.status,'DESCRIPTIVE_ONLY');
+assert.equal(immature.homePhase,'EARLY_SMALL_SAMPLE');
+assert.equal(immature.awayPhase,'EMERGING_CHECKPOINT');
+assert.equal(immature.overallMatchesKnown,false);
+assert(immature.notes.some(note=>note.includes('not either team’s total league games')));
+assert(immature.notes.some(note=>note.includes('Manager appointments, transfers, injuries')));
+const mature=E.footballSeasonMaturity({...maturityFootball,seasonComparison:{...maturityFootball.seasonComparison,home_venue_matches:8,away_venue_matches:7}});
+assert.equal(mature.homePhase,'BROADER_VENUE_SAMPLE');
+assert.equal(mature.awayPhase,'EMERGING_CHECKPOINT');
+assert.equal(E.footballSeasonMaturity({...maturityFootball,seasonComparison:null}).status,'NOT_AVAILABLE');
+assert.equal(E.footballSeasonMaturity({...maturityFootball,international:true}),null);
+assert.equal(E.footballSeasonMaturity(event(302,'tennis')),null);
+assert.equal(JSON.stringify(maturityFootball.seasonComparison),JSON.stringify({prob_home:.53,prob_draw:.26,prob_away:.21,home_venue_matches:4,away_venue_matches:6}),
+  'Maturity assessment cannot alter model probabilities or source samples');
+const deskAudit=fs.readFileSync(require('node:path').join(__dirname,'..','paper-lab','desk.js'),'utf8');
+assert(deskAudit.includes('E.footballSeasonMaturity(event)'), 'Football maturity appears in event card UI');
+for(const path of ['index.html','paper-lab/index.html']){
+ const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
+ assert(html.includes('engine.js?v=3.4.59'),'Updated football engine cache revision required');
+ assert(html.includes('desk.js?v=3.4.60'),'Updated football UI cache revision required');
+}
+console.log('Football venue sample maturity, 5–7 checkpoint and no invented manager or transfer impact passed');
