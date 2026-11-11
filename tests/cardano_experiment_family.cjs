@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('node:assert/strict'),F=require('../cardano-lab/experiment-family.js');
+const a='a'.repeat(64),b='b'.repeat(64);
+const manifest={schema_version:1,family_id:'family-1',registered_at_utc:'2026-01-01T00:00:00Z',dataset_sha256:a,protocol_sha256:b,hypotheses:[{id:'h1',statement:'Candidate improves Brier score',method_version:'v1'},{id:'h2',statement:'Candidate improves log loss',method_version:'v1'}],research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED'};
+const result=(id,status='REJECTED')=>({id,status,tested_at_utc:'2026-01-02T00:00:00Z',dataset_sha256:a,protocol_sha256:b});
+assert.equal(F.audit(manifest,[result('h1'),result('h2')]).complete,true);
+assert.deepEqual(F.audit(manifest,[result('h1')]).missing,['h2']);
+assert.deepEqual(F.audit(manifest,[result('h1'),result('h2'),result('h3')]).unexpected,['h3']);
+assert.equal(F.audit(manifest,[result('h1'),result('h1')]).complete,false);
+assert.deepEqual(F.audit(manifest,[{...result('h1'),tested_at_utc:'2025-12-31T00:00:00Z'},result('h2')]).nonconforming,['h1']);
+assert.deepEqual(F.audit(manifest,[{...result('h1'),protocol_sha256:a},result('h2')]).nonconforming,['h1']);
+assert.throws(()=>F.register({...manifest,hypotheses:[manifest.hypotheses[0],manifest.hypotheses[0]]}),/duplicate/);
+assert.throws(()=>F.register({...manifest,publication_gate:'OPEN'}),/safeguards/);
+assert.throws(()=>F.register({...manifest,registered_at_utc:'2026-02-30T00:00:00Z'}),/metadata/);
+assert.throws(()=>F.audit(manifest,null),/array/);
+const copy=F.register(manifest);copy.hypotheses[0].statement='tampered';assert.notEqual(manifest.hypotheses[0].statement,'tampered');
+console.log('PASS Cardano preregistered experiment-family audit and negative cases');
