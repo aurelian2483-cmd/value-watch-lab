@@ -31,7 +31,18 @@ function report(from, to, now = Date.now()) {
       publishedAt:entry.published_at_utc||entry.publication_date,
       ...evidence.communityEvidence(entry,event,now)
     }));
-  const saved = snapshots.flatMap(s => s.kind === 'other' ? Object.entries(s.data.sports).flatMap(([sport,p]) => p.events.map(e=>({sport,start:e.startUTC}))) : s.kind === 'football' ? s.data.upcoming_fixtures.map(e=>({sport:'football',start:e.kickoff_utc})) : s.data.races.map(e=>({sport:'racing',start:e.startUTC})));
+  // Metadata-only racing meeting fixtures are not runner-level races. Some
+  // source files also omit optional event arrays; never crash the whole report.
+  const saved = snapshots.flatMap(snapshot => {
+    const data=snapshot.data;
+    if(snapshot.kind==='other')return Object.entries(data.sports||{}).flatMap(([sport,entry])=>
+      (Array.isArray(entry.events)?entry.events:[]).map(event=>({sport,start:event.startUTC})));
+    if(snapshot.kind==='football')return (Array.isArray(data.upcoming_fixtures)?data.upcoming_fixtures:[])
+      .map(event=>({sport:'football',start:event.kickoff_utc}));
+    if(snapshot.kind==='racing')return (Array.isArray(data.races)?data.races:[])
+      .map(event=>({sport:'racing',start:event.startUTC}));
+    return [];
+  }).filter(event=>typeof event.start==='string'&&Number.isFinite(Date.parse(event.start)));
   const future = snapshots.find(s=>s.kind==='racing-future')?.data;
   const other = snapshots.find(s=>s.kind==='other')?.data;
   const days=[];
