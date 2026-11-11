@@ -597,6 +597,18 @@
     return next;
   }
 
+  // Build an independent dated plan. Persisting/archiving is deliberately handled
+  // by the caller as one fail-closed workspace write, never by this pure function.
+  function freshDailyResearch(previous, events, from, to, now = Date.now()) {
+    restore(serialize(previous));
+    range(from, to);
+    if (!Number.isFinite(now)) throw Error('Invalid refresh timestamp.');
+    const createdAt = new Date(now).toISOString();
+    const plan = createPlan({ from, to, createdAt });
+    if (plan.id === previous.id) throw Error('The fresh plan must have a distinct identity.');
+    return generateResearch(plan, events, now);
+  }
+
   function restore(raw) {
     if (typeof raw !== 'string' || raw.length > 4000000) throw Error('Saved plan is too large or unreadable.');
     const plan = JSON.parse(raw);
@@ -676,5 +688,5 @@
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, freshDailyResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });
