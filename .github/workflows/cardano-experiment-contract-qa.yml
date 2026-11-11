@@ -19,6 +19,7 @@ on:
       - 'tests/cardano_source_capture.cjs'
       - 'tests/cardano_capture_audit.cjs'
       - 'tests/cardano_capture_audit_integration.cjs'
+      - 'tests/cardano_evidence_register.cjs'
       - 'tests/cardano_network_policy.cjs'
       - 'tests/cardano_secure_dns.cjs'
       - 'tests/cardano_tls_integration.cjs'
@@ -42,6 +43,7 @@ on:
       - 'tests/cardano_source_capture.cjs'
       - 'tests/cardano_capture_audit.cjs'
       - 'tests/cardano_capture_audit_integration.cjs'
+      - 'tests/cardano_evidence_register.cjs'
       - 'tests/cardano_network_policy.cjs'
       - 'tests/cardano_secure_dns.cjs'
       - 'tests/cardano_tls_integration.cjs'
@@ -73,6 +75,7 @@ jobs:
           node --check cardano-lab/reconciliation-gate.js
           node --check cardano-lab/source-capture.js
           node --check cardano-lab/capture-audit.js
+          node --check cardano-lab/evidence-register.js
           node --check cardano-lab/network-policy.js
           node --check cardano-lab/secure-dns.js
       - name: Run ledger contract and negative tests
@@ -92,6 +95,7 @@ jobs:
           node tests/cardano_source_capture.cjs
           node tests/cardano_capture_audit.cjs
           node tests/cardano_capture_audit_integration.cjs
+          node tests/cardano_evidence_register.cjs
           node tests/cardano_network_policy.cjs
           node tests/cardano_secure_dns.cjs
           node tests/cardano_tls_integration.cjs
