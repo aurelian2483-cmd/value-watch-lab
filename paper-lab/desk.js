@@ -879,8 +879,8 @@
   function matchCommunity(event) {
     if (event.sport !== 'racing' || !event.providerEventId) return [];
     return communityEntries.filter(entry => {
-      if(entry.stance !== 'support')return false;
-      return window.CommunityEvidence.eligible(entry,event);
+      if(!window.CommunityEvidence.eligible(entry,event))return false;
+      return entry.stance === 'support';
     }).map(entry => ({
       choiceId:event.choices.find(choice => choice.label.trim().toLowerCase() === String(entry.horse).trim().toLowerCase()).id,
       type:entry.group, sourceUrl:entry.url, observedAt:entry.observed_at_utc,
