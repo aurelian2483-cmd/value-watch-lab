@@ -85,6 +85,36 @@
     }).filter(Boolean);
   }
 
+  // Venue-specific samples are not total league appearances. This is explanatory
+  // research metadata only; it must never change model probability or eligibility.
+  function footballSeasonMaturity(event) {
+    if (!event || event.sport !== 'football' || event.international === true) return null;
+    const comparison = event.seasonComparison;
+    if (!comparison || !Number.isSafeInteger(comparison.home_venue_matches) ||
+        !Number.isSafeInteger(comparison.away_venue_matches) ||
+        comparison.home_venue_matches < 0 || comparison.away_venue_matches < 0) {
+      return { status:'NOT_AVAILABLE', homeVenueMatches:null, awayVenueMatches:null,
+        overallMatchesKnown:false, evidenceBasis:'VENUE_ONLY',
+        notes:['Reliable current-season venue samples are unavailable; no maturity judgement is made.',
+          'Transfers, managerial changes, injuries and tactical changes are not verified by this feed.'] };
+    }
+    const phase = count => count < 5 ? 'EARLY_SMALL_SAMPLE' :
+      count <= 7 ? 'EMERGING_CHECKPOINT' : 'BROADER_VENUE_SAMPLE';
+    const describe = (side, count) => side + ': ' + count +
+      ' venue-specific league matches · ' + (count < 5 ? 'early, highly uncertain sample' :
+        count <= 7 ? '5–7-match emerging-form checkpoint, not proof of improvement' :
+        'larger venue-specific sample; performance still requires context');
+    return { status:'DESCRIPTIVE_ONLY', homeVenueMatches:comparison.home_venue_matches,
+      awayVenueMatches:comparison.away_venue_matches, homePhase:phase(comparison.home_venue_matches),
+      awayPhase:phase(comparison.away_venue_matches), overallMatchesKnown:false,
+      evidenceBasis:'VENUE_ONLY',
+      notes:[describe('Home team at home',comparison.home_venue_matches),
+        describe('Away team away',comparison.away_venue_matches),
+        'These are venue-specific counts, not either team’s total league games. A 5–7 total-games checkpoint cannot be verified from this comparison.',
+        'Manager appointments, transfers, injuries, opponent strength and tactical changes are not verified in this feed; no improvement is inferred.',
+        'Current-season scoring comparison is experimental and unvalidated. Historical H2H remains separate descriptive context.'] };
+  }
+
   function footballEvidenceReview(event) {
     if (!event || event.sport !== 'football' || !event.model) return null;
     const notes = [];
@@ -567,5 +597,5 @@
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });
