@@ -4,6 +4,7 @@ const {summary}=require('../scripts/cardano_coverage_summary.cjs');
 const sports=['football','racing','tennis','nfl'];
 const fixture={
   research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
+  source_read_errors:[{path:'football-expanded-data.json',reason:'SOURCE_FILE_MISSING'}],
   snapshots:[{path:'racing-research-data.json',age_minutes:47,status:'OLDER_THAN_EVENT_TTL'}],
   shortlist_diagnostics:{
     coverage:sports.map((sport,i)=>({
@@ -20,6 +21,7 @@ const fixture={
 const output=summary(fixture);
 assert.match(output,/ELIGIBLE_BUT_NOT_SELECTED/);
 assert.match(output,/OLDER_THAN_EVENT_TTL/);
+assert.match(output,/football-expanded-data\.json: SOURCE_FILE_MISSING/);
 assert.match(output,/racing-research-data\.json/);
 assert.match(output,/SELECTABLE_BUT_NOT_EVIDENCE_ELIGIBLE/);
 assert.match(output,/No current-season comparison \(2\)/);
