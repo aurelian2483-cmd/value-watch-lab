@@ -13,12 +13,12 @@ const community=evidenceContext.window.CommunityEvidence;
 const specs = [['football','research-dashboard-data.json'], ['football','football-expanded-data.json'],
   ['football','international-football-data.json'], ['racing','racing-research-data.json'],
   ['racing-future','racing-future-data.json'], ['other','other-sports-data.json']];
-function report(from, to, now = Date.now()) {
+function report(from, to, now = Date.now(), dataRoot = root) {
   E.range(from, to);
   const sourceReadErrors=[];
   const snapshots=[];
   for(const [kind,p] of specs){
-    const filename=path.join(root,p);
+    const filename=path.join(dataRoot,p);
     if(!fs.existsSync(filename)){
       sourceReadErrors.push({path:p,reason:'SOURCE_FILE_MISSING'});
       continue;
@@ -34,7 +34,7 @@ function report(from, to, now = Date.now()) {
   const events = E.normalizeFeeds(snapshots.map(s=>({...s,document:s.data})), now);
   let archive={entries:[]};
   try{
-    const parsed=JSON.parse(fs.readFileSync(path.join(root,'racing-research/source-observations.json'),'utf8'));
+    const parsed=JSON.parse(fs.readFileSync(path.join(dataRoot,'racing-research/source-observations.json'),'utf8'));
     if(!parsed||!Array.isArray(parsed.entries))throw Error('Missing entries array');
     archive=parsed;
   }catch(error){
