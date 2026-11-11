@@ -93,7 +93,16 @@
     for (const control of controls) control.disabled = true;
     try {
       if (persistence.locked) throw Error('Local research storage is locked. Export your research before trying again.');
+      const original = store.get().plan;
+      write($('slip-refresh-outcome'), 'Checking the latest research feeds before generating new paper slips…');
+      // Refresh source data first; a new plan ID does not mean the inputs changed.
+      // During this operation the transport callback must not auto-fill old slots.
+      const result = await refresh();
       const before = store.get();
+      if (before.plan.id !== original.id || before.plan.revision !== original.revision)
+        throw Error('Paper research was edited while feeds refreshed. Existing selections are unchanged; please retry.');
+      if (!result?.snapshots?.length)
+        throw Error('No source snapshots were loaded. Previous paper research was preserved.');
       const current = before.plan;
       // The user explicitly starts a new 7-day plan; saved historical legs are immutable.
       const from = today(), to = plusDays(from,6), now = Date.now();
@@ -117,6 +126,12 @@
           latest.journal.length !== before.journal.length)
         throw Error('Research changed during refresh. No slips were replaced. Retry after reviewing the latest data.');
       const history = record ? [...latest.history,record] : latest.history;
+      const oldChoices = current.slots.map(slot => slot.legs.map(leg => leg.eventId + ':' + leg.choiceId).join('|'));
+      const newChoices = next.slots.map(slot => slot.legs.map(leg => leg.eventId + ':' + leg.choiceId).join('|'));
+      const sameSelections = oldChoices.every((value,index) => value === newChoices[index]);
+      const sportCounts = E.paperEligibilityAudit(next,available,now)
+        .map(row => row.sport + ' ' + row.eligible).join(' · ');
+      const sourceProblems = result.errors?.length || 0;
       // One validated persistence write for the plan AND archive. On failure,
       // keep the current in-memory plan, private notes, journal and saved research.
       saveEnvelope({plan:next,history,replacing:null});
@@ -128,10 +143,22 @@
         element.setAttribute('aria-pressed',String(active));
       });
       const total = next.slots.reduce((n,slot) => n+slot.legs.length,0);
+      const outcome = 'Fresh feeds checked · ' + sportCounts +
+        ' · ' + total + ' paper selections · ' +
+        (sameSelections ? 'Choices unchanged because the latest eligible inputs produced the same shortlist.' :
+          'New shortlist differs from the previous plan.') +
+        (sourceProblems ? ' · ' + sourceProblems + ' source requests had problems; check Sources.' : '') +
+        ' Experimental research only; no verified positive EV.';
+      write($('slip-refresh-outcome'), outcome);
       notice('Fresh seven-day research plan saved · ' + total +
         ' experimental paper selections · ' + (record ? 'previous revision archived' :
         hasResearch ? 'previous revision already in saved research' : 'no previous selections to archive') +
+        (sameSelections ? ' · Same qualifying choices as previous plan' : ' · Updated shortlist') +
         '. Nothing is a verified betting recommendation.');
+    } catch (error) {
+      write($('slip-refresh-outcome'), 'Refresh could not finish: ' + (error?.message || 'Unknown error') +
+        ' · Existing saved selections have not been replaced.');
+      throw error;
     } finally {
       freshDailyBusy = false;
       for (const control of controls) control.disabled = false;
@@ -1010,7 +1037,7 @@
   const transport = ResearchTransport.createSnapshotClient({ fetch: window.fetch.bind(window), onStatus(status) { $('refresh').disabled = status.status === 'loading'; $('events').setAttribute('aria-busy', String(status.status === 'loading' && !store.get().events.length)); }, onUpdate(result) { safely(() => { const events = E.normalizeFeeds(result.snapshots).map(event => ({...event,communityTips:matchCommunity(event)})); store.update(state => ({ ...state, events, eventVersion: state.eventVersion + 1, snapshotState: result }));
       // Populate empty research slips automatically from the current published snapshots.
       // Preserve every existing leg, user edit and historical record on refresh.
-      if (events.length && !persistence.failed) {
+      if (events.length && !persistence.failed && !freshDailyBusy) {
         const current = store.get().plan;
         const eligible = events.filter(event => !event.futureScheduleOnly && day(event.startUTC) >= current.from && day(event.startUTC) <= current.to);
         if (current.slots.some(slot => !slot.legs.length) && eligible.length) {
