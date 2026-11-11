@@ -66,6 +66,61 @@
     return result;
   }
 
+  function validatedFootballSeasonForm(raw, fixture, generatedAt) {
+    if (!raw || raw.method !== 'SOURCE_OBSERVED_CURRENT_SEASON_FORM_V1' ||
+        raw.research_only !== true || raw.model_validation !== 'UNVALIDATED' ||
+        raw.publication_gate !== 'BLOCKED' || raw.odds !== null || raw.expected_value !== null ||
+        raw.completeness !== 'SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED' ||
+        raw.opponent_strength_adjusted !== false ||
+        raw.manager_change_evidence !== null || raw.transfer_impact_evidence !== null ||
+        raw.manager_pre_post_comparison !== null || raw.squad_pre_post_comparison !== null ||
+        !/^[a-f0-9]{64}$/.test(raw.source_rows_sha256 || '') ||
+        !/^\\d{4}-\\d{2}-\\d{2}$/.test(raw.cutoff_date_exclusive || '') ||
+        raw.cutoff_date_exclusive > Core.day(fixture.kickoff_utc) ||
+        raw.cutoff_date_exclusive > Core.day(generatedAt) ||
+        !Array.isArray(raw.source_receipts) || !raw.source_receipts.length ||
+        raw.source_receipts.some(receipt => !/^https:\\/\\//.test(receipt.url || '') ||
+          !/^[a-f0-9]{64}$/.test(receipt.sha256 || '') ||
+          !Number.isFinite(instant(receipt.observed_at_utc)) ||
+          instant(receipt.observed_at_utc) > instant(generatedAt))) return null;
+    const validate = side => {
+      if (!side || !Number.isSafeInteger(side.completed_league_matches) ||
+          !Number.isSafeInteger(side.home_matches) || !Number.isSafeInteger(side.away_matches) ||
+          side.completed_league_matches < 1 || side.home_matches < 0 || side.away_matches < 0 ||
+          side.home_matches + side.away_matches !== side.completed_league_matches ||
+          !Array.isArray(side.last_five) ||
+          side.last_five.length !== Math.min(5,side.completed_league_matches) ||
+          side.last_five_count !== side.last_five.length ||
+          !Number.isSafeInteger(side.last_five_points) ||
+          side.last_five_points < 0 || side.last_five_points > 3 * side.last_five.length ||
+          (side.completed_league_matches >= 10 ?
+            (!Number.isSafeInteger(side.first_five_points) || side.first_five_points < 0 ||
+             side.first_five_points > 15 || side.first_five_count !== 5) :
+            (side.first_five_points !== null || side.first_five_count !== null))) return false;
+      let previous = '';
+      let points = 0;
+      for (const game of side.last_five) {
+        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(game?.date || '') ||
+            game.date >= raw.cutoff_date_exclusive || game.date < previous ||
+            typeof game.opponent !== 'string' || !game.opponent.trim() ||
+            !['HOME','AWAY'].includes(game.venue) ||
+            !['W','D','L'].includes(game.result) ||
+            !Number.isSafeInteger(game.goals_for) || game.goals_for < 0 ||
+            !Number.isSafeInteger(game.goals_against) || game.goals_against < 0 ||
+            (game.goals_for > game.goals_against ? 'W' :
+             game.goals_for < game.goals_against ? 'L' : 'D') !== game.result) return false;
+        previous = game.date;
+        points += game.result === 'W' ? 3 : game.result === 'D' ? 1 : 0;
+      }
+      return points === side.last_five_points;
+    };
+    if (!validate(raw.home) || !validate(raw.away) ||
+        (fixture.current_season_comparison &&
+          (raw.home.home_matches !== fixture.current_season_comparison.home_venue_matches ||
+           raw.away.away_matches !== fixture.current_season_comparison.away_venue_matches))) return null;
+    return clone(raw);
+  }
+
   function football(document, path, now) {
     const modelRows = list(document.experimental_model_forecasts);
     return list(document.upcoming_fixtures).map(row => {
@@ -80,7 +135,7 @@
         choices: [{ id: 'home', label: str(row.home), probability: model?.prob_home ?? null }, { id: 'draw', label: 'Draw', probability: model?.prob_draw ?? null }, { id: 'away', label: str(row.away), probability: model?.prob_away ?? null }].map(choice => ({ ...choice, uncertainty: null, quote: null, market: 'Match result · regulation time' })),
         model: model ? { name: str(model.model), observedAt: model.generated_at_utc || document.generated_at_utc, validation: 'UNVALIDATED', probabilityKind: 'EXPERIMENTAL_MODEL_ESTIMATE', uncertainty: null, trainingMode: str(model.training_basis?.mode), trainingSource: str(model.training_basis?.source_receipts?.[0]?.url), trainingSampleSize: model.training_basis?.training_matches ?? null } : null,
         stats: { h2h: h2h && Number.isSafeInteger(h2h.sample_size) && h2h.sample_size >= 0 ? clone(h2h) : null, recent: null, rankings: null },
-        extra: { international: row.international === true, internationalAnalysis: row.international_analysis?.method === 'INTERNATIONAL_RECENT_RESULTS_V1' && row.international_analysis.research_only === true && row.international_analysis.publication_gate === 'BLOCKED' && row.international_analysis.model_validation === 'UNVALIDATED' && row.international_analysis.odds === null && row.international_analysis.expected_value === null ? clone(row.international_analysis) : null, providerStatus: str(row.status || row.event_status), league, forecastStatus: str(row.forecast_status), forecastEligible: row.forecast_eligible === true, seasonComparison: row.current_season_comparison && row.current_season_comparison.research_only === true && row.current_season_comparison.publication_gate === 'BLOCKED' && row.current_season_comparison.odds === null && row.current_season_comparison.expected_value === null && row.current_season_comparison.method === 'CURRENT_SEASON_POISSON_COMPARISON_V1' && vector([row.current_season_comparison.prob_home,row.current_season_comparison.prob_draw,row.current_season_comparison.prob_away]) && Number.isSafeInteger(row.current_season_comparison.home_venue_matches) && Number.isSafeInteger(row.current_season_comparison.away_venue_matches) ? clone(row.current_season_comparison) : null }
+        extra: { international: row.international === true, internationalAnalysis: row.international_analysis?.method === 'INTERNATIONAL_RECENT_RESULTS_V1' && row.international_analysis.research_only === true && row.international_analysis.publication_gate === 'BLOCKED' && row.international_analysis.model_validation === 'UNVALIDATED' && row.international_analysis.odds === null && row.international_analysis.expected_value === null ? clone(row.international_analysis) : null, providerStatus: str(row.status || row.event_status), league, forecastStatus: str(row.forecast_status), forecastEligible: row.forecast_eligible === true, seasonForm: validatedFootballSeasonForm(row.current_season_form,row,document.generated_at_utc), seasonComparison: row.current_season_comparison && row.current_season_comparison.research_only === true && row.current_season_comparison.publication_gate === 'BLOCKED' && row.current_season_comparison.odds === null && row.current_season_comparison.expected_value === null && row.current_season_comparison.method === 'CURRENT_SEASON_POISSON_COMPARISON_V1' && vector([row.current_season_comparison.prob_home,row.current_season_comparison.prob_draw,row.current_season_comparison.prob_away]) && Number.isSafeInteger(row.current_season_comparison.home_venue_matches) && Number.isSafeInteger(row.current_season_comparison.away_venue_matches) ? clone(row.current_season_comparison) : null }
       }, now);
     }).filter(Boolean);
   }
@@ -89,6 +144,30 @@
   // research metadata only; it must never change model probability or eligibility.
   function footballSeasonMaturity(event) {
     if (!event || event.sport !== 'football' || event.international === true) return null;
+    const form = event.seasonForm;
+    if (form) {
+      const phase = count => count < 5 ? 'EARLY_SMALL_SAMPLE' :
+        count <= 7 ? 'EMERGING_CHECKPOINT' : 'BROADER_SEASON_SAMPLE';
+      const describe = (side, team) => side + ': ' + team.completed_league_matches +
+        ' completed league games (home and away) · last ' + team.last_five_count +
+        ' results ' + team.last_five.map(match => match.result).join(' ') +
+        ' · ' + team.last_five_points + '/' + (3 * team.last_five_count) + ' possible points.';
+      const comparison = form.home.first_five_points !== null && form.away.first_five_points !== null ?
+        ['Home first-five vs most recent five: ' + form.home.first_five_points + ' → ' + form.home.last_five_points + ' points.',
+         'Away first-five vs most recent five: ' + form.away.first_five_points + ' → ' + form.away.last_five_points + ' points.'] : [];
+      return { status:'SOURCE_OBSERVED', homeVenueMatches:form.home.home_matches,
+        awayVenueMatches:form.away.away_matches, homeTotalMatches:form.home.completed_league_matches,
+        awayTotalMatches:form.away.completed_league_matches,
+        homePhase:phase(form.home.completed_league_matches),
+        awayPhase:phase(form.away.completed_league_matches), overallMatchesKnown:true,
+        evidenceBasis:'SOURCE_OBSERVED_TOTAL_SEASON',
+        notes:[describe('Home team',form.home),describe('Away team',form.away),
+          ...comparison,
+          'First-five versus latest-five points are descriptive only; opponent strengths are not adjusted and cannot prove improvement.',
+          'Managerial changes, transfers, lineup changes and injuries have no independently verified event dates or effects in this source. No before/after manager or transfer attribution is made.',
+          'Completed match counts are source-observed, not independently complete. Historical H2H and bookmaker prices remain separate.'],
+        sourceReceipts:form.source_receipts };
+    }
     const comparison = event.seasonComparison;
     if (!comparison || !Number.isSafeInteger(comparison.home_venue_matches) ||
         !Number.isSafeInteger(comparison.away_venue_matches) ||
