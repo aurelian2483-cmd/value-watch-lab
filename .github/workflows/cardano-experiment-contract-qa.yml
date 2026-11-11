@@ -5,6 +5,7 @@ on:
     paths:
       - 'cardano-lab/**'
       - 'tests/cardano_experiment_ledger.cjs'
+      - 'tests/cardano_experiment_store.cjs'
       - '.github/workflows/cardano-experiment-contract-qa.yml'
   pull_request:
     paths:
@@ -22,6 +23,10 @@ jobs:
         with:
           node-version: '22'
       - name: Validate JavaScript syntax
-        run: node --check cardano-lab/experiment-ledger.js
+        run: |
+          node --check cardano-lab/experiment-ledger.js
+          node --check cardano-lab/experiment-store.js
       - name: Run ledger contract and negative tests
-        run: node tests/cardano_experiment_ledger.cjs
+        run: |
+          node tests/cardano_experiment_ledger.cjs
+          node tests/cardano_experiment_store.cjs
