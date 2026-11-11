@@ -14,6 +14,9 @@ on:
       - 'scripts/cardano_coverage_summary.cjs'
       - '.github/workflows/cardano-paper-refresh-qa.yml'
   workflow_dispatch:
+concurrency:
+  group: cardano-paper-refresh-qa-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -37,8 +40,18 @@ jobs:
         run: node scripts/sports_coverage_report.cjs > cardano-sports-coverage.json
       - name: Publish coverage and exclusion summary
         run: node scripts/cardano_coverage_summary.cjs cardano-sports-coverage.json
-      - uses: actions/upload-artifact@v4
+      - name: Upload optional coverage artifact
+        id: coverage-upload
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        timeout-minutes: 2
         with:
           name: cardano-sports-coverage
           path: cardano-sports-coverage.json
+          if-no-files-found: error
           retention-days: 14
+      - name: Report optional artifact upload failure
+        if: steps.coverage-upload.outcome == 'failure'
+        run: |
+          echo '::warning::Coverage tests passed, but the optional diagnostic artifact upload failed or timed out.'
+          echo 'Coverage JSON remains in the job workspace; the upload did not complete.' >> "$GITHUB_STEP_SUMMARY"
