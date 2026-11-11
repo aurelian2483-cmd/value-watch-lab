@@ -6,10 +6,10 @@ const capture=(url,options)=>C.capture(url,{...options,resolver});
 assert.equal(C.validateTarget('https://example.org/results',hosts).hostname,'example.org');
 for(const url of ['http://example.org','https://example.net','https://user@example.org','https://example.org:8443/a','https://example.org/#fragment'])assert.throws(()=>C.validateTarget(url,hosts));
 assert.throws(()=>C.validateTarget('https://example.org',[]),/allowlist/);
-function fakeTransport(status,parts){
+function fakeTransport(status,parts,headers={}){
  return {get(_url,_options,cb){
   const req=new EventEmitter();req.destroy=error=>{if(error)req.emit('error',error)};
-  process.nextTick(()=>{const res=new EventEmitter();res.statusCode=status;res.resume=()=>{};cb(res);for(const p of parts)res.emit('data',Buffer.from(p));res.emit('end')});
+  process.nextTick(()=>{const res=new EventEmitter();res.statusCode=status;res.headers=headers;res.resume=()=>{};cb(res);for(const p of parts)res.emit('data',Buffer.from(p));res.emit('end')});
   return req;
  }};
 }
@@ -26,6 +26,11 @@ function fakeTransport(status,parts){
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(302,[])}),/redirects/);
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,[])}),/Empty/);
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,[Buffer.alloc(C.MAX_BYTES+1)])}),/size limit/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['x'],{'content-encoding':'gzip'})}),/content encoding/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['x'],{'content-length':String(C.MAX_BYTES+1)})}),/size limit/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['x'],{'content-length':'not-a-number'})}),/Invalid declared/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['x'],{'content-length':'2'})}),/length mismatch/);
+ assert.equal((await capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['ok'],{'content-length':'2','content-encoding':'identity'})})).bytes.toString(),'ok');
  assert.throws(()=>capture('https://example.org',{allowedHosts:hosts,timeoutMs:1}),/Invalid timeout/);
  const neverTransport={get(){throw Error('Transport must not start before DNS resolves')}};
  await assert.rejects(()=>C.capture('https://example.org',{allowedHosts:hosts,timeoutMs:1000,resolver:()=>new Promise(()=>{}),transport:neverTransport}),/DNS resolution timed out/);
