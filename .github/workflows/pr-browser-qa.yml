@@ -1,0 +1,35 @@
+name: PR browser QA (no deployment)
+on:
+  pull_request:
+    branches: [copilot/evidence-research-handover]
+    paths:
+      - 'index.html'
+      - 'paper-lab/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'package*.json'
+      - '.github/workflows/pr-browser-qa.yml'
+permissions:
+  contents: read
+jobs:
+  browser-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Verify research browser interactions (desktop/mobile/racing/paper)
+        run: npm run test:browser
+      - name: Save QA report and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-browser-qa-evidence
+          path: work/browser-qa/
+          retention-days: 14
