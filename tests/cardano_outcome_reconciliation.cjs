@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict'),R=require('../cardano-lab/outcome-reconciliation.js');
+const p=id=>({prediction_id:'pred-'+id,event_id:'event-'+id,issued_at_utc:'2026-01-01T10:00:00Z',event_at_utc:'2026-01-02T10:00:00Z',outcomes:['HOME','DRAW','AWAY'],prediction_sha256:'a'.repeat(64)});
+const r=(id,outcome='HOME')=>({receipt_id:'receipt-'+id,event_id:'event-'+id,observed_at_utc:'2026-01-02T12:00:00Z',source_url:'https://example.org/results',source_sha256:'b'.repeat(64),outcome});
+const ok=R.reconcile([p('a')],[r('a')]);
+assert.equal(ok.complete,true);assert.equal(ok.matched.length,1);assert.equal(ok.publication_gate,'BLOCKED');
+const missing=R.reconcile([p('a'),p('b')],[r('a')]);assert.deepEqual(missing.missing_event_ids,['event-b']);assert.equal(missing.complete,false);
+const invalid=R.reconcile([p('a')],[r('a','CANCELLED')]);assert.equal(invalid.matched.length,0);assert.equal(invalid.issues[0].reason,'UNKNOWN_OUTCOME');
+const early=R.reconcile([p('a')],[{...r('a'),observed_at_utc:'2026-01-01T09:00:00Z'}]);assert.equal(early.issues[0].reason,'PRE_EVENT_RESULT');
+const conflict=R.reconcile([p('a')],[r('a'),{...r('a','AWAY'),receipt_id:'receipt-second'}]);assert.deepEqual(conflict.conflicting_event_ids,['event-a']);assert.equal(conflict.matched.length,0);
+assert.throws(()=>R.reconcile([p('a'),p('a')],[]),/duplicate/);
+assert.throws(()=>R.reconcile([p('a')],[r('a'),r('a')]),/duplicate/);
+assert.throws(()=>R.reconcile([p('a')],[{...r('a'),source_url:'http://example.org'}]),/receipt/);
+assert.throws(()=>R.reconcile([p('a')],[{...r('a'),source_sha256:'bad'}]),/receipt/);
+assert.equal(R.reconcile([],[]).complete,true);
+console.log('PASS Cardano outcome reconciliation and negative cases');
