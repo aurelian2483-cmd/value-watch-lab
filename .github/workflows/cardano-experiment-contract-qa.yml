@@ -21,6 +21,7 @@ on:
       - 'tests/cardano_network_policy.cjs'
       - 'tests/cardano_secure_dns.cjs'
       - 'tests/cardano_tls_integration.cjs'
+      - 'tests/cardano_collector_tls_fixture.cjs'
       - '.github/workflows/cardano-experiment-contract-qa.yml'
   pull_request:
     paths:
@@ -42,6 +43,7 @@ on:
       - 'tests/cardano_network_policy.cjs'
       - 'tests/cardano_secure_dns.cjs'
       - 'tests/cardano_tls_integration.cjs'
+      - 'tests/cardano_collector_tls_fixture.cjs'
       - '.github/workflows/cardano-experiment-contract-qa.yml'
   workflow_dispatch:
 jobs:
@@ -90,3 +92,4 @@ jobs:
           node tests/cardano_network_policy.cjs
           node tests/cardano_secure_dns.cjs
           node tests/cardano_tls_integration.cjs
+          node tests/cardano_collector_tls_fixture.cjs
