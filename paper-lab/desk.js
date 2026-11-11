@@ -1036,9 +1036,10 @@
     }));
   }
   const transport = ResearchTransport.createSnapshotClient({ fetch: window.fetch.bind(window), onStatus(status) { $('refresh').disabled = status.status === 'loading'; $('events').setAttribute('aria-busy', String(status.status === 'loading' && !store.get().events.length)); }, onUpdate(result) { safely(() => { const events = E.normalizeFeeds(result.snapshots).map(event => ({...event,communityTips:matchCommunity(event)})); store.update(state => ({ ...state, events, eventVersion: state.eventVersion + 1, snapshotState: result }));
-      // Populate empty research slips automatically from the current published snapshots.
+      // Populate empty research slips only after a fully successful refresh.
+      // Retained last-good snapshots are visible for research, never silently auto-selected.
       // Preserve every existing leg, user edit and historical record on refresh.
-      if (events.length && !persistence.failed && !freshDailyBusy) {
+      if (events.length && !result.errors.length && !persistence.failed && !freshDailyBusy) {
         const current = store.get().plan;
         const eligible = events.filter(event => !event.futureScheduleOnly && day(event.startUTC) >= current.from && day(event.startUTC) <= current.to);
         if (current.slots.some(slot => !slot.legs.length) && eligible.length) {
