@@ -251,3 +251,38 @@ const dailyUI=fs.readFileSync(require('node:path').join(__dirname,'..','paper-la
 assert(dailyUI.includes('saveEnvelope({plan:next,history,replacing:null})'),'Archive and new plan must be persisted together');
 assert(dailyUI.includes('if (!persistence.write(next)) throw Error'),'Persistence must fail closed');
 console.log('Fresh daily paper plan immutability, distinct identity and entrypoint controls passed');
+
+
+// Equal-source-coverage sports must share paper shortlist slots, without
+// relaxing strict evidence priority or manufacturing unsupported outcomes.
+const mixedForm = [
+  event(500,'tennis'),event(502,'tennis'),event(504,'tennis'),
+  event(506,'tennis'),event(508,'tennis'),event(510,'tennis'),
+  event(501,'nfl'),event(503,'nfl'),event(505,'nfl')
+];
+const mixedPlan=E.createPlan({from:'2026-11-08',to:'2026-11-09',createdAt:new Date(now).toISOString()});
+const mixedGenerated=E.generateResearch(mixedPlan,mixedForm,now);
+assert.deepEqual(mixedGenerated.slots[0].legs.map(leg=>leg.sport),['tennis','nfl','tennis'],
+  'Best Evidence must rotate equal-score candidates without favoring earlier tennis');
+assert.deepEqual(mixedGenerated.slots[1].legs.map(leg=>leg.sport),['tennis','nfl'],
+  'Balanced should contain a second sport when it has equally strong evidence');
+assert(mixedGenerated.slots[3].legs.filter(leg=>leg.sport==='nfl').length>=2,
+  'Longshot must not be entirely tennis when equivalent NFL candidates exist');
+assert(mixedGenerated.slots.every(slot=>slot.legs.every(leg=>
+  leg.research_only&&leg.publication_gate==='BLOCKED'&&leg.model_validation==='UNVALIDATED')));
+const higherEvidenceTennis={...event(520,'tennis'),
+ sources:[...event(520,'tennis').sources,
+ {url:'https://another.example.org/verified-event',kind:'PROVIDER_RECEIPT',observedAt:'2026-11-08T08:59:00Z',sha256:null}]};
+const higherEvidence=E.generateResearch(mixedPlan,[...mixedForm,higherEvidenceTennis],now);
+assert.equal(higherEvidence.slots[0].legs[0].eventId,higherEvidenceTennis.id,
+  'Sport rotation must never leapfrog a more strongly sourced candidate');
+const tennisOnly=E.generateResearch(mixedPlan,mixedForm.filter(e=>e.sport==='tennis'),now);
+assert(tennisOnly.slots.every(slot=>slot.legs.every(leg=>leg.sport==='tennis')),
+  'No absent sport should ever be introduced');
+const originalMixed=JSON.stringify(mixedGenerated);
+const preservedMixed=E.generateResearch(mixedGenerated,mixedForm,now);
+assert.equal(JSON.stringify(preservedMixed.slots.map(slot=>slot.legs)),
+ JSON.stringify(mixedGenerated.slots.map(slot=>slot.legs)),
+ 'Regeneration must preserve previously saved legs');
+assert.equal(JSON.stringify(mixedGenerated),originalMixed,'Generation must not mutate saved originals');
+console.log('Equal-evidence cross-sport rotation, strict evidence precedence, no forced picks and saved-slip preservation passed');
