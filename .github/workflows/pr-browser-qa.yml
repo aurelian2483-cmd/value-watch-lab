@@ -96,3 +96,22 @@ jobs:
           name: main-data-integration-evidence
           path: work/browser-qa/
           retention-days: 14
+
+  football-season-source-qa:
+    name: Football total-season collector source QA (read only)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out immutable producer PR #11 head
+        uses: actions/checkout@v4
+        with:
+          ref: 325c965428fd4600388fb17a9758b92c361a8978
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify source-backed total-game and current-season form collector
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/expanded_football.py
+          python -m unittest discover -s tests -p test_expanded_football.py -v
