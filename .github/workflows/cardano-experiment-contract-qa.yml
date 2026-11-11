@@ -18,6 +18,7 @@ on:
       - 'tests/cardano_reconciliation_gate.cjs'
       - 'tests/cardano_source_capture.cjs'
       - 'tests/cardano_capture_audit.cjs'
+      - 'tests/cardano_network_policy.cjs'
       - '.github/workflows/cardano-experiment-contract-qa.yml'
   pull_request:
     paths:
@@ -36,6 +37,7 @@ on:
       - 'tests/cardano_reconciliation_gate.cjs'
       - 'tests/cardano_source_capture.cjs'
       - 'tests/cardano_capture_audit.cjs'
+      - 'tests/cardano_network_policy.cjs'
       - '.github/workflows/cardano-experiment-contract-qa.yml'
   workflow_dispatch:
 jobs:
@@ -63,6 +65,7 @@ jobs:
           node --check cardano-lab/reconciliation-gate.js
           node --check cardano-lab/source-capture.js
           node --check cardano-lab/capture-audit.js
+          node --check cardano-lab/network-policy.js
       - name: Run ledger contract and negative tests
         run: |
           node tests/cardano_experiment_ledger.cjs
@@ -79,3 +82,4 @@ jobs:
           node tests/cardano_reconciliation_gate.cjs
           node tests/cardano_source_capture.cjs
           node tests/cardano_capture_audit.cjs
+          node tests/cardano_network_policy.cjs
