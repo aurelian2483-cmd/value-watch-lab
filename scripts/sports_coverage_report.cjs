@@ -49,7 +49,20 @@ function report(from, to, now = Date.now()) {
   const plan=E.createPlan({from,to,createdAt:new Date(now).toISOString()});
   const eligibility=E.paperEligibilityAudit(plan,events,now);
   const generated=E.generateResearch(plan,events,now);
-  const shortlist={sports:eligibility,slips:generated.slots.map(slot=>({
+  const sportCoverage=eligibility.map(row=>{
+    const sportEvents=events.filter(event=>event.sport===row.sport);
+    const withinRange=sportEvents.filter(event=>E.day(event.startUTC)>=from&&E.day(event.startUTC)<=to);
+    const selectable=withinRange.filter(event=>E.statusOf(event,now).selectable);
+    return {
+      sport:row.sport,normalized:sportEvents.length,inRange:withinRange.length,
+      selectable:selectable.length,eligible:row.eligible,excluded:row.excluded,
+      diagnostic:withinRange.length===0?'NO_NORMALIZED_EVENTS_IN_RANGE':
+        selectable.length===0?'NO_SELECTABLE_EVENTS_IN_RANGE':
+        row.eligible===0?'SELECTABLE_BUT_NOT_EVIDENCE_ELIGIBLE':'ELIGIBLE_CANDIDATES_AVAILABLE',
+      exclusionReasons:row.reasons
+    };
+  });
+  const shortlist={coverage:sportCoverage,sports:eligibility,slips:generated.slots.map(slot=>({
     approach:slot.id,status:slot.generation?.status||'NO_GENERATION_STATUS',
     selections:slot.legs.length,
     sports:slot.legs.reduce((counts,leg)=>(counts[leg.sport]=(counts[leg.sport]||0)+1,counts),{}),
