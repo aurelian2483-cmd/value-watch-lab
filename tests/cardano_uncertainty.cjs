@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict'),U=require('../cardano-lab/uncertainty.js');
+const row=(id,p,b,y)=>({id,probability:p,baseline_probability:b,outcome:y,dataset_split:'HOLDOUT',issued_at_utc:'2026-01-01T12:00:00Z',event_at_utc:'2026-01-02T12:00:00Z',resolved_at_utc:'2026-01-03T12:00:00Z'});
+const records=Array.from({length:40},(_,i)=>row('id-'+i,i%2?.2:.8,.5,i%2?0:1));
+const a=U.estimate(records,{iterations:500,seed:77}),b=U.estimate(records,{iterations:500,seed:77});
+assert.deepEqual(a,b,'reproducible seeded bootstrap');
+assert.ok(Math.abs(a.observed_delta_brier+.21)<1e-12);
+assert.ok(a.interval_upper<0);
+assert.equal(a.publication_gate,'BLOCKED');
+const identical=U.estimate([row('a',.5,.5,1),row('b',.5,.5,0)]);
+assert.equal(identical.interval_lower,0);assert.equal(identical.interval_upper,0);assert.equal(identical.interval_excludes_zero,false);
+for(const options of [{iterations:100},{iterations:20001},{seed:0},{seed:1.2},{confidence:.5},{confidence:1}])assert.throws(()=>U.estimate(records,options));
+assert.throws(()=>U.estimate([]),/Nonempty/);
+assert.throws(()=>U.estimate([row('a',.5,.5,1),row('a',.5,.5,0)]),/duplicate/);
+assert.throws(()=>U.estimate([{...row('a',.5,.5,1),dataset_split:'TRAIN'}]),/HOLDOUT/);
+console.log('PASS Cardano paired bootstrap uncertainty and negative cases');
