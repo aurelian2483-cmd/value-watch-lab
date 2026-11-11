@@ -8,6 +8,7 @@ on:
       - 'tests/test_refresh_provenance.cjs'
       - 'tests/test_sports_coverage_diagnostics.cjs'
       - 'scripts/sports_coverage_report.cjs'
+      - 'scripts/cardano_coverage_summary.cjs'
       - '.github/workflows/cardano-paper-refresh-qa.yml'
   workflow_dispatch:
 permissions:
@@ -28,6 +29,8 @@ jobs:
           node tests/test_sports_coverage_diagnostics.cjs
       - name: Export seven-day sports and eligibility diagnostic
         run: node scripts/sports_coverage_report.cjs > cardano-sports-coverage.json
+      - name: Publish coverage and exclusion summary
+        run: node scripts/cardano_coverage_summary.cjs cardano-sports-coverage.json
       - uses: actions/upload-artifact@v4
         with:
           name: cardano-sports-coverage
