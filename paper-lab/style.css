@@ -36,3 +36,14 @@
 .community-source-record strong, .community-source-record a { display: block; }
 .community-source-record a { color: #bfdbfe; text-decoration: underline; padding: 8px 0; }
 @media (max-width: 600px) { .community-evidence-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+
+/* Four-sport eligibility is a diagnostic, not model-grade evidence. */
+#paper-eligibility-audit{margin:12px 0 16px;padding:0 14px;border:1px solid #688093;border-radius:10px;overflow-wrap:anywhere}
+#paper-eligibility-audit>summary{cursor:pointer;min-height:48px;display:list-item;padding:14px 0;font-weight:650}
+#paper-eligibility-audit>summary:focus-visible,#paper-eligibility-audit details summary:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+#paper-eligibility-breakdown{padding-bottom:12px}
+.paper-audit-sport{padding:12px 0;border-top:1px solid var(--border)}
+.paper-audit-sport p{margin:4px 0 8px}
+.paper-audit-sport details{margin-top:8px}
+.paper-audit-sport details summary{cursor:pointer;min-height:40px;padding:10px 0}
+.paper-audit-sport details p{overflow-wrap:anywhere}
