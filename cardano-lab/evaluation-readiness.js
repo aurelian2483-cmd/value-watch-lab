@@ -12,6 +12,6 @@ function assess(register,experimentId){
  if(consistent.length)reasons.push('PUBLISHER_AUTHENTICATION_MISSING','OUTCOME_VERIFICATION_MISSING');
  if(register.externally_verified!==false||register.eligible_for_real_world_scoring!==false||register.research_only!==true||register.model_validation!=='UNVALIDATED'||register.publication_gate!=='BLOCKED')reasons.push('REGISTER_SAFETY_GATE_MISMATCH');
  if(register.accepted_integrity_count!==consistent.length||register.rejected_count!==rejected.length)reasons.push('REGISTER_COUNT_MISMATCH');
- return Object.freeze({experiment_id:experimentId,integrity_consistent_count:consistent.length,rejected_count:rejected.length,reasons:[...new Set(reasons)],offline_integrity_complete:register.evidence.length>0&&rejected.length===0&&reasons.length===2,eligible_for_real_world_scoring:false,externally_verified:false,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',research_only:true});
+ return Object.freeze({experiment_id:experimentId,integrity_consistent_count:consistent.length,rejected_count:rejected.length,reasons:[...new Set(reasons)],offline_integrity_complete:register.evidence.length>0&&rejected.length===0&&consistent.length===register.evidence.length&&!reasons.some(r=>!['PUBLISHER_AUTHENTICATION_MISSING','OUTCOME_VERIFICATION_MISSING'].includes(r)),eligible_for_real_world_scoring:false,externally_verified:false,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',research_only:true});
 }
 module.exports=Object.freeze({assess});
