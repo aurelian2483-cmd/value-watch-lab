@@ -134,5 +134,25 @@ module.exports=async function checkRacingPaper(browser,base){
     results.push({width:viewport.width,manualPaperChoice:true,savedWithProvisionalLabel:true,staleChoiceBlocked:true,duplicatePanels:0,forecastGreen:true,communityOnlyBlue:true,experimentalAgreementYellow:true,reviewOnlyMentionRejected:true,oneBlueLeader:true,tiedSupportWithheld:true});
     await context.close();
   }
+  // Optional community panel script failure must not break racing feed loading.
+  const degraded=await browser.newContext({viewport:{width:390,height:844}}),missing=await degraded.newPage(),missingErrors=[];
+  missing.on('pageerror',error=>missingErrors.push(error.message));
+  await missing.clock.install({time:new Date('2026-11-08T20:00:00Z')});
+  await missing.route('**/paper-lab/community-evidence.js*',route=>route.abort());
+  await missing.route('**/*.json',route=>{
+    const name=new URL(route.request().url()).pathname.split('/').pop();
+    const document=name==='racing-future-data.json'?{...guard,races:[row],fixture_meetings:[meeting],fixture_source_status:'SOURCE_OBSERVED'}:
+      {...guard,races:[],upcoming_fixtures:[],experimental_model_forecasts:[],sports:{},forecasts:[],entries:[]};
+    return route.fulfill({contentType:'application/json',body:JSON.stringify(document)});
+  });
+  await missing.goto(base+'/',{waitUntil:'networkidle'});
+  await missing.locator('[data-range=tomorrow]').click();
+  if(await missing.locator('#sport').isVisible())await missing.selectOption('#sport','racing');
+  else await missing.locator('[data-sport=racing]:visible').first().click();
+  await missing.locator('#events .event-card').waitFor();
+  assert.equal(await missing.locator('#events .event-card').count(),1,'Missing optional panel must not prevent racing cards');
+  assert.deepEqual(missingErrors,[],'Missing optional panel script must not throw on refresh');
+  results.push({width:390,missingCommunityModuleFailClosed:true,racingStillRendered:true});
+  await degraded.close();
   return results;
 };
