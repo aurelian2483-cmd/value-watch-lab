@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const desk=fs.readFileSync('paper-lab/desk.js','utf8');
+const transport=fs.readFileSync('paper-lab/transport.js','utf8');
+assert.match(desk,/Partial refresh · some sources failed/);
+assert.match(desk,/All requested sources refreshed/);
+assert.match(desk,/last-good snapshots retained/);
+assert.match(desk,/Retained data may be stale/);
+assert.match(desk,/unavailableSources = sourceProblems - retainedSources/);
+assert.match(transport,/retained: lastGood\.has\(spec\.path\)/);
+assert.match(desk,/saveEnvelope\(\{plan:next,history,replacing:null\}\)/);
+assert.match(desk,/if \(!eligible\) throw Error\('No evidence-eligible/);
+console.log('PASS static refresh provenance and preservation contract; browser behaviour not executed');
