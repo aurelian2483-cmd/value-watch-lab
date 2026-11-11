@@ -6,10 +6,10 @@ const capture=(url,options)=>C.capture(url,{...options,resolver});
 assert.equal(C.validateTarget('https://example.org/results',hosts).hostname,'example.org');
 for(const url of ['http://example.org','https://example.net','https://user@example.org','https://example.org:8443/a','https://example.org/#fragment'])assert.throws(()=>C.validateTarget(url,hosts));
 assert.throws(()=>C.validateTarget('https://example.org',[]),/allowlist/);
-function fakeTransport(status,parts,headers={}){
+function fakeTransport(status,parts,headers={},rawHeaders){
  return {get(_url,_options,cb){
   const req=new EventEmitter();req.destroy=error=>{if(error)req.emit('error',error)};
-  process.nextTick(()=>{const res=new EventEmitter();res.statusCode=status;res.headers=headers;res.resume=()=>{};cb(res);for(const p of parts)res.emit('data',Buffer.from(p));res.emit('end')});
+  process.nextTick(()=>{const res=new EventEmitter();res.statusCode=status;res.headers=headers;res.rawHeaders=rawHeaders;res.resume=()=>{};cb(res);for(const p of parts)res.emit('data',Buffer.from(p));res.emit('end')});
   return req;
  }};
 }
@@ -31,6 +31,9 @@ function fakeTransport(status,parts,headers={}){
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['x'],{'content-length':'not-a-number'})}),/Invalid declared/);
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['x'],{'content-length':'2'})}),/length mismatch/);
  assert.equal((await capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['ok'],{'content-length':'2','content-encoding':'identity'})})).bytes.toString(),'ok');
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['ok'],{'content-length':'2','transfer-encoding':'chunked'})}),/Conflicting HTTP framing/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['ok'],{'content-length':'2'},['Content-Length','2','content-length','2'])}),/Duplicate HTTP framing/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['ok'],{'transfer-encoding':'chunked'},['Transfer-Encoding','chunked','transfer-encoding','chunked'])}),/Duplicate HTTP framing/);
  const broken=(event,complete)=>({get(_url,_opts,cb){const req=new EventEmitter();req.destroy=()=>{};process.nextTick(()=>{const res=new EventEmitter();res.statusCode=200;res.headers={};res.complete=complete;cb(res);res.emit('data',Buffer.from('partial'));res.emit(event)});return req}});
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:broken('aborted',false)}),/aborted/);
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:broken('close',false)}),/closed/);
