@@ -132,6 +132,8 @@
       const sportCounts = E.paperEligibilityAudit(next,available,now)
         .map(row => row.sport + ' ' + row.eligible).join(' · ');
       const sourceProblems = result.errors?.length || 0;
+      const retainedSources = (result.errors || []).filter(error => error.retained === true).length;
+      const unavailableSources = sourceProblems - retainedSources;
       // One validated persistence write for the plan AND archive. On failure,
       // keep the current in-memory plan, private notes, journal and saved research.
       saveEnvelope({plan:next,history,replacing:null});
@@ -143,14 +145,14 @@
         element.setAttribute('aria-pressed',String(active));
       });
       const total = next.slots.reduce((n,slot) => n+slot.legs.length,0);
-      const outcome = 'Fresh feeds checked · ' + sportCounts +
+      const outcome = (sourceProblems ? 'Partial refresh · some sources failed' : 'All requested sources refreshed') + ' · ' + sportCounts +
         ' · ' + total + ' paper selections · ' +
         (sameSelections ? 'Choices unchanged because the latest eligible inputs produced the same shortlist.' :
           'New shortlist differs from the previous plan.') +
-        (sourceProblems ? ' · ' + sourceProblems + ' source requests had problems; check Sources.' : '') +
+        (sourceProblems ? ' · ' + retainedSources + ' last-good snapshots retained; ' + unavailableSources + ' sources unavailable. Retained data may be stale; check Sources.' : '') +
         ' Experimental research only; no verified positive EV.';
       write($('slip-refresh-outcome'), outcome);
-      notice('Fresh seven-day research plan saved · ' + total +
+      notice((sourceProblems ? 'Seven-day research plan saved using partially refreshed sources' : 'Fresh seven-day research plan saved') + ' · ' + total +
         ' experimental paper selections · ' + (record ? 'previous revision archived' :
         hasResearch ? 'previous revision already in saved research' : 'no previous selections to archive') +
         (sameSelections ? ' · Same qualifying choices as previous plan' : ' · Updated shortlist') +
