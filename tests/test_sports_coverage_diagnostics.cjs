@@ -7,6 +7,10 @@ const now=Date.now(),from=E.day(new Date(now).toISOString()),to=E.day(new Date(n
 const source=fs.readFileSync(require.resolve('../scripts/sports_coverage_report.cjs'),'utf8');
 assert.match(source,/community\.eligible\(entry,event\)&&entry\.stance==='support'/,'Diagnostic must use the same community eligibility boundary as the browser');
 assert.match(source,/paper-lab\/community-evidence\.js/);
+assert.match(source,/if\(snapshot\.kind==='racing'\)/);
+assert.match(source,/if\(snapshot\.kind==='football'\)/);
+assert.match(source,/if\(snapshot\.kind==='other'\)/);
+assert.match(source,/return \[\];\s*\}\)\.filter\(event=>typeof event\.start/);
 const result=report(from,to,now);
 assert.equal(result.research_only,true);
 assert.equal(result.model_validation,'UNVALIDATED');
