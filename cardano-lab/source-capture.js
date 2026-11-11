@@ -29,6 +29,13 @@ function capture(sourceUrl,options={}){
     const status=res.statusCode;
     if(status!==200){res.resume();return fail(Error('HTTP status '+status+'; redirects are not followed'))}
     const headers=res.headers||{};
+    const raw=res.rawHeaders;
+    if(Array.isArray(raw)){
+     const counts=new Map();
+     for(let i=0;i<raw.length;i+=2){const name=String(raw[i]).toLowerCase();counts.set(name,(counts.get(name)||0)+1)}
+     if(['content-length','transfer-encoding','content-encoding'].some(name=>(counts.get(name)||0)>1)){req.destroy();return fail(Error('Duplicate HTTP framing header'))}
+    }
+    if(headers['content-length']!==undefined&&headers['transfer-encoding']!==undefined){req.destroy();return fail(Error('Conflicting HTTP framing headers'))}
     const encoding=headers['content-encoding'];
     if(encoding!==undefined&&encoding!=='identity'){req.destroy();return fail(Error('Unsupported content encoding'))}
     const declared=headers['content-length'];
