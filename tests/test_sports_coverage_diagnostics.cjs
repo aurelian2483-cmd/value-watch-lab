@@ -21,6 +21,10 @@ assert.equal(result.shortlist_diagnostics.coverage.length,4);
 const allowed=new Set(['NO_NORMALIZED_EVENTS_IN_RANGE','NO_SELECTABLE_EVENTS_IN_RANGE','SELECTABLE_BUT_NOT_EVIDENCE_ELIGIBLE','ELIGIBLE_CANDIDATES_AVAILABLE']);
 for(const row of result.shortlist_diagnostics.coverage){
   assert(allowed.has(row.diagnostic));
+  assert(['NO_ELIGIBLE_CANDIDATES','REPRESENTED_IN_SLIPS','ELIGIBLE_BUT_NOT_SELECTED'].includes(row.selectionDiagnostic));
+  assert.equal(row.selectionDiagnostic==='NO_ELIGIBLE_CANDIDATES',row.eligible===0);
+  if(row.selectionDiagnostic==='ELIGIBLE_BUT_NOT_SELECTED')assert.equal(row.selectedInAnySlip,false);
+  if(row.selectionDiagnostic==='REPRESENTED_IN_SLIPS')assert.equal(row.selectedInAnySlip,true);
   assert(row.normalized>=row.inRange);
   assert(row.inRange>=row.selectable);
   assert(row.eligible<=row.selectable);
