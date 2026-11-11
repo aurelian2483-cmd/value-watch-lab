@@ -158,7 +158,7 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   assert(refreshedDaily.plan.slots.some(slot=>slot.legs.length),'Fresh evidence-supported slips should be populated');
   await dailyPage.waitForFunction(()=>{
     const current=JSON.parse(localStorage.getItem('value-watch-research-desk-v4')||'{}');
-    return document.querySelector('#slip-count')?.textContent === String(current.plan.slots[0].legs.length) &&
+    return document.querySelector('#slip-count')?.textContent === current.plan.slots[0].legs.length + ' / 15' &&
       document.querySelector('#slip-refresh-health')?.textContent.includes('saved selections');
   });
   report.checks.push('paper panel refreshes rendered selection state and eligibility immediately');
