@@ -15,9 +15,31 @@ const specs = [['football','research-dashboard-data.json'], ['football','footbal
   ['racing-future','racing-future-data.json'], ['other','other-sports-data.json']];
 function report(from, to, now = Date.now()) {
   E.range(from, to);
-  const snapshots = specs.filter(([,p]) => fs.existsSync(path.join(root,p))).map(([kind,p]) => ({kind,path:p,data:JSON.parse(fs.readFileSync(path.join(root,p),'utf8'))}));
+  const sourceReadErrors=[];
+  const snapshots=[];
+  for(const [kind,p] of specs){
+    const filename=path.join(root,p);
+    if(!fs.existsSync(filename)){
+      sourceReadErrors.push({path:p,reason:'SOURCE_FILE_MISSING'});
+      continue;
+    }
+    try{
+      const data=JSON.parse(fs.readFileSync(filename,'utf8'));
+      if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Expected JSON object');
+      snapshots.push({kind,path:p,data});
+    }catch(error){
+      sourceReadErrors.push({path:p,reason:'SOURCE_FILE_UNREADABLE',detail:String(error.message).slice(0,160)});
+    }
+  }
   const events = E.normalizeFeeds(snapshots.map(s=>({...s,document:s.data})), now);
-  const archive=JSON.parse(fs.readFileSync(path.join(root,'racing-research/source-observations.json'),'utf8'));
+  let archive={entries:[]};
+  try{
+    const parsed=JSON.parse(fs.readFileSync(path.join(root,'racing-research/source-observations.json'),'utf8'));
+    if(!parsed||!Array.isArray(parsed.entries))throw Error('Missing entries array');
+    archive=parsed;
+  }catch(error){
+    sourceReadErrors.push({path:'racing-research/source-observations.json',reason:'COMMUNITY_ARCHIVE_UNAVAILABLE',detail:String(error.message).slice(0,160)});
+  }
   // Mirror the browser's single community eligibility boundary, not a looser
   // approximation that can overcount racing candidates in CI diagnostics.
   for(const event of events.filter(e=>e.sport==='racing'))event.communityTips=(archive.entries||[])
@@ -105,6 +127,7 @@ function report(from, to, now = Date.now()) {
           now-timestamp> (snapshot.kind==='racing'?1800000:129600000)?'OLDER_THAN_EVENT_TTL':'WITHIN_EVENT_TTL',
         note:'Source-level age only; individual event receipts and statuses may impose stricter gates'};
     }),normalizer_diagnostics:events.diagnostics,shortlist_diagnostics:shortlist,
+    source_read_errors:sourceReadErrors,
     source_diagnostics:{tennis:other?.sports?.tennis?.schedule_source_diagnostics||[],nfl:other?.sports?.nfl?.schedule_week_coverage||[],racing_index:future?.days||[],racing_meetings:future?.meeting_card_results||[]},days};
 }
 module.exports={report};
