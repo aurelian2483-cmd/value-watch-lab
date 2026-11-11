@@ -7,6 +7,11 @@ const now=Date.now(),from=E.day(new Date(now).toISOString()),to=E.day(new Date(n
 const source=fs.readFileSync(require.resolve('../scripts/sports_coverage_report.cjs'),'utf8');
 assert.match(source,/community\.eligible\(entry,event\)&&entry\.stance==='support'/,'Diagnostic must use the same community eligibility boundary as the browser');
 assert.match(source,/paper-lab\/community-evidence\.js/);
+const deskSource=fs.readFileSync(require.resolve('../paper-lab/desk.js'),'utf8');
+const declared=[...deskSource.matchAll(/'([^']+\.json)': \['(?:football|racing|racing-future|racing-context|other|history)'/g)].map(match=>match[1]).sort();
+const reportSpecs=[...source.matchAll(/\['(?:football|racing|racing-future|racing-context|other|history)','([^']+\.json)'\]/g)].map(match=>match[1]).sort();
+assert.deepEqual(reportSpecs,declared,'Diagnostic sources must match every production desk source');
+
 assert.match(source,/if\(snapshot\.kind==='racing'\)/);
 assert.match(source,/if\(snapshot\.kind==='football'\)/);
 assert.match(source,/if\(snapshot\.kind==='other'\)/);
