@@ -141,8 +141,8 @@ assert.deepEqual(keptExplorer.slots[2].legs,savedExplorer.slots[2].legs,
 for(const path of ['index.html','paper-lab/index.html']){
   const content=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
   assert(content.includes('id="paper-eligibility-audit"'),path+' must expose eligibility disclosure');
-  assert(content.includes('engine.js?v=3.4.60'),path+' must load updated engine');
-  assert(content.includes('desk.js?v=3.4.61'),path+' must load updated disclosure');
+  assert(content.includes('engine.js?v=3.4.61'),path+' must load updated engine');
+  assert(content.includes('desk.js?v=3.4.62'),path+' must load updated disclosure');
   assert(content.includes('style.css?v=3.4.46'),path+' must load updated styling');
 }
 console.log('Four-sport eligibility, zero-forced-picks and preserved manual paper plans passed');
@@ -170,8 +170,8 @@ const deskAudit=fs.readFileSync(require('node:path').join(__dirname,'..','paper-
 assert(deskAudit.includes('E.footballSeasonMaturity(event)'), 'Football maturity appears in event card UI');
 for(const path of ['index.html','paper-lab/index.html']){
  const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
- assert(html.includes('engine.js?v=3.4.60'),'Updated football engine cache revision required');
- assert(html.includes('desk.js?v=3.4.61'),'Updated football UI cache revision required');
+ assert(html.includes('engine.js?v=3.4.61'),'Updated football engine cache revision required');
+ assert(html.includes('desk.js?v=3.4.62'),'Updated football UI cache revision required');
 }
 console.log('Football venue sample maturity, 5–7 checkpoint and no invented manager or transfer impact passed');
 
