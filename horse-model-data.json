@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-11T15:20:55.829491+00:00",
+  "generated_at_utc": "2026-11-11T16:37:34.681201+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -9,8 +9,8 @@
   "secondary_source_audit": {
     "provider": "The Racing API",
     "connection_status": "CONNECTED",
-    "schedule_matches": 9,
-    "result_rows_cached": 348,
+    "schedule_matches": 2,
+    "result_rows_cached": 357,
     "errors": [],
     "verification_scope": "Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established."
   },
@@ -21,18 +21,18 @@
     "races_enriched": 27,
     "active_runner_observations": 202,
     "non_runner_observations": 15,
-    "pre_event_races": 8,
+    "pre_event_races": 2,
     "errors": [],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED",
-    "collection_completed_at_utc": "2026-11-11T15:20:02.036374+00:00"
+    "collection_completed_at_utc": "2026-11-11T16:37:05.344430+00:00"
   },
   "race_count": 27,
   "reference_baseline_audit": {
     "status": "REFERENCE_BENCHMARKS_ONLY",
     "model": "EQUAL_CHANCE_REFERENCE_V1",
-    "available_references": 7,
-    "new_archived_records": 1,
+    "available_references": 2,
+    "new_archived_records": 0,
     "skipped": [
       {
         "race_id": "948020",
@@ -112,6 +112,26 @@
       },
       {
         "race_id": "948029",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "948026",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "948012",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "948019",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "948030",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "948031",
         "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
       }
     ],
@@ -1081,11 +1101,11 @@
       },
       {
         "race_id": "948030",
-        "reason": "INSUFFICIENT_FORM_FOR_FULL_FIELD"
+        "reason": "NOT_PRE_EVENT_WITH_BUFFER"
       },
       {
         "race_id": "948031",
-        "reason": "INSUFFICIENT_FORM_FOR_FULL_FIELD"
+        "reason": "NOT_PRE_EVENT_WITH_BUFFER"
       },
       {
         "race_id": "948033",
@@ -1096,15 +1116,15 @@
     "model_validation": "UNVALIDATED"
   },
   "performance": {
-    "scored_forecasts": 43,
+    "scored_forecasts": 44,
     "independently_verified_results": 0,
     "verification": "SINGLE_SOURCE_PROVISIONAL",
     "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
     "metrics": {
-      "mean_multiclass_brier_score": 0.8956435229131049,
-      "mean_log_loss": 2.31254438510715,
-      "mean_equal_chance_brier_score": 0.9012713384806408,
-      "mean_equal_chance_log_loss": 2.34664304932811
+      "mean_multiclass_brier_score": 0.8945251131312052,
+      "mean_log_loss": 2.3045033459171234,
+      "mean_equal_chance_brier_score": 0.9006742626060809,
+      "mean_equal_chance_log_loss": 2.340570287790649
     },
     "entries": [
       {
@@ -2138,16 +2158,36 @@
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
         "result_last_checked_at_utc": "2026-11-09T07:45:09.504995+00:00"
+      },
+      {
+        "record_sha256": "d6e5407f9af26d04d33537cf42b1afd0c715c8c9dabe109fd8ceaa2d32b6add2",
+        "race_id": "948029",
+        "racecourse": "Dundalk",
+        "startUTC": "2026-11-11T15:30:00+00:00",
+        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+        "winner_horse_id": "941509",
+        "scored_at_utc": "2026-11-11T16:37:34.681201+00:00",
+        "multiclass_brier_score": 0.8464334925095189,
+        "log_loss": 1.958738660745971,
+        "equal_chance_brier_score": 0.875,
+        "equal_chance_log_loss": 2.0794415416798357,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-11/dundalk/racecard/948029/irishinjuredjockeys-com-claiming-race",
+          "sha256": "244c7525a30b876343f49ed377277bc1c9eb268b1caa162df0d5b1792dae0349",
+          "observed_at_utc": "2026-11-11T16:37:34.681201+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-11T16:37:34.681201+00:00"
       }
     ],
     "pending": [
       {
         "race_id": "948028",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
-      {
-        "race_id": "948029",
-        "reason": "WAITING_FOR_FINAL_RESULT"
+        "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
       },
       {
         "race_id": "948032",
@@ -3914,6 +3954,10 @@
       {
         "race_id": "947473",
         "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
+      },
+      {
+        "race_id": "948029",
+        "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
       }
     ],
     "provisional_evaluation": {
@@ -3922,19 +3966,19 @@
         "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1": {
           "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
           "parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "scored_races": 43,
+          "scored_races": 44,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.005627815567535903,
-          "mean_log_loss_delta_vs_equal_chance": -0.03409866422095961,
+          "mean_brier_delta_vs_equal_chance": -0.0061491494748755655,
+          "mean_log_loss_delta_vs_equal_chance": -0.03606694187352564,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.01309856240991463,
-            "upper": 0.0020843873095769457,
+            "lower": -0.013602770817955129,
+            "upper": 0.0014185267797459176,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.07025231044792381,
-            "upper": -0.0019154283888854478,
+            "lower": -0.06951619573567455,
+            "upper": -0.004923008343133689,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -3956,15 +4000,15 @@
             {
               "lower": 0.1,
               "upper": 0.15,
-              "runner_observations": 142,
-              "mean_model_probability": 0.11530786526591486,
-              "observed_win_frequency": 0.14084507042253522
+              "runner_observations": 149,
+              "mean_model_probability": 0.11544783619043825,
+              "observed_win_frequency": 0.14093959731543623
             },
             {
               "lower": 0.15,
               "upper": 0.2,
-              "runner_observations": 12,
-              "mean_model_probability": 0.17295560613158337,
+              "runner_observations": 13,
+              "mean_model_probability": 0.172881272997201,
               "observed_win_frequency": 0.0
             },
             {
@@ -4057,7 +4101,7 @@
   "current_field_checks": {
     "106f2172aa9af45eba26f02c87eec775591c8c406fd7ad307a6ca981dd8d3e50": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-11T15:20:02.024872+00:00",
+      "runner_observed_at_utc": "2026-11-11T16:37:04.920024+00:00",
       "active_runner_ids": [
         "1114508",
         "1141166",
@@ -4075,10 +4119,76 @@
         "934347"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-11T15:20:55.829491+00:00"
+      "checked_at_utc": "2026-11-11T16:37:34.681201+00:00"
     }
   },
   "settled_forecasts": [
+    {
+      "record_sha256": "d6e5407f9af26d04d33537cf42b1afd0c715c8c9dabe109fd8ceaa2d32b6add2",
+      "race_id": "948029",
+      "racecourse": "Dundalk",
+      "race_name": "Irishinjuredjockeys.com Claiming Race",
+      "startUTC": "2026-11-11T15:30:00+00:00",
+      "generated_at_utc": "2026-11-11T02:20:15.491112+00:00",
+      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+      "runners": [
+        {
+          "horse_id": "1000495",
+          "name": "Morning Approach",
+          "model_probability": 0.11665737692055135,
+          "equal_chance_reference": 0.125
+        },
+        {
+          "horse_id": "1124584",
+          "name": "Red Hugh O'Donnell",
+          "model_probability": 0.12264801961298634,
+          "equal_chance_reference": 0.125
+        },
+        {
+          "horse_id": "1162355",
+          "name": "Justenzia",
+          "model_probability": 0.1719892753846125,
+          "equal_chance_reference": 0.125
+        },
+        {
+          "horse_id": "1183708",
+          "name": "Leonie",
+          "model_probability": 0.10763318684669698,
+          "equal_chance_reference": 0.125
+        },
+        {
+          "horse_id": "1205553",
+          "name": "Star Strewn",
+          "model_probability": 0.12063094287977696,
+          "equal_chance_reference": 0.125
+        },
+        {
+          "horse_id": "1221696",
+          "name": "Ocean Echo",
+          "model_probability": 0.11910712536365542,
+          "equal_chance_reference": 0.125
+        },
+        {
+          "horse_id": "1240138",
+          "name": "Betsy Trotwood",
+          "model_probability": 0.100297869716747,
+          "equal_chance_reference": 0.125
+        },
+        {
+          "horse_id": "941509",
+          "name": "Shoot To Kill",
+          "model_probability": 0.14103620327497346,
+          "equal_chance_reference": 0.125
+        }
+      ],
+      "winner_horse_id": "941509",
+      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-11T16:37:34.681201+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
     {
       "record_sha256": "a659fa119846f626e5106ad14c9e0a05973379153962230fc19cd5a82d815a37",
       "race_id": "947523",
@@ -5728,94 +5838,16 @@
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
-    },
-    {
-      "record_sha256": "7e2c5b1d2e81a654678678de745cec141f660de0df20b9322676cb8e15563f33",
-      "race_id": "947101",
-      "racecourse": "Southwell",
-      "race_name": "AW Trials Day - Lingfield 2nd Jan 2027 Fillies' Handicap",
-      "startUTC": "2026-11-05T16:30:00+00:00",
-      "generated_at_utc": "2026-11-05T00:27:28.687388+00:00",
-      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
-      "runners": [
-        {
-          "horse_id": "1061241",
-          "name": "Enola Grey",
-          "model_probability": 0.09615493579841392,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1131185",
-          "name": "Mayo County",
-          "model_probability": 0.11339796068580416,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1166077",
-          "name": "Lady Mariko",
-          "model_probability": 0.09024363095124724,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1168455",
-          "name": "Ribenska",
-          "model_probability": 0.10201715344533199,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1186086",
-          "name": "Spirit Of Jenny",
-          "model_probability": 0.1126389659227406,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1188372",
-          "name": "Lope El Fuego",
-          "model_probability": 0.08014421807328923,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1200942",
-          "name": "Forbidden Colours",
-          "model_probability": 0.09578021478610248,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1204855",
-          "name": "Diamondinthedark",
-          "model_probability": 0.10107160048308841,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1217223",
-          "name": "Mountain Of Light",
-          "model_probability": 0.10594326869951444,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "68556",
-          "name": "Fistral Beach",
-          "model_probability": 0.10260805115446747,
-          "equal_chance_reference": 0.1
-        }
-      ],
-      "winner_horse_id": "1166077",
-      "result_verification": "TWO_PUBLISHER_CORROBORATED",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-07T09:17:09.263619+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
     }
   ],
   "settled_history_limit": 20,
   "race_cycle_audit": {
-    "checked_at_utc": "2026-11-11T15:20:55.829491+00:00",
+    "checked_at_utc": "2026-11-11T16:37:34.681201+00:00",
     "race_date_uk": "2026-11-11",
     "collection_scope": "CURRENT_UK_DAY_ONLY",
-    "upcoming_observed_races": 9,
+    "upcoming_observed_races": 2,
     "upcoming_form_forecasts": 1,
-    "next_observed_start_utc": "2026-11-11T15:22:00+00:00",
+    "next_observed_start_utc": "2026-11-11T17:02:00+00:00",
     "status": "UPCOMING_FORECASTS_AVAILABLE"
   },
   "limitations": [
