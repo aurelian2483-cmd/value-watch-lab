@@ -1,6 +1,8 @@
 'use strict';
 const assert=require('node:assert/strict'),{EventEmitter}=require('node:events'),crypto=require('node:crypto'),C=require('../cardano-lab/source-capture.js');
 const hosts=['example.org'];
+const resolver=async()=>[{address:'8.8.8.8',family:4}];
+const capture=(url,options)=>C.capture(url,{...options,resolver});
 assert.equal(C.validateTarget('https://example.org/results',hosts).hostname,'example.org');
 for(const url of ['http://example.org','https://example.net','https://user@example.org','https://example.org:8443/a','https://example.org/#fragment'])assert.throws(()=>C.validateTarget(url,hosts));
 assert.throws(()=>C.validateTarget('https://example.org',[]),/allowlist/);
@@ -12,17 +14,20 @@ function fakeTransport(status,parts){
  }};
 }
 (async()=>{
- const captured=await C.capture('https://example.org/results',{allowedHosts:hosts,transport:fakeTransport(200,['home',' win'])});
+ const captured=await capture('https://example.org/results',{allowedHosts:hosts,transport:fakeTransport(200,['home',' win'])});
  assert.equal(captured.bytes.toString(),'home win');
  assert.equal(captured.receipt.source_sha256,crypto.createHash('sha256').update('home win').digest('hex'));
  assert.equal(captured.receipt.publisher_authenticated,false);
  assert.equal(captured.receipt.outcome_verified,false);
  assert.equal(captured.receipt.publication_gate,'BLOCKED');
- await assert.rejects(()=>C.capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(302,[])}),/redirects/);
- await assert.rejects(()=>C.capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,[])}),/Empty/);
- await assert.rejects(()=>C.capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,[Buffer.alloc(C.MAX_BYTES+1)])}),/size limit/);
- assert.throws(()=>C.capture('https://example.org',{allowedHosts:hosts,timeoutMs:1}),/Invalid timeout/);
+ const checked={get(url,opts,cb){assert.equal(opts.agent,false);assert.equal(opts.rejectUnauthorized,true);assert.equal(opts.servername,'example.org');opts.lookup('example.org',{},(err,address,family)=>{assert.ifError(err);assert.equal(address,'8.8.8.8');assert.equal(family,4)});return fakeTransport(200,['pinned']).get(url,opts,cb)}};
+ assert.equal((await capture('https://example.org',{allowedHosts:hosts,transport:checked})).bytes.toString(),'pinned');
+ await assert.rejects(()=>C.capture('https://example.org',{allowedHosts:hosts,resolver:async()=>[{address:'127.0.0.1',family:4}],transport:checked}),/unsafe/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(302,[])}),/redirects/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,[])}),/Empty/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,[Buffer.alloc(C.MAX_BYTES+1)])}),/size limit/);
+ assert.throws(()=>capture('https://example.org',{allowedHosts:hosts,timeoutMs:1}),/Invalid timeout/);
  const timeoutTransport={get(_url,_options,_cb){const req=new EventEmitter();req.destroy=error=>req.emit('error',error||new Error('Request destroyed'));process.nextTick(()=>req.emit('timeout'));return req;}};
- await assert.rejects(()=>C.capture('https://example.org',{allowedHosts:hosts,timeoutMs:1000,transport:timeoutTransport}),/timed out/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,timeoutMs:1000,transport:timeoutTransport}),/timed out/);
  console.log('PASS Cardano HTTPS capture transport tests (mocked; no live network)');
 })().catch(e=>{console.error(e);process.exitCode=1});
