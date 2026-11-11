@@ -24,6 +24,8 @@ on:
       - 'tests/cardano_research_workflow.cjs'
       - 'tests/cardano_diagnostic_store.cjs'
       - 'tests/cardano_research_recovery.cjs'
+      - 'tests/cardano_fixture_evaluation.cjs'
+      - 'tests/cardano_storage_failure.cjs'
       - 'tests/cardano_network_policy.cjs'
       - 'tests/cardano_secure_dns.cjs'
       - 'tests/cardano_tls_integration.cjs'
@@ -52,6 +54,8 @@ on:
       - 'tests/cardano_research_workflow.cjs'
       - 'tests/cardano_diagnostic_store.cjs'
       - 'tests/cardano_research_recovery.cjs'
+      - 'tests/cardano_fixture_evaluation.cjs'
+      - 'tests/cardano_storage_failure.cjs'
       - 'tests/cardano_network_policy.cjs'
       - 'tests/cardano_secure_dns.cjs'
       - 'tests/cardano_tls_integration.cjs'
@@ -87,6 +91,7 @@ jobs:
           node --check cardano-lab/evaluation-readiness.js
           node --check cardano-lab/research-workflow.js
           node --check cardano-lab/diagnostic-store.js
+          node --check cardano-lab/fixture-evaluation.js
           node --check cardano-lab/network-policy.js
           node --check cardano-lab/secure-dns.js
       - name: Run ledger contract and negative tests
@@ -111,6 +116,8 @@ jobs:
           node tests/cardano_research_workflow.cjs
           node tests/cardano_diagnostic_store.cjs
           node tests/cardano_research_recovery.cjs
+          node tests/cardano_fixture_evaluation.cjs
+          node tests/cardano_storage_failure.cjs
           node tests/cardano_network_policy.cjs
           node tests/cardano_secure_dns.cjs
           node tests/cardano_tls_integration.cjs
