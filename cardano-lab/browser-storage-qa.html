@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cardano archive browser QA — development only</title>
+<style>body{font:16px system-ui;background:#101827;color:#edf4ff;max-width:850px;margin:32px auto;padding:16px}button{padding:12px;margin:5px;background:#215b78;color:white;border:1px solid #79b7c5;border-radius:8px}pre{white-space:pre-wrap;background:#18293c;padding:16px;border-radius:8px}small{color:#b4c6d7}</style>
+<h1>Cardano browser persistence QA</h1><p>Development-only manual test. Uses a dedicated archive key; does not access betting records. Never proves cross-tab atomicity.</p>
+<button id="create">1. Create fixture</button><button id="check">2. Verify after reload</button><button id="export">3. Export backup</button><button id="clear">4. Clear QA fixture</button><button id="restore">5. Restore backup</button><button id="race">6. Open second tab</button>
+<p><small>Reload this page between steps 1 and 2. Export before clearing. Open two tabs, create in one, then verify in the other. This checks visibility, NOT simultaneous-write safety.</small></p><pre id="log" aria-live="polite">Ready. Open from an HTTP(S) origin (not file://).</pre>
+<script src="./experiment-ledger.js"></script><script src="./experiment-store.js"></script>
+<script>
+(function(){
+'use strict';
+const key='cardano.qa.browser.v1',backup='cardano.qa.backup.v1',out=document.getElementById('log');
+const say=(m)=>{out.textContent=m};
+const hash='a'.repeat(64);
+const fixture=()=>({schema_version:1,id:'browser-qa-fixture',hypothesis:'Verify isolated browser archive',sport:'football',lane:'applied',status:'PROPOSED',created_at_utc:'2026-11-11T12:00:00Z',updated_at_utc:'2026-11-11T12:00:00Z',dataset_sha256:hash,method_version:'browser-qa-v1',seed:0,sources:[{url:'https://example.org/fixture',observed_at_utc:'2026-11-11T12:00:00Z'}],research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED'});
+const archive=()=>CardanoExperimentStore.store(localStorage,key);
+function action(fn){try{say(fn())}catch(e){say('FAIL: '+e.message)}}
+document.getElementById('create').onclick=()=>action(()=>{if(localStorage.getItem(key)!==null)throw Error('QA key exists; export or clear first');archive().append(fixture());return 'PASS: fixture created. Reload page and click Verify.'});
+document.getElementById('check').onclick=()=>action(()=>{const a=archive().load();if(a.length!==1||a[0].id!=='browser-qa-fixture'||a[0].publication_gate!=='BLOCKED')throw Error('Fixture missing, modified or unsafe');return 'PASS: isolated archive survived page load; publication BLOCKED.'});
+document.getElementById('export').onclick=()=>action(()=>{const json=archive().exportJSON();localStorage.setItem(backup,json);return 'PASS: backup saved to separate QA key ('+json.length+' chars). Note: same-origin backup is not disaster recovery.'});
+document.getElementById('clear').onclick=()=>action(()=>{localStorage.removeItem(key);return 'QA fixture cleared. Backup retained if previously exported.'});
+document.getElementById('restore').onclick=()=>action(()=>{const json=localStorage.getItem(backup);if(!json)throw Error('No QA backup');archive().importJSON(json);return 'PASS: archive restored from QA backup. Click Verify.'});
+document.getElementById('race').onclick=()=>{const w=window.open(location.href,'_blank','noopener');say(w?'Second tab opened. Test sequential visibility; simultaneous-write guarantees are NOT established.':'Popup blocked: open this URL in another tab manually.')};
+window.addEventListener('storage',e=>{if(e.key===key)say('Archive changed in another tab; click Verify to reload state. This is not transactional locking.')});
+})();
+</script></html>
