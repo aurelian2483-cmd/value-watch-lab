@@ -11,6 +11,8 @@ assert.match(desk,/unavailableSources = sourceProblems - retainedSources/);
 assert.match(transport,/retained: lastGood\.has\(spec\.path\)/);
 assert.match(desk,/saveEnvelope\(\{plan:next,history,replacing:null\}\)/);
 assert.match(desk,/if \(!eligible\) throw Error\('No evidence-eligible/);
+assert.match(desk,/if \(result\.errors\?\.length\)/);
+assert.match(desk,/Some research feeds failed to refresh\. Previous paper slips were preserved/);
 const communityStart=desk.indexOf('async function refreshCommunity()');
 const communityEnd=desk.indexOf('function matchCommunity(event)',communityStart);
 assert(communityStart>=0&&communityEnd>communityStart);
