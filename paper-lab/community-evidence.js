@@ -14,34 +14,50 @@
     return {value,ms,precision:day?'date':'time'};
   }
   const dateLabel=d=>!d?'Not available':d.precision==='date'?d.value+' (time not available)':new Date(d.ms).toISOString().replace('T',' ').replace('.000Z',' UTC').replace('Z',' UTC');
+  // Single eligibility boundary for badge inputs and descriptive summary metrics.
+  // An excluded archive record may still appear in the expanded source audit.
+  function eligible(entry,event){
+    if(!entry||typeof entry!=='object'||event?.sport!=='racing'||!event.providerEventId||!Array.isArray(event.choices))return false;
+    if(String(entry.race_id)!==String(event.providerEventId)||!['forum','social_forum','blog','tipster'].includes(entry.group))return false;
+    const start=Date.parse(event.startUTC),entryStart=Date.parse(entry.startUTC);
+    if(!Number.isFinite(start)||!Number.isFinite(entryStart)||entryStart!==start)return false;
+    const availability=root.ValueWatchEvidenceV3?.selectionAvailability?.(entry,event)||{preRaceAvailabilityVerified:false};
+    if(entry.extraction_method==='RANKED_RACECARD_VERDICT_V1'&&!availability.preRaceAvailabilityVerified)return false;
+    const published=entry.published_at_utc?Date.parse(entry.published_at_utc):NaN,observed=Date.parse(entry.observed_at_utc);
+    const dated=/^\d{4}-\d{2}-\d{2}$/.test(entry.publication_date||'')&&entry.publication_date<=event.startUTC.slice(0,10);
+    if(!Number.isFinite(observed)||observed>=start||(Number.isFinite(published)?published>start||observed<published:!dated&&!availability.preRaceAvailabilityVerified))return false;
+    if(!['PRIMARY_POST_CAPTURED','PUBLIC_SELECTION_OBSERVED','POST_OBSERVED_OPINION_UNVERIFIED','PUBLICATION_OBSERVED_OPINION_UNVERIFIED','RSS_EXPLICIT_HEADLINE_UNVERIFIED'].includes(entry.verification))return false;
+    if(!url(entry.url))return false;
+    return event.choices.some(choice=>text(choice?.label).toLowerCase()===text(entry.horse).toLowerCase()&&text(entry.horse));
+  }
   function match(entries,event){
     if(event?.sport!=='racing'||!event.providerEventId||!date(event.startUTC)||!Array.isArray(entries))return [];
     return entries.filter(e=>e&&typeof e==='object'&&String(e.race_id)===String(event.providerEventId)&&date(e.startUTC)?.ms===date(event.startUTC).ms&&Array.isArray(event.choices)&&event.choices.some(c=>text(c?.label).toLowerCase()===text(e.horse).toLowerCase()&&text(e.horse)));
   }
   function summarize(entries,event){
-    const matched=match(entries,event),seen=new Map(),groups=new Map(),publishers=new Set();
+    const matched=match(entries,event),qualified=matched.filter(e=>eligible(e,event)),seen=new Map(),groups=new Map(),publishers=new Set();
     for(const e of matched){
-      const page=canonical(e.url),raceDateOnly=e.extraction_method==='OLBG_PUBLIC_WIN_TIPS_V1',pub=date(e.published_at_utc)||(raceDateOnly?null:date(e.publication_date)),observed=date(e.observed_at_utc);
+      const isEligible=eligible(e,event),page=canonical(e.url),raceDateOnly=e.extraction_method==='OLBG_PUBLIC_WIN_TIPS_V1',pub=date(e.published_at_utc)||(raceDateOnly?null:date(e.publication_date)),observed=date(e.observed_at_utc);
       // IDs alone are not trusted: conflicting records with reused IDs stay visible.
       const fingerprint=JSON.stringify([page||text(e.url),text(e.horse),text(e.market),text(e.stance),text(e.author),text(e.publisher),pub?.value||null,text(e.summary),text(e.verification),canonical(e.origin_url)||canonical(e.original_source_url),text(e.syndication_origin_id)||text(e.origin_id)]);
       const prior=seen.get(fingerprint);
-      if(prior){prior.captures++;if(observed&&(!prior.observed||observed.ms>prior.observed.ms))prior.observed=observed;continue;}
+      if(prior){prior.captures++;prior.eligible=prior.eligible||isEligible;if(observed&&(!prior.observed||observed.ms>prior.observed.ms))prior.observed=observed;continue;}
       const origin=canonical(e.origin_url)||canonical(e.original_source_url),originId=text(e.syndication_origin_id)||text(e.origin_id);
       const groupKey=origin?'origin-url:'+origin:originId?'origin-id:'+originId:page?'page:'+page+'|'+text(e.author):'unknown:'+seen.size;
-      const row={groupKey,capturedRaceDate:raceDateOnly?text(e.publication_date):null,type:text(e.group),horse:text(e.horse),market:text(e.market)||'Not available',publisher:text(e.publisher)||'Not available',author:text(e.author)||'Not available',url:url(e.url),pub,observed,stance:['support','oppose','disagree'].includes(e.stance)?e.stance:'unknown',captures:1,verification:text(e.verification)||'Not available'};
+      const row={groupKey,eligible:isEligible,capturedRaceDate:raceDateOnly?text(e.publication_date):null,type:text(e.group),horse:text(e.horse),market:text(e.market)||'Not available',publisher:text(e.publisher)||'Not available',author:text(e.author)||'Not available',url:url(e.url),pub,observed,stance:['support','oppose','disagree'].includes(e.stance)?e.stance:'unknown',captures:1,verification:text(e.verification)||'Not available'};
       seen.set(fingerprint,row);
-      if(text(e.publisher))publishers.add(text(e.publisher).toLowerCase());
+      if(isEligible&&text(e.publisher))publishers.add(text(e.publisher).toLowerCase());
       const group=groups.get(groupKey)||{reason:origin||originId?'Shared origin explicitly recorded':'Same captured page and author; source relationship unknown',origin:origin||originId||null,rows:[]};group.rows.push(row);groups.set(groupKey,group);
     }
     const rows=[...seen.values()];
     // A date-only claim is an interval: same-day observation is compatible,
     // but a later claimed publication day cannot already have been observed.
     const chronologyConflict=r=>Boolean(r.pub&&r.observed&&r.pub.ms>r.observed.ms);
-    const publications=rows.filter(r=>!chronologyConflict(r)).map(r=>r.pub).filter(Boolean),latest=publications.sort((a,b)=>b.ms-a.ms)[0]||null;
-    const opinionCount=stances=>new Set(rows.filter(r=>stances.includes(r.stance)).map(r=>JSON.stringify([r.groupKey,r.horse.toLowerCase(),r.market.toUpperCase(),r.stance==='support'?'support':'oppose']))).size;
+    const publications=rows.filter(r=>r.eligible&&!chronologyConflict(r)).map(r=>r.pub).filter(Boolean),latest=publications.sort((a,b)=>b.ms-a.ms)[0]||null;
+    const opinionCount=stances=>new Set(rows.filter(r=>r.eligible&&stances.includes(r.stance)).map(r=>JSON.stringify([r.groupKey,r.horse.toLowerCase(),r.market.toUpperCase(),r.stance==='support'?'support':'oppose']))).size;
     const support=opinionCount(['support']),opposition=opinionCount(['oppose','disagree']);
-    const count=types=>{const n=matched.filter(e=>types.includes(e.group)).length;return n||null;};
-    return {raw:matched.length||null,unique:rows.length||null,publishers:publishers.size||null,tipsters:count(['tipster','blog']),forums:count(['forum','social_forum']),support:support||null,opposition:opposition||null,unknown:rows.filter(r=>r.stance==='unknown').length,latest,missingPublication:rows.filter(r=>!r.pub).length,chronologyConflicts:rows.filter(chronologyConflict).length,explicitOrigins:[...groups.values()].filter(g=>g.origin).length||null,unknownRelationshipGroups:[...groups.values()].filter(g=>!g.origin).length,groups:[...groups.values()],rows};
+    const count=types=>{const n=qualified.filter(e=>types.includes(e.group)).length;return n||null;};
+    return {raw:matched.length||null,unique:rows.length||null,eligible:qualified.length||null,excluded:matched.length-qualified.length,publishers:publishers.size||null,tipsters:count(['tipster','blog']),forums:count(['forum','social_forum']),support:support||null,opposition:opposition||null,unknown:rows.filter(r=>r.stance==='unknown').length,latest,missingPublication:rows.filter(r=>!r.pub).length,chronologyConflicts:rows.filter(chronologyConflict).length,explicitOrigins:[...groups.values()].filter(g=>g.origin).length||null,unknownRelationshipGroups:[...groups.values()].filter(g=>!g.origin).length,groups:[...groups.values()],rows};
   }
   function render(parent,entries,event){
     const doc=parent.ownerDocument,add=(p,tag,value,cls)=>{const n=doc.createElement(tag);if(value!==undefined)n.textContent=value;if(cls)n.className=cls;p.append(n);return n;};
@@ -50,7 +66,7 @@
     add(box,'p','Research signals only; not verified consensus or proof of positive expected value.','small');
     const grid=add(box,'dl',undefined,'community-evidence-metrics');
     const metric=(label,value)=>{const cell=add(grid,'div');add(cell,'dt',label);add(cell,'dd',value===null?'Not available':String(value));};
-    metric('Captured mentions',s.raw);metric('Named publishers',s.publishers);metric('Supporting groups',s.support);metric('Disagreement groups',s.opposition);
+    metric('Captured mentions (archive)',s.raw);metric('Eligible mentions',s.eligible);metric('Excluded / awaiting review',s.excluded);metric('Eligible publishers',s.publishers);metric('Supporting groups (eligible)',s.support);metric('Disagreement groups (eligible)',s.opposition);
     add(box,'p','Latest compatible source publication: '+dateLabel(s.latest)+(s.chronologyConflicts?' · '+s.chronologyConflicts+' conflicting date record(s); see sources.':''),'small');
     const open=parent.querySelector?.('.community-source-list')?.open||false;
     const detail=add(box,'details',undefined,'community-source-list');detail.open=open;add(detail,'summary','Original sources, captured dates & grouping ('+(s.unique===null?'Not available':s.unique+' unique records')+')');
@@ -67,12 +83,12 @@
         if(r.url){const a=add(item,'a',r.publisher+' ↗');a.href=r.url;a.target='_blank';a.rel='noopener noreferrer';}else add(item,'span',r.publisher+' · source link: Not available');
         if(r.capturedRaceDate)add(item,'p','Captured race-date field: '+r.capturedRaceDate+' · not a publication date.','small');
         add(item,'p','Author: '+r.author+' · Published: '+dateLabel(r.pub)+' · Observed: '+dateLabel(r.observed),'small');
-        add(item,'p','Record status: '+r.verification+' · '+r.captures+' captured occurrence'+(r.captures===1?'':'s')+' · repeated identical content grouped','small');
+        add(item,'p',(r.eligible?'Eligible for descriptive summary':'EXCLUDED from descriptive summary / awaiting review')+' · Record status: '+r.verification+' · '+r.captures+' captured occurrence'+(r.captures===1?'':'s')+' · repeated identical content grouped','small');
         if(r.observed&&r.observed.ms>=date(event.startUTC).ms)add(item,'p','Captured at or after race start; retrospective evidence only.','small');
         if(r.pub&&r.observed&&r.pub.ms>r.observed.ms)add(item,'p','Publication is later than observation; chronology unresolved.','small');
       }
     }
     return box;
   }
-  root.CommunityEvidence=Object.freeze({url,canonical,date,dateLabel,match,summarize,render});
+  root.CommunityEvidence=Object.freeze({url,canonical,date,dateLabel,eligible,match,summarize,render});
 })(typeof window==='object'?window:globalThis);
