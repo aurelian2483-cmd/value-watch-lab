@@ -31,6 +31,10 @@ function fakeTransport(status,parts,headers={}){
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['x'],{'content-length':'not-a-number'})}),/Invalid declared/);
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['x'],{'content-length':'2'})}),/length mismatch/);
  assert.equal((await capture('https://example.org',{allowedHosts:hosts,transport:fakeTransport(200,['ok'],{'content-length':'2','content-encoding':'identity'})})).bytes.toString(),'ok');
+ const broken=(event,complete)=>({get(_url,_opts,cb){const req=new EventEmitter();req.destroy=()=>{};process.nextTick(()=>{const res=new EventEmitter();res.statusCode=200;res.headers={};res.complete=complete;cb(res);res.emit('data',Buffer.from('partial'));res.emit(event)});return req}});
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:broken('aborted',false)}),/aborted/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:broken('close',false)}),/closed/);
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,transport:broken('end',false)}),/incomplete/);
  assert.throws(()=>capture('https://example.org',{allowedHosts:hosts,timeoutMs:1}),/Invalid timeout/);
  const neverTransport={get(){throw Error('Transport must not start before DNS resolves')}};
  await assert.rejects(()=>C.capture('https://example.org',{allowedHosts:hosts,timeoutMs:1000,resolver:()=>new Promise(()=>{}),transport:neverTransport}),/DNS resolution timed out/);
