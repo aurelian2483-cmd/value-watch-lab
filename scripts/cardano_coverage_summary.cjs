@@ -10,7 +10,10 @@ function summary(report){
   for(const row of rows)lines.push('| '+[row.sport,row.inRange,row.selectable,row.eligible,row.diagnostic,row.selectionDiagnostic].map(clean).join(' | ')+' |');
   lines.push('','### Four paper approaches','','| Approach | Selections | Sports | Status |','|---|---:|---|---|');
   for(const slip of slips)lines.push('| '+[slip.approach,slip.selections,Object.entries(slip.sports||{}).map(([k,v])=>k+': '+v).join(', ')||'none',slip.status].map(clean).join(' | ')+' |');
-  lines.push('','### Exclusion reasons');
+  lines.push('','### Source snapshot freshness','','| Source | Age (minutes) | Freshness |','|---|---:|---|');
+  for(const source of report.snapshots||[])lines.push('| '+[source.path,source.age_minutes??'unknown',source.status].map(clean).join(' | ')+' |');
+  lines.push('','Source age is only an initial clue. Event-level receipts and status gates can reject a newer snapshot.','');
+  lines.push('### Exclusion reasons');
   for(const row of rows){const reasons=Object.entries(row.exclusionReasons||{});lines.push('- **'+clean(row.sport)+'**: '+(reasons.length?reasons.map(([reason,count])=>clean(reason)+' ('+count+')').join('; '):'No recorded exclusion reasons'));}
   lines.push('','This report uses repository snapshot files, not live browser data. A missing selection is not proof of a defect or a validated betting signal.');
   return lines.join('\n')+'\n';
