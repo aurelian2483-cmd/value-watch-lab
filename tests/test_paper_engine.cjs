@@ -110,8 +110,9 @@ assert.equal(syntheticNapoli.seasonComparison,null,'invalid season comparison is
  
 // Four-sport audit must use the exact same candidate gates as automatic generation.
 const auditPlan=E.createPlan({from:'2026-11-08',to:'2026-11-09',createdAt:new Date(now).toISOString()});
-const footballEligible={...event(201,'football'),seasonComparison:{prob_home:.54,prob_draw:.27,prob_away:.19}};
-const fourSports=[footballEligible,event(202,'racing'),event(203,'tennis'),event(204,'nfl')];
+const footballEligible={...event(201,'football'),seasonComparison:{prob_home:.54,prob_draw:.27,prob_away:.19},choices:[{id:'home',label:'A',probability:.54},{id:'draw',label:'Draw',probability:.27},{id:'away',label:'B',probability:.19}]};
+const racingEligible={...event(202,'racing'),fieldConfirmed:true,providerStatus:'DORMANT'};
+const fourSports=[footballEligible,racingEligible,event(203,'tennis'),event(204,'nfl')];
 const fourAudit=E.paperEligibilityAudit(auditPlan,fourSports,now);
 assert.deepEqual(fourAudit.map(row=>[row.sport,row.eligible,row.excluded]),[['football',1,0],['racing',1,0],['tennis',1,0],['nfl',1,0]]);
 const fourGenerated=E.generateResearch(auditPlan,fourSports,now);
