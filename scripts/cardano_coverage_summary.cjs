@@ -6,8 +6,8 @@ function summary(report){
   const rows=report.shortlist_diagnostics?.coverage,slips=report.shortlist_diagnostics?.slips;
   if(!Array.isArray(rows)||rows.length!==4||!Array.isArray(slips)||slips.length!==4)throw Error('Missing four-sport diagnostics');
   const clean=value=>String(value??'').replace(/[|\r\n]/g,' ').slice(0,160);
-  const lines=['## Cardano paper slip source-to-selection diagnostic','','Research-only · Models UNVALIDATED · Publication BLOCKED','','### Seven-day sport coverage','','| Sport | In range | Selectable | Evidence eligible | Classification |','|---|---:|---:|---:|---|'];
-  for(const row of rows)lines.push('| '+[row.sport,row.inRange,row.selectable,row.eligible,row.diagnostic].map(clean).join(' | ')+' |');
+  const lines=['## Cardano paper slip source-to-selection diagnostic','','Research-only · Models UNVALIDATED · Publication BLOCKED','','### Seven-day sport coverage','','| Sport | In range | Selectable | Evidence eligible | Coverage | Slip representation |','|---|---:|---:|---:|---|---|'];
+  for(const row of rows)lines.push('| '+[row.sport,row.inRange,row.selectable,row.eligible,row.diagnostic,row.selectionDiagnostic].map(clean).join(' | ')+' |');
   lines.push('','### Four paper approaches','','| Approach | Selections | Sports | Status |','|---|---:|---|---|');
   for(const slip of slips)lines.push('| '+[slip.approach,slip.selections,Object.entries(slip.sports||{}).map(([k,v])=>k+': '+v).join(', ')||'none',slip.status].map(clean).join(' | ')+' |');
   lines.push('','### Exclusion reasons');
