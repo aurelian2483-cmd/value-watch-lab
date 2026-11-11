@@ -174,3 +174,55 @@ for(const path of ['index.html','paper-lab/index.html']){
  assert(html.includes('desk.js?v=3.4.60'),'Updated football UI cache revision required');
 }
 console.log('Football venue sample maturity, 5–7 checkpoint and no invented manager or transfer impact passed');
+
+
+// Source-observed total-league-match form is admitted only with consistent
+// pre-kickoff results, correct current-season venue totals and source receipts.
+const rawForm={
+ method:'SOURCE_OBSERVED_CURRENT_SEASON_FORM_V1',season:'2627',
+ home:{completed_league_matches:6,home_matches:4,away_matches:2,
+   last_five:[['2026-10-01','W',2,1],['2026-10-02','D',1,1],['2026-10-03','L',0,1],['2026-10-04','W',3,0],['2026-10-05','D',0,0]]
+     .map(([date,result,goals_for,goals_against])=>({date,opponent:'Source opponent',venue:'HOME',result,goals_for,goals_against})),
+   last_five_points:8,last_five_count:5,first_five_points:null,first_five_count:null},
+ away:{completed_league_matches:7,home_matches:2,away_matches:5,
+   last_five:Array.from({length:5},(_,i)=>({date:'2026-10-0'+(i+1),opponent:'Other opponent',venue:'AWAY',result:'W',goals_for:2,goals_against:0})),
+   last_five_points:15,last_five_count:5,first_five_points:null,first_five_count:null},
+ cutoff_date_exclusive:'2026-11-08',
+ source_receipts:[{url:'https://www.football-data.co.uk/mmz4281/2627/I1.csv',sha256:'b'.repeat(64),observed_at_utc:'2026-11-08T01:20:00Z'}],
+ source_rows_sha256:'a'.repeat(64),
+ completeness:'SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED',
+ opponent_strength_adjusted:false,manager_change_evidence:null,transfer_impact_evidence:null,
+ manager_pre_post_comparison:null,squad_pre_post_comparison:null,
+ research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',odds:null,expected_value:null
+};
+const fixtureWithForm=simulatedFootball.upcoming_fixtures[0];
+fixtureWithForm.current_season_comparison.prob_away=.47;
+fixtureWithForm.current_season_form=rawForm;
+function normalizedForm() {
+ const rows=E.normalizeFeeds([{kind:'football',path:'synthetic-football.json',document:simulatedFootball}],comparisonTime);
+ return rows.find(row=>row.name==='Synthetic Napoli vs Synthetic Lazio');
+}
+let sourced=normalizedForm();
+assert.equal(sourced?.seasonForm?.home.completed_league_matches,6);
+assert.equal(sourced.seasonForm.away.completed_league_matches,7);
+let maturitySourced=E.footballSeasonMaturity(sourced);
+assert.equal(maturitySourced.overallMatchesKnown,true);
+assert.equal(maturitySourced.homePhase,'EMERGING_CHECKPOINT');
+assert.equal(maturitySourced.awayPhase,'EMERGING_CHECKPOINT');
+assert(maturitySourced.notes.some(n=>n.includes('not independently complete')));
+assert.equal(sourced.choices[0].probability,.46,'Season research cannot change the independent model prediction');
+assert.equal(sourced.publication_gate,'BLOCKED');
+rawForm.home.last_five[0].date='2026-11-08';
+assert.equal(normalizedForm().seasonForm,null,'A same-day result must be rejected from earlier snapshots');
+rawForm.home.last_five[0].date='2026-10-01';
+rawForm.source_receipts[0].url='http://unsafe.example/league.csv';
+assert.equal(normalizedForm().seasonForm,null,'Unsourced HTTPS evidence is not accepted');
+rawForm.source_receipts[0].url='https://www.football-data.co.uk/mmz4281/2627/I1.csv';
+rawForm.home.home_matches=5;
+assert.equal(normalizedForm().seasonForm,null,'Conflicting venue counts are not silently accepted');
+rawForm.home.home_matches=4;
+rawForm.manager_change_evidence={manager:'Unverified'};
+assert.equal(normalizedForm().seasonForm,null,'Claims of manager changes require separate provenance');
+rawForm.manager_change_evidence=null;
+assert.equal(normalizedForm().seasonForm.home.completed_league_matches,6);
+console.log('Source-observed total season form and safe fallback passed');
