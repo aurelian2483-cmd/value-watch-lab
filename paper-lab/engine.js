@@ -66,6 +66,61 @@
     return result;
   }
 
+  function validatedFootballSeasonForm(raw, fixture, generatedAt) {
+    if (!raw || raw.method !== 'SOURCE_OBSERVED_CURRENT_SEASON_FORM_V1' ||
+        raw.research_only !== true || raw.model_validation !== 'UNVALIDATED' ||
+        raw.publication_gate !== 'BLOCKED' || raw.odds !== null || raw.expected_value !== null ||
+        raw.completeness !== 'SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED' ||
+        raw.opponent_strength_adjusted !== false ||
+        raw.manager_change_evidence !== null || raw.transfer_impact_evidence !== null ||
+        raw.manager_pre_post_comparison !== null || raw.squad_pre_post_comparison !== null ||
+        !/^[a-f0-9]{64}$/.test(raw.source_rows_sha256 || '') ||
+        !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(raw.cutoff_date_exclusive || '') ||
+        raw.cutoff_date_exclusive > Core.day(fixture.kickoff_utc) ||
+        raw.cutoff_date_exclusive > Core.day(generatedAt) ||
+        !Array.isArray(raw.source_receipts) || !raw.source_receipts.length ||
+        raw.source_receipts.some(receipt => !String(receipt.url || '').startsWith('https://') ||
+          !/^[a-f0-9]{64}$/.test(receipt.sha256 || '') ||
+          !Number.isFinite(instant(receipt.observed_at_utc)) ||
+          instant(receipt.observed_at_utc) > instant(generatedAt))) return null;
+    const validate = side => {
+      if (!side || !Number.isSafeInteger(side.completed_league_matches) ||
+          !Number.isSafeInteger(side.home_matches) || !Number.isSafeInteger(side.away_matches) ||
+          side.completed_league_matches < 1 || side.home_matches < 0 || side.away_matches < 0 ||
+          side.home_matches + side.away_matches !== side.completed_league_matches ||
+          !Array.isArray(side.last_five) ||
+          side.last_five.length !== Math.min(5,side.completed_league_matches) ||
+          side.last_five_count !== side.last_five.length ||
+          !Number.isSafeInteger(side.last_five_points) ||
+          side.last_five_points < 0 || side.last_five_points > 3 * side.last_five.length ||
+          (side.completed_league_matches >= 10 ?
+            (!Number.isSafeInteger(side.first_five_points) || side.first_five_points < 0 ||
+             side.first_five_points > 15 || side.first_five_count !== 5) :
+            (side.first_five_points !== null || side.first_five_count !== null))) return false;
+      let previous = '';
+      let points = 0;
+      for (const game of side.last_five) {
+        if (!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(game?.date || '') ||
+            game.date >= raw.cutoff_date_exclusive || game.date < previous ||
+            typeof game.opponent !== 'string' || !game.opponent.trim() ||
+            !['HOME','AWAY'].includes(game.venue) ||
+            !['W','D','L'].includes(game.result) ||
+            !Number.isSafeInteger(game.goals_for) || game.goals_for < 0 ||
+            !Number.isSafeInteger(game.goals_against) || game.goals_against < 0 ||
+            (game.goals_for > game.goals_against ? 'W' :
+             game.goals_for < game.goals_against ? 'L' : 'D') !== game.result) return false;
+        previous = game.date;
+        points += game.result === 'W' ? 3 : game.result === 'D' ? 1 : 0;
+      }
+      return points === side.last_five_points;
+    };
+    if (!validate(raw.home) || !validate(raw.away) ||
+        (fixture.current_season_comparison &&
+          (raw.home.home_matches !== fixture.current_season_comparison.home_venue_matches ||
+           raw.away.away_matches !== fixture.current_season_comparison.away_venue_matches))) return null;
+    return clone(raw);
+  }
+
   function football(document, path, now) {
     const modelRows = list(document.experimental_model_forecasts);
     return list(document.upcoming_fixtures).map(row => {
@@ -80,9 +135,63 @@
         choices: [{ id: 'home', label: str(row.home), probability: model?.prob_home ?? null }, { id: 'draw', label: 'Draw', probability: model?.prob_draw ?? null }, { id: 'away', label: str(row.away), probability: model?.prob_away ?? null }].map(choice => ({ ...choice, uncertainty: null, quote: null, market: 'Match result · regulation time' })),
         model: model ? { name: str(model.model), observedAt: model.generated_at_utc || document.generated_at_utc, validation: 'UNVALIDATED', probabilityKind: 'EXPERIMENTAL_MODEL_ESTIMATE', uncertainty: null, trainingMode: str(model.training_basis?.mode), trainingSource: str(model.training_basis?.source_receipts?.[0]?.url), trainingSampleSize: model.training_basis?.training_matches ?? null } : null,
         stats: { h2h: h2h && Number.isSafeInteger(h2h.sample_size) && h2h.sample_size >= 0 ? clone(h2h) : null, recent: null, rankings: null },
-        extra: { international: row.international === true, internationalAnalysis: row.international_analysis?.method === 'INTERNATIONAL_RECENT_RESULTS_V1' && row.international_analysis.research_only === true && row.international_analysis.publication_gate === 'BLOCKED' && row.international_analysis.model_validation === 'UNVALIDATED' && row.international_analysis.odds === null && row.international_analysis.expected_value === null ? clone(row.international_analysis) : null, providerStatus: str(row.status || row.event_status), league, forecastStatus: str(row.forecast_status), forecastEligible: row.forecast_eligible === true, seasonComparison: row.current_season_comparison && row.current_season_comparison.research_only === true && row.current_season_comparison.publication_gate === 'BLOCKED' && row.current_season_comparison.odds === null && row.current_season_comparison.expected_value === null && row.current_season_comparison.method === 'CURRENT_SEASON_POISSON_COMPARISON_V1' && vector([row.current_season_comparison.prob_home,row.current_season_comparison.prob_draw,row.current_season_comparison.prob_away]) && Number.isSafeInteger(row.current_season_comparison.home_venue_matches) && Number.isSafeInteger(row.current_season_comparison.away_venue_matches) ? clone(row.current_season_comparison) : null }
+        extra: { international: row.international === true, internationalAnalysis: row.international_analysis?.method === 'INTERNATIONAL_RECENT_RESULTS_V1' && row.international_analysis.research_only === true && row.international_analysis.publication_gate === 'BLOCKED' && row.international_analysis.model_validation === 'UNVALIDATED' && row.international_analysis.odds === null && row.international_analysis.expected_value === null ? clone(row.international_analysis) : null, providerStatus: str(row.status || row.event_status), league, forecastStatus: str(row.forecast_status), forecastEligible: row.forecast_eligible === true, seasonForm: validatedFootballSeasonForm(row.current_season_form,row,document.generated_at_utc), seasonComparison: row.current_season_comparison && row.current_season_comparison.research_only === true && row.current_season_comparison.publication_gate === 'BLOCKED' && row.current_season_comparison.odds === null && row.current_season_comparison.expected_value === null && row.current_season_comparison.method === 'CURRENT_SEASON_POISSON_COMPARISON_V1' && vector([row.current_season_comparison.prob_home,row.current_season_comparison.prob_draw,row.current_season_comparison.prob_away]) && Number.isSafeInteger(row.current_season_comparison.home_venue_matches) && Number.isSafeInteger(row.current_season_comparison.away_venue_matches) ? clone(row.current_season_comparison) : null }
       }, now);
     }).filter(Boolean);
+  }
+
+  // Venue-specific samples are not total league appearances. This is explanatory
+  // research metadata only; it must never change model probability or eligibility.
+  function footballSeasonMaturity(event) {
+    if (!event || event.sport !== 'football' || event.international === true) return null;
+    const form = event.seasonForm;
+    if (form) {
+      const phase = count => count < 5 ? 'EARLY_SMALL_SAMPLE' :
+        count <= 7 ? 'EMERGING_CHECKPOINT' : 'BROADER_SEASON_SAMPLE';
+      const describe = (side, team) => side + ': ' + team.completed_league_matches +
+        ' completed league games (home and away) · last ' + team.last_five_count +
+        ' results ' + team.last_five.map(match => match.result).join(' ') +
+        ' · ' + team.last_five_points + '/' + (3 * team.last_five_count) + ' possible points.';
+      const comparison = form.home.first_five_points !== null && form.away.first_five_points !== null ?
+        ['Home first-five vs most recent five: ' + form.home.first_five_points + ' → ' + form.home.last_five_points + ' points.',
+         'Away first-five vs most recent five: ' + form.away.first_five_points + ' → ' + form.away.last_five_points + ' points.'] : [];
+      return { status:'SOURCE_OBSERVED', homeVenueMatches:form.home.home_matches,
+        awayVenueMatches:form.away.away_matches, homeTotalMatches:form.home.completed_league_matches,
+        awayTotalMatches:form.away.completed_league_matches,
+        homePhase:phase(form.home.completed_league_matches),
+        awayPhase:phase(form.away.completed_league_matches), overallMatchesKnown:true,
+        evidenceBasis:'SOURCE_OBSERVED_TOTAL_SEASON',
+        notes:[describe('Home team',form.home),describe('Away team',form.away),
+          ...comparison,
+          'First-five versus latest-five points are descriptive only; opponent strengths are not adjusted and cannot prove improvement.',
+          'Managerial changes, transfers, lineup changes and injuries have no independently verified event dates or effects in this source. No before/after manager or transfer attribution is made.',
+          'Completed match counts are source-observed, not independently complete. Historical H2H and bookmaker prices remain separate.'],
+        sourceReceipts:form.source_receipts };
+    }
+    const comparison = event.seasonComparison;
+    if (!comparison || !Number.isSafeInteger(comparison.home_venue_matches) ||
+        !Number.isSafeInteger(comparison.away_venue_matches) ||
+        comparison.home_venue_matches < 0 || comparison.away_venue_matches < 0) {
+      return { status:'NOT_AVAILABLE', homeVenueMatches:null, awayVenueMatches:null,
+        overallMatchesKnown:false, evidenceBasis:'VENUE_ONLY',
+        notes:['Reliable current-season venue samples are unavailable; no maturity judgement is made.',
+          'Transfers, managerial changes, injuries and tactical changes are not verified by this feed.'] };
+    }
+    const phase = count => count < 5 ? 'EARLY_SMALL_SAMPLE' :
+      count <= 7 ? 'EMERGING_CHECKPOINT' : 'BROADER_VENUE_SAMPLE';
+    const describe = (side, count) => side + ': ' + count +
+      ' venue-specific league matches · ' + (count < 5 ? 'early, highly uncertain sample' :
+        count <= 7 ? '5–7-match emerging-form checkpoint, not proof of improvement' :
+        'larger venue-specific sample; performance still requires context');
+    return { status:'DESCRIPTIVE_ONLY', homeVenueMatches:comparison.home_venue_matches,
+      awayVenueMatches:comparison.away_venue_matches, homePhase:phase(comparison.home_venue_matches),
+      awayPhase:phase(comparison.away_venue_matches), overallMatchesKnown:false,
+      evidenceBasis:'VENUE_ONLY',
+      notes:[describe('Home team at home',comparison.home_venue_matches),
+        describe('Away team away',comparison.away_venue_matches),
+        'These are venue-specific counts, not either team’s total league games. A 5–7 total-games checkpoint cannot be verified from this comparison.',
+        'Manager appointments, transfers, injuries, opponent strength and tactical changes are not verified in this feed; no improvement is inferred.',
+        'Current-season scoring comparison is experimental and unvalidated. Historical H2H remains separate descriptive context.'] };
   }
 
   function footballEvidenceReview(event) {
@@ -406,13 +515,20 @@
     return { id: slot.id, structure: slot.structure, legs: checked, currentStatus: checked.every(leg => leg.currentStatus.selectable) ? 'CURRENT' : 'RECHECK_REQUIRED', pricedLegs: checked.filter(leg => leg.canCalculate).length, lineCount: lines.length, stakeMinor: slot.stakeMinor, stakeBasis: 'PER_LINE', totalStakeMinor, grossReturnMinor, netReturnMinor: grossReturnMinor === null ? null : grossReturnMinor - totalStakeMinor, combinedDecimal, verifiedCombinedOdds: null, probability: null, expectedValue: null, calculationStatus, warnings: [...warnings], ...GATES };
   }
 
-  function generateResearch(plan, events, now = Date.now()) {
-    let next = clone(plan);
-    const candidates = list(events).filter(event =>
-      !event.provisionalEntry && statusOf(event, now).selectable &&
-      Core.day(event.startUTC) >= plan.from && Core.day(event.startUTC) <= plan.to &&
-      (event.sport !== 'football' || (event.seasonComparison && vector([event.seasonComparison.prob_home,event.seasonComparison.prob_draw,event.seasonComparison.prob_away])))
-    ).map(event => {
+  function researchCandidatePool(plan, events, now = Date.now()) {
+    const rejection = [];
+    const accepted = [];
+    for (const event of list(events)) {
+      if (!event || !['football', 'racing', 'tennis', 'nfl'].includes(event.sport)) continue;
+      let reason = null;
+      if (event.provisionalEntry) reason = 'Provisional event / declarations';
+      else if (Core.day(event.startUTC) < plan.from || Core.day(event.startUTC) > plan.to) reason = 'Outside selected dates';
+      else if (!statusOf(event, now).selectable) reason = 'Unavailable, stale or unconfirmed status';
+      else if (event.sport === 'football' && (!event.seasonComparison || !vector([event.seasonComparison.prob_home,event.seasonComparison.prob_draw,event.seasonComparison.prob_away]))) reason = 'No current-season comparison';
+      if (reason) rejection.push({ sport:event.sport, reason });
+      else accepted.push(event);
+    }
+    const candidates = accepted.map(event => {
       const validChoices = event.choices.filter(choice => validProbability(event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.id]] : choice.probability));
       const tips = event.sport === 'racing' && Array.isArray(event.communityTips) ? event.communityTips : [];
       const counts = new Map();
@@ -431,14 +547,41 @@
       const choice = communityChoice || [...validChoices].sort((a,b) => (event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[b.id]]-event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[a.id]] : b.probability-a.probability) || a.id.localeCompare(b.id))[0];
       return {event, choice, evidence: (communityChoice ? community[0][1].size*5 : 0) + event.sources.filter(source=>source.kind==='PROVIDER_RECEIPT').length*4 + (event.stats.h2h?2:0) + (event.stats.recent?1:0), communityExperimental:Boolean(communityChoice)};
     }).filter(Boolean).sort((a,b)=>b.evidence-a.evidence || instant(a.event.startUTC)-instant(b.event.startUTC) || a.event.id.localeCompare(b.event.id));
+    const candidateIds = new Set(candidates.map(row => row.event.id));
+    for (const event of accepted) if (!candidateIds.has(event.id)) rejection.push({ sport:event.sport, reason:'No eligible experimental outcome or supporting community evidence' });
+    return { candidates, rejection };
+  }
+
+  function paperEligibilityAudit(plan, events, now = Date.now()) {
+    const {candidates, rejection} = researchCandidatePool(plan, events, now);
+    const sports = ['football','racing','tennis','nfl'];
+    return sports.map(sport => {
+      const rows = candidates.filter(row => row.event.sport === sport);
+      const excluded = rejection.filter(row => row.sport === sport);
+      const reasons = {};
+      for (const row of excluded) reasons[row.reason] = (reasons[row.reason] || 0) + 1;
+      return { sport, eligible:rows.length, excluded:excluded.length,
+        reasons, top:rows.slice(0,3).map(row => ({event:row.event.name, evidence:row.evidence, startUTC:row.event.startUTC, communityExperimental:row.communityExperimental})),
+        selected:plan.slots.reduce((n,slot) => n+slot.legs.filter(leg => leg.sport === sport).length,0) };
+    });
+  }
+
+  function generateResearch(plan, events, now = Date.now()) {
+    let next = clone(plan);
+    const {candidates} = researchCandidatePool(plan, events, now);
     const signatures = new Set(next.slots.filter(slot => slot.legs.length).map(slot => slot.legs.map(leg => leg.id).sort().join('|')));
     for (const approach of APPROACHES) {
       const current = getSlot(next, approach.id);
       if (current.legs.length) continue;
       let rows = candidates;
       if (approach.id === 'explorer') {
-        const groups = new Map(); for (const row of candidates) { if (!groups.has(row.event.sport)) groups.set(row.event.sport, []); groups.get(row.event.sport).push(row); }
-        rows = []; let layer = 0; while ([...groups.values()].some(group => group.length > layer)) { for (const group of groups.values()) if (group[layer]) rows.push(group[layer]); layer++; }
+        const groups = new Map(['football','racing','tennis','nfl'].map(sport => [sport, []]));
+        for (const row of candidates) groups.get(row.event.sport)?.push(row);
+        rows = []; let layer = 0;
+        while ([...groups.values()].some(group => group.length > layer)) {
+          for (const group of groups.values()) if (group[layer]) rows.push(group[layer]);
+          layer++;
+        }
       }
       const cap = { 'best-evidence': 3, balanced: 2, explorer: 4, longshot: 15 }[approach.id];
       rows = rows.slice(0, cap);
@@ -533,5 +676,5 @@
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });

@@ -106,3 +106,123 @@ simulatedFootball.upcoming_fixtures[0].current_season_comparison.prob_away=1.47;
 syntheticRows=E.normalizeFeeds([{kind:'football',path:'synthetic-football.json',document:simulatedFootball}],comparisonTime);
 syntheticNapoli=syntheticRows.find(row=>row.name==='Synthetic Napoli vs Synthetic Lazio');
 assert.equal(syntheticNapoli.seasonComparison,null,'invalid season comparison is not presented');
+
+ 
+// Four-sport audit must use the exact same candidate gates as automatic generation.
+const auditPlan=E.createPlan({from:'2026-11-08',to:'2026-11-09',createdAt:new Date(now).toISOString()});
+const footballEligible={...event(201,'football'),seasonComparison:{prob_home:.54,prob_draw:.27,prob_away:.19},choices:[{id:'home',label:'A',probability:.54},{id:'draw',label:'Draw',probability:.27},{id:'away',label:'B',probability:.19}]};
+const racingEligible={...event(202,'racing'),fieldConfirmed:true,providerStatus:'DORMANT'};
+const fourSports=[footballEligible,racingEligible,event(203,'tennis'),event(204,'nfl')];
+const fourAudit=E.paperEligibilityAudit(auditPlan,fourSports,now);
+assert.deepEqual(fourAudit.map(row=>[row.sport,row.eligible,row.excluded]),[['football',1,0],['racing',1,0],['tennis',1,0],['nfl',1,0]]);
+const fourGenerated=E.generateResearch(auditPlan,fourSports,now);
+assert.deepEqual(new Set(fourGenerated.slots[2].legs.map(leg=>leg.sport)),new Set(['football','racing','tennis','nfl']),
+  'Cross-Sport Explorer rotates between all eligible sports rather than repeating tennis');
+const oneSport=E.generateResearch(auditPlan,[event(205,'tennis')],now);
+assert(oneSport.slots.every(slot=>slot.legs.every(leg=>leg.sport==='tennis')),
+  'No other sport may be forced when only tennis qualifies');
+const exclusions=E.paperEligibilityAudit(auditPlan,[
+  event(207,'football'),{...event(208,'racing'),provisionalEntry:true},
+  {...event(209,'nfl'),observedAt:'2026-11-01T00:00:00Z'},
+  event(210,'tennis')
+],now);
+assert.equal(exclusions.find(row=>row.sport==='football').reasons['No current-season comparison'],1);
+assert.equal(exclusions.find(row=>row.sport==='racing').reasons['Provisional event / declarations'],1);
+assert.equal(exclusions.find(row=>row.sport==='nfl').reasons['Unavailable, stale or unconfirmed status'],1);
+assert.equal(exclusions.find(row=>row.sport==='tennis').eligible,1);
+let savedExplorer=E.addSelection(auditPlan,3,fourSports[2],'a',now);
+const originalExplorer=JSON.stringify(savedExplorer);
+const snapshotAudit=E.paperEligibilityAudit(savedExplorer,fourSports,now);
+assert.equal(snapshotAudit.find(row=>row.sport==='tennis').selected,1);
+assert.equal(JSON.stringify(savedExplorer),originalExplorer,'Audit must not mutate browser-local plans');
+const keptExplorer=E.generateResearch(savedExplorer,fourSports,now);
+assert.deepEqual(keptExplorer.slots[2].legs,savedExplorer.slots[2].legs,
+  'Existing manually chosen Cross-Sport Explorer legs must never be replaced');
+for(const path of ['index.html','paper-lab/index.html']){
+  const content=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
+  assert(content.includes('id="paper-eligibility-audit"'),path+' must expose eligibility disclosure');
+  assert(content.includes('engine.js?v=3.4.60'),path+' must load updated engine');
+  assert(content.includes('desk.js?v=3.4.61'),path+' must load updated disclosure');
+  assert(content.includes('style.css?v=3.4.46'),path+' must load updated styling');
+}
+console.log('Four-sport eligibility, zero-forced-picks and preserved manual paper plans passed');
+
+
+// Football form maturity: count only venue-specific current-season observations.
+// This is descriptive and must not modify probabilities or auto-selection gates.
+const maturityFootball={...event(301,'football'),seasonComparison:{prob_home:.53,prob_draw:.26,prob_away:.21,home_venue_matches:4,away_venue_matches:6}};
+const immature=E.footballSeasonMaturity(maturityFootball);
+assert.equal(immature.status,'DESCRIPTIVE_ONLY');
+assert.equal(immature.homePhase,'EARLY_SMALL_SAMPLE');
+assert.equal(immature.awayPhase,'EMERGING_CHECKPOINT');
+assert.equal(immature.overallMatchesKnown,false);
+assert(immature.notes.some(note=>note.includes('not either team’s total league games')));
+assert(immature.notes.some(note=>note.includes('Manager appointments, transfers, injuries')));
+const mature=E.footballSeasonMaturity({...maturityFootball,seasonComparison:{...maturityFootball.seasonComparison,home_venue_matches:8,away_venue_matches:7}});
+assert.equal(mature.homePhase,'BROADER_VENUE_SAMPLE');
+assert.equal(mature.awayPhase,'EMERGING_CHECKPOINT');
+assert.equal(E.footballSeasonMaturity({...maturityFootball,seasonComparison:null}).status,'NOT_AVAILABLE');
+assert.equal(E.footballSeasonMaturity({...maturityFootball,international:true}),null);
+assert.equal(E.footballSeasonMaturity(event(302,'tennis')),null);
+assert.equal(JSON.stringify(maturityFootball.seasonComparison),JSON.stringify({prob_home:.53,prob_draw:.26,prob_away:.21,home_venue_matches:4,away_venue_matches:6}),
+  'Maturity assessment cannot alter model probabilities or source samples');
+const deskAudit=fs.readFileSync(require('node:path').join(__dirname,'..','paper-lab','desk.js'),'utf8');
+assert(deskAudit.includes('E.footballSeasonMaturity(event)'), 'Football maturity appears in event card UI');
+for(const path of ['index.html','paper-lab/index.html']){
+ const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
+ assert(html.includes('engine.js?v=3.4.60'),'Updated football engine cache revision required');
+ assert(html.includes('desk.js?v=3.4.61'),'Updated football UI cache revision required');
+}
+console.log('Football venue sample maturity, 5–7 checkpoint and no invented manager or transfer impact passed');
+
+
+// Source-observed total-league-match form is admitted only with consistent
+// pre-kickoff results, correct current-season venue totals and source receipts.
+const rawForm={
+ method:'SOURCE_OBSERVED_CURRENT_SEASON_FORM_V1',season:'2627',
+ home:{completed_league_matches:6,home_matches:4,away_matches:2,
+   last_five:[['2026-10-01','W',2,1],['2026-10-02','D',1,1],['2026-10-03','L',0,1],['2026-10-04','W',3,0],['2026-10-05','D',0,0]]
+     .map(([date,result,goals_for,goals_against])=>({date,opponent:'Source opponent',venue:'HOME',result,goals_for,goals_against})),
+   last_five_points:8,last_five_count:5,first_five_points:null,first_five_count:null},
+ away:{completed_league_matches:7,home_matches:2,away_matches:5,
+   last_five:Array.from({length:5},(_,i)=>({date:'2026-10-0'+(i+1),opponent:'Other opponent',venue:'AWAY',result:'W',goals_for:2,goals_against:0})),
+   last_five_points:15,last_five_count:5,first_five_points:null,first_five_count:null},
+ cutoff_date_exclusive:'2026-11-08',
+ source_receipts:[{url:'https://www.football-data.co.uk/mmz4281/2627/I1.csv',sha256:'b'.repeat(64),observed_at_utc:'2026-11-08T01:20:00Z'}],
+ source_rows_sha256:'a'.repeat(64),
+ completeness:'SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED',
+ opponent_strength_adjusted:false,manager_change_evidence:null,transfer_impact_evidence:null,
+ manager_pre_post_comparison:null,squad_pre_post_comparison:null,
+ research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',odds:null,expected_value:null
+};
+const fixtureWithForm=simulatedFootball.upcoming_fixtures[0];
+fixtureWithForm.current_season_comparison.prob_away=.47;
+fixtureWithForm.current_season_form=rawForm;
+function normalizedForm() {
+ const rows=E.normalizeFeeds([{kind:'football',path:'synthetic-football.json',document:simulatedFootball}],comparisonTime);
+ return rows.find(row=>row.name==='Synthetic Napoli vs Synthetic Lazio');
+}
+let sourced=normalizedForm();
+assert.equal(sourced?.seasonForm?.home.completed_league_matches,6);
+assert.equal(sourced.seasonForm.away.completed_league_matches,7);
+let maturitySourced=E.footballSeasonMaturity(sourced);
+assert.equal(maturitySourced.overallMatchesKnown,true);
+assert.equal(maturitySourced.homePhase,'EMERGING_CHECKPOINT');
+assert.equal(maturitySourced.awayPhase,'EMERGING_CHECKPOINT');
+assert(maturitySourced.notes.some(n=>n.includes('not independently complete')));
+assert.equal(sourced.choices[0].probability,.46,'Season research cannot change the independent model prediction');
+assert.equal(sourced.publication_gate,'BLOCKED');
+rawForm.home.last_five[0].date='2026-11-08';
+assert.equal(normalizedForm().seasonForm,null,'A same-day result must be rejected from earlier snapshots');
+rawForm.home.last_five[0].date='2026-10-01';
+rawForm.source_receipts[0].url='http://unsafe.example/league.csv';
+assert.equal(normalizedForm().seasonForm,null,'Unsourced HTTPS evidence is not accepted');
+rawForm.source_receipts[0].url='https://www.football-data.co.uk/mmz4281/2627/I1.csv';
+rawForm.home.home_matches=5;
+assert.equal(normalizedForm().seasonForm,null,'Conflicting venue counts are not silently accepted');
+rawForm.home.home_matches=4;
+rawForm.manager_change_evidence={manager:'Unverified'};
+assert.equal(normalizedForm().seasonForm,null,'Claims of manager changes require separate provenance');
+rawForm.manager_change_evidence=null;
+assert.equal(normalizedForm().seasonForm.home.completed_league_matches,6);
+console.log('Source-observed total season form and safe fallback passed');

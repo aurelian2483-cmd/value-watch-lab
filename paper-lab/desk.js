@@ -356,7 +356,7 @@
       view.previous = priced ? choice.quote.decimal : null;
     }
     const comparison = event.sport === 'football' ? event.seasonComparison : null;
-    const signature = JSON.stringify([event.sport,event.international,event.internationalAnalysis,comparison,event.choices.map(choice=>choice.label)]);
+    const signature = JSON.stringify([event.sport,event.international,event.internationalAnalysis,comparison,event.seasonForm,event.choices.map(choice=>choice.label)]);
     if (record.seasonPanel.dataset.signature !== signature) {
       record.seasonPanel.dataset.signature = signature;
       record.seasonPanel.replaceChildren();
@@ -378,6 +378,20 @@
       } else if (event.sport === 'football') {
         const seasonText = comparison && /^\d{4}$/.test(comparison.season) ? '20'+comparison.season.slice(0,2)+'/20'+comparison.season.slice(2) : 'current season';
         make(record.seasonPanel,'strong','This season only · '+seasonText,'season-heading');
+        const maturity=E.footballSeasonMaturity(event);
+        if(maturity){
+          const audit=details(record.seasonPanel,'Current-season sample maturity · football only','football-maturity-details');
+          make(audit,'p','5–7 matches is a research checkpoint, not an automatic improvement or betting advantage.', 'small');
+          for(const note of maturity.notes) make(audit,'p',note,'small');
+          if (maturity.status === 'SOURCE_OBSERVED' && Array.isArray(maturity.sourceReceipts)) {
+            const sourcePanel=details(audit,'Current-season form source receipts','football-form-sources');
+            for(const receipt of maturity.sourceReceipts) {
+              const row=make(sourcePanel,'p',undefined,'small');
+              link(row,'Completed league results source',receipt.url);
+              make(row,'span',' · observed '+dateText(receipt.observed_at_utc),'small');
+            }
+          }
+        }
         if (comparison) {
           const summary = make(record.seasonPanel,'div',undefined,'season-probabilities');
           const labels = [event.choices[0]?.label || 'Home','Draw',event.choices[2]?.label || 'Away'];
@@ -476,8 +490,40 @@
       const add=button(item,selected?'In current paper slip':'Choose for current paper slip',()=>select(row.event.id,row.choice.id));add.disabled=selected;
     }
   }
+  function renderPaperEligibilityAudit() {
+    const section = $('paper-eligibility-audit'), target = $('paper-eligibility-breakdown');
+    if (!section || !target) return;
+    const state = store.get();
+    const rows = E.paperEligibilityAudit(state.plan, state.events);
+    const available = rows.reduce((n, row) => n + row.eligible, 0);
+    const summary = section.querySelector('summary');
+    if (summary) write(summary, 'Why do slips favour one sport? · ' + available + ' eligible across four sports');
+    target.replaceChildren();
+    make(target, 'p', 'For ' + state.plan.from + ' to ' + state.plan.to +
+      ' · all loaded sports regardless of the event filter. Eligibility is not positive expected value or a recommendation.', 'small');
+    for (const row of rows) {
+      const panel = make(target, 'div', undefined, 'paper-audit-sport');
+      const headline = make(panel, 'p');
+      make(headline, 'strong', (symbols[row.sport] || '') + ' ' + sports[row.sport] + ': ');
+      make(headline, 'span', row.eligible + ' eligible · ' + row.excluded + ' excluded · ' + row.selected + ' saved slip legs');
+      if (row.eligible) {
+        const top = details(panel, 'Top evidence candidates (descriptive)');
+        for (const item of row.top) make(top, 'p',
+          item.event + ' · score ' + item.evidence + ' · ' + dateText(item.startUTC) +
+          (item.communityExperimental ? ' · community research signal' : ''), 'small');
+      }
+      if (row.excluded) {
+        const reasons = details(panel, 'Exclusion reasons');
+        for (const [reason, count] of Object.entries(row.reasons)) make(reasons, 'p', count + ' × ' + reason, 'small');
+      }
+    }
+    make(target, 'p', 'Best Evidence, Balanced and Longshot rank by descriptive evidence coverage without sport quotas. ' +
+      'Cross-Sport Explorer rotates through sports that actually qualify. Existing saved selections are never overwritten. ' +
+      'No odds, expected value or model calibration is verified here.', 'small');
+  }
   function renderEvents() {
     renderRacingCandidates();
+    renderPaperEligibilityAudit();
     const state = store.get(), rows = filtered(state), visible = rows.slice(0, state.limit), root = $('events'); root.setAttribute('aria-busy', 'false');
     if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more').forEach(element => element.remove());
     S.reconcile(root, visible.map(event => event.id), cards, createCard, (record, id) => patchCard(record, visible.find(event => event.id === id)));
