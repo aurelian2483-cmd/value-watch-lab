@@ -66,6 +66,7 @@ jobs:
           node --check cardano-lab/source-capture.js
           node --check cardano-lab/capture-audit.js
           node --check cardano-lab/network-policy.js
+          node --check cardano-lab/secure-dns.js
       - name: Run ledger contract and negative tests
         run: |
           node tests/cardano_experiment_ledger.cjs
@@ -83,3 +84,4 @@ jobs:
           node tests/cardano_source_capture.cjs
           node tests/cardano_capture_audit.cjs
           node tests/cardano_network_policy.cjs
+          node tests/cardano_secure_dns.cjs
