@@ -144,6 +144,28 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   assert((await dailyPage.locator('#slip-refresh-health').textContent()).includes('eligible now'),
     'Paper panel explains current eligibility');
   assert.equal(await dailyPage.locator('#fresh-daily-slips-panel').count(),1);
+  // Browser-level reproduction of the live failure: an active racing choice
+  // carries a market decimal which is syntactically unsuitable for archived
+  // research. It must not poison the complete saved plan.
+  const priceCaptureQA=await dailyPage.evaluate(()=>{
+    const E=window.ResearchEngine,stamp='2026-11-08T08:59:00Z';
+    const event={sport:'racing',sport_type:E.SPORTS.racing,id:'qa-invalid-racing-price',
+      identity:'qa-invalid-racing-price',name:'QA race',competition:'QA',
+      startUTC:'2026-11-08T18:00:00Z',observedAt:stamp,ttlMs:1800000,
+      providerStatus:'DORMANT',fieldConfirmed:true,
+      sources:[{kind:'PROVIDER_RECEIPT',url:'https://example.org/race',observedAt:stamp,sha256:null}],
+      model:null,stats:{h2h:null,recent:null},
+      choices:[{id:'a',label:'A',probability:null,market:'Win',
+        quote:{decimal:1.123456789012,source:'https://example.org/race',observedAt:stamp,
+          bookmaker:'Sky Bet',status:'SOURCE_OBSERVED_UNVERIFIED',executable:false}},
+        {id:'b',label:'B',probability:null,market:'Win',quote:null}]};
+    const plan=E.createPlan({from:'2026-11-08',to:'2026-11-14',createdAt:'2026-11-08T09:00:00Z'});
+    const selected=E.addSelection(plan,1,event,'a',Date.parse('2026-11-08T09:00:00Z'));
+    return {quote:selected.slots[0].legs[0].quote,serialized:Boolean(E.serialize(selected)),publicationGate:selected.publication_gate};
+  });
+  assert.equal(priceCaptureQA.quote,null,'Invalid racing price must never be saved into research');
+  assert(priceCaptureQA.serialized&&priceCaptureQA.publicationGate==='BLOCKED');
+  report.checks.push('invalid racing price is dropped before paper plan serialization; model gates remain blocked');
   await dailyPage.locator('#generate').click();
   const originalDaily=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
   assert(originalDaily.plan.slots.some(slot=>slot.legs.length),'Test requires original populated research');
