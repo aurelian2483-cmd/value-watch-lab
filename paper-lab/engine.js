@@ -406,13 +406,20 @@
     return { id: slot.id, structure: slot.structure, legs: checked, currentStatus: checked.every(leg => leg.currentStatus.selectable) ? 'CURRENT' : 'RECHECK_REQUIRED', pricedLegs: checked.filter(leg => leg.canCalculate).length, lineCount: lines.length, stakeMinor: slot.stakeMinor, stakeBasis: 'PER_LINE', totalStakeMinor, grossReturnMinor, netReturnMinor: grossReturnMinor === null ? null : grossReturnMinor - totalStakeMinor, combinedDecimal, verifiedCombinedOdds: null, probability: null, expectedValue: null, calculationStatus, warnings: [...warnings], ...GATES };
   }
 
-  function generateResearch(plan, events, now = Date.now()) {
-    let next = clone(plan);
-    const candidates = list(events).filter(event =>
-      !event.provisionalEntry && statusOf(event, now).selectable &&
-      Core.day(event.startUTC) >= plan.from && Core.day(event.startUTC) <= plan.to &&
-      (event.sport !== 'football' || (event.seasonComparison && vector([event.seasonComparison.prob_home,event.seasonComparison.prob_draw,event.seasonComparison.prob_away])))
-    ).map(event => {
+  function researchCandidatePool(plan, events, now = Date.now()) {
+    const rejection = [];
+    const accepted = [];
+    for (const event of list(events)) {
+      if (!event || !['football', 'racing', 'tennis', 'nfl'].includes(event.sport)) continue;
+      let reason = null;
+      if (event.provisionalEntry) reason = 'Provisional event / declarations';
+      else if (Core.day(event.startUTC) < plan.from || Core.day(event.startUTC) > plan.to) reason = 'Outside selected dates';
+      else if (!statusOf(event, now).selectable) reason = 'Unavailable, stale or unconfirmed status';
+      else if (event.sport === 'football' && (!event.seasonComparison || !vector([event.seasonComparison.prob_home,event.seasonComparison.prob_draw,event.seasonComparison.prob_away]))) reason = 'No current-season comparison';
+      if (reason) rejection.push({ sport:event.sport, reason });
+      else accepted.push(event);
+    }
+    const candidates = accepted.map(event => {
       const validChoices = event.choices.filter(choice => validProbability(event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.id]] : choice.probability));
       const tips = event.sport === 'racing' && Array.isArray(event.communityTips) ? event.communityTips : [];
       const counts = new Map();
@@ -431,6 +438,28 @@
       const choice = communityChoice || [...validChoices].sort((a,b) => (event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[b.id]]-event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[a.id]] : b.probability-a.probability) || a.id.localeCompare(b.id))[0];
       return {event, choice, evidence: (communityChoice ? community[0][1].size*5 : 0) + event.sources.filter(source=>source.kind==='PROVIDER_RECEIPT').length*4 + (event.stats.h2h?2:0) + (event.stats.recent?1:0), communityExperimental:Boolean(communityChoice)};
     }).filter(Boolean).sort((a,b)=>b.evidence-a.evidence || instant(a.event.startUTC)-instant(b.event.startUTC) || a.event.id.localeCompare(b.event.id));
+    const candidateIds = new Set(candidates.map(row => row.event.id));
+    for (const event of accepted) if (!candidateIds.has(event.id)) rejection.push({ sport:event.sport, reason:'No eligible experimental outcome or supporting community evidence' });
+    return { candidates, rejection };
+  }
+
+  function paperEligibilityAudit(plan, events, now = Date.now()) {
+    const {candidates, rejection} = researchCandidatePool(plan, events, now);
+    const sports = ['football','racing','tennis','nfl'];
+    return sports.map(sport => {
+      const rows = candidates.filter(row => row.event.sport === sport);
+      const excluded = rejection.filter(row => row.sport === sport);
+      const reasons = {};
+      for (const row of excluded) reasons[row.reason] = (reasons[row.reason] || 0) + 1;
+      return { sport, eligible:rows.length, excluded:excluded.length,
+        reasons, top:rows.slice(0,3).map(row => ({event:row.event.name, evidence:row.evidence, startUTC:row.event.startUTC, communityExperimental:row.communityExperimental})),
+        selected:plan.slots.reduce((n,slot) => n+slot.legs.filter(leg => leg.sport === sport).length,0) };
+    });
+  }
+
+  function generateResearch(plan, events, now = Date.now()) {
+    let next = clone(plan);
+    const {candidates} = researchCandidatePool(plan, events, now);
     const signatures = new Set(next.slots.filter(slot => slot.legs.length).map(slot => slot.legs.map(leg => leg.id).sort().join('|')));
     for (const approach of APPROACHES) {
       const current = getSlot(next, approach.id);
@@ -533,5 +562,5 @@
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });
