@@ -12,7 +12,8 @@ vm.runInNewContext(fs.readFileSync(path.join(root,'paper-lab/community-evidence.
 const community=evidenceContext.window.CommunityEvidence;
 const specs = [['football','research-dashboard-data.json'], ['football','football-expanded-data.json'],
   ['football','international-football-data.json'], ['racing','racing-research-data.json'],
-  ['racing-future','racing-future-data.json'], ['other','other-sports-data.json']];
+  ['racing-future','racing-future-data.json'], ['racing-context','horse-predictions-data.json'],
+  ['other','other-sports-data.json'], ['history','research-history.json']];
 function report(from, to, now = Date.now(), dataRoot = root) {
   E.range(from, to);
   const sourceReadErrors=[];
