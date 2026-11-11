@@ -10,6 +10,10 @@ function summary(report){
   for(const row of rows)lines.push('| '+[row.sport,row.inRange,row.selectable,row.eligible,row.diagnostic,row.selectionDiagnostic].map(clean).join(' | ')+' |');
   lines.push('','### Four paper approaches','','| Approach | Selections | Sports | Status |','|---|---:|---|---|');
   for(const slip of slips)lines.push('| '+[slip.approach,slip.selections,Object.entries(slip.sports||{}).map(([k,v])=>k+': '+v).join(', ')||'none',slip.status].map(clean).join(' | ')+' |');
+  lines.push('','### Source read failures');
+  if((report.source_read_errors||[]).length){
+    for(const failure of report.source_read_errors)lines.push('- '+clean(failure.path)+': '+clean(failure.reason)+(failure.detail?' — '+clean(failure.detail):''));
+  }else lines.push('No source file read failures recorded.');
   lines.push('','### Source snapshot freshness','','| Source | Age (minutes) | Freshness |','|---|---:|---|');
   for(const source of report.snapshots||[])lines.push('| '+[source.path,source.age_minutes??'unknown',source.status].map(clean).join(' | ')+' |');
   lines.push('','Source age is only an initial clue. Event-level receipts and status gates can reject a newer snapshot.','');
