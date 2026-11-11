@@ -1,5 +1,6 @@
 /* Cardano evidence register: explicit research provenance, never outcome verification. */
 'use strict';
+const crypto=require('node:crypto');
 const SHA=/^[a-f0-9]{64}$/i;
 function register(experiment,captures,audits){
  if(!experiment||typeof experiment.id!=='string'||!experiment.id.trim())throw Error('Experiment id required');
@@ -14,6 +15,8 @@ function register(experiment,captures,audits){
   seen.add(key);
   if(typeof receipt.source_url!=='string'||!SHA.test(receipt.source_sha256||''))throw Error('Invalid evidence identity');
   if(audit.computed_sha256!==receipt.source_sha256.toLowerCase())throw Error('Audit hash does not match capture');
+  if(crypto.createHash('sha256').update(capture.bytes).digest('hex')!==receipt.source_sha256.toLowerCase())throw Error('Captured bytes do not match evidence receipt');
+  if(receipt.byte_length!==capture.bytes.length)throw Error('Captured byte length mismatch');
   const consistent=audit.consistent===true&&Array.isArray(audit.errors)&&audit.errors.length===0&&audit.eligible_for_scoring===false&&audit.source_authenticated===false&&audit.outcome_verified===false;
   entries.push(Object.freeze({source_url:receipt.source_url,sha256:receipt.source_sha256.toLowerCase(),captured_at_utc:receipt.captured_at_utc,byte_length:receipt.byte_length,integrity_status:consistent?'CONSISTENT_UNVERIFIED':'REJECTED',reasons:consistent?['PUBLISHER_NOT_AUTHENTICATED','OUTCOME_NOT_VERIFIED']:['INTEGRITY_AUDIT_FAILED',...(Array.isArray(audit.errors)?audit.errors:[])],eligible_for_scoring:false}));
  }
