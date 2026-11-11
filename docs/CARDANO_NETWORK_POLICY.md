@@ -1,0 +1,5 @@
+# Cardano network destination screening — prototype
+
+`cardano-lab/network-policy.js` provides conservative public-address screening for DNS resolution results. It rejects private, loopback, link-local, multicast, documentation, carrier-grade NAT and selected special-use addresses, and rejects IPv4-mapped IPv6 forms. Mixed public/private DNS answers fail closed. Test: `node tests/cardano_network_policy.cjs`.
+
+**Not yet integrated into `source-capture.js`.** A hostname allowlist alone does not prevent DNS rebinding or connections to private addresses. Before connecting to live external sources, the capture transport must resolve all addresses, validate them, pin the selected address to the TLS connection while preserving hostname/SNI/certificate validation, and reject unsafe changes and proxies. Address policy also needs a comprehensive maintained special-use registry and IPv6 review. Until then, keep capture isolated and do not expose it as an arbitrary-URL service. Research-only; no live data ingestion or betting publication.
