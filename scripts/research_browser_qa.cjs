@@ -140,10 +140,14 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   await dailyPage.route('**/research-history.json',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({...guard,entries:[]})}));
   await dailyPage.goto(base+'/',{waitUntil:'networkidle'});
   await waitBoard(dailyPage);
+  await dailyPage.locator('#slip-refresh-health').waitFor();
+  assert((await dailyPage.locator('#slip-refresh-health').textContent()).includes('eligible now'),
+    'Paper panel explains current eligibility');
+  assert.equal(await dailyPage.locator('#fresh-daily-slips-panel').count(),1);
   await dailyPage.locator('#generate').click();
   const originalDaily=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
   assert(originalDaily.plan.slots.some(slot=>slot.legs.length),'Test requires original populated research');
-  await dailyPage.locator('#fresh-daily-slips').click();
+  await dailyPage.locator('#fresh-daily-slips-panel').click();
   await dailyPage.waitForFunction(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')||'{}').history?.length===1);
   const refreshedDaily=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
   assert.notEqual(refreshedDaily.plan.id,originalDaily.plan.id,'Fresh paper research needs new identity');
@@ -152,6 +156,12 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
     originalDaily.plan.slots.map(s=>s.legs.map(l=>l.id)),'Archived selections must be unchanged');
   assert.equal(refreshedDaily.plan.to,'2026-11-14');
   assert(refreshedDaily.plan.slots.some(slot=>slot.legs.length),'Fresh evidence-supported slips should be populated');
+  await dailyPage.waitForFunction(()=>{
+    const current=JSON.parse(localStorage.getItem('value-watch-research-desk-v4')||'{}');
+    return document.querySelector('#slip-count')?.textContent === current.plan.slots[0].legs.length + ' / 15' &&
+      document.querySelector('#slip-refresh-health')?.textContent.includes('saved selections');
+  });
+  report.checks.push('paper panel refreshes rendered selection state and eligibility immediately');
   assert((await dailyPage.locator('#notice').textContent()).includes('previous revision archived'));
   await dailyPage.reload({waitUntil:'networkidle'});
   await waitBoard(dailyPage);
