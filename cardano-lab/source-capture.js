@@ -16,7 +16,7 @@ function capture(sourceUrl,options={}){
  const timeoutMs=options.timeoutMs===undefined?10000:options.timeoutMs;
  if(!Number.isInteger(timeoutMs)||timeoutMs<1000||timeoutMs>30000)throw Error('Invalid timeout');
  const transport=options.transport||https;
- return resolvePinned(url.hostname,options.resolver).then(pinned=>new Promise((resolve,reject)=>{
+ return resolvePinned(url.hostname,options.resolver,timeoutMs).then(pinned=>new Promise((resolve,reject)=>{
   let settled=false,req;
   const fail=e=>{if(settled)return;settled=true;reject(e instanceof Error?e:new Error(String(e)))};
   try{
