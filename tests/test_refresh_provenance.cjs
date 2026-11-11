@@ -19,5 +19,5 @@ assert(communityStart>=0&&communityEnd>communityStart);
 const communityRefresh=desk.slice(communityStart,communityEnd);
 assert.doesNotMatch(communityRefresh,/savePlan\(generated\)/,'Community refresh must not generate slips from old events');
 assert.match(desk,/transport\.onUpdate|onUpdate\(result\)/);
-assert.match(desk,/if \(events\.length && !persistence\.failed && !freshDailyBusy\)/);
+assert.match(desk,/if \(events\.length && !result\.errors\.length && !persistence\.failed && !freshDailyBusy\)/);
 console.log('PASS static refresh provenance and preservation contract; browser behaviour not executed');
