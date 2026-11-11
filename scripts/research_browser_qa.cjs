@@ -162,6 +162,10 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
       document.querySelector('#slip-refresh-health')?.textContent.includes('saved selections');
   });
   report.checks.push('paper panel refreshes rendered selection state and eligibility immediately');
+  assert((await dailyPage.locator('#slip-refresh-outcome').textContent()).includes('Fresh feeds checked'),
+    'Daily paper action must reload feeds before declaring success');
+  assert((await dailyPage.locator('#slip-refresh-outcome').textContent()).includes('paper selections'),
+    'Daily paper action must explain whether current source selection is unchanged');
   assert((await dailyPage.locator('#notice').textContent()).includes('previous revision archived'));
   await dailyPage.reload({waitUntil:'networkidle'});
   await waitBoard(dailyPage);
@@ -175,6 +179,8 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   const afterBlocked=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
   assert.deepEqual(afterBlocked,beforeBlocked,'Failed save cannot replace or archive plan');
   assert((await dailyPage.locator('#page-status').textContent()).includes('could not be saved'));
+  assert((await dailyPage.locator('#slip-refresh-outcome').textContent()).includes('Existing saved selections have not been replaced'),
+    'Source or storage failure must explain that prior research survived');
   report.checks.push('storage failure leaves active plan, saved history and journal untouched');
   await dailyContext.close();
   const degraded=await browser.newContext();const failedPage=await degraded.newPage();await failedPage.route('**/paper-lab/engine.js*',route=>route.abort());await failedPage.goto(base+'/',{waitUntil:'networkidle'});await failedPage.locator('#page-status').waitFor({state:'visible'});assert((await failedPage.locator('#page-status').textContent()).includes('could not'));report.checks.push('component-load failure exposes recovery message');await degraded.close();assert.equal(report.pageErrors.length,0,report.pageErrors.join('\n'));
