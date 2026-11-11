@@ -1,0 +1,25 @@
+name: Cardano paper refresh provenance QA
+on:
+  push:
+    branches: [feature/cardano-race-video-prototype]
+    paths:
+      - 'paper-lab/desk.js'
+      - 'paper-lab/transport.js'
+      - 'tests/test_refresh_provenance.cjs'
+      - '.github/workflows/cardano-paper-refresh-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  refresh-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check paper-lab/desk.js
+          node --check paper-lab/transport.js
+          node tests/test_refresh_provenance.cjs
