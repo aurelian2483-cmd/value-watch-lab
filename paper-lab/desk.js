@@ -61,9 +61,11 @@
   const persistence = S.createPersistence(storage, key, validateWorkspace, message => write($('storage'), message));
   const restored = persistence.read();
   const initial = restored || { version: 4, plan: E.createPlan({ from: today(), to: plusDays(today(), 6) }), history: [], claims: [], journal: [] };
-  // Keep saved research, but do not strand every sport on a fully expired date range.
-  if(initial.plan && typeof initial.plan.to==='string' && initial.plan.to<today()){
-    initial.plan=E.createPlan({from:today(),to:plusDays(today(),13)});
+  // Never silently discard a populated expired plan when this browser is reopened.
+  // Empty expired plans may start a new default range without erasing research.
+  if(initial.plan && typeof initial.plan.to==='string' && initial.plan.to<today() &&
+     initial.plan.slots.every(slot => !slot.legs.length)){
+    initial.plan=E.createPlan({from:today(),to:plusDays(today(),6)});
   }
   const store = S.createStore({ ...initial, events: [], eventVersion: 0, snapshotState: null, slot: 0, sport: 'all', competition: 'all', query: '', eventView: 'upcoming', view: 'events', limit: 24, replacing: null, clockTick: 0 });
   let legacy = [];
@@ -82,6 +84,58 @@
     const state = store.get(), next = { version: 4, plan: state.plan, history: state.history, claims: state.claims, journal: state.journal, ...changes };
     if (!persistence.write(next)) throw Error('The change could not be saved. Export your research before continuing.');
     store.update(current => ({ ...current, ...changes }));
+  }
+  let freshDailyBusy = false;
+  async function createFreshDailySlips() {
+    if (freshDailyBusy) return;
+    freshDailyBusy = true;
+    const control = $('fresh-daily-slips');
+    if (control) control.disabled = true;
+    try {
+      if (persistence.locked) throw Error('Local research storage is locked. Export your research before trying again.');
+      const before = store.get();
+      const current = before.plan;
+      // The user explicitly starts a new 7-day plan; saved historical legs are immutable.
+      const from = today(), to = plusDays(from,6), now = Date.now();
+      const available = before.events.filter(event =>
+        day(event.startUTC) >= from && day(event.startUTC) <= to);
+      if (!available.length) throw Error('No current research events were loaded for the next seven days. Refresh source data and try again.');
+      const next = E.freshDailyResearch(current,available,from,to,now);
+      const eligible = E.paperEligibilityAudit(next,available,now).reduce((n,row) => n + row.eligible,0);
+      if (!eligible) throw Error('No evidence-eligible upcoming selections are available. The previous slips have been preserved.');
+      const hasResearch = current.slots.some(slot => slot.legs.length);
+      const alreadyArchived = before.history.some(record =>
+        record.snapshot.id === current.id && record.snapshot.revision === current.revision);
+      if (hasResearch && !alreadyArchived && before.history.length >= 200)
+        throw Error('Saved research history is full. Export and manage your saved records before starting new slips.');
+      // Snapshot before changing the active plan, and hash the exact captured revision.
+      const record = hasResearch && !alreadyArchived ?
+        await S.seal(E.freeze(current,now,before.events)) : null;
+      const latest = store.get();
+      if (latest.plan.id !== current.id || latest.plan.revision !== current.revision ||
+          latest.history.length !== before.history.length || latest.claims.length !== before.claims.length ||
+          latest.journal.length !== before.journal.length)
+        throw Error('Research changed during refresh. No slips were replaced. Retry after reviewing the latest data.');
+      const history = record ? [...latest.history,record] : latest.history;
+      // One validated persistence write for the plan AND archive. On failure,
+      // keep the current in-memory plan, private notes, journal and saved research.
+      saveEnvelope({plan:next,history,replacing:null});
+      store.update(state => ({...state,slot:0,limit:24}));
+      $('date-from').value = from; $('date-to').value = to;
+      document.querySelectorAll('[data-range]').forEach(element => {
+        const active = element.dataset.range === '7';
+        element.classList.toggle('active',active);
+        element.setAttribute('aria-pressed',String(active));
+      });
+      const total = next.slots.reduce((n,slot) => n+slot.legs.length,0);
+      notice('Fresh seven-day research plan saved · ' + total +
+        ' experimental paper selections · ' + (record ? 'previous revision archived' :
+        hasResearch ? 'previous revision already in saved research' : 'no previous selections to archive') +
+        '. Nothing is a verified betting recommendation.');
+    } finally {
+      freshDailyBusy = false;
+      if (control) control.disabled = false;
+    }
   }
   function exportJSON(value, name) {
     const url = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }));
@@ -978,6 +1032,7 @@
   let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
   $('refresh').addEventListener('click', () => safely(refresh));
   $('find-racing')?.addEventListener('click',()=>safely(()=>{racingCandidatesRequested=true;renderRacingCandidates();$('racing-candidates')?.scrollIntoView?.({block:'nearest'});}));
+  $('fresh-daily-slips')?.addEventListener('click', () => safely(createFreshDailySlips));
   $('generate').addEventListener('click', () => safely(() => { const state = store.get(); const scope = $('build-scope').value; const candidates = scope === 'all' ? state.events.filter(event => day(event.startUTC) >= state.plan.from && day(event.startUTC) <= state.plan.to) : filtered(state); savePlan(E.generateResearch(state.plan, candidates)); notice('Distinct research shortlists created where supported. Non-empty slips are retained. This is an evidence-coverage comparison, not verified value.'); }));
   $('slip-structure').addEventListener('change', event => safely(() => savePlan(E.setStructure(store.get().plan, store.get().slot + 1, event.target.value))));
   $('stake').addEventListener('input', event => { try { savePlan(E.setStake(store.get().plan, store.get().slot + 1, event.target.value || '0')); event.target.removeAttribute('aria-invalid'); } catch { event.target.setAttribute('aria-invalid', 'true'); } });

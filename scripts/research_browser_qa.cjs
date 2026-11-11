@@ -121,6 +121,52 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   },football);
   await p.reload({waitUntil:'networkidle'});await p.locator('[data-view=history]').click();await p.locator('.journal-chart').waitFor();assert((await p.locator('.journal-summary').textContent()).includes('£1.50'));
   const settledCard=p.locator('#history .history-card').first();await settledCard.locator('> details > summary').click();const correction=settledCard.locator('.model-details').first();await correction.locator('> summary').click();await correction.locator('select').selectOption('DISPUTED');await correction.locator('textarea').first().fill('Synthetic QA correction: source disputed; exclude previous totals.');await correction.locator('button[type=submit]').click();await p.waitForFunction(()=>!document.querySelector('.journal-chart'));assert((await p.locator('.journal-summary').textContent()).includes('1 disputed'));report.checks.push('eligible manual paper chart and append-only disputed correction exclude prior totals');
+  // Fresh daily rollover: archive atomically, preserve existing selections, and
+  // fail closed when localStorage is unavailable. Isolate from all other QA state.
+  const dailyContext=await browser.newContext({viewport:{width:1440,height:900}});
+  const dailyPage=await dailyContext.newPage();
+  dailyPage.on('pageerror',error=>report.pageErrors.push(error.message));
+  await dailyPage.clock.install({time:new Date('2026-11-08T09:00:00Z')});
+  await dailyPage.route('**/*-data.json',async route=>{
+    const name=new URL(route.request().url()).pathname.split('/').pop();
+    const doc=name==='research-dashboard-data.json'?football:
+      name==='football-expanded-data.json'?{...guard,upcoming_fixtures:[],experimental_model_forecasts:[]}:
+      name==='racing-research-data.json'?race():
+      name==='horse-predictions-data.json'?racingPrediction:
+      name==='other-sports-data.json'?{...guard,sports:{}}:null;
+    if(!doc)return route.continue();
+    return route.fulfill({contentType:'application/json',body:JSON.stringify(doc)});
+  });
+  await dailyPage.route('**/research-history.json',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({...guard,entries:[]})}));
+  await dailyPage.goto(base+'/',{waitUntil:'networkidle'});
+  await waitBoard(dailyPage);
+  await dailyPage.locator('#generate').click();
+  const originalDaily=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
+  assert(originalDaily.plan.slots.some(slot=>slot.legs.length),'Test requires original populated research');
+  await dailyPage.locator('#fresh-daily-slips').click();
+  await dailyPage.waitForFunction(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')||'{}').history?.length===1);
+  const refreshedDaily=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
+  assert.notEqual(refreshedDaily.plan.id,originalDaily.plan.id,'Fresh paper research needs new identity');
+  assert.equal(refreshedDaily.history[0].snapshot.id,originalDaily.plan.id);
+  assert.deepEqual(refreshedDaily.history[0].snapshot.slots.map(s=>s.legs.map(l=>l.id)),
+    originalDaily.plan.slots.map(s=>s.legs.map(l=>l.id)),'Archived selections must be unchanged');
+  assert.equal(refreshedDaily.plan.to,'2026-11-14');
+  assert(refreshedDaily.plan.slots.some(slot=>slot.legs.length),'Fresh evidence-supported slips should be populated');
+  assert((await dailyPage.locator('#notice').textContent()).includes('previous revision archived'));
+  await dailyPage.reload({waitUntil:'networkidle'});
+  await waitBoard(dailyPage);
+  assert.equal(await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')).history.length),1);
+  report.checks.push('fresh daily slips archive before replacing, survive reload and preserve historical paper legs');
+  const beforeBlocked=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
+  await dailyPage.evaluate(()=>{const original=Storage.prototype.setItem;window.__restoreSave=()=>Storage.prototype.setItem=original;Storage.prototype.setItem=function(){throw new DOMException('Test storage outage','QuotaExceededError');};});
+  await dailyPage.locator('#fresh-daily-slips').click();
+  await dailyPage.locator('#page-status').waitFor({state:'visible'});
+  await dailyPage.evaluate(()=>window.__restoreSave());
+  const afterBlocked=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
+  assert.deepEqual(afterBlocked,beforeBlocked,'Failed save cannot replace or archive plan');
+  assert((await dailyPage.locator('#page-status').textContent()).includes('could not be saved'));
+  report.checks.push('storage failure leaves active plan, saved history and journal untouched');
+  await dailyContext.close();
   const degraded=await browser.newContext();const failedPage=await degraded.newPage();await failedPage.route('**/paper-lab/engine.js*',route=>route.abort());await failedPage.goto(base+'/',{waitUntil:'networkidle'});await failedPage.locator('#page-status').waitFor({state:'visible'});assert((await failedPage.locator('#page-status').textContent()).includes('could not'));report.checks.push('component-load failure exposes recovery message');await degraded.close();assert.equal(report.pageErrors.length,0,report.pageErrors.join('\n'));
   report.internationalAnalysis=await require('./international_browser_checks.cjs')(browser,base);
   report.racingCandidates=await require('./racing_candidate_browser_checks.cjs')(browser,base);
