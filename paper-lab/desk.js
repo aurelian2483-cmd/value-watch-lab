@@ -571,7 +571,7 @@
         for (const [reason, count] of Object.entries(row.reasons)) make(reasons, 'p', count + ' × ' + reason, 'small');
       }
     }
-    make(target, 'p', 'Best Evidence, Balanced and Longshot rank by descriptive evidence coverage without sport quotas. ' +
+    make(target, 'p', 'Best Evidence, Balanced and Longshot rank by descriptive evidence coverage, rotating between eligible sports only when source-evidence scores are equal. ' +
       'Cross-Sport Explorer rotates through sports that actually qualify. Existing saved selections are never overwritten. ' +
       'No odds, expected value or model calibration is verified here.', 'small');
   }
