@@ -11,7 +11,7 @@ assert.equal(result.publication_gate,'BLOCKED');
 const invalid=[
  [{...good[0],training_cutoff_utc:'2026-01-09T00:00:00Z'},good[1]],
  [{...good[0],event_id:'match-a'},good[1]],
- [{...good[0],fold_id:'fold1'},good[1]],
+ [{...good[0],event_at_utc:'2026-01-02T12:00:00Z',issued_at_utc:'2026-01-02T09:00:00Z',resolved_at_utc:'2026-01-02T15:00:00Z'},good[1]],
  [{...good[0],fold_id:'bad id'},good[1]],
  [{...good[0],dataset_split:'TRAIN'},good[1]],
  [{...good[0],issued_at_utc:'2026-01-09T09:00:00Z'},good[1]]
