@@ -380,7 +380,7 @@
         make(record.seasonPanel,'strong','This season only · '+seasonText,'season-heading');
         const maturity=E.footballSeasonMaturity(event);
         if(maturity){
-          const audit=details(record.seasonPanel,'Current-season sample maturity · football only');
+          const audit=details(record.seasonPanel,'Current-season sample maturity · football only','football-maturity-details');
           make(audit,'p','5–7 matches is a research checkpoint, not an automatic improvement or betting advantage.', 'small');
           for(const note of maturity.notes) make(audit,'p',note,'small');
         }
