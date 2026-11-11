@@ -1,0 +1,24 @@
+name: Cardano race video prototype QA
+on:
+  push:
+    branches: [feature/cardano-race-video-prototype]
+  pull_request:
+    paths:
+      - 'race-video-lab/**'
+      - 'tests/race_video_browser.cjs'
+      - '.github/workflows/cardano-race-video-qa.yml'
+  workflow_dispatch:
+jobs:
+  race-video-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Race video browser smoke test
+        run: node tests/race_video_browser.cjs
