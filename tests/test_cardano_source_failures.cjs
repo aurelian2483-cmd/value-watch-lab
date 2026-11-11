@@ -17,6 +17,18 @@ try{
   assert(result.source_read_errors.some(x=>x.path==='other-sports-data.json'&&x.reason==='SOURCE_FILE_MISSING'));
   assert.equal(result.snapshots.length,0);
   assert(result.shortlist_diagnostics.coverage.every(x=>x.eligible===0));
+  fs.writeFileSync(path.join(tmp,'other-sports-data.json'),JSON.stringify({
+    schema_version:1,research_only:false,model_validation:'UNVALIDATED',
+    publication_gate:'BLOCKED',generated_at_utc:'2026-11-11T11:00:00Z'
+  }));
+  const invalidGate=report('2026-11-11','2026-11-17',now,tmp);
+  assert(invalidGate.source_read_errors.some(x=>x.path==='other-sports-data.json'&&x.reason==='SOURCE_FILE_UNREADABLE'));
+  fs.writeFileSync(path.join(tmp,'other-sports-data.json'),JSON.stringify({
+    schema_version:1,research_only:true,model_validation:'UNVALIDATED',
+    publication_gate:'BLOCKED',generated_at_utc:'2026-11-12T11:00:00Z'
+  }));
+  const future=report('2026-11-11','2026-11-17',now,tmp);
+  assert(future.source_read_errors.some(x=>x.path==='other-sports-data.json'&&x.reason==='SOURCE_FILE_UNREADABLE'));
   fs.writeFileSync(path.join(tmp,'racing-research','source-observations.json'),'{}');
   const missingArchive=report('2026-11-11','2026-11-17',now,tmp);
   assert(missingArchive.source_read_errors.some(x=>x.reason==='COMMUNITY_ARCHIVE_UNAVAILABLE'));
