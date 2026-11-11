@@ -378,6 +378,12 @@
       } else if (event.sport === 'football') {
         const seasonText = comparison && /^\d{4}$/.test(comparison.season) ? '20'+comparison.season.slice(0,2)+'/20'+comparison.season.slice(2) : 'current season';
         make(record.seasonPanel,'strong','This season only · '+seasonText,'season-heading');
+        const maturity=E.footballSeasonMaturity(event);
+        if(maturity){
+          const audit=details(record.seasonPanel,'Current-season sample maturity · football only');
+          make(audit,'p','5–7 matches is a research checkpoint, not an automatic improvement or betting advantage.', 'small');
+          for(const note of maturity.notes) make(audit,'p',note,'small');
+        }
         if (comparison) {
           const summary = make(record.seasonPanel,'div',undefined,'season-probabilities');
           const labels = [event.choices[0]?.label || 'Home','Draw',event.choices[2]?.label || 'Away'];
