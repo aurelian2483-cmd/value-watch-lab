@@ -44,9 +44,20 @@ function report(from, to, now = Date.now()) {
     row.racing.yellow_agreements=colourGates.filter(g=>['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(g.yellow)).length;
     days.push(row);
   }
+  // Use the same production eligibility and shortlist code as the research desk.
+  // This is diagnostic evidence coverage, never verified EV or a betting recommendation.
+  const plan=E.createPlan({from,to,createdAt:new Date(now).toISOString()});
+  const eligibility=E.paperEligibilityAudit(plan,events,now);
+  const generated=E.generateResearch(plan,events,now);
+  const shortlist={sports:eligibility,slips:generated.slots.map(slot=>({
+    approach:slot.id,status:slot.generation?.status||'NO_GENERATION_STATUS',
+    selections:slot.legs.length,
+    sports:slot.legs.reduce((counts,leg)=>(counts[leg.sport]=(counts[leg.sport]||0)+1,counts),{}),
+    reason:slot.generation?.reason||null
+  }))};
   return {generated_at_utc:new Date(now).toISOString(),from,to,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
     interpretation:'Default upcoming filters per sport, empty search, all competitions. First page is capped at 24 with Show more. Saved counts can include duplicate football observations; normalized counts deduplicate. Meeting fixtures are separate from races.',
-    snapshots:snapshots.map(s=>({path:s.path,generated_at_utc:s.data.generated_at_utc})),normalizer_diagnostics:events.diagnostics,
+    snapshots:snapshots.map(s=>({path:s.path,generated_at_utc:s.data.generated_at_utc})),normalizer_diagnostics:events.diagnostics,shortlist_diagnostics:shortlist,
     source_diagnostics:{tennis:other?.sports?.tennis?.schedule_source_diagnostics||[],nfl:other?.sports?.nfl?.schedule_week_coverage||[],racing_index:future?.days||[],racing_meetings:future?.meeting_card_results||[]},days};
 }
 module.exports={report};
