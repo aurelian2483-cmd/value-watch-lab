@@ -240,7 +240,7 @@ assert.equal(JSON.stringify(previousDaily),previousOriginal,'Daily refresh canno
 assert(newDaily.slots.every(slot=>slot.legs.every(leg=>leg.research_only===true&&leg.publication_gate==='BLOCKED')));
 assert.deepEqual(E.freshDailyResearch(previousDaily,[],'2026-11-08','2026-11-14',now).slots.map(slot=>slot.legs.length),[0,0,0,0]);
 assert.throws(()=>E.freshDailyResearch(previousDaily,[],'2026-11-14','2026-11-08',now));
-assert.throws(()=>E.freshDailyResearch(previousDaily,[],'2026-11-08','2026-11-14',Date.parse(previousDaily.createdAt)),/distinct identity/);
+assert.throws(()=>E.freshDailyResearch(previousDaily,[],'2026-11-08','2026-11-09',Date.parse(previousDaily.createdAt)),/distinct identity/);
 for(const path of ['index.html','paper-lab/index.html']){
  const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
  assert(html.includes('id="fresh-daily-slips"'),path+' must expose a fresh daily rollover control');
