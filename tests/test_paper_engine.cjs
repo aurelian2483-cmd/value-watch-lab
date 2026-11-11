@@ -141,8 +141,8 @@ assert.deepEqual(keptExplorer.slots[2].legs,savedExplorer.slots[2].legs,
 for(const path of ['index.html','paper-lab/index.html']){
   const content=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
   assert(content.includes('id="paper-eligibility-audit"'),path+' must expose eligibility disclosure');
-  assert(content.includes('engine.js?v=3.4.58'),path+' must load updated engine');
-  assert(content.includes('desk.js?v=3.4.59'),path+' must load updated disclosure');
+  assert(content.includes('engine.js?v=3.4.59'),path+' must load updated engine');
+  assert(content.includes('desk.js?v=3.4.60'),path+' must load updated disclosure');
   assert(content.includes('style.css?v=3.4.46'),path+' must load updated styling');
 }
 console.log('Four-sport eligibility, zero-forced-picks and preserved manual paper plans passed');
