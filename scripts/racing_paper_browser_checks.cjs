@@ -109,6 +109,16 @@ module.exports=async function checkRacingPaper(browser,base){
     community[0].verification='RSS_EXPLICIT_MENTION_REVIEW_REQUIRED';
     await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
     await page.waitForFunction(()=>document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceBlue==='false'&&document.querySelector('#events [data-choice-id="1"]')?.dataset.evidenceYellow==='false');
+
+    // Regression: the descriptive panel must reject the same review-only RSS
+    // mention that cannot generate a badge, while still exposing an audit trail.
+    const metrics=await page.locator('.community-evidence-summary').first().evaluate(panel=>{
+      const out={};for(const dt of panel.querySelectorAll('dt'))out[dt.textContent.trim()]=dt.nextElementSibling?.textContent.trim();return out;
+    });
+    assert.equal(metrics['Supporting groups (eligible)'],'Not available','Review-required RSS must not inflate the panel support count');
+    assert.equal(metrics['Excluded / awaiting review'],'1','Review-required RSS must be disclosed as excluded');
+    assert((await page.locator('.community-source-list').first().textContent()).includes('EXCLUDED from descriptive summary'));
+
     const unverified=(author,horse)=>{const entry={...post(author,horse),verification:'RSS_EXPLICIT_HEADLINE_UNVERIFIED'};delete entry.primary_capture;return entry;};
     community=[unverified('TestPublisherA','1'),unverified('TestPublisherB','2')];
     await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
