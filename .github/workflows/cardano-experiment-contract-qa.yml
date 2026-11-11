@@ -8,6 +8,7 @@ on:
       - 'tests/cardano_experiment_store.cjs'
       - 'tests/cardano_evaluation.cjs'
       - 'tests/cardano_multiclass_evaluation.cjs'
+      - 'tests/cardano_calibration.cjs'
       - '.github/workflows/cardano-experiment-contract-qa.yml'
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - 'tests/cardano_experiment_store.cjs'
       - 'tests/cardano_evaluation.cjs'
       - 'tests/cardano_multiclass_evaluation.cjs'
+      - 'tests/cardano_calibration.cjs'
       - '.github/workflows/cardano-experiment-contract-qa.yml'
   workflow_dispatch:
 jobs:
@@ -33,9 +35,11 @@ jobs:
           node --check cardano-lab/experiment-store.js
           node --check cardano-lab/evaluation.js
           node --check cardano-lab/multiclass-evaluation.js
+          node --check cardano-lab/calibration.js
       - name: Run ledger contract and negative tests
         run: |
           node tests/cardano_experiment_ledger.cjs
           node tests/cardano_experiment_store.cjs
           node tests/cardano_evaluation.cjs
           node tests/cardano_multiclass_evaluation.cjs
+          node tests/cardano_calibration.cjs
