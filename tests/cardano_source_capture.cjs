@@ -29,6 +29,10 @@ function fakeTransport(status,parts){
  assert.throws(()=>capture('https://example.org',{allowedHosts:hosts,timeoutMs:1}),/Invalid timeout/);
  const neverTransport={get(){throw Error('Transport must not start before DNS resolves')}};
  await assert.rejects(()=>C.capture('https://example.org',{allowedHosts:hosts,timeoutMs:1000,resolver:()=>new Promise(()=>{}),transport:neverTransport}),/DNS resolution timed out/);
+ let stalledDestroyed=false;
+ const stalledTransport={get(_url,_options,cb){const req=new EventEmitter();req.destroy=()=>{stalledDestroyed=true};process.nextTick(()=>{const res=new EventEmitter();res.statusCode=200;res.resume=()=>{};cb(res);res.emit('data',Buffer.from('partial'))});return req}};
+ await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,timeoutMs:1000,transport:stalledTransport}),/total deadline exceeded/);
+ assert.equal(stalledDestroyed,true);
  const timeoutTransport={get(_url,_options,_cb){const req=new EventEmitter();req.destroy=error=>req.emit('error',error||new Error('Request destroyed'));process.nextTick(()=>req.emit('timeout'));return req;}};
  await assert.rejects(()=>capture('https://example.org',{allowedHosts:hosts,timeoutMs:1000,transport:timeoutTransport}),/timed out/);
  console.log('PASS Cardano HTTPS capture transport tests (mocked; no live network)');
