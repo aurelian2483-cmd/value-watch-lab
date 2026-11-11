@@ -16,11 +16,16 @@ function capture(sourceUrl,options={}){
  const timeoutMs=options.timeoutMs===undefined?10000:options.timeoutMs;
  if(!Number.isInteger(timeoutMs)||timeoutMs<1000||timeoutMs>30000)throw Error('Invalid timeout');
  const transport=options.transport||https;
+ const deadline=Date.now()+timeoutMs;
  return resolvePinned(url.hostname,options.resolver,timeoutMs).then(pinned=>new Promise((resolve,reject)=>{
+  const remaining=deadline-Date.now();
+  if(remaining<=0)return reject(Error('Source capture total deadline exceeded'));
+  let watchdog;
   let settled=false,req;
-  const fail=e=>{if(settled)return;settled=true;reject(e instanceof Error?e:new Error(String(e)))};
+  const fail=e=>{if(settled)return;settled=true;clearTimeout(watchdog);reject(e instanceof Error?e:new Error(String(e)))};
+  watchdog=setTimeout(()=>{const error=Error('Source capture total deadline exceeded');fail(error);if(req)req.destroy(error)},remaining);
   try{
-   req=transport.get(url,{timeout:timeoutMs,lookup:pinned.lookup,agent:false,rejectUnauthorized:true,servername:url.hostname,headers:{'Accept':'application/json, text/plain;q=0.9, text/html;q=0.8','Accept-Encoding':'identity','User-Agent':'CardanoResearchCapture/1.0'}},res=>{
+   req=transport.get(url,{timeout:remaining,lookup:pinned.lookup,agent:false,rejectUnauthorized:true,servername:url.hostname,headers:{'Accept':'application/json, text/plain;q=0.9, text/html;q=0.8','Accept-Encoding':'identity','User-Agent':'CardanoResearchCapture/1.0'}},res=>{
     const status=res.statusCode;
     if(status!==200){res.resume();return fail(Error('HTTP status '+status+'; redirects are not followed'))}
     const chunks=[];let length=0;
@@ -29,7 +34,7 @@ function capture(sourceUrl,options={}){
     res.on('end',()=>{
      if(settled)return;
      if(!length)return fail(Error('Empty source response'));
-     settled=true;
+     settled=true;clearTimeout(watchdog);
      const bytes=Buffer.concat(chunks);
      resolve({bytes,receipt:{source_url:url.toString(),source_sha256:crypto.createHash('sha256').update(bytes).digest('hex'),captured_at_utc:new Date().toISOString(),byte_length:bytes.length,http_status:status,verification_level:'HTTPS_RESPONSE_CAPTURED',publisher_authenticated:false,outcome_verified:false,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED'}});
     });
