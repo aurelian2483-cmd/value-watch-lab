@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('node:assert/strict'),C=require('../cardano-lab/calibration.js');
+const row=(id,p,y)=>({id,probability:p,baseline_probability:.5,outcome:y,dataset_split:'HOLDOUT',issued_at_utc:'2026-01-01T12:00:00Z',event_at_utc:'2026-01-02T12:00:00Z',resolved_at_utc:'2026-01-03T12:00:00Z'});
+const c=C.evaluate([row('a',.7,1),row('b',.7,0)],{bins:10,minimum_per_bin:3});
+assert.equal(c.sample_size,2);assert.equal(c.bins[7].count,2);
+assert.ok(Math.abs(c.bins[7].observed_frequency-.5)<1e-12);
+assert.ok(Math.abs(c.expected_calibration_error-.2)<1e-12);
+assert.equal(c.insufficient_sample,true);
+assert.equal(c.publication_gate,'BLOCKED');
+const enough=C.evaluate([row('a',.2,0),row('b',.2,1)],{bins:2,minimum_per_bin:2});
+assert.equal(enough.insufficient_sample,false);
+assert.throws(()=>C.evaluate([]),/Nonempty/);
+assert.throws(()=>C.evaluate([row('a',.5,1)],{bins:1}),/bins/);
+assert.throws(()=>C.evaluate([row('a',.5,1)],{minimum_per_bin:0}),/minimum/);
+assert.throws(()=>C.evaluate([row('a',.5,1),row('a',.5,0)]),/duplicate/);
+assert.throws(()=>C.evaluate([row('a',.5,1),{...row('b',.5,0),dataset_split:'TRAIN'}]),/HOLDOUT/);
+console.log('PASS Cardano binary calibration diagnostics and negative cases');
