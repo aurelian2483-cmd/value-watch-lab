@@ -89,8 +89,8 @@
   async function createFreshDailySlips() {
     if (freshDailyBusy) return;
     freshDailyBusy = true;
-    const control = $('fresh-daily-slips');
-    if (control) control.disabled = true;
+    const controls = [$('fresh-daily-slips'),$('fresh-daily-slips-panel')].filter(Boolean);
+    for (const control of controls) control.disabled = true;
     try {
       if (persistence.locked) throw Error('Local research storage is locked. Export your research before trying again.');
       const before = store.get();
@@ -134,7 +134,7 @@
         '. Nothing is a verified betting recommendation.');
     } finally {
       freshDailyBusy = false;
-      if (control) control.disabled = false;
+      for (const control of controls) control.disabled = false;
     }
   }
   function exportJSON(value, name) {
@@ -785,13 +785,27 @@
     try { storage.setItem(X.preferenceKey, engineView); } catch { write($('engine-status'), $('engine-status').textContent + ' View preference could not be saved on this device.'); }
   })));
   let slipSignature = '';
+  function renderSlipHealth(state) {
+    const target = $('slip-refresh-health');
+    if (!target) return;
+    const audit = E.paperEligibilityAudit(state.plan,state.events);
+    const totals = audit.map(row => row.sport + ': ' + row.eligible).join(' · ');
+    const eligible = audit.reduce((n,row) => n + row.eligible,0);
+    const saved = state.plan.slots.reduce((n,slot) => n + slot.legs.length,0);
+    write(target, 'Plan ' + state.plan.from + ' – ' + state.plan.to + ' · ' +
+      saved + ' saved selections · ' + (state.events.length ?
+      eligible + ' eligible now (' + totals + ')' : 'No source events loaded yet. Check the refresh status.') +
+      (persistence.locked ? ' · Browser storage locked; export your work before retrying.' : '') +
+      '. Research only; no verified expected value.');
+  }
   function renderSlip() {
     const state = store.get(), slot = state.plan.slots[state.slot], evaluation = E.evaluateSlot(slot, state.events);
     renderEngine(evaluation);
+    renderSlipHealth(state);
     write($('slip-title'), slot.name); write($('slip-subtitle'), slot.description); write($('slip-count'), slot.legs.length + ' / 15'); write($('mobile-count'), state.plan.slots.reduce((sum, slot) => sum + slot.legs.length, 0));
     document.querySelectorAll('[data-slot]').forEach(element => { const active = Number(element.dataset.slot) === state.slot + 1; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
     if (document.activeElement !== $('stake')) $('stake').value = slot.stakeMinor ? (slot.stakeMinor / 100).toFixed(2) : ''; $('slip-structure').value = slot.structure;
-    const signature = JSON.stringify([state.slot, evaluation, state.replacing, state.claims, state.plan.from, state.plan.to], (key, value) => key === 'ageMs' ? undefined : value); if (slipSignature === signature) return; slipSignature = signature;
+    const signature = JSON.stringify([state.plan.id, state.plan.revision, state.slot, evaluation, state.replacing, state.claims, state.plan.from, state.plan.to], (key, value) => key === 'ageMs' ? undefined : value); if (slipSignature === signature) return; slipSignature = signature;
     const root = $('slip-content'); if (!legs.size) root.replaceChildren(); root.querySelectorAll('.slip-empty, .generation-note').forEach(element => element.remove());
     S.reconcile(root, evaluation.legs.map(leg => leg.id), legs, id => { const row = make(null, 'article', undefined, 'slip-selection'); row.dataset.legId = id; return { node: row, signature: '' }; }, (record, id) => { const position = evaluation.legs.findIndex(leg => leg.id === id); patchLeg(record, evaluation.legs[position], position, slot); });
     if (!slot.legs.length) empty(root, 'Your perspective starts here.', 'Choose an outcome or build a research shortlist. Empty slips are valid.').classList.add('slip-empty');
@@ -1032,7 +1046,8 @@
   let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
   $('refresh').addEventListener('click', () => safely(refresh));
   $('find-racing')?.addEventListener('click',()=>safely(()=>{racingCandidatesRequested=true;renderRacingCandidates();$('racing-candidates')?.scrollIntoView?.({block:'nearest'});}));
-  $('fresh-daily-slips')?.addEventListener('click', () => safely(createFreshDailySlips));
+  for (const id of ['fresh-daily-slips','fresh-daily-slips-panel'])
+    $(id)?.addEventListener('click', () => safely(createFreshDailySlips));
   $('generate').addEventListener('click', () => safely(() => { const state = store.get(); const scope = $('build-scope').value; const candidates = scope === 'all' ? state.events.filter(event => day(event.startUTC) >= state.plan.from && day(event.startUTC) <= state.plan.to) : filtered(state); savePlan(E.generateResearch(state.plan, candidates)); notice('Distinct research shortlists created where supported. Non-empty slips are retained. This is an evidence-coverage comparison, not verified value.'); }));
   $('slip-structure').addEventListener('change', event => safely(() => savePlan(E.setStructure(store.get().plan, store.get().slot + 1, event.target.value))));
   $('stake').addEventListener('input', event => { try { savePlan(E.setStake(store.get().plan, store.get().slot + 1, event.target.value || '0')); event.target.removeAttribute('aria-invalid'); } catch { event.target.setAttribute('aria-invalid', 'true'); } });
@@ -1052,7 +1067,7 @@
     make(card, 'p', 'Classification is not fact verification or an allegation of fraud. Verified ROI, win rate and trust score remain unavailable.', 'muted');
     button(card, 'Save private research note', () => { const state = store.get(); if (state.claims.length >= 100) throw Error('Private note limit reached. Export your research.'); saveEnvelope({ claims: [...state.claims, { reasoning, methodology: result.methodology, sources: result.sources, classification: result.classification, createdAt: new Date().toISOString(), ...context }] }); notice('Research note saved privately on this device.'); });
   }); });
-  store.subscribe(state => JSON.stringify([state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick, state.claims]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderTracker(); }));
+  store.subscribe(state => JSON.stringify([state.plan.id, state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick, state.claims]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderTracker(); }));
   store.subscribe(state => JSON.stringify([state.sport, state.plan.from, state.plan.to]), () => { if (store.get().view === 'history') safely(renderHistory); });
   store.subscribe(state => state.view, () => safely(renderView));
   store.subscribe(state => JSON.stringify([state.history, state.journal, state.claims]), () => { if (store.get().view === 'history') safely(renderHistory); });
