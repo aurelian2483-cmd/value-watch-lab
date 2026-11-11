@@ -232,6 +232,47 @@ def current_season_comparison(fixture,current):
          'unvalidated':True,'research_only':True,'publication_gate':'BLOCKED',
          'odds':None,'expected_value':None,'small_sample':min(h['hn'],a['an'])<10}
 
+def current_season_team_form(fixture, rows, receipts, now):
+ """Descriptive source-observed domestic league form, not independent fixture coverage certification.
+ 
+ Source CSV has dates (not exact kickoff times): exclude *all* matches on current
+ collection day and fixture day. Never use current/future fixture results.
+ """
+ if not rows or not receipts or fixture['league']=='UCL':return None
+ cutoff=min(now.date(),when(fixture['kickoff_utc']).date())
+ if any(r['league']!=fixture['league'] for r in rows):raise ValueError('Mixed leagues in seasonal form')
+ if any(dt.date.fromisoformat(r['date'])>=cutoff for r in rows):raise ValueError('Future or same-day row in form input')
+ if any(r.get('score_home') is None or r.get('score_away') is None for r in rows):raise ValueError('Unscored form result')
+ collected={}
+ for r in sorted(rows,key=lambda r:(r['date'],norm(r['home']),norm(r['away']))):
+  for side,other,venue,gf,ga in [
+   ('home','away','HOME',r['score_home'],r['score_away']),
+   ('away','home','AWAY',r['score_away'],r['score_home'])]:
+   team=norm(r[side])
+   if not team or team==norm(r[other]):raise ValueError('Invalid seasonal form identity')
+   result='W' if gf>ga else 'D' if gf==ga else 'L'
+   collected.setdefault(team,[]).append({'date':r['date'],'opponent':r[other],
+     'venue':venue,'result':result,'goals_for':gf,'goals_against':ga})
+ def snapshot(name):
+  matches=collected.get(norm(name))
+  if not matches:return None
+  recent=matches[-5:];points=lambda group:sum(3 if m['result']=='W' else 1 if m['result']=='D' else 0 for m in group)
+  return {'completed_league_matches':len(matches),'home_matches':sum(m['venue']=='HOME' for m in matches),
+   'away_matches':sum(m['venue']=='AWAY' for m in matches),'last_five':recent,
+   'last_five_points':points(recent),'last_five_count':len(recent),
+   'first_five_points':points(matches[:5]) if len(matches)>=10 else None,
+   'first_five_count':5 if len(matches)>=10 else None}
+ home=snapshot(fixture['home']);away=snapshot(fixture['away'])
+ if not home or not away:return None
+ return {'method':'SOURCE_OBSERVED_CURRENT_SEASON_FORM_V1','season':season_code(when(fixture['kickoff_utc'])),
+  'home':home,'away':away,'cutoff_date_exclusive':cutoff.isoformat(),
+  'source_receipts':receipts,'source_rows_sha256':digest(rows),
+  'completeness':'SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED',
+  'opponent_strength_adjusted':False,'manager_change_evidence':None,'transfer_impact_evidence':None,
+  'manager_pre_post_comparison':None,'squad_pre_post_comparison':None,
+  'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
+  'odds':None,'expected_value':None}
+
 def train_data(rows,receipts):
  teams,ah,aa=stats(rows)
  return {'teams':teams,'avg_home_goals':ah,'avg_away_goals':aa,'matches':len(rows),'training_sha256':digest(rows),'source_receipts':receipts}
@@ -445,6 +486,7 @@ def main():
     raw,receipt=fetcher.get('https://www.skysports.com/'+cfg['sky']+'-scores-fixtures/'+month+'-01');source_rows.extend(sky_rows(raw,code,month,'pre'));secondary_receipts.append(receipt)
    except Exception as exc:audit['source_errors'].append({'source':'Sky','month':month,'error':str(exc)})
   prior=current=None
+  current_rows=[];current_receipts=[]
   h2h_rows=[]
   try:
    if code=='UCL':prior=ucl_training(fetcher,now)
@@ -467,7 +509,7 @@ def main():
     except Exception as exc:
      audit['training_errors'].append({'source':'h2h_context_'+str(years_back),'error':str(exc)})
    try:
-    season=season_code(now);raw,receipt=fetcher.get('https://www.football-data.co.uk/mmz4281/'+season+'/'+code+'.csv');current_rows=csv_rows(raw,code,now,season);current=train_data(current_rows,[receipt]);h2h_rows.extend(current_rows)
+    season=season_code(now);raw,receipt=fetcher.get('https://www.football-data.co.uk/mmz4281/'+season+'/'+code+'.csv');current_rows=csv_rows(raw,code,now,season);current_receipts=[receipt];h2h_rows.extend(current_rows);current=train_data(current_rows,current_receipts)
    except Exception as exc:audit['training_errors'].append({'source':'current','error':str(exc)})
   for f in rows:
    checked=corroborate(f,source_rows)
@@ -476,6 +518,7 @@ def main():
    model=None
    if checked and audit['days_succeeded']==22 and prior is not None:model=model_forecast(item,prior,current)
    item['current_season_comparison']=current_season_comparison(item,current) if checked else None
+   item['current_season_form']=current_season_team_form(item,current_rows,current_receipts,now) if checked and current_rows and current_receipts else None
    item['forecast_status']='EXPERIMENTAL_MODEL_FORECAST' if model else 'SCHEDULE_UNVERIFIED' if not checked else 'MODEL_INPUTS_UNAVAILABLE'
    # Descriptive only: available seasons may contain too few direct meetings.
    # Do not feed this evidence into the published probability model.
