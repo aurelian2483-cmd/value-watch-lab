@@ -26,7 +26,7 @@ const C=require('../cardano-lab/source-capture.js');
    assert.equal(opts.servername,'example.org');
    assert.equal(opts.rejectUnauthorized,true);
    opts.lookup('example.org',{},(err,address,family)=>{assert.ifError(err);assert.equal(address,'8.8.8.8');assert.equal(family,4)});
-   return https.get({hostname:url.hostname,port,path:url.pathname,servername:opts.servername,lookup:(_host,_opts,done)=>done(null,'127.0.0.1',4),agent:false,rejectUnauthorized:opts.rejectUnauthorized,ca,timeout:opts.timeout},cb);
+   return https.get({hostname:url.hostname,port,path:url.pathname,servername:opts.servername,lookup:(_host,lookupOpts,done)=>lookupOpts&&lookupOpts.all?done(null,[{address:'127.0.0.1',family:4}]):done(null,'127.0.0.1',4),agent:false,rejectUnauthorized:opts.rejectUnauthorized,ca,timeout:opts.timeout},cb);
   }});
   const capture=(transport)=>C.capture('https://example.org/result',{allowedHosts:['example.org'],resolver,transport});
   const trusted=adapter(fs.readFileSync(cert));
