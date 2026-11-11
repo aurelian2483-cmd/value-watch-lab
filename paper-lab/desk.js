@@ -879,18 +879,8 @@
   function matchCommunity(event) {
     if (event.sport !== 'racing' || !event.providerEventId) return [];
     return communityEntries.filter(entry => {
-      if (!entry || typeof entry !== 'object') return false;
-      if (String(entry.race_id) !== String(event.providerEventId) || entry.stance !== 'support' || entry.verification === 'RSS_EXPLICIT_MENTION_REVIEW_REQUIRED' || !['forum','social_forum','blog','tipster'].includes(entry.group)) return false;
-      if (Date.parse(entry.startUTC) !== Date.parse(event.startUTC)) return false;
-      const published = entry.published_at_utc ? Date.parse(entry.published_at_utc) : NaN, observed = Date.parse(entry.observed_at_utc);
-      const start = Date.parse(event.startUTC);
-      const availability=window.ValueWatchEvidenceV3.selectionAvailability(entry,event);
-      if(entry.extraction_method==='RANKED_RACECARD_VERDICT_V1'&&!availability.preRaceAvailabilityVerified)return false;
-      const dated = /^\d{4}-\d{2}-\d{2}$/.test(entry.publication_date || '') && entry.publication_date <= event.startUTC.slice(0,10);
-      if (!Number.isFinite(observed) || observed >= start || (Number.isFinite(published) ? published > start || observed < published : !dated && !availability.preRaceAvailabilityVerified)) return false;
-      if (!['PRIMARY_POST_CAPTURED','PUBLIC_SELECTION_OBSERVED','POST_OBSERVED_OPINION_UNVERIFIED','PUBLICATION_OBSERVED_OPINION_UNVERIFIED','RSS_EXPLICIT_HEADLINE_UNVERIFIED'].includes(entry.verification)) return false;
-      if (!PaperLab.url(entry.url)) return false;
-      return event.choices.some(choice => choice.label.trim().toLowerCase() === String(entry.horse || '').trim().toLowerCase());
+      if(entry.stance !== 'support')return false;
+      return window.CommunityEvidence.eligible(entry,event);
     }).map(entry => ({
       choiceId:event.choices.find(choice => choice.label.trim().toLowerCase() === String(entry.horse).trim().toLowerCase()).id,
       type:entry.group, sourceUrl:entry.url, observedAt:entry.observed_at_utc,
