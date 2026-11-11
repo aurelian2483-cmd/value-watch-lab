@@ -75,11 +75,11 @@
         raw.manager_change_evidence !== null || raw.transfer_impact_evidence !== null ||
         raw.manager_pre_post_comparison !== null || raw.squad_pre_post_comparison !== null ||
         !/^[a-f0-9]{64}$/.test(raw.source_rows_sha256 || '') ||
-        !/^\\d{4}-\\d{2}-\\d{2}$/.test(raw.cutoff_date_exclusive || '') ||
+        !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(raw.cutoff_date_exclusive || '') ||
         raw.cutoff_date_exclusive > Core.day(fixture.kickoff_utc) ||
         raw.cutoff_date_exclusive > Core.day(generatedAt) ||
         !Array.isArray(raw.source_receipts) || !raw.source_receipts.length ||
-        raw.source_receipts.some(receipt => !/^https:\\/\\//.test(receipt.url || '') ||
+        raw.source_receipts.some(receipt => !String(receipt.url || '').startsWith('https://') ||
           !/^[a-f0-9]{64}$/.test(receipt.sha256 || '') ||
           !Number.isFinite(instant(receipt.observed_at_utc)) ||
           instant(receipt.observed_at_utc) > instant(generatedAt))) return null;
@@ -100,7 +100,7 @@
       let previous = '';
       let points = 0;
       for (const game of side.last_five) {
-        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(game?.date || '') ||
+        if (!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(game?.date || '') ||
             game.date >= raw.cutoff_date_exclusive || game.date < previous ||
             typeof game.opponent !== 'string' || !game.opponent.trim() ||
             !['HOME','AWAY'].includes(game.venue) ||
