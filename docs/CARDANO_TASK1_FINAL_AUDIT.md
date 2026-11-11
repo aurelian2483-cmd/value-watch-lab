@@ -29,3 +29,12 @@ Status: CONDITIONAL / NOT SIGNED OFF.
 ## Boundaries
 This document does not claim production readiness, real-world predictive accuracy, positive EV, autonomous agents, or external data validation.
 No merge, deployment, new cost, or safety-gate relaxation is authorised.
+
+## Follow-up implementation (2026-11-11)
+
+- Added `cardano-lab/fixture-evaluation.js`: deterministic binary and multiclass scoring exclusively for explicitly marked synthetic fixtures, with exact dataset SHA-256 checks and deterministic result SHA-256. This does not authenticate real outcomes or enable betting.
+- Added `tests/cardano_fixture_evaluation.cjs`: reproducibility, invalid hashes, unmarked fixtures, and blocked publication checks.
+- Added `tests/cardano_storage_failure.cjs`: simulated quota/write failures and changed-between-read-and-write rejection.
+- Wired both test files into Cardano GitHub Actions. **CI result for these new commits is not yet independently verified.**
+- **Still required for full sign-off:** real-browser storage/export/restore and cross-tab race tests, plus review of CI results. LocalStorage remains nontransactional across keys; no claim of atomic multi-record persistence or durable cloud storage.
+- Fixture-only scores are kept separate from diagnostic memory's `evaluation_performed:false` real-world readiness report by design; no implicit promotion from synthetic test to actual outcome validation.
