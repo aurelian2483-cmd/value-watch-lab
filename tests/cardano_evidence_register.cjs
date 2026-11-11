@@ -18,4 +18,8 @@ const rejected=R.register({id:'x'},[capture],[staleAudit]);
 assert.equal(rejected.rejected_count,1);
 assert.equal(rejected.evidence[0].integrity_status,'REJECTED');
 assert.throws(()=>R.register({id:'x'},[capture],[{...audit,computed_sha256:'a'.repeat(64)}]),/Audit hash/);
+const forgedBytes={...capture,bytes:Buffer.from('different bytes')};
+assert.throws(()=>R.register({id:'x'},[forgedBytes],[audit]),/Captured bytes/);
+const forgedLength={...capture,receipt:{...capture.receipt,byte_length:bytes.length+1}};
+assert.throws(()=>R.register({id:'x'},[forgedLength],[audit]),/byte length/);
 console.log('PASS Cardano evidence register provenance and negative cases');
