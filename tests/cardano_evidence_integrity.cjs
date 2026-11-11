@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('node:assert/strict'),crypto=require('node:crypto'),V=require('../cardano-lab/evidence-integrity.js');
+const bytes=Buffer.from('Example source content for test only','utf8');
+const hash=crypto.createHash('sha256').update(bytes).digest('hex');
+const receipt={source_url:'https://example.org/results',source_sha256:hash};
+const ok=V.verify(receipt,bytes);
+assert.equal(ok.hash_matches,true);
+assert.equal(ok.publisher_authenticated,false);
+assert.equal(ok.source_fetched,false);
+assert.equal(ok.publication_gate,'BLOCKED');
+assert.equal(V.verify({...receipt,source_sha256:'a'.repeat(64)},bytes).hash_matches,false);
+assert.throws(()=>V.verify({...receipt,source_url:'http://example.org'},bytes),/receipt/);
+assert.throws(()=>V.verify({...receipt,source_sha256:'bad'},bytes),/receipt/);
+assert.throws(()=>V.verify(receipt,'not bytes'),/raw bytes/);
+assert.throws(()=>V.verify(receipt,Buffer.alloc(0)),/size/);
+assert.throws(()=>V.verify(receipt,Buffer.alloc(10*1024*1024+1)),/size/);
+console.log('PASS Cardano byte-level evidence integrity and negative cases');
