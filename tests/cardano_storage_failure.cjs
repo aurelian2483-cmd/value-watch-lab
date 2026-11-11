@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict');
+const L=require('../cardano-lab/experiment-store.js');
+const D=require('../cardano-lab/diagnostic-store.js');
+const exp={schema_version:1,id:'write-fail',hypothesis:'Atomic failure test',sport:'nfl',lane:'applied',status:'PROPOSED',created_at_utc:'2026-11-11T12:00:00Z',updated_at_utc:'2026-11-11T12:00:00Z',dataset_sha256:'a'.repeat(64),method_version:'fixture',seed:0,sources:[{url:'https://example.org/fixture',observed_at_utc:'2026-11-11T12:00:00Z'}],research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED'};
+const map=new Map(),store={getItem:k=>map.has(k)?map.get(k):null,setItem:()=>{throw Error('QuotaExceededError')}};
+assert.throws(()=>L.store(store).append(exp),/QuotaExceededError/);
+assert.equal(map.size,0,'failed write must not create archive');
+const changing={getItem:k=>{const n=(changing.calls=(changing.calls||0)+1);return n===1?null:'changed'},setItem:()=>{throw Error('must not write')}};
+assert.throws(()=>L.store(changing).append(exp),/changed during append/);
+const diag={experiment_id:exp.id,sport:exp.sport,lane:exp.lane,experiment_status:exp.status,research_only:true,publication_gate:'BLOCKED',model_validation:'UNVALIDATED',eligible_for_real_world_scoring:false,evaluation_performed:false,evidence:{experiment_id:exp.id,evidence:[],research_only:true,eligible_for_real_world_scoring:false},readiness:{eligible_for_real_world_scoring:false},issues:['NO_EVIDENCE']};
+const archive={load:()=>[exp]};
+assert.throws(()=>D.store(store).append(diag,archive),/QuotaExceededError/);
+assert.equal(map.size,0);
+console.log('PASS simulated write failure and stale-read rejection; real-browser and cross-tab concurrency unverified');
