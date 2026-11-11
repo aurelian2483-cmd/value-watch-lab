@@ -46,6 +46,47 @@ class ExpandedTests(unittest.TestCase):
   self.assertIsNone(m.current_season_comparison(self.f,None))
   current['teams'][m.norm(self.f['home'])]['hn']=2
   self.assertIsNone(m.current_season_comparison(self.f,current))
+ def test_source_observed_total_matches_and_last_five_are_not_predictions(self):
+  now=dt.datetime(2026,11,11,12,tzinfo=dt.timezone.utc)
+  fixture={**self.f,'kickoff_utc':'2026-11-20T20:00:00Z'}
+  rows=[]
+  for i in range(9):
+   rows.append({'league':'E1','date':f'2026-10-{i+1:02d}','home':'Coventry City' if i%2==0 else 'Hull City',
+     'away':'Hull City' if i%2==0 else 'Coventry City','score_home':2 if i%2==0 else 1,'score_away':1 if i%2==0 else 0})
+  receipts=[{'url':'https://www.football-data.co.uk/mmz4281/2627/E1.csv','sha256':'a'*64,'observed_at_utc':'2026-11-11T10:00:00Z'}]
+  original=copy.deepcopy(rows)
+  audit=m.current_season_team_form(fixture,rows,receipts,now)
+  self.assertEqual(audit['home']['completed_league_matches'],9)
+  self.assertEqual(audit['away']['completed_league_matches'],9)
+  self.assertEqual(audit['home']['home_matches']+audit['home']['away_matches'],9)
+  self.assertEqual(audit['home']['last_five_count'],5)
+  self.assertIsNone(audit['home']['first_five_points'])
+  self.assertEqual(audit['home']['last_five'][-1]['date'],'2026-10-09')
+  self.assertIsNone(audit['manager_change_evidence'])
+  self.assertIsNone(audit['transfer_impact_evidence'])
+  self.assertFalse(audit['opponent_strength_adjusted'])
+  self.assertIsNone(audit['expected_value'])
+  self.assertEqual(audit['publication_gate'],'BLOCKED')
+  self.assertEqual(rows,original)
+  rows += [{'league':'E1','date':'2026-11-11','home':'Coventry City','away':'Hull City','score_home':0,'score_away':1}]
+  with self.assertRaisesRegex(ValueError,'Future or same-day'):
+   m.current_season_team_form(fixture,rows,receipts,now)
+  rows.pop()
+  rows.append({'league':'E1','date':'2026-11-19','home':'Coventry City','away':'Hull City','score_home':1,'score_away':0})
+  with self.assertRaisesRegex(ValueError,'Future or same-day'):
+   m.current_season_team_form({**fixture,'kickoff_utc':'2026-11-19T20:00:00Z'},rows,receipts,now)
+  self.assertIsNone(m.current_season_team_form(fixture,rows,[],now))
+ def test_first_five_only_when_ten_real_completed_matches(self):
+  now=dt.datetime(2026,11,11,12,tzinfo=dt.timezone.utc)
+  rows=[{'league':'E1','date':f'2026-10-{i+1:02d}','home':'Coventry City','away':'Hull City',
+    'score_home':1 if i<5 else 0,'score_away':0 if i<5 else 2} for i in range(10)]
+  audit=m.current_season_team_form({**self.f,'kickoff_utc':'2026-11-20T20:00:00Z'},rows,[{'url':'https://example.org/league.csv'}],now)
+  self.assertEqual(audit['home']['first_five_points'],15)
+  self.assertEqual(audit['home']['last_five_points'],0)
+  self.assertEqual(audit['home']['completed_league_matches'],10)
+  self.assertEqual(audit['home']['last_five_count'],5)
+  self.assertEqual(audit['home']['first_five_count'],5)
+  self.assertEqual(audit['completeness'],'SOURCE_OBSERVED_NOT_INDEPENDENTLY_VERIFIED')
  def test_archive_repeat_tampering_and_time_buffer(self):
   f=m.model_forecast(self.f,self.training);path=self.root/'archive';r,a,n=m.archive_forecasts([f],self.now,path);self.assertEqual(n,1)
   r,a,n=m.archive_forecasts([f],self.now,path);self.assertEqual(n,0)
