@@ -226,3 +226,28 @@ assert.equal(normalizedForm().seasonForm,null,'Claims of manager changes require
 rawForm.manager_change_evidence=null;
 assert.equal(normalizedForm().seasonForm.home.completed_league_matches,6);
 console.log('Source-observed total season form and safe fallback passed');
+
+
+// Fresh daily research must use a distinct plan without mutating old captured legs.
+const previousDaily=E.addSelection(E.createPlan({from:'2026-11-08',to:'2026-11-09',createdAt:'2026-11-08T08:00:00Z'}),1,event(401,'tennis'),'a',now);
+const previousOriginal=JSON.stringify(previousDaily);
+const newDaily=E.freshDailyResearch(previousDaily,[event(403,'tennis'),event(404,'nfl')],'2026-11-08','2026-11-14',now);
+assert.notEqual(newDaily.id,previousDaily.id);
+assert.equal(newDaily.from,'2026-11-08');
+assert.equal(newDaily.to,'2026-11-14');
+assert(newDaily.slots.some(slot=>slot.legs.some(leg=>leg.eventId==='event-403')));
+assert.equal(JSON.stringify(previousDaily),previousOriginal,'Daily refresh cannot rewrite older saved paper selections');
+assert(newDaily.slots.every(slot=>slot.legs.every(leg=>leg.research_only===true&&leg.publication_gate==='BLOCKED')));
+assert.deepEqual(E.freshDailyResearch(previousDaily,[],'2026-11-08','2026-11-14',now).slots.map(slot=>slot.legs.length),[0,0,0,0]);
+assert.throws(()=>E.freshDailyResearch(previousDaily,[],'2026-11-14','2026-11-08',now));
+assert.throws(()=>E.freshDailyResearch(previousDaily,[],'2026-11-08','2026-11-14',Date.parse(previousDaily.createdAt)),/distinct identity/);
+for(const path of ['index.html','paper-lab/index.html']){
+ const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
+ assert(html.includes('id="fresh-daily-slips"'),path+' must expose a fresh daily rollover control');
+ assert(html.includes('engine.js?v=3.4.61'),path+' must load fresh generator');
+ assert(html.includes('desk.js?v=3.4.62'),path+' must load safe refresh controller');
+}
+const dailyUI=fs.readFileSync(require('node:path').join(__dirname,'..','paper-lab','desk.js'),'utf8');
+assert(dailyUI.includes('saveEnvelope({plan:next,history,replacing:null})'),'Archive and new plan must be persisted together');
+assert(dailyUI.includes('if (!persistence.write(next)) throw Error'),'Persistence must fail closed');
+console.log('Fresh daily paper plan immutability, distinct identity and entrypoint controls passed');
