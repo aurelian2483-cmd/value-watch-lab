@@ -356,7 +356,7 @@
       view.previous = priced ? choice.quote.decimal : null;
     }
     const comparison = event.sport === 'football' ? event.seasonComparison : null;
-    const signature = JSON.stringify([event.sport,event.international,event.internationalAnalysis,comparison,event.choices.map(choice=>choice.label)]);
+    const signature = JSON.stringify([event.sport,event.international,event.internationalAnalysis,comparison,event.seasonForm,event.choices.map(choice=>choice.label)]);
     if (record.seasonPanel.dataset.signature !== signature) {
       record.seasonPanel.dataset.signature = signature;
       record.seasonPanel.replaceChildren();
@@ -383,6 +383,14 @@
           const audit=details(record.seasonPanel,'Current-season sample maturity · football only','football-maturity-details');
           make(audit,'p','5–7 matches is a research checkpoint, not an automatic improvement or betting advantage.', 'small');
           for(const note of maturity.notes) make(audit,'p',note,'small');
+          if (maturity.status === 'SOURCE_OBSERVED' && Array.isArray(maturity.sourceReceipts)) {
+            const sourcePanel=details(audit,'Current-season form source receipts','football-form-sources');
+            for(const receipt of maturity.sourceReceipts) {
+              const row=make(sourcePanel,'p',undefined,'small');
+              link(row,'Completed league results source',receipt.url);
+              make(row,'span',' · observed '+dateText(receipt.observed_at_utc),'small');
+            }
+          }
         }
         if (comparison) {
           const summary = make(record.seasonPanel,'div',undefined,'season-probabilities');
