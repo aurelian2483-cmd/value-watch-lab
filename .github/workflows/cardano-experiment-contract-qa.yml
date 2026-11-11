@@ -1,0 +1,27 @@
+name: Cardano experiment contract QA
+on:
+  push:
+    branches: [feature/cardano-race-video-prototype]
+    paths:
+      - 'cardano-lab/**'
+      - 'tests/cardano_experiment_ledger.cjs'
+      - '.github/workflows/cardano-experiment-contract-qa.yml'
+  pull_request:
+    paths:
+      - 'cardano-lab/**'
+      - 'tests/cardano_experiment_ledger.cjs'
+      - '.github/workflows/cardano-experiment-contract-qa.yml'
+  workflow_dispatch:
+jobs:
+  ledger-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript syntax
+        run: node --check cardano-lab/experiment-ledger.js
+      - name: Run ledger contract and negative tests
+        run: node tests/cardano_experiment_ledger.cjs
