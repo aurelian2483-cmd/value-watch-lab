@@ -81,6 +81,12 @@ function report(from, to, now = Date.now()) {
       exclusionReasons:row.reasons
     };
   });
+  const selectedSports=new Set(generated.slots.flatMap(slot=>slot.legs.map(leg=>leg.sport)));
+  for(const row of sportCoverage){
+    row.selectedInAnySlip=selectedSports.has(row.sport);
+    row.selectionDiagnostic=row.eligible===0?'NO_ELIGIBLE_CANDIDATES':
+      row.selectedInAnySlip?'REPRESENTED_IN_SLIPS':'ELIGIBLE_BUT_NOT_SELECTED';
+  }
   const shortlist={coverage:sportCoverage,sports:eligibility,slips:generated.slots.map(slot=>({
     approach:slot.id,status:slot.generation?.status||'NO_GENERATION_STATUS',
     selections:slot.legs.length,
