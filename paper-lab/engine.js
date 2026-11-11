@@ -466,8 +466,13 @@
       if (current.legs.length) continue;
       let rows = candidates;
       if (approach.id === 'explorer') {
-        const groups = new Map(); for (const row of candidates) { if (!groups.has(row.event.sport)) groups.set(row.event.sport, []); groups.get(row.event.sport).push(row); }
-        rows = []; let layer = 0; while ([...groups.values()].some(group => group.length > layer)) { for (const group of groups.values()) if (group[layer]) rows.push(group[layer]); layer++; }
+        const groups = new Map(['football','racing','tennis','nfl'].map(sport => [sport, []]));
+        for (const row of candidates) groups.get(row.event.sport)?.push(row);
+        rows = []; let layer = 0;
+        while ([...groups.values()].some(group => group.length > layer)) {
+          for (const group of groups.values()) if (group[layer]) rows.push(group[layer]);
+          layer++;
+        }
       }
       const cap = { 'best-evidence': 3, balanced: 2, explorer: 4, longshot: 15 }[approach.id];
       rows = rows.slice(0, cap);
