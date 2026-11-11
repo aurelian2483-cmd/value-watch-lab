@@ -39,8 +39,11 @@ function capture(sourceUrl,options={}){
     const chunks=[];let length=0;
     res.on('data',chunk=>{length+=chunk.length;if(length>MAX_BYTES){req.destroy();fail(Error('Evidence response exceeds size limit'))}else chunks.push(chunk)});
     res.on('error',fail);
+    res.on('aborted',()=>fail(Error('Source response aborted before completion')));
+    res.on('close',()=>{if(!res.complete&&!settled)fail(Error('Source response closed before completion'))});
     res.on('end',()=>{
      if(settled)return;
+     if(res.complete===false)return fail(Error('Source response incomplete'));
      if(!length)return fail(Error('Empty source response'));
      if(declared!==undefined&&length!==Number(declared))return fail(Error('Declared content length mismatch'));
      settled=true;clearTimeout(watchdog);
