@@ -8,6 +8,8 @@ const vm=require('node:vm');
 const root = path.resolve(__dirname, '..');
 const evidenceContext={window:{},URL,Date};vm.runInNewContext(fs.readFileSync(path.join(root,'paper-lab/evidence-v3.js'),'utf8'),evidenceContext);
 const evidence=evidenceContext.window.ValueWatchEvidenceV3;
+vm.runInNewContext(fs.readFileSync(path.join(root,'paper-lab/community-evidence.js'),'utf8'),evidenceContext);
+const community=evidenceContext.window.CommunityEvidence;
 const specs = [['football','research-dashboard-data.json'], ['football','football-expanded-data.json'],
   ['football','international-football-data.json'], ['racing','racing-research-data.json'],
   ['racing-future','racing-future-data.json'], ['other','other-sports-data.json']];
@@ -16,13 +18,19 @@ function report(from, to, now = Date.now()) {
   const snapshots = specs.filter(([,p]) => fs.existsSync(path.join(root,p))).map(([kind,p]) => ({kind,path:p,data:JSON.parse(fs.readFileSync(path.join(root,p),'utf8'))}));
   const events = E.normalizeFeeds(snapshots.map(s=>({...s,document:s.data})), now);
   const archive=JSON.parse(fs.readFileSync(path.join(root,'racing-research/source-observations.json'),'utf8'));
-  for(const event of events.filter(e=>e.sport==='racing'))event.communityTips=(archive.entries||[]).filter(entry=>
-    String(entry.race_id)===String(event.providerEventId)&&Date.parse(entry.startUTC)===Date.parse(event.startUTC)&&entry.stance==='support'&&
-    ['forum','social_forum','blog','tipster'].includes(entry.group)&&['PRIMARY_POST_CAPTURED','PUBLIC_SELECTION_OBSERVED','POST_OBSERVED_OPINION_UNVERIFIED','PUBLICATION_OBSERVED_OPINION_UNVERIFIED','RSS_EXPLICIT_HEADLINE_UNVERIFIED'].includes(entry.verification)&&
-    event.choices.some(c=>c.label.trim().toLowerCase()===String(entry.horse).trim().toLowerCase())
-  ).map(entry=>({choiceId:event.choices.find(c=>c.label.trim().toLowerCase()===String(entry.horse).trim().toLowerCase()).id,
-    type:entry.group,sourceUrl:entry.url,observedAt:entry.observed_at_utc,publishedAt:entry.published_at_utc||entry.publication_date,
-    author:entry.author,publisher:entry.publisher,sourceIdentity:entry.source_identity,sourceSelectionObserved:entry.extraction_method==='RANKED_RACECARD_VERDICT_V1'?false:entry.verification!=='PRIMARY_POST_CAPTURED',...evidence.selectionAvailability(entry,event,now),...evidence.communityEvidence(entry,event,now)}));
+  // Mirror the browser's single community eligibility boundary, not a looser
+  // approximation that can overcount racing candidates in CI diagnostics.
+  for(const event of events.filter(e=>e.sport==='racing'))event.communityTips=(archive.entries||[])
+    .filter(entry=>community.eligible(entry,event)&&entry.stance==='support')
+    .map(entry=>({
+      choiceId:event.choices.find(c=>c.label.trim().toLowerCase()===String(entry.horse).trim().toLowerCase()).id,
+      type:entry.group,sourceUrl:entry.url,observedAt:entry.observed_at_utc,
+      sourceSelectionObserved:entry.extraction_method==='RANKED_RACECARD_VERDICT_V1'?false:entry.verification!=='PRIMARY_POST_CAPTURED',
+      ...evidence.selectionAvailability(entry,event,now),
+      publisher:entry.publisher,sourceIdentity:entry.source_identity,author:entry.author,
+      publishedAt:entry.published_at_utc||entry.publication_date,
+      ...evidence.communityEvidence(entry,event,now)
+    }));
   const saved = snapshots.flatMap(s => s.kind === 'other' ? Object.entries(s.data.sports).flatMap(([sport,p]) => p.events.map(e=>({sport,start:e.startUTC}))) : s.kind === 'football' ? s.data.upcoming_fixtures.map(e=>({sport:'football',start:e.kickoff_utc})) : s.data.races.map(e=>({sport:'racing',start:e.startUTC})));
   const future = snapshots.find(s=>s.kind==='racing-future')?.data;
   const other = snapshots.find(s=>s.kind==='other')?.data;
