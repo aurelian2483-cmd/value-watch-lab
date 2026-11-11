@@ -28,12 +28,21 @@ function capture(sourceUrl,options={}){
    req=transport.get(url,{timeout:remaining,lookup:pinned.lookup,agent:false,rejectUnauthorized:true,servername:url.hostname,headers:{'Accept':'application/json, text/plain;q=0.9, text/html;q=0.8','Accept-Encoding':'identity','User-Agent':'CardanoResearchCapture/1.0'}},res=>{
     const status=res.statusCode;
     if(status!==200){res.resume();return fail(Error('HTTP status '+status+'; redirects are not followed'))}
+    const headers=res.headers||{};
+    const encoding=headers['content-encoding'];
+    if(encoding!==undefined&&encoding!=='identity'){req.destroy();return fail(Error('Unsupported content encoding'))}
+    const declared=headers['content-length'];
+    if(declared!==undefined){
+     if(typeof declared!=='string'||!/^(0|[1-9][0-9]*)$/.test(declared)||!Number.isSafeInteger(Number(declared))){req.destroy();return fail(Error('Invalid declared content length'))}
+     if(Number(declared)>MAX_BYTES){req.destroy();return fail(Error('Declared content length exceeds size limit'))}
+    }
     const chunks=[];let length=0;
     res.on('data',chunk=>{length+=chunk.length;if(length>MAX_BYTES){req.destroy();fail(Error('Evidence response exceeds size limit'))}else chunks.push(chunk)});
     res.on('error',fail);
     res.on('end',()=>{
      if(settled)return;
      if(!length)return fail(Error('Empty source response'));
+     if(declared!==undefined&&length!==Number(declared))return fail(Error('Declared content length mismatch'));
      settled=true;clearTimeout(watchdog);
      const bytes=Buffer.concat(chunks);
      resolve({bytes,receipt:{source_url:url.toString(),source_sha256:crypto.createHash('sha256').update(bytes).digest('hex'),captured_at_utc:new Date().toISOString(),byte_length:bytes.length,http_status:status,verification_level:'HTTPS_RESPONSE_CAPTURED',publisher_authenticated:false,outcome_verified:false,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED'}});
