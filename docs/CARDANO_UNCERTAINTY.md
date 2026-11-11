@@ -1,0 +1,5 @@
+# Cardano uncertainty prototype v1
+
+`cardano-lab/uncertainty.js` computes a deterministic, seeded **paired IID percentile bootstrap** interval for the difference in mean Brier score between a candidate and its baseline on the same supplied binary holdout records. Negative delta means lower candidate error. The same sampled indices are applied to both forecasts, preserving pairing. Configurable iterations (200–20,000), seed and nominal confidence (80–99%). Run `node tests/cardano_uncertainty.cjs`.
+
+**Scientific warning:** IID resampling assumes observations are independent and identically distributed. Fixtures within a league/week, repeated teams/players, correlated selections, temporal drift, cherry-picked experiments, and repeated hypothesis testing can invalidate these intervals. The tool does not verify genuine holdout provenance, calibrate models, test profitability or correct for multiple comparisons. An interval excluding zero is not approval to bet. Outputs remain UNVALIDATED, BLOCKED, research-only. Future: temporal/block resampling, walk-forward evaluation, multiple-testing adjustment, and externally verifiable source provenance.
