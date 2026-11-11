@@ -4,6 +4,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const E = require('../paper-lab/engine.js');
+const {validateSnapshot}=require('../paper-lab/transport.js');
 const vm=require('node:vm');
 const root = path.resolve(__dirname, '..');
 const evidenceContext={window:{},URL,Date};vm.runInNewContext(fs.readFileSync(path.join(root,'paper-lab/evidence-v3.js'),'utf8'),evidenceContext);
@@ -26,7 +27,7 @@ function report(from, to, now = Date.now(), dataRoot = root) {
     }
     try{
       const data=JSON.parse(fs.readFileSync(filename,'utf8'));
-      if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Expected JSON object');
+      validateSnapshot(data,now);
       snapshots.push({kind,path:p,data});
     }catch(error){
       sourceReadErrors.push({path:p,reason:'SOURCE_FILE_UNREADABLE',detail:String(error.message).slice(0,160)});
