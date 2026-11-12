@@ -84,7 +84,7 @@ function renderSports(sports,feeds){
 }
 function planActions(messages){
  const rules=[
-  [/unavailable|timeout|HTTP [45]|failed/i,'P1','IT & QA Manager','Investigate collector output, source access and publication; rerun the read-only check.'],
+  [/unavailable|timeout|HTTP [45]|fail|error|not found/i,'P1','IT & QA Manager','Investigate collector output, source access and publication; rerun the read-only check.'],
   [/gate|safeguard/i,'P1','Operations Director + IT & QA','Check research-only / UNVALIDATED / BLOCKED gates; never permit automatic betting approval.'],
   [/racing.*coverage|external meeting coverage/i,'P2','Horse Racing Manager','Reconcile meeting discovery and exclusions with published racecards.'],
   [/stale|timestamp|source age/i,'P2','IT & QA Manager','Investigate data age, collector scheduling and snapshot publication.'],
