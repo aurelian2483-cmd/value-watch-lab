@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0b1220">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <meta name="description" content="A source-led multi-sport research desk. Compare events, build four flexible paper slips and preserve the evidence behind every selection.">
-  <title>Value Watch Pro | Sports Research Centre</title><link rel="stylesheet" href="./paper-lab/tailwind.css?v=3.3.0"><link rel="stylesheet" href="./paper-lab/style.css?v=3.4.47"><link rel="stylesheet" href="./pro-design.css?v=1">
+  <title>Value Watch Pro | Sports Research Centre</title><link rel="stylesheet" href="./paper-lab/tailwind.css?v=3.3.0"><link rel="stylesheet" href="./paper-lab/style.css?v=3.4.47"><link rel="stylesheet" href="./pro-design.css?v=2">
 </head>
 <body class="antialiased min-h-screen">
 <a class="skip-link" href="#main-content">Skip to research desk</a>
@@ -27,8 +27,8 @@
     <a href="#slip-panel">▣ Paper Slips</a><a href="#weekly-wildcard">★ Gold Wildcard</a><a href="./analyst/">▥ Analyst</a><a href="./research-overview/">ⓘ About</a>
   </nav>
   <div id="pro-home" class="pro-hero">
-    <div><span class="pro-eyebrow">VALUE WATCH <b>PRO</b> · SPORTS INTELLIGENCE CENTRE</span><h2>Smarter research across <em>four major sports.</em></h2>
-    <p>Football <span>•</span> Horse Racing <span>•</span> Tennis <span>•</span> NFL</p><p class="pro-hero-note">Evidence-led hypotheses · Experimental models · No certified betting edge</p>
+    <div><span class="pro-eyebrow">VALUE WATCH <b>PRO</b> · SPORTS INTELLIGENCE CENTRE</span><h2>Smarter Betting Across <em>Four Major Sports.</em></h2>
+    <p>Football <span>•</span> Horse Racing <span>•</span> Tennis <span>•</span> NFL</p><p class="pro-hero-note">Research · Analysis · Probability · Evidence first</p>
     <div class="pro-hero-actions"><a href="#main-content">Explore research events</a><a href="./analyst/">Open Analyst Terminal ↗</a></div></div>
     <div class="pro-hero-sports" aria-hidden="true"><span>♞</span><span>⚽</span><span>🎾</span><span>🏈</span></div>
     <div class="pro-stat"><strong>4</strong><span>sports</span><strong>4</strong><span>paper slips</span><strong>1</strong><span>weekly wildcard</span></div>
@@ -40,9 +40,29 @@
     <button type="button" data-pro-slot="4" class="pro-slip-card pro-four"><span>ϟ</span><strong>Paper Slip 4</strong><small>Longshot · Higher uncertainty</small><em>View paper selections →</em></button>
     <a class="pro-wildcard-card" href="#weekly-wildcard"><span>★ PREMIUM RESEARCH</span><strong>GOLD WILDCARD</strong><small>Seven-day experimental multi-sport review · no guaranteed payout</small><em>View weekly research →</em></a>
   </div>
-  <div class="pro-intro-row">
-    <div><span class="pro-eyebrow">FEATURED RESEARCH</span><h3>Today's source-backed events</h3><p>The real events, availability and uncertainty appear in the research desk below. No sample odds or returns are inserted.</p><a href="#events-view">Go to event research ↓</a></div>
-    <div class="pro-process"><span>01 <b>Inspect sources</b></span><span>02 <b>Compare hypotheses</b></span><span>03 <b>Review safeguards</b></span><span>04 <b>Save paper research</b></span></div>
+  <div class="pro-reference-grid" aria-label="Research highlights based on published source data">
+    <section class="pro-reference-panel pro-quick-filters"><h3>☷ Quick filters</h3>
+      <button type="button" data-pro-sport="all">◈ All sports <strong data-pro-count="all">—</strong></button>
+      <button type="button" data-pro-sport="football">⚽ Football <strong data-pro-count="football">—</strong></button>
+      <button type="button" data-pro-sport="racing">♞ Horse Racing <strong data-pro-count="racing">—</strong></button>
+      <button type="button" data-pro-sport="tennis">◉ Tennis <strong data-pro-count="tennis">—</strong></button>
+      <button type="button" data-pro-sport="nfl">◆ NFL <strong data-pro-count="nfl">—</strong></button>
+    </section>
+    <section class="pro-reference-panel pro-featured"><div class="pro-reference-heading"><h3>◎ Today's featured research events</h3><a href="#events-view">Explore all ↗</a></div>
+      <p class="pro-source-summary">Source-observed fixtures only. Event times and research status are not betting tips.</p>
+      <div class="pro-featured-scroll"><table><thead><tr><th>Sport</th><th>Event</th><th>Start (UK)</th><th>Sky Bet odds</th><th>Verified EV</th><th>Grade</th></tr></thead><tbody id="pro-featured-rows"><tr><td colspan="6">Loading published events…</td></tr></tbody></table></div>
+      <p id="pro-featured-status" class="pro-source-summary" role="status">Checking published research sources…</p>
+    </section>
+    <section class="pro-reference-panel pro-market"><h3>◈ Market &amp; research status</h3>
+      <div class="pro-market-check"><span>Data sources</span><strong id="pro-market-feeds">Checking</strong></div>
+      <div class="pro-market-check"><span>Model validation</span><strong>UNVALIDATED</strong></div>
+      <div class="pro-market-check"><span>Bookmaker odds</span><strong>Not verified</strong></div>
+      <div class="pro-market-check"><span>Publication gate</span><strong>BLOCKED</strong></div>
+      <a href="./analyst/">View Analyst Terminal ↗</a>
+    </section>
+  </div>
+  <div class="pro-steps" aria-label="How Value Watch research works">
+    <strong>▥ How it works</strong><span>① Inspect source data</span><span>② Review model evidence</span><span>③ Apply grade safeguards</span><span>④ Build paper slips</span>
   </div>
   <p class="pro-disclosure">RESEARCH ONLY · MODEL VALIDATION: UNVALIDATED · BETTING PUBLICATION: BLOCKED · NOT REAL-TIME BOOKMAKER ODDS</p>
 </section>
@@ -84,6 +104,6 @@
 <noscript><p class="page-status">Enable JavaScript to load research snapshots and edit paper slips. Original saved records remain on this device.</p></noscript>
 <div id="paper-backdrop" class="paper-backdrop" hidden></div>
 <div class="mobile-slip-bar"><div><span class="eyebrow">PAPER RESEARCH</span><strong><span id="mobile-count">0</span> selections <span aria-hidden="true">·</span> Four approaches</strong></div><button id="paper-open" class="button button-primary" type="button" aria-controls="slip-panel" aria-expanded="false">Open slips ↑</button></div>
-<script src="./pro-home.js?v=1" defer></script><script src="./paper-lab/bootstrap.js"></script><script src="./research-audit-core.js"></script><script src="./racecards-core.js?v=3.3.0"></script><script src="./paper-lab/core.js"></script><script src="./paper-lab/engine.js?v=3.4.64"></script><script src="./paper-lab/store.js"></script><script src="./paper-lab/transport.js"></script><script src="./paper-lab/insights.js"></script><script src="./paper-lab/connections.js"></script><script src="./paper-lab/journal.js?v=2"></script><script src="./paper-lab/evidence-v3.js?v=3.4.58"></script><script src="./paper-lab/experimental.js?v=1"></script><script src="./paper-lab/community-evidence.js?v=2"></script><script src="./paper-lab/desk.js?v=3.4.67"></script>
+<script src="./pro-home.js?v=2" defer></script><script src="./paper-lab/bootstrap.js"></script><script src="./research-audit-core.js"></script><script src="./racecards-core.js?v=3.3.0"></script><script src="./paper-lab/core.js"></script><script src="./paper-lab/engine.js?v=3.4.64"></script><script src="./paper-lab/store.js"></script><script src="./paper-lab/transport.js"></script><script src="./paper-lab/insights.js"></script><script src="./paper-lab/connections.js"></script><script src="./paper-lab/journal.js?v=2"></script><script src="./paper-lab/evidence-v3.js?v=3.4.58"></script><script src="./paper-lab/experimental.js?v=1"></script><script src="./paper-lab/community-evidence.js?v=2"></script><script src="./paper-lab/desk.js?v=3.4.67"></script>
 </body>
 </html>
