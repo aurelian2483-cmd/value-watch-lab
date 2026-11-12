@@ -32,6 +32,32 @@ function apply(){
   const track=add(line,'div',undefined,'sport-bar-track'),fill=add(track,'div',undefined,'sport-bar-fill');fill.style.width=(100*count/top).toFixed(1)+'%';add(line,'strong',count);
  }
 }
+function diagnostics(){
+ const modelBox=$('calibration-models');modelBox.replaceChildren();
+ const set=(id,value)=>text(id,value);
+ const d=archive?.fresh&&archive?.data?archive.data:null;
+ const sample=Number(d?.sample_size),brier=Number(d?.mean_multiclass_brier_score),log=Number(d?.mean_log_loss);
+ const usable=d&&d.metrics_status==='INSUFFICIENT_SAMPLE'&&Number.isInteger(sample)&&sample>=0&&sample<=50000&&Number.isFinite(brier)&&brier>=0&&brier<=2&&Number.isFinite(log)&&log>=0&&log<=100;
+ if(!usable){
+  for(const id of ['calibration-sample','calibration-brier','calibration-logloss'])set(id,'Unavailable');
+  set('calibration-status',archive?.state||'UNAVAILABLE');
+  add(modelBox,'p','No fresh, source-gated, internally consistent archived scoring evidence.','muted');
+  return;
+ }
+ set('calibration-sample',String(sample));set('calibration-brier',brier.toFixed(3));set('calibration-logloss',log.toFixed(3));
+ set('calibration-status','INSUFFICIENT SAMPLE');
+ const models=d.model_metrics&&typeof d.model_metrics==='object'?Object.entries(d.model_metrics):[];
+ let shown=0;
+ for(const [model,m] of models.slice(0,12)){
+  const n=Number(m?.scored_forecasts),b=Number(m?.mean_multiclass_brier_score),l=Number(m?.mean_log_loss);
+  if(!Number.isInteger(n)||n<0||n>sample||!Number.isFinite(b)||b<0||b>2||!Number.isFinite(l)||l<0||l>100||m.status!=='DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION')continue;
+  const line=add(modelBox,'div',undefined,'calibration-model-row');
+  add(line,'span',String(model).replace(/[_-]/g,' ').slice(0,60));
+  add(line,'small',n+' scored · Brier '+b.toFixed(3)+' · log loss '+l.toFixed(3));
+  shown++;
+ }
+ if(!shown)add(modelBox,'p','No independently interpretable per-model metrics available.','muted');
+}
 function historic(){
  const node=$('history-output');node.replaceChildren();
  if(!archive?.fresh){add(node,'p','Verified historical model results unavailable from source.','muted');return}
@@ -66,13 +92,13 @@ async function refresh(){
   archive=feeds.find(f=>f.id==='history');
   const summary=Sources.summarize(feeds,now);
   records=summary.events;
-  apply();sources();historic();
+  apply();sources();historic();diagnostics();
   const problematic=feeds.filter(f=>f.state!=='OBSERVED');
   text('analyst-state',problematic.length?'Source warning: '+problematic.map(f=>f.id+' '+f.state).join('; '):'4 source groups checked · models unvalidated');
   text('selection-note',problematic.length?'Only fresh, gated records displayed. Excluded sources: '+problematic.map(f=>f.id+' ('+f.state+')').join(', ')+'. No result is a qualified betting recommendation.':'Only fresh, gated source records displayed; no result is a qualified betting recommendation.');
  }catch(e){
   records=[];feeds=[];archive=null;
-  apply();sources();historic();
+  apply();sources();historic();diagnostics();
   text('analyst-state','Analysis unavailable: '+String(e?.message||e).slice(0,90));
  }
 }
