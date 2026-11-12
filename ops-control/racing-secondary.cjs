@@ -12,30 +12,48 @@ function extract(html,date){
  const body=textFromHTML(html);
  const exactDate=new RegExp('\\b'+d+'\\s+'+MONTHS[m-1]+'\\s+'+year+'\\b','i');
  if(!exactDate.test(body))return {status:'DATE_UNVERIFIED',meetings:[],reason:'Secondary page does not confirm the exact requested UK date'};
- const scope=body.match(/All meetings today([\s\S]*?)(?:Racing on TV now|Free racing on TV|Upcoming big events|$)/i);
- if(!scope)return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Cannot identify the secondary all-meetings region'};
- const header=scope[1].match(/(\d{1,3})\s+meetings?\s*[·•|]\s*(\d{1,4})\s+races?/i);
- if(!header)return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Secondary total-meeting and race counts are absent'};
- const expected=Number(header[1]),totalRaces=Number(header[2]);if(expected>40||expected<1||totalRaces>500)return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Implausible source totals'};
- // Exact bounded entries with time interval and race count, to avoid matching unrelated news and navigation.
- const pattern=/([A-Z][A-Za-z’' -]{2,42})\s+(UK|IRE)\s+(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})\s*[·•|]\s*(\d{1,2})\s+races?\s*[·•|]\s*(Scheduled|Abandoned|Cancelled|Canceled)/gi;
- const meetings=[],seen=new Set();let x;
- const listing=scope[1].slice(header.index+header[0].length);
- while((x=pattern.exec(listing))!==null){
-  // Strip only known status/broadcaster prefixes; never invent or substitute a venue.
-  let name=x[1].trim();
-  for(let n=0;n<3;n++){
-   const next=name.replace(/^(?:Scheduled|Abandoned|Cancelled|Canceled)\s+/i,'').replace(/^(?:Image\s*:?\s*)?(?:Racing TV|Sky Sports Racing|ITV Racing|RTÉ Racing|RTE Racing)\s+/i,'').trim();
-   if(next===name)break;name=next;
+ // Respect the source's selected date where it is available, rather than guessing "today".
+ const selectedDate=html.match(/<input\b[^>]*\btype=["']date["'][^>]*\bvalue=["'](\d{4}-\d{2}-\d{2})["']/i);
+ if(selectedDate&&selectedDate[1]!==date)return {status:'DATE_UNVERIFIED',meetings:[],reason:'Secondary date selector differs from requested date'};
+ const headerTag=/<h2\b[^>]*>\s*All meetings today\s*<\/h2>/i.exec(html);
+ if(!headerTag)return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Cannot locate the secondary all-meetings header'};
+ const sectionEnd=html.indexOf('</section>',headerTag.index);
+ if(sectionEnd<0)return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Unclosed meeting section'};
+ const section=html.slice(headerTag.index,sectionEnd);
+ const header=textFromHTML(section.slice(0,section.indexOf('</header>')<0?500:section.indexOf('</header>')));
+ const totals=/(\d{1,3})\s+meetings?\s*[·•|]\s*(\d{1,4})\s+races?/i.exec(header);
+ if(!totals)return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Secondary header meeting/race totals unavailable'};
+ const expected=Number(totals[1]),totalRaces=Number(totals[2]);
+ if(expected>40||expected<1||totalRaces>500)return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Implausible source totals'};
+ // The real source renders each venue as a <li><button> row, with mobile and desktop fields.
+ // Never concatenate the end of one row into the next racecourse name.
+ const ul=/<ul\b[^>]*>([\s\S]*?)<\/ul>/i.exec(section);
+ if(!ul)return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Secondary meeting list missing'};
+ const rows=[...ul[1].matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)];
+ if(rows.length>40)return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Implausibly many meeting rows'};
+ const meetings=[],seen=new Set(),failures=[];
+ for(let i=0;i<rows.length;i++){
+  const raw=rows[i][1];
+  const nameMatch=/<span\b[^>]*class=["'][^"']*\bfont-bold\b[^"']*["'][^>]*>([^<]+)<\/span>/i.exec(raw);
+  const countryMatch=/<span\b[^>]*class=["'][^"']*\bml-2\b[^"']*\btext-muted-foreground\b[^"']*["'][^>]*>\s*(UK|IRE)\s*<\/span>/i.exec(raw);
+  const statusMatch=/<span\b[^>]*class=["'][^"']*\bml-2\b[^"']*\bhidden\b[^"']*["'][^>]*>\s*(Scheduled|Abandoned|Cancelled|Canceled)\s*<\/span>/i.exec(raw);
+  // The mobile layout gives an explicit race count; desktop also duplicates this as a numeric span.
+  const countMatch=/(\d{1,3})\s+races?\b/i.exec(textFromHTML(raw));
+  const name=nameMatch?.[1]?.trim(),country=countryMatch?.[1],status=statusMatch?.[1],raceCount=Number(countMatch?.[1]);
+  if(!name||!country||!status||!countMatch||!Number.isInteger(raceCount)||raceCount>40){
+   failures.push({row:i+1,reason:'Missing structured venue, UK/IRE, status or race count'});continue;
   }
   const key=clean(name);
-  if(!key||seen.has(key))return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Duplicate or empty secondary meeting'};
-  seen.add(key);meetings.push({name,country:x[2],races:Number(x[5]),status:/abandoned|cancel/i.test(x[6])?'ABANDONED':'ACTIVE'});
+  if(!key||seen.has(key)){failures.push({row:i+1,reason:'Empty or duplicate venue'});continue}
+  seen.add(key);
+  meetings.push({name,country,races:raceCount,status:/abandoned|cancel/i.test(status)?'ABANDONED':'ACTIVE'});
  }
- if(meetings.length!==expected||meetings.reduce((n,x)=>n+x.races,0)!==totalRaces)
-  return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Parsed meeting or race counts do not reconcile with source header',diagnostics:{headerMeetings:expected,parsedMeetings:meetings.length,headerRaces:totalRaces,parsedRaces:meetings.reduce((n,x)=>n+x.races,0),parsedNames:meetings.map(x=>x.name).slice(0,25)}};
+ const diagnostics={headerMeetings:expected,parsedMeetings:meetings.length,headerRaces:totalRaces,parsedRaces:meetings.reduce((n,x)=>n+x.races,0),parsedNames:meetings.map(x=>x.name).slice(0,25),rejectedRows:failures.slice(0,12)};
+ if(failures.length||meetings.length!==expected||diagnostics.parsedRaces!==totalRaces)
+  return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Structured meeting rows or race counts do not reconcile with source header',diagnostics};
  return {status:'SOURCE_OBSERVED',meetings,expectedMeetings:expected,expectedRaces:totalRaces};
 }
+
 function reconcile(primary,secondary,observedAt){
  const date=primary?.race_date_uk;
  const receipt={url:SOURCE,observedAt,sha256:secondary.sha256||null,status:secondary.status,reason:secondary.reason||null,diagnostics:secondary.diagnostics||null};
