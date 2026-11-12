@@ -25,7 +25,7 @@ const main=fs.readFileSync(root+'/index.html','utf8');
 assert.match(main,/evidence-v3\.js/,'The public entrypoint must load the colour evaluator');
 assert(main.indexOf('evidence-v3.js')<main.indexOf('/desk.js'));
 assert.match(code,/primaryPostVerified/);
-const forecasts={...event,sport:'racing',choices:event.choices.map(c=>({id:c.id,quote:null,forecastPrice:{kind:'PUBLISHER_BETTING_FORECAST',decimal:c.quote.decimal,observedAt}})),communityTips:[post('Alice'),post('Bob')]};
+const forecasts={...event,sport:'racing',choices:event.choices.map(c=>({id:c.id,quote:null,forecastPrice:{kind:'PUBLISHER_BETTING_FORECAST',decimal:c.quote.decimal,observedAt,source:'https://example.org/publisher-market'}})),communityTips:[post('Alice'),post('Bob')]};
 const fg=gate(forecasts,forecasts.choices[0],now);
 assert.equal(fg.green,'PROVISIONAL');assert.equal(fg.greenBasis,'PUBLISHER_BETTING_FORECAST');assert.equal(fg.blue,'EXPERIMENTAL');
 assert.equal(fg.yellow,'EXPERIMENTAL_AGREEMENT','A forecast favourite may match an experimental source leader without claiming verified consensus');
@@ -86,3 +86,9 @@ assert.equal(gate(mixedBookmakers,mixedBookmakers.choices[0],now).green,'NOT_EST
 const completeObserved={...event,sport:'racing',communityTips:[]};
 assert.equal(gate(completeObserved,completeObserved.choices[0],now).green,'PROVISIONAL','A complete coherent observed market may show a provisional price leader');
 assert.equal(gate(completeObserved,completeObserved.choices[1],now).green,'NOT_ESTABLISHED','Only the uniquely shortest market price is provisionally favoured');
+
+
+const mixedForecastSources={...forecasts,communityTips:[],choices:forecasts.choices.map((c,i)=>({...c,forecastPrice:{...c.forecastPrice,source:i?'https://other.example/publisher-market':'https://example.org/publisher-market'}}))};
+assert.equal(gate(mixedForecastSources,mixedForecastSources.choices[0],now).green,'NOT_ESTABLISHED','Mixed publisher forecast sources cannot create a favourite');
+const mixedForecastTimes={...forecasts,communityTips:[],choices:forecasts.choices.map((c,i)=>({...c,forecastPrice:{...c.forecastPrice,observedAt:i?'2026-11-08T12:58:00Z':observedAt}}))};
+assert.equal(gate(mixedForecastTimes,mixedForecastTimes.choices[0],now).green,'NOT_ESTABLISHED','Forecast prices from different snapshots cannot create a favourite');
