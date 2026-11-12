@@ -82,6 +82,39 @@ function renderSports(sports,feeds){
    add(box,'div','Source observed: '+(f?.ok?fmtTime(f.stamp):'Unavailable'),'source-label');
  }
 }
+function planActions(messages){
+ const rules=[
+  [/unavailable|timeout|HTTP [45]|failed/i,'P1','IT & QA Manager','Investigate collector output, source access and publication; rerun the read-only check.'],
+  [/gate|safeguard/i,'P1','Operations Director + IT & QA','Check research-only / UNVALIDATED / BLOCKED gates; never permit automatic betting approval.'],
+  [/racing.*coverage|external meeting coverage/i,'P2','Horse Racing Manager','Reconcile meeting discovery and exclusions with published racecards.'],
+  [/stale|timestamp|source age/i,'P2','IT & QA Manager','Investigate data age, collector scheduling and snapshot publication.'],
+  [/football/i,'P2','Football Manager','Review current-season form, manager or transfer changes and source completeness.'],
+  [/tennis/i,'P2','Tennis Manager','Review fixture completeness, surfaces, injury and fatigue inputs.'],
+  [/nfl/i,'P2','NFL Manager','Review fixture completeness, quarterback status and injury evidence.'],
+  [/racing|horse/i,'P2','Horse Racing Manager','Review race conditions, non-runners and runner observations.']
+ ];
+ const grouped=new Map();
+ for(const m of messages){const rule=rules.find(r=>r[0].test(m.message))||['','P3','Operations Director','Review source evidence, identify the relevant owner and document follow-up.'];
+  const [pattern,priority,owner,action]=rule,key=owner+'|'+action;
+  if(!grouped.has(key))grouped.set(key,{priority,owner,recommendedAction:action,status:'RECOMMENDED — NOT ASSIGNED',observations:[]});
+  grouped.get(key).observations.push(m.message);
+ }
+ const tasks=[...grouped.values()].sort((a,b)=>a.priority.localeCompare(b.priority)||a.owner.localeCompare(b.owner));
+ if(!tasks.length)tasks.push({priority:'P3',owner:'Operations Director',recommendedAction:'Continue routine monitoring. Experimental models and market value remain unvalidated.',status:'RECOMMENDED — NOT ASSIGNED',observations:['No source, age or gate exception in this browser audit']});
+ tasks.forEach((t,i)=>t.id='OPS-'+String(i+1).padStart(3,'0'));
+ return tasks;
+}
+function renderActions(tasks){
+ const root=$('action-board');root.replaceChildren();
+ txt('action-summary',tasks.length+' recommended action(s) • '+tasks.filter(t=>t.priority==='P1').length+' urgent (P1) • '+tasks.filter(t=>t.priority==='P2').length+' review (P2) • No actions executed');
+ for(const task of tasks){const row=add(root,'article',undefined,'action-row'),header=add(row,'div',undefined,'action-row-head');
+  header.append(cls(task.priority==='P1'?'blocked':task.priority==='P2'?'caution':'good',task.priority));
+  add(header,'strong',task.owner);add(header,'span',task.id,'action-code');
+  add(row,'p',task.recommendedAction,'action-guidance');
+  add(row,'p','Evidence: '+task.observations.join('; '),'action-meta');
+  add(row,'div',task.status,'action-status');
+ }
+}
 function renderIssues(messages){
  const root=$('issues');root.replaceChildren();
  if(!messages.length){add(root,'div','✓ No source transport, age or research-gate exception found in these checks. This does not certify betting value.','issue good');return}
@@ -109,6 +142,7 @@ async function audit(){
    if(other?.ok&&other.data.collection_errors&&Object.keys(other.data.collection_errors).length){issue(messages,'caution','Tennis/NFL collector reports errors: '+Object.keys(other.data.collection_errors).join(', '))}
    const race=feeds.find(f=>f.id==='racing');
    if(race?.ok&&race.data.coverage_verified!==true)issue(messages,'caution','Racing: full external meeting coverage is not verified');
+   const actions=planActions(messages);
    const clean=feeds.every(f=>f.ok&&!f.stale&&f.gateOK);
    const blocked=feeds.some(f=>!f.ok||!f.gateOK);
    const level=blocked?'bad':messages.length?'warn':'good';
@@ -119,10 +153,10 @@ async function audit(){
    const badge=$('director-badge');badge.className='hero-status '+level;badge.textContent=blocked?'ATTENTION REQUIRED':messages.length?'REVIEW REQUIRED':'SOURCE CHECKS CLEAR';
    const tag=$('decision-tag');tag.className='flag '+(blocked?'blocked':messages.length?'caution':'good');tag.textContent=blocked?'ESCALATE':messages.length?'REVIEW':'SOURCE CHECKS CLEAR';
    txt('decision-title',decision);txt('decision-summary',summary);txt('audit-time','Checked '+fmtTime(now));
-   renderSports(sports,feeds);renderIssues(messages);renderSources(feeds);
+   renderSports(sports,feeds);renderIssues(messages);renderSources(feeds);renderActions(actions);
    const it=$('it-status');it.className='flag '+(blocked?'blocked':messages.length?'caution':'good');it.textContent=blocked?'FEED / GATE ISSUE':messages.length?'ATTENTION':'CHECKS PASSED';
    txt('it-summary',feeds.filter(f=>f.ok).length+' of '+feeds.length+' sources responded; '+messages.length+' issues recorded. This browser-only check does not inspect GitHub Actions, GitHub Pages deployment or real bookmaker prices.');
-   latest={schemaVersion:1,kind:'VALUE_WATCH_OPERATIONS_READ_ONLY_AUDIT',checkedAt:new Date(now).toISOString(),sourceStatuses:feeds.map(({id,label,file,ok,error,stamp,age,stale,gateOK,limitHours})=>({id,label,file,ok,error,observedAt:stamp===null?null:new Date(stamp).toISOString(),ageMinutes:age===null?null:Math.floor(age/60000),stale,gateOK,limitHours})),sports,issues:messages,decision,bettingPublication:'BLOCKED',modelValidation:'UNVALIDATED',independentExpertSignoff:false,readsOnly:true};
+   latest={schemaVersion:1,kind:'VALUE_WATCH_OPERATIONS_READ_ONLY_AUDIT',checkedAt:new Date(now).toISOString(),sourceStatuses:feeds.map(({id,label,file,ok,error,stamp,age,stale,gateOK,limitHours})=>({id,label,file,ok,error,observedAt:stamp===null?null:new Date(stamp).toISOString(),ageMinutes:age===null?null:Math.floor(age/60000),stale,gateOK,limitHours})),sports,issues:messages,actionRegister:actions,decision,bettingPublication:'BLOCKED',modelValidation:'UNVALIDATED',independentExpertSignoff:false,readsOnly:true};
    $('export').disabled=false;
  }catch(error){txt('decision-title','Control centre check failed');txt('decision-summary',String(error?.message||error));const badge=$('director-badge');badge.textContent='CHECK FAILED';badge.className='hero-status bad';$('export').disabled=!latest;}
  finally{busy=false;$('refresh').disabled=false}
