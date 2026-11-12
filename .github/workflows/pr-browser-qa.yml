@@ -4,6 +4,9 @@ on:
     branches: [copilot/evidence-research-handover, main]
     paths:
       - 'index.html'
+      - 'analyst/**'
+      - 'pro-design.css'
+      - 'pro-home.js'
       - 'paper-lab/**'
       - 'tests/**'
       - 'scripts/**'
@@ -25,7 +28,10 @@ jobs:
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
       - name: Verify research browser interactions (desktop/mobile/racing/paper)
-        run: npm run test:browser
+        run: |
+          npm run test:browser
+          node tests/test_pro_design.cjs
+          node scripts/pro_design_browser_qa.cjs
       - name: Save QA report and screenshots
         if: always()
         uses: actions/upload-artifact@v4
