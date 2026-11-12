@@ -8,6 +8,12 @@ const primary={race_date_uk:date,coverage_verified:false,discovery_coverage:{inc
  const parsed=S.extract(html,date);
  assert.equal(parsed.status,'SOURCE_OBSERVED');
  assert.equal(parsed.meetings.length,3);assert.equal(parsed.expectedRaces,21);
+ const realisticHTML=html.replace('· Scheduled</li>','· Scheduled <span>Racing TV</span></li>').replace('· Scheduled</li>','· Scheduled <span>Racing TV</span></li>');
+ const broadcastParsed=S.extract(realisticHTML,date);
+ assert.equal(broadcastParsed.status,'SOURCE_OBSERVED');
+ assert.deepEqual(broadcastParsed.meetings.map(x=>x.name),['Thurles','Market Rasen','Hereford'],'Broadcaster names or previous status must not be confused with venue names');
+ const broadcastCompared=S.reconcile(primary,broadcastParsed,now.toISOString());
+ assert.equal(broadcastCompared.status,'MEETING_LIST_MATCHED_NOT_CERTIFIED');
  const matched=S.reconcile(primary,parsed,now.toISOString());
  console.log('Secondary fixture parse:',JSON.stringify(parsed.meetings),'reconciliation:',JSON.stringify(matched));
  assert.equal(matched.status,'MEETING_LIST_MATCHED_NOT_CERTIFIED');
