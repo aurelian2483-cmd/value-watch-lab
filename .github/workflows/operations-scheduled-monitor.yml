@@ -37,6 +37,11 @@ jobs:
           node --check ops-control/scheduled-monitor.cjs
           node tests/test_ops_scheduled.cjs
           node tests/test_ops_notify.cjs
+      - name: Dry-run latest checked-out research snapshots (no GitHub writes)
+        run: |
+          node ops-control/scheduled-monitor.cjs /tmp/vw-ops-monitor-dry-run
+          test -s /tmp/vw-ops-monitor-dry-run/report.json
+          test -s /tmp/vw-ops-monitor-dry-run/briefing.md
   scheduled-briefing:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
