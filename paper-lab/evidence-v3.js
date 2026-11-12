@@ -49,9 +49,17 @@ window.ValueWatchEvidenceV3 = Object.freeze({
   evaluate(event, choice, now=Date.now()) {
     const all = Array.isArray(event?.choices) ? event.choices : [];
     const fresh=p=>p&&Number.isFinite(p.decimal)&&p.decimal>1&&Number.isFinite(Date.parse(p.observedAt))&&Date.parse(p.observedAt)<=now&&now-Date.parse(p.observedAt)<=1800000&&Date.parse(event.startUTC)>now+300000;
-    const observed=all.filter(c=>fresh(c.quote)&&c.quote.status!=='STALE_SOURCE_OBSERVATION');
+    // A bookmaker favourite is the shortest quote in one complete, consistent
+    // observed bookmaker market; mixed, stale and user-recorded prices cannot
+    // establish a comparable favourite.
+    const observed=all.filter(c=>fresh(c.quote)&&
+      c.quote.status==='SOURCE_OBSERVED_UNVERIFIED'&&c.quote.executable===false&&
+      c.quote.bookmaker==='Sky Bet'&&typeof c.quote.source==='string'&&
+      c.quote.source.startsWith('https://'));
     const forecasts=all.filter(c=>fresh(c.forecastPrice)&&c.forecastPrice.kind==='PUBLISHER_BETTING_FORECAST');
-    const realMarket=all.length>=2&&observed.length===all.length;
+    const realMarket=all.length>=2&&observed.length===all.length&&
+      new Set(observed.map(c=>c.quote.source)).size===1&&
+      new Set(observed.map(c=>c.quote.observedAt)).size===1;
     const forecastMarket=!realMarket&&all.length>=2&&forecasts.length===all.length;
     const basis=realMarket?'quote':forecastMarket?'forecastPrice':null;
     const prices=basis?[...all].sort((a,b)=>a[basis].decimal-b[basis].decimal):[];
