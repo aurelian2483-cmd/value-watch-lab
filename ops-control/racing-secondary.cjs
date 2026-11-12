@@ -20,7 +20,8 @@ function extract(html,date){
  // Exact bounded entries with time interval and race count, to avoid matching unrelated news and navigation.
  const pattern=/([A-Z][A-Za-z’' -]{2,42})\s+(UK|IRE)\s+(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})\s*[·•|]\s*(\d{1,2})\s+races?\s*[·•|]\s*(Scheduled|Abandoned|Cancelled|Canceled)/gi;
  const meetings=[],seen=new Set();let x;
- while((x=pattern.exec(scope[1]))!==null){
+ const listing=scope[1].slice(header.index+header[0].length);
+ while((x=pattern.exec(listing))!==null){
   const name=x[1].trim(),key=clean(name);
   if(!key||seen.has(key))return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Duplicate or empty secondary meeting'};
   seen.add(key);meetings.push({name,country:x[2],races:Number(x[5]),status:/abandoned|cancel/i.test(x[6])?'ABANDONED':'ACTIVE'});
