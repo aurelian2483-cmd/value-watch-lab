@@ -70,6 +70,9 @@ function render(rows){
 }
 async function load(){
  const root=$('central-trend-summary');root.textContent='Loading central GitHub audit history…';
+ for(const id of ['trend-issues-plot','trend-feeds-plot','central-racing-breakdown'])$(id).replaceChildren();
+ for(const id of ['central-p1','central-p2','central-feeds','central-racing'])$(id).textContent='—';
+ $('central-trend-note').textContent='Awaiting confirmed central audit history.';
  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);
  try{
   const response=await fetch(URL,{cache:'no-store',headers:{Accept:'application/vnd.github+json'},signal:ctrl.signal});
