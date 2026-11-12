@@ -3,7 +3,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 const html=fs.readFileSync('ops-control/index.html','utf8');
 const css=fs.readFileSync('ops-control/style.css','utf8');
 const code=fs.readFileSync('ops-control/app.js','utf8');
-const ids=['clock','refresh','export','director-badge','decision-title','decision-summary','decision-tag','audit-time','m-feeds','m-sports','m-alerts','m-approved','sports','issues','source-table','it-status','it-summary'];
+const ids=['clock','refresh','export','director-badge','decision-title','decision-summary','decision-tag','audit-time','m-feeds','m-sports','m-alerts','m-approved','sports','issues','source-table','it-status','it-summary','action-board','action-summary'];
 for(const id of ids)assert(html.includes('id="'+id+'"'), 'Missing audited dashboard element: '+id);
 for(const needle of ['../research-dashboard-data.json','../racing-research-data.json','../other-sports-data.json','../horse-model-data.json',"publication_gate","UNVALIDATED","BLOCKED","independentExpertSignoff:false"])assert(code.includes(needle),'Missing expected read-only control: '+needle);
 assert(html.includes('app.js?v=1')&&html.includes('style.css?v=1'));
