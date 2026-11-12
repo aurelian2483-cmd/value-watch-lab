@@ -13,6 +13,9 @@ on:
       - 'tests/test_ops_racing_secondary.cjs'
       - 'ops-control/racing-secondary.cjs'
       - 'ops-control/append-secondary.cjs'
+      - 'ops-control/director-intelligence.cjs'
+      - 'ops-control/github-notify.cjs'
+      - 'tests/test_ops_intelligence.cjs'
       - '.github/workflows/operations-scheduled-monitor.yml'
   pull_request:
     branches: [main]
@@ -40,6 +43,7 @@ jobs:
           node --check ops-control/scheduled-monitor.cjs
           node tests/test_ops_scheduled.cjs
           node tests/test_ops_notify.cjs
+          node tests/test_ops_intelligence.cjs
           node tests/test_ops_racing_secondary.cjs
       - name: Inspect public secondary source meeting HTML (diagnostic only)
         run: node ops-control/inspect-secondary-source.cjs
@@ -86,4 +90,5 @@ jobs:
             const fs=require('node:fs');
             const {publish}=require('./ops-control/github-notify.cjs');
             const markdown=fs.readFileSync('ops-control/out/briefing.md','utf8');
-            await publish({github,context,core,reportMarkdown:markdown});
+            const reportJson=JSON.parse(fs.readFileSync('ops-control/out/report.json','utf8'));
+            await publish({github,context,core,reportMarkdown:markdown,reportJson});
