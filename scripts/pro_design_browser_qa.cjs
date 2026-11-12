@@ -20,7 +20,7 @@ const server=http.createServer((req,res)=>{
    await page.locator('.pro-landing').waitFor();
    assert.equal(await page.locator('[data-pro-slot]').count(),4);
    assert.equal(await page.locator('.pro-topnav a[href="./analyst/"]').count(),1);
-   await page.locator('[data-pro-sport="tennis"]').click();
+   await page.locator('.pro-topnav [data-pro-sport="tennis"]').click();
    await page.waitForTimeout(1000);
    assert.equal(await page.locator('#sport-nav button[data-sport="tennis"]').getAttribute('aria-pressed'),'true','Pro sport nav must use existing desk filter');
    await page.locator('[data-pro-slot="2"]').click();
