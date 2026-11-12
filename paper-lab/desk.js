@@ -912,7 +912,7 @@
       const input=make(label,'input');input.type='text';input.inputMode='decimal';
       input.autocomplete='off';input.placeholder='e.g. 2.50';input.maxLength=10;
       input.value=wildDraft.quotes[item.eventId+'|'+item.choiceId+'|'+item.startUTC]||'';
-      input.addEventListener('input',()=>{wildDraft.quotes[item.eventId+'|'+item.choiceId]=input.value;persistWildRisk();calculate()});
+      input.addEventListener('input',()=>{wildDraft.quotes[item.eventId+'|'+item.choiceId+'|'+item.startUTC]=input.value;persistWildRisk();calculate()});
     }
     const stakeLabel=make(slip,'label','Hypothetical £ stake · paper only · maximum £10');
     const stake=make(stakeLabel,'input');stake.type='text';stake.inputMode='decimal';stake.maxLength=5;
@@ -921,7 +921,7 @@
     const explain=make(slip,'p','All legs would have to win. Odds are manually typed illustrations, not independently verified live bookmaker prices. No combined win probability or estimated EV is calculated.','small');
     function calculate(){
       outcome.replaceChildren();
-      const values=mode.selections.map(x=>wildDraft.quotes[x.eventId+'|'+x.choiceId]||'');
+      const values=mode.selections.map(x=>wildDraft.quotes[x.eventId+'|'+x.choiceId+'|'+x.startUTC]||'');
       const priceOk=values.every(v=>/^(?:\d{1,4})(?:\.\d{1,3})?$/.test(v)&&Number(v)>1&&Number(v)<=10000);
       const stakeOk=/^\d{1,2}(?:\.\d{1,2})?$/.test(wildDraft.stake)&&Number(wildDraft.stake)>0&&Number(wildDraft.stake)<=10;
       if(!stakeOk){make(outcome,'p','Enter a hypothetical stake between £0.01 and £10.00.','wildcard-note');return}
