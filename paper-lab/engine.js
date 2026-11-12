@@ -588,6 +588,62 @@
     return ordered;
   }
 
+  // One research candidate per qualifying sport. No cross-sport calibration
+  // or fabricated bookmaker payout: these percentages are incomparable,
+  // unvalidated model estimates, not true win probabilities.
+  function weeklyWildcardReview(events, from, to, now = Date.now()) {
+    range(from,to);
+    if (!Number.isFinite(now)) throw Error('Invalid weekly review time.');
+    const dummy = {from,to};
+    const {candidates,rejection}=researchCandidatePool(dummy,events,now);
+    const sports=['football','racing','tennis','nfl'];
+    const selections=[],coverage=[];
+    for (const sport of sports) {
+      const rows=candidates.filter(row=>row.event.sport===sport &&
+        row.event.model && !row.communityExperimental &&
+        row.event.sources.some(source=>source.kind==='PROVIDER_RECEIPT') &&
+        validProbability(sport==='football' ?
+          row.event.seasonComparison?.[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[row.choice.id]] :
+          row.choice.probability));
+      // Rank within sport only; probabilities across different sports and
+      // market types cannot safely be compared or multiplied.
+      rows.sort((a,b)=>{
+        const probability=row=>sport==='football' ?
+          row.event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[row.choice.id]] :
+          row.choice.probability;
+        return b.evidence-a.evidence || probability(b)-probability(a) ||
+          instant(a.event.startUTC)-instant(b.event.startUTC) ||
+          a.event.id.localeCompare(b.event.id);
+      });
+      const choice=rows[0];
+      coverage.push({sport,eligible:rows.length,excluded:rejection.filter(row=>row.sport===sport).length});
+      if (!choice) continue;
+      const probability=sport==='football' ?
+        choice.event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.choice.id]] :
+        choice.choice.probability;
+      selections.push({sport,eventId:choice.event.id,event:choice.event.name,
+        startUTC:choice.event.startUTC,choiceId:choice.choice.id,outcome:choice.choice.label,
+        market:choice.choice.market,experimentalProbability:probability,
+        evidenceScore:choice.evidence,model:choice.event.model.name,
+        sourceReceiptCount:choice.event.sources.filter(source=>source.kind==='PROVIDER_RECEIPT').length,
+        odds:null,expectedValue:null,potentialReturn:null,priceVerified:false,
+        review:'AUTOMATED_PRELIMINARY_NOT_INDEPENDENTLY_APPROVED'});
+    }
+    return {schemaVersion:1,kind:'WEEKLY_WILDCARD_PAPER_RESEARCH',
+      from,to,generatedAt:new Date(now).toISOString(),reviewedSports:sports,
+      coverage,selections,selectionCount:selections.length,
+      approach:'ONE_PER_QUALIFYING_SPORT_FOR_SEPARATE_REVIEW',
+      confidence:'NOT_CALIBRATED',combinedWinChance:null,
+      bookmakerMarketVerified:false,potentialReturn:null,expectedValue:null,
+      expertSignoff:'NOT_PERFORMED',
+      notes:['Mathematics: model estimates have not been calibrated or independently validated.',
+       'Probability: cross-sport percentages must not be combined or ranked as comparable true win probabilities.',
+       'Betting-market review: no verified executable bookmaker price or expected value is available.',
+       'Physics/modelling: independence, changing lineups, injuries and other dynamic inputs remain unresolved.',
+       'Highest possible payout and highest winning chance are conflicting goals; no guaranteed optimal bet can be identified.'],
+      ...GATES};
+  }
+
   function generateResearch(plan, events, now = Date.now()) {
     let next = clone(plan);
     const {candidates} = researchCandidatePool(plan, events, now);
@@ -711,5 +767,5 @@
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, freshDailyResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, weeklyWildcardReview, freshDailyResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });

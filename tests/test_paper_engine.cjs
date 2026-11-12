@@ -141,9 +141,9 @@ assert.deepEqual(keptExplorer.slots[2].legs,savedExplorer.slots[2].legs,
 for(const path of ['index.html','paper-lab/index.html']){
   const content=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
   assert(content.includes('id="paper-eligibility-audit"'),path+' must expose eligibility disclosure');
-  assert(content.includes('engine.js?v=3.4.63'),path+' must load updated engine');
-  assert(content.includes('desk.js?v=3.4.66'),path+' must load updated disclosure');
-  assert(content.includes('style.css?v=3.4.46'),path+' must load updated styling');
+  assert(content.includes('engine.js?v=3.4.64'),path+' must load updated engine');
+  assert(content.includes('desk.js?v=3.4.67'),path+' must load updated disclosure');
+  assert(content.includes('style.css?v=3.4.47'),path+' must load updated styling');
 }
 console.log('Four-sport eligibility, zero-forced-picks and preserved manual paper plans passed');
 
@@ -170,8 +170,8 @@ const deskAudit=fs.readFileSync(require('node:path').join(__dirname,'..','paper-
 assert(deskAudit.includes('E.footballSeasonMaturity(event)'), 'Football maturity appears in event card UI');
 for(const path of ['index.html','paper-lab/index.html']){
  const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
- assert(html.includes('engine.js?v=3.4.63'),'Updated football engine cache revision required');
- assert(html.includes('desk.js?v=3.4.66'),'Updated football UI cache revision required');
+ assert(html.includes('engine.js?v=3.4.64'),'Updated football engine cache revision required');
+ assert(html.includes('desk.js?v=3.4.67'),'Updated football UI cache revision required');
 }
 console.log('Football venue sample maturity, 5–7 checkpoint and no invented manager or transfer impact passed');
 
@@ -244,8 +244,8 @@ assert.throws(()=>E.freshDailyResearch(previousDaily,[],'2026-11-08','2026-11-09
 for(const path of ['index.html','paper-lab/index.html']){
  const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
  assert(html.includes('id="fresh-daily-slips"'),path+' must expose a fresh daily rollover control');
- assert(html.includes('engine.js?v=3.4.63'),path+' must load fresh generator');
- assert(html.includes('desk.js?v=3.4.66'),path+' must load safe refresh controller');
+ assert(html.includes('engine.js?v=3.4.64'),path+' must load fresh generator');
+ assert(html.includes('desk.js?v=3.4.67'),path+' must load safe refresh controller');
 }
 const dailyUI=fs.readFileSync(require('node:path').join(__dirname,'..','paper-lab','desk.js'),'utf8');
 assert(dailyUI.includes('saveEnvelope({plan:next,history,replacing:null})'),'Archive and new plan must be persisted together');
@@ -321,3 +321,41 @@ assert.throws(()=>E.restore(JSON.stringify({...withPrice,slots:withPrice.slots.m
  legs:slot.legs.map(leg=>({...leg,quote:{...leg.quote,source:'http://untrusted.invalid/odds'}}))}))})),
  /Invalid saved price observation/,'Invalid persisted quotes must still fail closed');
 console.log('Unpersistable racing market observations are never copied into paper plans; valid quotes survive');
+
+
+// Weekly Gold Wildcard is a read-only per-sport research snapshot, never an
+// accumulator, independently signed-off edge, or a bookmaker-priced bet.
+const weeklyEvents=[
+ event(801,'tennis'),event(802,'nfl'),
+ {...event(803,'football'),seasonComparison:{prob_home:.51,prob_draw:.23,prob_away:.26},choices:[{id:'home',label:'Home',market:'1X2',probability:.51},{id:'draw',label:'Draw',market:'1X2',probability:.23},{id:'away',label:'Away',market:'1X2',probability:.26}]},
+ {...event(804,'racing'),providerStatus:'DORMANT',fieldConfirmed:true,model:null,choices:[{id:'a',label:'A',probability:null,market:'Win'},{id:'b',label:'B',probability:null,market:'Win'}]},
+ event(805,'tennis')
+];
+const oldWeekData=JSON.stringify(weeklyEvents);
+const weeklyReview=E.weeklyWildcardReview(weeklyEvents,'2026-11-08','2026-11-14',now);
+assert.equal(weeklyReview.kind,'WEEKLY_WILDCARD_PAPER_RESEARCH');
+assert.deepEqual(weeklyReview.reviewedSports,['football','racing','tennis','nfl']);
+assert.equal(weeklyReview.selectionCount,3,
+  'Racing lacking a supported model must not be forced into the Wildcard');
+assert.deepEqual(new Set(weeklyReview.selections.map(x=>x.sport)),new Set(['football','tennis','nfl']));
+assert(weeklyReview.selections.every(row=>row.review==='AUTOMATED_PRELIMINARY_NOT_INDEPENDENTLY_APPROVED'));
+assert(weeklyReview.selections.every(row=>row.priceVerified===false&&row.potentialReturn===null&&row.expectedValue===null));
+assert.equal(weeklyReview.combinedWinChance,null);
+assert.equal(weeklyReview.potentialReturn,null);
+assert.equal(weeklyReview.expertSignoff,'NOT_PERFORMED');
+assert.equal(weeklyReview.publication_gate,'BLOCKED');
+assert.equal(weeklyReview.model_validation,'UNVALIDATED');
+assert.equal(JSON.stringify(weeklyEvents),oldWeekData,'Wildcard review must not modify event sources');
+assert.throws(()=>E.weeklyWildcardReview(weeklyEvents,'2026-11-15','2026-11-14',now));
+const emptyWeek=E.weeklyWildcardReview([], '2026-11-08','2026-11-14',now);
+assert.equal(emptyWeek.selectionCount,0,'No forced wildcard selections from missing data');
+for(const path of ['index.html','paper-lab/index.html']) {
+ const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
+ assert(html.includes('id="weekly-wildcard"'),'Both entrypoints require the Gold Wildcard');
+ assert(html.indexOf('id="weekly-wildcard"') < html.indexOf('id="slip-tabs"'),
+   'Wildcard must be above four paper slips');
+ assert(html.includes('engine.js?v=3.4.64'),'Browser needs new wildcard engine');
+ assert(html.includes('desk.js?v=3.4.67'),'Browser needs new wildcard desk');
+ assert(html.includes('style.css?v=3.4.47'),'Browser needs gold-card stylesheet');
+}
+console.log('Weekly Wildcard research-only gates, source integrity, sport coverage and gold panel passed');
