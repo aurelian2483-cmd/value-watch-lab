@@ -9,6 +9,7 @@ const primary={race_date_uk:date,coverage_verified:false,discovery_coverage:{inc
  assert.equal(parsed.status,'SOURCE_OBSERVED');
  assert.equal(parsed.meetings.length,3);assert.equal(parsed.expectedRaces,21);
  const matched=S.reconcile(primary,parsed,now.toISOString());
+ console.log('Secondary fixture parse:',JSON.stringify(parsed.meetings),'reconciliation:',JSON.stringify(matched));
  assert.equal(matched.status,'MEETING_LIST_MATCHED_NOT_CERTIFIED');
  assert.equal(matched.decision,'RETAIN_P2','secondary agreement must not certify full racing coverage');
  const abandoned=S.extract(html.replace('3 meetings · 21 races','4 meetings · 21 races').replace('</ul>','<li>Taunton UK 12:00–15:00 · 0 races · Abandoned</li></ul>'),date);
