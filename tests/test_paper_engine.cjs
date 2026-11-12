@@ -327,8 +327,8 @@ console.log('Unpersistable racing market observations are never copied into pape
 // accumulator, independently signed-off edge, or a bookmaker-priced bet.
 const weeklyEvents=[
  event(801,'tennis'),event(802,'nfl'),
- {...event(803,'football'),seasonComparison:{prob_home:.51,prob_draw:.23,prob_away:.26}},
- {...event(804,'racing'),providerStatus:'DORMANT',fieldConfirmed:true},
+ {...event(803,'football'),seasonComparison:{prob_home:.51,prob_draw:.23,prob_away:.26},choices:[{id:'home',label:'Home',market:'1X2',probability:.51},{id:'draw',label:'Draw',market:'1X2',probability:.23},{id:'away',label:'Away',market:'1X2',probability:.26}]},
+ {...event(804,'racing'),providerStatus:'DORMANT',fieldConfirmed:true,model:null,choices:[{id:'a',label:'A',probability:null,market:'Win'},{id:'b',label:'B',probability:null,market:'Win'}]},
  event(805,'tennis')
 ];
 const oldWeekData=JSON.stringify(weeklyEvents);
