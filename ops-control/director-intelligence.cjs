@@ -18,10 +18,15 @@ function snapshot(report,runId){
   mismatchCount:(discrepancy?.missing?.length||0)+(discrepancy?.unexpected?.length||0)+(discrepancy?.raceCountMismatches?.length||0)};
 }
 function read(body){
- const matches=[...String(body||'').matchAll(/<!-- ops-director-history-v1:([A-Za-z0-9+/=]+) -->/g)];
+ const source=String(body||'');
+ const matches=[...source.matchAll(/<!-- ops-director-history-v1:([^>]*?) -->/g)];
+ if(source.includes('<!-- ops-director-history-v1:')&&matches.length!==1)throw Error('Cannot safely read existing Director history; malformed or duplicated history marker');
  if(!matches.length)return [];
+ if(!/^[A-Za-z0-9+/]+={0,2}$/.test(matches[0][1]))throw Error('Cannot safely read existing Director history; invalid base64 history marker');
  try{
-  const raw=Buffer.from(matches.at(-1)[1],'base64').toString('utf8');
+  const encoded=matches[0][1],bytes=Buffer.from(encoded,'base64');
+  if(bytes.toString('base64')!==encoded)throw Error('Non-canonical encoded history');
+  const raw=bytes.toString('utf8');
   if(raw.length>50000)throw Error('Oversized state');
   const parsed=JSON.parse(raw);
   if(parsed.version!==1||!Array.isArray(parsed.records))throw Error('Invalid state');
