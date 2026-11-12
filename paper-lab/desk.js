@@ -896,7 +896,7 @@
     make(target,'p','Potential payout: unavailable · Verified bookmaker odds: unavailable · Combined win probability: unavailable.','wildcard-result-header');
     const list=make(target,'ul',undefined,'wildcard-review-list');
     for(const note of review.notes||[])make(list,'li',note);
-    make(target,'p','Snapshot created '+dateText(review.generatedAt)+'. The original weekly review is historical and frozen; today's research radar below may change as feeds refresh.','wildcard-note');
+    make(target,'p','Snapshot created '+dateText(review.generatedAt)+'. The original weekly review is historical and frozen; the current research radar below may change as feeds refresh.','wildcard-note');
     renderWildcardDiscovery(target);
   }
   let wildcardBusy=false;
