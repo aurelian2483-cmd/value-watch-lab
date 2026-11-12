@@ -170,8 +170,8 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   // avoid fabricated payout estimates and survive a browser reload.
   const beforeWildcard=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
   assert.equal(await dailyPage.locator('#weekly-wildcard').count(),1);
-  await dailyPage.locator('#wildcard-build').click();
   await dailyPage.waitForFunction(()=>JSON.parse(localStorage.getItem('value-watch-weekly-wildcard-v1')||'{}').entries?.length===1);
+  assert(await dailyPage.locator('#wildcard-build').isDisabled(),'Weekly snapshot is generated automatically after the first successful source load');
   const gold=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-weekly-wildcard-v1')));
   assert.equal(gold.entries[0].review.publication_gate,'BLOCKED');
   assert.equal(gold.entries[0].review.combinedWinChance,null);
@@ -186,7 +186,7 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   await waitBoard(dailyPage);
   assert.equal(await dailyPage.locator('#wildcard-build').isDisabled(),true,'Weekly local snapshot should persist through reload');
   assert.equal(await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-weekly-wildcard-v1')).entries.length),1);
-  report.checks.push('gold wildcard is once per UK week, research-only, pays out no invented prices and preserves original paper plans');
+  report.checks.push('gold wildcard auto-generates once per UK week, retains history without fabricated payouts and preserves original paper plans');
   await dailyPage.locator('#generate').click();
   const originalDaily=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
   assert(originalDaily.plan.slots.some(slot=>slot.legs.length),'Test requires original populated research');
