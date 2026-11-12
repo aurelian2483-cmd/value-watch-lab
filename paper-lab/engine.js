@@ -644,6 +644,56 @@
       ...GATES};
   }
 
+  // Wildcard discovery is deliberately broader than a qualified betting shortlist.
+  // Every lead remains research-only: no invented market price, EV or recommendation.
+  function wildcardCandidateAudit(events, from, to, now = Date.now()) {
+    range(from, to);
+    if (!Number.isFinite(now)) throw Error('Invalid wildcard audit time');
+    const names = ['football','racing','tennis','nfl'];
+    const records = Object.fromEntries(names.map(sport => [sport,{sport,observed:0,inWindow:0,qualifying:0,watchlist:[],outsideWindow:0,nextOutside:null,blocked:0}]));
+    for (const event of list(events)) {
+      if (!event || !records[event.sport] || !Number.isFinite(instant(event.startUTC))) continue;
+      const bucket = records[event.sport], start=instant(event.startUTC);
+      if (start <= now + 300000) continue; // Started games must not become fresh leads.
+      bucket.observed++;
+      const inside=Core.day(event.startUTC)>=from && Core.day(event.startUTC)<=to;
+      if(!inside) {
+        bucket.outsideWindow++;
+        if(!bucket.nextOutside || start<instant(bucket.nextOutside.startUTC))
+          bucket.nextOutside={event:event.name,startUTC:event.startUTC};
+        continue;
+      }
+      bucket.inWindow++;
+      const status=statusOf(event,now);
+      const receipt=list(event.sources).some(x=>x.kind==='PROVIDER_RECEIPT'&&x.url);
+      const choices=list(event.choices).filter(c=>validProbability(c.probability));
+      const season=event.sport==='football'&&event.seasonComparison&&
+        vector([event.seasonComparison.prob_home,event.seasonComparison.prob_draw,event.seasonComparison.prob_away]);
+      const hasModel=Boolean(event.model);
+      const reasons=[];
+      if(!status.selectable)reasons.push(status.code);
+      if(event.futureScheduleOnly||event.provisionalEntry)reasons.push('DECLARATIONS_PENDING');
+      if(!receipt)reasons.push('SOURCE_RECEIPT_UNVERIFIED');
+      if(event.sport==='football'&&!season)reasons.push('CURRENT_SEASON_COMPARISON_MISSING');
+      if(!hasModel)reasons.push('MODEL_UNAVAILABLE');
+      if(!choices.length && !season)reasons.push('PROBABILITY_UNAVAILABLE');
+      const qualifies=reasons.length===0;
+      if(qualifies)bucket.qualifying++;
+      else bucket.blocked++;
+      if(bucket.watchlist.length<12)bucket.watchlist.push({
+        eventId:event.id,event:str(event.name,160),startUTC:event.startUTC,
+        sport:event.sport,status:qualifies?'PRELIMINARY_MODEL_LEAD':'INVESTIGATION_LEAD',
+        reasons:[...new Set(reasons)],modelEvidence:hasModel,receiptEvidence:receipt,
+        priceVerified:false,estimatedEV:null,
+        // Show observed model input only when it is a real model choice, not bookmaker probability.
+        candidateOutcome:hasModel&&choices.length?str([...choices].sort((a,b)=>b.probability-a.probability)[0].label,100):null
+      });
+    }
+    return {kind:'WILDCARD_RESEARCH_CANDIDATE_AUDIT',from,to,generatedAt:new Date(now).toISOString(),
+      sports:names.map(sport=>records[sport]),modelValidation:'UNVALIDATED',publicationGate:'BLOCKED',
+      note:'A visible research lead is not an eligible bet. Missing prices or calibration prevent positive-EV and payout claims.'};
+  }
+
   function generateResearch(plan, events, now = Date.now()) {
     let next = clone(plan);
     const {candidates} = researchCandidatePool(plan, events, now);
@@ -767,5 +817,5 @@
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, weeklyWildcardReview, freshDailyResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, weeklyWildcardReview, wildcardCandidateAudit, freshDailyResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });
