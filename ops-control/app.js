@@ -115,6 +115,34 @@ function renderActions(tasks){
   add(row,'div',task.status,'action-status');
  }
 }
+function updateHistory(actions,feeds,now){
+ const api=typeof window!=='undefined'?window.VWIncidentHistory:null;
+ const panel=$('history-board');panel.replaceChildren();
+ if(!api){txt('history-summary','History engine unavailable. Current audit is still displayed.');txt('history-warning','History is not being saved.');return null}
+ let storage=null;try{storage=window.localStorage}catch(_){}
+ const loaded=api.load(storage);
+ /* Only a complete set of parsed, timestamped research feeds may resolve past incidents. */
+ const complete=feeds.every(f=>f.ok&&!f.stale&&f.gateOK&&f.stamp!==null);
+ const state=api.reconcile(loaded.state,actions,new Date(now).toISOString(),complete);
+ const saved=loaded.available&&api.save(storage,state);
+ const storageStatus=!loaded.available?loaded.warning:!saved?'Unable to save history in this browser; the current view is temporary.':null;
+ const active=state.incidents.filter(x=>x.state==='ACTIVE'),resolved=state.incidents.filter(x=>x.state==='RESOLVED');
+ txt('history-summary',active.length+' active • '+resolved.length+' resolved • '+active.filter(x=>x.reopenCount>0).length+' reopened • '+(saved?'saved on this device':'not saved'));
+ txt('history-warning',storageStatus||'Stored only in this browser. Clearing website data, changing devices or private mode may erase history.');
+ for(const entry of state.incidents.slice(0,25)){
+  const row=add(panel,'article',undefined,'history-row'),head=add(row,'div',undefined,'history-head');
+  head.append(cls(entry.state==='RESOLVED'?'good':entry.priority==='P1'?'blocked':'caution',entry.state==='RESOLVED'?'RESOLVED':entry.priority));
+  add(head,'strong',entry.owner);
+  add(row,'p',entry.action,'history-action');
+  add(row,'div','First seen: '+fmtTime(Date.parse(entry.firstSeen))+' • Last seen: '+fmtTime(Date.parse(entry.lastSeen)),'history-meta');
+  const elapsed=entry.state==='RESOLVED'&&entry.resolvedAt?Date.parse(entry.resolvedAt)-Date.parse(entry.firstSeen):now-Date.parse(entry.firstSeen);
+  add(row,'div',(entry.state==='ACTIVE'?'Open for: ':'Observed window: ')+(Number.isFinite(elapsed)?hourAge(Math.max(0,elapsed)):'Unknown')+' • Observed audits: '+entry.occurrences+' • Reopened: '+entry.reopenCount,'history-meta');
+  if(entry.state==='RESOLVED')add(row,'div','No longer detected by a complete audit; not proof of a repaired source','history-resolved');
+ }
+ if(!state.incidents.length)add(panel,'p','No incident observations recorded on this device yet.','history-empty');
+ if(state.incidents.length>25)add(panel,'p','Showing 25 most recent; the report export includes the full local history.','history-empty');
+ return {history:state,storageSaved:saved,storageWarning:storageStatus,completeAudit:complete};
+}
 function renderIssues(messages){
  const root=$('issues');root.replaceChildren();
  if(!messages.length){add(root,'div','✓ No source transport, age or research-gate exception found in these checks. This does not certify betting value.','issue good');return}
@@ -154,9 +182,10 @@ async function audit(){
    const tag=$('decision-tag');tag.className='flag '+(blocked?'blocked':messages.length?'caution':'good');tag.textContent=blocked?'ESCALATE':messages.length?'REVIEW':'SOURCE CHECKS CLEAR';
    txt('decision-title',decision);txt('decision-summary',summary);txt('audit-time','Checked '+fmtTime(now));
    renderSports(sports,feeds);renderIssues(messages);renderSources(feeds);renderActions(actions);
+   const journal=updateHistory(actions,feeds,now);
    const it=$('it-status');it.className='flag '+(blocked?'blocked':messages.length?'caution':'good');it.textContent=blocked?'FEED / GATE ISSUE':messages.length?'ATTENTION':'CHECKS PASSED';
    txt('it-summary',feeds.filter(f=>f.ok).length+' of '+feeds.length+' sources responded; '+messages.length+' issues recorded. This browser-only check does not inspect GitHub Actions, GitHub Pages deployment or real bookmaker prices.');
-   latest={schemaVersion:1,kind:'VALUE_WATCH_OPERATIONS_READ_ONLY_AUDIT',checkedAt:new Date(now).toISOString(),sourceStatuses:feeds.map(({id,label,file,ok,error,stamp,age,stale,gateOK,limitHours})=>({id,label,file,ok,error,observedAt:stamp===null?null:new Date(stamp).toISOString(),ageMinutes:age===null?null:Math.floor(age/60000),stale,gateOK,limitHours})),sports,issues:messages,actionRegister:actions,decision,bettingPublication:'BLOCKED',modelValidation:'UNVALIDATED',independentExpertSignoff:false,readsOnly:true};
+   latest={schemaVersion:1,kind:'VALUE_WATCH_OPERATIONS_READ_ONLY_AUDIT',checkedAt:new Date(now).toISOString(),sourceStatuses:feeds.map(({id,label,file,ok,error,stamp,age,stale,gateOK,limitHours})=>({id,label,file,ok,error,observedAt:stamp===null?null:new Date(stamp).toISOString(),ageMinutes:age===null?null:Math.floor(age/60000),stale,gateOK,limitHours})),sports,issues:messages,actionRegister:actions,historySnapshot:journal?.history||null,historySaved:journal?.storageSaved===true,historyCompleteAudit:journal?.completeAudit===true,historyWarning:journal?.storageWarning||null,decision,bettingPublication:'BLOCKED',modelValidation:'UNVALIDATED',independentExpertSignoff:false,readsOnly:true};
    $('export').disabled=false;
  }catch(error){txt('decision-title','Control centre check failed');txt('decision-summary',String(error?.message||error));const badge=$('director-badge');badge.textContent='CHECK FAILED';badge.className='hero-status bad';$('export').disabled=!latest;}
  finally{busy=false;$('refresh').disabled=false}

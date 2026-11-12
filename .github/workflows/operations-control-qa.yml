@@ -26,4 +26,4 @@ jobs:
       - name: Check standalone JavaScript syntax
         run: node --check ops-control/app.js && node --check ops-control/qa.cjs
       - name: Verify Director and Manager control centre
-        run: node ops-control/qa.cjs
+        run: node ops-control/qa.cjs && node tests/test_ops_history.cjs
