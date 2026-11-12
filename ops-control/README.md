@@ -37,3 +37,11 @@ The Director action register now maintains up to 250 incidents in this browser o
 Reopening a resolved issue increments its reopen count. The page automatically refreshes while visible, but **does not run unattended when closed**. History is device/browser-specific; clearing site storage, using private browsing or opening on a different device can lose it. If storage is blocked or corrupted, the dashboard explicitly warns and will not silently overwrite corrupt data. The local JSON export includes a snapshot of this history and actions. There is no server-side incident database, cross-device syncing, actual human task assignment, or automatic GitHub/market remediation.
 
 Tests: `node tests/test_ops_history.cjs`, `node tests/test_ops_control.cjs`, and `node ops-control/qa.cjs` in the existing read-only workflows.
+
+## Version 4 — Director's Daily Briefing
+
+When the Operations Control Centre page is opened or refreshed, it produces a **browser-local UK-day briefing**. It compares the new audit with the previously saved audit in this browser and reports outstanding urgent P1 incidents, new warnings, feed deterioration/recovery, issues observed open for at least 24 hours, repeated/reopened incidents and warnings no longer observed during a complete audit. Every briefing includes a recommended next investigation step. The local audit JSON export contains the briefing snapshot.
+
+**Limitations:** This is not an unattended daily scheduled report or email, and it is not a shared central database. The history is stored only in this browser, under the independent `vw-ops-control:director-briefing:v1` localStorage key. It keeps at most 45 UK calendar days and the latest audit snapshot. The first audit has no comparison baseline. Repeated observations are not independent confirmations or genuine human assignment. Incidents only count as cleared after an audit with all required feeds accessible, fresh, timestamped and maintaining research-only `UNVALIDATED`/`BLOCKED` gates. Corrupt or unavailable storage is displayed as a warning without silently destroying existing data. The underlying Value Watch models, paper slips and GitHub workflows remain read-only from this dashboard.
+
+Version 4 test command: `node tests/test_ops_briefing.cjs`. The broader operations QA and full research regression must also pass before merging.
