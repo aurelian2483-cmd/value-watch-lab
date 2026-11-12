@@ -4,7 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0b1220">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <meta name="description" content="A source-led multi-sport research desk. Compare events, build four flexible paper slips and preserve the evidence behind every selection.">
-  <title>Value Watch Lab · Research desk</title><link rel="stylesheet" href="tailwind.css?v=3.3.0"><link rel="stylesheet" href="style.css?v=3.4.46">
+  <title>Value Watch Lab · Research desk</title><link rel="stylesheet" href="tailwind.css?v=3.3.0"><link rel="stylesheet" href="style.css?v=3.4.47">
 </head>
 <body class="antialiased min-h-screen">
 <a class="skip-link" href="#main-content">Skip to research desk</a>
@@ -37,6 +37,12 @@
     </main>
     <aside id="slip-panel" class="slip-panel" aria-label="Paper research slip" tabindex="-1">
       <div class="slip-panel-header"><div><span class="eyebrow">YOUR RESEARCH</span><h2>Paper slips <span id="slip-count" class="count-pill">0</span></h2></div><button id="paper-close" class="icon-button mobile-only" type="button" aria-label="Close paper slips">×</button></div>
+      <section id="weekly-wildcard" class="weekly-wildcard" aria-label="Weekly gold wildcard research">
+        <div class="wildcard-head"><span class="wildcard-symbol" aria-hidden="true">★</span><div><span class="wildcard-eyebrow">SEVEN-DAY RESEARCH · GOLD EDITION</span><h3>Weekly Wildcard</h3></div></div>
+        <p class="wildcard-note">A separate experimental review of football, racing, tennis and NFL. No verified winning chances or maximum payout.</p>
+        <button type="button" id="wildcard-build" class="wildcard-button">Review this week's wildcard</button>
+        <div id="wildcard-result" aria-live="polite"><p class="wildcard-note">No weekly review saved on this device. Research stays separate from your four paper slips.</p></div>
+      </section>
       <div id="slip-tabs" class="slip-tabs" role="group" aria-label="Choose research slip"><button type="button" class="active" data-slot="1" aria-pressed="true"><span>01</span>Best evidence</button><button type="button" data-slot="2" aria-pressed="false"><span>02</span>Balanced</button><button type="button" data-slot="3" aria-pressed="false"><span>03</span>Cross-sport</button><button type="button" data-slot="4" aria-pressed="false"><span>04</span>Longshot</button></div>
       <div class="slip-active-heading"><div><h3 id="slip-title">Best evidence</h3><p id="slip-subtitle">An evidence-led starting point.</p></div><span class="paper-tag">PAPER</span></div>
       <div class="slip-refresh-tools"><button id="fresh-daily-slips-panel" class="button button-secondary button-full" type="button">Create fresh 7-day slips</button><p id="slip-refresh-health" class="small" role="status" aria-live="polite">Checking current paper research availability…</p><p id="slip-refresh-outcome" class="small" role="status" aria-live="polite">Refresh uses the latest published source snapshots. Existing research will be preserved if refreshing fails.</p></div>
@@ -57,6 +63,6 @@ window.ValueWatchEvidenceV3 = Object.freeze({
   }
 });
 </script>
-<script src="bootstrap.js"></script><script src="../research-audit-core.js"></script><script src="../racecards-core.js?v=3.3.0"></script><script src="core.js"></script><script src="engine.js?v=3.4.63"></script><script src="store.js"></script><script src="transport.js"></script><script src="insights.js"></script><script src="connections.js"></script><script src="journal.js?v=2"></script><script src="evidence-v3.js?v=3.4.58" onerror="console.warn('Evidence module unavailable; fail-closed fallback retained')"></script><script src="experimental.js?v=1"></script><script src="community-evidence.js?v=2"></script><script src="desk.js?v=3.4.66"></script>
+<script src="bootstrap.js"></script><script src="../research-audit-core.js"></script><script src="../racecards-core.js?v=3.3.0"></script><script src="core.js"></script><script src="engine.js?v=3.4.64"></script><script src="store.js"></script><script src="transport.js"></script><script src="insights.js"></script><script src="connections.js"></script><script src="journal.js?v=2"></script><script src="evidence-v3.js?v=3.4.58" onerror="console.warn('Evidence module unavailable; fail-closed fallback retained')"></script><script src="experimental.js?v=1"></script><script src="community-evidence.js?v=2"></script><script src="desk.js?v=3.4.67"></script>
 </body>
 </html>
