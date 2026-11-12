@@ -872,7 +872,7 @@
     make(target,'p','Snapshot created '+dateText(review.generatedAt)+'. Next week generates a separate new review; no live updates or betting instructions.','wildcard-note');
   }
   let wildcardBusy=false;
-  async function createWeeklyWildcard(){
+  async function createWeeklyWildcard(prefetchedResult=null){
     if(wildcardBusy)return;
     wildcardBusy=true;
     const button=$('wildcard-build');
@@ -880,7 +880,7 @@
     try{
       const week=wildcardWeek(today());
       if(wildcardSaved()?.entries?.some(row=>row.week===week)) {renderWildcard();return;}
-      const result=await refresh();
+      const result=prefetchedResult||await refresh();
       if(!result?.snapshots?.length)throw Error('Research feeds are unavailable. No wildcard was saved.');
       const from=today(),to=plusDays(from,6);
       const review=E.weeklyWildcardReview(store.get().events,from,to,Date.now());
@@ -1195,5 +1195,15 @@
   window.addEventListener('online', () => { if (!document.hidden) safely(refresh); }); window.addEventListener('offline', () => notice('Offline · last good snapshots and saved research retained. Freshness checks still apply.'));
   window.addEventListener('pagehide', () => { clearInterval(timer); timer = null; transport.setPaused(true); for (const request of statsRequests.values()) request.abort(); });
   window.addEventListener('pageshow', () => { transport.setPaused(document.hidden); startClock(); if (!document.hidden) safely(refresh); });
-  safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderWildcard(); renderView(); startClock(); refresh().catch(report); });
+  safely(() => {
+    renderNavigation(); renderEvents(); renderSlip(); renderWildcard(); renderView(); startClock();
+    refresh().then(result=>{
+      if(result?.snapshots?.length&&!wildcardSaved()?.entries?.some(row=>row.week===wildcardWeek(today())))
+        return createWeeklyWildcard(result).catch(error=>{
+          // A missing weekly research candidate is never grounds to break the desk.
+          const target=$('wildcard-result');
+          if(target)make(target,'p','Automatic weekly review unavailable: '+error.message,'wildcard-note');
+        });
+    }).catch(report);
+  });
 })();
