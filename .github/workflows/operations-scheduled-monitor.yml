@@ -41,6 +41,8 @@ jobs:
           node tests/test_ops_scheduled.cjs
           node tests/test_ops_notify.cjs
           node tests/test_ops_racing_secondary.cjs
+      - name: Inspect public secondary source meeting HTML (diagnostic only)
+        run: node ops-control/inspect-secondary-source.cjs
       - name: Dry-run latest checked-out research snapshots (no GitHub writes)
         run: |
           node ops-control/scheduled-monitor.cjs /tmp/vw-ops-monitor-dry-run
