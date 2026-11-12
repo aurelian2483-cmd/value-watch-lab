@@ -270,7 +270,10 @@
     const sourceTie=gates.some(x=>x.gate.sourceTie===true);
     const yellowChoices=gates.filter(x=>['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(x.gate.yellow)).map(x=>x.choice.label);
     make(evidencePanel,'p','GREEN · '+(favourite?favourite.label+(badges.greenBasis==='PUBLISHER_BETTING_FORECAST'?' · Provisional publisher forecast':' · Provisional observed-price favourite'):'Not established')+'  |  BLUE · '+(blueChoices.join(', ')||(sourceTie?'No clear leader · tied support':'Not awarded'))+'  |  YELLOW · '+(yellowChoices.join(', ')||'Not awarded'),'small');
-    make(evidencePanel,'small','Publisher and forum sources labelled · Blue/Yellow are experimental source signals, not verified consensus · official market verification unavailable','muted');
+    make(evidencePanel,'small','Market favourite: '+(badges?.greenBasis==='BOOKMAKER_SOURCE_OBSERVATION' ?
+      'provisional same-source observed price leader, not independently verified' :
+      'not established from a complete current bookmaker market')+
+      ' · Highest experimental model estimate is NOT a bookmaker favourite · Blue/Yellow remain experimental source signals.','muted');
     evidencePanel.style.cssText='padding:10px 12px;margin:10px 0;border:1px solid #52718b;border-radius:10px;background:#172b38;color:#f1f5f9';
     const communitySourcesOpen = Boolean(record.racingPanel.querySelector('.community-source-list')?.open);
     record.racingPanel.replaceChildren();
@@ -738,13 +741,14 @@
     const top = make(record.node, 'div', undefined, 'slip-selection-top'); make(top, 'strong', leg.label);
     button(top, '×', () => savePlan(E.removeSelection(store.get().plan, slot.id, leg.id)), 'remove-button').setAttribute('aria-label', 'Remove ' + leg.label);
     make(record.node, 'p', symbols[leg.sport] + ' ' + leg.event, 'slip-selection-meta'); make(record.node, 'p', dateText(leg.startUTC) + ' · ' + leg.market, 'slip-selection-meta');
+    make(record.node,'p','Why selected: experimental research model or sourced research evidence. This is not a verified bookmaker favourite or a validated win prediction.','slip-selection-meta');
     const state = E.statusOf(store.get().events.find(event => event.id === leg.eventId));
     make(record.node, 'span', !leg.currentStatus?.selectable ? leg.currentStatus?.label || state.label : leg.quote?.decimal ? leg.quote.decimal.toFixed(2) + ' · unverified source price' : (typeof leg.probability === 'number' ? pct(leg.probability) + (leg.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' context weight' : ' model win estimate') + ' · UNVALIDATED · odds not connected' : 'No model estimate · odds not connected'), 'leg-state' + (!leg.currentStatus?.selectable ? ' is-warning' : ''));
     if(leg.provisionalEntry)make(record.node,'p','Provisional paper entry · final declarations unverified','warning-line');
     // Mathematical hurdle only: this is not an estimated probability or positive-EV claim.
     if (Number.isFinite(leg.quote?.decimal) && leg.quote.decimal > 1) {
       const hurdle = 100 / leg.quote.decimal;
-      make(record.node,'p','Breakeven hurdle: '+hurdle.toFixed(1)+'% at captured decimal odds '+leg.quote.decimal.toFixed(2)+(leg.quote.decimal < 2 ? ' · heavy-favourite price resistance: a high win rate is required' : '')+' · price unverified','slip-selection-meta');
+      make(record.node,'p','Breakeven hurdle: '+hurdle.toFixed(1)+'% at captured decimal odds '+leg.quote.decimal.toFixed(2)+(leg.quote.decimal < 2 ? ' · short-price risk: a high win rate is required' : '')+' · price unverified','slip-selection-meta');
     } else {
       make(record.node,'p','Breakeven hurdle: UNKNOWN · no captured decimal price','slip-selection-meta');
     }
