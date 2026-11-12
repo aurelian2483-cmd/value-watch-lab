@@ -8,7 +8,7 @@ const add=(parent,tag,v,className)=>{const e=document.createElement(tag);if(v!==
 const ukTime=ts=>{const ms=safeTime(ts);return ms===null?'Unavailable':new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'2-digit',month:'short',hour:'2-digit'}).format(new Date(ms))};
 function apply(){
  const sport=$('filter-sport').value,range=$('filter-range').value,evidence=$('filter-evidence').value,now=Date.now();
- const found=records.filter(x=>(sport==='all'||sport===x.sport)&&(range==='all'||(range==='upcoming'?(x.startMs??-1)>=now:(safeTime(x.time)??Infinity)<now))&&(evidence==='all'||(evidence==='model'?x.hasModel:!x.hasModel)));
+ const found=records.filter(x=>(sport==='all'||sport===x.sport)&&(range==='all'||(range==='upcoming'?(x.startMs??-1)>=now:(x.startMs??Infinity)<now))&&(evidence==='all'||(evidence==='model'?x.hasModel:!x.hasModel)));
  const tbody=$('analyst-events');tbody.replaceChildren();
  for(const x of found.slice(0,80)){
   const tr=add(tbody,'tr');
