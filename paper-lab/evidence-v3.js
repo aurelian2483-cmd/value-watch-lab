@@ -56,11 +56,15 @@ window.ValueWatchEvidenceV3 = Object.freeze({
       c.quote.status==='SOURCE_OBSERVED_UNVERIFIED'&&c.quote.executable===false&&
       c.quote.bookmaker==='Sky Bet'&&typeof c.quote.source==='string'&&
       c.quote.source.startsWith('https://'));
-    const forecasts=all.filter(c=>fresh(c.forecastPrice)&&c.forecastPrice.kind==='PUBLISHER_BETTING_FORECAST');
+    const forecasts=all.filter(c=>fresh(c.forecastPrice)&&
+      c.forecastPrice.kind==='PUBLISHER_BETTING_FORECAST'&&
+      typeof c.forecastPrice.source==='string'&&c.forecastPrice.source.startsWith('https://'));
     const realMarket=all.length>=2&&observed.length===all.length&&
       new Set(observed.map(c=>c.quote.source)).size===1&&
       new Set(observed.map(c=>c.quote.observedAt)).size===1;
-    const forecastMarket=!realMarket&&all.length>=2&&forecasts.length===all.length;
+    const forecastMarket=!realMarket&&all.length>=2&&forecasts.length===all.length&&
+      new Set(forecasts.map(c=>c.forecastPrice.source)).size===1&&
+      new Set(forecasts.map(c=>c.forecastPrice.observedAt)).size===1;
     const basis=realMarket?'quote':forecastMarket?'forecastPrice':null;
     const prices=basis?[...all].sort((a,b)=>a[basis].decimal-b[basis].decimal):[];
     const isUniqueFavourite = Boolean(choice&&prices.length>=2&&choice.id===prices[0].id&&prices[0][basis].decimal<prices[1][basis].decimal);
