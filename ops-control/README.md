@@ -81,3 +81,13 @@ To reduce noise, the issue body is refreshed on every successful audit, but a ne
 The V6 history uses a bounded versioned comment marker in the dedicated issue body. Corrupted existing history is **not silently overwritten**. Deleting/closing/changing the issue can interrupt or reset the shared history, so it is not equivalent to an immutable external incident database. No actual manager assignment, acknowledgement, closure or correction is performed.
 
 Tests: `node tests/test_ops_intelligence.cjs && node tests/test_ops_notify.cjs` plus the existing four Operations and full research/browser QA suites. The first real scheduled run and its issue update must be inspected separately before claiming live V6 alerting.
+
+## V6 central Director trend charts
+
+The standalone Operations Control Centre presents **read-only visual trends** from the existing central Director history in GitHub Issue #27. The browser fetches `https://api.github.com/repos/aurelian2483-cmd/value-watch-lab/issues/27` using a restricted CSP `connect-src` exception for `https://api.github.com`. It reads the versioned `ops-director-history-v1` base64 marker; it does not request GitHub credentials or write to any GitHub endpoint.
+
+Charts show the **latest 24 recorded audit runs**, not a continuous daily timeseries or promised collection cadence: P1/P2 warning counts and the number of responsive, fresh, gated source feeds out of four. A separate summary counts secondary racing evidence statuses over up to 90 retained runs. Counts are source-observed, not verified employee work, racing market completeness, valid bookmaker prices, calibrated EV, or payouts. An initial single audit displays a valid one-point baseline with explicit limited-history messaging.
+
+Malformed/unsupported history, API failures, 403 rate limits and missing markers fail closed with clear messages. Refresh discards any previously rendered chart before attempting to load again; no stale series is presented as current. The API call is client-side and GitHub's unauthenticated rate limit applies. The browser-local incident register remains independent; central history persists in GitHub Issue #27 and is subject to that issue's retention, availability and versioned marker integrity. The main Value Watch research models, paper slips and research gates remain untouched.
+
+Test via `node tests/test_ops_trends.cjs` and normal Operations smoke/full regression/browser workflows. PR passing does not prove the public GitHub API response is accessible in the user's browser; check deployed dashboard after merging.
