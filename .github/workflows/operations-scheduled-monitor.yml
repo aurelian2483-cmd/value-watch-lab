@@ -9,6 +9,7 @@ on:
     paths:
       - 'ops-control/scheduled-monitor.cjs'
       - 'tests/test_ops_scheduled.cjs'
+      - 'tests/test_ops_notify.cjs'
       - '.github/workflows/operations-scheduled-monitor.yml'
   pull_request:
     branches: [main]
@@ -35,6 +36,7 @@ jobs:
         run: |
           node --check ops-control/scheduled-monitor.cjs
           node tests/test_ops_scheduled.cjs
+          node tests/test_ops_notify.cjs
   scheduled-briefing:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
