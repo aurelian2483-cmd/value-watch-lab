@@ -38,7 +38,6 @@ function extract(html,date){
   const countryMatch=/<span\b[^>]*class=["'][^"']*\bml-2\b[^"']*\btext-muted-foreground\b[^"']*["'][^>]*>\s*(UK|IRE)\s*<\/span>/i.exec(raw);
   const statusMatch=/<span\b[^>]*class=["'][^"']*\bml-2\b[^"']*\bhidden\b[^"']*["'][^>]*>\s*(Scheduled|Abandoned|Cancelled|Canceled)\s*<\/span>/i.exec(raw);
   // The mobile layout gives an explicit race count; desktop also duplicates this as a numeric span.
-  const mobileCount=/(\d{1,3})\s+races?\s*[·•|]\s*(?:<[^>]+>\s*)?(?:Scheduled|Abandoned|Cancelled|Canceled)/i.exec(textFromHTML(raw));
   const countMatch=/(\d{1,3})\s+races?\b/i.exec(textFromHTML(raw));
   const name=nameMatch?.[1]?.trim(),country=countryMatch?.[1],status=statusMatch?.[1],raceCount=Number(countMatch?.[1]);
   if(!name||!country||!status||!countMatch||!Number.isInteger(raceCount)||raceCount>40){
