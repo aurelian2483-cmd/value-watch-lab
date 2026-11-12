@@ -10,6 +10,9 @@ on:
       - 'ops-control/scheduled-monitor.cjs'
       - 'tests/test_ops_scheduled.cjs'
       - 'tests/test_ops_notify.cjs'
+      - 'tests/test_ops_racing_secondary.cjs'
+      - 'ops-control/racing-secondary.cjs'
+      - 'ops-control/append-secondary.cjs'
       - '.github/workflows/operations-scheduled-monitor.yml'
   pull_request:
     branches: [main]
@@ -37,11 +40,13 @@ jobs:
           node --check ops-control/scheduled-monitor.cjs
           node tests/test_ops_scheduled.cjs
           node tests/test_ops_notify.cjs
+          node tests/test_ops_racing_secondary.cjs
       - name: Dry-run latest checked-out research snapshots (no GitHub writes)
         run: |
           node ops-control/scheduled-monitor.cjs /tmp/vw-ops-monitor-dry-run
           test -s /tmp/vw-ops-monitor-dry-run/report.json
           test -s /tmp/vw-ops-monitor-dry-run/briefing.md
+          node tests/test_ops_racing_secondary.cjs
   scheduled-briefing:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
@@ -58,6 +63,10 @@ jobs:
           node-version: '22'
       - name: Audit current main-branch repository snapshots
         run: node ops-control/scheduled-monitor.cjs ops-control/out
+      - name: Compare dated meetings with secondary race calendar (fail closed)
+        run: |
+          node ops-control/racing-secondary.cjs racing-research-data.json ops-control/out/racing-secondary.json
+          node ops-control/append-secondary.cjs ops-control/out
       - name: Save audit evidence
         if: always()
         uses: actions/upload-artifact@v4
