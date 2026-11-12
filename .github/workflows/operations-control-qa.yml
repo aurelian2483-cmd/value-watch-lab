@@ -1,0 +1,29 @@
+name: Operations Control Centre QA (read-only)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ops-control/**'
+      - '.github/workflows/operations-control-qa.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops-control/**'
+      - '.github/workflows/operations-control-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    name: Standalone dashboard safety and compatibility
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check standalone JavaScript syntax
+        run: node --check ops-control/app.js && node --check ops-control/qa.cjs
+      - name: Verify Director and Manager control centre
+        run: node ops-control/qa.cjs
