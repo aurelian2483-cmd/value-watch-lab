@@ -854,7 +854,7 @@
           'Investigate: '+lead.reasons.join(', '),'small');
         if(lead.candidateOutcome)make(entry,'p','Model-leading outcome (uncalibrated): '+lead.candidateOutcome,'small');
       }
-      if(row.watchlist.length>5)make(section,'p',(row.watchlist.length-5)+' additional lead(s) in the source audit.','small');
+      if(row.inWindow>5)make(section,'p',(row.inWindow-5)+' additional future event(s) in this sport; this panel displays a limited research sample, not a complete betting shortlist.','small');
     }
     make(panel,'p','The review is recalculated from the latest loaded events. The saved weekly snapshot and four paper slips are not overwritten.','wildcard-note');
   }
