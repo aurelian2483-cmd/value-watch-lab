@@ -835,7 +835,29 @@
 
   // Three methodological review lenses are not real endorsements or human sign-offs.
   // All values are research-only and isolated from the four existing saved paper slips.
+  const wildRiskStorageKey='value-watch-fifth-wildcard-paper-v1';
   let wildRiskDays=7,wildRiskMode='double',wildDraft={stake:'1.00',quotes:{}};
+  try{
+    const raw=storage.getItem(wildRiskStorageKey);
+    if(raw && raw.length<=16000){
+      const saved=JSON.parse(raw);
+      if(saved?.version===1 && [7,14,21].includes(saved.days) &&
+        ['double','treble','five','seven'].includes(saved.mode) &&
+        typeof saved.stake==='string' && saved.stake.length<=5 &&
+        saved.quotes && typeof saved.quotes==='object' && !Array.isArray(saved.quotes) &&
+        Object.keys(saved.quotes).length<=30 && Object.entries(saved.quotes).every(([k,v])=>
+          k.length<500 && typeof v==='string' && v.length<=10)){
+        wildRiskDays=saved.days;wildRiskMode=saved.mode;
+        wildDraft={stake:saved.stake,quotes:{...saved.quotes}};
+      }
+    }
+  }catch{}
+  function persistWildRisk(){
+    try{storage.setItem(wildRiskStorageKey,JSON.stringify({
+      version:1,days:wildRiskDays,mode:wildRiskMode,stake:wildDraft.stake,
+      quotes:wildDraft.quotes,savedAt:new Date().toISOString()
+    }));return true}catch{return false}
+  }
   function renderWildcardRisk(target){
     const from=today(),to=plusDays(from,wildRiskDays-1),now=Date.now();
     const review=E.wildcardRiskStudio(store.get().events,from,to,now);
@@ -860,13 +882,13 @@
       const option=make(days,'option',n+' days');option.value=String(n);option.selected=n===wildRiskDays;
     }
     days.addEventListener('change',()=>safely(()=>{
-      wildRiskDays=Number(days.value);wildDraft.quotes={};renderWildcard();
+      wildRiskDays=Number(days.value);wildDraft.quotes={};persistWildRisk();renderWildcard();
     }));
     make(config,'p',review.available+' distinct future model-backed events available for investigation within '+review.from+' to '+review.to+'.','small');
     const buttons=make(panel,'div',undefined,'wildcard-risk-modes');
     for(const mode of review.modes){
       const b=button(buttons,mode.name+' · '+mode.legs+' legs'+(mode.available?'':' · unavailable'),()=>{
-        wildRiskMode=mode.id;wildDraft.quotes={};renderWildcard();
+        wildRiskMode=mode.id;wildDraft.quotes={};persistWildRisk();renderWildcard();
       },'wildcard-risk-mode');
       b.disabled=!mode.available;
       b.setAttribute('aria-pressed',String(wildRiskMode===mode.id));
@@ -889,12 +911,12 @@
       const label=make(row,'label','Optional manually observed decimal odds (not verified)');
       const input=make(label,'input');input.type='text';input.inputMode='decimal';
       input.autocomplete='off';input.placeholder='e.g. 2.50';input.maxLength=10;
-      input.value=wildDraft.quotes[item.eventId+'|'+item.choiceId]||'';
-      input.addEventListener('input',()=>{wildDraft.quotes[item.eventId+'|'+item.choiceId]=input.value;calculate()});
+      input.value=wildDraft.quotes[item.eventId+'|'+item.choiceId+'|'+item.startUTC]||'';
+      input.addEventListener('input',()=>{wildDraft.quotes[item.eventId+'|'+item.choiceId]=input.value;persistWildRisk();calculate()});
     }
     const stakeLabel=make(slip,'label','Hypothetical £ stake · paper only · maximum £10');
     const stake=make(stakeLabel,'input');stake.type='text';stake.inputMode='decimal';stake.maxLength=5;
-    stake.value=wildDraft.stake;stake.addEventListener('input',()=>{wildDraft.stake=stake.value;calculate()});
+    stake.value=wildDraft.stake;stake.addEventListener('input',()=>{wildDraft.stake=stake.value;persistWildRisk();calculate()});
     const outcome=make(slip,'div',undefined,'wildcard-calculation');
     const explain=make(slip,'p','All legs would have to win. Odds are manually typed illustrations, not independently verified live bookmaker prices. No combined win probability or estimated EV is calculated.','small');
     function calculate(){
@@ -913,7 +935,7 @@
       make(outcome,'p','NOT a bookmaker quote · NO verified edge · EV unavailable · NOT a recommendation.','wildcard-note');
     }
     calculate();
-    make(panel,'p','Development decisions are made by our code and tests using the three methodological lenses above. No human expert has signed off this ticket.','wildcard-note');
+    make(panel,'p','The fifth paper draft is saved locally on this device when storage is available. Prices remain hypothetical and must be rechecked; no bookmaker availability or human expert sign-off is implied.','wildcard-note');
   }
   function renderWildcardDiscovery(target) {
     const from=today(),to=plusDays(from,6);
