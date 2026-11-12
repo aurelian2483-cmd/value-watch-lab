@@ -122,7 +122,7 @@ function updateHistory(actions,feeds,now){
  let storage=null;try{storage=window.localStorage}catch(_){}
  const loaded=api.load(storage);
  /* Only a complete set of parsed, timestamped research feeds may resolve past incidents. */
- const complete=feeds.every(f=>f.ok&&f.stamp!==null);
+ const complete=feeds.every(f=>f.ok&&!f.stale&&f.gateOK&&f.stamp!==null);
  const state=api.reconcile(loaded.state,actions,new Date(now).toISOString(),complete);
  const saved=loaded.available&&api.save(storage,state);
  const storageStatus=!loaded.available?loaded.warning:!saved?'Unable to save history in this browser; the current view is temporary.':null;
