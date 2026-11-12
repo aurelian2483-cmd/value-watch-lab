@@ -644,6 +644,50 @@
       ...GATES};
   }
 
+  // Fifth research slip: risk structures are scenario sizes, NOT guarantees of edge.
+  // Never force a sporting pick, merge with the original four slips, or fabricate quotes.
+  function wildcardRiskStudio(events,from,to,now=Date.now()){
+    range(from,to);
+    if(!Number.isFinite(now))throw Error('Invalid Wildcard risk review time');
+    const pool=researchCandidatePool({from,to},events,now);
+    const byEvent=new Set();
+    const candidates=[];
+    for(const row of evidenceBalancedOrder(pool.candidates)){
+      const event=row.event,choice=row.choice;
+      if(!event.model||row.communityExperimental||
+         !list(event.sources).some(x=>x.kind==='PROVIDER_RECEIPT'&&Core.url(x.url))||
+         event.futureScheduleOnly||event.provisionalEntry||
+         !statusOf(event,now).selectable||
+         instant(event.startUTC)<=now+300000||
+         byEvent.has(event.id))continue;
+      const p=event.sport==='football'?
+        event.seasonComparison?.[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.id]]:choice.probability;
+      if(!validProbability(p))continue;
+      byEvent.add(event.id);
+      candidates.push({
+        eventId:event.id,event:str(event.name,160),sport:event.sport,
+        startUTC:event.startUTC,choiceId:choice.id,outcome:str(choice.label,100),
+        market:str(choice.market,80),model:str(event.model.name,120),
+        experimentalProbability:p,evidenceScore:row.evidence,
+        priceVerified:false,decimalOdds:null,expectedValue:null,verifiedProbability:null,
+        status:'EXPERIMENTAL_RESEARCH_LEAD'
+      });
+    }
+    const modes=[
+      {id:'double',name:'Calculated Double',legs:2,description:'Two supported selections. Lower combination size, not necessarily higher value.'},
+      {id:'treble',name:'Speculative Treble',legs:3,description:'Three selections. More ways for the whole ticket to fail.'},
+      {id:'five',name:'Aggressive Five',legs:5,description:'Five selections when enough separate model-backed events exist.'},
+      {id:'seven',name:'Extreme Seven',legs:7,description:'Seven selections. High variance and a high chance of losing the whole stake.'}
+    ];
+    return {kind:'WILDCARD_FIFTH_PAPER_SLIP',schemaVersion:1,from,to,generatedAt:new Date(now).toISOString(),
+      candidates:candidates.slice(0,30),available:candidates.length,
+      modes:modes.map(m=>({...m,available:candidates.length>=m.legs,
+        selections:candidates.slice(0,m.legs)})),
+      exclusions:pool.rejection.reduce((a,r)=>(a[r.reason]=(a[r.reason]||0)+1,a),{}),
+      confidence:'NOT_CALIBRATED',verifiedMarketPrices:false,verifiedCombinedOdds:null,
+      combinedProbability:null,expectedValue:null,publicationGate:'BLOCKED',modelValidation:'UNVALIDATED'};
+  }
+
   // Wildcard discovery is deliberately broader than a qualified betting shortlist.
   // Every lead remains research-only: no invented market price, EV or recommendation.
   function wildcardCandidateAudit(events, from, to, now = Date.now()) {
@@ -817,5 +861,5 @@
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, weeklyWildcardReview, wildcardCandidateAudit, freshDailyResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, weeklyWildcardReview, wildcardRiskStudio, wildcardCandidateAudit, freshDailyResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });

@@ -73,3 +73,30 @@
 .wildcard-radar-row p{margin:4px 0;color:#c4d4df;overflow-wrap:anywhere}
 .wildcard-discovery .wildcard-note{color:#d1c49f;line-height:1.5}
 .wildcard-discovery summary:focus-visible{outline:3px solid #f7dd9c;outline-offset:4px}
+
+/* Fifth Gold Wildcard risk studio: research-only, separate from four saved slips. */
+.wildcard-risk-studio{margin:14px 0;padding:17px;border:1px solid #cfaa5c;border-radius:13px;background:linear-gradient(155deg,#382508,#151e31 45%,#091727);color:#fff0c5}
+.wildcard-risk-eyebrow{font-size:10px;letter-spacing:.13em;font-weight:850;color:#ffdf86}
+.wildcard-risk-studio h4{font-size:19px;margin:8px 0;color:#ffe19a}
+.wildcard-risk-studio h5{font-size:15px;color:#ffe09a;margin:10px 0}
+.wildcard-review-lenses{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}
+.wildcard-lens{min-width:0;padding:12px;border:1px solid #7c683e;border-radius:9px;background:#121e30}
+.wildcard-lens strong,.wildcard-lens small{display:block}.wildcard-lens strong{font-size:13px;color:#ffe2a2}
+.wildcard-lens small{font-size:11px;color:#d9bd8c;margin:4px 0}.wildcard-lens p{font-size:11px;line-height:1.6;color:#ccd9e7}
+.wildcard-config{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid #65542e;padding-top:14px}
+.wildcard-config label,.wildcard-fifth-slip label{font-size:11px;color:#f4ddb5;display:block}
+.wildcard-config select,.wildcard-fifth-slip input{display:block;margin:6px 0 12px;background:#0c2035;border:1px solid #a18245;border-radius:7px;padding:10px;color:#f9f3dc;font-size:13px;max-width:100%}
+.wildcard-config p{flex:1;min-width:190px}
+.wildcard-risk-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+.wildcard-risk-mode{border:1px solid #a6864b;background:#202c3d;color:#fff0c9;border-radius:8px;padding:10px 8px;font-size:11px;line-height:1.5;cursor:pointer}
+.wildcard-risk-mode[aria-pressed="true"]{border-color:#ffe491;background:#6a4b14;color:#fff}
+.wildcard-risk-mode:disabled{opacity:.5;cursor:not-allowed}
+.wildcard-fifth-slip{border:2px solid #c69a40;border-radius:11px;background:#101f30;padding:14px;margin-top:14px}
+.wildcard-fifth-leg{border-top:1px solid #4c4f4c;padding:12px 0}
+.wildcard-fifth-leg strong{display:block;font-size:13px;color:#ffebbf;margin-bottom:5px}
+.wildcard-fifth-leg span{display:block;color:#d6e3eb}.wildcard-fifth-leg p{line-height:1.55}
+.wildcard-fifth-leg input{width:175px}
+.wildcard-calculation{border-top:1px solid #645331;padding:13px 0}.wildcard-calculation strong{font-size:18px;color:#f9e2a4}
+.wildcard-risk-studio button:focus-visible,.wildcard-risk-studio input:focus-visible,.wildcard-risk-studio select:focus-visible{outline:3px solid #bdf4ff;outline-offset:2px}
+@media(max-width:860px){.wildcard-review-lenses{grid-template-columns:1fr}.wildcard-risk-modes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:460px){.wildcard-risk-studio{padding:12px}.wildcard-fifth-slip{padding:11px}.wildcard-risk-mode{min-height:48px}}

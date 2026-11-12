@@ -26,6 +26,30 @@ const server=http.createServer((req,res)=>{
    assert((await page.locator('#pro-featured-status').innerText()).includes('No verified betting prices or EV.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'));
 
    assert.equal(await page.locator('[data-pro-slot]').count(),4);
+   if(width<1020)await page.locator('#paper-open').click();
+   await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
+   assert.equal(await page.locator('.wildcard-review-lenses .wildcard-lens').count(),3,'All three independent method lenses must be visible');
+   assert.equal(await page.locator('.wildcard-risk-mode').count(),4,'Wildcard needs four risk options');
+   assert((await page.locator('.wildcard-risk-studio').innerText()).includes('FIFTH EXPERIMENTAL PAPER SLIP'));
+   const firstMode=page.locator('.wildcard-risk-mode').first();
+   if(await firstMode.isEnabled()){
+     await firstMode.click();
+     const legs=page.locator('.wildcard-fifth-leg');
+     assert.equal(await legs.count(),2,'Double scenario must contain two different events');
+     const prices=legs.locator('input');
+     await prices.nth(0).fill('2.00');
+     await prices.nth(1).fill('3.00');
+     const paperStake=page.locator('.wildcard-fifth-slip label:has-text("Hypothetical £ stake") input');
+     await paperStake.fill('1.00');
+     assert((await page.locator('.wildcard-calculation').innerText()).includes('£6.00'),'Scenario arithmetic is 1 × 2 × 3');
+     await page.reload({waitUntil:'domcontentloaded'});
+     if(width<1020)await page.locator('#paper-open').click();
+     await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
+     assert((await page.locator('.wildcard-fifth-slip input').first().inputValue())==='2.00','Fifth draft should persist on the same browser');
+     assert.equal(await page.locator('#slip-tabs button').count(),4,'Original four slip slots must remain intact');
+   }
+   if(width<1020)await page.locator('#paper-close').click();
+
    assert.equal(await page.locator('.pro-arena-sport').count(),4,'Homepage hero must present four sports');
    assert.equal(await page.locator('.pro-hero-arena').isVisible(),true);
    assert.equal(await page.locator('.pro-topnav a[href="./analyst/"]').count(),1);

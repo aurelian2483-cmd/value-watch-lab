@@ -832,6 +832,111 @@
       return record;
     } catch {return null;}
   }
+
+  // Three methodological review lenses are not real endorsements or human sign-offs.
+  // All values are research-only and isolated from the four existing saved paper slips.
+  const wildRiskStorageKey='value-watch-fifth-wildcard-paper-v1';
+  let wildRiskDays=7,wildRiskMode='double',wildDraft={stake:'1.00',quotes:{}};
+  try{
+    const raw=storage.getItem(wildRiskStorageKey);
+    if(raw && raw.length<=16000){
+      const saved=JSON.parse(raw);
+      if(saved?.version===1 && [7,14,21].includes(saved.days) &&
+        ['double','treble','five','seven'].includes(saved.mode) &&
+        typeof saved.stake==='string' && saved.stake.length<=5 &&
+        saved.quotes && typeof saved.quotes==='object' && !Array.isArray(saved.quotes) &&
+        Object.keys(saved.quotes).length<=30 && Object.entries(saved.quotes).every(([k,v])=>
+          k.length<500 && typeof v==='string' && v.length<=10)){
+        wildRiskDays=saved.days;wildRiskMode=saved.mode;
+        wildDraft={stake:saved.stake,quotes:{...saved.quotes}};
+      }
+    }
+  }catch{}
+  function persistWildRisk(){
+    try{storage.setItem(wildRiskStorageKey,JSON.stringify({
+      version:1,days:wildRiskDays,mode:wildRiskMode,stake:wildDraft.stake,
+      quotes:wildDraft.quotes,savedAt:new Date().toISOString()
+    }));return true}catch{return false}
+  }
+  function renderWildcardRisk(target){
+    const from=today(),to=plusDays(from,wildRiskDays-1),now=Date.now();
+    const review=E.wildcardRiskStudio(store.get().events,from,to,now);
+    const panel=make(target,'section',undefined,'wildcard-risk-studio');
+    make(panel,'p','GOLD WILDCARD · FIFTH EXPERIMENTAL PAPER SLIP','wildcard-risk-eyebrow');
+    make(panel,'h4','Risk Studio · Build a speculative combination');
+    make(panel,'p','Independent research tool inspired by the publicly described methods of three bettors. They do not participate, review or endorse these selections.','wildcard-note');
+    const lens=make(panel,'div',undefined,'wildcard-review-lenses');
+    const rules=[
+      ['Billy Walters lens','Market discipline','Current executable bookmaker prices: NOT VERIFIED. Examine injuries, line movement, price freshness and a fixed stake limit.'],
+      ['Tony Bloom lens','Portfolio and correlated risk','Multiple legs increase failure risk; sporting events may be dependent. Cross-market value and correlation: NOT VERIFIED.'],
+      ['Bill Benter lens','Statistical modelling','Forecasts are UNVALIDATED. Independent calibration, model/public probability comparisons and out-of-sample validation: NOT COMPLETED.']
+    ];
+    for(const [name,role,detail] of rules){
+      const card=make(lens,'article',undefined,'wildcard-lens');
+      make(card,'strong',name);make(card,'small',role);make(card,'p',detail,'small');
+    }
+    const config=make(panel,'div',undefined,'wildcard-config');
+    const daysLabel=make(config,'label','Research horizon');
+    const days=make(daysLabel,'select');
+    for(const n of [7,14,21]){
+      const option=make(days,'option',n+' days');option.value=String(n);option.selected=n===wildRiskDays;
+    }
+    days.addEventListener('change',()=>safely(()=>{
+      wildRiskDays=Number(days.value);wildDraft.quotes={};persistWildRisk();renderWildcard();
+    }));
+    make(config,'p',review.available+' distinct future model-backed events available for investigation within '+review.from+' to '+review.to+'.','small');
+    const buttons=make(panel,'div',undefined,'wildcard-risk-modes');
+    for(const mode of review.modes){
+      const b=button(buttons,mode.name+' · '+mode.legs+' legs'+(mode.available?'':' · unavailable'),()=>{
+        wildRiskMode=mode.id;wildDraft.quotes={};persistWildRisk();renderWildcard();
+      },'wildcard-risk-mode');
+      b.disabled=!mode.available;
+      b.setAttribute('aria-pressed',String(wildRiskMode===mode.id));
+    }
+    const mode=review.modes.find(m=>m.id===wildRiskMode);
+    if(!mode?.available){
+      make(panel,'p',review.available?
+        'Not enough eligible model-backed events for this number of legs. Try the shorter option or a wider date range.':
+        'No current model-backed events pass the preliminary source gates. Do not force a selection.','wildcard-note');
+      return;
+    }
+    const slip=make(panel,'div',undefined,'wildcard-fifth-slip');
+    make(slip,'h5',mode.name+' · PAPER RESEARCH · NO BET PLACED');
+    make(slip,'p',mode.description,'small');
+    for(const item of mode.selections){
+      const row=make(slip,'div',undefined,'wildcard-fifth-leg');
+      make(row,'strong',item.sport.toUpperCase()+' · '+item.event);
+      make(row,'span',item.outcome+' · '+dateText(item.startUTC),'small');
+      make(row,'p','Experimental model estimate: '+pct(item.experimentalProbability)+' · not calibrated · NOT verified bookmaker odds','small');
+      const label=make(row,'label','Optional manually observed decimal odds (not verified)');
+      const input=make(label,'input');input.type='text';input.inputMode='decimal';
+      input.autocomplete='off';input.placeholder='e.g. 2.50';input.maxLength=10;
+      input.value=wildDraft.quotes[item.eventId+'|'+item.choiceId+'|'+item.startUTC]||'';
+      input.addEventListener('input',()=>{wildDraft.quotes[item.eventId+'|'+item.choiceId+'|'+item.startUTC]=input.value;persistWildRisk();calculate()});
+    }
+    const stakeLabel=make(slip,'label','Hypothetical £ stake · paper only · maximum £10');
+    const stake=make(stakeLabel,'input');stake.type='text';stake.inputMode='decimal';stake.maxLength=5;
+    stake.value=wildDraft.stake;stake.addEventListener('input',()=>{wildDraft.stake=stake.value;persistWildRisk();calculate()});
+    const outcome=make(slip,'div',undefined,'wildcard-calculation');
+    const explain=make(slip,'p','All legs would have to win. Odds are manually typed illustrations, not independently verified live bookmaker prices. No combined win probability or estimated EV is calculated.','small');
+    function calculate(){
+      outcome.replaceChildren();
+      const values=mode.selections.map(x=>wildDraft.quotes[x.eventId+'|'+x.choiceId+'|'+x.startUTC]||'');
+      const priceOk=values.every(v=>/^(?:\d{1,4})(?:\.\d{1,3})?$/.test(v)&&Number(v)>1&&Number(v)<=10000);
+      const stakeOk=/^\d{1,2}(?:\.\d{1,2})?$/.test(wildDraft.stake)&&Number(wildDraft.stake)>0&&Number(wildDraft.stake)<=10;
+      if(!stakeOk){make(outcome,'p','Enter a hypothetical stake between £0.01 and £10.00.','wildcard-note');return}
+      if(!priceOk){make(outcome,'p','Illustrative payout: unavailable until a valid decimal price is entered for every leg.','wildcard-note');return}
+      // Arithmetical scenario only, no independence/probability inference.
+      const decimal=values.reduce((a,v)=>a*Number(v),1);
+      const gross=decimal*Number(wildDraft.stake);
+      if(!Number.isFinite(gross)||gross>100000000){make(outcome,'p','Payout exceeds the supported scenario range.','wildcard-note');return}
+      make(outcome,'strong','Hypothetical all-win gross return: £'+gross.toFixed(2));
+      make(outcome,'p','Illustrative combined decimal multiplier: '+decimal.toFixed(3)+' · net if all win: £'+(gross-Number(wildDraft.stake)).toFixed(2)+'. If any leg loses, return £0 and the full stake is lost.','small');
+      make(outcome,'p','NOT a bookmaker quote · NO verified edge · EV unavailable · NOT a recommendation.','wildcard-note');
+    }
+    calculate();
+    make(panel,'p','The fifth paper draft is saved locally on this device when storage is available. Prices remain hypothetical and must be rechecked; no bookmaker availability or human expert sign-off is implied.','wildcard-note');
+  }
   function renderWildcardDiscovery(target) {
     const from=today(),to=plusDays(from,6);
     const audit=E.wildcardCandidateAudit(store.get().events,from,to,Date.now());
@@ -870,6 +975,7 @@
       write(control,'Review this week\'s wildcard');
       make(target,'p','Not reviewed for the current UK week · seven-day, read-only research. Your original paper slips stay unchanged.','wildcard-note');
       if(data?.entries?.length)make(target,'p','An earlier weekly snapshot is stored separately on this device.','wildcard-note');
+      renderWildcardRisk(target);
       renderWildcardDiscovery(target);
       return;
     }
@@ -897,6 +1003,7 @@
     const list=make(target,'ul',undefined,'wildcard-review-list');
     for(const note of review.notes||[])make(list,'li',note);
     make(target,'p','Snapshot created '+dateText(review.generatedAt)+'. The original weekly review is historical and frozen; the current research radar below may change as feeds refresh.','wildcard-note');
+    renderWildcardRisk(target);
     renderWildcardDiscovery(target);
   }
   let wildcardBusy=false;
