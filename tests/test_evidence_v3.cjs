@@ -7,7 +7,7 @@ const context={window:{},URL};vm.runInNewContext(code,context);
 const gate=context.window.ValueWatchEvidenceV3.evaluate;
 const now=Date.parse('2026-11-08T13:00:00Z');
 const observedAt='2026-11-08T12:59:00Z';
-const event={sport:'football',startUTC:'2026-11-08T15:00:00Z',choices:[{id:'a',quote:{decimal:1.5,observedAt}},{id:'b',quote:{decimal:3,observedAt}}],communityTips:[]};
+const event={sport:'football',startUTC:'2026-11-08T15:00:00Z',choices:[{id:'a',quote:{decimal:1.5,observedAt,status:'SOURCE_OBSERVED_UNVERIFIED',executable:false,bookmaker:'Sky Bet',source:'https://example.org/matched-event'}},{id:'b',quote:{decimal:3,observedAt,status:'SOURCE_OBSERVED_UNVERIFIED',executable:false,bookmaker:'Sky Bet',source:'https://example.org/matched-event'}}],communityTips:[]};
 const run=()=>gate(event,event.choices[0],now);
 assert.equal(run().green,'PROVISIONAL');assert.equal(run().blue,'NOT_AWARDED');assert.equal(run().yellow,'NOT_AWARDED');
 const post=(author,verified=true)=>({choiceId:'a',type:'forum',sourceUrl:'https://example.org/thread/42#'+author,author,publishedAt:'2026-11-08T12:00:00Z',primaryPostVerified:verified,explicitBetSelectionVerified:true,timestampVerified:true,valueBackingVerified:true,verifiedThreadId:'thread42'});
@@ -73,3 +73,16 @@ ranked.communityTips.push({...attributed('a','olbg'),sourceUrl:'https://www.olbg
 assert.equal(gate(ranked,ranked.choices[0],now).sourceSupport,2,'Aggregate totals contribute one site vote, not thousands of authors');
 assert.equal(gate(ranked,ranked.choices[0],now).blue,'NOT_AWARDED','A 2–2 tie has no blue leader');
 assert.equal(gate(ranked,ranked.choices[1],now).blue,'NOT_AWARDED');
+
+
+const mixedSources={...event,sport:'racing',communityTips:[],choices:event.choices.map((c,i)=>({...c,quote:{...c.quote,source:i?'https://another.example.net/market':'https://example.org/matched-event'}}))};
+assert.equal(gate(mixedSources,mixedSources.choices[0],now).green,'NOT_ESTABLISHED','Mixed source quotes cannot establish a bookmaker favourite');
+const mixedTimes={...event,sport:'racing',communityTips:[],choices:event.choices.map((c,i)=>({...c,quote:{...c.quote,observedAt:i?'2026-11-08T12:58:00Z':observedAt}}))};
+assert.equal(gate(mixedTimes,mixedTimes.choices[0],now).green,'NOT_ESTABLISHED','Mixed observation snapshots cannot establish market order');
+const userRecorded={...event,sport:'racing',communityTips:[],choices:event.choices.map(c=>({...c,quote:{...c.quote,status:'USER_RECORDED_UNVERIFIED'}}))};
+assert.equal(gate(userRecorded,userRecorded.choices[0],now).green,'NOT_ESTABLISHED','User-recorded inputs are not a confirmed common bookmaker market');
+const mixedBookmakers={...event,sport:'racing',communityTips:[],choices:event.choices.map((c,i)=>({...c,quote:{...c.quote,bookmaker:i?'Other bookmaker':'Sky Bet'}}))};
+assert.equal(gate(mixedBookmakers,mixedBookmakers.choices[0],now).green,'NOT_ESTABLISHED','Prices from different bookmakers must not be combined to find a favourite');
+const completeObserved={...event,sport:'racing',communityTips:[]};
+assert.equal(gate(completeObserved,completeObserved.choices[0],now).green,'PROVISIONAL','A complete coherent observed market may show a provisional price leader');
+assert.equal(gate(completeObserved,completeObserved.choices[1],now).green,'NOT_ESTABLISHED','Only the uniquely shortest market price is provisionally favoured');
