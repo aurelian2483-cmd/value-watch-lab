@@ -22,6 +22,41 @@ def race():
                                              {'horse_id':'b','name':'Beta','active_runner':True,'runner_status':'RUNNER','previous_results':[history(20,4),history(21,4),history(22,4)]}]}
 
 class ContextControls(unittest.TestCase):
+    def test_withdrawal_invalidates_live_field_without_rewriting_frozen_forecast(self):
+        source = race()
+        frozen, reason = m.forecast(source, NOW)
+        self.assertIsNone(reason)
+        frozen['record_sha256'] = m.sha(frozen)
+        original = copy.deepcopy(frozen)
+        for status in ('NONRUNNER', 'WITHDRAWN'):
+            changed = copy.deepcopy(source)
+            changed['runners'][0].update(active_runner=False, runner_status=status)
+            changed['active_runner_count'] = 1
+            checks = m.field_checks({'races': [changed]}, [frozen], NOW)
+            self.assertEqual(checks[frozen['record_sha256']]['status'], 'FIELD_DIFFERS_FROM_FROZEN_FORECAST')
+            self.assertEqual(m.forecast(changed, NOW)[1], 'INVALID_ACTIVE_FIELD')
+            self.assertEqual(frozen, original)
+
+    def test_live_field_expires_at_thirty_minutes_without_mutating_archive(self):
+        source = race()
+        frozen, _ = m.forecast(source, NOW)
+        frozen['record_sha256'] = m.sha(frozen)
+        original = copy.deepcopy(frozen)
+        for elapsed, expected in ((1800, 'FRESH_MATCHING_FIELD_AND_CONTEXT'),
+                                  (1801, 'STALE_RUNNER_OBSERVATION')):
+            checks = m.field_checks({'races': [source]}, [frozen], NOW + dt.timedelta(seconds=elapsed))
+            self.assertEqual(checks[frozen['record_sha256']]['status'], expected)
+        self.assertEqual(frozen, original)
+
+    def test_equivalent_offset_observation_has_identical_freshness(self):
+        source = race()
+        frozen, _ = m.forecast(source, NOW)
+        frozen['record_sha256'] = m.sha(frozen)
+        source['runner_observed_at_utc'] = '2026-11-05T00:00:00+14:00'
+        self.assertEqual(m.stamp(source['runner_observed_at_utc']), NOW)
+        checks = m.field_checks({'races': [source]}, [frozen], NOW)
+        self.assertEqual(checks[frozen['record_sha256']]['status'], 'FRESH_MATCHING_FIELD_AND_CONTEXT')
+
     def test_mixed_discipline_going_is_not_flattened(self):
         r = race(); r['going'] = 'Hurdle: soft; chase: good to firm'
         self.assertEqual(m.forecast(r,NOW)[1],'CURRENT_GOING_UNAVAILABLE')
