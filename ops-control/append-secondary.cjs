@@ -13,6 +13,7 @@ function format(r){
  if(x.unexpected?.length)lines.push('- **Primary-only meetings (investigate):** '+x.unexpected.join(', '));
  if(x.raceCountMismatches?.length)lines.push('- **Race counts need review:** '+x.raceCountMismatches.map(z=>z.meeting+': '+z.primary+' vs '+z.secondary).join('; '));
  if(x.reason)lines.push('- Limitation: '+String(x.reason).replace(/[\r\n|]/g,' ').slice(0,300));
+ if(x.receipt?.diagnostics){const d=x.receipt.diagnostics;lines.push('- Parser diagnostic: header '+d.headerMeetings+' meetings / '+d.headerRaces+' races; extracted '+d.parsedMeetings+' meetings / '+d.parsedRaces+' races.');lines.push('- Candidate venue names (NOT VERIFIED): '+(d.parsedNames||[]).map(z=>String(z).replace(/[\r\n|]/g,' ').slice(0,60)).join(', '));}
  lines.push('- A matching list does not establish complete declarations, confirmed runners, true live odds or a betting edge.','');
  return lines.join('\n');
 }

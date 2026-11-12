@@ -14,6 +14,10 @@ const primary={race_date_uk:date,coverage_verified:false,discovery_coverage:{inc
  assert.deepEqual(broadcastParsed.meetings.map(x=>x.name),['Thurles','Market Rasen','Hereford'],'Broadcaster names or previous status must not be confused with venue names');
  const broadcastCompared=S.reconcile(primary,broadcastParsed,now.toISOString());
  assert.equal(broadcastCompared.status,'MEETING_LIST_MATCHED_NOT_CERTIFIED');
+ const labeledHTML=html.replace('· Scheduled</li>','· Scheduled <img alt="Image: Racing TV"></li>').replace('· Scheduled</li>','· Scheduled <img alt="Image: Sky Sports Racing"></li>');
+ const labeled=S.extract(labeledHTML,date);
+ assert.equal(labeled.status,'SOURCE_OBSERVED');
+ assert.deepEqual(labeled.meetings.map(x=>x.name),['Thurles','Market Rasen','Hereford'],'Image/broadcaster text must not contaminate subsequent meeting names');
  const matched=S.reconcile(primary,parsed,now.toISOString());
  console.log('Secondary fixture parse:',JSON.stringify(parsed.meetings),'reconciliation:',JSON.stringify(matched));
  assert.equal(matched.status,'MEETING_LIST_MATCHED_NOT_CERTIFIED');
@@ -26,6 +30,7 @@ const primary={race_date_uk:date,coverage_verified:false,discovery_coverage:{inc
  assert.equal(missing.status,'DISCREPANCY');assert.deepEqual(missing.missing,['Hereford']);
  const wrongDay=S.extract(html,'2026-11-13');assert.equal(wrongDay.status,'DATE_UNVERIFIED');
  const changed=S.extract(html.replace('3 meetings · 21 races','4 meetings · 21 races'),date);assert.equal(changed.status,'SCHEMA_UNVERIFIED');
+ assert.equal(changed.diagnostics.headerMeetings,4);assert.equal(changed.diagnostics.parsedMeetings,3);
  const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'racing-secondary-'));
  try{
   const input=path.join(tmp,'primary.json'),output=path.join(tmp,'secondary.json');
