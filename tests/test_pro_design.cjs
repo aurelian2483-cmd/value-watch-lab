@@ -11,7 +11,10 @@ assert(home.includes('analyst/')&&home.includes('pro-landing')&&home.includes('d
 assert(home.includes('paper-lab/desk.js'),'Existing desk engine must be retained');
 assert(home.includes('paper-lab/engine.js'),'Existing calculations must be retained');
 assert(home.includes('paper-lab/store.js'),'Existing persisted slip format must be retained');
-assert(home.includes('pro-home.js?v=1')&&home.includes('pro-design.css?v=1'));
+assert(home.includes('pro-home.js?v=2')&&home.includes('pro-design.css?v=2'));
+for(const id of ['pro-featured-rows','pro-featured-status','pro-market-feeds'])assert(home.includes('id="'+id+'"'));
+assert(home.includes('Smarter Betting Across')&&home.includes('href="./analyst/"'));
+assert(homeJs.includes("publication_gate==='BLOCKED'")&&homeJs.includes('Not verified')&&homeJs.includes('Unavailable'));
 assert(!home.includes('ROI +11.6%')&&!home.includes('+12.4%')&&!home.includes('Napoli vs Lazio'),'Reference image samples must not become production content');
 for(const id of ['metric-events','analyst-events','filter-sport','filter-range','filter-evidence','source-status','sport-bars','sport-overview','takeaways','history-output','results-count']){
  assert(analyst.includes('id="'+id+'"'),'Missing interactive analyst component: '+id);
