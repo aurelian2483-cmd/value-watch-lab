@@ -11,7 +11,7 @@ assert(home.includes('analyst/')&&home.includes('pro-landing')&&home.includes('d
 assert(home.includes('paper-lab/desk.js'),'Existing desk engine must be retained');
 assert(home.includes('paper-lab/engine.js'),'Existing calculations must be retained');
 assert(home.includes('paper-lab/store.js'),'Existing persisted slip format must be retained');
-assert(home.includes('pro-home.js?v=3')&&home.includes('pro-design.css?v=3'));
+assert(home.includes('pro-home.js?v=3')&&home.includes('pro-design.css?v=4'));
 for(const id of ['pro-featured-rows','pro-featured-status','pro-market-feeds'])assert(home.includes('id="'+id+'"'));
 assert(home.includes('Smarter Betting Across')&&home.includes('href="./analyst/"'));
 assert(home.includes('pro-sources.js?v=1')&&analyst.includes('../pro-sources.js?v=1'));
@@ -19,6 +19,11 @@ assert(homeJs.includes('Sources.summarize')&&homeJs.includes('Not verified')&&ho
 assert(analystJs.includes('Sources.summarize')&&analystJs.includes('Sources.load'));
 assert(require('fs').readFileSync('pro-sources.js','utf8').includes("publication_gate==='BLOCKED'"));
 assert(!home.includes('ROI +11.6%')&&!home.includes('+12.4%')&&!home.includes('Napoli vs Lazio'),'Reference image samples must not become production content');
+assert(home.includes('pro-hero-arena')&&home.includes('pro-arena-nfl'),'Reference hero must feature four sports');
+assert(css.includes('@media(max-width:460px)')&&css.includes('prefers-reduced-motion'));
+for(const id of ['calibration-sample','calibration-brier','calibration-logloss','calibration-models','calibration-status'])assert(analyst.includes('id="'+id+'"'),'Missing archival evidence diagnostic: '+id);
+assert(analystJs.includes('DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION')&&analystJs.includes('INSUFFICIENT_SAMPLE'));
+assert(!analyst.includes('78%')&&!analyst.includes('+11.6%'));
 for(const id of ['metric-events','analyst-events','filter-sport','filter-range','filter-evidence','source-status','sport-bars','sport-overview','takeaways','history-output','results-count']){
  assert(analyst.includes('id="'+id+'"'),'Missing interactive analyst component: '+id);
 }
