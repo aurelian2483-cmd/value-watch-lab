@@ -1,0 +1,76 @@
+name: Operations Director scheduled monitoring
+on:
+  schedule:
+    # Fixed UTC times. UK local times differ during BST; GitHub may delay scheduled jobs.
+    - cron: '17 7,19 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ops-control/scheduled-monitor.cjs'
+      - 'tests/test_ops_scheduled.cjs'
+      - 'tests/test_ops_notify.cjs'
+      - '.github/workflows/operations-scheduled-monitor.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops-control/scheduled-monitor.cjs'
+      - 'tests/test_ops_scheduled.cjs'
+      - '.github/workflows/operations-scheduled-monitor.yml'
+concurrency:
+  group: operations-scheduled-monitor-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  unit-tests:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test no-write scheduled monitor
+        run: |
+          node --check ops-control/scheduled-monitor.cjs
+          node tests/test_ops_scheduled.cjs
+          node tests/test_ops_notify.cjs
+      - name: Dry-run latest checked-out research snapshots (no GitHub writes)
+        run: |
+          node ops-control/scheduled-monitor.cjs /tmp/vw-ops-monitor-dry-run
+          test -s /tmp/vw-ops-monitor-dry-run/report.json
+          test -s /tmp/vw-ops-monitor-dry-run/briefing.md
+  scheduled-briefing:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit current main-branch repository snapshots
+        run: node ops-control/scheduled-monitor.cjs ops-control/out
+      - name: Save audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: director-briefing-${{ github.run_id }}
+          path: ops-control/out/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Publish briefing to one Director issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('node:fs');
+            const {publish}=require('./ops-control/github-notify.cjs');
+            const markdown=fs.readFileSync('ops-control/out/briefing.md','utf8');
+            await publish({github,context,core,reportMarkdown:markdown});
