@@ -815,6 +815,90 @@
     renderSlip();
     try { storage.setItem(X.preferenceKey, engineView); } catch { write($('engine-status'), $('engine-status').textContent + ' View preference could not be saved on this device.'); }
   })));
+  const wildcardStorageKey = 'value-watch-weekly-wildcard-v1';
+  const wildcardSportNames = {football:'Football',racing:'Horse racing',tennis:'Tennis',nfl:'NFL'};
+  function wildcardWeek(date) {
+    const d=new Date(date+'T12:00:00Z');
+    const offset=(d.getUTCDay()+6)%7;
+    d.setUTCDate(d.getUTCDate()-offset);
+    return d.toISOString().slice(0,10);
+  }
+  function wildcardSaved() {
+    try {
+      const raw=storage.getItem(wildcardStorageKey);
+      if (!raw || raw.length>80000) return null;
+      const record=JSON.parse(raw);
+      if (record?.version!==1 || !Array.isArray(record.entries) || record.entries.length>16) return null;
+      return record;
+    } catch {return null;}
+  }
+  function renderWildcard() {
+    const target=$('wildcard-result'),control=$('wildcard-build');
+    if (!target || !control) return;
+    const currentWeek=wildcardWeek(today());
+    const data=wildcardSaved();
+    const saved=data?.entries?.find(row=>row.week===currentWeek);
+    target.replaceChildren();
+    if (!saved || saved.review?.kind!=='WEEKLY_WILDCARD_PAPER_RESEARCH') {
+      control.disabled=false;
+      write(control,'Review this week\'s wildcard');
+      make(target,'p','Not reviewed for the current UK week · seven-day, read-only research. Your original paper slips stay unchanged.','wildcard-note');
+      if(data?.entries?.length)make(target,'p','An earlier weekly snapshot is stored separately on this device.','wildcard-note');
+      return;
+    }
+    control.disabled=true;
+    write(control,'This week\'s review saved');
+    const review=saved.review;
+    make(target,'p','Week of '+saved.week+' · Review window '+review.from+' to '+review.to,'wildcard-result-header');
+    make(target,'p','Automated screening, not approval by independent mathematicians or betting specialists. Model probabilities are unvalidated; real maximum winnings and fair value cannot be calculated.','wildcard-note');
+    for(const sport of ['football','racing','tennis','nfl']){
+      const cov=review.coverage?.find(row=>row.sport===sport);
+      const chosen=review.selections?.find(row=>row.sport===sport);
+      const box=make(target,'div',undefined,'wildcard-sport');
+      make(box,'strong',(wildcardSportNames[sport]||sport)+' · '+(cov?.eligible||0)+' eligible research candidates');
+      if(chosen){
+        make(box,'p',chosen.event+' · '+chosen.outcome+' · '+dateText(chosen.startUTC));
+        make(box,'p','Experimental estimate: '+pct(chosen.experimentalProbability)+' · Evidence score '+chosen.evidenceScore+' · '+chosen.sourceReceiptCount+' source receipt(s)');
+        const live=store.get().events.find(e=>e.id===chosen.eventId);
+        const status=live?E.statusOf(live):null;
+        make(box,'p',status&&!status.selectable?'Current status: '+status.label+'. Historical review only.':'Automated preliminary selection · NOT verified market favourite');
+      } else {
+        make(box,'p','No qualifying supported model and source evidence. No selection forced.');
+      }
+    }
+    make(target,'p','Potential payout: unavailable · Verified bookmaker odds: unavailable · Combined win probability: unavailable.','wildcard-result-header');
+    const list=make(target,'ul',undefined,'wildcard-review-list');
+    for(const note of review.notes||[])make(list,'li',note);
+    make(target,'p','Snapshot created '+dateText(review.generatedAt)+'. Next week generates a separate new review; no live updates or betting instructions.','wildcard-note');
+  }
+  let wildcardBusy=false;
+  async function createWeeklyWildcard(){
+    if(wildcardBusy)return;
+    wildcardBusy=true;
+    const button=$('wildcard-build');
+    button.disabled=true;
+    try{
+      const week=wildcardWeek(today());
+      if(wildcardSaved()?.entries?.some(row=>row.week===week)) {renderWildcard();return;}
+      const result=await refresh();
+      if(!result?.snapshots?.length)throw Error('Research feeds are unavailable. No wildcard was saved.');
+      const from=today(),to=plusDays(from,6);
+      const review=E.weeklyWildcardReview(store.get().events,from,to,Date.now());
+      if(!review.selections.length)throw Error('No supported current research candidates. No wildcard created.');
+      const data=wildcardSaved()||{version:1,entries:[]};
+      const latest=wildcardSaved();
+      if(latest?.entries?.some(row=>row.week===week)){renderWildcard();return;}
+      const entry={week,review};
+      const next={version:1,entries:[...data.entries.filter(row=>row.week!==week),entry].slice(-16)};
+      storage.setItem(wildcardStorageKey,JSON.stringify(next));
+      renderWildcard();
+      notice('Weekly Wildcard research snapshot saved on this device. No paper slips, prices or stakes were changed.');
+    }catch(error){
+      renderWildcard();
+      make($('wildcard-result'),'p','Weekly review was not saved: '+(error?.message||'Unknown error')+'. Existing paper research was not changed.','wildcard-note');
+      throw error;
+    }finally{wildcardBusy=false;}
+  }
   let slipSignature = '';
   function renderSlipHealth(state) {
     const target = $('slip-refresh-health');
@@ -1077,6 +1161,7 @@
   let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
   $('refresh').addEventListener('click', () => safely(refresh));
   $('find-racing')?.addEventListener('click',()=>safely(()=>{racingCandidatesRequested=true;renderRacingCandidates();$('racing-candidates')?.scrollIntoView?.({block:'nearest'});}));
+  $('wildcard-build')?.addEventListener('click',()=>safely(createWeeklyWildcard));
   for (const id of ['fresh-daily-slips','fresh-daily-slips-panel'])
     $(id)?.addEventListener('click', () => safely(createFreshDailySlips));
   $('generate').addEventListener('click', () => safely(() => { const state = store.get(); const scope = $('build-scope').value; const candidates = scope === 'all' ? state.events.filter(event => day(event.startUTC) >= state.plan.from && day(event.startUTC) <= state.plan.to) : filtered(state); savePlan(E.generateResearch(state.plan, candidates)); notice('Distinct research shortlists created where supported. Non-empty slips are retained. This is an evidence-coverage comparison, not verified value.'); }));
@@ -1098,7 +1183,7 @@
     make(card, 'p', 'Classification is not fact verification or an allegation of fraud. Verified ROI, win rate and trust score remain unavailable.', 'muted');
     button(card, 'Save private research note', () => { const state = store.get(); if (state.claims.length >= 100) throw Error('Private note limit reached. Export your research.'); saveEnvelope({ claims: [...state.claims, { reasoning, methodology: result.methodology, sources: result.sources, classification: result.classification, createdAt: new Date().toISOString(), ...context }] }); notice('Research note saved privately on this device.'); });
   }); });
-  store.subscribe(state => JSON.stringify([state.plan.id, state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick, state.claims]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderTracker(); }));
+  store.subscribe(state => JSON.stringify([state.plan.id, state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick, state.claims]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderWildcard(); renderTracker(); }));
   store.subscribe(state => JSON.stringify([state.sport, state.plan.from, state.plan.to]), () => { if (store.get().view === 'history') safely(renderHistory); });
   store.subscribe(state => state.view, () => safely(renderView));
   store.subscribe(state => JSON.stringify([state.history, state.journal, state.claims]), () => { if (store.get().view === 'history') safely(renderHistory); });
@@ -1110,5 +1195,5 @@
   window.addEventListener('online', () => { if (!document.hidden) safely(refresh); }); window.addEventListener('offline', () => notice('Offline · last good snapshots and saved research retained. Freshness checks still apply.'));
   window.addEventListener('pagehide', () => { clearInterval(timer); timer = null; transport.setPaused(true); for (const request of statsRequests.values()) request.abort(); });
   window.addEventListener('pageshow', () => { transport.setPaused(document.hidden); startClock(); if (!document.hidden) safely(refresh); });
-  safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderView(); startClock(); refresh().catch(report); });
+  safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderWildcard(); renderView(); startClock(); refresh().catch(report); });
 })();
