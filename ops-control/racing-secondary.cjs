@@ -22,7 +22,7 @@ function extract(html,date){
  const meetings=[],seen=new Set();let x;
  const listing=scope[1].slice(header.index+header[0].length);
  while((x=pattern.exec(listing))!==null){
-  const name=x[1].trim().replace(/^(?:(?:Scheduled|Abandoned|Cancelled|Canceled)\\s+)?(?:(?:Image\\s+)?(?:Racing TV|Sky Sports Racing|ITV Racing|RTÉ Racing)\\s+)?/i,'').trim(),key=clean(name);
+  const name=x[1].trim().replace(/^(?:(?:Scheduled|Abandoned|Cancelled|Canceled)\s+)?(?:(?:Image\s+)?(?:Racing TV|Sky Sports Racing|ITV Racing|RTÉ Racing)\s+)?/i,'').trim(),key=clean(name);
   if(!key||seen.has(key))return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Duplicate or empty secondary meeting'};
   seen.add(key);meetings.push({name,country:x[2],races:Number(x[5]),status:/abandoned|cancel/i.test(x[6])?'ABANDONED':'ACTIVE'});
  }
