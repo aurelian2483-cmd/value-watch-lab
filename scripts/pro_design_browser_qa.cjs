@@ -26,6 +26,8 @@ const server=http.createServer((req,res)=>{
    assert((await page.locator('#pro-featured-status').innerText()).includes('No verified betting prices or EV.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'));
 
    assert.equal(await page.locator('[data-pro-slot]').count(),4);
+   assert.equal(await page.locator('.pro-arena-sport').count(),4,'Homepage hero must present four sports');
+   assert.equal(await page.locator('.pro-hero-arena').isVisible(),true);
    assert.equal(await page.locator('.pro-topnav a[href="./analyst/"]').count(),1);
    await page.locator('.pro-topnav [data-pro-sport="tennis"]').click();
    await page.waitForTimeout(1000);
@@ -49,6 +51,9 @@ const server=http.createServer((req,res)=>{
    await page.locator('#filter-apply').click();
    assert((await page.locator('#results-count').innerText()).includes('matching source observations'));
    assert.equal(await page.locator('text=Verified ROI').count(),1);
+   assert.equal(await page.locator('#calibration-sample').count(),1);
+   assert.equal(await page.locator('#calibration-status').count(),1);
+   assert((await page.locator('#calibration-status').innerText()).length>0,'Archive status must be explicit');
    assert.equal(await page.locator('text=Not certified').count()>0,true);
    await page.screenshot({path:path.join(out,'pro-analyst-'+width+'.png'),fullPage:false});
    assert.deepEqual(errors,[],'Analyst runtime errors');
