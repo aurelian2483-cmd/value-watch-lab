@@ -22,12 +22,18 @@ function extract(html,date){
  const meetings=[],seen=new Set();let x;
  const listing=scope[1].slice(header.index+header[0].length);
  while((x=pattern.exec(listing))!==null){
-  const name=x[1].trim().replace(/^(?:(?:Scheduled|Abandoned|Cancelled|Canceled)\s+)?(?:(?:Image\s+)?(?:Racing TV|Sky Sports Racing|ITV Racing|RTÉ Racing)\s+)?/i,'').trim(),key=clean(name);
+  // Strip only known status/broadcaster prefixes; never invent or substitute a venue.
+  let name=x[1].trim();
+  for(let n=0;n<3;n++){
+   const next=name.replace(/^(?:Scheduled|Abandoned|Cancelled|Canceled)\s+/i,'').replace(/^(?:Image\s*:?\s*)?(?:Racing TV|Sky Sports Racing|ITV Racing|RTÉ Racing|RTE Racing)\s+/i,'').trim();
+   if(next===name)break;name=next;
+  }
+  const key=clean(name);
   if(!key||seen.has(key))return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Duplicate or empty secondary meeting'};
   seen.add(key);meetings.push({name,country:x[2],races:Number(x[5]),status:/abandoned|cancel/i.test(x[6])?'ABANDONED':'ACTIVE'});
  }
  if(meetings.length!==expected||meetings.reduce((n,x)=>n+x.races,0)!==totalRaces)
-  return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Parsed meeting or race counts do not reconcile with source header'};
+  return {status:'SCHEMA_UNVERIFIED',meetings:[],reason:'Parsed meeting or race counts do not reconcile with source header',diagnostics:{headerMeetings:expected,parsedMeetings:meetings.length,headerRaces:totalRaces,parsedRaces:meetings.reduce((n,x)=>n+x.races,0),parsedNames:meetings.map(x=>x.name).slice(0,25)}};
  return {status:'SOURCE_OBSERVED',meetings,expectedMeetings:expected,expectedRaces:totalRaces};
 }
 function reconcile(primary,secondary,observedAt){
