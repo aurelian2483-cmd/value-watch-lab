@@ -35,7 +35,7 @@ async function run(denied){
  assert.equal(nodes.get('export').disabled,false,'Report export should become available');
  assert(requests.length===4&&requests.every(r=>r.opts.cache==='no-store'),'Only read four configured sources');
  assert(requests.every(r=>r.opts.method===undefined||r.opts.method==='GET'),'No writes');
- if(denied){assert.equal(val('m-feeds'),'3 / 4');assert.match(val('decision-title'),/ESCALATE/);assert(nodes.get('action-board').children.some(n=>n.children.some(c=>c.textContent==='P1')),'Feed failure must produce P1 action')}
+ if(denied){assert.equal(val('m-feeds'),'3 / 4');assert.match(val('decision-title'),/ESCALATE/);assert(nodes.get('action-board').children.some(n=>n.children.some(h=>h.children?.some(c=>c.textContent==='P1'))),'Feed failure must produce P1 action')}
  else{assert.equal(val('m-feeds'),'4 / 4');assert.match(val('decision-title'),/DATA CHECKS PASSED/);assert.equal(val('m-alerts'),'0')}
 }
 (async()=>{await run(false);await run(true);console.log('PASS: standalone operations dashboard, four desks, read-only requests, gate protection, failure escalation, export controls and responsive markup')})().catch(error=>{console.error(error);process.exitCode=1});
