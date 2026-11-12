@@ -38,7 +38,7 @@ function extract(html,date){
 }
 function reconcile(primary,secondary,observedAt){
  const date=primary?.race_date_uk;
- const receipt={url:SOURCE,observedAt,sha256:secondary.sha256||null,status:secondary.status,reason:secondary.reason||null};
+ const receipt={url:SOURCE,observedAt,sha256:secondary.sha256||null,status:secondary.status,reason:secondary.reason||null,diagnostics:secondary.diagnostics||null};
  const listed=primary?.discovery_coverage?.included_meetings;
  if(typeof date!=='string'||!Array.isArray(listed)||!Array.isArray(primary.races)||primary.coverage_verified!==false)
   return {status:'PRIMARY_UNVERIFIED',receipt,missing:[],unexpected:[],raceCountMismatches:[],decision:'RETAIN_P2',reason:'Primary date, races or discovery provenance unavailable'};
