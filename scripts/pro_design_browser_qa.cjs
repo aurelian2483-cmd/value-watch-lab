@@ -18,6 +18,13 @@ const server=http.createServer((req,res)=>{
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto('http://127.0.0.1:8177/',{waitUntil:'domcontentloaded'});
    await page.locator('.pro-landing').waitFor();
+   await page.waitForFunction(()=>!document.getElementById('pro-featured-status').textContent.includes('Checking published'),{timeout:12000});
+   for(const sport of ['football','racing','tennis','nfl']){
+    const displayed=await page.locator('[data-pro-count="'+sport+'"]').innerText();
+    assert(/^\d+$/.test(displayed)||displayed==='—','Unavailable sport counts must not masquerade as zero');
+   }
+   assert((await page.locator('#pro-featured-status').innerText()).includes('No verified betting prices or EV.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'));
+
    assert.equal(await page.locator('[data-pro-slot]').count(),4);
    assert.equal(await page.locator('.pro-topnav a[href="./analyst/"]').count(),1);
    await page.locator('.pro-topnav [data-pro-sport="tennis"]').click();
@@ -33,7 +40,11 @@ const server=http.createServer((req,res)=>{
    await page.waitForFunction(()=>!document.getElementById('analyst-state').textContent.includes('Checking source'),{timeout:12000});
    const num=await page.locator('#metric-events').innerText();
    assert(/^\d+$/.test(num),'Analyst event counts must come from actual snapshots');
-   assert.equal(await page.locator('td').filter({hasText:'Not verified'}).count()>0,true,'Odds must be labelled unverified');
+   const observedRows=await page.locator('#analyst-events tr').count();
+   assert(observedRows>=1);
+   const availableOdds=await page.locator('#analyst-events td').filter({hasText:'Not verified'}).count();
+   if(num!=='0')assert(availableOdds>0,'Displayed source observations must explicitly label odds as unverified');
+   else assert((await page.locator('#selection-note').innerText()).includes('source'),'Empty state must explain data limitations');
    await page.locator('#filter-sport').selectOption('tennis');
    await page.locator('#filter-apply').click();
    assert((await page.locator('#results-count').innerText()).includes('matching source observations'));
