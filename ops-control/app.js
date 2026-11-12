@@ -143,6 +143,25 @@ function updateHistory(actions,feeds,now){
  if(state.incidents.length>25)add(panel,'p','Showing 25 most recent; the report export includes the full local history.','history-empty');
  return {history:state,storageSaved:saved,storageWarning:storageStatus,completeAudit:complete};
 }
+function updateBriefing(feeds,journal,now){
+ const engine=typeof window!=='undefined'?window.VWDirectorBriefing:null;
+ if(!engine){txt('briefing-title','Briefing engine unavailable');txt('briefing-warning','Cannot compare audits in this browser.');return null}
+ let storage=null;try{storage=window.localStorage}catch(_){}
+ const stored=engine.load(storage);
+ const current=engine.snapshot(new Date(now).toISOString(),feeds,journal?.history,journal?.completeAudit===true);
+ const briefing=engine.make(stored.state,current,journal?.history);
+ const state=engine.advance(stored.state,current);
+ const saved=stored.available&&journal?.storageSaved===true&&engine.save(storage,state);
+ const warn=!stored.available?stored.warning:!journal?.storageSaved?'Incident history was not saved; comparisons are temporary.':!saved?'Browser could not save the Director briefing.':'This report compares audits observed in this browser. It does not run when the page is closed or synchronise across devices.';
+ txt('briefing-title',briefing.priority);
+ txt('briefing-date',briefing.date+' UK • '+briefing.comparison.replaceAll('_',' ').toLowerCase());
+ const tag=$('briefing-risk');tag.textContent=briefing.openP1>0?'P1 URGENT':briefing.degradedFeeds.length?'DETERIORATION':briefing.activeCount?'REVIEW':'OBSERVING';tag.className='flag '+(briefing.openP1>0?'blocked':briefing.activeCount?'caution':'good');
+ txt('b-p1',briefing.openP1);txt('b-new',briefing.newCount);txt('b-degraded',briefing.degradedFeeds.length);txt('b-aged',briefing.agedCount);txt('b-repeated',briefing.repeatedCount);txt('b-cleared',briefing.clearedCount);
+ const notes=$('briefing-notes');notes.replaceChildren();for(const note of briefing.notes)add(notes,'p',note,'briefing-note');
+ txt('briefing-step',briefing.suggestedNextStep);
+ txt('briefing-warning',warn+(briefing.complete?'':' This audit was incomplete; the system will not infer repairs or cleared warnings.'));
+ return {briefing,briefingSaved:saved,briefingWarning:warn,daysRetained:state.days.length};
+}
 function renderIssues(messages){
  const root=$('issues');root.replaceChildren();
  if(!messages.length){add(root,'div','✓ No source transport, age or research-gate exception found in these checks. This does not certify betting value.','issue good');return}
@@ -183,9 +202,10 @@ async function audit(){
    txt('decision-title',decision);txt('decision-summary',summary);txt('audit-time','Checked '+fmtTime(now));
    renderSports(sports,feeds);renderIssues(messages);renderSources(feeds);renderActions(actions);
    const journal=updateHistory(actions,feeds,now);
+   const directorBriefing=updateBriefing(feeds,journal,now);
    const it=$('it-status');it.className='flag '+(blocked?'blocked':messages.length?'caution':'good');it.textContent=blocked?'FEED / GATE ISSUE':messages.length?'ATTENTION':'CHECKS PASSED';
    txt('it-summary',feeds.filter(f=>f.ok).length+' of '+feeds.length+' sources responded; '+messages.length+' issues recorded. This browser-only check does not inspect GitHub Actions, GitHub Pages deployment or real bookmaker prices.');
-   latest={schemaVersion:1,kind:'VALUE_WATCH_OPERATIONS_READ_ONLY_AUDIT',checkedAt:new Date(now).toISOString(),sourceStatuses:feeds.map(({id,label,file,ok,error,stamp,age,stale,gateOK,limitHours})=>({id,label,file,ok,error,observedAt:stamp===null?null:new Date(stamp).toISOString(),ageMinutes:age===null?null:Math.floor(age/60000),stale,gateOK,limitHours})),sports,issues:messages,actionRegister:actions,historySnapshot:journal?.history||null,historySaved:journal?.storageSaved===true,historyCompleteAudit:journal?.completeAudit===true,historyWarning:journal?.storageWarning||null,decision,bettingPublication:'BLOCKED',modelValidation:'UNVALIDATED',independentExpertSignoff:false,readsOnly:true};
+   latest={schemaVersion:1,kind:'VALUE_WATCH_OPERATIONS_READ_ONLY_AUDIT',checkedAt:new Date(now).toISOString(),sourceStatuses:feeds.map(({id,label,file,ok,error,stamp,age,stale,gateOK,limitHours})=>({id,label,file,ok,error,observedAt:stamp===null?null:new Date(stamp).toISOString(),ageMinutes:age===null?null:Math.floor(age/60000),stale,gateOK,limitHours})),sports,issues:messages,actionRegister:actions,historySnapshot:journal?.history||null,historySaved:journal?.storageSaved===true,historyCompleteAudit:journal?.completeAudit===true,historyWarning:journal?.storageWarning||null,dailyBriefing:directorBriefing?.briefing||null,dailyBriefingSaved:directorBriefing?.briefingSaved===true,decision,bettingPublication:'BLOCKED',modelValidation:'UNVALIDATED',independentExpertSignoff:false,readsOnly:true};
    $('export').disabled=false;
  }catch(error){txt('decision-title','Control centre check failed');txt('decision-summary',String(error?.message||error));const badge=$('director-badge');badge.textContent='CHECK FAILED';badge.className='hero-status bad';$('export').disabled=!latest;}
  finally{busy=false;$('refresh').disabled=false}

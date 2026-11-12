@@ -3,10 +3,10 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 const html=fs.readFileSync('ops-control/index.html','utf8');
 const css=fs.readFileSync('ops-control/style.css','utf8');
 const code=fs.readFileSync('ops-control/app.js','utf8');
-const ids=['clock','refresh','export','director-badge','decision-title','decision-summary','decision-tag','audit-time','m-feeds','m-sports','m-alerts','m-approved','sports','issues','source-table','it-status','it-summary','action-board','action-summary','history-board','history-summary','history-warning'];
+const ids=['clock','refresh','export','director-badge','decision-title','decision-summary','decision-tag','audit-time','m-feeds','m-sports','m-alerts','m-approved','sports','issues','source-table','it-status','it-summary','action-board','action-summary','history-board','history-summary','history-warning','briefing-title','briefing-date','briefing-risk','b-p1','b-new','b-degraded','b-aged','b-repeated','b-cleared','briefing-notes','briefing-step','briefing-warning'];
 for(const id of ids)assert(html.includes('id="'+id+'"'), 'Missing audited dashboard element: '+id);
 for(const needle of ['../research-dashboard-data.json','../racing-research-data.json','../other-sports-data.json','../horse-model-data.json',"publication_gate","UNVALIDATED","BLOCKED","independentExpertSignoff:false"])assert(code.includes(needle),'Missing expected read-only control: '+needle);
-assert(html.includes('history.js?v=3')&&html.includes('app.js?v=3')&&html.includes('style.css?v=3'));
+assert(html.includes('history.js?v=4')&&html.includes('briefing.js?v=4')&&html.includes('app.js?v=4')&&html.includes('style.css?v=4'));
 assert(css.includes('.sport-grid')&&css.includes('@media'));
 function node(tag='div'){
  return {tag,children:[],style:{},disabled:false,className:'',textContent:'',listeners:{},classList:{add(){}},append(...x){this.children.push(...x)},replaceChildren(...x){this.children=x},addEventListener(type,handler){this.listeners[type]=handler},remove(){},click(){},setAttribute(){},getAttribute(){return null}};
@@ -30,6 +30,7 @@ const saved=new Map();
 const window={localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)}};
 const context={window,document,fetch,AbortController,setTimeout,clearTimeout,setInterval:()=>null,console,Date,Intl,URL,Blob};
 vm.runInNewContext(fs.readFileSync('ops-control/history.js','utf8'),context,{filename:'ops-control/history.js',timeout:1500});
+vm.runInNewContext(fs.readFileSync('ops-control/briefing.js','utf8'),context,{filename:'ops-control/briefing.js',timeout:1500});
 vm.runInNewContext(code,context,{filename:'ops-control/app.js',timeout:1500});
 const sleep=()=>new Promise(resolve=>setTimeout(resolve,30));
 (async()=>{
@@ -39,6 +40,7 @@ const sleep=()=>new Promise(resolve=>setTimeout(resolve,30));
  assert.equal(el.sports.children.length,4);
  assert.equal(el.export.disabled,false);
  assert.match(el['history-summary'].textContent,/saved on this device/);
+ assert.match(el['briefing-title'].textContent,/OPEN REVIEW ITEMS|NO CURRENT SOURCE EXCEPTIONS|URGENT REVIEW|REVIEW DETERIORATION/);
  assert(el['history-board'].children.length>0,'Journal cards must render');
  assert.match(el['decision-summary'].textContent,/publication remains blocked/i);
  assert(el.issues.children.length>0,'Racing incomplete coverage should be reported');
