@@ -21,7 +21,7 @@ const server=http.createServer((req,res)=>{
    await page.waitForFunction(()=>!document.getElementById('pro-featured-status').textContent.includes('Checking published'),{timeout:12000});
    for(const sport of ['football','racing','tennis','nfl']){
     const displayed=await page.locator('[data-pro-count="'+sport+'"]').innerText();
-    assert(/^\\d+$/.test(displayed)||displayed==='—','Unavailable sport counts must not masquerade as zero');
+    assert(/^\d+$/.test(displayed)||displayed==='—','Unavailable sport counts must not masquerade as zero');
    }
    assert((await page.locator('#pro-featured-status').innerText()).includes('No verified betting prices or EV.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'));
 
