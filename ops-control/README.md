@@ -25,3 +25,7 @@ The UI must never promote experimental probabilities to certified odds, EV, accu
 ## Hosting
 
 If GitHub Pages publishes from this repository's `main` root, the expected standalone route is `/value-watch-lab/ops-control/`. This folder shares the repository and Pages hosting with the source research, but **is a separate application**. A separate repository/domain can be used in a later migration without embedding it in Value Watch's main UI. Confirm the actual published URL in Settings > Pages or your normal hosting configuration.
+
+## Final-release verification
+
+Release smoke QA must pass against the same branch as the proposed operations dashboard. The separate operations workflow is read-only and is not a GitHub Pages deployment confirmation. Confirm actual Pages publication on a browser before claiming a live release.
