@@ -34,6 +34,7 @@
  function collect(results,now=Date.now(),days=14){
   if(![7,14,21].includes(days))throw Error('Unsupported review window');
   const rows=[],seen=new Set(),end=now+days*86400000;
+  const exclusions={footballCurrentSeason:0,footballSchedule:0,racingPreEvent:0};
   const available=Object.fromEntries(SOURCES.map(s=>[s.id,results.find(r=>r.id===s.id)?.state||'UNAVAILABLE']));
   const find=id=>results.find(r=>r.id===id&&r.state==='OBSERVED')?.data;
   const inside=t=>t>now+300000&&t<=end;
@@ -45,7 +46,14 @@
     if(!x?.home||!x?.away||!inside(date(x.kickoff_utc)))continue;
     const fixtures=Array.isArray(football.upcoming_fixtures)?football.upcoming_fixtures:[];
     const match=fixtures.find(f=>f.home===x.home&&f.away===x.away&&f.kickoff_utc===x.kickoff_utc);
-    if(!match||match.has_experimental_model_forecast!==true||match.verification!=='SCHEDULE_CROSS_CHECK')continue;
+    if(!match||match.has_experimental_model_forecast!==true||match.verification!=='SCHEDULE_CROSS_CHECK'){exclusions.footballSchedule++;continue}
+    // A prior-season Poisson model is not evidence of current-season football form.
+    const start=new Date(x.kickoff_utc),year=start.getUTCFullYear(),startYear=start.getUTCMonth()>=7?year:year-1;
+    const season=startYear+'_'+String((startYear+1)%100).padStart(2,'0');
+    const training=x.training_basis;
+    const seasonEvidence=typeof training==='string'?training.includes(season):
+      (training&&typeof training==='object'&&training.season===season&&training.verified===true);
+    if(!string(x.model)||!x.model.includes(season)||!seasonEvidence){exclusions.footballCurrentSeason++;continue}
     const odds=[['home',x.prob_home,x.home],['draw',x.prob_draw,'Draw'],['away',x.prob_away,x.away]]
       .filter(y=>reasonable(y[1])).sort((a,b)=>b[1]-a[1]);
     if(odds.length!==3||Math.abs(odds.reduce((s,a)=>s+a[1],0)-1)>.02)continue;
@@ -88,7 +96,7 @@
    if(!race||!inside(date(at))||race.forecast_eligible!==true||
       !['PRE_EVENT_CONFIRMED','PRE_RACE_VERIFIED'].includes(race.forecast_status)||
       !string(runner)||!reasonable(p)||!string(f?.model)||
-      !race.runners?.some(x=>x.name===runner&&x.active_runner===true)){horseRejected++;continue}
+      !race.runners?.some(x=>x.name===runner&&x.active_runner===true)){horseRejected++;exclusions.racingPreEvent++;continue}
    include(candidate('racing:'+id+':'+String(f?.horse_id||runner),race.racecourse+' · '+race.name,
      at,'HORSE_WIN',runner,p,f.model,['Pre-event racecard','Confirmed runner','Experimental horse model'],
      {sport:'racing',raceId:id,runner,warning:'Market-implied probability and fair odds not independently validated'}));
@@ -101,6 +109,7 @@
   return {windowDays:days,now:new Date(now).toISOString(),sources:available,
     all:ordered,featured:ordered.slice(0,3),availableCount:ordered.length,
     counts:Object.fromEntries(SPORTS.map(s=>[s,ordered.filter(x=>x.meta.sport===s).length])),
+    exclusions,
     horse:{observed:horseObserved,historical,skipped,currentForecasts:forecasts.length,
       rejected:horseRejected,eligible:ordered.filter(x=>x.meta.sport==='racing').length,
       status:!horse?'SOURCE_UNAVAILABLE':forecasts.length===0?'NO_CURRENT_PRE_RACE_FORECASTS':horseRejected?'PRE_RACE_GATES_REJECTED':'RESEARCH_ONLY',
