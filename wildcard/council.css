@@ -7,3 +7,29 @@
 .horse-scoreline{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #4d5660;font-size:12px}
 .horse-scoreline span{color:#b8c8d2}.horse-scoreline strong{color:#ffe3a6;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;text-align:right}
 .lab-gates .horse-proof{border-left:3px solid #e2bd74;padding:11px 13px;background:#4437185e;font-size:11px;line-height:1.65;margin:12px 0;color:#f2d59a}
+
+/* Council V4 — headline decision card: leg explanation, three verdicts, and racing decision visible immediately. */
+.ticket-leg{align-items:start}
+.ticket-outcome{font-size:clamp(13px,1.5vw,17px);font-weight:850;color:#ffe3a2;margin:8px 0 7px;line-height:1.45}
+.ticket-probability{font-size:11px;color:#92ddec;margin:7px 0 5px;line-height:1.55;font-variant-numeric:tabular-nums}
+.ticket-evidence{margin-top:10px;background:#0a1c2aab;border:1px solid #506a73;border-radius:8px;padding:9px 11px}
+.ticket-evidence summary{cursor:pointer;font-size:11px;line-height:1.45;color:#d8e8f0;font-weight:750}
+.ticket-evidence ul{padding:5px 0 0 16px;margin:6px 0 0;list-style:none}
+.ticket-evidence li{font-size:11px;line-height:1.55;margin:5px 0;color:#b5cdd9}
+.ticket-evidence li.evidence-limit{color:#e2c597}
+.ticket-selection-note{position:relative;z-index:1;font-size:11px;line-height:1.65;color:#d5bf91;margin:14px 2px 17px;padding:10px 13px;border-left:3px solid #b99045;background:#241e14ac}
+.ticket-review-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 22px 10px}
+.ticket-review-strip a{display:flex;flex-direction:column;align-items:start;min-width:0;gap:6px;padding:11px;background:linear-gradient(160deg,#182b3a,#101a29);border:1px solid #8f774a;border-radius:9px;line-height:1.4}
+.ticket-review-strip span{font-size:10px;color:#cbb887;letter-spacing:.06em;font-weight:850}
+.ticket-review-strip strong{font-size:11px;color:#f7da9b;overflow-wrap:anywhere}
+.ticket-review-strip a:hover{background:#293349}
+.ticket-racing-note{margin:0 22px 14px;background:#1f211b;border:1px solid #8d7746;border-radius:8px;padding:11px 13px;font-size:11px;color:#e6d4aa;line-height:1.65}
+@media(max-width:700px){
+ .ticket-review-strip{grid-template-columns:1fr;gap:6px;margin:12px}
+ .ticket-review-strip a{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;padding:10px}
+ .ticket-review-strip strong{text-align:right}
+ .ticket-racing-note{margin:0 12px 12px}
+ .ticket-selection-note{margin:12px 0;padding:10px}
+ .ticket-evidence{padding:10px}
+ .ticket-leg strong{font-size:15px;line-height:1.45}
+}
