@@ -57,7 +57,36 @@ function showCard(card,choice){
   '♞ Racing has '+card.horse.eligible+' preliminary candidate(s), but the Benter model and price checks are not certified.':
   '♞ Benter racing decision: WITHHOLD. '+card.horse.currentForecasts+' current forecast(s); '+card.horse.historical+' archived forecast(s) are not live runners.';
  showCouncil(card,scenario.legs);
+ showRadar(card);
  renderPriceInputs(scenario);
+}
+function showRadar(card){
+ const target=$('ticket-research-radar');target.replaceChildren();
+ const horseSource=card.sources.horse==='OBSERVED',footballSource=card.sources.football==='OBSERVED';
+ const racing=make('div',target,undefined,'radar-sport');
+ make('strong',racing,'♞ Horse-racing research radar · NOT COUNCIL PICKS');
+ if(!horseSource)make('p',racing,'Horse forecast feed missing or stale. Current runner forecasts cannot be confirmed.','muted');
+ else if(!card.horse.researchLeads.length)make('p',racing,'No current race-level runner probability records passed the visibility checks.','muted');
+ else{
+  make('p',racing,card.horse.researchLeads.length+' future race-level experimental model observations (not approved for betting).','muted');
+  for(const x of card.horse.researchLeads.slice(0,4)){
+   const line=make('p',racing);
+   make('strong',line,x.racecourse+' · '+fmtTime(x.startUTC)+' UK · ');
+   make('span',line,x.topRunner+' · raw uncalibrated '+(x.rawProbability*100).toFixed(1)+'% · BLOCKED');
+  }
+ }
+ const football=make('div',target,undefined,'radar-sport');
+ make('strong',football,'⚽ Football source audit · NOT COUNCIL PICKS');
+ if(!footballSource)make('p',football,'Football research feed missing or stale.','muted');
+ else if(!card.footballReview.blockedCurrentSeason)make('p',football,'No model forecasts excluded for missing current-season evidence in the active window.','muted');
+ else{
+  make('p',football,card.footballReview.blockedCurrentSeason+' fixture forecast(s) excluded because verified current-season model evidence is missing.','muted');
+  for(const x of card.footballReview.blockedExamples.slice(0,3)){
+   const line=make('p',football);
+   make('strong',line,x.name+' · '+fmtTime(x.startUTC)+' UK · ');
+   make('span',line,'BLOCKED: no verified current-season model');
+  }
+ }
 }
 function showCouncil(card,selected){
  const box=$('three-lenses');box.replaceChildren();
