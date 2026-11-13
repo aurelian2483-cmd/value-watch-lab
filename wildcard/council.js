@@ -168,12 +168,42 @@ function calculate(){
   'IF ALL LEGS WIN: £'+result.gross.toFixed(2)+' gross (£'+result.net.toFixed(2)+' net) at ×'+result.multiplier.toFixed(3)+'. This is arithmetic only, not a verified bookmaker offer, probability or positive EV. If any leg loses, £'+Number(stake).toFixed(2)+' is lost.':
   'Values outside supported simulation limits; no return displayed.';
 }
+function showModelChallenge(horseData,footballData,now){
+ const Cx=window.ValueWatchModelChallenge;
+ const summary=$('model-challenge-summary'),fields=$('horse-field-diagnostics');
+ summary.replaceChildren();fields.replaceChildren();
+ if(!Cx){make('p',summary,'Independent model comparison script unavailable. No conclusions reported.');return}
+ const result=Cx.review(horseData,footballData,now);
+ for(const [key,label] of [['benter','Benter · Horse racing'],['walters','Walters · Football'],['bloom','Bloom · Model control'],['robson','Robson · Goals markets']]){
+  const item=result[key],tile=make('article',summary,undefined,'challenge-tile');
+  make('h3',tile,label);
+  make('strong',tile,item.status,'challenge-state');
+  make('p',tile,item.note);
+ }
+ const horse=result.horse;
+ make('h3',fields,'Full-field racing model diagnostics · '+horse.status);
+ if(!horse.races.length){
+  make('p',fields,'No valid, fresh full-field model observations. Missing sources or invalid probabilities are never converted into selections.');
+ }else{
+  make('p',fields,horse.races.length+' future races have mathematical diagnostics. Order is event time, not probability of profit.');
+  for(const x of horse.races.slice(0,7)){
+   const item=make('div',fields,undefined,'challenge-race');
+   make('strong',item,x.course+' · '+x.raceName+' · '+fmtTime(x.scheduled)+' UK');
+   make('p',item,x.fieldSize+' runners · highest raw model estimate: '+x.topRunner+' '+(x.topProbability*100).toFixed(1)+'% · equal-chance benchmark '+(x.uniformBaseline*100).toFixed(1)+'%');
+   make('small',item,'Top-vs-second margin '+(x.topGap*100).toFixed(1)+' percentage points · normalised field entropy '+x.normalizedEntropy.toFixed(3)+' · market and EV unavailable');
+  }
+ }
+ const f=result.football;
+ make('p',fields,'Football source challenge: '+f.eligible+' preliminary current-season model records; '+f.excluded+' excluded. No independently verified bookmaker price or betting edge.');
+}
 async function refresh(){
  $('time-stamp').textContent='Checking source files…';
  const now=Date.now(),days=Number($('horizon').value),results=await Promise.all(C.SOURCES.map(x=>source(x,now)));
  report=C.collect(results,now,days);
  $('time-stamp').textContent='Source snapshot check · '+fmtTime(now)+' UK';
  showCard(report,$('scenario').value);showRacing(report);showCoverage(report);showAudit(report);
+ // Feed payloads are passed only after Council source-freshness gates.
+ showModelChallenge(results.find(x=>x.id==='horse'&&x.state==='OBSERVED')?.data,results.find(x=>x.id==='football'&&x.state==='OBSERVED')?.data,now);
 }
 $('refresh').addEventListener('click',refresh);
 $('horizon').addEventListener('change',refresh);
