@@ -88,7 +88,7 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('.horse-scoreline').count(),5,'Benter desk must show scored sample, baseline and uncertainty');
    assert((await page.locator('#horse-proof').innerText()).length>50,'Horse model evidence and limitations must be explained');
    const horseForecastRaw=await page.locator('#horse-forecasts').innerText();
-   assert(horseForecastRaw==='—'||(/^\\d+$/.test(horseForecastRaw)),'Horse forecasts must be an observed count or unavailable');
+   assert(horseForecastRaw==='—'||(/^\d+$/.test(horseForecastRaw)),'Horse forecasts must be an observed count or unavailable');
    if(horseForecastRaw==='0')assert.equal(await page.locator('#horse-eligible').innerText(),'0','No current forecasts must imply zero racing selections');
    if(horseForecastRaw==='—')assert((await page.locator('#racing-explanation').innerText()).includes('missing, stale or invalid'),'Unusable horse feed must be marked unavailable');
    assert((await page.locator('#racing-explanation').innerText()).length>30,'Horse audit must explain exclusion or eligibility');
