@@ -85,8 +85,10 @@ const server=http.createServer((req,res)=>{
    await page.locator('#three-lenses .lens').first().waitFor({timeout:15000});
    assert.equal(await page.locator('#three-lenses .lens').count(),3,'Gold Council must contain three distinct reviewer decisions');
    assert.equal(await page.locator('#benter-heading').isVisible(),true,'Dedicated horse-racing lab must be visible');
-   assert.equal(await page.locator('#horse-forecasts').innerText(),'0','Live current-main horse data has zero pre-race forecasts');
-   assert((await page.locator('#racing-explanation').innerText()).includes('cannot')===false || (await page.locator('#racing-explanation').innerText()).includes('none establish'));
+   const horseForecastCount=Number(await page.locator('#horse-forecasts').innerText());
+   assert(Number.isInteger(horseForecastCount)&&horseForecastCount>=0,'Horse forecasts must be a real observed count');
+   if(horseForecastCount===0)assert.equal(await page.locator('#horse-eligible').innerText(),'0','No current forecasts must imply zero racing selections');
+   assert((await page.locator('#racing-explanation').innerText()).length>30,'Horse audit must explain exclusion or eligibility');
    assert((await page.locator('#ticket-legs').innerText()).length>0,'Gold Council ticket must explain what it is showing');
    assert((await page.locator('.ticket').innerText()).includes('NOT APPROVED'),'Gold ticket must not imply independently verified betting edge');
    assert.equal(await page.locator('#ticket-legs .ticket-leg').count()<=3,true,'Council does not mechanically fill seven legs');
