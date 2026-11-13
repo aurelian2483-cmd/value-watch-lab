@@ -73,6 +73,7 @@ function showAudit(card){
   make('p',out,src.id.toUpperCase()+': '+card.sources[src.id]+' · max source age '+src.maxHours+' hours');
  }
  make('p',out,'A leading model outcome is displayed only as a research hypothesis. It is not evidence of positive expected value.');
+ make('p',out,'Football current-season models rejected: '+card.exclusions.footballCurrentSeason+' · schedule checks failed: '+card.exclusions.footballSchedule+'. Historical 2025/26 forecasts cannot be treated as current 2026/27 form.');
  make('p',out,'Horse status: '+card.horse.status+' · rejected pre-race candidate records: '+card.horse.rejected+' · archived predictions never promoted into future selections.');
 }
 function renderPriceInputs(scenario){
