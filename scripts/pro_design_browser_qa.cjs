@@ -87,11 +87,35 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('#benter-heading').isVisible(),true,'Dedicated horse-racing lab must be visible');
    assert.equal(await page.locator('.horse-scoreline').count(),5,'Benter desk must show scored sample, baseline and uncertainty');
    assert((await page.locator('#horse-proof').innerText()).length>50,'Horse model evidence and limitations must be explained');
-   const horseForecastCount=Number(await page.locator('#horse-forecasts').innerText());
-   assert(Number.isInteger(horseForecastCount)&&horseForecastCount>=0,'Horse forecasts must be a real observed count');
-   if(horseForecastCount===0)assert.equal(await page.locator('#horse-eligible').innerText(),'0','No current forecasts must imply zero racing selections');
+   const horseForecastRaw=await page.locator('#horse-forecasts').innerText();
+   assert(horseForecastRaw==='—'||(/^\\d+$/.test(horseForecastRaw)),'Horse forecasts must be an observed count or unavailable');
+   if(horseForecastRaw==='0')assert.equal(await page.locator('#horse-eligible').innerText(),'0','No current forecasts must imply zero racing selections');
+   if(horseForecastRaw==='—')assert((await page.locator('#racing-explanation').innerText()).includes('missing, stale or invalid'),'Unusable horse feed must be marked unavailable');
    assert((await page.locator('#racing-explanation').innerText()).length>30,'Horse audit must explain exclusion or eligibility');
    assert((await page.locator('#ticket-legs').innerText()).length>0,'Gold Council ticket must explain what it is showing');
+   for(const id of ['ticket-walters','ticket-bloom','ticket-benter']){
+     assert((await page.locator('#'+id).innerText()).length>5,'Three council verdicts must be visible on card');
+   }
+   assert((await page.locator('#ticket-selection-note').innerText()).includes('Why these'),'Selection policy must be explained');
+   const legsOnPage=await page.locator('#ticket-legs .ticket-leg').count();
+   if(legsOnPage>0){
+     assert.equal(await page.locator('#ticket-legs .ticket-outcome').count(),legsOnPage,'Every leg shows its selection separately');
+     assert.equal(await page.locator('#ticket-legs .ticket-probability').count(),legsOnPage,'Every leg labels raw model estimate');
+     const firstLeg=page.locator('#ticket-legs .ticket-leg').first();
+     const match=await firstLeg.locator('strong').first().innerText();
+     const pick=await firstLeg.locator('.ticket-outcome').innerText();
+     assert(pick.startsWith('Research selection: '),'Selection label is distinct from event name');
+     assert(!match.startsWith('Research selection:'),'Repeated selection name must not precede fixture');
+     await firstLeg.locator('.ticket-evidence summary').click();
+     assert((await firstLeg.locator('.ticket-evidence').innerText()).includes('not independently calibrated')||(await firstLeg.locator('.ticket-evidence').innerText()).includes('No independent probability calibration'));
+   }
+   await page.locator('.ticket-alternatives summary').click();
+   assert((await page.locator('#ticket-alternatives').innerText()).length>0,'Alternatives must not be silently hidden');
+   const councilBefore=await page.locator('#ticket-bloom').innerText();
+   await page.locator('#scenario').selectOption('challenger');
+   assert((await page.locator('#ticket-selection-note').innerText()).includes('Why these'),'Challenger scenario must update card explanation');
+   await page.locator('#scenario').selectOption('flagship');
+
    assert((await page.locator('.ticket').innerText()).includes('NOT APPROVED'),'Gold ticket must not imply independently verified betting edge');
    assert.equal(await page.locator('#ticket-legs .ticket-leg').count()<=3,true,'Council does not mechanically fill seven legs');
    const hypotheticPrices=page.locator('#manual-prices input');
