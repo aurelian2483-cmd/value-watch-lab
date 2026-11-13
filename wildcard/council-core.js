@@ -132,7 +132,11 @@
   }
   const races=Array.isArray(racing?.races)?racing.races:[];
   let horseRejected=0;
+  let nestedForecasts=0;
   for(const f of forecasts){
+   // Nested race-level forecasts are visible in researchLeads but lack the flat
+   // pre-event contract required to form a Council ticket.
+   if(Array.isArray(f?.runners)){nestedForecasts++;continue}
    const id=String(f?.race_id||''),race=races.find(r=>String(r.race_id)===id);
    const runner=f?.runner_name||f?.horse_name;
    const p=f?.win_probability,at=race?.startUTC;
@@ -155,9 +159,9 @@
     footballReview:{blockedExamples:footballLeads,blockedCurrentSeason:exclusions.footballCurrentSeason},
     counts:Object.fromEntries(SPORTS.map(s=>[s,ordered.filter(x=>x.meta.sport===s).length])),
     exclusions,
-    horse:{observed:horseObserved,historical,skipped,currentForecasts:forecasts.length,modelScore,researchLeads:horseResearch,
+    horse:{observed:horseObserved,historical,skipped,currentForecasts:forecasts.length,nestedForecasts,modelScore,researchLeads:horseResearch,
       rejected:horseRejected,eligible:ordered.filter(x=>x.meta.sport==='racing').length,
-      status:!horse?'SOURCE_UNAVAILABLE':forecasts.length===0?'NO_CURRENT_PRE_RACE_FORECASTS':horseRejected?'PRE_RACE_GATES_REJECTED':'RESEARCH_ONLY',
+      status:!horse?'SOURCE_UNAVAILABLE':forecasts.length===0?'NO_CURRENT_PRE_RACE_FORECASTS':nestedForecasts===forecasts.length?'RACE_LEVEL_RESEARCH_ONLY':horseRejected?'PRE_RACE_GATES_REJECTED':'RESEARCH_ONLY',
       audit:racing?.coverage_verified===true?'COVERAGE_FLAG_PRESENT_NOT_CERTIFIED':'COVERAGE_NOT_CERTIFIED'},
     selectionPolicy:'First source-gated future event per sport, ordered by start time within each sport; remaining events by start time. This is NOT an EV, confidence or win-probability ranking.',
     disclaimer:'Preliminary research, not approved selections. No verified Sky Bet odds, model calibration, joint probability or positive EV.'};
