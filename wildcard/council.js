@@ -23,33 +23,63 @@ function showCard(card,choice){
   const x=scenario.legs[i],row=make('div',legs,undefined,'ticket-leg');
   make('span',row,String(i+1).padStart(2,'0'),'ticket-index');
   const content=make('div',row);
-  make('strong',content,x.outcome+' · '+x.name);
-  make('small',content,fmtTime(x.startUTC)+' UK · '+x.model+' · experimental uncalibrated forecast');
+  make('strong',content,x.name);
+  make('div',content,'Research selection: '+x.outcome,'ticket-outcome');
+  make('small',content,fmtTime(x.startUTC)+' UK · '+x.model);
+  const evidence=C.explainCandidate(x);
+  if(evidence){
+    make('div',content,'Raw model estimate: '+(100*evidence.modelProbability).toFixed(1)+'% · NOT independently calibrated','ticket-probability');
+    const details=make('details',content,undefined,'ticket-evidence');
+    make('summary',details,'Why this event? Evidence and blockers');
+    const factList=make('ul',details);
+    for(const fact of evidence.facts)make('li',factList,'✓ '+fact,'evidence-fact');
+    for(const limitation of evidence.limitations)make('li',factList,'! '+limitation,'evidence-limit');
+  }
   make('span',row,name(x.meta.sport),'ticket-sport');
  }
  $('lead-count').textContent=String(card.availableCount);
  $('window-label').textContent=card.windowDays+'-day research horizon · '+scenario.legs.length+' displayed candidate(s)';
+ const comparison=C.compareScenario(card,scenario.legs);
+ $('ticket-selection-note').textContent='Why these '+comparison.displayed+' of '+comparison.screened+' leads? '+comparison.reason+' '+comparison.unshown+' lead(s) not shown in this scenario. '+comparison.overlapWarning;
+ const alternatives=$('ticket-alternatives');alternatives.replaceChildren();
+ const others=card.all.filter(x=>!scenario.legs.some(y=>y.id===x.id));
+ if(others.length===0)make('p',alternatives,'No additional source-gated future events are available. The Council will not fabricate alternatives.','muted');
+ $('alternative-summary').textContent='Review '+others.length+' additional screened research leads (not rejected bets)';
+ for(const x of others.slice(0,8)){
+   const row=make('div',alternatives,undefined,'ticket-alternative');
+   make('strong',row,x.name+' · '+x.outcome);
+   make('span',row,name(x.meta.sport)+' · '+fmtTime(x.startUTC)+' UK · passes preliminary source gates only');
+   make('small',row,'Not displayed: '+(scenario.legs.some(y=>y.meta.sport===x.meta.sport)?
+      'another earlier event from this sport is already in the card':'the Council displays fewer legs than the research pool')+'. No verified price or EV.');
+ }
+ if(others.length>8)make('p',alternatives,(others.length-8)+' additional screened records are not shown in this compact view.','muted');
+ $('ticket-racing-note').textContent=card.horse.eligible?
+  '♞ Racing has '+card.horse.eligible+' preliminary candidate(s), but the Benter model and price checks are not certified.':
+  '♞ Benter racing decision: WITHHOLD. '+card.horse.currentForecasts+' current forecast(s); '+card.horse.historical+' archived forecast(s) are not live runners.';
+ showCouncil(card,scenario.legs);
  renderPriceInputs(scenario);
 }
-function showCouncil(card){
+function showCouncil(card,selected){
  const box=$('three-lenses');box.replaceChildren();
- for(const item of C.council(card)){
+ for(const item of C.council(card,selected)){
   const e=make('article',box,undefined,'lens');
   const top=make('div',e,undefined,'lens-top');make('span',top,emoji[item.id],'lens-icon');
   make('span',top,'AUTOMATED LENS','lens-status');
   make('div',e,item.role,'lens-role');
   const h=make('h3',e,item.name+' method');
   const state=make('span',e,item.status,'lens-status');
+  const compact=$('ticket-'+item.id);if(compact)compact.textContent=item.status;
   make('p',e,item.explanation);
   make('p',e,'Not a personal endorsement or independent expert approval.','lens-caveat');
  }
 }
 function showRacing(card){
  const h=card.horse;
- $('races-observed').textContent=h.observed;
- $('horse-forecasts').textContent=h.currentForecasts;
- $('horse-archive').textContent=h.historical;
- $('horse-eligible').textContent=h.eligible;
+ const horseFresh=card.sources.horse==='OBSERVED';
+ $('races-observed').textContent=horseFresh?h.observed:'—';
+ $('horse-forecasts').textContent=horseFresh?h.currentForecasts:'—';
+ $('horse-archive').textContent=horseFresh?h.historical:'—';
+ $('horse-eligible').textContent=horseFresh?h.eligible:'—';
  $('horse-state').textContent=h.eligible?'PRELIMINARY ONLY':'NO CURRENT RACING SELECTION';
  const scores=h.modelScore;
  $('horse-scored').textContent=scores?String(scores.scored):'Unavailable';
@@ -60,7 +90,7 @@ function showRacing(card){
  $('horse-proof').textContent=scores?
  'Comparison uses '+scores.scored+' provisional historical scores with '+scores.independent+' independently verified result(s). '+(scores.interval[0]<=0&&scores.interval[1]>=0?'The exploratory interval includes zero, so improvement over the baseline is not established.':'The exploratory interval does not include zero, but this is not independent validation or evidence of betting profitability.') :
  'No current, source-gated comparable model evaluation is available. Historical scoring does not establish a live betting edge.';
- $('racing-explanation').textContent=h.eligible?
+ $('racing-explanation').textContent=!horseFresh?'The current horse source is missing, stale or invalid. We cannot verify any active race candidate from it.':h.eligible?
    'Model-backed racing candidates remain uncalibrated. Public price and runner verification still needed.':
    'The file contains '+h.observed+' observed racecards, '+h.skipped+' skipped current forecasts and '+h.historical+' historical forecasts; none establish a valid future horse pick. The Council is withholding racing selections rather than recycling old results.';
 }
@@ -114,7 +144,7 @@ async function refresh(){
  const now=Date.now(),days=Number($('horizon').value),results=await Promise.all(C.SOURCES.map(x=>source(x,now)));
  report=C.collect(results,now,days);
  $('time-stamp').textContent='Source snapshot check · '+fmtTime(now)+' UK';
- showCard(report,$('scenario').value);showCouncil(report);showRacing(report);showCoverage(report);showAudit(report);
+ showCard(report,$('scenario').value);showRacing(report);showCoverage(report);showAudit(report);
 }
 $('refresh').addEventListener('click',refresh);
 $('horizon').addEventListener('change',refresh);

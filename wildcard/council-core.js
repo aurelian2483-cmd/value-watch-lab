@@ -132,10 +132,11 @@
       rejected:horseRejected,eligible:ordered.filter(x=>x.meta.sport==='racing').length,
       status:!horse?'SOURCE_UNAVAILABLE':forecasts.length===0?'NO_CURRENT_PRE_RACE_FORECASTS':horseRejected?'PRE_RACE_GATES_REJECTED':'RESEARCH_ONLY',
       audit:racing?.coverage_verified===true?'COVERAGE_FLAG_PRESENT_NOT_CERTIFIED':'COVERAGE_NOT_CERTIFIED'},
+    selectionPolicy:'First source-gated future event per sport, ordered by start time within each sport; remaining events by start time. This is NOT an EV, confidence or win-probability ranking.',
     disclaimer:'Preliminary research, not approved selections. No verified Sky Bet odds, model calibration, joint probability or positive EV.'};
  }
- function council(card){
-  const featured=card.featured||[],horse=card.horse;
+ function council(card,selected){
+  const featured=Array.isArray(selected)?selected:(card.featured||[]),horse=card.horse;
   const uniqueSports=new Set(featured.map(c=>c.meta.sport));
   return [
    {id:'walters',name:'Walters',role:'Market discipline',status:'PRICE CHECK REQUIRED',
@@ -145,6 +146,36 @@
    {id:'benter',name:'Benter',role:'Horse-racing model',status:horse.eligible?'RACING MODEL UNVALIDATED':'HORSE RACING NOT READY',
     decision:'HOLD',explanation:horse.eligible?'Pre-race experimental horse evidence exists but fair-price and calibration checks are missing.':'No verified current pre-race horse candidate; '+horse.observed+' observed races and '+horse.historical+' historical forecasts cannot be promoted into live picks.'}
   ].map(x=>({...x,signoff:'AUTOMATED_METHOD_LENS_ONLY',cardSports:uniqueSports.size}));
+ }
+ function explainCandidate(c){
+  if(!c||!c.meta||!SPORTS.includes(c.meta.sport))return null;
+  const sport=c.meta.sport;
+  const sample=Number(c.meta.prior);
+  const facts=[
+   'Future event recorded by a source that passed research-only and timestamp gates',
+   'Forecast has an explicit model and a finite, uncalibrated outcome probability',
+   'Unique event identity within this research horizon'
+  ];
+  if(sport==='football')facts.push('Current-season training evidence and schedule cross-check required');
+  if((sport==='tennis'||sport==='nfl')&&Number.isInteger(sample))facts.push('Model input reports '+sample+' prior matches (not an independent backtest)');
+  if(sport==='racing')facts.push('Matching future race, confirmed pre-race runner and forecast required');
+  return {facts,limitations:[
+   'No independently verified Sky Bet price or measured expected value',
+   'No independent probability calibration or prospective model approval',
+   sport==='football'?'Team news, tactical changes, transfers and lineups require fresh review':
+   sport==='racing'?'Going, jockey, declarations and field conditions must be rechecked':
+   sport==='tennis'?'Surface, player health and tournament conditions must be checked':
+   'Injuries, quarterback status and matchup conditions must be checked'
+  ],modelProbability:c.probability,status:'HYPOTHESIS_ONLY'};
+ }
+ function compareScenario(card,selected){
+  const picked=Array.isArray(selected)?selected:[];
+  const uniq=new Set(picked.map(x=>x.meta.sport));
+  return {displayed:picked.length,screened:card.availableCount,
+    unshown:Math.max(0,card.availableCount-picked.length),
+    differentSports:uniq.size,
+    overlapWarning:picked.length>uniq.size?'Multiple legs use the same sport; event independence is not established.':'Different sports do not prove independent outcomes.',
+    reason:card.selectionPolicy};
  }
  function scenarios(card){
   const names=[{id:'flagship',title:'Council Flagship',n:Math.min(2,card.availableCount)},
@@ -162,5 +193,5 @@
   return {multiplier:mult,gross,net:gross-stake,winningProbability:null,expectedValue:null,
     label:'Hypothetical arithmetic only, not executable betting prices'};
  }
- return Object.freeze({SOURCES,inspect,collect,council,scenarios,hypotheticalReturn});
+ return Object.freeze({SOURCES,inspect,collect,council,scenarios,explainCandidate,compareScenario,hypotheticalReturn});
 });
