@@ -9,7 +9,8 @@
   {id:'football',file:'research-dashboard-data.json',maxHours:24},
   {id:'other',file:'other-sports-data.json',maxHours:24},
   {id:'racing',file:'racing-research-data.json',maxHours:6},
-  {id:'horse',file:'horse-predictions-data.json',maxHours:6}
+  {id:'horse',file:'horse-predictions-data.json',maxHours:6},
+  {id:'horse-model',file:'horse-model-data.json',maxHours:6}
  ];
  const date=x=>typeof x==='string'&&Number.isFinite(Date.parse(x))?Date.parse(x):null;
  const gate=d=>!!(d&&d.research_only===true&&d.model_validation==='UNVALIDATED'&&d.publication_gate==='BLOCKED');
@@ -81,7 +82,24 @@
       {sport,prior,warning:'Pricing, injuries, lineup and market identity not independently verified'}));
    }
   }
-  const horse=find('horse'),racing=find('racing');
+  const horse=find('horse'),racing=find('racing'),horseModel=find('horse-model');
+  const perf=horseModel?.performance;
+  const evaluation=perf?.provisional_evaluation?.models?.FORM_PERCENTILE_SOFTMAX_RESEARCH_V1;
+  const modelScore=(perf?.metrics_status==='DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION'&&
+     evaluation?.status==='DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION'&&
+     Number.isInteger(perf.scored_forecasts)&&perf.scored_forecasts>=0&&
+     Number.isFinite(perf.metrics?.mean_multiclass_brier_score)&&
+     Number.isFinite(perf.metrics?.mean_equal_chance_brier_score)&&
+     Number.isFinite(evaluation.mean_brier_delta_vs_equal_chance)&&
+     Number.isFinite(evaluation.brier_delta_bootstrap_95_interval?.lower)&&
+     Number.isFinite(evaluation.brier_delta_bootstrap_95_interval?.upper))?{
+       scored:perf.scored_forecasts,independent:perf.independently_verified_results||0,
+       modelBrier:perf.metrics.mean_multiclass_brier_score,
+       baselineBrier:perf.metrics.mean_equal_chance_brier_score,
+       delta:evaluation.mean_brier_delta_vs_equal_chance,
+       interval:[evaluation.brier_delta_bootstrap_95_interval.lower,evaluation.brier_delta_bootstrap_95_interval.upper],
+       classification:'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION'
+     }:null;
   let horseObserved=Number(horse?.coverage?.observed_races)||0,
       skipped=Number(horse?.coverage?.skipped_count)||0,
       historical=Number(horse?.coverage?.archived_forecast_count)||0;
@@ -110,7 +128,7 @@
     all:ordered,featured:ordered.slice(0,3),availableCount:ordered.length,
     counts:Object.fromEntries(SPORTS.map(s=>[s,ordered.filter(x=>x.meta.sport===s).length])),
     exclusions,
-    horse:{observed:horseObserved,historical,skipped,currentForecasts:forecasts.length,
+    horse:{observed:horseObserved,historical,skipped,currentForecasts:forecasts.length,modelScore,
       rejected:horseRejected,eligible:ordered.filter(x=>x.meta.sport==='racing').length,
       status:!horse?'SOURCE_UNAVAILABLE':forecasts.length===0?'NO_CURRENT_PRE_RACE_FORECASTS':horseRejected?'PRE_RACE_GATES_REJECTED':'RESEARCH_ONLY',
       audit:racing?.coverage_verified===true?'COVERAGE_FLAG_PRESENT_NOT_CERTIFIED':'COVERAGE_NOT_CERTIFIED'},
