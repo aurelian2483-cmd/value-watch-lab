@@ -21,6 +21,16 @@ function run(d=[football,other,racing,horse]){
 }
 const card=run();
 assert.equal(card.availableCount,4);
+const modelMeta={...gates,performance:{metrics_status:'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION',scored_forecasts:45,
+ independently_verified_results:0,metrics:{mean_multiclass_brier_score:.8956,mean_equal_chance_brier_score:.9013},
+ provisional_evaluation:{models:{FORM_PERCENTILE_SOFTMAX_RESEARCH_V1:{status:'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION',
+ mean_brier_delta_vs_equal_chance:-.0057,brier_delta_bootstrap_95_interval:{lower:-.0132,upper:.0017}}}}}};
+const tested=C.collect([...['football','other','racing','horse'].map((id,i)=>C.inspect(id,[football,other,racing,horse][i],now)),
+ C.inspect('horse-model',modelMeta,now)],now,14);
+assert.equal(tested.horse.modelScore.scored,45);
+assert.equal(tested.horse.modelScore.independent,0);
+assert(tested.horse.modelScore.interval[0]<0&&tested.horse.modelScore.interval[1]>0);
+
 assert.equal(card.horse.eligible,1);
 assert.equal(card.featured.length,3);
 assert(card.featured.some(x=>x.meta.sport==='racing'),'Racing must receive a council lane when real pre-race evidence is available');
