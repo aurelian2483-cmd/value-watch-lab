@@ -43,6 +43,7 @@ function showCard(card,choice){
  $('ticket-selection-note').textContent='Why these '+comparison.displayed+' of '+comparison.screened+' leads? '+comparison.reason+' '+comparison.unshown+' lead(s) not shown in this scenario. '+comparison.overlapWarning;
  const alternatives=$('ticket-alternatives');alternatives.replaceChildren();
  const others=card.all.filter(x=>!scenario.legs.some(y=>y.id===x.id));
+ if(others.length===0)make('p',alternatives,'No additional source-gated future events are available. The Council will not fabricate alternatives.','muted');
  $('alternative-summary').textContent='Review '+others.length+' additional screened research leads (not rejected bets)';
  for(const x of others.slice(0,8)){
    const row=make('div',alternatives,undefined,'ticket-alternative');
