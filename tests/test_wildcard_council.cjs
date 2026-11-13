@@ -5,7 +5,7 @@ const now=Date.parse('2026-11-12T23:00:00Z');
 const future=new Date(now+4*86400000).toISOString(),gen=new Date(now-3600000).toISOString();
 const gates={research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',generated_at_utc:gen};
 const football={...gates,upcoming_fixtures:[{home:'A',away:'B',kickoff_utc:future,verification:'SCHEDULE_CROSS_CHECK',has_experimental_model_forecast:true}],
- experimental_model_forecasts:[{home:'A',away:'B',kickoff_utc:future,prob_home:.58,prob_draw:.27,prob_away:.15,model:'EXPERIMENTAL_FOOTBALL_2025_26'}]};
+ experimental_model_forecasts:[{home:'A',away:'B',kickoff_utc:future,prob_home:.58,prob_draw:.27,prob_away:.15,model:'EXPERIMENTAL_FOOTBALL_2026_27',training_basis:{season:'2026_27',verified:true}}]};
 const other={...gates,sports:{tennis:{events:[{id:'t1',name:'C vs D',startUTC:future,source:'https://example.org/tennis',
  forecast:{calibrated:false,market:'MATCH_WINNER',model:'ELO',outcomes:[{name:'C',probability:.57,prior_matches:35},{name:'D',probability:.43,prior_matches:45}]}}]},
  nfl:{events:[{id:'n1',name:'E vs F',startUTC:future,source:'https://example.org/nfl',
@@ -40,6 +40,9 @@ const nonrunner=run([football,other,{...racing,races:[{...race,runners:[{name:'R
 assert.equal(nonrunner.horse.eligible,0);
 const postevent=run([football,other,{...racing,races:[{...race,forecast_status:'POST_EVENT_OR_NOT_CONFIRMED_PRE_EVENT'}]},horse]);
 assert.equal(postevent.horse.eligible,0);
+const lastSeason=run([{...football,experimental_model_forecasts:football.experimental_model_forecasts.map(x=>({...x,model:'POISSON_BASELINE_2025_26_V1',training_basis:null}))},other,racing,horse]);
+assert.equal(lastSeason.counts.football,0,'Previous season is not a verified current-season forecast');
+assert.equal(lastSeason.exclusions.footballCurrentSeason,1);
 const unverified=run([{...football,publication_gate:'OPEN'},other,racing,horse]);
 assert.equal(unverified.counts.football,0);
 assert.equal(C.inspect('football',{...football,generated_at_utc:new Date(now+900000).toISOString()},now).state,'STALE_OR_UNDATED');
