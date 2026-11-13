@@ -31,7 +31,31 @@ assert.equal(tested.horse.modelScore.scored,45);
 assert.equal(tested.horse.modelScore.independent,0);
 assert(tested.horse.modelScore.interval[0]<0&&tested.horse.modelScore.interval[1]>0);
 
+
+// Real feed shape: race-level forecasts contain nested runners and raw model_probability.
+// Such records must be visible as hypotheses but never promoted to validated legs.
+const raceLevelHorse={...horse,forecasts:[{race_id:'r1',racecourse:'Ascot',race_name:'Test Race',
+ startUTC:future,model:'CONTEXT_FORM_RESEARCH_V1',challenge_eligible:0,
+ independent_timestamp_attested:false,historical_first_availability_verified:false,
+ runners:[{name:'Runner A',horse_id:'h1',model_probability:.34},
+          {name:'Runner B',horse_id:'h2',model_probability:.21}]}]};
+const raceLevel=run([football,other,racing,raceLevelHorse]);
+assert.equal(raceLevel.counts.racing,0,'Nested research-only model rows cannot be approved ticket legs');
+assert.equal(raceLevel.horse.researchLeads.length,1);
+assert.equal(raceLevel.horse.researchLeads[0].topRunner,'Runner A');
+assert.equal(raceLevel.horse.researchLeads[0].status,'RESEARCH_ONLY_NOT_CHALLENGE_ELIGIBLE');
+const oldSeason=run([{...football,experimental_model_forecasts:football.experimental_model_forecasts.map(x=>({...x,model:'POISSON_BASELINE_2025_26_V1',training_basis:null}))},other,racing,horse]);
+assert.equal(oldSeason.footballReview.blockedCurrentSeason,1);
+assert.equal(oldSeason.footballReview.blockedExamples.length,1);
 assert.equal(card.horse.eligible,1);
+// Two individually eligible runners in one race must never become two accumulator legs.
+const duplicateRace=run([football,other,
+ {...racing,races:[{...race,runners:[...race.runners,{name:'Runner B',active_runner:true}]}]},
+ {...horse,forecasts:[...horse.forecasts,{race_id:'r1',runner_name:'Runner B',win_probability:.22,model:'EXPERIMENTAL_HORSE'}]}]);
+assert.equal(duplicateRace.counts.racing,1,'One race permits at most one horse-win leg');
+assert.equal(duplicateRace.exclusions.racingDuplicateRace,1,'Duplicate-race exclusion must be auditable');
+assert.equal(new Set(duplicateRace.all.filter(x=>x.meta.sport==='racing').map(x=>x.meta.raceId)).size,1);
+
 assert.equal(card.featured.length,3);
 assert(card.featured.some(x=>x.meta.sport==='racing'),'Racing must receive a council lane when real pre-race evidence is available');
 assert(card.featured.every(x=>x.odds===null&&x.ev===null&&x.verified===false));
@@ -82,6 +106,7 @@ for(const p of ['wildcard/index.html','wildcard/council.js','wildcard/council.cs
 new vm.Script(fs.readFileSync('wildcard/council.js','utf8'));
 const home=fs.readFileSync('index.html','utf8');
 assert(fs.readFileSync('wildcard/index.html','utf8').includes('ticket-selection-note'));
+assert(fs.readFileSync('wildcard/index.html','utf8').includes('ticket-research-radar'));
 assert(fs.readFileSync('wildcard/index.html','utf8').includes('ticket-review-strip'));
 assert(fs.readFileSync('wildcard/council.js','utf8').includes('make(\'strong\',content,x.name)'));
 assert(home.includes('href="./wildcard/"')&&home.includes('wildcard-council-launch'));

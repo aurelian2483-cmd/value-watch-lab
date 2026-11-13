@@ -97,6 +97,11 @@ const server=http.createServer((req,res)=>{
      assert((await page.locator('#'+id).innerText()).length>5,'Three council verdicts must be visible on card');
    }
    assert((await page.locator('#ticket-selection-note').innerText()).includes('Why these'),'Selection policy must be explained');
+   assert.equal(await page.locator('#ticket-research-radar').count(),1,'Gold ticket must expose screened but blocked football and racing research');
+   assert((await page.locator('#ticket-research-radar').innerText()).includes('Horse-racing research radar'));
+   assert((await page.locator('#ticket-research-radar').innerText()).includes('Football source audit'));
+   assert((await page.locator('#ticket-research-radar').innerText()).includes('NOT COUNCIL PICKS'));
+
    const legsOnPage=await page.locator('#ticket-legs .ticket-leg').count();
    if(legsOnPage>0){
      assert.equal(await page.locator('#ticket-legs .ticket-outcome').count(),legsOnPage,'Every leg shows its selection separately');
