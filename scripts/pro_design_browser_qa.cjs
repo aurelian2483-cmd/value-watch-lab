@@ -84,6 +84,11 @@ const server=http.createServer((req,res)=>{
    await page.goto('http://127.0.0.1:8177/wildcard/',{waitUntil:'domcontentloaded'});
    await page.locator('#three-lenses .lens').first().waitFor({timeout:15000});
    assert.equal(await page.locator('#three-lenses .lens').count(),3,'Gold Council must contain three distinct reviewer decisions');
+   await page.locator('#model-challenge-summary .challenge-tile').first().waitFor({timeout:15000});
+   assert.equal(await page.locator('#model-challenge-summary .challenge-tile').count(),4,'All four independent method diagnostics must appear');
+   assert((await page.locator('#horse-field-diagnostics').innerText()).includes('racing model diagnostics'),'Racing diagnostic status must remain visible');
+   assert((await page.locator('#model-challenge-summary').innerText()).includes('NO_OUT_OF_SAMPLE_MARKET_ADVANTAGE_ESTABLISHED'),'Bloom lens must not assert validated ROI');
+
    assert.equal(await page.locator('#benter-heading').isVisible(),true,'Dedicated horse-racing lab must be visible');
    assert.equal(await page.locator('.horse-scoreline').count(),5,'Benter desk must show scored sample, baseline and uncertainty');
    assert((await page.locator('#horse-proof').innerText()).length>50,'Horse model evidence and limitations must be explained');
