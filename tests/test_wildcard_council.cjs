@@ -35,6 +35,18 @@ assert.equal(card.horse.eligible,1);
 assert.equal(card.featured.length,3);
 assert(card.featured.some(x=>x.meta.sport==='racing'),'Racing must receive a council lane when real pre-race evidence is available');
 assert(card.featured.every(x=>x.odds===null&&x.ev===null&&x.verified===false));
+const selection=C.scenarios(card)[0].legs;
+const explanation=C.explainCandidate(selection[0]);
+assert(explanation.facts.length>=3&&explanation.limitations.length>=3);
+assert.equal(explanation.status,'HYPOTHESIS_ONLY');
+assert.equal(explanation.modelProbability,selection[0].probability);
+assert(!explanation.facts.some(t=>t.includes('verified Sky Bet')));
+const compared=C.compareScenario(card,selection);
+assert.equal(compared.screened,4);assert.equal(compared.displayed,2);
+assert.equal(compared.unshown,2);
+assert(compared.reason.includes('NOT an EV'));
+const alternate=C.scenarios(card)[1].legs;
+assert.equal(C.council(card,alternate)[1].cardSports,new Set(alternate.map(x=>x.meta.sport)).size);
 assert.equal(C.council(card).length,3);
 assert(C.council(card).every(x=>x.signoff==='AUTOMATED_METHOD_LENS_ONLY'));
 assert.equal(C.scenarios(card).length,2,'One council card plus challenger; not four repackaged slips');
@@ -69,6 +81,9 @@ for(const p of ['wildcard/index.html','wildcard/council.js','wildcard/council.cs
 }
 new vm.Script(fs.readFileSync('wildcard/council.js','utf8'));
 const home=fs.readFileSync('index.html','utf8');
+assert(fs.readFileSync('wildcard/index.html','utf8').includes('ticket-selection-note'));
+assert(fs.readFileSync('wildcard/index.html','utf8').includes('ticket-review-strip'));
+assert(fs.readFileSync('wildcard/council.js','utf8').includes('make(\'strong\',content,x.name)'));
 assert(home.includes('href="./wildcard/"')&&home.includes('wildcard-council-launch'));
 assert(home.includes('paper-lab/engine.js')&&home.includes('paper-lab/store.js'));
 assert.equal((home.match(/data-slot="\d+"/g)||[]).length,4);
