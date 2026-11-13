@@ -85,6 +85,8 @@ const server=http.createServer((req,res)=>{
    await page.locator('#three-lenses .lens').first().waitFor({timeout:15000});
    assert.equal(await page.locator('#three-lenses .lens').count(),3,'Gold Council must contain three distinct reviewer decisions');
    assert.equal(await page.locator('#benter-heading').isVisible(),true,'Dedicated horse-racing lab must be visible');
+   assert.equal(await page.locator('.horse-scoreline').count(),5,'Benter desk must show scored sample, baseline and uncertainty');
+   assert((await page.locator('#horse-proof').innerText()).length>50,'Horse model evidence and limitations must be explained');
    const horseForecastCount=Number(await page.locator('#horse-forecasts').innerText());
    assert(Number.isInteger(horseForecastCount)&&horseForecastCount>=0,'Horse forecasts must be a real observed count');
    if(horseForecastCount===0)assert.equal(await page.locator('#horse-eligible').innerText(),'0','No current forecasts must imply zero racing selections');
