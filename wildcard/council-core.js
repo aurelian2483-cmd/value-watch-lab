@@ -34,12 +34,22 @@
  }
  function collect(results,now=Date.now(),days=14){
   if(![7,14,21].includes(days))throw Error('Unsupported review window');
-  const rows=[],seen=new Set(),end=now+days*86400000;
-  const exclusions={footballCurrentSeason:0,footballSchedule:0,racingPreEvent:0};
+  const rows=[],seen=new Set(),seenRaces=new Set(),end=now+days*86400000;
+  const exclusions={footballCurrentSeason:0,footballSchedule:0,racingPreEvent:0,racingDuplicateRace:0};
   const available=Object.fromEntries(SOURCES.map(s=>[s.id,results.find(r=>r.id===s.id)?.state||'UNAVAILABLE']));
   const find=id=>results.find(r=>r.id===id&&r.state==='OBSERVED')?.data;
   const inside=t=>t>now+300000&&t<=end;
-  function include(c){if(!c||!inside(c.startMs)||seen.has(c.id))return;seen.add(c.id);rows.push(c)}
+  function include(c){
+   if(!c||!inside(c.startMs)||seen.has(c.id))return;
+   // Accumulators cannot contain two mutually exclusive winners of the same race.
+   if(c.meta.sport==='racing'){
+    const raceKey=String(c.meta.raceId||'');
+    if(!raceKey)return;
+    if(seenRaces.has(raceKey)){exclusions.racingDuplicateRace++;return}
+    seenRaces.add(raceKey);
+   }
+   seen.add(c.id);rows.push(c);
+  }
   const football=find('football');
   if(football){
    const forecasts=Array.isArray(football.experimental_model_forecasts)?football.experimental_model_forecasts:[];
