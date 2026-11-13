@@ -51,6 +51,15 @@ function showRacing(card){
  $('horse-archive').textContent=h.historical;
  $('horse-eligible').textContent=h.eligible;
  $('horse-state').textContent=h.eligible?'PRELIMINARY ONLY':'NO CURRENT RACING SELECTION';
+ const scores=h.modelScore;
+ $('horse-scored').textContent=scores?String(scores.scored):'Unavailable';
+ $('horse-brier').textContent=scores?scores.modelBrier.toFixed(4):'Unavailable';
+ $('horse-baseline').textContent=scores?scores.baselineBrier.toFixed(4):'Unavailable';
+ $('horse-delta').textContent=scores?(scores.delta>=0?'+':'')+scores.delta.toFixed(4):'Unavailable';
+ $('horse-ci').textContent=scores?'['+scores.interval.map(x=>x.toFixed(4)).join(', ')+']':'Unavailable';
+ $('horse-proof').textContent=scores?
+ 'Comparison uses '+scores.scored+' provisional historical scores with '+scores.independent+' independently verified result(s). '+(scores.interval[0]<=0&&scores.interval[1]>=0?'The exploratory interval includes zero, so improvement over the baseline is not established.':'The exploratory interval does not include zero, but this is not independent validation or evidence of betting profitability.') :
+ 'No current, source-gated comparable model evaluation is available. Historical scoring does not establish a live betting edge.';
  $('racing-explanation').textContent=h.eligible?
    'Model-backed racing candidates remain uncalibrated. Public price and runner verification still needed.':
    'The file contains '+h.observed+' observed racecards, '+h.skipped+' skipped current forecasts and '+h.historical+' historical forecasts; none establish a valid future horse pick. The Council is withholding racing selections rather than recycling old results.';
