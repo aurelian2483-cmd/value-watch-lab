@@ -36,6 +36,7 @@
   if(![7,14,21].includes(days))throw Error('Unsupported review window');
   const rows=[],seen=new Set(),seenRaces=new Set(),end=now+days*86400000;
   const exclusions={footballCurrentSeason:0,footballSchedule:0,racingPreEvent:0,racingDuplicateRace:0};
+  const footballLeads=[];
   const available=Object.fromEntries(SOURCES.map(s=>[s.id,results.find(r=>r.id===s.id)?.state||'UNAVAILABLE']));
   const find=id=>results.find(r=>r.id===id&&r.state==='OBSERVED')?.data;
   const inside=t=>t>now+300000&&t<=end;
@@ -64,7 +65,11 @@
     const training=x.training_basis;
     const seasonEvidence=typeof training==='string'?training.includes(season):
       (training&&typeof training==='object'&&training.season===season&&training.verified===true);
-    if(!string(x.model)||!x.model.includes(season)||!seasonEvidence){exclusions.footballCurrentSeason++;continue}
+    if(!string(x.model)||!x.model.includes(season)||!seasonEvidence){
+      exclusions.footballCurrentSeason++;
+      if(footballLeads.length<8)footballLeads.push({name:x.home+' vs '+x.away,startUTC:x.kickoff_utc,reason:'No verified '+season+' model training; previous-season forecast cannot qualify'});
+      continue;
+    }
     const odds=[['home',x.prob_home,x.home],['draw',x.prob_draw,'Draw'],['away',x.prob_away,x.away]]
       .filter(y=>reasonable(y[1])).sort((a,b)=>b[1]-a[1]);
     if(odds.length!==3||Math.abs(odds.reduce((s,a)=>s+a[1],0)-1)>.02)continue;
@@ -114,6 +119,17 @@
       skipped=Number(horse?.coverage?.skipped_count)||0,
       historical=Number(horse?.coverage?.archived_forecast_count)||0;
   const forecasts=Array.isArray(horse?.forecasts)?horse.forecasts:[];
+  // Current producer schema is one forecast per race with nested runners[].model_probability.
+  // These are visible as blocked research leads, never as eligible wagers or Council legs.
+  const horseResearch=[];
+  for(const f of forecasts){
+   if(!Array.isArray(f?.runners)||!inside(date(f.startUTC)))continue;
+   const ranked=f.runners.filter(x=>string(x?.name)&&reasonable(x.model_probability))
+     .sort((a,b)=>b.model_probability-a.model_probability);
+   if(!ranked.length)continue;
+   const verified=f.challenge_eligible===1&&f.independent_timestamp_attested===true&&f.historical_first_availability_verified===true;
+   if(horseResearch.length<12)horseResearch.push({raceId:String(f.race_id||''),racecourse:string(f.racecourse)||'Unknown course',raceName:string(f.race_name)||'Race',startUTC:f.startUTC,topRunner:ranked[0].name,rawProbability:ranked[0].model_probability,model:string(f.model)||'Unlabelled research',status:verified?'PRE_EVENT_VERIFICATION_STILL_REQUIRED':'RESEARCH_ONLY_NOT_CHALLENGE_ELIGIBLE'});
+  }
   const races=Array.isArray(racing?.races)?racing.races:[];
   let horseRejected=0;
   for(const f of forecasts){
@@ -136,9 +152,10 @@
   for(const r of rows.sort((a,b)=>a.startMs-b.startMs))if(!ordered.some(x=>x.id===r.id))ordered.push(r);
   return {windowDays:days,now:new Date(now).toISOString(),sources:available,
     all:ordered,featured:ordered.slice(0,3),availableCount:ordered.length,
+    footballReview:{blockedExamples:footballLeads,blockedCurrentSeason:exclusions.footballCurrentSeason},
     counts:Object.fromEntries(SPORTS.map(s=>[s,ordered.filter(x=>x.meta.sport===s).length])),
     exclusions,
-    horse:{observed:horseObserved,historical,skipped,currentForecasts:forecasts.length,modelScore,
+    horse:{observed:horseObserved,historical,skipped,currentForecasts:forecasts.length,modelScore,researchLeads:horseResearch,
       rejected:horseRejected,eligible:ordered.filter(x=>x.meta.sport==='racing').length,
       status:!horse?'SOURCE_UNAVAILABLE':forecasts.length===0?'NO_CURRENT_PRE_RACE_FORECASTS':horseRejected?'PRE_RACE_GATES_REJECTED':'RESEARCH_ONLY',
       audit:racing?.coverage_verified===true?'COVERAGE_FLAG_PRESENT_NOT_CERTIFIED':'COVERAGE_NOT_CERTIFIED'},
