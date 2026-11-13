@@ -81,6 +81,30 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('text=Not certified').count()>0,true);
    await page.screenshot({path:path.join(out,'pro-analyst-'+width+'.png'),fullPage:false});
    assert.deepEqual(errors,[],'Analyst runtime errors');
+   await page.goto('http://127.0.0.1:8177/wildcard/',{waitUntil:'domcontentloaded'});
+   await page.locator('#three-lenses .lens').first().waitFor({timeout:15000});
+   assert.equal(await page.locator('#three-lenses .lens').count(),3,'Gold Council must contain three distinct reviewer decisions');
+   assert.equal(await page.locator('#benter-heading').isVisible(),true,'Dedicated horse-racing lab must be visible');
+   assert.equal(await page.locator('.horse-scoreline').count(),5,'Benter desk must show scored sample, baseline and uncertainty');
+   assert((await page.locator('#horse-proof').innerText()).length>50,'Horse model evidence and limitations must be explained');
+   const horseForecastCount=Number(await page.locator('#horse-forecasts').innerText());
+   assert(Number.isInteger(horseForecastCount)&&horseForecastCount>=0,'Horse forecasts must be a real observed count');
+   if(horseForecastCount===0)assert.equal(await page.locator('#horse-eligible').innerText(),'0','No current forecasts must imply zero racing selections');
+   assert((await page.locator('#racing-explanation').innerText()).length>30,'Horse audit must explain exclusion or eligibility');
+   assert((await page.locator('#ticket-legs').innerText()).length>0,'Gold Council ticket must explain what it is showing');
+   assert((await page.locator('.ticket').innerText()).includes('NOT APPROVED'),'Gold ticket must not imply independently verified betting edge');
+   assert.equal(await page.locator('#ticket-legs .ticket-leg').count()<=3,true,'Council does not mechanically fill seven legs');
+   const hypotheticPrices=page.locator('#manual-prices input');
+   if(await hypotheticPrices.count()===2){
+     await hypotheticPrices.nth(0).fill('2');
+     await hypotheticPrices.nth(1).fill('3');
+     await page.locator('#stake').fill('1.00');
+     assert((await page.locator('#sim-result').innerText()).includes('£6.00'),'Council arithmetic must use only manually entered prices');
+     assert((await page.locator('#sim-result').innerText()).includes('not a verified bookmaker offer'));
+   }
+   await page.screenshot({path:path.join(out,'gold-council-'+width+'.png'),fullPage:false});
+   assert.deepEqual(errors,[],'Gold Council runtime errors');
+
    await page.close();
   }
   console.log('PASS: reference Pro homepage and Analyst Terminal on desktop/mobile, original sport/slip delegation, real snapshots and no verified odds claims');
