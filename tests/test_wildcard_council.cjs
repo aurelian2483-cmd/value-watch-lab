@@ -32,6 +32,14 @@ assert.equal(tested.horse.modelScore.independent,0);
 assert(tested.horse.modelScore.interval[0]<0&&tested.horse.modelScore.interval[1]>0);
 
 assert.equal(card.horse.eligible,1);
+// Two individually eligible runners in one race must never become two accumulator legs.
+const duplicateRace=run([football,other,
+ {...racing,races:[{...race,runners:[...race.runners,{name:'Runner B',active_runner:true}]}]},
+ {...horse,forecasts:[...horse.forecasts,{race_id:'r1',runner_name:'Runner B',win_probability:.22,model:'EXPERIMENTAL_HORSE'}]}]);
+assert.equal(duplicateRace.counts.racing,1,'One race permits at most one horse-win leg');
+assert.equal(duplicateRace.exclusions.racingDuplicateRace,1,'Duplicate-race exclusion must be auditable');
+assert.equal(new Set(duplicateRace.all.filter(x=>x.meta.sport==='racing').map(x=>x.meta.raceId)).size,1);
+
 assert.equal(card.featured.length,3);
 assert(card.featured.some(x=>x.meta.sport==='racing'),'Racing must receive a council lane when real pre-race evidence is available');
 assert(card.featured.every(x=>x.odds===null&&x.ev===null&&x.verified===false));
