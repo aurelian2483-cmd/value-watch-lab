@@ -88,3 +88,21 @@ Later 470 quoted 2024/25–2025/26 fixtures: market and selected blend LL **0.98
 - `stage13-market-blend-results.md`
 
 **Never label a mere test pass, source-join success or simulation gain as improved football forecast log loss.**
+
+
+## 6. Prospective Validation Laboratory (preregistered 2026-11-14)
+
+| Measurement | Status | Value |
+|---|---|---:|
+| Frozen experiment contract | Implemented | alpha=0.025 raw form vs Poisson |
+| Independently archived new pre-match forecasts | NOT COLLECTED | 0 |
+| Independently verified bookmaker decision-time quotes | NOT COLLECTED | 0 |
+| Settled post-freeze future outcomes | NOT COLLECTED | 0 |
+| Mean prospective log-loss / Brier differences | NOT MEASURED | — |
+| Verified prospective betting ROI | NOT MEASURED | — |
+| Isolated software regressions | PASS | 123 passed / 0 failed |
+| Live wagering publication | BLOCKED | No changes |
+
+Lab source `prospective-validation-lab.cjs`, CLI `prospective-lab-cli.cjs`, protocol `PROSPECTIVE-VALIDATION-PROTOCOL.md`. The first regression runs exposed a test assertion expecting a specific rejection order; it was corrected without relaxing the fail-closed checks, and the subsequent full CI succeeded: https://github.com/aurelian2483-cmd/value-watch-lab/actions/runs/43644073484.
+
+**Decision:** SAFETY/INFRASTRUCTURE IMPROVED, **FORECAST PERFORMANCE UNTESTED**. No model has been proved profitable. The first real prospective record must be created and independently time-evidenced **before** a future kickoff; later historical rows cannot be backfilled as prospective.
