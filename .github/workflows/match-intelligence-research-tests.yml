@@ -135,6 +135,9 @@ jobs:
               model_share:x.model_share,max_odds:x.max_odds,bets:x.bets,wins:x.wins,
               pnl_units:x.pnl_units,quote_only_roi:x.quote_only_roi,
               mean_logloss:x.mean_logloss,
+              model_expected_wins:x.model_expected_wins,model_expected_losses:x.model_expected_losses,
+              actual_minus_expected_wins:x.actual_minus_expected_wins,
+              expected_win_count_sd_if_independent:x.expected_win_count_sd_if_independent,
               odds_bands:x.odds_bands
             })),
             seasons:d.historical_diagnostic.by_period.map(x=>({
