@@ -39,3 +39,12 @@ test('do not merge other competition matchdays into Premier League',()=>{
  assert.equal(normalizeHistoricalAvailability(x).rounds[0].starters,11);
  assert.throws(()=>normalizeHistoricalAvailability(x,{competition:'UCL'}),/Exactly one/);
 });
+
+test('source absent means unclassified absence, not confirmed injury',()=>{
+ const x=sample();x.competitions[0].players[0].matches[0].status='absent';
+ const a=normalizeHistoricalAvailability(x);
+ assert.equal(a.rounds[0].absent_unclassified,1);
+ assert.equal(a.rounds[0].injured,0);
+ assert.equal(a.rounds[0].starters,10);
+ assert.equal(a.errors.length,0);
+});
