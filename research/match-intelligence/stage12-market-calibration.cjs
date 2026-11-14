@@ -87,6 +87,26 @@ function predictionsForSeason(results){
  return out;
 }
 
+function pairedDateUncertainty(rows,first,second,{draws=2000,seed=20261114}={}){
+ const data=rows.filter(r=>r[first]&&r[second]);
+ if(data.length<30||!Number.isInteger(draws)||draws<100)throw Error('Insufficient paired data or bootstrap draws');
+ const grouped=new Map();
+ for(const row of data){const x=grouped.get(row.date)||[];x.push(row[first].loss-row[second].loss);grouped.set(row.date,x);}
+ const dates=[...grouped.values()],estimated=[];
+ let state=seed>>>0;
+ const rand=()=>{state=(1664525*state+1013904223)>>>0;return state/4294967296;};
+ for(let i=0;i<draws;i++){let total=0,n=0;for(let j=0;j<dates.length;j++){
+   const sample=dates[Math.floor(rand()*dates.length)];
+   for(const d of sample){total+=d;n++;}
+ }estimated.push(total/n);}
+ estimated.sort((a,b)=>a-b);
+ const point=data.reduce((s,r)=>s+r[first].loss-r[second].loss,0)/data.length;
+ return {paired_matches:data.length,date_clusters:dates.length,draws,
+   first_minus_second_mean_log_loss:point,
+   lower_95:estimated[Math.floor(draws*.025)],upper_95:estimated[Math.floor(draws*.975)],
+   direction:'negative favors first; positive favors second',
+   interpretation:'Exploratory date-cluster uncertainty, previously examined data'};
+}
 function quoteOnlyPaperAudit(rows,model,{min_ev=.05}={}){
  if(!['baseline','form'].includes(model)||!finite(min_ev)||min_ev<0||min_ev>.5)throw Error('Paper audit parameters invalid');
  let equity=0,peak=0,maxDrawdown=0,number=0,winners=0,stake=0,grossReturn=0;
@@ -139,6 +159,9 @@ function run(texts){
  }
  const quoted=data.filter(x=>x.market_open&&x.market_close);
  const report={status:'EXPLORATORY_REUSED_MARKET_BENCHMARK_ONLY',sample:data.length,paired_market_sample:quoted.length,alpha:ALPHA,
+  paired_uncertainty:{form_minus_baseline:pairedDateUncertainty(data,'form','baseline'),
+    form_minus_market_open:pairedDateUncertainty(quoted,'form','market_open'),
+    market_open_minus_close:pairedDateUncertainty(quoted,'market_open','market_close')},
   paired_scores:{baseline:summarize(quoted,'baseline'),form:summarize(quoted,'form'),
     market_open:summarize(quoted,'market_open'),market_close:summarize(quoted,'market_close')},
   retrospective_quote_only_paper:{baseline:quoteOnlyPaperAudit(data,'baseline'),form:quoteOnlyPaperAudit(data,'form')},
@@ -156,4 +179,4 @@ if(require.main===module){
  const input=process.argv.slice(2).map(p=>fs.readFileSync(p,'utf8'));
  console.log(JSON.stringify(run(input),null,2));
 }
-module.exports={implied,parseBookmakerSeason,scores,bins,predictionsForSeason,quoteOnlyPaperAudit,run};
+module.exports={implied,parseBookmakerSeason,scores,bins,predictionsForSeason,quoteOnlyPaperAudit,pairedDateUncertainty,run};
