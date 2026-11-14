@@ -23,3 +23,39 @@ jobs:
           node-version: '22'
       - name: Evidence audit and historical replay unit tests
         run: node --test tests/test_match_intelligence_evidence.cjs tests/test_match_intelligence_backtest.cjs tests/test_match_intelligence_stage3.cjs
+
+  stage3-historical-replay:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Retrieve pinned public EPL history for diagnostic replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/epl-history
+          for season in 2020_21 2021_22 2022_23 2023_24 2024_25 2025_26; do
+            curl --fail --location --retry 2 --silent --show-error \
+              "https://raw.githubusercontent.com/skthewimp/football/9a0fa04365f4266d95f5cbb119ec6fc64f5e773c/data/raw/epl_results_${season}.csv" \
+              --output "/tmp/epl-history/epl_results_${season}.csv"
+          done
+      - name: Run Stage 3 fixed-specification historical replay (not fresh validation)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/match_intelligence_stage3.cjs \
+            /tmp/epl-history/epl_results_2020_21.csv \
+            /tmp/epl-history/epl_results_2021_22.csv \
+            /tmp/epl-history/epl_results_2022_23.csv \
+            /tmp/epl-history/epl_results_2023_24.csv \
+            /tmp/epl-history/epl_results_2024_25.csv \
+            /tmp/epl-history/epl_results_2025_26.csv | tee stage3-diagnostic-report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stage3-diagnostic-report
+          path: stage3-diagnostic-report.json
+          retention-days: 30
