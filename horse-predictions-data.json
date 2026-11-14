@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-14T03:28:39.433341+00:00",
+  "generated_at_utc": "2026-11-14T06:36:10.281435+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -24,6 +24,1300 @@
     "known_non_finisher_percentile": 0.0
   },
   "forecasts": [
+    {
+      "schema_version": 1,
+      "model": "CONTEXT_FORM_RESEARCH_V1",
+      "race_id": "948532",
+      "racecourse": "Cheltenham",
+      "race_name": "Citipost Amateur Jockeys' Handicap Chase (GBB Race)",
+      "startUTC": "2026-11-14T12:35:00+00:00",
+      "source": "https://www.sportinglife.com/racing/racecards/2026-11-14/cheltenham/racecard/948532/citipost-amateur-jockeys-handicap-chase-gbb-race",
+      "generated_at_utc": "2026-11-14T06:36:10.281435+00:00",
+      "parameters": {
+        "minimum_form_runs": 3,
+        "maximum_form_runs": 6,
+        "maximum_age_days": 730,
+        "recency_half_life_days": 90,
+        "neutral_prior_runs": 5,
+        "softmax_temperature_inverse": 2,
+        "capture_buffer_minutes": 5,
+        "maximum_runner_age_minutes": 30,
+        "distance_log_scale": 0.25,
+        "similarity_bonus": {
+          "distance": 1.0,
+          "going": 1.0,
+          "class": 0.5,
+          "course": 0.5
+        },
+        "known_non_finisher_percentile": 0.0
+      },
+      "runners": [
+        {
+          "horse_id": "1040987",
+          "name": "Awaythelad",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 4,
+            "non_finishes": 2,
+            "weighted_finish_percentile": 0.17864443812213626,
+            "shrunk_context_strength": 0.4475038615601844,
+            "comparable_distance_runs": 6,
+            "comparable_going_runs": 1,
+            "same_course_runs": 1,
+            "comparable_class_runs": 6,
+            "effective_recency_runs": 0.9762748459495967,
+            "history": [
+              {
+                "race_id": "942754",
+                "date": "2026-10-07",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.2,
+                "distance": "2m 7f",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "3",
+                "course": "Worcester",
+                "recency_weight": 0.7462742321549556,
+                "similarities": {
+                  "distance": 0.7163929600000001,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 1.9027950317626343
+              },
+              {
+                "race_id": "898133",
+                "date": "2026-01-14",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 11,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 7f 91y",
+                "going": "Good to Soft",
+                "race_class": "4",
+                "course": "Newbury",
+                "recency_weight": 0.09620276849168703,
+                "similarities": {
+                  "distance": 0.7693349130858286,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.22633319864800594
+              },
+              {
+                "race_id": "890482",
+                "date": "2025-11-21",
+                "run_type": "CHASE",
+                "position": 7,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.25,
+                "distance": "2m 7f 185y",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "4",
+                "course": "Ascot",
+                "recency_weight": 0.06347015703151718,
+                "similarities": {
+                  "distance": 0.8270489452913051,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.152987341730292
+              },
+              {
+                "race_id": "885967",
+                "date": "2025-10-24",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 18,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "3m 1f",
+                "going": "Good to Soft",
+                "race_class": "3",
+                "course": "Cheltenham",
+                "recency_weight": 0.05115826372062386,
+                "similarities": {
+                  "distance": 1.0,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.17052754573541287
+              },
+              {
+                "race_id": "851316",
+                "date": "2025-04-05",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 5,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.25,
+                "distance": "2m 7f 131y",
+                "going": "Good",
+                "race_class": "4",
+                "course": "Chepstow",
+                "recency_weight": 0.010796194374748252,
+                "similarities": {
+                  "distance": 0.7935117418573714,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.03285834434692081
+              },
+              {
+                "race_id": "846129",
+                "date": "2025-03-03",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 7,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "3m 60y",
+                "going": "Good to Soft (Soft in places)",
+                "race_class": "4",
+                "course": "Southwell",
+                "recency_weight": 0.008373230176064788,
+                "similarities": {
+                  "distance": 0.8886162894447102,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.020698203175157085
+              }
+            ]
+          },
+          "model_probability": 0.08229287774842356,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1049820",
+          "name": "Herakles Westwood",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 5,
+            "non_finishes": 1,
+            "weighted_finish_percentile": 0.5537883330684331,
+            "shrunk_context_strength": 0.5056193670639328,
+            "comparable_distance_runs": 4,
+            "comparable_going_runs": 2,
+            "same_course_runs": 4,
+            "comparable_class_runs": 3,
+            "effective_recency_runs": 0.5832974558149963,
+            "history": [
+              {
+                "race_id": "910773",
+                "date": "2026-04-18",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 16,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "3m 7f 176y",
+                "going": "Heavy (Soft in places)",
+                "race_class": "1",
+                "course": "Ayr",
+                "recency_weight": 0.19842513149602492,
+                "similarities": {
+                  "distance": 0.3819896138300639,
+                  "going": 0.25,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 0.35689860897371484
+              },
+              {
+                "race_id": "900314",
+                "date": "2026-03-12",
+                "run_type": "CHASE",
+                "position": 13,
+                "field_size": 23,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.45454545454545453,
+                "distance": "3m 2f 70y",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "2",
+                "course": "Cheltenham",
+                "recency_weight": 0.1492244204197838,
+                "similarities": {
+                  "distance": 0.8142101332114199,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 1.0
+                },
+                "context_weight": 0.432384244436272
+              },
+              {
+                "race_id": "896275",
+                "date": "2026-01-01",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 8,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "3m 1f 56y",
+                "going": "Good",
+                "race_class": "2",
+                "course": "Cheltenham",
+                "recency_weight": 0.08703730991679652,
+                "similarities": {
+                  "distance": 0.9602886807451091,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 1.0
+                },
+                "context_weight": 0.3229335457867942
+              },
+              {
+                "race_id": "893478",
+                "date": "2025-12-12",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.625,
+                "distance": "3m 2f 70y",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.0746122102098919,
+                "similarities": {
+                  "distance": 0.8142101332114199,
+                  "going": 0.3333333333333333,
+                  "class": 0.3333333333333333,
+                  "course": 1.0
+                },
+                "context_weight": 0.20997443803397833
+              },
+              {
+                "race_id": "889612",
+                "date": "2025-11-15",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 16,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.9333333333333333,
+                "distance": "3m 1f",
+                "going": "Heavy (Soft in places)",
+                "race_class": "3",
+                "course": "Cheltenham",
+                "recency_weight": 0.06060394654041988,
+                "similarities": {
+                  "distance": 1.0,
+                  "going": 0.25,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.1969628262563646
+              },
+              {
+                "race_id": "855894",
+                "date": "2025-05-03",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 23,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8181818181818182,
+                "distance": "3m 7f 68y",
+                "going": "Yielding",
+                "race_class": "",
+                "course": "Punchestown",
+                "recency_weight": 0.013394437232079262,
+                "similarities": {
+                  "distance": 0.40651652474226907,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.025536715922582214
+              }
+            ]
+          },
+          "model_probability": 0.09243591326461686,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1051095",
+          "name": "Brucejack",
+          "context_features": {
+            "usable_runs": 5,
+            "numeric_finishes": 5,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.7827597112639534,
+            "shrunk_context_strength": 0.5689573985061014,
+            "comparable_distance_runs": 4,
+            "comparable_going_runs": 4,
+            "same_course_runs": 0,
+            "comparable_class_runs": 0,
+            "effective_recency_runs": 1.612643886228701,
+            "history": [
+              {
+                "race_id": "946526",
+                "date": "2026-10-31",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 12,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8181818181818182,
+                "distance": "3m",
+                "going": "Good",
+                "race_class": "",
+                "course": "Down Royal",
+                "recency_weight": 0.8977865850653692,
+                "similarities": {
+                  "distance": 0.8493465599999999,
+                  "going": 1.0,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 2.558105117770157
+              },
+              {
+                "race_id": "915219",
+                "date": "2026-05-02",
+                "run_type": "CHASE",
+                "position": 7,
+                "field_size": 19,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.6666666666666666,
+                "distance": "3m 7f 68y",
+                "going": "Yielding",
+                "race_class": "",
+                "course": "Punchestown",
+                "recency_weight": 0.221015923825123,
+                "similarities": {
+                  "distance": 0.40651652474226907,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.4213705110037756
+              },
+              {
+                "race_id": "911880",
+                "date": "2026-04-12",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 10,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "3m 2f 50y",
+                "going": "Good (Good to Yielding in places)",
+                "race_class": "",
+                "course": "Down Royal",
+                "recency_weight": 0.18946457081379978,
+                "similarities": {
+                  "distance": 0.8255578386162716,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.44061081779609973
+              },
+              {
+                "race_id": "908883",
+                "date": "2026-03-26",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 14,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.6923076923076923,
+                "distance": "2m 7f 122y",
+                "going": "Soft (Soft to Heavy in places)",
+                "race_class": "",
+                "course": "Clonmel",
+                "recency_weight": 0.16621368920200394,
+                "similarities": {
+                  "distance": 0.788022969534186,
+                  "going": 0.25,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.33874731644470035
+              },
+              {
+                "race_id": "905400",
+                "date": "2026-03-02",
+                "run_type": "CHASE",
+                "position": 8,
+                "field_size": 13,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.4166666666666667,
+                "distance": "3m 4f 61y",
+                "going": "Yielding",
+                "race_class": "",
+                "course": "Leopardstown",
+                "recency_weight": 0.13816311732240497,
+                "similarities": {
+                  "distance": 0.6109560258550893,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.29165626506265446
+              }
+            ]
+          },
+          "model_probability": 0.10491931620868741,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1057219",
+          "name": "Dinoland",
+          "context_features": {
+            "usable_runs": 4,
+            "numeric_finishes": 3,
+            "non_finishes": 1,
+            "weighted_finish_percentile": 0.8361347702630917,
+            "shrunk_context_strength": 0.5812139913542018,
+            "comparable_distance_runs": 4,
+            "comparable_going_runs": 4,
+            "same_course_runs": 0,
+            "comparable_class_runs": 0,
+            "effective_recency_runs": 1.592926078874648,
+            "history": [
+              {
+                "race_id": "946526",
+                "date": "2026-10-31",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 12,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.9090909090909091,
+                "distance": "3m",
+                "going": "Good",
+                "race_class": "",
+                "course": "Down Royal",
+                "recency_weight": 0.8977865850653692,
+                "similarities": {
+                  "distance": 0.8493465599999999,
+                  "going": 1.0,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 2.558105117770157
+              },
+              {
+                "race_id": "919929",
+                "date": "2026-05-30",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 11,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 6f",
+                "going": "Good (Good to Yielding in places)",
+                "race_class": "",
+                "course": "Tramore",
+                "recency_weight": 0.2742062449236565,
+                "similarities": {
+                  "distance": 0.59969536,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.5757495801492251
+              },
+              {
+                "race_id": "916222",
+                "date": "2026-05-08",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 11,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 7f 150y",
+                "going": "Good (Good to Yielding in places)",
+                "race_class": "",
+                "course": "Downpatrick",
+                "recency_weight": 0.2314686780718226,
+                "similarities": {
+                  "distance": 0.8051932680117478,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.533580038446744
+              },
+              {
+                "race_id": "911881",
+                "date": "2026-04-12",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 15,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "3m 2f 50y",
+                "going": "Good (Good to Yielding in places)",
+                "race_class": "",
+                "course": "Down Royal",
+                "recency_weight": 0.18946457081379978,
+                "similarities": {
+                  "distance": 0.8255578386162716,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.44061081779609973
+              }
+            ]
+          },
+          "model_probability": 0.10752300486418802,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1058555",
+          "name": "Transmission",
+          "context_features": {
+            "usable_runs": 5,
+            "numeric_finishes": 5,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.21930197660229775,
+            "shrunk_context_strength": 0.43595772271319444,
+            "comparable_distance_runs": 4,
+            "comparable_going_runs": 3,
+            "same_course_runs": 0,
+            "comparable_class_runs": 2,
+            "effective_recency_runs": 1.4779732002590213,
+            "history": [
+              {
+                "race_id": "944201",
+                "date": "2026-10-31",
+                "run_type": "CHASE",
+                "position": 10,
+                "field_size": 10,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 7f 185y",
+                "going": "Good (Good to Firm in places)",
+                "race_class": "1",
+                "course": "Ascot",
+                "recency_weight": 0.8977865850653692,
+                "similarities": {
+                  "distance": 0.8270489452913051,
+                  "going": 1.0,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 2.6877177159166297
+              },
+              {
+                "race_id": "911860",
+                "date": "2026-04-25",
+                "run_type": "CHASE",
+                "position": 7,
+                "field_size": 11,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.4,
+                "distance": "3m 4f 146y",
+                "going": "Good (Good to Firm in places)",
+                "race_class": "1",
+                "course": "Sandown",
+                "recency_weight": 0.209416125806289,
+                "similarities": {
+                  "distance": 0.5786752291982884,
+                  "going": 1.0,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 0.5749188638457314
+              },
+              {
+                "race_id": "910766",
+                "date": "2026-04-06",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 10,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.7777777777777778,
+                "distance": "3m 4f 104y",
+                "going": "Good",
+                "race_class": "2",
+                "course": "Plumpton",
+                "recency_weight": 0.18090865468004724,
+                "similarities": {
+                  "distance": 0.5943520456107215,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.514567902007876
+              },
+              {
+                "race_id": "900773",
+                "date": "2026-02-01",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 7,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "3m 7f 76y",
+                "going": "Good to Soft",
+                "race_class": "2",
+                "course": "Musselburgh",
+                "recency_weight": 0.1105079619125615,
+                "similarities": {
+                  "distance": 0.40463341719547063,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.2196861539508757
+              },
+              {
+                "race_id": "893893",
+                "date": "2025-12-20",
+                "run_type": "CHASE",
+                "position": 8,
+                "field_size": 12,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.36363636363636365,
+                "distance": "2m 7f 185y",
+                "going": "Good to Soft (Soft in places)",
+                "race_class": "1",
+                "course": "Ascot",
+                "recency_weight": 0.07935387279475448,
+                "similarities": {
+                  "distance": 0.8270489452913051,
+                  "going": 0.3333333333333333,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 0.1846603459918138
+              }
+            ]
+          },
+          "model_probability": 0.08041432131475972,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1093944",
+          "name": "Sound And Fury",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 6,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.6232354641130726,
+            "shrunk_context_strength": 0.5106903946600502,
+            "comparable_distance_runs": 6,
+            "comparable_going_runs": 0,
+            "same_course_runs": 1,
+            "comparable_class_runs": 6,
+            "effective_recency_runs": 0.474938382996534,
+            "history": [
+              {
+                "race_id": "906220",
+                "date": "2026-03-07",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 8,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.42857142857142855,
+                "distance": "3m 42y",
+                "going": "Soft (Good to Soft in places)",
+                "race_class": "3",
+                "course": "Sandown",
+                "recency_weight": 0.1435872943746294,
+                "similarities": {
+                  "distance": 0.8766953900218356,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.3891256920640997
+              },
+              {
+                "race_id": "903777",
+                "date": "2026-02-16",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 7,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "3m 110y",
+                "going": "Good to Soft (Soft in places)",
+                "race_class": "3",
+                "course": "Carlisle",
+                "recency_weight": 0.12404099328286794,
+                "similarities": {
+                  "distance": 0.9223681599999999,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.34181995042414914
+              },
+              {
+                "race_id": "895601",
+                "date": "2025-12-26",
+                "run_type": "CHASE",
+                "position": 8,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.125,
+                "distance": "3m 3f 123y",
+                "going": "Good to Soft",
+                "race_class": "3",
+                "course": "Market Rasen",
+                "recency_weight": 0.08310684460100197,
+                "similarities": {
+                  "distance": 0.6771743273731131,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.20864037002795563
+              },
+              {
+                "race_id": "889612",
+                "date": "2025-11-15",
+                "run_type": "CHASE",
+                "position": 6,
+                "field_size": 16,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.6666666666666666,
+                "distance": "3m 1f",
+                "going": "Heavy (Soft in places)",
+                "race_class": "3",
+                "course": "Cheltenham",
+                "recency_weight": 0.06060394654041988,
+                "similarities": {
+                  "distance": 1.0,
+                  "going": 0.25,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.1969628262563646
+              },
+              {
+                "race_id": "887420",
+                "date": "2025-11-02",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "3m 2f 19y",
+                "going": "Good to Soft (Soft in places)",
+                "race_class": "3",
+                "course": "Carlisle",
+                "recency_weight": 0.054830069445197846,
+                "similarities": {
+                  "distance": 0.8435403451016185,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.14677316968461063
+              },
+              {
+                "race_id": "847086",
+                "date": "2025-03-09",
+                "run_type": "CHASE",
+                "position": 7,
+                "field_size": 7,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "3m 5f 54y",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "3",
+                "course": "Warwick",
+                "recency_weight": 0.008769234752416978,
+                "similarities": {
+                  "distance": 0.5339818943471841,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.020759542964501908
+              }
+            ]
+          },
+          "model_probability": 0.09337817354977196,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1095877",
+          "name": "Our Soldier",
+          "context_features": {
+            "usable_runs": 3,
+            "numeric_finishes": 3,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.6506306764553288,
+            "shrunk_context_strength": 0.5480718080311756,
+            "comparable_distance_runs": 3,
+            "comparable_going_runs": 3,
+            "same_course_runs": 0,
+            "comparable_class_runs": 0,
+            "effective_recency_runs": 2.343620243174132,
+            "history": [
+              {
+                "race_id": "946534",
+                "date": "2026-11-01",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.875,
+                "distance": "3m 4f",
+                "going": "Good to Yielding",
+                "race_class": "",
+                "course": "Cork",
+                "recency_weight": 0.9047277046327152,
+                "similarities": {
+                  "distance": 0.6355180784048311,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 1.93206236927687
+              },
+              {
+                "race_id": "942963",
+                "date": "2026-10-10",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.6,
+                "distance": "2m 5f 55y",
+                "going": "Good (Good to Yielding in places)",
+                "race_class": "",
+                "course": "Fairyhouse",
+                "recency_weight": 0.7637175654573216,
+                "similarities": {
+                  "distance": 0.5220062499999999,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 1.5442416905894885
+              },
+              {
+                "race_id": "939772",
+                "date": "2026-09-24",
+                "run_type": "CHASE",
+                "position": 7,
+                "field_size": 11,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.4,
+                "distance": "2m 6f",
+                "going": "Good (Good to Yielding in places)",
+                "race_class": "",
+                "course": "Listowel",
+                "recency_weight": 0.675174973084095,
+                "similarities": {
+                  "distance": 0.59969536,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 1.4176617581727993
+              }
+            ]
+          },
+          "model_probability": 0.100626984447719,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1150633",
+          "name": "Karnaval Point",
+          "context_features": {
+            "usable_runs": 5,
+            "numeric_finishes": 5,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.577955164431726,
+            "shrunk_context_strength": 0.5317990645500765,
+            "comparable_distance_runs": 3,
+            "comparable_going_runs": 2,
+            "same_course_runs": 1,
+            "comparable_class_runs": 5,
+            "effective_recency_runs": 3.4447304507544585,
+            "history": [
+              {
+                "race_id": "945156",
+                "date": "2026-10-24",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.75,
+                "distance": "3m 1f",
+                "going": "Good to Soft",
+                "race_class": "2",
+                "course": "Cheltenham",
+                "recency_weight": 0.8506671609508557,
+                "similarities": {
+                  "distance": 1.0,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 1.0
+                },
+                "context_weight": 2.622890412931805
+              },
+              {
+                "race_id": "942754",
+                "date": "2026-10-07",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8,
+                "distance": "2m 7f",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "3",
+                "course": "Worcester",
+                "recency_weight": 0.7462742321549556,
+                "similarities": {
+                  "distance": 0.7163929600000001,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 1.9027950317626343
+              },
+              {
+                "race_id": "940116",
+                "date": "2026-09-25",
+                "run_type": "CHASE",
+                "position": 6,
+                "field_size": 12,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.5454545454545454,
+                "distance": "2m 4f",
+                "going": "Good",
+                "race_class": "2",
+                "course": "Worcester",
+                "recency_weight": 0.6803950000871885,
+                "similarities": {
+                  "distance": 0.4096000000000001,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 1.8095785422318866
+              },
+              {
+                "race_id": "937614",
+                "date": "2026-09-10",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 5,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 4f",
+                "going": "Good",
+                "race_class": "2",
+                "course": "Worcester",
+                "recency_weight": 0.6061630334067722,
+                "similarities": {
+                  "distance": 0.4096000000000001,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 1.6121512036486516
+              },
+              {
+                "race_id": "935826",
+                "date": "2026-08-31",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 7,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.6666666666666666,
+                "distance": "2m 5f 34y",
+                "going": "Good to Soft (Soft in places)",
+                "race_class": "3",
+                "course": "Cartmel",
+                "recency_weight": 0.5612310241546865,
+                "similarities": {
+                  "distance": 0.5126898951718117,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 1.3166610192246269
+              }
+            ]
+          },
+          "model_probability": 0.09740474925730044,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1160494",
+          "name": "Ladies Well",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 6,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.8738359588666582,
+            "shrunk_context_strength": 0.6558123064718017,
+            "comparable_distance_runs": 6,
+            "comparable_going_runs": 5,
+            "same_course_runs": 0,
+            "comparable_class_runs": 0,
+            "effective_recency_runs": 3.573289061996226,
+            "history": [
+              {
+                "race_id": "946526",
+                "date": "2026-10-31",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 12,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.7272727272727273,
+                "distance": "3m",
+                "going": "Good",
+                "race_class": "",
+                "course": "Down Royal",
+                "recency_weight": 0.8977865850653692,
+                "similarities": {
+                  "distance": 0.8493465599999999,
+                  "going": 1.0,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 2.558105117770157
+              },
+              {
+                "race_id": "940723",
+                "date": "2026-09-28",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 10,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 5f 131y",
+                "going": "Yielding (Good to Yielding in places )",
+                "race_class": "",
+                "course": "Roscommon",
+                "recency_weight": 0.6962984793343721,
+                "similarities": {
+                  "distance": 0.5567873551194601,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 1.432137907683845
+              },
+              {
+                "race_id": "938085",
+                "date": "2026-09-11",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 16,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8,
+                "distance": "2m 7f 67y",
+                "going": "Yielding (Good to Yielding in places)",
+                "race_class": "",
+                "course": "Ballinrobe",
+                "recency_weight": 0.6108495036238286,
+                "similarities": {
+                  "distance": 0.7550965948278299,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 1.377524635574366
+              },
+              {
+                "race_id": "933823",
+                "date": "2026-08-20",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 12,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 7f 100y",
+                "going": "Good (Good to Yielding in places)",
+                "race_class": "",
+                "course": "Killarney",
+                "recency_weight": 0.5156429867014977,
+                "similarities": {
+                  "distance": 0.7747258524527014,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 1.1729464324858212
+              },
+              {
+                "race_id": "931453",
+                "date": "2026-08-04",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 13,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.9166666666666666,
+                "distance": "2m 5f 141y",
+                "going": "Soft (Yielding to Soft in places)",
+                "race_class": "",
+                "course": "Roscommon",
+                "recency_weight": 0.4558612442791084,
+                "similarities": {
+                  "distance": 0.56148992492714,
+                  "going": 0.3333333333333333,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.8637764881996137
+              },
+              {
+                "race_id": "928549",
+                "date": "2026-07-17",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 15,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 7f",
+                "going": "Good to Yielding",
+                "race_class": "",
+                "course": "Killarney",
+                "recency_weight": 0.3968502629920499,
+                "similarities": {
+                  "distance": 0.7163929600000001,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.879576129069728
+              }
+            ]
+          },
+          "model_probability": 0.12482358914325475,
+          "equal_chance_reference": 0.1
+        },
+        {
+          "horse_id": "1166539",
+          "name": "Little Ledgend",
+          "context_features": {
+            "usable_runs": 3,
+            "numeric_finishes": 3,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.9121466297669928,
+            "shrunk_context_strength": 0.6199365416998678,
+            "comparable_distance_runs": 2,
+            "comparable_going_runs": 2,
+            "same_course_runs": 1,
+            "comparable_class_runs": 3,
+            "effective_recency_runs": 2.052231367048433,
+            "history": [
+              {
+                "race_id": "944910",
+                "date": "2026-10-23",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 11,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8,
+                "distance": "3m 1f",
+                "going": "Good to Soft",
+                "race_class": "3",
+                "course": "Cheltenham",
+                "recency_weight": 0.8441407967796914,
+                "similarities": {
+                  "distance": 1.0,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 2.813802655932305
+              },
+              {
+                "race_id": "940115",
+                "date": "2026-09-25",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 4,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 7f",
+                "going": "Good",
+                "race_class": "3",
+                "course": "Worcester",
+                "recency_weight": 0.6803950000871885,
+                "similarities": {
+                  "distance": 0.7163929600000001,
+                  "going": 1.0,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 2.1884176882996327
+              },
+              {
+                "race_id": "934496",
+                "date": "2026-08-23",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 10,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 4f",
+                "going": "Good",
+                "race_class": "4",
+                "course": "Worcester",
+                "recency_weight": 0.5276955701815529,
+                "similarities": {
+                  "distance": 0.4096000000000001,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 1.4034591384548583
+              }
+            ]
+          },
+          "model_probability": 0.11618107020127827,
+          "equal_chance_reference": 0.1
+        }
+      ],
+      "active_runner_count": 10,
+      "run_type": "CHASE",
+      "run_type_basis": "SECOND_PUBLISHER_STRUCTURED_TYPE",
+      "surface": "TURF",
+      "going": "Good",
+      "going_basis": "SECOND_PUBLISHER_STRUCTURED_GOING",
+      "going_source_receipt": {
+        "url": "https://api.theracingapi.com/v1/racecards/free?day=today&region_codes=gb&region_codes=ire&limit=100&skip=0",
+        "sha256": "7c5cc4e80e0383f98379fd54d9e327d9bb07ec9dd6f1c0dac27edaa5994a866c",
+        "observed_at_utc": "2026-11-14T06:36:02.378030+00:00",
+        "rate_limit_retries": 0
+      },
+      "distance": "3m 1f",
+      "race_class": "3",
+      "discipline_source_receipt": {
+        "url": "https://api.theracingapi.com/v1/racecards/free?day=today&region_codes=gb&region_codes=ire&limit=100&skip=0",
+        "sha256": "7c5cc4e80e0383f98379fd54d9e327d9bb07ec9dd6f1c0dac27edaa5994a866c",
+        "observed_at_utc": "2026-11-14T06:36:02.378030+00:00",
+        "rate_limit_retries": 0
+      },
+      "context_signature": "55d9e555c93ad7195b87b5584a54041d265fdfde2cc84593331e7134c03a42a6",
+      "runner_source_sha256": "752c26de9dc8f0b1110fb6c59446bbc6b76652bfe7e6b84b45da5581e92940de",
+      "runner_observed_at_utc": "2026-11-14T06:35:26.165875+00:00",
+      "research_only": true,
+      "reference_only": false,
+      "model_validation": "UNVALIDATED",
+      "publication_gate": "BLOCKED",
+      "challenge_eligible": 0,
+      "independent_timestamp_attested": false,
+      "historical_first_availability_verified": false,
+      "odds": null,
+      "expected_value": null,
+      "limitation": "Untrained context-weighted form research, not calibrated win probabilities. Distance, broad going, class similarity and course history reweight dated same-discipline outcomes using declared exploratory choices. No learned draw/pace bias, weight or official-rating effect, trainer/jockey statistics, fitness, market odds or verified EV. Inferred race discipline and sparse contextual evidence remain uncertain.",
+      "revision_of": null,
+      "record_sha256": "a9ca82e0c2ad84bd032d0c8e4b1210bc903d305356d47c1d37c1a0516c757490"
+    },
     {
       "schema_version": 1,
       "model": "CONTEXT_FORM_RESEARCH_V1",
@@ -1315,6 +2609,1885 @@
       "limitation": "Untrained context-weighted form research, not calibrated win probabilities. Distance, broad going, class similarity and course history reweight dated same-discipline outcomes using declared exploratory choices. No learned draw/pace bias, weight or official-rating effect, trainer/jockey statistics, fitness, market odds or verified EV. Inferred race discipline and sparse contextual evidence remain uncertain.",
       "revision_of": null,
       "record_sha256": "5c3abc515a87ca64146009cca3abce261ce7140fc521d8f861145b8005c0990c"
+    },
+    {
+      "schema_version": 1,
+      "model": "CONTEXT_FORM_RESEARCH_V1",
+      "race_id": "946551",
+      "racecourse": "Cheltenham",
+      "race_name": "Paddy Power Gold Cup Handicap Chase (Premier Handicap) (GBB Race)",
+      "startUTC": "2026-11-14T14:20:00+00:00",
+      "source": "https://www.sportinglife.com/racing/racecards/2026-11-14/cheltenham/racecard/946551/paddy-power-gold-cup-handicap-chase-premier-handicap-gbb-race",
+      "generated_at_utc": "2026-11-14T06:36:10.281435+00:00",
+      "parameters": {
+        "minimum_form_runs": 3,
+        "maximum_form_runs": 6,
+        "maximum_age_days": 730,
+        "recency_half_life_days": 90,
+        "neutral_prior_runs": 5,
+        "softmax_temperature_inverse": 2,
+        "capture_buffer_minutes": 5,
+        "maximum_runner_age_minutes": 30,
+        "distance_log_scale": 0.25,
+        "similarity_bonus": {
+          "distance": 1.0,
+          "going": 1.0,
+          "class": 0.5,
+          "course": 0.5
+        },
+        "known_non_finisher_percentile": 0.0
+      },
+      "runners": [
+        {
+          "horse_id": "1041741",
+          "name": "Riskintheground",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 6,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.6420606384430049,
+            "shrunk_context_strength": 0.5507100631879213,
+            "comparable_distance_runs": 4,
+            "comparable_going_runs": 4,
+            "same_course_runs": 0,
+            "comparable_class_runs": 6,
+            "effective_recency_runs": 2.775574376314575,
+            "history": [
+              {
+                "race_id": "946317",
+                "date": "2026-10-31",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.6,
+                "distance": "3m 45y",
+                "going": "Good (Good to Firm in places)",
+                "race_class": "1",
+                "course": "Wetherby",
+                "recency_weight": 0.8977865850653692,
+                "similarities": {
+                  "distance": 0.48508489638397123,
+                  "going": 1.0,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 2.679969175254777
+              },
+              {
+                "race_id": "943400",
+                "date": "2026-10-14",
+                "run_type": "CHASE",
+                "position": 6,
+                "field_size": 8,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.2857142857142857,
+                "distance": "2m 3f 83y",
+                "going": "Soft (Good to Soft in places)",
+                "race_class": "2",
+                "course": "Ffos Las",
+                "recency_weight": 0.7876112128976197,
+                "similarities": {
+                  "distance": 0.8467693495652953,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 1.9139761215435485
+              },
+              {
+                "race_id": "924700",
+                "date": "2026-06-28",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 13,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8333333333333334,
+                "distance": "3m 10y",
+                "going": "Good (Good to Firm in places)",
+                "race_class": "2",
+                "course": "Uttoxeter",
+                "recency_weight": 0.3428276925231832,
+                "similarities": {
+                  "distance": 0.49805065195767073,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.9421078639474774
+              },
+              {
+                "race_id": "921006",
+                "date": "2026-06-07",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 10,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 7f 180y",
+                "going": "Good",
+                "race_class": "2",
+                "course": "Perth",
+                "recency_weight": 0.2916322598940292,
+                "similarities": {
+                  "distance": 0.5173340372614225,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.8070438791682162
+              },
+              {
+                "race_id": "919250",
+                "date": "2026-05-24",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8,
+                "distance": "2m 4f",
+                "going": "Good",
+                "race_class": "2",
+                "course": "Uttoxeter",
+                "recency_weight": 0.2618235307051567,
+                "similarities": {
+                  "distance": 0.9609803444828162,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.8407102108173512
+              },
+              {
+                "race_id": "912216",
+                "date": "2026-04-15",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 11,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 3f 203y",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "1",
+                "course": "Haydock",
+                "recency_weight": 0.19389309522921683,
+                "similarities": {
+                  "distance": 0.9462146798602014,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.5389351676163144
+              }
+            ]
+          },
+          "model_probability": 0.08236027752910102,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1042485",
+          "name": "O'Moore Park",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 6,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.6141603834168665,
+            "shrunk_context_strength": 0.5355069213005935,
+            "comparable_distance_runs": 4,
+            "comparable_going_runs": 3,
+            "same_course_runs": 2,
+            "comparable_class_runs": 3,
+            "effective_recency_runs": 2.2571747222076364,
+            "history": [
+              {
+                "race_id": "945153",
+                "date": "2026-10-24",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 4f 44y",
+                "going": "Good",
+                "race_class": "3",
+                "course": "Cheltenham",
+                "recency_weight": 0.8506671609508557,
+                "similarities": {
+                  "distance": 1.0,
+                  "going": 1.0,
+                  "class": 0.3333333333333333,
+                  "course": 1.0
+                },
+                "context_weight": 3.1191129234864707
+              },
+              {
+                "race_id": "942342",
+                "date": "2026-10-04",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 3,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "1m 7f 214y",
+                "going": "Good",
+                "race_class": "3",
+                "course": "Uttoxeter",
+                "recency_weight": 0.7292293051358275,
+                "similarities": {
+                  "distance": 0.39094064716548466,
+                  "going": 1.0,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 1.8650822042761301
+              },
+              {
+                "race_id": "916385",
+                "date": "2026-05-09",
+                "run_type": "CHASE",
+                "position": 9,
+                "field_size": 11,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.2,
+                "distance": "3m 2f",
+                "going": "Good to Yielding (Good in places)",
+                "race_class": "",
+                "course": "Killarney",
+                "recency_weight": 0.23325824788420185,
+                "similarities": {
+                  "distance": 0.3643443892020587,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.4348737056780147
+              },
+              {
+                "race_id": "909700",
+                "date": "2026-04-10",
+                "run_type": "CHASE",
+                "position": 7,
+                "field_size": 27,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.7692307692307693,
+                "distance": "2m 5f 19y",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Aintree",
+                "recency_weight": 0.1865685580387389,
+                "similarities": {
+                  "distance": 0.8421679526135271,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.4991644169498974
+              },
+              {
+                "race_id": "899044",
+                "date": "2026-03-10",
+                "run_type": "CHASE",
+                "position": 6,
+                "field_size": 23,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.7727272727272727,
+                "distance": "2m 4f 44y",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.1469434882854511,
+                "similarities": {
+                  "distance": 1.0,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.4898116276181703
+              },
+              {
+                "race_id": "900892",
+                "date": "2026-02-01",
+                "run_type": "CHASE",
+                "position": 12,
+                "field_size": 23,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.5,
+                "distance": "2m 5f 107y",
+                "going": "Soft",
+                "race_class": "1",
+                "course": "Leopardstown",
+                "recency_weight": 0.1105079619125615,
+                "similarities": {
+                  "distance": 0.7811848134983336,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.2889250717897748
+              }
+            ]
+          },
+          "model_probability": 0.07989369736221634,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1054806",
+          "name": "Blueking D'oroux",
+          "context_features": {
+            "usable_runs": 5,
+            "numeric_finishes": 5,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.7254394843677976,
+            "shrunk_context_strength": 0.5214608398067571,
+            "comparable_distance_runs": 5,
+            "comparable_going_runs": 1,
+            "same_course_runs": 0,
+            "comparable_class_runs": 5,
+            "effective_recency_runs": 0.5260560450565908,
+            "history": [
+              {
+                "race_id": "911338",
+                "date": "2026-04-09",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 5,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.75,
+                "distance": "2m 3f 200y",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Aintree",
+                "recency_weight": 0.18513719403582055,
+                "similarities": {
+                  "distance": 0.9436267437887476,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.514118596627878
+              },
+              {
+                "race_id": "907342",
+                "date": "2026-03-14",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 7,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8333333333333334,
+                "distance": "2m 4f 110y",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "2",
+                "course": "Kempton",
+                "recency_weight": 0.15154075835169306,
+                "similarities": {
+                  "distance": 0.9427358738407104,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.38280244330401464
+              },
+              {
+                "race_id": "892186",
+                "date": "2025-12-26",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.2,
+                "distance": "3m",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "1",
+                "course": "Kempton",
+                "recency_weight": 0.08310684460100197,
+                "similarities": {
+                  "distance": 0.5018344955632718,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.1940684298733693
+              },
+              {
+                "race_id": "888542",
+                "date": "2025-11-08",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 5,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 4f 35y",
+                "going": "Good (Good to Firm in places)",
+                "race_class": "1",
+                "course": "Wincanton",
+                "recency_weight": 0.057423209483802556,
+                "similarities": {
+                  "distance": 0.9919237653822728,
+                  "going": 1.0,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.20051746988101488
+              },
+              {
+                "race_id": "885039",
+                "date": "2025-10-18",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 4,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.6666666666666666,
+                "distance": "2m 4f 216y",
+                "going": "Good to Soft",
+                "race_class": "2",
+                "course": "Newton Abbot",
+                "recency_weight": 0.04884803858427257,
+                "similarities": {
+                  "distance": 0.8590787973510254,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.11930704199836492
+              }
+            ]
+          },
+          "model_probability": 0.07768054229497665,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1057190",
+          "name": "Matata",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 4,
+            "non_finishes": 2,
+            "weighted_finish_percentile": 0.2884662123901477,
+            "shrunk_context_strength": 0.47106655144575116,
+            "comparable_distance_runs": 5,
+            "comparable_going_runs": 1,
+            "same_course_runs": 2,
+            "comparable_class_runs": 6,
+            "effective_recency_runs": 0.7922616328066713,
+            "history": [
+              {
+                "race_id": "912751",
+                "date": "2026-04-18",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 7,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 110y",
+                "going": "Heavy (Soft in places)",
+                "race_class": "1",
+                "course": "Ayr",
+                "recency_weight": 0.19842513149602492,
+                "similarities": {
+                  "distance": 0.4451745199646116,
+                  "going": 0.25,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.4355777927807014
+              },
+              {
+                "race_id": "909700",
+                "date": "2026-04-10",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 27,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 5f 19y",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Aintree",
+                "recency_weight": 0.1865685580387389,
+                "similarities": {
+                  "distance": 0.8421679526135271,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.4991644169498974
+              },
+              {
+                "race_id": "897781",
+                "date": "2026-03-12",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 7,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.3333333333333333,
+                "distance": "2m 4f 127y",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.1492244204197838,
+                "similarities": {
+                  "distance": 0.9286546187850903,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.4867682615711892
+              },
+              {
+                "race_id": "898702",
+                "date": "2026-01-18",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 5,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 6f 50y",
+                "going": "Soft",
+                "race_class": "2",
+                "course": "Windsor",
+                "recency_weight": 0.09921256574801246,
+                "similarities": {
+                  "distance": 0.6821199704640922,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.2247614348520541
+              },
+              {
+                "race_id": "896276",
+                "date": "2026-01-01",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 4f 127y",
+                "going": "Good",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.08703730991679652,
+                "similarities": {
+                  "distance": 0.9286546187850903,
+                  "going": 1.0,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.34193952961125196
+              },
+              {
+                "race_id": "892941",
+                "date": "2025-12-07",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.75,
+                "distance": "2m 1f 14y",
+                "going": "Soft",
+                "race_class": "2",
+                "course": "Kelso",
+                "recency_weight": 0.0717936471873147,
+                "similarities": {
+                  "distance": 0.5091911796358929,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.15022996661492014
+              }
+            ]
+          },
+          "model_probability": 0.07023285548385898,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1081572",
+          "name": "Torneo",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 6,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.8069341610808577,
+            "shrunk_context_strength": 0.5702354406691216,
+            "comparable_distance_runs": 3,
+            "comparable_going_runs": 1,
+            "same_course_runs": 0,
+            "comparable_class_runs": 3,
+            "effective_recency_runs": 1.4836463954462311,
+            "history": [
+              {
+                "race_id": "943400",
+                "date": "2026-10-14",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 8,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 3f 83y",
+                "going": "Soft (Good to Soft in places)",
+                "race_class": "2",
+                "course": "Ffos Las",
+                "recency_weight": 0.7876112128976197,
+                "similarities": {
+                  "distance": 0.8467693495652953,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 1.9139761215435485
+              },
+              {
+                "race_id": "913666",
+                "date": "2026-04-24",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 3,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 16y",
+                "going": "Good",
+                "race_class": "3",
+                "course": "Chepstow",
+                "recency_weight": 0.20780947403569694,
+                "similarities": {
+                  "distance": 0.4008231754083858,
+                  "going": 1.0,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 0.5335487136736112
+              },
+              {
+                "race_id": "910697",
+                "date": "2026-04-02",
+                "run_type": "CHASE",
+                "position": 6,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 3f 98y",
+                "going": "Good to Soft (Good in places)",
+                "race_class": "2",
+                "course": "Chepstow",
+                "recency_weight": 0.1754204549908618,
+                "similarities": {
+                  "distance": 0.8587503357514779,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.42839142835661076
+              },
+              {
+                "race_id": "905114",
+                "date": "2026-02-28",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 8,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.5714285714285714,
+                "distance": "2m 1f 14y",
+                "going": "Good to Soft (Soft in places)",
+                "race_class": "3",
+                "course": "Kelso",
+                "recency_weight": 0.13605125993878286,
+                "similarities": {
+                  "distance": 0.5091911796358929,
+                  "going": 0.3333333333333333,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 0.27335299144735264
+              },
+              {
+                "race_id": "898700",
+                "date": "2026-01-18",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8,
+                "distance": "2m 37y",
+                "going": "Soft",
+                "race_class": "2",
+                "course": "Windsor",
+                "recency_weight": 0.09921256574801246,
+                "similarities": {
+                  "distance": 0.41043015314695236,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.1978063909884119
+              },
+              {
+                "race_id": "894207",
+                "date": "2025-12-17",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.4,
+                "distance": "2m 92y",
+                "going": "Good to Soft (Soft In Places)",
+                "race_class": "3",
+                "course": "Newbury",
+                "recency_weight": 0.07754142783525744,
+                "similarities": {
+                  "distance": 0.4364100722861197,
+                  "going": 0.3333333333333333,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 0.1501520018796398
+              }
+            ]
+          },
+          "model_probability": 0.08564013215137646,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1084278",
+          "name": "July Flower",
+          "context_features": {
+            "usable_runs": 5,
+            "numeric_finishes": 5,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.6447146044218619,
+            "shrunk_context_strength": 0.5145199724060366,
+            "comparable_distance_runs": 3,
+            "comparable_going_runs": 2,
+            "same_course_runs": 2,
+            "comparable_class_runs": 4,
+            "effective_recency_runs": 0.5576256171710559,
+            "history": [
+              {
+                "race_id": "912703",
+                "date": "2026-04-28",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.625,
+                "distance": "3m 213y",
+                "going": "Yielding",
+                "race_class": "1",
+                "course": "Punchestown",
+                "recency_weight": 0.2143109957132682,
+                "similarities": {
+                  "distance": 0.4284082296756664,
+                  "going": 0.5,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.5204345857000869
+              },
+              {
+                "race_id": "900316",
+                "date": "2026-03-13",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 8,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.42857142857142855,
+                "distance": "2m 4f 127y",
+                "going": "Good to Soft (Soft in places)",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.15037812951026458,
+                "similarities": {
+                  "distance": 0.9286546187850903,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.49053164672458704
+              },
+              {
+                "race_id": "895100",
+                "date": "2025-12-26",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.75,
+                "distance": "2m 1f",
+                "going": "Yielding (Good to Yielding in places)",
+                "race_class": "1",
+                "course": "Leopardstown",
+                "recency_weight": 0.08310684460100197,
+                "similarities": {
+                  "distance": 0.501637745947183,
+                  "going": 0.5,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.20790321940043335
+              },
+              {
+                "race_id": "889613",
+                "date": "2025-11-15",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "1m 7f 199y",
+                "going": "Soft (Heavy in places)",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.06060394654041988,
+                "similarities": {
+                  "distance": 0.3843081272023886,
+                  "going": 0.25,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.15964946891196716
+              },
+              {
+                "race_id": "885222",
+                "date": "2025-10-19",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 3f 50y",
+                "going": "Yielding to Soft",
+                "race_class": "",
+                "course": "Limerick",
+                "recency_weight": 0.049225700806101245,
+                "similarities": {
+                  "distance": 0.82085277067289,
+                  "going": 0.3333333333333333,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.10604132063647125
+              }
+            ]
+          },
+          "model_probability": 0.07660965171402001,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1088843",
+          "name": "Johnnywho",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 6,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.7908860697100939,
+            "shrunk_context_strength": 0.5303472944537869,
+            "comparable_distance_runs": 2,
+            "comparable_going_runs": 0,
+            "same_course_runs": 1,
+            "comparable_class_runs": 6,
+            "effective_recency_runs": 0.5823949702675267,
+            "history": [
+              {
+                "race_id": "901920",
+                "date": "2026-04-11",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 34,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.9090909090909091,
+                "distance": "4m 2f 74y",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Aintree",
+                "recency_weight": 0.18801098844524797,
+                "similarities": {
+                  "distance": 0.11978109504506007,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.3672069742260972
+              },
+              {
+                "race_id": "899042",
+                "date": "2026-03-10",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 22,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "3m 1f",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.1469434882854511,
+                "similarities": {
+                  "distance": 0.426231402496,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.4055000684322816
+              },
+              {
+                "race_id": "898708",
+                "date": "2026-01-17",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.2,
+                "distance": "3m 1f 125y",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Haydock",
+                "recency_weight": 0.09845140161220245,
+                "similarities": {
+                  "distance": 0.389588468774796,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.2188497670918683
+              },
+              {
+                "race_id": "893893",
+                "date": "2025-12-20",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 12,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8181818181818182,
+                "distance": "2m 7f 185y",
+                "going": "Good to Soft (Soft in places)",
+                "race_class": "1",
+                "course": "Ascot",
+                "recency_weight": 0.07935387279475448,
+                "similarities": {
+                  "distance": 0.5153641811922893,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.18637824380102225
+              },
+              {
+                "race_id": "885230",
+                "date": "2025-11-08",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 17,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.75,
+                "distance": "2m 5f 19y",
+                "going": "Good to Soft",
+                "race_class": "2",
+                "course": "Aintree",
+                "recency_weight": 0.057423209483802556,
+                "similarities": {
+                  "distance": 0.8421679526135271,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.13928006844615906
+              },
+              {
+                "race_id": "850753",
+                "date": "2025-04-21",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 30,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8620689655172413,
+                "distance": "3m 5f 37y",
+                "going": "Soft to Heavy",
+                "race_class": "1",
+                "course": "Fairyhouse",
+                "recency_weight": 0.012212009646068143,
+                "similarities": {
+                  "distance": 0.23002129486758793,
+                  "going": 0.25,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.02418003915234332
+              }
+            ]
+          },
+          "model_probability": 0.07907349325615015,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1110914",
+          "name": "Zurich",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 6,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.6006588620310606,
+            "shrunk_context_strength": 0.5210743837714936,
+            "comparable_distance_runs": 6,
+            "comparable_going_runs": 2,
+            "same_course_runs": 2,
+            "comparable_class_runs": 2,
+            "effective_recency_runs": 1.3240260055961515,
+            "history": [
+              {
+                "race_id": "944184",
+                "date": "2026-10-18",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 8,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.42857142857142855,
+                "distance": "2m 3f 125y",
+                "going": "Good to Yielding (Good in places)",
+                "race_class": "",
+                "course": "Limerick",
+                "recency_weight": 0.8122523963562356,
+                "similarities": {
+                  "distance": 0.8806359733061516,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 1.9336772741697807
+              },
+              {
+                "race_id": "912216",
+                "date": "2026-04-15",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 11,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.9,
+                "distance": "2m 3f 203y",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "1",
+                "course": "Haydock",
+                "recency_weight": 0.19389309522921683,
+                "similarities": {
+                  "distance": 0.9462146798602014,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.5389351676163144
+              },
+              {
+                "race_id": "899044",
+                "date": "2026-03-10",
+                "run_type": "CHASE",
+                "position": 5,
+                "field_size": 23,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8181818181818182,
+                "distance": "2m 4f 44y",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.1469434882854511,
+                "similarities": {
+                  "distance": 1.0,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.4898116276181703
+              },
+              {
+                "race_id": "893670",
+                "date": "2025-12-13",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 5,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.5,
+                "distance": "2m 3f 31y",
+                "going": "Good to Soft (Soft in places)",
+                "race_class": "3",
+                "course": "Doncaster",
+                "recency_weight": 0.07518906475513229,
+                "similarities": {
+                  "distance": 0.8062036584702951,
+                  "going": 0.3333333333333333,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 0.17340129621524603
+              },
+              {
+                "race_id": "886219",
+                "date": "2025-10-25",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 14,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 4f 44y",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "3",
+                "course": "Cheltenham",
+                "recency_weight": 0.05155378714595641,
+                "similarities": {
+                  "distance": 1.0,
+                  "going": 0.3333333333333333,
+                  "class": 0.3333333333333333,
+                  "course": 1.0
+                },
+                "context_weight": 0.15466136143786924
+              },
+              {
+                "race_id": "882795",
+                "date": "2025-10-05",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 7,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8333333333333334,
+                "distance": "2m 1f",
+                "going": "Yielding",
+                "race_class": "",
+                "course": "Killarney",
+                "recency_weight": 0.04419417382415922,
+                "similarities": {
+                  "distance": 0.501637745947183,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.08846072647738805
+              }
+            ]
+          },
+          "model_probability": 0.07762052526312377,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1123101",
+          "name": "Release The Beast",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 5,
+            "non_finishes": 1,
+            "weighted_finish_percentile": 0.515825928061265,
+            "shrunk_context_strength": 0.5014923746607727,
+            "comparable_distance_runs": 2,
+            "comparable_going_runs": 4,
+            "same_course_runs": 1,
+            "comparable_class_runs": 3,
+            "effective_recency_runs": 0.5205878190405256,
+            "history": [
+              {
+                "race_id": "914458",
+                "date": "2026-04-30",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 20,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 75y",
+                "going": "Yielding",
+                "race_class": "1",
+                "course": "Punchestown",
+                "recency_weight": 0.217637640824031,
+                "similarities": {
+                  "distance": 0.4282519782456662,
+                  "going": 0.5,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.528479031871673
+              },
+              {
+                "race_id": "900309",
+                "date": "2026-03-11",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 20,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8421052631578947,
+                "distance": "1m 7f 199y",
+                "going": "Good",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.1480795626474421,
+                "similarities": {
+                  "distance": 0.3843081272023886,
+                  "going": 1.0,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.5011468673403136
+              },
+              {
+                "race_id": "895101",
+                "date": "2025-12-26",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 20,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.9473684210526315,
+                "distance": "2m 1f",
+                "going": "Yielding (Good to Yielding in places)",
+                "race_class": "",
+                "course": "Leopardstown",
+                "recency_weight": 0.08310684460100197,
+                "similarities": {
+                  "distance": 0.501637745947183,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.1663497970999324
+              },
+              {
+                "race_id": "886401",
+                "date": "2025-10-26",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 11,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.9,
+                "distance": "2m 3f 130y",
+                "going": "Good to Yielding (Yielding in places)",
+                "race_class": "",
+                "course": "Wexford",
+                "recency_weight": 0.051952368508924235,
+                "similarities": {
+                  "distance": 0.8847343304285294,
+                  "going": 0.5,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.12389259673030564
+              },
+              {
+                "race_id": "853629",
+                "date": "2025-04-20",
+                "run_type": "CHASE",
+                "position": 6,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.375,
+                "distance": "2m 140y",
+                "going": "Soft to Heavy",
+                "race_class": "1",
+                "course": "Fairyhouse",
+                "recency_weight": 0.012118318451826055,
+                "similarities": {
+                  "distance": 0.46007447636798143,
+                  "going": 0.25,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.026782386306879912
+              },
+              {
+                "race_id": "844833",
+                "date": "2025-02-20",
+                "run_type": "CHASE",
+                "position": 6,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m",
+                "going": "Soft (Soft to Heavy in places)",
+                "race_class": "",
+                "course": "Punchestown",
+                "recency_weight": 0.007693084007300245,
+                "similarities": {
+                  "distance": 0.39361754910016167,
+                  "going": 0.25,
+                  "class": null,
+                  "course": 0.0
+                },
+                "context_weight": 0.012644487881100478
+              }
+            ]
+          },
+          "model_probability": 0.07463935199833047,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1128814",
+          "name": "Quebecois",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 5,
+            "non_finishes": 1,
+            "weighted_finish_percentile": 0.606580076805768,
+            "shrunk_context_strength": 0.5239725462960199,
+            "comparable_distance_runs": 2,
+            "comparable_going_runs": 1,
+            "same_course_runs": 2,
+            "comparable_class_runs": 5,
+            "effective_recency_runs": 1.4509903726749804,
+            "history": [
+              {
+                "race_id": "943995",
+                "date": "2026-10-17",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 4,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.6666666666666666,
+                "distance": "2m 4f 216y",
+                "going": "Good",
+                "race_class": "2",
+                "course": "Newton Abbot",
+                "recency_weight": 0.8060207523233376,
+                "similarities": {
+                  "distance": 0.8590787973510254,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 2.5059820312734113
+              },
+              {
+                "race_id": "910773",
+                "date": "2026-04-18",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 16,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "3m 7f 176y",
+                "going": "Heavy (Soft in places)",
+                "race_class": "1",
+                "course": "Ayr",
+                "recency_weight": 0.19842513149602492,
+                "similarities": {
+                  "distance": 0.16281596884169355,
+                  "going": 0.25,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.37955076014510936
+              },
+              {
+                "race_id": "899042",
+                "date": "2026-03-10",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 22,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.9047619047619048,
+                "distance": "3m 1f",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.1469434882854511,
+                "similarities": {
+                  "distance": 0.426231402496,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.4055000684322816
+              },
+              {
+                "race_id": "903250",
+                "date": "2026-02-17",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 3,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.5,
+                "distance": "2m 92y",
+                "going": "Soft",
+                "race_class": "3",
+                "course": "Newbury",
+                "recency_weight": 0.125,
+                "similarities": {
+                  "distance": 0.4364100722861197,
+                  "going": 0.3333333333333333,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 0.24205125903576497
+              },
+              {
+                "race_id": "899758",
+                "date": "2026-01-24",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 9,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.875,
+                "distance": "2m 4f 127y",
+                "going": "Soft",
+                "race_class": "2",
+                "course": "Cheltenham",
+                "recency_weight": 0.10390473701784847,
+                "similarities": {
+                  "distance": 0.9286546187850903,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 1.0
+                },
+                "context_weight": 0.31295981606579276
+              },
+              {
+                "race_id": "892816",
+                "date": "2025-12-05",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 4,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "3m 42y",
+                "going": "Good to Soft (Good in places)",
+                "race_class": "1",
+                "course": "Sandown",
+                "recency_weight": 0.0706962635523183,
+                "similarities": {
+                  "distance": 0.48617958682933643,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.16398089671682753
+              }
+            ]
+          },
+          "model_probability": 0.07807174550430271,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1166775",
+          "name": "Meetmebythesea",
+          "context_features": {
+            "usable_runs": 4,
+            "numeric_finishes": 4,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.7537780200837092,
+            "shrunk_context_strength": 0.5197098248139871,
+            "comparable_distance_runs": 1,
+            "comparable_going_runs": 0,
+            "same_course_runs": 1,
+            "comparable_class_runs": 2,
+            "effective_recency_runs": 0.4210274016782802,
+            "history": [
+              {
+                "race_id": "900312",
+                "date": "2026-03-12",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 18,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 4f 127y",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.1492244204197838,
+                "similarities": {
+                  "distance": 0.9286546187850903,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.4867682615711892
+              },
+              {
+                "race_id": "901752",
+                "date": "2026-02-07",
+                "run_type": "CHASE",
+                "position": 6,
+                "field_size": 6,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 92y",
+                "going": "Heavy (Soft in places)",
+                "race_class": "1",
+                "course": "Newbury",
+                "recency_weight": 0.1157343390359113,
+                "similarities": {
+                  "distance": 0.4364100722861197,
+                  "going": 0.25,
+                  "class": 1.0,
+                  "course": 0.0
+                },
+                "context_weight": 0.2530427245774931
+              },
+              {
+                "race_id": "897934",
+                "date": "2026-01-13",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 5,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 110y",
+                "going": "Heavy (Soft in places)",
+                "race_class": "3",
+                "course": "Ayr",
+                "recency_weight": 0.0954646956821652,
+                "similarities": {
+                  "distance": 0.4451745199646116,
+                  "going": 0.25,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 0.17774010229027631
+              },
+              {
+                "race_id": "889595",
+                "date": "2025-11-15",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 5,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "1m 7f 36y",
+                "going": "Soft (Good to Soft in places)",
+                "race_class": "3",
+                "course": "Wetherby",
+                "recency_weight": 0.06060394654041988,
+                "similarities": {
+                  "distance": 0.317546965382735,
+                  "going": 0.3333333333333333,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 0.11015051912475765
+              }
+            ]
+          },
+          "model_probability": 0.07740897849639243,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1173064",
+          "name": "Dunkerque",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 6,
+            "non_finishes": 0,
+            "weighted_finish_percentile": 0.4900873620959116,
+            "shrunk_context_strength": 0.49650451282751623,
+            "comparable_distance_runs": 5,
+            "comparable_going_runs": 6,
+            "same_course_runs": 0,
+            "comparable_class_runs": 0,
+            "effective_recency_runs": 2.7235507771918295,
+            "history": [
+              {
+                "race_id": "939555",
+                "date": "2026-09-22",
+                "run_type": "CHASE",
+                "position": 3,
+                "field_size": 3,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "3m 1f 100y",
+                "going": "Good to Firm (Good in places)",
+                "race_class": "3",
+                "course": "Warwick",
+                "recency_weight": 0.6648547568080159,
+                "similarities": {
+                  "distance": 0.3965921311539463,
+                  "going": 1.0,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 1.7041948046610307
+              },
+              {
+                "race_id": "937046",
+                "date": "2026-09-07",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 2,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 4f 20y",
+                "going": "Good",
+                "race_class": "3",
+                "course": "Perth",
+                "recency_weight": 0.5923182505897684,
+                "similarities": {
+                  "distance": 0.9785722055868793,
+                  "going": 1.0,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 1.8629823865001562
+              },
+              {
+                "race_id": "934019",
+                "date": "2026-08-20",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 3,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 6f 125y",
+                "going": "Good to Firm",
+                "race_class": "3",
+                "course": "Stratford",
+                "recency_weight": 0.5156429867014977,
+                "similarities": {
+                  "distance": 0.64182878372432,
+                  "going": 1.0,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 1.448180982177176
+              },
+              {
+                "race_id": "928728",
+                "date": "2026-07-20",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 4,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.6666666666666666,
+                "distance": "2m 1f 61y",
+                "going": "Good",
+                "race_class": "3",
+                "course": "Cartmel",
+                "recency_weight": 0.40612619817811774,
+                "similarities": {
+                  "distance": 0.535174334075613,
+                  "going": 1.0,
+                  "class": 0.3333333333333333,
+                  "course": 0.0
+                },
+                "context_weight": 1.097288413713223
+              },
+              {
+                "race_id": "920284",
+                "date": "2026-06-03",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 3,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 4f 216y",
+                "going": "Good",
+                "race_class": "4",
+                "course": "Newton Abbot",
+                "recency_weight": 0.28278505420927325,
+                "similarities": {
+                  "distance": 0.8590787973510254,
+                  "going": 1.0,
+                  "class": 0.25,
+                  "course": 0.0
+                },
+                "context_weight": 0.8438528844736526
+              },
+              {
+                "race_id": "918510",
+                "date": "2026-05-24",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 5,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 5f 133y",
+                "going": "Good",
+                "race_class": "4",
+                "course": "Kelso",
+                "recency_weight": 0.2618235307051567,
+                "similarities": {
+                  "distance": 0.7642315166792443,
+                  "going": 1.0,
+                  "class": 0.25,
+                  "course": 0.0
+                },
+                "context_weight": 0.7564687967215745
+              }
+            ]
+          },
+          "model_probability": 0.07389847199926765,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "967033",
+          "name": "Guard Your Dreams",
+          "context_features": {
+            "usable_runs": 6,
+            "numeric_finishes": 3,
+            "non_finishes": 3,
+            "weighted_finish_percentile": 0.23280383517646192,
+            "shrunk_context_strength": 0.4465357260716529,
+            "comparable_distance_runs": 4,
+            "comparable_going_runs": 1,
+            "same_course_runs": 2,
+            "comparable_class_runs": 6,
+            "effective_recency_runs": 1.2507322539565386,
+            "history": [
+              {
+                "race_id": "943397",
+                "date": "2026-10-14",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 8,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 7f 177y",
+                "going": "Soft (Good to Soft in places)",
+                "race_class": "2",
+                "course": "Ffos Las",
+                "recency_weight": 0.7876112128976197,
+                "similarities": {
+                  "distance": 0.5185204693491822,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 1.6554436228642502
+              },
+              {
+                "race_id": "910578",
+                "date": "2026-04-04",
+                "run_type": "CHASE",
+                "position": 4,
+                "field_size": 17,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.8125,
+                "distance": "2m 3f 203y",
+                "going": "Good (Good to Soft in places)",
+                "race_class": "2",
+                "course": "Haydock",
+                "recency_weight": 0.17814342119696308,
+                "similarities": {
+                  "distance": 0.9462146798602014,
+                  "going": 0.3333333333333333,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.4506223371522769
+              },
+              {
+                "race_id": "899044",
+                "date": "2026-03-10",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 23,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "2m 4f 44y",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.1469434882854511,
+                "similarities": {
+                  "distance": 1.0,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.4898116276181703
+              },
+              {
+                "race_id": "901744",
+                "date": "2026-02-07",
+                "run_type": "CHASE",
+                "position": 1,
+                "field_size": 7,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 1.0,
+                "distance": "2m 4f",
+                "going": "Heavy (Soft in places)",
+                "race_class": "2",
+                "course": "Warwick",
+                "recency_weight": 0.1157343390359113,
+                "similarities": {
+                  "distance": 0.9609803444828162,
+                  "going": 0.25,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.284819933549088
+              },
+              {
+                "race_id": "855739",
+                "date": "2025-05-03",
+                "run_type": "CHASE",
+                "position": 2,
+                "field_size": 14,
+                "outcome": "NUMERIC_FINISH",
+                "finish_percentile": 0.9230769230769231,
+                "distance": "3m 10y",
+                "going": "Good",
+                "race_class": "2",
+                "course": "Uttoxeter",
+                "recency_weight": 0.013394437232079262,
+                "similarities": {
+                  "distance": 0.49805065195767073,
+                  "going": 1.0,
+                  "class": 0.5,
+                  "course": 0.0
+                },
+                "context_weight": 0.03680859196822151
+              },
+              {
+                "race_id": "838513",
+                "date": "2025-03-11",
+                "run_type": "CHASE",
+                "position": null,
+                "field_size": 24,
+                "outcome": "KNOWN_NON_FINISH",
+                "finish_percentile": 0.0,
+                "distance": "3m 1f",
+                "going": "Good to Soft",
+                "race_class": "1",
+                "course": "Cheltenham",
+                "recency_weight": 0.008905355308514292,
+                "similarities": {
+                  "distance": 0.426231402496,
+                  "going": 0.3333333333333333,
+                  "class": 1.0,
+                  "course": 1.0
+                },
+                "context_weight": 0.0245749044694066
+              }
+            ]
+          },
+          "model_probability": 0.06687027694688341,
+          "equal_chance_reference": 0.07692307692307693
+        }
+      ],
+      "active_runner_count": 13,
+      "run_type": "CHASE",
+      "run_type_basis": "SECOND_PUBLISHER_STRUCTURED_TYPE",
+      "surface": "TURF",
+      "going": "Good",
+      "going_basis": "SECOND_PUBLISHER_STRUCTURED_GOING",
+      "going_source_receipt": {
+        "url": "https://api.theracingapi.com/v1/racecards/free?day=today&region_codes=gb&region_codes=ire&limit=100&skip=0",
+        "sha256": "7c5cc4e80e0383f98379fd54d9e327d9bb07ec9dd6f1c0dac27edaa5994a866c",
+        "observed_at_utc": "2026-11-14T06:36:02.378030+00:00",
+        "rate_limit_retries": 0
+      },
+      "distance": "2m 4f 44y",
+      "race_class": "1",
+      "discipline_source_receipt": {
+        "url": "https://api.theracingapi.com/v1/racecards/free?day=today&region_codes=gb&region_codes=ire&limit=100&skip=0",
+        "sha256": "7c5cc4e80e0383f98379fd54d9e327d9bb07ec9dd6f1c0dac27edaa5994a866c",
+        "observed_at_utc": "2026-11-14T06:36:02.378030+00:00",
+        "rate_limit_retries": 0
+      },
+      "context_signature": "4113b576a492834682553eda44c1a7241ecc6dd17bf8dd6566e84c3dadf79bf9",
+      "runner_source_sha256": "6d3b67bb6375ea6324f01d15a8f700b7d107198d14577b9207483655e8bdd381",
+      "runner_observed_at_utc": "2026-11-14T06:35:29.805878+00:00",
+      "research_only": true,
+      "reference_only": false,
+      "model_validation": "UNVALIDATED",
+      "publication_gate": "BLOCKED",
+      "challenge_eligible": 0,
+      "independent_timestamp_attested": false,
+      "historical_first_availability_verified": false,
+      "odds": null,
+      "expected_value": null,
+      "limitation": "Untrained context-weighted form research, not calibrated win probabilities. Distance, broad going, class similarity and course history reweight dated same-discipline outcomes using declared exploratory choices. No learned draw/pace bias, weight or official-rating effect, trainer/jockey statistics, fitness, market odds or verified EV. Inferred race discipline and sparse contextual evidence remain uncertain.",
+      "revision_of": null,
+      "record_sha256": "6478fe1c3df9fa80ac46f3e80b04f2c266aa58dee314a9c63c2a39aa01f1c527"
     },
     {
       "schema_version": 1,
@@ -2897,12 +6070,6 @@
       "surface": "TURF"
     },
     {
-      "race_id": "948532",
-      "reason": "RUNNER_FIELD_UNCONFIRMED",
-      "run_type": "CHASE",
-      "surface": "TURF"
-    },
-    {
       "race_id": "948539",
       "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
       "run_type": "HURDLE",
@@ -2958,7 +6125,7 @@
     },
     {
       "race_id": "948534",
-      "reason": "RUNNER_FIELD_UNCONFIRMED",
+      "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
       "run_type": "CHASE",
       "surface": "TURF"
     },
@@ -2978,12 +6145,6 @@
       "race_id": "948715",
       "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
       "run_type": "HURDLE",
-      "surface": "TURF"
-    },
-    {
-      "race_id": "946551",
-      "reason": "RUNNER_FIELD_UNCONFIRMED",
-      "run_type": "CHASE",
       "surface": "TURF"
     },
     {
@@ -3030,7 +6191,7 @@
     },
     {
       "race_id": "948536",
-      "reason": "RUNNER_FIELD_UNCONFIRMED",
+      "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
       "run_type": "HURDLE",
       "surface": "TURF"
     },
@@ -3060,15 +6221,35 @@
     },
     {
       "race_id": "948537",
-      "reason": "RUNNER_FIELD_UNCONFIRMED",
+      "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
       "run_type": "NH_FLAT",
       "surface": "TURF"
     }
   ],
   "current_field_checks": {
+    "a9ca82e0c2ad84bd032d0c8e4b1210bc903d305356d47c1d37c1a0516c757490": {
+      "status": "FRESH_MATCHING_FIELD_AND_CONTEXT",
+      "runner_observed_at_utc": "2026-11-14T06:35:26.165875+00:00",
+      "active_runner_ids": [
+        "1040987",
+        "1049820",
+        "1051095",
+        "1057219",
+        "1058555",
+        "1093944",
+        "1095877",
+        "1150633",
+        "1160494",
+        "1166539"
+      ],
+      "active_runner_count": 10,
+      "context_signature": "55d9e555c93ad7195b87b5584a54041d265fdfde2cc84593331e7134c03a42a6",
+      "runner_source_sha256": "752c26de9dc8f0b1110fb6c59446bbc6b76652bfe7e6b84b45da5581e92940de",
+      "checked_at_utc": "2026-11-14T06:36:10.281435+00:00"
+    },
     "5c3abc515a87ca64146009cca3abce261ce7140fc521d8f861145b8005c0990c": {
       "status": "FRESH_MATCHING_FIELD_AND_CONTEXT",
-      "runner_observed_at_utc": "2026-11-14T03:27:43.908523+00:00",
+      "runner_observed_at_utc": "2026-11-14T06:35:28.482613+00:00",
       "active_runner_ids": [
         "1115098",
         "1158069",
@@ -3085,12 +6266,35 @@
       ],
       "active_runner_count": 12,
       "context_signature": "b76ae6bfa978ed3fdf4ebdbe8a0cb93d52240e58051b876b1a8d46310f0ef466",
-      "runner_source_sha256": "d859d037c66f99577946acd05fb0099c1cc93ab2069b960b72ac0353bf7fb75a",
-      "checked_at_utc": "2026-11-14T03:28:39.433341+00:00"
+      "runner_source_sha256": "98947f0c881a9ae65cf1bd74369a652bf6e724401168f7b4145793af71880716",
+      "checked_at_utc": "2026-11-14T06:36:10.281435+00:00"
+    },
+    "6478fe1c3df9fa80ac46f3e80b04f2c266aa58dee314a9c63c2a39aa01f1c527": {
+      "status": "FRESH_MATCHING_FIELD_AND_CONTEXT",
+      "runner_observed_at_utc": "2026-11-14T06:35:29.805878+00:00",
+      "active_runner_ids": [
+        "1041741",
+        "1042485",
+        "1054806",
+        "1057190",
+        "1081572",
+        "1084278",
+        "1088843",
+        "1110914",
+        "1123101",
+        "1128814",
+        "1166775",
+        "1173064",
+        "967033"
+      ],
+      "active_runner_count": 13,
+      "context_signature": "4113b576a492834682553eda44c1a7241ecc6dd17bf8dd6566e84c3dadf79bf9",
+      "runner_source_sha256": "6d3b67bb6375ea6324f01d15a8f700b7d107198d14577b9207483655e8bdd381",
+      "checked_at_utc": "2026-11-14T06:36:10.281435+00:00"
     },
     "bc0b7ae7577d7862fd094fc4fe8d3934d9c09b1f0d7856599beacad8dd6a9323": {
       "status": "FRESH_MATCHING_FIELD_AND_CONTEXT",
-      "runner_observed_at_utc": "2026-11-14T03:27:45.519583+00:00",
+      "runner_observed_at_utc": "2026-11-14T06:35:30.121136+00:00",
       "active_runner_ids": [
         "1072491",
         "1134889",
@@ -3100,12 +6304,12 @@
       ],
       "active_runner_count": 5,
       "context_signature": "b921159fc854071cd182c07b972d6a6924692e0bcd147675926fd6115758825b",
-      "runner_source_sha256": "9ed126bd04641e8756a4b244983630771f3e858138e662990d7fe1225965b48a",
-      "checked_at_utc": "2026-11-14T03:28:39.433341+00:00"
+      "runner_source_sha256": "7a613fc6b0e414ef2f418e7b7b726db53a43bacc3c8418fde50c40b92f65f107",
+      "checked_at_utc": "2026-11-14T06:36:10.281435+00:00"
     },
     "b8a88e48b6f0d6fe44963b2739cb70cf17f02c796f9b7c469d4862cbdd0bc70b": {
       "status": "FRESH_MATCHING_FIELD_AND_CONTEXT",
-      "runner_observed_at_utc": "2026-11-14T03:27:47.308921+00:00",
+      "runner_observed_at_utc": "2026-11-14T06:35:30.938223+00:00",
       "active_runner_ids": [
         "1077897",
         "1125830",
@@ -3115,21 +6319,21 @@
       ],
       "active_runner_count": 5,
       "context_signature": "468778bb53d4315e57af255f231568d7e116b7a4e3181dce85991d1ae4d945b1",
-      "runner_source_sha256": "9993519ed2791e743f54128badcb91b19718a8ac104c9ebeb78f55331b544ae3",
-      "checked_at_utc": "2026-11-14T03:28:39.433341+00:00"
+      "runner_source_sha256": "a94c946bae965d5b70162d14ebe2949c19b8fc0e8839568cfe86d9acc96e47e0",
+      "checked_at_utc": "2026-11-14T06:36:10.281435+00:00"
     }
   },
   "coverage": {
     "observed_races": 36,
-    "forecast_count": 3,
-    "archived_forecast_count": 103,
+    "forecast_count": 5,
+    "archived_forecast_count": 105,
     "discipline_counts": {
-      "CHASE": 1,
+      "CHASE": 3,
       "FLAT": 0,
       "HURDLE": 2,
       "NH_FLAT": 0
     },
-    "skipped_count": 33
+    "skipped_count": 31
   },
   "limitations": [
     "Untrained context-weighted form research, not calibrated win probabilities. Distance, broad going, class similarity and course history reweight dated same-discipline outcomes using declared exploratory choices. No learned draw/pace bias, weight or official-rating effect, trainer/jockey statistics, fitness, market odds or verified EV. Inferred race discipline and sparse contextual evidence remain uncertain.",
