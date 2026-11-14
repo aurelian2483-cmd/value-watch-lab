@@ -3,7 +3,8 @@
 // All archived bookmaker quotations have UNVERIFIED collection/availability timestamps.
 // This is a REUSED retrospective diagnostic, not executable historical bets/validated EV.
 const fs=require('node:fs');
-const {csv,readSeason,evaluateSeason}=require('../../scripts/match_intelligence_backtest.cjs');
+const {readSeason,evaluateSeason}=require('../../scripts/match_intelligence_backtest.cjs');
+function csv(s){const out=[];let row=[],value='',quoted=false;for(let i=0;i<s.length;i++){const ch=s[i];if(ch==='"'){if(quoted&&s[i+1]==='"'){value+='"';i++;}else quoted=!quoted;}else if(ch===','&&!quoted){row.push(value);value='';}else if((ch==='\r'||ch==='\n')&&!quoted){if(ch==='\r'&&s[i+1]==='\n')i++;row.push(value);if(row.some(Boolean))out.push(row);row=[];value='';}else value+=ch;}if(row.length||value){row.push(value);out.push(row);}return out;}
 const {poisson1x2}=require('./dynamic-player-impact.js');
 const ALPHA=.025; // locked Stage 2 calibration-selected raw form; not reoptimized here
 const choice=['H','D','A'];
@@ -58,39 +59,6 @@ function bins(rows,key){
      observed_accuracy:bucket.reduce((s,r)=>s+r[key].correct,0)/bucket.length});
  }
  return out;
-}
-function evaluate(rows){
- const all=[];
- for(const season of rows){
-   const parsed=parseBookmakerSeason(season);
-   const evaluated=evaluateSeason(parsed.results);
-   for(const r of evaluated.rows){
-     const market=parsed.market.get(r.date+'|'+r.home+'|'+r.away);
-     if(!market)throw Error('Missing fixture market linkage');
-     const original=parsed.results.find(m=>m.date===r.date&&m.home===r.home&&m.away===r.away);
-     if(!original)throw Error('Cannot join final result');
-     const actual=original.hg>original.ag?0:original.hg===original.ag?1:2;
-     const base=baselinePrediction(parsed.results,r); // independently reconstructed from the same past matches
-     const rawForm=rawFormPrediction(parsed.results,r);
-     if(!base||!rawForm)throw Error('Missing chronological predictions');
-     all.push({date:r.date,fixture_id:r.date+'|'+r.home+'|'+r.away,actual,
-       baseline:scores(base,actual),form:scores(rawForm,actual),
-       market_open:market.opening?scores(market.opening.probabilities,actual):null,
-       market_close:market.closing?scores(market.closing.probabilities,actual):null,
-       opening_overround:market.opening?.overround??null,closing_overround:market.closing?.overround??null,
-       odds_open:market.opening?.odds??null,source_timestamp_verified:false});
-   }
- }
- return {rows:all,report:{status:'HISTORICAL_REUSED_MARKET_DIAGNOSTIC_ONLY',model_coeff_alpha:ALPHA,
-   model_baseline:summarize(all,'baseline'),model_recent_form:summarize(all,'form'),
-   market_open:summarize(all,'market_open'),market_close:summarize(all,'market_close'),
-   market_open_calibration_bins:bins(all,'market_open'),model_form_calibration_bins:bins(all,'form'),
-   market_open_coverage:all.filter(x=>x.market_open).length,
-   opening_average_overround:all.filter(x=>x.opening_overround!==null).reduce((s,x)=>s+x.opening_overround,0)/Math.max(1,all.filter(x=>x.opening_overround!==null).length),
-   opening_quote_timestamp_certified:false,execution_eligibility:false,
-   realized_return_proven:false,positive_ev_proven:false,
-   untouched_holdout:false,publication_gate:'BLOCKED',research_only:true,
-   note:'Historical PS odds do not establish actual attainable price or snapshot timing; selected model was researched on these seasons. No valid live bet edge/ROI is claimed.'}};
 }
 // Reconstruct fixed earlier-only 5-game form from exactly the same eligible fixture.
 const {baseline}=require('../../scripts/match_intelligence_backtest.cjs');
