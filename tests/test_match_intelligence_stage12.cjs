@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {implied,parseBookmakerSeason,predictionsForSeason,quoteOnlyPaperAudit,run,bins}=require('../research/match-intelligence/stage12-market-calibration.cjs');
+const {implied,parseBookmakerSeason,predictionsForSeason,quoteOnlyPaperAudit,pairedDateUncertainty,run,bins}=require('../research/match-intelligence/stage12-market-calibration.cjs');
 const {readSeason}=require('../scripts/match_intelligence_backtest.cjs');
 function makeCsv(count=100){
  let lines=['Date,HomeTeam,AwayTeam,FTHG,FTAG,PSH,PSD,PSA,PSCH,PSCD,PSCA'];
@@ -75,4 +75,17 @@ test('hypothetical market calculations return explicit arithmetic with 1-unit st
  assert.equal(x.retrospective_profit_units,.5);
  assert.equal(x.paper_roi,.25);
  assert.equal(x.executable_historically,false);
+});
+
+test('clustered paired comparison reports direction correctly and excludes missing rows',()=>{
+ const rows=Array.from({length:40},(_,i)=>({date:'2024-01-'+String(i%20+1).padStart(2,'0'),
+   baseline:{loss:1.2},form:{loss:1.1},market_open:i===0?null:{loss:1.0}}));
+ const r=pairedDateUncertainty(rows,'form','baseline',{draws:200,seed:7});
+ assert.equal(r.paired_matches,40);
+ assert.equal(r.date_clusters,20);
+ assert.ok(Math.abs(r.first_minus_second_mean_log_loss+0.1)<1e-12);
+ assert.ok(r.upper_95<0);
+ const m=pairedDateUncertainty(rows,'form','market_open',{draws:200});
+ assert.equal(m.paired_matches,39);
+ assert.ok(m.lower_95>0);
 });
