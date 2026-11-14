@@ -16,7 +16,7 @@ test('incomplete or invalid three-way odds never create a selection', () => {
   assert.equal(X.marketCandidate([0.6,0.25,0.1],[2,3.5,5]),null);
 });
 test('odds cap blocks an otherwise attractive longshot', () => {
-  const r = X.marketCandidate([0.05,0.05,0.9],[11,12,1.1]);
+  const r = X.marketCandidate([0.45,0.45,0.1],[11,12,1.1]);
   assert.equal(r.selection,'PASS');
 });
 test('at least five percent EV required; tie-break is stable', () => {
