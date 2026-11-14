@@ -24,6 +24,7 @@ on:
       - 'tests/test_match_intelligence_stage13.cjs'
       - 'tests/test_match_intelligence_prospective_lab.cjs'
       - 'tests/test_fixture_winnings_audit.cjs'
+      - 'tests/test_match_intelligence_stage14.cjs'
       - 'research/match-intelligence/**'
       - '.github/workflows/match-intelligence-research-tests.yml'
   workflow_dispatch:
@@ -38,7 +39,7 @@ jobs:
         with:
           node-version: '22'
       - name: Evidence audit and historical replay unit tests
-        run: node --test tests/test_match_intelligence_evidence.cjs tests/test_match_intelligence_backtest.cjs tests/test_match_intelligence_stage3.cjs tests/test_match_intelligence_stage4.cjs tests/test_match_intelligence_stage5.cjs tests/test_match_intelligence_stage6.cjs tests/test_match_intelligence_stage7.cjs tests/test_match_intelligence_stage8.cjs tests/test_match_intelligence_dynamic_player.cjs tests/test_match_intelligence_falsification.cjs tests/test_match_intelligence_fixture_join.cjs tests/test_match_intelligence_lagged_xi.cjs tests/test_match_intelligence_player_relevance.cjs tests/test_match_intelligence_stage10.cjs tests/test_match_intelligence_stage11.cjs tests/test_match_intelligence_stage12.cjs tests/test_match_intelligence_stage13.cjs tests/test_match_intelligence_prospective_lab.cjs tests/test_fixture_winnings_audit.cjs
+        run: node --test tests/test_match_intelligence_evidence.cjs tests/test_match_intelligence_backtest.cjs tests/test_match_intelligence_stage3.cjs tests/test_match_intelligence_stage4.cjs tests/test_match_intelligence_stage5.cjs tests/test_match_intelligence_stage6.cjs tests/test_match_intelligence_stage7.cjs tests/test_match_intelligence_stage8.cjs tests/test_match_intelligence_dynamic_player.cjs tests/test_match_intelligence_falsification.cjs tests/test_match_intelligence_fixture_join.cjs tests/test_match_intelligence_lagged_xi.cjs tests/test_match_intelligence_player_relevance.cjs tests/test_match_intelligence_stage10.cjs tests/test_match_intelligence_stage11.cjs tests/test_match_intelligence_stage12.cjs tests/test_match_intelligence_stage13.cjs tests/test_match_intelligence_prospective_lab.cjs tests/test_fixture_winnings_audit.cjs tests/test_match_intelligence_stage14.cjs
 
   stage3-historical-replay:
     runs-on: ubuntu-latest
@@ -116,6 +117,39 @@ jobs:
             warning:'Historical odds unavailable at confirmed forecast time; not real ROI'
           },null,2));
           NODE
+      - name: Stage 14 fixed market-anchor and longshot-risk experiment (reused history only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/match-intelligence/stage14-market-anchored-ev.cjs \
+            /tmp/epl-history/epl_results_2023_24.csv \
+            /tmp/epl-history/epl_results_2024_25.csv \
+            /tmp/epl-history/epl_results_2025_26.csv > stage14-market-anchor-results.json
+          node - <<'NODE'
+          const d=require('./stage14-market-anchor-results.json');
+          console.log(JSON.stringify({
+            calibration:{priced:d.calibration.priced,best_calibration_logloss_share:d.calibration.best_calibration_logloss_share},
+            diagnosis:{priced:d.historical_diagnostic.priced,missing_quotes:d.historical_diagnostic.missing_quotes},
+            raw_form_baseline:d.historical_diagnostic.raw_form_baseline,
+            selected_contrasts:d.historical_diagnostic.selected_contrasts.map(x=>({
+              model_share:x.model_share,max_odds:x.max_odds,bets:x.bets,wins:x.wins,
+              pnl_units:x.pnl_units,quote_only_roi:x.quote_only_roi,
+              mean_logloss:x.mean_logloss,
+              odds_bands:x.odds_bands
+            })),
+            seasons:d.historical_diagnostic.by_period.map(x=>({
+              period:x.period,priced:x.priced,
+              variants:x.grid.filter(v=>[1,.5,.25].includes(v.model_share)&&['NONE',5].includes(v.max_odds))
+               .map(v=>({model_share:v.model_share,max_odds:v.max_odds,bets:v.bets,pnl_units:v.pnl_units}))
+            }))
+          },null,2));
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stage14-market-anchor-reused-history
+          path: stage14-market-anchor-results.json
+          retention-days: 90
       - uses: actions/upload-artifact@v4
         if: always()
         with:
