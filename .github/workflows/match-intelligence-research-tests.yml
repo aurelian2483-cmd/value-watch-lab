@@ -106,3 +106,20 @@ jobs:
               retrospective_only:result.retrospective_data_only,trained:false}));
           }
           NODE
+
+  stage8c-synthetic-falsification:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate and evaluate controlled signed, zero, and inverted effects
+        run: node research/match-intelligence/player-impact-falsification.js | tee stage8c-simulation-results.jsonl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stage8c-controlled-simulation
+          path: stage8c-simulation-results.jsonl
+          retention-days: 90
