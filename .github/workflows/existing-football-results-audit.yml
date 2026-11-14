@@ -1,0 +1,28 @@
+name: Existing scored football evidence audit
+on:
+  push:
+    branches: [research/prospective-100]
+    paths:
+      - 'scripts/audit_existing_football_results.py'
+      - 'research/results-ledger/v1/verified-results.json'
+      - 'research/football-expanded-results/v1/verified.json'
+      - '.github/workflows/existing-football-results-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  read-only-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Audit actual result records (never claim unverified model improvement)
+        run: python scripts/audit_existing_football_results.py | tee existing-football-results-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: existing-football-results-audit
+          path: existing-football-results-audit.json
+          retention-days: 90
