@@ -124,3 +124,50 @@ jobs:
           name: stage8c-controlled-simulation
           path: stage8c-simulation-results.jsonl
           retention-days: 90
+
+  stage8d-real-fixture-join:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Retrieve pinned open fixture matchdays and retrospective lineups
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/stage8d
+          curl -fsSL --retry 2 "https://raw.githubusercontent.com/openfootball/football.json/e6744429ee395bc86f247348c6184bb08d4eb361/2024-25/en.1.json" -o /tmp/stage8d/en.1.json
+          for club in fc-chelsea fc-arsenal; do
+            curl -fsSL --retry 2 "https://raw.githubusercontent.com/withqwerty/availability-data/5c6286c24dd58b3c9a6b4f5ccbd0c6e6466cb7dd/raw/GB1/2024/${club}.json" -o "/tmp/stage8d/${club}.json"
+          done
+      - name: Perform actual Chelsea Arsenal fixture-linked round audits
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE' | tee stage8d-fixture-join.jsonl
+          const fs=require('node:fs'),assert=require('node:assert/strict');
+          const {auditClubFixtureJoin}=require('./research/match-intelligence/fixture-lineup-join');
+          const results=JSON.parse(fs.readFileSync('/tmp/stage8d/en.1.json','utf8'));
+          for(const club of ['fc-chelsea','fc-arsenal']){
+            const archive=JSON.parse(fs.readFileSync('/tmp/stage8d/'+club+'.json','utf8'));
+            const a=auditClubFixtureJoin({archive,results});
+            const report={club:a.club,joined:a.joined,issue_count:a.issues.length,
+              issues:a.issues.slice(0,12),valid_38_rounds:a.valid_38_rounds,
+              prematch_predicted_player_impact:false,training_executed:false,
+              lagged_continuity_observations:a.rows.filter(x=>x.prematchFeatures&&x.prematchFeatures.prior_match_previous_XI_retention!==null).length};
+            console.log(JSON.stringify(report));
+            assert.equal(a.joined,38);
+            assert.equal(a.issues.length,0);
+            assert.equal(a.valid_38_rounds,true);
+            assert.equal(a.prediction_eligible,false);
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stage8d-joined-lineup-audit
+          path: stage8d-fixture-join.jsonl
+          retention-days: 90
