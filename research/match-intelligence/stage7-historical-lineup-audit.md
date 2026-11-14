@@ -27,3 +27,9 @@ Dataset revision: `withqwerty/availability-data@5c6286c24dd58b3c9a6b4f5ccbd0c6e6
 5. Fit player-impact effects with appropriate regularisation and confounding controls; report uncertainty and reject insufficiently supported effects.
 
 No main-branch or live website modifications.
+
+## Stage 7 integration follow-up and correction
+
+The first real-file integration run FAILED because the source also contains the status `absent`, which was not listed in the initial README and initially not supported by our importer. Direct inspection found **28 Chelsea** and **8 Arsenal** player-round entries with this status. `absent` is now retained explicitly as **unclassified absence**, rather than inferred to mean injury or suspension. This was a genuine source compatibility defect discovered by the integration test, and the failure was not concealed.
+
+Revised CI run https://github.com/aurelian2483-cmd/value-watch-lab/actions/runs/43631566523: **39/39** tests passed; the pinned 2024/25 files for both Chelsea and Arsenal were imported by the committed Stage 7 module. Each contained 38 rounds and 38 rounds with 11 starters. The importer reports **no model training performed**, and no confirmation that the archive was available before any historical fixture.
