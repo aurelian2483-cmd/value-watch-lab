@@ -800,6 +800,30 @@
       make(current, 'p', 'Source decimal price: ' + (leg.quote?.decimal ?? 'Unavailable') + ' · ' + leg.quoteState + ' · not executable', 'small');
       const experimental = make(row, 'div');
       make(experimental, 'h4', 'Experimental Engine 3.0');
+      // Model is view-only: never modify the live event, slip, ranking or tip.
+      const fixture = store.get().events.find(item => item.id === leg.eventId);
+      if (String(fixture?.sport || '').toLowerCase() === 'football') {
+        const panel = make(experimental, 'div', undefined, 'engine-market-candidate');
+        make(panel, 'h4', 'Frozen 50/50 market candidate · odds cap 5.00');
+        const ordered = ['home', 'draw', 'away'].map(id => fixture.choices?.find(choice => choice.id === id));
+        const formulaIdentified = /poisson.form.alpha.0[.]025.v1/i.test(fixture.model?.name || '');
+        const now = Date.now();
+        const quotes = ordered.map(choice => choice?.quote);
+        const consistent = quotes.every(q => q && Number.isFinite(q.decimal) && q.decimal > 1 &&
+          q.status === 'SOURCE_OBSERVED_UNVERIFIED' && Number.isFinite(Date.parse(q.observedAt)) &&
+          now - Date.parse(q.observedAt) >= 0 && now - Date.parse(q.observedAt) <= 1800000 &&
+          Date.parse(q.observedAt) < Date.parse(fixture.startUTC) - 300000 &&
+          q.bookmaker && q.source && q.bookmaker === quotes[0]?.bookmaker && q.source === quotes[0]?.source);
+        const candidate = formulaIdentified && consistent && ordered.every(c => typeof c?.probability === 'number')
+          ? X.marketCandidate(ordered.map(c => c.probability), quotes.map(q => q.decimal)) : null;
+        if (!candidate) make(panel, 'p', 'PASS · Requires the frozen recent-form model and all three fresh, source-matched pre-kickoff home/draw/away prices. No substitution with a different model or invented odds.');
+        else {
+          make(panel, 'p', 'Home / draw / away: ' + candidate.probabilities.map(pct).join(' / '));
+          make(panel, 'p', 'Candidate: ' + candidate.selection + (candidate.selection === 'PASS' ? ' · below 5% estimated EV or above odds cap' : ' · odds ' + candidate.selectedOdds.toFixed(2) + ' · estimated EV ' + pct(candidate.estimatedEV)));
+        }
+        make(panel, 'p', 'Research only · price execution unverified · no effect on existing selections.', 'small');
+      }
+
       const result = leg.canCalculate && leg.currentStatus.selectable ? X.calculate(leg.probability, leg.quote?.decimal) : null;
       if (!result) { make(experimental, 'p', 'Unavailable: a supplied model input and a current source-matched price for a selectable outcome are required. No probability or odds inferred.'); continue; }
       make(experimental, 'p', 'Conditional arithmetic only. Racing context weights are not calibrated win probabilities; these results do not establish value.', 'small');
