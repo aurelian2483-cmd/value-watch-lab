@@ -1,0 +1,74 @@
+{
+  "league": "E1",
+  "home": "Stoke City",
+  "away": "Queens Park Rangers",
+  "kickoff_utc": "2026-12-05T15:00:00Z",
+  "espn_event_id": "401880115",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261205&limit=100",
+      "sha256": "f8d8d5cccfdb20406ebee229860998f9b47ed29eff3564326a2ad817759860bf",
+      "observed_at_utc": "2026-11-14T15:20:38.310906Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-12-01",
+      "sha256": "dd21016968faac3af7eee0eaf5f3c00d413e98a41e7f3390c7af5f11ffd511e5",
+      "observed_at_utc": "2026-11-14T15:20:42.613814Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_PRIOR_SEASON",
+  "prob_home": 0.5213998820935317,
+  "prob_draw": 0.24955733452761628,
+  "prob_away": 0.22904278337885203,
+  "training_basis": {
+    "mode": "PRIOR_SEASON",
+    "home_matches": 23,
+    "away_matches": 23,
+    "league_average_pseudo_matches": 5,
+    "small_sample": false,
+    "training_matches": 552,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2526/E1.csv",
+        "sha256": "98954c319950f19158624b17a154ef1c56eb7b8d169ef317f28f06d11d0b9a74",
+        "observed_at_utc": "2026-11-14T15:20:43.852439Z"
+      }
+    ],
+    "training_sha256": "315a67cc752ded284f16fd6be5c4e2d5d90d6887654eb9afdd9ec2a75f349ed1",
+    "lambda_home": 1.6059548040558818,
+    "lambda_away": 0.9734718930478371,
+    "home_venue_inputs": {
+      "hgf": 34,
+      "hga": 28,
+      "hn": 23,
+      "agf": 17,
+      "aga": 28,
+      "an": 23
+    },
+    "away_venue_inputs": {
+      "hgf": 40,
+      "hga": 37,
+      "hn": 23,
+      "agf": 21,
+      "aga": 36,
+      "an": 23
+    },
+    "league_home_mean": 1.4003623188405796,
+    "league_away_mean": 1.2047101449275361
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-14T15:21:19.016949Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "4bd4e4f4112290157f128829ecc29f9657f8e3b749fbc52b188a2524cec6685b"
+}
