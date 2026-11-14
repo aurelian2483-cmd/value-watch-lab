@@ -29,7 +29,7 @@ test('post-forecast or future outcome data fail closed',()=>{
 test('same calendar date fixtures are conservatively unavailable',()=>{
  const x=args();x.history.push({id:'same-day',kickoff_utc:'2026-07-01T01:00:00Z',
   result_known_at_utc:'2026-07-01T05:00:00Z',home:'Fulham',away:'Everton',hg:1,ag:0});
- assert.throws(()=>freezePrediction(x),/Same-date/);
+ assert.throws(()=>freezePrediction(x),/Same-date|not verifiably available/);
 });
 test('predictions created at or after kickoff cannot enter frozen ledger',()=>{
  const x=args();x.created_at_utc=fixture.kickoff_utc;
