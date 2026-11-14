@@ -118,3 +118,22 @@ Lab source `prospective-validation-lab.cjs`, CLI `prospective-lab-cli.cjs`, prot
 **Current question:** These are older models and **cannot** be silently treated as observations from the locked 2026-11-14 Poisson-vs-recent-form prospective comparison. This experiment still has zero scored genuine new post-freeze predictions. Older archive model scores may be analyzed on their own cohorts **after exact fixture/source/timestamp reconciliation**; no confirmed cross-model ROI or bookmaker-price evidence.
 
 Source-by-source audit and cautions: `EXISTING-DATA-RECOVERY-AUDIT.md`. Treat old 66+18 as existing research data, not nonexistent.
+
+
+## 7. Cross-branch evidence recovery — actual existing prospective research
+
+**Important correction to §6:** `0` refers **only** to predictions ingested and scored by the newly created `VW-FOOTBALL-PROSPECTIVE-2026-11-14` sidecar. It **does NOT** mean Value Watch has no historical forward-captured forecasts or results.
+
+A fresh read-only audit of the **separate pre-existing branch** `research/prospective-100` ran successfully in GitHub Actions:
+https://github.com/aurelian2483-cmd/value-watch-lab/actions/runs/43645323512
+
+Existing records found there:
+- `research/results-ledger/v1/verified-results.json`: **18 scored records for 16 exact fixtures**; **two fixtures contain multiple model versions**. Distinct model types: legacy (7), Poisson baseline (8), current-season shrinkage (3). Mean LL respectively **0.922463**, **1.129777**, **0.757164**, but these are not paired on identical fixtures and **cannot be ranked as improvements**.
+- `research/football-expanded-results/v1/verified.json`: **66 scored records, 66 exact fixture keys** across Championship/E1, UEFA Champions League/UCL, German/D1, French/F1, Italian/I1, Spanish/SP1, and different Poisson model versions. Not the same competition or matching model/version as the primary ledger.
+- Record-level `timestamp_independently_attested` flag: **no True values** in either ledger. A valid GitHub path and SHA hash supply useful preservation evidence but not independent verification of the historical provider quote time, outcome availability or genuine bet execution.
+- Duplicate counting across the two ledgers, near-duplicate fixture identity normalization and possible overlapping real events **must be reconciled before calculating a combined total**.
+- These stored forecasts are **not automatically** observations of the newly frozen alpha=.025 form challenger versus Poisson on the same fixtures. Thus alpha=.025 prospective head-to-head score remains **NOT MEASURED**.
+
+Audit code lives on `research/prospective-100`: `scripts/audit_existing_football_results.py`, workflow `.github/workflows/existing-football-results-audit.yml`. The workflow ran successfully and modified no betting website, production model or result ledger.
+
+**Immediate goal:** use the existing paper forecast collector as the entrypoint; pair its actual same-fixture pre-kickoff baseline and form outputs in an append-only, independently timestamped record, then score after verified outcomes. Do not start a third disconnected archive.
