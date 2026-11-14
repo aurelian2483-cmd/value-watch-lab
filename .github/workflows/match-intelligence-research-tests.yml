@@ -18,6 +18,7 @@ on:
       - 'tests/test_match_intelligence_fixture_join.cjs'
       - 'tests/test_match_intelligence_lagged_xi.cjs'
       - 'tests/test_match_intelligence_player_relevance.cjs'
+      - 'tests/test_match_intelligence_stage10.cjs'
       - 'research/match-intelligence/**'
       - '.github/workflows/match-intelligence-research-tests.yml'
   workflow_dispatch:
@@ -32,7 +33,7 @@ jobs:
         with:
           node-version: '22'
       - name: Evidence audit and historical replay unit tests
-        run: node --test tests/test_match_intelligence_evidence.cjs tests/test_match_intelligence_backtest.cjs tests/test_match_intelligence_stage3.cjs tests/test_match_intelligence_stage4.cjs tests/test_match_intelligence_stage5.cjs tests/test_match_intelligence_stage6.cjs tests/test_match_intelligence_stage7.cjs tests/test_match_intelligence_stage8.cjs tests/test_match_intelligence_dynamic_player.cjs tests/test_match_intelligence_falsification.cjs tests/test_match_intelligence_fixture_join.cjs tests/test_match_intelligence_lagged_xi.cjs tests/test_match_intelligence_player_relevance.cjs
+        run: node --test tests/test_match_intelligence_evidence.cjs tests/test_match_intelligence_backtest.cjs tests/test_match_intelligence_stage3.cjs tests/test_match_intelligence_stage4.cjs tests/test_match_intelligence_stage5.cjs tests/test_match_intelligence_stage6.cjs tests/test_match_intelligence_stage7.cjs tests/test_match_intelligence_stage8.cjs tests/test_match_intelligence_dynamic_player.cjs tests/test_match_intelligence_falsification.cjs tests/test_match_intelligence_fixture_join.cjs tests/test_match_intelligence_lagged_xi.cjs tests/test_match_intelligence_player_relevance.cjs tests/test_match_intelligence_stage10.cjs
 
   stage3-historical-replay:
     runs-on: ubuntu-latest
@@ -202,6 +203,17 @@ jobs:
         run: |
           set -euo pipefail
           node research/match-intelligence/lagged-xi-diagnostic.js /tmp/stage8e | tee stage8e-lagged-xi-results.json
+      - name: Run Stage 10 real outcome prior-only player residual diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/match-intelligence/stage10-player-residuals.cjs /tmp/stage8e | tee stage10-player-residual-diagnostic.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stage10-player-residual-diagnostic
+          path: stage10-player-residual-diagnostic.json
+          retention-days: 90
       - uses: actions/upload-artifact@v4
         if: always()
         with:
