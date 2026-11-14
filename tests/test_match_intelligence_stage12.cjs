@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {implied,parseBookmakerSeason,predictionsForSeason,run,bins}=require('../research/match-intelligence/stage12-market-calibration.cjs');
+const {implied,parseBookmakerSeason,predictionsForSeason,quoteOnlyPaperAudit,run,bins}=require('../research/match-intelligence/stage12-market-calibration.cjs');
 const {readSeason}=require('../scripts/match_intelligence_backtest.cjs');
 function makeCsv(count=100){
  let lines=['Date,HomeTeam,AwayTeam,FTHG,FTAG,PSH,PSD,PSA,PSCH,PSCD,PSCA'];
@@ -48,4 +48,31 @@ test('confidence bins include only actual scored observations',()=>{
  assert.equal(b.length,1);
  assert.equal(b[0].n,2);
  assert.equal(b[0].observed_accuracy,.5);
+});
+
+test('paper market comparison is explicitly non-executable and selects at most one choice per fixture',()=>{
+ const r=run([makeCsv(130)]);
+ assert.equal(r.paired_market_sample,r.sample);
+ assert.equal(r.paired_scores.form.n,r.paired_scores.market_open.n);
+ assert.equal(r.paired_scores.baseline.n,r.paired_scores.market_close.n);
+ const result=r.retrospective_quote_only_paper.form;
+ assert.equal(result.executable_historically,false);
+ assert.equal(result.verified_market_edge,false);
+ assert.ok(result.quote_only_decisions<=r.sample);
+});
+test('missing archived opening odds do not create a historical paper position',()=>{
+ const input=[{date:'2024-01-01',fixture_id:'a',actual:0,odds_open:null,form_probs:[.8,.1,.1]}];
+ const x=quoteOnlyPaperAudit(input,'form');
+ assert.equal(x.quote_only_decisions,0);
+ assert.equal(x.paper_roi,null);
+});
+test('hypothetical market calculations return explicit arithmetic with 1-unit staking',()=>{
+ const input=[{date:'2024-01-01',fixture_id:'a',actual:0,odds_open:[2.5,3.3,3.0],form_probs:[.5,.3,.2]},
+ {date:'2024-01-02',fixture_id:'b',actual:2,odds_open:[2.5,3.3,3.0],form_probs:[.5,.3,.2]}];
+ const x=quoteOnlyPaperAudit(input,'form');
+ assert.equal(x.quote_only_decisions,2);
+ assert.equal(x.wins,1);
+ assert.equal(x.retrospective_profit_units,.5);
+ assert.equal(x.paper_roi,.25);
+ assert.equal(x.executable_historically,false);
 });
