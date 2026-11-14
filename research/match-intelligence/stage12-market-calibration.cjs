@@ -86,6 +86,32 @@ function predictionsForSeason(results){
  }
  return out;
 }
+
+function quoteOnlyPaperAudit(rows,model,{min_ev=.05}={}){
+ if(!['baseline','form'].includes(model)||!finite(min_ev)||min_ev<0||min_ev>.5)throw Error('Paper audit parameters invalid');
+ let equity=0,peak=0,maxDrawdown=0,number=0,winners=0,stake=0,grossReturn=0;
+ const decisions=[];
+ for(const r of [...rows].sort((a,b)=>a.date.localeCompare(b.date)||a.fixture_id.localeCompare(b.fixture_id))){
+   if(!r.odds_open||!r[model+'_probs'])continue;
+   const scored=r[model+'_probs'].map((p,i)=>({i,price:r.odds_open[i],estimated_ev:p*r.odds_open[i]-1}))
+     .filter(x=>finite(x.estimated_ev)&&x.estimated_ev>=min_ev)
+     .sort((a,b)=>b.estimated_ev-a.estimated_ev||a.i-b.i);
+   if(!scored.length)continue;
+   const selected=scored[0],won=selected.i===r.actual;
+   const pay=won?selected.price:0,profit=pay-1;
+   number++;winners+=Number(won);stake++;grossReturn+=pay;equity+=profit;
+   peak=Math.max(peak,equity);maxDrawdown=Math.max(maxDrawdown,peak-equity);
+   decisions.push({fixture_id:r.fixture_id,choice:selected.i,archived_odds:selected.price,
+      estimated_ev:selected.estimated_ev,observed_return:profit,
+      source_quote_at:null,executable_historically:false});
+ }
+ return {source_model:model,threshold:min_ev,quote_only_decisions:number,
+   wins:winners,total_assumed_stake_units:stake,retrospective_profit_units:equity,
+   paper_roi:stake?equity/stake:null,max_drawdown_units:maxDrawdown,
+   executable_historically:false,verified_market_edge:false,
+   evidence:'UNVERIFIED_TIME_ARCHIVE_QUOTES',
+   warning:'This P/L reuses previously studied outcomes and unmatched quote timestamps. It is a retrospective sensitivity calculation, NOT historical achievable returns or betting evidence.'};
+}
 function run(texts){
  if(!Array.isArray(texts)||!texts.length)throw Error('Required source seasons');
  const data=[];
@@ -99,7 +125,9 @@ function run(texts){
      const market=parsed.market.get(key);if(!market)throw Error('Market join missing '+key);
      const m=parsed.results.find(x=>x.date===fixture.date&&x.home===fixture.home&&x.away===fixture.away);
      const actual=m.hg>m.ag?0:m.hg===m.ag?1:2;
-     data.push({date:fixture.date,fixture_id:key,actual,baseline:scores(Object.values(p.baseline),actual),
+     data.push({date:fixture.date,fixture_id:key,actual,
+       baseline_probs:Object.values(p.baseline),form_probs:Object.values(p.form),
+       baseline:scores(Object.values(p.baseline),actual),
        form:scores(Object.values(p.form),actual),
        market_open:market.opening?scores(market.opening.probabilities,actual):null,
        market_close:market.closing?scores(market.closing.probabilities,actual):null,
@@ -109,7 +137,11 @@ function run(texts){
        source_timestamp_verified:false});
    }
  }
- const report={status:'EXPLORATORY_REUSED_MARKET_BENCHMARK_ONLY',sample:data.length,alpha:ALPHA,
+ const quoted=data.filter(x=>x.market_open&&x.market_close);
+ const report={status:'EXPLORATORY_REUSED_MARKET_BENCHMARK_ONLY',sample:data.length,paired_market_sample:quoted.length,alpha:ALPHA,
+  paired_scores:{baseline:summarize(quoted,'baseline'),form:summarize(quoted,'form'),
+    market_open:summarize(quoted,'market_open'),market_close:summarize(quoted,'market_close')},
+  retrospective_quote_only_paper:{baseline:quoteOnlyPaperAudit(data,'baseline'),form:quoteOnlyPaperAudit(data,'form')},
   scores:{baseline:summarize(data,'baseline'),form:summarize(data,'form'),
     market_open:summarize(data,'market_open'),market_close:summarize(data,'market_close')},
   bins:{form:bins(data,'form'),market_open:bins(data,'market_open')},
@@ -124,4 +156,4 @@ if(require.main===module){
  const input=process.argv.slice(2).map(p=>fs.readFileSync(p,'utf8'));
  console.log(JSON.stringify(run(input),null,2));
 }
-module.exports={implied,parseBookmakerSeason,scores,bins,predictionsForSeason,run};
+module.exports={implied,parseBookmakerSeason,scores,bins,predictionsForSeason,quoteOnlyPaperAudit,run};
