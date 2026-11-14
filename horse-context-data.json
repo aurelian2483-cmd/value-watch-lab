@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-14T15:22:45.578818+00:00",
+  "generated_at_utc": "2026-11-14T16:45:33.817597+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -51879,37 +51879,37 @@
     },
     {
       "race_id": "948536",
-      "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
+      "reason": "NOT_PRE_EVENT_WITH_BUFFER",
       "run_type": "HURDLE",
       "surface": "TURF"
     },
     {
       "race_id": "948551",
-      "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
+      "reason": "NOT_PRE_EVENT_WITH_BUFFER",
       "run_type": "NH_FLAT",
       "surface": "TURF"
     },
     {
       "race_id": "948531",
-      "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
+      "reason": "NOT_PRE_EVENT_WITH_BUFFER",
       "run_type": "CHASE",
       "surface": "TURF"
     },
     {
       "race_id": "948549",
-      "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
+      "reason": "NOT_PRE_EVENT_WITH_BUFFER",
       "run_type": "NH_FLAT",
       "surface": "TURF"
     },
     {
       "race_id": "948718",
-      "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
+      "reason": "UNKNOWN_RACE_DISCIPLINE",
       "run_type": null,
       "surface": "TURF"
     },
     {
       "race_id": "948537",
-      "reason": "INSUFFICIENT_SAME_DISCIPLINE_HISTORY",
+      "reason": "NOT_PRE_EVENT_WITH_BUFFER",
       "run_type": "NH_FLAT",
       "surface": "TURF"
     }
@@ -51928,15 +51928,15 @@
     "skipped_count": 36
   },
   "performance": {
-    "scored_forecasts": 74,
+    "scored_forecasts": 75,
     "independently_verified_results": 0,
     "verification": "SINGLE_SOURCE_PROVISIONAL",
     "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
     "metrics": {
-      "mean_multiclass_brier_score": 0.8673790523027304,
-      "mean_log_loss": 2.1491313781497503,
-      "mean_equal_chance_brier_score": 0.8745691310908702,
-      "mean_equal_chance_log_loss": 2.182292017049437
+      "mean_multiclass_brier_score": 0.8656370092997205,
+      "mean_log_loss": 2.138580824603388,
+      "mean_equal_chance_brier_score": 0.872908209342992,
+      "mean_equal_chance_log_loss": 2.1716787149703762
     },
     "entries": [
       {
@@ -53714,13 +53714,33 @@
         "publication_gate": "BLOCKED",
         "result_recheck_status": "NOT_RECHECKED",
         "result_last_checked_at_utc": "2026-11-14T15:22:45.578818+00:00"
+      },
+      {
+        "record_sha256": "3eae66f8bbfc2bb0100aa2b482ace592cafec1554ccb9fd2db9ebaf025d1862f",
+        "race_id": "948530",
+        "racecourse": "Wetherby",
+        "startUTC": "2026-11-14T15:05:00+00:00",
+        "model": "CONTEXT_FORM_RESEARCH_V1",
+        "winner_horse_id": "1077897",
+        "scored_at_utc": "2026-11-14T16:45:33.817597+00:00",
+        "multiclass_brier_score": 0.7367258270769922,
+        "log_loss": 1.3578398621725778,
+        "equal_chance_brier_score": 0.75,
+        "equal_chance_log_loss": 1.3862943611198906,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-14/wetherby/racecard/948530/colin-baldwin-memorial-handicap-hurdle",
+          "sha256": "9c429595a4648aed872f290a7259f46e1e6da92f14fe437ded8c919d2dac10c2",
+          "observed_at_utc": "2026-11-14T16:45:33.817597+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-14T16:45:33.817597+00:00"
       }
     ],
     "pending": [
-      {
-        "race_id": "948530",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
       {
         "race_id": "948325",
         "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
@@ -53763,7 +53783,7 @@
     },
     "source_unavailable_rechecks": 0,
     "selection_policy": "Latest archived forecast per race/model, captured at least five minutes before scheduled start.",
-    "cross_source_verified_results": 59,
+    "cross_source_verified_results": 60,
     "cross_source_entries": [
       {
         "record_sha256": "8fc22d193f83089f68df56dd01b7591b575069913a85488eda11e836e2d2f10d",
@@ -56301,6 +56321,49 @@
           "publication_gate": "BLOCKED",
           "challenge_eligible": 0
         }
+      },
+      {
+        "record_sha256": "3eae66f8bbfc2bb0100aa2b482ace592cafec1554ccb9fd2db9ebaf025d1862f",
+        "race_id": "948530",
+        "racecourse": "Wetherby",
+        "startUTC": "2026-11-14T15:05:00+00:00",
+        "model": "CONTEXT_FORM_RESEARCH_V1",
+        "winner_horse_id": "1077897",
+        "scored_at_utc": "2026-11-14T16:45:33.817597+00:00",
+        "multiclass_brier_score": 0.7367258270769922,
+        "log_loss": 1.3578398621725778,
+        "equal_chance_brier_score": 0.75,
+        "equal_chance_log_loss": 1.3862943611198906,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-14/wetherby/racecard/948530/colin-baldwin-memorial-handicap-hurdle",
+          "sha256": "9c429595a4648aed872f290a7259f46e1e6da92f14fe437ded8c919d2dac10c2",
+          "observed_at_utc": "2026-11-14T16:45:33.817597+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-14T16:45:33.817597+00:00",
+        "cross_source_evidence": {
+          "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
+          "record_sha256": "3eae66f8bbfc2bb0100aa2b482ace592cafec1554ccb9fd2db9ebaf025d1862f",
+          "primary_receipt": {
+            "url": "https://www.sportinglife.com/racing/racecards/2026-11-14/wetherby/racecard/948530/colin-baldwin-memorial-handicap-hurdle",
+            "sha256": "9c429595a4648aed872f290a7259f46e1e6da92f14fe437ded8c919d2dac10c2",
+            "observed_at_utc": "2026-11-14T16:45:33.817597+00:00"
+          },
+          "secondary_receipt": {
+            "url": "https://api.theracingapi.com/v1/results/today/free?region=gb&region=ire&limit=100&skip=0",
+            "sha256": "11a0c3397e15dce3eed1b2cecabfdbe69054579382beff09b6d2359a01c9a7ad",
+            "observed_at_utc": "2026-11-14T15:22:40.454112+00:00",
+            "rate_limit_retries": 0
+          },
+          "secondary_race_id": "rac_32304456392",
+          "winner_horse_id": "1077897",
+          "publication_gate": "BLOCKED",
+          "challenge_eligible": 0
+        }
       }
     ],
     "cross_source_pending": [
@@ -56371,19 +56434,19 @@
         "CONTEXT_FORM_RESEARCH_V1": {
           "model": "CONTEXT_FORM_RESEARCH_V1",
           "parameter_sha256": "2e71a27e6834eddbed24907cd9f313ab343636852a7d60b8950814b5662c5661",
-          "scored_races": 74,
+          "scored_races": 75,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.007190078788139931,
-          "mean_log_loss_delta_vs_equal_chance": -0.03316063889968672,
+          "mean_brier_delta_vs_equal_chance": -0.007271200043271503,
+          "mean_log_loss_delta_vs_equal_chance": -0.0330978903669884,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.013090521917269015,
-            "upper": -0.0014185412503827535,
+            "lower": -0.012850836891119736,
+            "upper": -0.0012712889444288797,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.05814884189468041,
-            "upper": -0.010528531948403197,
+            "lower": -0.05790153658275493,
+            "upper": -0.010112796807594072,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -56419,8 +56482,8 @@
             {
               "lower": 0.2,
               "upper": 0.3,
-              "runner_observations": 40,
-              "mean_model_probability": 0.24105762471655248,
+              "runner_observations": 44,
+              "mean_model_probability": 0.2418705679241386,
               "observed_win_frequency": 0.25
             },
             {
@@ -57065,6 +57128,48 @@
     }
   },
   "settled_forecasts": [
+    {
+      "record_sha256": "3eae66f8bbfc2bb0100aa2b482ace592cafec1554ccb9fd2db9ebaf025d1862f",
+      "race_id": "948530",
+      "racecourse": "Wetherby",
+      "race_name": "Colin Baldwin Memorial Handicap Hurdle",
+      "startUTC": "2026-11-14T15:05:00+00:00",
+      "generated_at_utc": "2026-11-14T10:17:04.687183+00:00",
+      "model": "CONTEXT_FORM_RESEARCH_V1",
+      "runners": [
+        {
+          "horse_id": "1077897",
+          "name": "Roarin' Success",
+          "model_probability": 0.25721579885274853,
+          "equal_chance_reference": 0.25
+        },
+        {
+          "horse_id": "1125830",
+          "name": "Filibustering",
+          "model_probability": 0.2637124990870084,
+          "equal_chance_reference": 0.25
+        },
+        {
+          "horse_id": "1165396",
+          "name": "Centurion's Sister",
+          "model_probability": 0.2582217758248332,
+          "equal_chance_reference": 0.25
+        },
+        {
+          "horse_id": "1184023",
+          "name": "Down To Business",
+          "model_probability": 0.22084992623540992,
+          "equal_chance_reference": 0.25
+        }
+      ],
+      "winner_horse_id": "1077897",
+      "result_verification": "TWO_PUBLISHER_CORROBORATED",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-14T16:45:33.817597+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
     {
       "record_sha256": "bc0b7ae7577d7862fd094fc4fe8d3934d9c09b1f0d7856599beacad8dd6a9323",
       "race_id": "948529",
@@ -58243,66 +58348,6 @@
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
       "result_last_checked_at_utc": "2026-11-12T08:52:01.718267+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
-    },
-    {
-      "record_sha256": "eefd4609225829014a27ceaec6d6cda21337a03536bc6d5f49376ffa67260fd6",
-      "race_id": "947673",
-      "racecourse": "Stratford",
-      "race_name": "31 Days Free Racing TV At racingtv.com/freetrial Novices' Handicap Hurdle",
-      "startUTC": "2026-11-09T15:25:00+00:00",
-      "generated_at_utc": "2026-11-09T08:05:11.634029+00:00",
-      "model": "CONTEXT_FORM_RESEARCH_V1",
-      "runners": [
-        {
-          "horse_id": "1168464",
-          "name": "Exactly Right",
-          "model_probability": 0.14588392728783708,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1180384",
-          "name": "Lord Virginia",
-          "model_probability": 0.1475829736192378,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1202644",
-          "name": "Molly's Lad",
-          "model_probability": 0.14341791927116312,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1203449",
-          "name": "Clear Sky",
-          "model_probability": 0.12338319506360104,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1206950",
-          "name": "Cotton Socks",
-          "model_probability": 0.14719425550825035,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1209353",
-          "name": "Red Rubio",
-          "model_probability": 0.15314430681573293,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1211044",
-          "name": "Drumlee Orders",
-          "model_probability": 0.13939342243417763,
-          "equal_chance_reference": 0.14285714285714285
-        }
-      ],
-      "winner_horse_id": "1202644",
-      "result_verification": "TWO_PUBLISHER_CORROBORATED",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-11T15:21:00.465352+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
