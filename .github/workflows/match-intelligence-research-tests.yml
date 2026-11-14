@@ -84,6 +84,19 @@ jobs:
             /tmp/epl-history/epl_results_2023_24.csv \
             /tmp/epl-history/epl_results_2024_25.csv \
             /tmp/epl-history/epl_results_2025_26.csv | tee stage13-market-blend.json
+      - name: Display genuine result vs reconstructed old/new predictions match by match
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/match-intelligence/fixture-by-fixture-comparison.cjs \
+            /tmp/epl-history/epl_results_2024_25.csv \
+            /tmp/epl-history/epl_results_2025_26.csv | tee fixture-by-fixture-comparison.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fixture-by-fixture-comparison
+          path: fixture-by-fixture-comparison.json
+          retention-days: 90
       - uses: actions/upload-artifact@v4
         if: always()
         with:
