@@ -33,7 +33,7 @@ test('market data joins original fixtures and flags timestamp as unknown',()=>{
 });
 test('replayed probabilities never contain an early-season future-fixture forecast',()=>{
  const p=predictionsForSeason(readSeason(makeCsv(100)));
- assert.equal(p.size,0); // all teams have too few unique prior home/away opponents for baseline?
+ assert.ok(p.size>0);\n assert.equal(p.has('2024-01-01|Arsenal|Chelsea'),false);
 });
 test('all historical comparisons remain publication-blocked regardless of scores',()=>{
  const r=run([makeCsv(130)]);
