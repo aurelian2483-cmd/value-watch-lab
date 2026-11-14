@@ -63,3 +63,43 @@ jobs:
           name: stage3-diagnostic-report
           path: stage3-diagnostic-report.json
           retention-days: 30
+
+  stage7-historical-lineup-import:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Retrieve pinned retrospective Chelsea and Arsenal season files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/stage7-retrospective
+          for club in fc-chelsea fc-arsenal; do
+            curl --fail --location --retry 2 --silent --show-error \
+              "https://raw.githubusercontent.com/withqwerty/availability-data/5c6286c24dd58b3c9a6b4f5ccbd0c6e6466cb7dd/raw/GB1/2024/${club}.json" \
+              --output "/tmp/stage7-retrospective/${club}.json"
+          done
+      - name: Audit retrospective real-file XI counts (not prematch validation)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('node:fs'),assert=require('node:assert/strict');
+          const {normalizeHistoricalAvailability}=require('./research/match-intelligence/historical-availability.js');
+          for(const name of ['fc-chelsea','fc-arsenal']){
+            const data=JSON.parse(fs.readFileSync('/tmp/stage7-retrospective/'+name+'.json','utf8'));
+            const result=normalizeHistoricalAvailability(data);
+            assert.equal(result.rounds.length,38);
+            assert.equal(result.rounds.filter(r=>r.starters===11).length,38);
+            assert.equal(result.errors.length,0);
+            assert.equal(result.eligible_for_prematch_prediction,false);
+            assert.equal(result.eligible_for_historical_training,false);
+            console.log(JSON.stringify({club:result.club,season:result.season,players:result.player_count,
+              rounds:result.rounds.length,full_starting_XI_rounds:result.rounds.filter(r=>r.starters===11).length,
+              retrospective_only:result.retrospective_data_only,trained:false}));
+          }
+          NODE
