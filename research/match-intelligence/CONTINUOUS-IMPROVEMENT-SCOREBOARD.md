@@ -154,3 +154,8 @@ Execution: https://github.com/aurelian2483-cmd/value-watch-lab/actions/runs/4364
 | Validation / real profit status | UNVALIDATED | UNVALIDATED | UNVALIDATED |
 
 Stage 13 calibrated optimum on independent earlier period 2023/24 remains market-only (w=0). No model was selected fairly based on new untouched outcomes. Odds caps and market weights above were compared **after repeated exposure to 2024/25 and 2025/26 results**. They are **NOT** proven improvements and all depend on unverified archived bookmaker prices **not Sky Bet**. Decision: **PROMISING RESEARCH MECHANISM; NO PUBLICATION/DEPLOYMENT; FORWARD PROSPECTIVE FALSIFICATION REQUIRED.**
+
+## 9. Stage 16 — selected-outcome EV optimism correction (REJECTED)
+2026-11-14 chronological research test. Source `stage16-chronological-selection-correction.cjs`; documented `STAGE16-CORRECTION-FAILURE.md`; CI https://github.com/aurelian2483-cmd/value-watch-lab/actions/runs/43649985562 (145 tests passed, 0 failed).
+
+Historical correction trained only on 2023/24's 314 archived priced games (bias/shrink by H/D/A), applied unchanged on 470 priced games of 2024/25 + 2025/26. Against 50% market-anchored odds-cap-5 control, 220 selections/79 wins/141 losses/+32.33 units changed to **19 selections/7 wins/12 losses/+4.37 units**. Although percentage return rose from 14.7% to 23.0% on drastically smaller sample, **total theoretical profit fell £27.96 and 72 winning bets were lost**. Without the odds cap, original 318 selections/+8.27 units fell to corrected 71 selections/**−16.22 units**. Thus correction is **not an improvement and is not deployed**. Past datasets are reused; bookmaker price availability not authenticated, not Sky Bet, publication remains BLOCKED.
