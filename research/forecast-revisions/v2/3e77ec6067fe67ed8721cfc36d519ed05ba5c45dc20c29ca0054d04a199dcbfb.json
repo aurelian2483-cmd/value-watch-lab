@@ -1,0 +1,48 @@
+{
+  "home": "Hull City",
+  "away": "Nottingham Forest",
+  "kickoff_utc": "2026-12-02T19:30:00Z",
+  "model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+  "prob_home": 0.48814445029882475,
+  "prob_draw": 0.24941444871228838,
+  "prob_away": 0.2624411009888869,
+  "league": "E0",
+  "generated_at_utc": "2026-11-14T15:06:52.522373+00:00",
+  "feed_generated_at_utc": "2026-11-14T15:06:50.286416+00:00",
+  "source_feed_sha256": "c5d8d15388c8c840ff21d4af16f980b274695916b074f733f445050dad73d13e",
+  "model_input_audit": {
+    "model": "POISSON_BASELINE_2025_26_V1",
+    "training_source": "https://www.football-data.co.uk/mmz4281/2526/E0.csv",
+    "training_matches": 380,
+    "training_sha256": "3e3a8352f9ada6789c508d6ca184424421fed56a30400904a4a327c583407e62",
+    "forecast_count": 35,
+    "fallback_audit": {
+      "source": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+      "sha256": "d598a5f681e1a9a4acf9dad9fb203b68da6f67e2d195678dbe99e95fbba14593",
+      "training_matches": 100,
+      "cutoff_exclusive_utc_date": "2026-11-14",
+      "minimum_matches_per_relevant_venue": 3,
+      "league_average_pseudo_matches": 5,
+      "limitation": "Small-sample current-season fallback; shrinkage is an unvalidated modelling choice, not evidence of accuracy."
+    },
+    "fallback_source_error": null,
+    "fallback_forecast_count": 11,
+    "limitation": "Uncalibrated prior-season baseline plus separately labelled small-sample current-season fallback; not archived or independently attested"
+  },
+  "training_basis": {
+    "home_matches": 5,
+    "away_matches": 5,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "source_first_availability_verified": false,
+  "independent_timestamp_attested": false,
+  "revision_of": "3ce29d275a2c0cf90bf457766e93add34619fe2e0799dba703a3ccbe196ded5a",
+  "record_sha256": "3e77ec6067fe67ed8721cfc36d519ed05ba5c45dc20c29ca0054d04a199dcbfb"
+}
