@@ -99,7 +99,7 @@ function run(texts){
     same_fixture_total_pnl_improvement_new_minus_old:diff,
     fixture_selection_changes:changes,
     paired_profit_uncertainty:pairedProfitUncertainty(rows),
-    by_season:Object.entries(Object.groupBy(rows,r=>r.date.slice(0,4)+'/'+String(Number(r.date.slice(0,4))+1))).map(([period,list])=>({period,fixtures:list.length,priced:list.filter(x=>x.archive_open_odds).length,old_profit:list.reduce((s,x)=>s+x.old.pnl,0),new_profit:list.reduce((s,x)=>s+x.new.pnl,0),delta_new_minus_old:list.reduce((s,x)=>s+x.delta_new_minus_old,0)})),
+    by_season:Object.entries(Object.groupBy(rows,r=>(()=>{const y=Number(r.date.slice(0,4)),m=Number(r.date.slice(5,7)),start=m>=7?y:y-1;return start+'/'+(start+1);})())).map(([period,list])=>({period,fixtures:list.length,priced:list.filter(x=>x.archive_open_odds).length,old_profit:list.reduce((s,x)=>s+x.old.pnl,0),new_profit:list.reduce((s,x)=>s+x.new.pnl,0),delta_new_minus_old:list.reduce((s,x)=>s+x.delta_new_minus_old,0)})),
     examples:rows.filter(x=>x.archive_open_odds).slice(0,12),
     biggest_hypothetical_positive_changes:[...chosen].sort((a,b)=>b.delta_new_minus_old-a.delta_new_minus_old).slice(0,5),
     biggest_hypothetical_negative_changes:[...chosen].sort((a,b)=>a.delta_new_minus_old-b.delta_new_minus_old).slice(0,5),
