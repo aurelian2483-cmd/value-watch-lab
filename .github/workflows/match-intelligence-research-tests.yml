@@ -172,3 +172,38 @@ jobs:
           name: stage8d-joined-lineup-audit
           path: stage8d-fixture-join.jsonl
           retention-days: 90
+
+  stage8e-real-lagged-xi-diagnostic:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Retrieve frozen fixtures and all 40 retrospective team-season files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for season in 2023-24 2024-25; do
+            mkdir -p "/tmp/stage8e/$season/clubs"
+            curl -fsSL --retry 2 "https://raw.githubusercontent.com/openfootball/football.json/e6744429ee395bc86f247348c6184bb08d4eb361/$season/en.1.json" -o "/tmp/stage8e/$season/en.1.json"
+          done
+          for slug in afc-bournemouth aston-villa brighton-amp-hove-albion crystal-palace fc-arsenal fc-brentford fc-burnley fc-chelsea fc-everton fc-fulham fc-liverpool luton-town manchester-city manchester-united newcastle-united nottingham-forest sheffield-united tottenham-hotspur west-ham-united wolverhampton-wanderers; do
+            curl -fsSL --retry 2 "https://raw.githubusercontent.com/withqwerty/availability-data/5c6286c24dd58b3c9a6b4f5ccbd0c6e6466cb7dd/raw/GB1/2023/${slug}.json" -o "/tmp/stage8e/2023-24/clubs/${slug}.json"
+          done
+          for slug in afc-bournemouth aston-villa brighton-amp-hove-albion crystal-palace fc-arsenal fc-brentford fc-chelsea fc-everton fc-fulham fc-liverpool fc-southampton ipswich-town leicester-city manchester-city manchester-united newcastle-united nottingham-forest tottenham-hotspur west-ham-united wolverhampton-wanderers; do
+            curl -fsSL --retry 2 "https://raw.githubusercontent.com/withqwerty/availability-data/5c6286c24dd58b3c9a6b4f5ccbd0c6e6466cb7dd/raw/GB1/2024/${slug}.json" -o "/tmp/stage8e/2024-25/clubs/${slug}.json"
+          done
+      - name: Run calibration and reused-season diagnostic (NOT fresh validation)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/match-intelligence/lagged-xi-diagnostic.js /tmp/stage8e | tee stage8e-lagged-xi-results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stage8e-lagged-xi-results
+          path: stage8e-lagged-xi-results.json
+          retention-days: 90
