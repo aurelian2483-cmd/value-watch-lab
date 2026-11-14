@@ -44,7 +44,7 @@ function prepared(text){
  return all;
 }
 function audit(rows,share,cap){
- let bets=0,wins=0,pnl=0,logloss=0,brier=0,peak=0,maxDrawdown=0;
+ let bets=0,wins=0,pnl=0,logloss=0,brier=0,peak=0,maxDrawdown=0,expectedWins=0,varianceWins=0,expectedPaperProfit=0;
  const bands={under2:{bets:0,wins:0,pnl:0},twoToFive:{bets:0,wins:0,pnl:0},fiveToTen:{bets:0,wins:0,pnl:0},overTen:{bets:0,wins:0,pnl:0}};
  const examples=[];
  for(const r of rows){
@@ -52,6 +52,8 @@ function audit(rows,share,cap){
   const d=select(probs,r.odds,r.actual,cap);
   if(d.selection!=='PASS'){
     bets++;wins+=Number(d.won);pnl+=d.pnl;
+    const k=outcomes.indexOf(d.selection),chosenP=probs[k];
+    expectedWins+=chosenP;varianceWins+=chosenP*(1-chosenP);expectedPaperProfit+=chosenP*d.odds-1;
     const band=d.odds<2?bands.under2:d.odds<5?bands.twoToFive:d.odds<10?bands.fiveToTen:bands.overTen;
     band.bets++;band.wins+=Number(d.won);band.pnl+=d.pnl;
     if(examples.length<4)examples.push({fixture:r.id,result:r.score,selection:d.selection,odds:d.odds,pnl:d.pnl});
@@ -62,6 +64,10 @@ function audit(rows,share,cap){
  }
  return {model_share:share,max_odds:cap??'NONE',matches:rows.length,bets,wins,
   losing_bets:bets-wins,pass:rows.length-bets,pnl_units:Number(pnl.toFixed(2)),
+  model_expected_wins:Number(expectedWins.toFixed(3)),model_expected_losses:Number((bets-expectedWins).toFixed(3)),
+  actual_minus_expected_wins:Number((wins-expectedWins).toFixed(3)),
+  expected_win_count_sd_if_independent:Number(Math.sqrt(varianceWins).toFixed(3)),
+  hypothetical_predicted_ev_units:Number(expectedPaperProfit.toFixed(3)),
   quote_only_roi:bets?pnl/bets:null,mean_logloss:logloss/rows.length,
   mean_brier:brier/rows.length,max_drawdown_units:Number(maxDrawdown.toFixed(2)),
   odds_bands:bands,first_examples:examples};
