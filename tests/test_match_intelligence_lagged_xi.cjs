@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {buildSeason,replay,summarise,run,ALPHAS}=require('../research/match-intelligence/lagged-xi-diagnostic.js');
+const {buildSeason,replay,summarise,run,pairedDateBootstrap,ALPHAS}=require('../research/match-intelligence/lagged-xi-diagnostic.js');
 test('unmapped club archive cannot silently fabricate a complete league',()=>{
  assert.throws(()=>buildSeason({matches:[]},[]),/380-match/);
  assert.throws(()=>buildSeason({matches:Array(380).fill({})},[]),/20 retrospective/);
@@ -40,4 +40,16 @@ test('alpha zero is exactly the original same-fixture Poisson result',()=>{
    assert.equal(x.baseline.log_loss,x.challenger.log_loss);
    assert.equal(x.baseline.brier,x.challenger.brier);
  }
+});
+
+test('paired date bootstrap uses same fixtures and same-date clusters',()=>{
+ const rows=[
+  {date:'2025-01-01',baseline:{log_loss:.8},challenger:{log_loss:.9}},
+  {date:'2025-01-01',baseline:{log_loss:1.1},challenger:{log_loss:1.2}},
+  {date:'2025-01-03',baseline:{log_loss:.6},challenger:{log_loss:.7}}
+ ];
+ const r=pairedDateBootstrap(rows,{iterations:200,seed:12});
+ assert.equal(r.groups,2);
+ assert.ok(Math.abs(r.mean_challenger_minus_baseline-.1)<1e-12);
+ assert.ok(r.p025>0&&r.p975>0);
 });
