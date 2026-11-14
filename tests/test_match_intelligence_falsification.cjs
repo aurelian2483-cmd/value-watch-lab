@@ -23,8 +23,8 @@ test('coefficient zero means exactly unchanged baseline probabilities',()=>{
 test('no post-match feature permission is allowed in fitting or evaluation',()=>{
  const data=syntheticMatches({count:80});
  data[0].features_known_before_kickoff=false;
- assert.throws(()=>fit(data),/prematch/);
- assert.throws(()=>evaluate(data,{coefficients:[0,0]}),/prematch/);
+ assert.throws(()=>fit(data),/pre-?match/);
+ assert.throws(()=>evaluate(data,{coefficients:[0,0]}),/pre-?match/);
 });
 test('insufficient training data and nonfinite features are rejected',()=>{
  const data=syntheticMatches({count:80});
