@@ -1,6 +1,6 @@
 'use strict';
 // Stage 7: retrospective historic lineup/availability importer. NOT prematch information.
-const STATUS=new Set(['starting','sub_in','bench','injured','suspended','national_team','not_in_squad','not_at_club','not_included']);
+const STATUS=new Set(['starting','sub_in','bench','injured','suspended','national_team','not_in_squad','not_at_club','not_included','absent']);
 const ACTIVE=new Set(['starting','sub_in','bench']);
 const date=x=>typeof x==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(x)&&Number.isFinite(Date.parse(x));
 function normalizeHistoricalAvailability(doc,{competition='GB1'}={}){
@@ -36,6 +36,7 @@ function normalizeHistoricalAvailability(doc,{competition='GB1'}={}){
   if(starters.length+bench.length+subbed.length>30)contradictions.push('MATCHDAY_SQUAD_COUNT_OUTLIER');
   return {round,record_count:entries.length,starters:starters.length,sub_in:subbed.length,bench:bench.length,
    injured:entries.filter(x=>x.status==='injured').length,suspended:entries.filter(x=>x.status==='suspended').length,
+   absent_unclassified:entries.filter(x=>x.status==='absent').length,
    squad_member_ids:entries.filter(x=>ACTIVE.has(x.status)).map(x=>x.player_id),
    starting_player_ids:starters.map(x=>x.player_id),issues:contradictions};
  });
