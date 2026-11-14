@@ -106,3 +106,15 @@ Later 470 quoted 2024/25–2025/26 fixtures: market and selected blend LL **0.98
 Lab source `prospective-validation-lab.cjs`, CLI `prospective-lab-cli.cjs`, protocol `PROSPECTIVE-VALIDATION-PROTOCOL.md`. The first regression runs exposed a test assertion expecting a specific rejection order; it was corrected without relaxing the fail-closed checks, and the subsequent full CI succeeded: https://github.com/aurelian2483-cmd/value-watch-lab/actions/runs/43644073484.
 
 **Decision:** SAFETY/INFRASTRUCTURE IMPROVED, **FORECAST PERFORMANCE UNTESTED**. No model has been proved profitable. The first real prospective record must be created and independently time-evidenced **before** a future kickoff; later historical rows cannot be backfilled as prospective.
+
+## 7. Cross-branch existing forecast/result archive recovery (2026-11-14)
+
+**Correction:** The empty `main:prediction-ledger.json` and `main:results-feed.json` are NOT a complete statement of project-wide observations. `research/prospective-100` contains:
+- 307 hashed multi-league archive JSON files (unverified independent forecast receipt timing);
+- 66 uniquely identified, two-source-scored other-league model records (pooled LL 1.016796389, Brier 0.609284871);
+- 18 scored EPL model records across 16 strictly named fixtures, with different model versions/partly duplicated matches;
+- review-only existing forecast ledger links with GitHub receipt references.
+
+**Current question:** These are older models and **cannot** be silently treated as observations from the locked 2026-11-14 Poisson-vs-recent-form prospective comparison. This experiment still has zero scored genuine new post-freeze predictions. Older archive model scores may be analyzed on their own cohorts **after exact fixture/source/timestamp reconciliation**; no confirmed cross-model ROI or bookmaker-price evidence.
+
+Source-by-source audit and cautions: `EXISTING-DATA-RECOVERY-AUDIT.md`. Treat old 66+18 as existing research data, not nonexistent.
