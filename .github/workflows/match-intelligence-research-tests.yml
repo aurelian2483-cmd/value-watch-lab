@@ -91,6 +91,34 @@ jobs:
           node research/match-intelligence/fixture-by-fixture-comparison.cjs \
             /tmp/epl-history/epl_results_2024_25.csv \
             /tmp/epl-history/epl_results_2025_26.csv | tee fixture-by-fixture-comparison.json
+      - name: Audit hypothetical old/new game-by-game £1 paper bet results
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/match-intelligence/fixture-winnings-audit.cjs \
+            /tmp/epl-history/epl_results_2024_25.csv \
+            /tmp/epl-history/epl_results_2025_26.csv > fixture-winnings-all.json
+          node - <<'NODE'
+          const d=require('./fixture-winnings-all.json');
+          console.log(JSON.stringify({
+            total_historical_fixtures:d.total_historical_fixtures,
+            complete_archived_price_fixtures:d.complete_archived_price_fixtures,
+            missing_price_fixtures:d.missing_price_fixtures,
+            old_model:d.old_model,recent_form_model:d.recent_form_model,
+            same_fixture_total_pnl_improvement_new_minus_old:d.same_fixture_total_pnl_improvement_new_minus_old,
+            fixture_selection_changes:d.fixture_selection_changes,
+            examples:d.examples,
+            biggest_hypothetical_positive_changes:d.biggest_hypothetical_positive_changes,
+            biggest_hypothetical_negative_changes:d.biggest_hypothetical_negative_changes,
+            warning:'Historical odds unavailable at confirmed forecast time; not real ROI'
+          },null,2));
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fixture-winnings-audit-all
+          path: fixture-winnings-all.json
+          retention-days: 90
       - uses: actions/upload-artifact@v4
         if: always()
         with:
