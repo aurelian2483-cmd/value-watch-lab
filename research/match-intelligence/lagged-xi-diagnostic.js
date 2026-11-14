@@ -79,16 +79,39 @@ function summarise(rows){
   baseline_brier:mean(rows.map(r=>r.baseline.brier)),
   model_brier:mean(rows.map(r=>r.challenger.brier))};
 }
+function pairedDateBootstrap(rows,{iterations=2000,seed=20261114}={}){
+ if(!Array.isArray(rows)||!rows.length||!Number.isInteger(iterations)||iterations<100)throw Error('Invalid bootstrap inputs');
+ const grouped=new Map();
+ for(const r of rows){const a=grouped.get(r.date)||[];a.push(r);grouped.set(r.date,a);}
+ const days=[...grouped.values()],differences=[];
+ let state=seed>>>0;
+ const random=()=>{state=(1664525*state+1013904223)>>>0;return state/4294967296;};
+ for(let k=0;k<iterations;k++){
+   let sum=0,n=0;
+   for(let j=0;j<days.length;j++){const d=days[Math.floor(random()*days.length)];
+     for(const row of d){sum+=row.challenger.log_loss-row.baseline.log_loss;n++;}
+   }
+   differences.push(sum/n);
+ }
+ differences.sort((a,b)=>a-b);
+ const point=mean(rows.map(r=>r.challenger.log_loss-r.baseline.log_loss));
+ return {unit:'match-date cluster',iterations,groups:days.length,
+  mean_challenger_minus_baseline:point,
+  p025:differences[Math.floor(.025*iterations)],p975:differences[Math.floor(.975*iterations)],
+  challenger_worse_if_positive:true,confidence_interval_interpretation:'Exploratory cluster bootstrap, not external validation'};
+}
 function run(calibrationLeague,calibrationArchives,diagnosticLeague,diagnosticArchives){
  const cal=buildSeason(calibrationLeague,calibrationArchives);
  const diag=buildSeason(diagnosticLeague,diagnosticArchives);
  const trial=ALPHAS.map(alpha=>({alpha,...summarise(replay(cal,alpha))}));
  const selected=trial.reduce((best,x)=>x.model_ll<best.model_ll?x:best).alpha;
- const diagResult=summarise(replay(diag,selected));
+ const diagnosticRows=replay(diag,selected);
+ const diagResult=summarise(diagnosticRows);
+ const diagnosticUncertainty=pairedDateBootstrap(diagnosticRows);
  return {status:'REAL_OUTCOME_EXPLORATORY_DIAGNOSTIC_ONLY',research_only:true,publication_gate:'BLOCKED',
   feature:'lagged consecutive starting-XI overlap from two prior completed team matches',
   calibration_year:2023,diagnostic_year:2024,holdout_untouched:false,
-  train_grid:trial,selected_alpha:selected,diagnostic:diagResult,
+  train_grid:trial,selected_alpha:selected,diagnostic:diagResult,diagnostic_uncertainty:diagnosticUncertainty,
   warning:'Archived XI data retrospectively collected; no actual current-match XI or pre-kickoff injury data used. Previous outcomes already studied. This is NOT proof of player impact.'};
 }
 if(require.main===module){
@@ -100,4 +123,4 @@ if(require.main===module){
  const a=load('2023-24'),b=load('2024-25');
  console.log(JSON.stringify(run(a.league,a.archives,b.league,b.archives),null,2));
 }
-module.exports={buildSeason,replay,summarise,run,ALPHAS};
+module.exports={buildSeason,replay,summarise,run,pairedDateBootstrap,ALPHAS};
