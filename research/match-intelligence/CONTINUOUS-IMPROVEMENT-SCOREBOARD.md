@@ -137,3 +137,20 @@ Existing records found there:
 Audit code lives on `research/prospective-100`: `scripts/audit_existing_football_results.py`, workflow `.github/workflows/existing-football-results-audit.yml`. The workflow ran successfully and modified no betting website, production model or result ledger.
 
 **Immediate goal:** use the existing paper forecast collector as the entrypoint; pair its actual same-fixture pre-kickoff baseline and form outputs in an append-only, independently timestamped record, then score after verified outcomes. Do not start a third disconnected archive.
+
+## 8. Stage 14 — Conditional formula and odds-exposure hypotheses (REUSED retrospective study)
+Execution: https://github.com/aurelian2483-cmd/value-watch-lab/actions/runs/43647810346 . 135 isolated checks passed, archived diagnostic job successful. Detailed report `STAGE14-MARKET-ANCHOR-RESULTS.md`.
+
+**Hypothesis 1: longshot exposure.** The recent-form strategy's 132 historical bets at odds 5+ lost **29.25 hypothetical units**. Its 275 at odds below 5 gained **32.64 units**. Adding a *post-hoc* maximum odds 5 selector changed 407 bets, 126 wins, +3.39 units into 312 bets, 118 wins, +32.83 units (different permitted alternative per match where applicable).
+
+**Hypothesis 2: market-anchored predicted probabilities.** `p_new=(1-w)*p_market+w*p_recent_form`; fixed candidate `w=.5`. No odds cap: 318 bets, 89 wins, +8.27 hypothetical units, mean log loss 0.987410 on the 470 priced fixtures. Add max odds 5: 220 bets, 79 wins, +32.33 hypothetical units, 14.70% *unverified quote-only* ROI.
+
+| Matched 470 priced fixtures | Recent form uncapped | Recent form cap 5 | 50%-market cap 5 |
+|---|---:|---:|---:|
+| Hypothetical selections | 407 | 312 | 220 |
+| Hypothetical losing selections | 281 | 194 | 141 |
+| Hypothetical net units | +3.39 | +32.83 | +32.33 |
+| Mean 1X2 log loss | 1.012831 | 1.012831 | 0.987410 |
+| Validation / real profit status | UNVALIDATED | UNVALIDATED | UNVALIDATED |
+
+Stage 13 calibrated optimum on independent earlier period 2023/24 remains market-only (w=0). No model was selected fairly based on new untouched outcomes. Odds caps and market weights above were compared **after repeated exposure to 2024/25 and 2025/26 results**. They are **NOT** proven improvements and all depend on unverified archived bookmaker prices **not Sky Bet**. Decision: **PROMISING RESEARCH MECHANISM; NO PUBLICATION/DEPLOYMENT; FORWARD PROSPECTIVE FALSIFICATION REQUIRED.**
