@@ -83,6 +83,9 @@ def checked_forecast(record):
     race=integer_id(record["race_id"]);start=when(record["startUTC"]);captured=when(record["generated_at_utc"])
     if captured>=start-dt.timedelta(minutes=5):raise ValueError("Forecast not captured pre-off with buffer")
     p=vector(record["runners"])
+    archived_hash=record.get("record_sha256")
+    if not isinstance(archived_hash,str) or archived_hash!=fingerprint({k:v for k,v in record.items() if k!="record_sha256"}):
+        raise ValueError("Frozen forecast record hash mismatch")
     return race,start,captured,p
 
 def checked_market(market,race,start,field):
