@@ -72,6 +72,11 @@
   try { const raw = storage.getItem('value-watch-paper-lab-v3'); legacy = Object.values(raw ? JSON.parse(raw) : {}).map(plan => PaperLab.restore(JSON.stringify(plan))); }
   catch { notice('Earlier research could not be read; its original storage is untouched.'); }
   const cards = new Map(), legs = new Map(), statsRequests = new Map();
+  let historicalResults = [];
+  let historicalStatus = 'LOADING';
+  function currentHistoryStatus(event) {
+    return window.ValueWatchReliability.qualifyingEvidence(event, historicalResults);
+  }
   const statistics = I.createStatisticsCache({ maxEntries: 150, ttlMs: 300000, loader: async ({ eventId, tab }, { signal } = {}) => {
     await Promise.resolve(); if (signal?.aborted) throw new DOMException('Selection changed', 'AbortError');
     const event = store.get().events.find(event => event.id === eventId); return { event, data: event?.stats?.[tab] ?? null };
@@ -608,7 +613,13 @@
   function renderEvents() {
     renderRacingCandidates();
     renderPaperEligibilityAudit();
-    const state = store.get(), rows = filtered(state), visible = rows.slice(0, state.limit), root = $('events'); root.setAttribute('aria-busy', 'false');
+    const state = store.get();
+    const normalRows = filtered(state);
+    const isReliability = engineView === 'reliability';
+    const rows = isReliability
+      ? normalRows.filter(event => currentHistoryStatus(event).status === 'FORM_CANDIDATE')
+      : normalRows;
+    const visible = rows.slice(0, state.limit), root = $('events'); root.setAttribute('aria-busy', 'false');
     if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more').forEach(element => element.remove());
     S.reconcile(root, visible.map(event => event.id), cards, createCard, (record, id) => patchCard(record, visible.find(event => event.id === id)));
     if (!visible.length && state.sport === 'racing') {
@@ -617,7 +628,12 @@
       const upcomingMeetings=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to); const box = empty(root, '0 verified racecards · '+upcomingMeetings.length+' scheduled meetings', (upcomingMeetings.length ? 'Meeting dates and courses are available, but race times, runners and odds are not yet verified. See the scheduled meetings below. ' : 'No meeting fixtures are loaded for the selected dates. ') + 'Racecards remain unavailable until verified source data is collected.', { label: 'Show next 14 days', run: () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'upcoming' })); $('search').value = ''; $('event-view').value = 'upcoming'; preset('14'); } }); box.classList.add('event-empty');
       if (latest && latest !== today()) button(box, 'View dated previous cards', () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'all' })); $('search').value = ''; $('event-view').value = 'all'; setRange(latest, latest); }, 'button button-quiet');
     }
-    else if (!visible.length) { const box = empty(root, state.snapshotState?.status === 'unavailable' ? 'Research sources unavailable' : 'No events match this view', 'Try another sport or a wider date range. Saved research remains available; no events are invented to fill the board.', { label: 'Show next 14 days', run: () => preset('14') }); box.classList.add('event-empty'); }
+    else if (!visible.length) { const box = empty(root,
+      isReliability ? 'No historical form candidates with sufficient evidence' :
+      state.snapshotState?.status === 'unavailable' ? 'Research sources unavailable' : 'No events match this view',
+      isReliability ? 'Automatic seven-competition screening is active. Existing source records do not establish five earlier results for both teams and the required win pattern in this view. No predictions or odds were invented. Switch engines or widen the date range. Historical archive: '+historicalStatus+'.' :
+      'Try another sport or a wider date range. Saved research remains available; no events are invented to fill the board.',
+      { label: 'Show next 14 days', run: () => preset('14') }); box.classList.add('event-empty'); }
     if (rows.length > visible.length) button(root, 'Show more events (' + (rows.length - visible.length) + ')', () => store.update(state => ({ ...state, limit: state.limit + 24 })), 'button button-secondary load-more');
     // Tournament-level source observations are informational, not fictitious match cards.
     let tournamentPanel=$('tennis-tournament-coverage');
@@ -785,9 +801,21 @@
   try { engineView = X.mode(storage.getItem(X.preferenceKey)); } catch { /* Default view remains usable without storage. */ }
   function renderEngine(evaluation) {
     document.querySelectorAll('[data-engine]').forEach(element => element.setAttribute('aria-pressed', String(element.dataset.engine === engineView)));
-    write($('engine-status'), ({current:'Current Engine 2.5 · existing research workflow.', experimental:'Experimental Engine 3.0 · illustrative, uncalibrated research mathematics.', compare:'Side-by-Side Compare · same captured inputs; no reranking.'})[engineView]);
+    write($('engine-status'), ({current:'Current Engine 2.5 · existing research workflow.', experimental:'Experimental Engine 3.0 · illustrative, uncalibrated research mathematics.', compare:'Side-by-Side Compare · same captured inputs; no reranking.', reliability:'Historical Reliability · automatic research-only favourite-pattern filter; not certified value picks.'})[engineView]);
     const root = $('engine-analysis'); root.hidden = engineView === 'current'; root.replaceChildren();
     if (root.hidden) return;
+    if (engineView === 'reliability') {
+      const available = filtered(store.get()).filter(event => event.sport==='football');
+      const matched = available.map(event=>({event,result:currentHistoryStatus(event)}));
+      const candidates = matched.filter(item=>item.result.status==='FORM_CANDIDATE');
+      const incomplete = matched.filter(item=>item.result.status==='INSUFFICIENT_HISTORY').length;
+      make(root,'h3','Historical Reliability · match screening');
+      make(root,'p',available.length+' football fixtures in current filters · '+candidates.length+' form candidates · '+incomplete+' without five earlier results for both teams.');
+      make(root,'p','Coverage: '+historicalStatus+'. A form candidate is NOT a validated prediction or value-qualified bet. No verified pre-kickoff bookmaker prices are present in this historical screen.','small');
+      for(const item of candidates) make(root,'p',item.event.name+' · '+item.result.side+' historical form direction · '+item.result.homeWins+'/5 home wins vs '+item.result.awayWins+'/5 away wins · odds/value unverified','small');
+      if(!candidates.length)make(root,'p','No candidate satisfies the strict form rule with the historical evidence currently loaded. No matches are added merely to fill the list.');
+      return;
+    }
     make(root, 'h3', 'Selected paper slip · ' + store.get().plan.slots[store.get().slot].name);
     make(root, 'p', 'ILLUSTRATIVE: ±3 percentage points is a sensitivity scenario, not measured uncertainty. Calibration, Bayesian uncertainty, adaptive ranking and backtesting are not implemented here. No joint probability or portfolio EV is inferred.', 'small');
     if (!evaluation.legs.length) make(root, 'p', 'Choose an outcome to inspect its supplied inputs. No example probabilities or prices are substituted.');
@@ -837,6 +865,7 @@
   document.querySelectorAll('[data-engine]').forEach(element => element.addEventListener('click', () => safely(() => {
     engineView = X.mode(element.dataset.engine);
     renderSlip();
+    renderEvents();
     try { storage.setItem(X.preferenceKey, engineView); } catch { write($('engine-status'), $('engine-status').textContent + ' View preference could not be saved on this device.'); }
   })));
   const wildcardStorageKey = 'value-watch-weekly-wildcard-v1';
@@ -1342,6 +1371,32 @@
     make(card, 'p', 'Classification is not fact verification or an allegation of fraud. Verified ROI, win rate and trust score remain unavailable.', 'muted');
     button(card, 'Save private research note', () => { const state = store.get(); if (state.claims.length >= 100) throw Error('Private note limit reached. Export your research.'); saveEnvelope({ claims: [...state.claims, { reasoning, methodology: result.methodology, sources: result.sources, classification: result.classification, createdAt: new Date().toISOString(), ...context }] }); notice('Research note saved privately on this device.'); });
   }); });
+  // Use only source-reported final scores already present in the research archive.
+  // This feed is sparse; missing results must never be treated as losses or wins.
+  fetch(new URL('research-history.json',rootURL),{cache:'no-store'}).then(response => {
+    if(!response.ok)throw Error('archive unavailable');
+    return response.json();
+  }).then(data => {
+    if(data.research_only!==true || data.publication_gate!=='BLOCKED' || !Array.isArray(data.entries))
+      throw Error('archive validation failed');
+    const seen=new Set();
+    historicalResults = data.entries.filter(entry => {
+      if(!entry || !entry.home || !entry.away || !entry.kickoff_utc || !['H','D','A'].includes(entry.actual_outcome) || !Array.isArray(entry.source_receipts) || !entry.source_receipts.length)return false;
+      const sources=entry.source_receipts.map(x=>x.url||'').join(' ');
+      const league=entry.competition || (/\/eng\.1\/|\/E0\.csv|\/eng\.1\//i.test(sources)?'Premier League':/\/E1\.csv|\/eng\.2\//i.test(sources)?'Championship':null);
+      if(!league)return false;
+      entry.competition=league;
+      const id=[league,entry.home,entry.away,entry.kickoff_utc.slice(0,10)].join('|');
+      if(seen.has(id))return false;
+      seen.add(id);
+      return true;
+    });
+    historicalStatus=historicalResults.length+' source-reported match results loaded (limited archive)';
+    if(engineView==='reliability'){renderEvents();renderSlip();}
+  }).catch(() => {
+    historicalStatus='source history unavailable';
+    if(engineView==='reliability'){renderEvents();renderSlip();}
+  });
   store.subscribe(state => JSON.stringify([state.plan.id, state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick, state.claims]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderWildcard(); renderTracker(); }));
   store.subscribe(state => JSON.stringify([state.sport, state.plan.from, state.plan.to]), () => { if (store.get().view === 'history') safely(renderHistory); });
   store.subscribe(state => state.view, () => safely(renderView));
