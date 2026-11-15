@@ -9,6 +9,7 @@ on:
       - 'paper-lab/index.html'
       - 'index.html'
       - 'tests/test_horse_v3plus.cjs'
+      - 'scripts/horse_v3plus_browser_qa.cjs'
       - '.github/workflows/horse-v3plus-source-qa.yml'
   workflow_dispatch:
 permissions:
@@ -34,3 +35,17 @@ jobs:
         run: |
           test -f paper-lab/engine.js
           git diff --exit-code HEAD -- paper-lab/engine.js
+      - name: Install pinned Chromium test runner
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Audit homepage and paper lab in real browser
+        run: node scripts/horse_v3plus_browser_qa.cjs
+      - name: Archive responsive UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v3plus-browser-evidence
+          path: /tmp/v3plus-*.png
+          retention-days: 14
+          if-no-files-found: warn
