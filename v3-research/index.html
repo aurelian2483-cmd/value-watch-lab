@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="theme-color" content="#0b1220"><title>Horse Racing V3 Lab | Value Watch Pro</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0b1220;color:#eaf0ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#213057 0,transparent 35%),#0b1220}
+main,header{max-width:1120px;margin:auto;padding:24px}a{color:#9ec9ff}a:hover{color:#fff}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{font-weight:800;letter-spacing:.07em}.brand em{font-style:normal;color:#77baff}
+.eyebrow{color:#a9bbd3;font-weight:700;letter-spacing:.12em;font-size:12px;text-transform:uppercase}
+h1{font-size:clamp(30px,5vw,56px);line-height:1.08;margin:18px 0 10px}h2{font-size:22px}p{color:#b6c5dd;line-height:1.6}
+.pill{display:inline-flex;padding:7px 11px;border:1px solid #e0b15c;border-radius:99px;background:#40301a;color:#ffe0a8;font-size:12px;font-weight:800}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:14px;margin:26px 0}
+.card{padding:20px;background:#151f33;border:1px solid #2f415e;border-radius:18px}
+.card small{display:block;color:#afc4df;margin-bottom:10px}.big{font-size:34px;font-weight:850;color:#f2f7ff}
+.good{color:#81dfb0}.warn{color:#ffcf84}
+table{width:100%;border-collapse:collapse;min-width:590px;font-size:14px}
+th,td{text-align:left;border-bottom:1px solid #35445d;padding:14px 12px}
+th{background:#202e47;color:#c8daed}tr:hover td{background:#1d2b43}
+.scroller{overflow-x:auto;border-radius:15px;border:1px solid #35445d}
+.panel{background:#121d30;border:1px solid #2c3c54;border-radius:18px;padding:22px;margin:22px 0}
+.foot{border-top:1px solid #34455d;margin-top:30px;padding-top:20px}
+kbd{font:inherit;color:#a9cfff}
+@media(max-width:540px){main,header{padding:16px}.panel{padding:15px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.big{font-size:26px}}
+</style></head><body>
+<header><nav class="top" aria-label="Research navigation"><span class="brand">VALUE<span class="brand"><em>WATCH PRO</em></span></span><a href="../">← Return to Betting Hub</a></nav></header>
+<main id="main"><p class="eyebrow">Horse Racing · Experimental Mathematics · Isolated V3 Research</p>
+<h1>Horse Racing <span style="color:#76baff">V3 Lab</span></h1>
+<p><span class="pill">UNVALIDATED · BETTING PUBLICATION BLOCKED</span></p>
+<p>Transparent V1-versus-V3 research on historical all-weather races. This page does not publish bets, verified win/place probabilities or executable bookmaker prices. The live slip engines are not connected to this laboratory.</p>
+<section class="cards" aria-label="Research summary">
+ <article class="card"><small>Historical races collected</small><div class="big">117</div><small>2025 retrospective source archive</small></article>
+ <article class="card"><small>Recovered comparison scored</small><div class="big">1</div><small>Not an independent holdout</small></article>
+ <article class="card"><small>Further races under verification</small><div class="big">2</div><small>Newcastle + Wolverhampton</small></article>
+ <article class="card"><small>Additional result links</small><div class="big">18</div><small>Structured source verification passed in GitHub Actions</small></article>
+</section>
+<section class="panel"><h2>Completed retrospective comparison</h2><p>Wolverhampton · 3 November 2025 · Race 887765 · five finishers. Same frozen form inputs and ranked field; V3 contextual weights are experimental and not calibrated.</p>
+<div class="scroller"><table><thead><tr><th>Model</th><th>Winner rank</th><th>Top-four overlap</th><th>Winner log loss ↓</th></tr></thead><tbody>
+<tr><td><strong>Frozen V1 form</strong></td><td>4th</td><td>3 of 4</td><td><strong>1.6855</strong></td></tr>
+<tr><td>V3 distance-only</td><td>4th</td><td>3 of 4</td><td>1.6976</td></tr>
+<tr><td>V3 surface-only</td><td>4th</td><td>3 of 4</td><td>1.6928</td></tr>
+<tr><td>V3 distance + surface</td><td>4th</td><td>3 of 4</td><td>1.7050</td></tr>
+</tbody></table></div><p class="warn"><strong>Finding:</strong> all three V3 variants had worse log loss than V1 on this one race. That does not establish future performance.</p></section>
+<section class="panel"><h2>Next two races — evidence gate</h2>
+<div class="scroller"><table><thead><tr><th>Target race</th><th>Missing runners</th><th>Historical links found</th><th>V1/V3 score</th></tr></thead><tbody>
+<tr><td>Newcastle 890908 · 24 Nov 2025</td><td>3</td><td>9 retrospective links</td><td class="warn">Historical count met; model comparison pending</td></tr>
+<tr><td>Wolverhampton 894962 · 22 Dec 2025</td><td>3</td><td>9 retrospective links</td><td class="warn">Blocked pending structured verification</td></tr>
+</tbody></table></div>
+<p>The 18 retrospective records passed structured publisher checks for horse and race IDs, date, finish and starter count, with source receipts in the successful 15 November 2026 GitHub Actions run. Original frozen V1 form requirements remain unchanged. A separately inspected race 885249 remains excluded because a runner has insufficient qualifying historical Flat form.</p>
+</section>
+<section class="panel"><h2>Top four ≠ paid fourth place</h2>
+<p>Top-four ranking coverage is a descriptive model metric. An each-way fourth-place payment depends on the observed bookmaker offer, actual starters, any promotion, non-runners and final settlement. Standard four-place terms for handicaps with at least 16 starters do not establish an offer for this retrospective sample. We have no validated place probabilities or betting EV.</p></section>
+<section class="panel"><h2>Research evidence and code</h2><p><a href="https://github.com/aurelian2483-cmd/value-watch-lab/blob/research/horse-v3-isolated/research/horse-v3/V3_FIRST_FIXED_ABLATION_RESULT.md">Fixed V1/V3 comparison report</a> · <a href="https://github.com/aurelian2483-cmd/value-watch-lab/actions/workflows/horse-v3-verify-next-two.yml">18-result verification workflow (passed)</a> · <a href="https://github.com/aurelian2483-cmd/value-watch-lab/blob/research/horse-v3-isolated/research/horse-v3/next-two-exact-result-urls.json">Exact source URL manifest</a></p>
+<p>Evidence snapshot prepared 15 November 2026. Verified source checks: 18/18 in GitHub Actions run 43669298914 (15 November 2026). This page is a static research snapshot, not a live status feed; consult GitHub Actions for subsequent test outcomes.</p></section>
+<p class="foot">Isolated branch: <kbd>research/horse-v3-isolated</kbd>. V1/V2 frozen. Main website and production betting logic unchanged until a separately audited release.</p>
+</main></body></html>
