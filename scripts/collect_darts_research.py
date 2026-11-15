@@ -3,13 +3,22 @@
 Requires DARTS_API_KEY injected as environment secret. Never prints or writes
 the secret; never commits raw provider data or changes the public D1 feed.
 """
-import json, os, sys, urllib.request, urllib.parse, urllib.error, hashlib
+import json, os, sys, urllib.request, urllib.parse, urllib.error, hashlib, time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from darts_api_adapter import adapt
 
 ROOT='https://api.dartsapi.com'
+REQUEST_LIMIT=100
+REQUEST_COUNT=0
+LAST_REQUEST=0.0
 def request(path, params, key):
+    global REQUEST_COUNT, LAST_REQUEST
+    if REQUEST_COUNT>=REQUEST_LIMIT:raise RuntimeError('Conservative request budget exhausted; partial feed withheld')
+    delay=1.1-(time.monotonic()-LAST_REQUEST)
+    if REQUEST_COUNT and delay>0:time.sleep(delay)
+    REQUEST_COUNT+=1
+    LAST_REQUEST=time.monotonic()
     url=ROOT+path+'?'+urllib.parse.urlencode(params)
     req=urllib.request.Request(url, headers={'Authorization':'Bearer '+key,'User-Agent':'ValueWatch-DartsResearch/1.0','Accept':'application/json'})
     try:
@@ -23,7 +32,7 @@ def request(path, params, key):
     if not isinstance(data,dict) or not isinstance(data.get('data'),list) or not isinstance(data.get('meta'),dict):raise RuntimeError('Invalid provider envelope')
     return data,hashlib.sha256(raw).hexdigest()
 
-def pages(endpoint, params, key, maxpages=6):
+def pages(endpoint, params, key, maxpages=20):
     all_rows=[];receipts=[];cursor=None;seen=set()
     for n in range(maxpages):
         args=dict(params)
@@ -43,14 +52,21 @@ def collect(now, key):
     # Strictly old completed results: the free tier does not provide current-day outcomes.
     day=now.date()
     end=day-timedelta(days=8)
-    start=end-timedelta(days=89)
-    results,recs=pages('/v1/results',{'from':start.isoformat(),'to':end.isoformat(),'limit':200},key,6)
-    fixtures,frecs=pages('/v1/fixtures',{'from':day.isoformat(),'to':(day+timedelta(days=7)).isoformat(),'limit':100},key,5)
+    start=end-timedelta(days=27)
+    results=[];recs=[]
+    # Four disjoint, fully paginated UTC week windows; fail closed on any incomplete week.
+    for offset in range(0,28,7):
+        first=start+timedelta(days=offset)
+        last=min(first+timedelta(days=6),end)
+        batch,receipts=pages('/v1/results',{'from':first.isoformat(),'to':last.isoformat(),'limit':200},key,20)
+        results.extend(batch)
+        recs.extend(receipts)
+    fixtures,frecs=pages('/v1/fixtures',{'from':day.isoformat(),'to':(day+timedelta(days=7)).isoformat(),'limit':500},key,10)
     old,future=adapt(results,fixtures,now)
     return {'schema_version':1,'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
             'source_verification':'PROVIDER_OBSERVED_UNCORROBORATED','generated_at_utc':now.isoformat().replace('+00:00','Z'),
             'results':old,'fixtures':future,
-            'coverage':{'returned_result_rows':len(results),'usable_result_rows':len(old),'returned_fixture_rows':len(fixtures),'confirmed_upcoming_fixtures':len(future),'history_period':[start.isoformat(),end.isoformat()],'pagination_complete':True},
+            'coverage':{'returned_result_rows':len(results),'usable_result_rows':len(old),'returned_fixture_rows':len(fixtures),'confirmed_upcoming_fixtures':len(future),'history_period':[start.isoformat(),end.isoformat()],'pagination_complete':True,'requests_this_run':REQUEST_COUNT,'diagnostic_window':'FOUR_FULL_SEVEN_DAY_WINDOWS'},
             'source_receipts':recs+frecs,'odds':None,'expected_value':None,'betting_eligible':False}
 
 def main():
@@ -60,7 +76,9 @@ def main():
     report=collect(now,key)
     path=Path('work/darts/source-diagnostic.json')
     path.parent.mkdir(parents=True,exist_ok=True)
-    # Artifacts are public to repository readers. Export counts, not bulk provider rows.\n    safe={k:v for k,v in report.items() if k not in ('results','fixtures')}\n    path.write_text(json.dumps(safe,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+    # GitHub artifacts must never redistribute provider result rows.
+    safe={k:v for k,v in report.items() if k not in ('results','fixtures')}
+    path.write_text(json.dumps(safe,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
     print('Darts research diagnostic generated; result rows:',report['coverage']['usable_result_rows'],'confirmed fixture rows:',report['coverage']['confirmed_upcoming_fixtures'],'PUBLIC FEED UNCHANGED')
 
 if __name__=='__main__':main()
