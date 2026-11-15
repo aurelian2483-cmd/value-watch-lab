@@ -16,11 +16,12 @@ from collect_horse_training_pilot import fetch
 ROOT=Path(__file__).resolve().parents[1]
 INPUT=ROOT/"research/horse-v3/next-two-18-result-page-matches.json"
 LEADS=ROOT/"research/horse-v3/next-three-profile-history-leads.json"
+URLS=ROOT/"research/horse-v3/next-two-exact-result-urls.json"
 OUT=Path("/tmp/horse-v3-next-two-verification")
 
 def main():
  OUT.mkdir(parents=True,exist_ok=True)
- ledger=json.loads(INPUT.read_text());leads=json.loads(LEADS.read_text())
+ ledger=json.loads(INPUT.read_text());leads=json.loads(LEADS.read_text());urls=json.loads(URLS.read_text())
  if ledger.get("training_eligible") is not False or leads.get("training_eligible") is not False:
   raise SystemExit("Unapproved source ledger")
  lead_index={(str(x["horse_id"]),str(x["previous_date"])):x for x in leads["rows"]}
@@ -32,7 +33,7 @@ def main():
           "status":"UNVERIFIED","training_eligible":False}
   try:
    if not source:raise ValueError("MANIFEST_LEAD_MISSING")
-   url=source.get("prior_result_url")
+   url=urls.get(raceid)
    if not url:
     raise ValueError("EXACT_RESULT_URL_NOT_IN_PROFILE_LEADS")
    if not url.startswith("https://www.sportinglife.com/racing/results/") or "/"+raceid+"/" not in url:
@@ -51,6 +52,8 @@ def main():
    if len(matching)!=1:raise ValueError("HORSE_ID_UNRESOLVED")
    position=matching[0].get("finish_position")
    if type(position) is not int:raise ValueError("POSITION_UNRESOLVED")
+   if position!=source["profile_reported_position"] or len(rides)!=source["profile_reported_field"]:
+    raise ValueError("PROFILE_VS_RESULT_FINISH_OR_STARTER_MISMATCH")
    record.update(status="PUBLISHER_STRUCTURED_RESULT_MATCH_RETROSPECTIVE",
                  source_url=url,source_sha256=digest,observed_at_utc=stamp,
                  position=position,observed_starters=len(rides),
