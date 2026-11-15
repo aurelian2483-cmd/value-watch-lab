@@ -41,12 +41,21 @@
     const label=document.createElement("strong");label.textContent=info.badge;label.className="horse-v3plus-label";
     const note=document.createElement("span");note.textContent=info.detail;note.className="horse-v3plus-note";
     node.className="horse-v3plus-indicator";node.dataset.v3Plus="blocked";
-    node.append(label,note);
+    const originLabel=document.createElement("span");originLabel.textContent="Selection source: "+(node.dataset.modelOrigin||"Model source unverified");originLabel.className="horse-v3plus-note";
+    node.append(label,originLabel,note);
   }
-  function attach(container,sport){
+  function origin(model){
+    const m=model&&typeof model.name==="string"?model.name:"";
+    if(m==="FORM_PERCENTILE_SOFTMAX_RESEARCH_V1")return "V1 · unvalidated";
+    if(m==="V3_FIXED_DISTANCE_SURFACE_RESEARCH")return "V3+ · unvalidated";
+    if(model?.probabilityKind==="EXPERIMENTAL_CONTEXT_WEIGHT")return "Context model · separate";
+    return "Model source unverified";
+  }
+  function attach(container,sport,model=null){
     if(!container||sport!=="racing")return;
     let marker=container.querySelector(".horse-v3plus-indicator");
     if(!marker){marker=document.createElement("div");container.append(marker);}
+    marker.dataset.modelOrigin=origin(model);
     targets.add(marker);render(marker);
     // Reclaim detached references from cards and slips on subsequent updates.
     if(targets.size>200){for(const el of targets)if(!el.isConnected)targets.delete(el);}
@@ -65,5 +74,5 @@
   if(typeof document!=="undefined"){
     document.addEventListener("DOMContentLoaded",()=>{refresh();});
   }
-  return Object.freeze({validate,wording,attach,refresh,status:()=>({...state})});
+  return Object.freeze({validate,wording,origin,attach,refresh,status:()=>({...state})});
 });
