@@ -283,7 +283,7 @@
     const communitySourcesOpen = Boolean(record.racingPanel.querySelector('.community-source-list')?.open);
     record.racingPanel.replaceChildren();
     // V3+ is independent research metadata: never a betting recommendation or engine input.
-    if(event.sport === 'racing') window.ValueWatchHorseV3Plus?.attach(record.racingPanel, 'racing');
+    if(event.sport === 'racing') window.ValueWatchHorseV3Plus?.attach(record.racingPanel, 'racing', event.model);
     record.racingPanel.hidden = event.sport !== 'racing';
     record.racingPanel.style.cssText = event.sport === 'racing' ? 'display:block;visibility:visible;opacity:1;height:auto;min-height:0;overflow:visible;padding:14px 16px;margin:14px 0;border:1px solid #52718b;border-radius:12px;background:#172b38;color:#f1f5f9;line-height:1.55' : 'display:none';
     if (event.sport === 'racing') {
@@ -771,7 +771,7 @@
       make(record.node,'p','Breakeven hurdle: UNKNOWN · no captured decimal price','slip-selection-meta');
     }
     if (leg.sport === 'racing') {
-      window.ValueWatchHorseV3Plus?.attach(record.node, 'racing');
+      window.ValueWatchHorseV3Plus?.attach(record.node, 'racing', leg.model);
       const marketAudit = details(record.node, 'Exchange movement & closing line · research', 'leg-market-audit');
       make(marketAudit,'p','Exchange trend: UNKNOWN · no verified timestamped Betfair exchange price pair or matched-volume evidence is connected.','small');
       make(marketAudit,'p','Betfair SP / Closing Line Value: UNKNOWN · no independently attributable BSP benchmark is connected.','small');
