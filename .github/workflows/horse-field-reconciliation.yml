@@ -1,0 +1,40 @@
+name: Horse racing frozen field reconciliation research
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-field-reconciliation.yml'
+      - 'scripts/audit_horse_field_revisions.py'
+      - 'tests/test_audit_horse_field_revisions.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate field-change classification and archive gates
+        run: |
+          python -m unittest discover -s tests -p 'test_audit_horse_field_revisions.py' -v
+      - name: Audit actual frozen race fields
+        run: |
+          mkdir -p /tmp/horse-field-reconciliation
+          python scripts/audit_horse_field_revisions.py --output /tmp/horse-field-reconciliation/conflicts.json
+      - name: Preserve unresolved source-data conflicts
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-field-reconciliation-unresolved
+          path: /tmp/horse-field-reconciliation/conflicts.json
+          retention-days: 60
+          if-no-files-found: error
