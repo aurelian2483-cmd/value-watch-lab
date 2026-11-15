@@ -15,4 +15,9 @@ assert.match(js,/oddsOnly\.length\+" odds-only races hidden/,"Coverage of withhe
 assert.match(js,/Predicted finishing order · 1st–4th/,"Explicit first-to-fourth panel is required");
 assert.match(js,/race\.rows\.length<4/,"Never invent four places in a smaller field");
 assert.match(css,/\.v3-top4-grid/,"Mobile top-four display styles must exist");
+assert.match(html,/src="\.\.\/racecards-core\.js"/,"Context lane must load existing guarded context validator");
+assert.match(js,/horse-predictions-data\.json/,"Context prediction snapshot must be checked");
+assert.match(js,/\.contextForecast\(r,contextFeed,now\)/,"Context model must be verified with current race data");
+assert.match(js,/!c\?\.valid\|\|!c\.fresh/,"Stale context models must be withheld");
+assert.match(js,/No eligible all-weather V1 or V3 rankings/,"No speculative V1/V3 fill when forecasts absent");
 console.log("PASS: V3 Lab CSP stylesheet, mobile layout and eligible-model-only research tables");
