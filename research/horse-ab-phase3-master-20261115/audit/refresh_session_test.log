@@ -1,0 +1,38 @@
+test_only_explicit_dispatch_or_repair_marker_enables_multiple_cycles (test_horse_refresh_session.ActiveHorseSessionTests.test_only_explicit_dispatch_or_repair_marker_enables_multiple_cycles) ... ok
+{"status": "COLLECTING", "cycle": 1, "maximum_cycles": 1}
+{"status": "ACTIVE_SESSION_FINISHED", "completed_cycles": 1}
+{"status": "ACTIVE_SESSION_FINISHED", "completed_cycles": 0}
+{"status": "COLLECTING", "cycle": 1, "maximum_cycles": 1}
+{"status": "ACTIVE_SESSION_FINISHED", "completed_cycles": 1}
+{"status": "COLLECTING", "cycle": 1, "maximum_cycles": 1}
+{"status": "ACTIVE_SESSION_FINISHED", "completed_cycles": 1}
+{"status": "ACTIVE_SESSION_FINISHED", "completed_cycles": 0}
+{"status": "COLLECTING", "cycle": 1, "maximum_cycles": 1}
+{"status": "ACTIVE_SESSION_FINISHED", "completed_cycles": 1}
+{"status": "COLLECTING", "cycle": 1, "maximum_cycles": 6}
+{"status": "ACTIVE_SESSION_WAITING", "next_cycle": 2, "next_due_utc": "2026-11-06T21:20:00+00:00"}
+{"status": "COLLECTING", "cycle": 2, "maximum_cycles": 6}
+{"status": "ACTIVE_SESSION_WAITING", "next_cycle": 3, "next_due_utc": "2026-11-06T21:40:00+00:00"}
+{"status": "COLLECTING", "cycle": 3, "maximum_cycles": 6}
+{"status": "ACTIVE_SESSION_FINISHED", "completed_cycles": 3}
+test_single_run_any_time_but_multiple_night_cycles_remain_blocked (test_horse_refresh_session.ActiveHorseSessionTests.test_single_run_any_time_but_multiple_night_cycles_remain_blocked) ... ok
+{"status": "COLLECTING", "cycle": 1, "maximum_cycles": 6}
+{"status": "ACTIVE_SESSION_WAITING", "next_cycle": 2, "next_due_utc": "2026-11-06T14:20:00+00:00"}
+{"status": "COLLECTING", "cycle": 2, "maximum_cycles": 6}
+{"status": "ACTIVE_SESSION_WAITING", "next_cycle": 3, "next_due_utc": "2026-11-06T14:40:00+00:00"}
+{"status": "COLLECTING", "cycle": 3, "maximum_cycles": 6}
+{"status": "ACTIVE_SESSION_WAITING", "next_cycle": 4, "next_due_utc": "2026-11-06T15:00:00+00:00"}
+{"status": "COLLECTING", "cycle": 4, "maximum_cycles": 6}
+{"status": "ACTIVE_SESSION_WAITING", "next_cycle": 5, "next_due_utc": "2026-11-06T15:20:00+00:00"}
+{"status": "COLLECTING", "cycle": 5, "maximum_cycles": 6}
+{"status": "ACTIVE_SESSION_WAITING", "next_cycle": 6, "next_due_utc": "2026-11-06T15:40:00+00:00"}
+{"status": "COLLECTING", "cycle": 6, "maximum_cycles": 6}
+{"status": "ACTIVE_SESSION_FINISHED", "completed_cycles": 6}
+test_six_cycles_are_twenty_minutes_apart_and_uniquely_archived (test_horse_refresh_session.ActiveHorseSessionTests.test_six_cycles_are_twenty_minutes_apart_and_uniquely_archived) ... ok
+{"status": "COLLECTING", "cycle": 1, "maximum_cycles": 6}
+test_source_or_cycle_failure_stops_instead_of_retrying_around_block (test_horse_refresh_session.ActiveHorseSessionTests.test_source_or_cycle_failure_stops_instead_of_retrying_around_block) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK

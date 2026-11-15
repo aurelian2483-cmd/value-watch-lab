@@ -1,0 +1,81 @@
+{
+  "status": "PASS",
+  "commands": [
+    {
+      "command": [
+        "python",
+        "test_phase3.py"
+      ],
+      "cwd": "clean extracted copy",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python",
+        "test_endpoint.py"
+      ],
+      "cwd": "clean extracted copy",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python",
+        "software_review/test_review_fixes.py",
+        "ReviewFixes"
+      ],
+      "cwd": "clean extracted copy",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python",
+        "audit/verify_raw76.py"
+      ],
+      "cwd": "clean extracted copy",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python",
+        "audit/verify_sources.py"
+      ],
+      "cwd": "clean extracted copy",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python",
+        "analysis/robustness.py"
+      ],
+      "cwd": "clean extracted copy",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python",
+        "analysis/behavior.py"
+      ],
+      "cwd": "clean extracted copy",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python",
+        "phase3_ab.py",
+        "analyze"
+      ],
+      "cwd": "clean extracted copy",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python",
+        "evaluate_locked_endpoint.py"
+      ],
+      "cwd": "clean extracted copy",
+      "exit_code": 0
+    }
+  ],
+  "code_sha256": "3a0ca4b9cdba6264a12c85075732ff1d6980d1fa5688121de220bd4b6c838ea4",
+  "note": "Separate copied-directory verification, no siblingworkspace dependencies, synthetic test stores cleaned. Newanalysis timestamps differ legitimately."
+}

@@ -1,0 +1,554 @@
+{
+  "status": "RETROSPECTIVE_DESCRIPTIVE_ONLY",
+  "A": "A0_FULL",
+  "B": "E_NODIST_half_life_inverse_temperature",
+  "all": {
+    "races": 76,
+    "dates": 12,
+    "a_winners": 13,
+    "b_winners": 16,
+    "a_log_loss": 2.139434527495182,
+    "b_log_loss": 2.1171770700953503,
+    "mean_b_minus_a_log_loss": -0.022257457399831537,
+    "a_brier": 0.8661483698873955,
+    "b_brier": 0.8605948862402292,
+    "mean_b_minus_a_brier": -0.005553483647166346,
+    "mean_going_missing_fraction": 0.3393399580498295,
+    "a_mean_top_probability": 0.14791551024411523,
+    "b_mean_top_probability": 0.1632381521429358
+  },
+  "groups": {
+    "disagree": {
+      "False": {
+        "races": 55,
+        "dates": 11,
+        "a_winners": 11,
+        "b_winners": 11,
+        "a_log_loss": 2.081024597012932,
+        "b_log_loss": 2.063684519829623,
+        "mean_b_minus_a_log_loss": -0.01734007718330888,
+        "a_brier": 0.8572785400723797,
+        "b_brier": 0.8526965695098147,
+        "mean_b_minus_a_brier": -0.004581970562565033,
+        "mean_going_missing_fraction": 0.3399887833156907,
+        "a_mean_top_probability": 0.15889734658175064,
+        "b_mean_top_probability": 0.1765111997736699
+      },
+      "True": {
+        "races": 21,
+        "dates": 8,
+        "a_winners": 2,
+        "b_winners": 5,
+        "a_log_loss": 2.2924129168534546,
+        "b_log_loss": 2.257276606505587,
+        "mean_b_minus_a_log_loss": -0.03513631034786707,
+        "a_brier": 0.8893788765457702,
+        "b_brier": 0.8812809538675052,
+        "mean_b_minus_a_brier": -0.008097922678265024,
+        "mean_going_missing_fraction": 0.3376406537820979,
+        "a_mean_top_probability": 0.11915355793126049,
+        "b_mean_top_probability": 0.128475408348156
+      }
+    },
+    "field_bin": {
+      "8to12": {
+        "races": 37,
+        "dates": 9,
+        "a_winners": 3,
+        "b_winners": 3,
+        "a_log_loss": 2.283425576954225,
+        "b_log_loss": 2.2709284679859407,
+        "mean_b_minus_a_log_loss": -0.012497108968284125,
+        "a_brier": 0.894878714703098,
+        "b_brier": 0.8927373669439139,
+        "mean_b_minus_a_brier": -0.002141347759184083,
+        "mean_going_missing_fraction": 0.3807291380290515,
+        "a_mean_top_probability": 0.12099139937768348,
+        "b_mean_top_probability": 0.13666011797987213
+      },
+      "over12": {
+        "races": 16,
+        "dates": 4,
+        "a_winners": 4,
+        "b_winners": 6,
+        "a_log_loss": 2.6231230108297185,
+        "b_log_loss": 2.582161641907953,
+        "mean_b_minus_a_log_loss": -0.04096136892176522,
+        "a_brier": 0.9219071501998339,
+        "b_brier": 0.9157209502552665,
+        "mean_b_minus_a_brier": -0.006186199944567483,
+        "mean_going_missing_fraction": 0.5406548595206992,
+        "a_mean_top_probability": 0.08294313039461852,
+        "b_mean_top_probability": 0.09268540251485416
+      },
+      "under8": {
+        "races": 23,
+        "dates": 11,
+        "a_winners": 6,
+        "b_winners": 7,
+        "a_log_loss": 1.5713178073500866,
+        "b_log_loss": 1.5463703365756325,
+        "mean_b_minus_a_log_loss": -0.024947470774453945,
+        "a_brier": 0.7811412723578299,
+        "b_brier": 0.7705388510107972,
+        "mean_b_minus_a_brier": -0.010602421347032676,
+        "mean_going_missing_fraction": 0.132712215320911,
+        "a_mean_top_probability": 0.23642638762019874,
+        "b_mean_top_probability": 0.2550742937987037
+      }
+    },
+    "discipline": {
+      "CHASE": {
+        "races": 13,
+        "dates": 7,
+        "a_winners": 2,
+        "b_winners": 1,
+        "a_log_loss": 1.798795474110105,
+        "b_log_loss": 1.7863212447416421,
+        "mean_b_minus_a_log_loss": -0.012474229368462951,
+        "a_brier": 0.8166752631062959,
+        "b_brier": 0.8118576848027131,
+        "mean_b_minus_a_brier": -0.004817578303582665,
+        "mean_going_missing_fraction": 0.0,
+        "a_mean_top_probability": 0.20124201070492975,
+        "b_mean_top_probability": 0.21731504554614314
+      },
+      "FLAT": {
+        "races": 47,
+        "dates": 6,
+        "a_winners": 6,
+        "b_winners": 10,
+        "a_log_loss": 2.3543782305814394,
+        "b_log_loss": 2.329100391915098,
+        "mean_b_minus_a_log_loss": -0.025277838666341347,
+        "a_brier": 0.8977177972227255,
+        "b_brier": 0.8940452420768722,
+        "mean_b_minus_a_brier": -0.0036725551458533004,
+        "mean_going_missing_fraction": 0.5487199321656818,
+        "a_mean_top_probability": 0.11576566466410744,
+        "b_mean_top_probability": 0.13233973919063052
+      },
+      "HURDLE": {
+        "races": 16,
+        "dates": 10,
+        "a_winners": 5,
+        "b_winners": 5,
+        "a_log_loss": 1.7848066305546744,
+        "b_log_loss": 1.7634726703497285,
+        "mean_b_minus_a_log_loss": -0.021333960204945948,
+        "a_brier": 0.8136100763495071,
+        "b_brier": 0.8019334421380719,
+        "mean_b_minus_a_brier": -0.01167663421143516,
+        "mean_going_missing_fraction": 0.0,
+        "a_mean_top_probability": 0.19902790001097626,
+        "b_mean_top_probability": 0.21006476430022655
+      }
+    },
+    "any_a_evidence_below1": {
+      "False": {
+        "races": 32,
+        "dates": 9,
+        "a_winners": 1,
+        "b_winners": 2,
+        "a_log_loss": 2.221424886012176,
+        "b_log_loss": 2.2269930279678043,
+        "mean_b_minus_a_log_loss": 0.005568141955628353,
+        "a_brier": 0.8804056463087672,
+        "b_brier": 0.8827165134074697,
+        "mean_b_minus_a_brier": 0.002310867098702523,
+        "mean_going_missing_fraction": 0.48618892126978447,
+        "a_mean_top_probability": 0.142218984035507,
+        "b_mean_top_probability": 0.16061564936606415
+      },
+      "True": {
+        "races": 44,
+        "dates": 12,
+        "a_winners": 12,
+        "b_winners": 14,
+        "a_log_loss": 2.0798051758464586,
+        "b_log_loss": 2.0373109189153835,
+        "mean_b_minus_a_log_loss": -0.04249425693107509,
+        "a_brier": 0.8557794415809433,
+        "b_brier": 0.8445064301185996,
+        "mean_b_minus_a_brier": -0.011273011462343706,
+        "mean_going_missing_fraction": 0.2325407120716805,
+        "a_mean_top_probability": 0.15205843839583028,
+        "b_mean_top_probability": 0.16514542688975153
+      }
+    },
+    "missing_going_bin": {
+      "none": {
+        "races": 29,
+        "dates": 11,
+        "a_winners": 7,
+        "b_winners": 6,
+        "a_log_loss": 1.791077491458833,
+        "b_log_loss": 1.7737151347323104,
+        "mean_b_minus_a_log_loss": -0.017362356726522536,
+        "a_brier": 0.814984125585309,
+        "b_brier": 0.8063822405739456,
+        "mean_b_minus_a_brier": -0.008601885011363351,
+        "mean_going_missing_fraction": 0.0,
+        "a_mean_top_probability": 0.20002043239102438,
+        "b_mean_top_probability": 0.21331489037598228
+      },
+      "over_half": {
+        "races": 30,
+        "dates": 6,
+        "a_winners": 5,
+        "b_winners": 6,
+        "a_log_loss": 2.306170448793093,
+        "b_log_loss": 2.290163484807266,
+        "mean_b_minus_a_log_loss": -0.016006963985827075,
+        "a_brier": 0.8938852046092179,
+        "b_brier": 0.8920007925815138,
+        "mean_b_minus_a_brier": -0.0018844120277041335,
+        "mean_going_missing_fraction": 0.6860299023257734,
+        "a_mean_top_probability": 0.12247278789506898,
+        "b_mean_top_probability": 0.13954155163815737
+      },
+      "some_to_half": {
+        "races": 17,
+        "dates": 4,
+        "a_winners": 1,
+        "b_winners": 4,
+        "a_log_loss": 2.4394507866785213,
+        "b_log_loss": 2.3978125809289192,
+        "mean_b_minus_a_log_loss": -0.04163820574960182,
+        "a_brier": 0.9044811959524446,
+        "b_brier": 0.8976530941275045,
+        "mean_b_minus_a_brier": -0.0068281018249400655,
+        "mean_going_missing_fraction": 0.30640822011846125,
+        "a_mean_top_probability": 0.10392956484476355,
+        "b_mean_top_probability": 0.11963065840087728
+      }
+    }
+  },
+  "firstchoice_outcome_table": {
+    "both_correct": 11,
+    "only_a_correct": 2,
+    "only_b_correct": 5,
+    "neither_correct": 58
+  },
+  "planning": {
+    "observed_retrospective_paired_ll_sd": 0.0777540021305684,
+    "observed_mean_b_minus_a": -0.022257457399831537,
+    "iid_standard_error_76": 0.008918995730078786,
+    "date_cluster_standard_error_76": 0.006488493163448394,
+    "estimated_design_effect": 0.529243814265145,
+    "iid_95_halfwidth_at500": 0.006815438784035285,
+    "cluster_scaled_95_halfwidth_at500": 0.004958173464191505,
+    "iid_80pct_power_detectable_difference_at500": 0.00974197776610598,
+    "cluster_scaled_80pct_power_detectable_difference_at500": 0.007087205560674321,
+    "conservative_planning_design_effect": 1,
+    "design_effect_scenarios": {
+      "1": {
+        "iid_scaled95_halfwidth500": 0.0068154387840352855,
+        "scaled80pct_MDE500": 0.00974197776610598
+      },
+      "2": {
+        "iid_scaled95_halfwidth500": 0.009638485961906296,
+        "scaled80pct_MDE500": 0.013777237081164224
+      },
+      "4": {
+        "iid_scaled95_halfwidth500": 0.013630877568070571,
+        "scaled80pct_MDE500": 0.01948395553221196
+      }
+    },
+    "iid_n_for_observed_effect_80pct_power": 95.78845551915147,
+    "formula": "n ~= ((z_(1-alpha/2)+z_power)*sigma_delta/delta_target)^2; precision ~= z*sigma_delta/sqrt(n)",
+    "assumptions": "Normal approximation, stable paired variance, independent races for iid; cluster scaling assumes historical dependence carries forward. Only12 dates and post-selection sample, so not a validated power calculation.",
+    "planning_target_races": 500,
+    "planning_target_distinct_dates": 60,
+    "prospective_scored_races": 0,
+    "planning_target_is_proof": false
+  },
+  "market_comparison": {
+    "performed": false,
+    "reason": "Old32race benchmark is distinct V1, not A/B; exact AB/odds row matching not verified. No identified paired eligible odds; no EV or ROI."
+  },
+  "frozen_calibration": {
+    "A0_FULL": {
+      "top_label_calibration": {
+        "bins": [
+          {
+            "lower": 0,
+            "upper": 0.1,
+            "count": 20,
+            "mean_probability": 0.08542214191998035,
+            "observed_frequency": 0.2
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "count": 40,
+            "mean_probability": 0.13240732691871268,
+            "observed_frequency": 0.125
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "count": 14,
+            "mean_probability": 0.24919956281714759,
+            "observed_frequency": 0.2857142857142857
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.5,
+            "count": 2,
+            "mean_probability": 0.3740244919822878,
+            "observed_frequency": 0.0
+          },
+          {
+            "lower": 0.5,
+            "upper": 1,
+            "count": 0,
+            "mean_probability": null,
+            "observed_frequency": null
+          }
+        ],
+        "ece": 0.05061980714307118,
+        "weighting": "equal observations within diagnostic; runners are not independent"
+      },
+      "pooled_runner_calibration": {
+        "bins": [
+          {
+            "lower": 0,
+            "upper": 0.05,
+            "count": 38,
+            "mean_probability": 0.04266427391492215,
+            "observed_frequency": 0.02631578947368421
+          },
+          {
+            "lower": 0.05,
+            "upper": 0.1,
+            "count": 410,
+            "mean_probability": 0.07896336912765552,
+            "observed_frequency": 0.07804878048780488
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "count": 234,
+            "mean_probability": 0.12802972087310438,
+            "observed_frequency": 0.1282051282051282
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "count": 44,
+            "mean_probability": 0.2418705679241386,
+            "observed_frequency": 0.25
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.5,
+            "count": 4,
+            "mean_probability": 0.3506291439814177,
+            "observed_frequency": 0.5
+          },
+          {
+            "lower": 0.5,
+            "upper": 1,
+            "count": 0,
+            "mean_probability": null,
+            "observed_frequency": null
+          }
+        ],
+        "ece": 0.002729380140015899,
+        "weighting": "equal observations within diagnostic; runners are not independent"
+      },
+      "race_balanced_runner_bins": [
+        {
+          "lower": 0,
+          "upper": 0.05,
+          "runner_count": 38,
+          "weight": 1.7137210615471485,
+          "mean_probability": 0.04277073639776849,
+          "observed_frequency": 0.02652388797364086
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "runner_count": 410,
+          "weight": 33.46228903946295,
+          "mean_probability": 0.08027666081265766,
+          "observed_frequency": 0.07747067323099571
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.2,
+          "runner_count": 234,
+          "weight": 29.05732323232323,
+          "mean_probability": 0.13348957569105885,
+          "observed_frequency": 0.1308591640398327
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.3,
+          "runner_count": 44,
+          "weight": 10.433333333333334,
+          "mean_probability": 0.2445039379502353,
+          "observed_frequency": 0.24440894568690094
+        },
+        {
+          "lower": 0.3,
+          "upper": 0.5,
+          "runner_count": 4,
+          "weight": 1.3333333333333333,
+          "mean_probability": 0.3506291439814177,
+          "observed_frequency": 0.5
+        },
+        {
+          "lower": 0.5,
+          "upper": 1,
+          "runner_count": 0,
+          "weight": 0,
+          "mean_probability": null,
+          "observed_frequency": null
+        }
+      ]
+    },
+    "E_NODIST_half_life_inverse_temperature": {
+      "top_label_calibration": {
+        "bins": [
+          {
+            "lower": 0,
+            "upper": 0.1,
+            "count": 14,
+            "mean_probability": 0.08942167850956419,
+            "observed_frequency": 0.2857142857142857
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "count": 43,
+            "mean_probability": 0.137914352826684,
+            "observed_frequency": 0.16279069767441862
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "count": 14,
+            "mean_probability": 0.24936731997141756,
+            "observed_frequency": 0.21428571428571427
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.5,
+            "count": 5,
+            "mean_probability": 0.34654728251639294,
+            "observed_frequency": 0.4
+          },
+          {
+            "lower": 0.5,
+            "upper": 1,
+            "count": 0,
+            "mean_probability": null,
+            "observed_frequency": null
+          }
+        ],
+        "ece": 0.060212965741270684,
+        "weighting": "equal observations within diagnostic; runners are not independent"
+      },
+      "pooled_runner_calibration": {
+        "bins": [
+          {
+            "lower": 0,
+            "upper": 0.05,
+            "count": 41,
+            "mean_probability": 0.04093466024523994,
+            "observed_frequency": 0.024390243902439025
+          },
+          {
+            "lower": 0.05,
+            "upper": 0.1,
+            "count": 409,
+            "mean_probability": 0.07728044752300804,
+            "observed_frequency": 0.07579462102689487
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "count": 232,
+            "mean_probability": 0.13110210688627544,
+            "observed_frequency": 0.1336206896551724
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "count": 41,
+            "mean_probability": 0.24176797365430927,
+            "observed_frequency": 0.21951219512195122
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.5,
+            "count": 7,
+            "mean_probability": 0.34082859651318387,
+            "observed_frequency": 0.5714285714285714
+          },
+          {
+            "lower": 0.5,
+            "upper": 1,
+            "count": 0,
+            "mean_probability": null,
+            "observed_frequency": null
+          }
+        ],
+        "ece": 0.00602331788162139,
+        "weighting": "equal observations within diagnostic; runners are not independent"
+      },
+      "race_balanced_runner_bins": [
+        {
+          "lower": 0,
+          "upper": 0.05,
+          "runner_count": 41,
+          "weight": 2.007905138339921,
+          "mean_probability": 0.041179659948875895,
+          "observed_frequency": 0.022637795275590553
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "runner_count": 409,
+          "weight": 33.935914930480145,
+          "mean_probability": 0.07848109510370783,
+          "observed_frequency": 0.0773012115940476
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.2,
+          "runner_count": 232,
+          "weight": 28.554989454989453,
+          "mean_probability": 0.1365012417463753,
+          "observed_frequency": 0.13207764451885487
+        },
+        {
+          "lower": 0.2,
+          "upper": 0.3,
+          "runner_count": 41,
+          "weight": 9.417857142857143,
+          "mean_probability": 0.2438273336756952,
+          "observed_frequency": 0.21767159651118695
+        },
+        {
+          "lower": 0.3,
+          "upper": 0.5,
+          "runner_count": 7,
+          "weight": 2.083333333333333,
+          "mean_probability": 0.344039599985589,
+          "observed_frequency": 0.56
+        },
+        {
+          "lower": 0.5,
+          "upper": 1,
+          "runner_count": 0,
+          "weight": 0,
+          "mean_probability": null,
+          "observed_frequency": null
+        }
+      ]
+    }
+  }
+}

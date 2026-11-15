@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "started_at_utc": "2026-11-15T20:57:46.626801+00:00",
+  "completed_at_utc": "2026-11-15T20:57:49.095843+00:00",
+  "python": "3.14.7 (tags/v3.14.7:823f032, Aug  5 2026, 10:51:32) [MSC v.1944 64 bit (AMD64)]",
+  "input_sha256": {
+    "derived_inputs.json": "f3ecb2a63de87dd1412e04dc09b5f1dd027b0632af992f0fe57096b9c25fc365",
+    "phase1_ablation_results.json": "94777ae055393a09dedbcd42c6e44a46436b59c76ca487fe388e813e025221ff",
+    "history_outcomes.json": "1ddf6beca984323e2abfc482b750f2322a59c62731f02846a95380e8a2677ff8",
+    "race_types.json": "a6bcde1b5a16427b6e4186ae178bb72a6574965de2102959d8634538eae45559"
+  },
+  "phase2_deterministic_output_byte_matches": {
+    "candidate_definitions.json": true,
+    "metrics_and_uncertainty.json": true,
+    "race_comparisons.csv": true,
+    "race_type_diagnostics.json": true,
+    "runner_predictions.jsonl": true,
+    "summary.csv": true,
+    "walk_forward_diagnostic.json": true
+  },
+  "phase1_maximum_absolute_errors": {
+    "mean_log_loss": 1.3322676295501878e-15,
+    "mean_brier": 8.881784197001252e-16,
+    "race_log_loss": 4.440892098500626e-16,
+    "race_brier": 4.440892098500626e-16
+  },
+  "phase2_independent_checks": {
+    "status": "PASS",
+    "configurations": 21,
+    "race_vectors": 1596,
+    "split_counts": {
+      "all_exploratory": {
+        "races": 76,
+        "runners": 730
+      },
+      "development": {
+        "races": 58,
+        "runners": 593
+      },
+      "later_diagnostic_not_untouched": {
+        "races": 18,
+        "runners": 137
+      }
+    },
+    "maximum_independently_scored_mean_error": 4.440892098500626e-16,
+    "notes": "Independent probability scoring, not independent outcome/source verification."
+  },
+  "phase1_variants": 16,
+  "phase2_variants": 21,
+  "races": 76,
+  "runner_appearances": 730,
+  "untouched_races": 0,
+  "independently_verified_outcomes": 0,
+  "limitations": "Reproduction and arithmetic correctness do not validate data provenance, calibration or prospective performance."
+}

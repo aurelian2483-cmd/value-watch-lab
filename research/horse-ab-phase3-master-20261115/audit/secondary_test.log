@@ -1,0 +1,341 @@
+test_duplicate_revision_cannot_inflate_sample (test_horse_secondary.EvaluationTests.test_duplicate_revision_cannot_inflate_sample) ... ok
+test_no_invented_accuracy_and_small_sample_gate (test_horse_secondary.EvaluationTests.test_no_invented_accuracy_and_small_sample_gate) ... ok
+test_race_bootstrap_and_calibration (test_horse_secondary.EvaluationTests.test_race_bootstrap_and_calibration) ... ok
+test_ambiguous_or_wrong_race_match_cannot_supply_going (test_horse_secondary.SecondaryTests.test_ambiguous_or_wrong_race_match_cannot_supply_going) ... ok
+test_cache_hashes_and_corrections_preserved (test_horse_secondary.SecondaryTests.test_cache_hashes_and_corrections_preserved) ... ok
+test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) ... 
+  test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary=None) ... FAIL
+  test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary='') ... FAIL
+  test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary='  ') ... FAIL
+  test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary='-') ... FAIL
+  test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary='Unknown') ... FAIL
+  test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary='not supplied') ... FAIL
+test_explicit_secondary_discipline_and_conflict (test_horse_secondary.SecondaryTests.test_explicit_secondary_discipline_and_conflict) ... ERROR
+test_full_field_and_winner_must_agree (test_horse_secondary.SecondaryTests.test_full_field_and_winner_must_agree) ... FAIL
+test_material_disagreement_is_flagged_without_overwriting_primary (test_horse_secondary.SecondaryTests.test_material_disagreement_is_flagged_without_overwriting_primary) ... ERROR
+test_missing_credentials_does_not_call_network (test_horse_secondary.SecondaryTests.test_missing_credentials_does_not_call_network) ... ok
+test_only_free_endpoints_are_permitted (test_horse_secondary.SecondaryTests.test_only_free_endpoints_are_permitted) ... ok
+test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict (test_horse_secondary.SecondaryTests.test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict) ... 
+  test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict (test_horse_secondary.SecondaryTests.test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict) (primary='Good to Soft (Good in places)') ... ERROR
+  test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict (test_horse_secondary.SecondaryTests.test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict) (primary='Good-good to soft in places') ... ERROR
+  test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict (test_horse_secondary.SecondaryTests.test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict) (primary='STANDARD') ... ERROR
+  test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict (test_horse_secondary.SecondaryTests.test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict) (primary='Good to Firm') ... ERROR
+test_rate_limit_retry_honours_header (test_horse_secondary.SecondaryTests.test_rate_limit_retry_honours_header) ... C:\Users\georg\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 429: 'rate limit'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_rate_retries_bounded_and_auth_not_retried (test_horse_secondary.SecondaryTests.test_rate_retries_bounded_and_auth_not_retried) ... C:\Users\georg\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 429: 'blocked'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+C:\Users\georg\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 401: 'blocked'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+C:\Users\georg\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 403: 'blocked'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) ... 
+  test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) (updates={'url': 'https://api.theracingapi.com/v1/results/today/free'}) ... ERROR
+  test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) (updates={'url': 'https://evil.invalid/v1/racecards/free'}) ... ERROR
+  test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) (updates={'sha256': 'invalid'}) ... ERROR
+  test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) (updates={'observed_at_utc': '2026-11-02T11:00:00+00:00'}) ... ERROR
+  test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) (updates={'observed_at_utc': '2026-11-02T12:06:00+00:00'}) ... ERROR
+test_retry_after_http_date (test_horse_secondary.SecondaryTests.test_retry_after_http_date) ... ok
+test_strict_schedule_identity_offset_and_ambiguity (test_horse_secondary.SecondaryTests.test_strict_schedule_identity_offset_and_ambiguity) ... FAIL
+test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) ... 
+  test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value=None) ... ERROR
+  test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='') ... ERROR
+  test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='Unknown') ... ERROR
+  test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='API error') ... ERROR
+  test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='Good_Request_Error') ... ERROR
+  test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='GoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGood') ... ERROR
+  test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='Hurdle: soft; chase: good-good to firm in places') ... ERROR
+  test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='Soft / Good') ... ERROR
+  test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='<script>Good</script>') ... ERROR
+  test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value={'going': 'Good'}) ... ERROR
+test_unmapped_primary_description_is_preserved_without_claiming_agreement (test_horse_secondary.SecondaryTests.test_unmapped_primary_description_is_preserved_without_claiming_agreement) ... ERROR
+
+======================================================================
+ERROR: test_explicit_secondary_discipline_and_conflict (test_horse_secondary.SecondaryTests.test_explicit_secondary_discipline_and_conflict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 46, in test_explicit_secondary_discipline_and_conflict
+    self.assertEqual(output['races'][0]['secondary_run_type'],'HURDLE')
+                     ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'secondary_run_type'
+
+======================================================================
+ERROR: test_material_disagreement_is_flagged_without_overwriting_primary (test_horse_secondary.SecondaryTests.test_material_disagreement_is_flagged_without_overwriting_primary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 77, in test_material_disagreement_is_flagged_without_overwriting_primary
+    self.assertEqual(race['going'],'Soft');self.assertEqual(race['secondary_going'],'Firm')
+                                                            ~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'secondary_going'
+
+======================================================================
+ERROR: test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict (test_horse_secondary.SecondaryTests.test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict) (primary='Good to Soft (Good in places)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 72, in test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict
+    self.assertFalse(race['going_conflict'])
+                     ~~~~^^^^^^^^^^^^^^^^^^
+KeyError: 'going_conflict'
+
+======================================================================
+ERROR: test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict (test_horse_secondary.SecondaryTests.test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict) (primary='Good-good to soft in places')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 72, in test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict
+    self.assertFalse(race['going_conflict'])
+                     ~~~~^^^^^^^^^^^^^^^^^^
+KeyError: 'going_conflict'
+
+======================================================================
+ERROR: test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict (test_horse_secondary.SecondaryTests.test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict) (primary='STANDARD')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 72, in test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict
+    self.assertFalse(race['going_conflict'])
+                     ~~~~^^^^^^^^^^^^^^^^^^
+KeyError: 'going_conflict'
+
+======================================================================
+ERROR: test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict (test_horse_secondary.SecondaryTests.test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict) (primary='Good to Firm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 72, in test_primary_text_is_preserved_and_equivalent_wording_is_not_a_conflict
+    self.assertFalse(race['going_conflict'])
+                     ~~~~^^^^^^^^^^^^^^^^^^
+KeyError: 'going_conflict'
+
+======================================================================
+ERROR: test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) (updates={'url': 'https://api.theracingapi.com/v1/results/today/free'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 94, in test_receipt_must_be_fresh_supported_endpoint_and_hash
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_RECEIPT_UNCONFIRMED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) (updates={'url': 'https://evil.invalid/v1/racecards/free'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 94, in test_receipt_must_be_fresh_supported_endpoint_and_hash
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_RECEIPT_UNCONFIRMED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) (updates={'sha256': 'invalid'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 94, in test_receipt_must_be_fresh_supported_endpoint_and_hash
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_RECEIPT_UNCONFIRMED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) (updates={'observed_at_utc': '2026-11-02T11:00:00+00:00'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 94, in test_receipt_must_be_fresh_supported_endpoint_and_hash
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_RECEIPT_UNCONFIRMED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_receipt_must_be_fresh_supported_endpoint_and_hash (test_horse_secondary.SecondaryTests.test_receipt_must_be_fresh_supported_endpoint_and_hash) (updates={'observed_at_utc': '2026-11-02T12:06:00+00:00'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 94, in test_receipt_must_be_fresh_supported_endpoint_and_hash
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_RECEIPT_UNCONFIRMED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 87, in test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 87, in test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='Unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 87, in test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='API error')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 87, in test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='Good_Request_Error')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 87, in test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='GoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGoodGood')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 87, in test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='Hurdle: soft; chase: good-good to firm in places')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 87, in test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='Soft / Good')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 87, in test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value='<script>Good</script>')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 87, in test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed (test_horse_secondary.SecondaryTests.test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed) (value={'going': 'Good'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 87, in test_unknown_oversized_and_mixed_discipline_descriptions_are_not_imputed
+    self.assertEqual(race['going_comparison_status'],'SECONDARY_GOING_UNAVAILABLE_OR_UNSUPPORTED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+ERROR: test_unmapped_primary_description_is_preserved_without_claiming_agreement (test_horse_secondary.SecondaryTests.test_unmapped_primary_description_is_preserved_without_claiming_agreement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 107, in test_unmapped_primary_description_is_preserved_without_claiming_agreement
+    self.assertEqual(race['going_comparison_status'],'PRIMARY_DESCRIPTION_UNMAPPED')
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'going_comparison_status'
+
+======================================================================
+FAIL: test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 61, in test_documented_secondary_going_fills_only_missing_primary_with_receipt
+    self.assertEqual(race['going'],'Good To Yielding')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 'Good To Yielding'
+
+======================================================================
+FAIL: test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 61, in test_documented_secondary_going_fills_only_missing_primary_with_receipt
+    self.assertEqual(race['going'],'Good To Yielding')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '' != 'Good To Yielding'
++ Good To Yielding
+
+
+======================================================================
+FAIL: test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary='  ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 61, in test_documented_secondary_going_fills_only_missing_primary_with_receipt
+    self.assertEqual(race['going'],'Good To Yielding')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '  ' != 'Good To Yielding'
+-   
++ Good To Yielding
+
+
+======================================================================
+FAIL: test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary='-')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 61, in test_documented_secondary_going_fills_only_missing_primary_with_receipt
+    self.assertEqual(race['going'],'Good To Yielding')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '-' != 'Good To Yielding'
+- -
++ Good To Yielding
+
+
+======================================================================
+FAIL: test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary='Unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 61, in test_documented_secondary_going_fills_only_missing_primary_with_receipt
+    self.assertEqual(race['going'],'Good To Yielding')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Unknown' != 'Good To Yielding'
+- Unknown
++ Good To Yielding
+
+
+======================================================================
+FAIL: test_documented_secondary_going_fills_only_missing_primary_with_receipt (test_horse_secondary.SecondaryTests.test_documented_secondary_going_fills_only_missing_primary_with_receipt) (primary='not supplied')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 61, in test_documented_secondary_going_fills_only_missing_primary_with_receipt
+    self.assertEqual(race['going'],'Good To Yielding')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'not supplied' != 'Good To Yielding'
+- not supplied
++ Good To Yielding
+
+
+======================================================================
+FAIL: test_full_field_and_winner_must_agree (test_horse_secondary.SecondaryTests.test_full_field_and_winner_must_agree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 110, in test_full_field_and_winner_must_agree
+    e,reason=s.corroborate(self.record,self.entry,[self.row]);self.assertIsNone(reason);self.assertEqual(e['verification'],'TWO_PUBLISHER_RESULT_CORROBORATED')
+                                                              ~~~~~~~~~~~~~~~~~^^^^^^^^
+AssertionError: 'SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED' is not None
+
+======================================================================
+FAIL: test_strict_schedule_identity_offset_and_ambiguity (test_horse_secondary.SecondaryTests.test_strict_schedule_identity_offset_and_ambiguity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\audit\source\tests\test_horse_secondary.py", line 33, in test_strict_schedule_identity_offset_and_ambiguity
+    self.assertEqual(len(s.candidates(self.race,[self.row])),1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.087s
+
+FAILED (failures=8, errors=22)
