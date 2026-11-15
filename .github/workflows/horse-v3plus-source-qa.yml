@@ -1,0 +1,36 @@
+name: Horse V3+ Betting Hub Research Source QA
+on:
+  push:
+    branches: [research/horse-v3-isolated]
+    paths:
+      - 'paper-lab/horse-v3plus.js'
+      - 'paper-lab/horse-v3plus.css'
+      - 'paper-lab/desk.js'
+      - 'paper-lab/index.html'
+      - 'index.html'
+      - 'tests/test_horse_v3plus.cjs'
+      - '.github/workflows/horse-v3plus-source-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-source-labels:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/horse-v3-isolated
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate model-origin implementation and both pages
+        run: |
+          node --check paper-lab/horse-v3plus.js
+          node --check paper-lab/desk.js
+          node tests/test_horse_v3plus.cjs
+      - name: Preserve separation from existing selection engine
+        run: |
+          test -f paper-lab/engine.js
+          git diff --exit-code HEAD -- paper-lab/engine.js
