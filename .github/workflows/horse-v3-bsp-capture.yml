@@ -1,0 +1,65 @@
+name: Horse V3 pre-event archive and BSP importer QA
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - 'scripts/freeze_horse_v3_research.py'
+      - 'scripts/import_betfair_daily_bsp.py'
+      - 'tests/test_horse_bsp_v3_capture.py'
+      - '.github/workflows/horse-v3-bsp-capture.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: horse-v3-source-capture
+  cancel-in-progress: false
+
+jobs:
+  check-and-freeze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/horse-v3-isolated
+          persist-credentials: true
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Strict BSP and pre-event model regression
+        run: |
+          git rev-parse HEAD
+          python -m unittest discover -s tests -p 'test_horse_bsp_v3_capture.py' -v
+      - name: Read current main source snapshot without modifying it
+        run: |
+          git fetch --depth=1 origin main
+          mkdir -p /tmp/v3-capture
+          git show origin/main:racing-research-data.json > /tmp/v3-capture/racing-research-data.json
+          git rev-parse origin/main > /tmp/v3-capture/main-source-commit.txt
+      - name: Run fail-closed V3 snapshot attempt
+        run: |
+          python scripts/freeze_horse_v3_research.py --feed /tmp/v3-capture/racing-research-data.json --out research/horse-v3/live-archive | tee /tmp/v3-capture/coverage.json
+      - name: Commit only new immutable V3 research snapshots
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- research/horse-v3/live-archive
+          if ! git diff --cached --quiet; then
+            git commit -m 'Archive eligible experimental V3 forecasts before race [research-only]'
+            git pull --rebase origin research/horse-v3-isolated
+            git push origin HEAD:research/horse-v3-isolated
+          fi
+      - name: Preserve diagnostics even when no races eligible
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v3-pre-event-capture-diagnostics
+          path: |
+            /tmp/v3-capture/
+          retention-days: 60
+          if-no-files-found: warn
