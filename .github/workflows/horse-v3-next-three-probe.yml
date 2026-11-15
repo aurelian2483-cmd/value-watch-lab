@@ -1,0 +1,48 @@
+name: V3 next three races - nine horse form source probe
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-v3-next-three-probe.yml'
+      - 'scripts/horse_v3_next_three_profile_probe.py'
+      - 'scripts/horse_v3_profile_recovery_probe.py'
+      - 'research/horse-v3/next-three-recovery-manifest.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe-nine-horses:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Capture nine source profiles and inspect historical structure
+        id: capture
+        continue-on-error: true
+        run: |
+          git rev-parse HEAD
+          python scripts/horse_v3_next_three_profile_probe.py
+      - name: Preserve source receipts and diagnostics on failure too
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v3-next-three-nine-horse-profile-evidence
+          path: /tmp/horse-v3-profile-recovery/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Fail closed on incomplete source capture
+        if: always()
+        run: |
+          if [ "${{ steps.capture.outcome }}" != "success" ]; then
+            echo "Incomplete source capture: no model training or V3 performance comparison."
+            exit 1
+          fi
