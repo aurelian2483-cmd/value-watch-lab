@@ -7,6 +7,8 @@ on:
     paths:
       - 'scripts/build_horse_evidence_dashboard.py'
       - 'tests/test_build_horse_evidence_dashboard.py'
+      - 'scripts/export_horse_research_site_status.py'
+      - 'tests/test_export_horse_research_site_status.py'
       - '.github/workflows/horse-evidence-dashboard.yml'
   workflow_dispatch:
 
@@ -28,9 +30,11 @@ jobs:
       - name: Verify dashboard input, freshness and escaping
         run: |
           python -m unittest discover -s tests -p 'test_build_horse_evidence_dashboard.py' -v
+          python -m unittest discover -s tests -p 'test_export_horse_research_site_status.py' -v
       - name: Assemble current research-only snapshot
         run: |
           python scripts/build_horse_evidence_dashboard.py --output /tmp/horse-research-health
+          python scripts/export_horse_research_site_status.py --report /tmp/horse-research-health/evidence.json --out /tmp/horse-research-health/public-readonly-status.json
       - name: Publish private-to-run evidence artifact, not the website
         uses: actions/upload-artifact@v4
         with:
