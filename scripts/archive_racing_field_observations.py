@@ -14,7 +14,7 @@ from pathlib import Path
 from horse_market_benchmark_v1 import fingerprint,when
 
 GATES={"research_only":True,"model_validation":"UNVALIDATED","publication_gate":"BLOCKED"}
-KIND="SOURCE_OBSERVED_RACING_FIELD_V1"
+KIND="SOURCE_OBSERVED_RACING_FIELD_V2"
 STATUS={"RUNNER","NONRUNNER","WITHDRAWN"}
 
 def snapshot(race,feed,now,source_commit):
@@ -28,6 +28,8 @@ def snapshot(race,feed,now,source_commit):
             return None,"STALE_SOURCE_FEED"
         if not dt.timedelta(minutes=-5)<=generated-observed<=dt.timedelta(minutes=30):
             return None,"RUNNER_OBSERVATION_NOT_FRESH_IN_FEED"
+        if not dt.timedelta(minutes=-5)<=now-observed<=dt.timedelta(minutes=30):
+            return None,"RUNNER_OBSERVATION_STALE_AT_CAPTURE"
         if observed>=start or generated>=start:return None,"NOT_PRE_EVENT"
         if race.get("capture_phase")!="PRE_EVENT" or race.get("race_stage") not in ("DORMANT","GOINGDOWN","ATTHEPOST"):
             return None,"NOT_CONFIRMED_PRE_EVENT_STAGE"
@@ -66,6 +68,7 @@ def snapshot(race,feed,now,source_commit):
                  "source_first_availability_independently_attested":False,
                  "limitations":["Observed runner status came from one publisher's feed, not an official scratch log.",
                                 "The feed timestamp is publisher/scraper metadata, not independent notarisation.",
+                                "A prior V1 field archive did not verify 30-minute freshness at capture; only V2 records meet that additional gate.",
                                 "No stored raw HTML bytes independently rechecked against source_sha256.",
                                 "No Betfair selections, prices, edge, or staking."]}
         receipt["record_sha256"]=fingerprint(receipt)
