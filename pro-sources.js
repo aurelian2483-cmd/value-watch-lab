@@ -71,6 +71,16 @@
   const upcoming=events.filter(x=>x.startMs>=now).sort((a,b)=>a.startMs-b.startMs||a.sport.localeCompare(b.sport)||a.name.localeCompare(b.name));
   return {events,upcoming,counts,available:[...available],totalAvailable:upcoming.length,allSportsAvailable:available.size===4};
  }
+ function featuredOrder(upcoming){
+  if(!Array.isArray(upcoming))return [];
+  const buckets=new Map(sports.map(s=>[s,[]]));
+  for(const e of upcoming){if(buckets.has(e.sport))buckets.get(e.sport).push(e)}
+  const out=[];const index=Object.fromEntries(sports.map(s=>[s,0]));
+  while(sports.some(s=>index[s]<buckets.get(s).length)){
+   for(const s of sports){const bucket=buckets.get(s);if(index[s]<bucket.length)out.push(bucket[index[s]++])}
+  }
+  return out;
+ }
  async function load(id,base='',fetcher=fetch,now=Date.now()){
   const source=SOURCES.find(x=>x.id===id);if(!source)throw Error('Unknown source');
   try{
@@ -79,5 +89,5 @@
    return inspect(id,await response.json(),now);
   }catch(err){return {id,state:'UNAVAILABLE',fresh:false,generatedAt:null,records:[],data:null,error:String(err?.message||err).slice(0,120)}}
  }
- return Object.freeze({SOURCES,sports,stamp,gate,inspect,summarize,load});
+ return Object.freeze({SOURCES,sports,stamp,gate,inspect,summarize,featuredOrder,load});
 });
