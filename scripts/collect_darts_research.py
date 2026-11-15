@@ -139,12 +139,34 @@ def bounded_public_snapshot(now, key):
         converted=normalise_fixture(row,now)
         if converted and converted['id'] not in fixture_ids and len(fixtures)<12:
             fixture_ids.add(converted['id']);fixtures.append(converted)
+    tentative=[];tentative_ids=set()
+    from darts_api_adapter import player as normalise_player
+    for row in fixtures_raw:
+        if not isinstance(row,dict) or row.get('date_confirmed') is True:continue
+        fid=row.get('fixture_id');date_text=row.get('date')
+        try:
+            from datetime import date as date_type
+            day=date_type.fromisoformat(date_text)
+            if not now.date()<=day<=now.date()+timedelta(days=7):continue
+        except (TypeError,ValueError):continue
+        people=row.get('players')
+        if not isinstance(fid,str) or len(fid)>80 or not isinstance(people,list) or len(people)!=2:continue
+        a,b=normalise_player(people[0]),normalise_player(people[1])
+        if not a or not b or a['id']==b['id'] or fid in tentative_ids:continue
+        competition=row.get('competition')
+        name=competition.get('name') if isinstance(competition,dict) else competition
+        if not isinstance(name,str) or not name.strip() or len(name)>160:continue
+        tentative.append({'id':fid,'date_utc':day.isoformat(),'competition':name.strip(),
+                          'player_a':a,'player_b':b,'status':'DATE_ONLY_UNCONFIRMED'})
+        tentative_ids.add(fid)
+        if len(tentative)>=12:break
     return {'schema_version':1,'research_only':True,'model_validation':'UNVALIDATED',
             'publication_gate':'BLOCKED','source_verification':'PROVIDER_OBSERVED_UNCORROBORATED',
             'generated_at_utc':now.isoformat().replace('+00:00','Z'),
             'results':results,'fixtures':fixtures,'source_receipts':receipts,
             'coverage':{'sample_only':True,'historical_days_queried':dates,'checks':checks,
                         'results_published':len(results),'fixtures_published':len(fixtures),
+                        'tentative_fixtures_displayed':len(tentative),
                         'fixture_rows_returned':len(fixtures_raw),
                         'fixture_more_pages':'UNKNOWN_UNCHECKED',
                         'notice':'Limited public research display, not complete source coverage or calibrated predictions'}}
@@ -159,7 +181,7 @@ def main():
         out=Path('darts/feed.json')
         out.parent.mkdir(parents=True,exist_ok=True)
         out.write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
-        print('Published bounded research snapshot:',len(report['results']),'results,',len(report['fixtures']),'fixtures; UNVALIDATED / BLOCKED')
+        print('Published bounded research snapshot:',len(report['results']),'results,',len(report['fixtures']),'confirmed fixtures,',len(report['tentative_fixtures']),'tentative; UNVALIDATED / BLOCKED')
         return
     if len(sys.argv)!=1:raise SystemExit('Unknown mode')
     report=coverage_probe(now,key)
