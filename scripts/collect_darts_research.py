@@ -69,16 +69,57 @@ def collect(now, key):
             'coverage':{'returned_result_rows':len(results),'usable_result_rows':len(old),'returned_fixture_rows':len(fixtures),'confirmed_upcoming_fixtures':len(future),'history_period':[start.isoformat(),end.isoformat()],'pagination_complete':True,'requests_this_run':REQUEST_COUNT,'diagnostic_window':'FOUR_FULL_SEVEN_DAY_WINDOWS'},
             'source_receipts':recs+frecs,'odds':None,'expected_value':None,'betting_eligible':False}
 
+def coverage_probe(now,key):
+    """Small source-coverage test, not a partial historical backtest."""
+    day=now.date()
+    windows=[
+        (day-timedelta(days=28),day-timedelta(days=28)),
+        (day-timedelta(days=14),day-timedelta(days=14)),
+        (day-timedelta(days=8),day-timedelta(days=8)),
+    ]
+    audits=[]
+    for first,last in windows:
+        params={'from':first.isoformat(),'to':last.isoformat(),'limit':10}
+        d,digest=request('/v1/results',params,key)
+        dates=[row.get('played_on') for row in d['data'] if isinstance(row,dict)]
+        dates=[v for v in dates if isinstance(v,str)]
+        outside=[v for v in dates if not first.isoformat()<=v<=last.isoformat()]
+        audits.append({
+            'endpoint':'results','date_requested':[first.isoformat(),last.isoformat()],
+            'returned_rows':len(d['data']),'has_next_page':bool(d['meta'].get('next_cursor')),
+            'observed_played_on_min':min(dates) if dates else None,
+            'observed_played_on_max':max(dates) if dates else None,
+            'date_filter_violations':len(outside),
+            'sample_fields':sorted(set().union(*(row.keys() for row in d['data'] if isinstance(row,dict)))),
+            'sha256':digest,'provider_data_as_of':d['meta'].get('data_as_of'),
+        })
+    first=day
+    last=day+timedelta(days=7)
+    d,digest=request('/v1/fixtures',{'from':first.isoformat(),'to':last.isoformat(),'limit':10},key)
+    audits.append({
+        'endpoint':'fixtures','date_requested':[first.isoformat(),last.isoformat()],
+        'returned_rows':len(d['data']),'has_next_page':bool(d['meta'].get('next_cursor')),
+        'sample_fields':sorted(set().union(*(row.keys() for row in d['data'] if isinstance(row,dict)))),
+        'sample_has_confirmed_time':sum(bool(row.get('date_confirmed') is True and row.get('starts_at')) for row in d['data'] if isinstance(row,dict)),
+        'sha256':digest,'provider_data_as_of':d['meta'].get('data_as_of')
+    })
+    return {'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
+        'public_feed_unchanged':True,'complete_history_collected':False,
+        'diagnostic':'SOURCE_COVERAGE_PROBE_NO_PREDICTIONS',
+        'generated_at_utc':now.isoformat().replace('+00:00','Z'),
+        'requests_this_run':REQUEST_COUNT,'audits':audits}
+
 def main():
     key=os.environ.get('DARTS_API_KEY','')
     if not key:raise SystemExit('DARTS_API_KEY not configured. No network request made, no public feed changed.')
     now=datetime.now(timezone.utc)
-    report=collect(now,key)
+    # Probe source filters and match shapes before any costly historical backfill.
+    report=coverage_probe(now,key)
     path=Path('work/darts/source-diagnostic.json')
     path.parent.mkdir(parents=True,exist_ok=True)
     # GitHub artifacts must never redistribute provider result rows.
     safe={k:v for k,v in report.items() if k not in ('results','fixtures')}
     path.write_text(json.dumps(safe,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
-    print('Darts research diagnostic generated; result rows:',report['coverage']['usable_result_rows'],'confirmed fixture rows:',report['coverage']['confirmed_upcoming_fixtures'],'PUBLIC FEED UNCHANGED')
+    print('Darts source coverage probe complete;',report['requests_this_run'],'requests; NO PREDICTIONS GENERATED; PUBLIC FEED UNCHANGED')
 
 if __name__=='__main__':main()
