@@ -8,6 +8,8 @@ on:
       - 'scripts/freeze_horse_v3_research.py'
       - 'scripts/import_betfair_daily_bsp.py'
       - 'tests/test_horse_bsp_v3_capture.py'
+      - 'scripts/archive_racing_field_observations.py'
+      - 'tests/test_archive_racing_field_observations.py'
       - '.github/workflows/horse-v3-bsp-capture.yml'
   workflow_dispatch:
 
@@ -35,12 +37,16 @@ jobs:
         run: |
           git rev-parse HEAD
           python -m unittest discover -s tests -p 'test_horse_bsp_v3_capture.py' -v
+          python -m unittest discover -s tests -p 'test_archive_racing_field_observations.py' -v
       - name: Read current main source snapshot without modifying it
         run: |
           git fetch --depth=1 origin main
           mkdir -p /tmp/v3-capture
           git show origin/main:racing-research-data.json > /tmp/v3-capture/racing-research-data.json
           git rev-parse origin/main > /tmp/v3-capture/main-source-commit.txt
+      - name: Preserve prospective publisher-observed field evidence
+        run: |
+          python scripts/archive_racing_field_observations.py --feed /tmp/v3-capture/racing-research-data.json --source-commit-file /tmp/v3-capture/main-source-commit.txt --out research/horse-v3/field-observation-archive --diagnostics /tmp/v3-capture/field-coverage.json
       - name: Run fail-closed V3 snapshot attempt
         run: |
           python scripts/freeze_horse_v3_research.py --feed /tmp/v3-capture/racing-research-data.json --out research/horse-v3/live-archive | tee /tmp/v3-capture/coverage.json
@@ -49,6 +55,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           if [ -d research/horse-v3/live-archive ]; then git add -- research/horse-v3/live-archive; fi
+          if [ -d research/horse-v3/field-observation-archive ]; then git add -- research/horse-v3/field-observation-archive; fi
           if ! git diff --cached --quiet; then
             git commit -m 'Archive eligible experimental V3 forecasts before race [research-only]'
             git pull --rebase origin research/horse-v3-isolated
