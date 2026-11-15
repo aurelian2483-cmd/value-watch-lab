@@ -12,7 +12,7 @@ NOW=datetime(2026,11,15,20,tzinfo=timezone.utc)
 A={'player_id':'pl_ABC123','name':'Player A'}
 B={'player_id':'pl_XYZ987','name':'Player B'}
 RESULT={'match_id':'mt_18Z0NJ52TSNEX5Y7BRTK','played_on':'2026-10-25','winner':A,'loser':B,'result_status':'final'}
-FIX={'fixture_id':'fx_18Z0NJ52TSNEX5Y7BRTK','starts_at':'2026-11-17T18:00:00Z','date_confirmed':True,'players':[A,B],'event':{'name':'Research Event'}}
+FIX={'fixture_id':'fx_18Z0NJ52TSNEX5Y7BRTK','starts_at':'2026-11-17T18:00:00Z','date_confirmed':True,'players':[A,B],'competition':{'name':'Research Event'}}
 class Adapter(unittest.TestCase):
  def test_known_result_date_is_not_claimed_actual(self):
   r=result(RESULT,NOW)
@@ -27,6 +27,7 @@ class Adapter(unittest.TestCase):
   self.assertIsNone(result({**RESULT,'winner':{'player_id':'bad','name':'A'}},NOW))
  def test_fixture_requires_confirmed_time(self):
   self.assertEqual(fixture(FIX,NOW)['start_utc'],'2026-11-17T18:00:00Z')
+  self.assertEqual(fixture(FIX,NOW)['competition'],'Research Event')
   self.assertIsNone(fixture({**FIX,'date_confirmed':None},NOW))
   self.assertIsNone(fixture({**FIX,'starts_at':None},NOW))
  def test_fixture_near_start_blocked(self):
