@@ -5,6 +5,8 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 from darts_api_adapter import result,fixture,adapt
 from collect_darts_research import collect
+from unittest.mock import patch
+import collect_darts_research as collector
 
 NOW=datetime(2026,11,15,20,tzinfo=timezone.utc)
 A={'player_id':'pl_ABC123','name':'Player A'}
@@ -36,4 +38,30 @@ class Adapter(unittest.TestCase):
   self.assertEqual((len(a),len(b)),(1,1))
  def test_collector_does_not_need_api_for_adapter(self):
   self.assertIsNone(result({},NOW))
+class CollectorPagination(unittest.TestCase):
+ def test_week_slices_are_complete_and_disjoint(self):
+  calls=[]
+  def fake_pages(endpoint,params,key,maxpages):
+   calls.append((endpoint,params,maxpages))
+   return [],[]
+  with patch.object(collector,'pages',side_effect=fake_pages):
+   report=collect(NOW,'test-secret')
+  weeks=[c for c in calls if c[0]=='/v1/results']
+  self.assertEqual(len(weeks),4)
+  self.assertEqual([x[1]['from'] for x in weeks],['2026-10-11','2026-10-18','2026-10-25','2026-11-01'])
+  self.assertEqual([x[1]['to'] for x in weeks],['2026-10-17','2026-10-24','2026-10-31','2026-11-07'])
+  self.assertEqual(report['coverage']['pagination_complete'],True)
+  self.assertEqual(report['coverage']['diagnostic_window'],'FOUR_FULL_SEVEN_DAY_WINDOWS')
+ def test_truncated_week_fails_whole_run(self):
+  def mock_pages(endpoint,params,key,maxpages):
+   if endpoint=='/v1/results' and params['from']=='2026-10-18':
+    raise RuntimeError('Pagination exceeded safe page cap; partial feed withheld')
+   return [],[]
+  with patch.object(collector,'pages',side_effect=mock_pages):
+   with self.assertRaisesRegex(RuntimeError,'partial feed withheld'):collect(NOW,'test-secret')
+ def test_request_budget_fails_before_network(self):
+  with patch.object(collector,'REQUEST_COUNT',collector.REQUEST_LIMIT):
+   with self.assertRaisesRegex(RuntimeError,'request budget exhausted'):
+    collector.request('/v1/results',{},'not-a-real-key')
+
 if __name__=='__main__':unittest.main()
