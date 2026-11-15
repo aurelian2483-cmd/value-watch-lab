@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<title>Historical Reliability Challenger · Value Watch</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0b1220;color:#f0f5fc}body{margin:0}main{max-width:880px;margin:auto;padding:24px}a{color:#8dc9ff}h1{font-size:clamp(1.5rem,4vw,2.5rem)}.note{color:#c1cedf;line-height:1.55}section{border:1px solid #36465e;background:#131e30;border-radius:14px;padding:20px;margin:18px 0}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:16px}.field{display:flex;flex-direction:column;gap:7px}input,select{font:inherit;padding:11px;border-radius:8px;background:#0b1220;color:#fff;border:1px solid #62738e;min-width:0}button{font:inherit;padding:12px 18px;border-radius:9px;border:1px solid #8dc9ff;cursor:pointer;background:#2d72aa;color:white;margin:5px 8px 5px 0}button.secondary{background:transparent}#output p{border-bottom:1px solid #344259;padding-bottom:12px;line-height:1.6}.warning{border-left:3px solid #f4c36d;padding-left:14px}
+</style>
+</head>
+<body><main>
+<p><a href="../paper-lab/">← Value Watch research desk</a></p>
+<h1>Historical Reliability Challenger</h1>
+<p class="note">Experimental comparison for the agreed seven competitions. Enter evidence observed <strong>before kickoff</strong> and complete 1X2 bookmaker odds. This research worksheet does not generate live picks, retrieve odds, or place bets.</p>
+<section><h2>Match evidence</h2>
+<div class="fields">
+<label class="field">Competition<select id="competition"><option>Premier League</option><option>Championship</option><option>La Liga</option><option>Bundesliga</option><option>Serie A</option><option>Champions League</option><option>Europa League</option></select></label>
+<label class="field">Home team's previous five results<input id="homeForm" placeholder="WWWWL" maxlength="9" autocomplete="off"></label>
+<label class="field">Away team's previous five results<input id="awayForm" placeholder="LDLLD" maxlength="9" autocomplete="off"></label>
+<label class="field">Home win decimal odds<input id="homeOdds" type="number" min="1.01" step="0.01" placeholder="1.85"></label>
+<label class="field">Draw decimal odds<input id="drawOdds" type="number" min="1.01" step="0.01" placeholder="3.40"></label>
+<label class="field">Away win decimal odds<input id="awayOdds" type="number" min="1.01" step="0.01" placeholder="4.50"></label>
+</div><p><button type="button" id="run">Compare models</button><button type="button" id="reset" class="secondary">Clear</button></p>
+</section>
+<section><h2>Research comparison</h2><div id="output" aria-live="polite">No calculation yet.</div></section>
+<section><h2>Method and limitations</h2>
+<p>The historical gate requires one team to have won at least four of its previous five competition matches while the opponent won no more than one. Both sides need five completed prior results.</p>
+<p>The 50/50 benchmark uses 50% smoothed recent-form probability and 50% bookmaker probability with margin removed. The challenger derives probability from the same smoothed recent-form proxy without blending bookmaker probability, but only considers the direction favoured by the history gate. Both apply at least 5% estimated expected return and maximum decimal odds 5.00.</p>
+<p class="warning"><strong>UNVALIDATED — research only.</strong> This sheet uses a clearly documented illustrative recent-form probability proxy, not the deployed frozen vector or a trained, calibrated historical model. One season of high hit rates does not establish profitable value. The competition selector labels the research context; it does not apply league-specific adjustments. No live site selection logic is changed.</p>
+</section>
+<script src="./challenger.js"></script>
+</main></body></html>
