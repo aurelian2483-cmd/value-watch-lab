@@ -46,7 +46,7 @@
   if(!Array.isArray(doc.results)||!Array.isArray(doc.fixtures))throw Error('Expected results and fixtures arrays');
   const at=new Date().toISOString().replace(/\.\d{3}Z$/,'Z');
   const upcoming=kind==='Published feed'?doc.fixtures.filter(f=>Date.parse(f.start_utc)>Date.now()+300000):doc.fixtures;
-  const tentative=kind==='Published feed'&&Array.isArray(doc.tentative_fixtures)?doc.tentative_fixtures.filter(f=>f&&f.status==='DATE_ONLY_UNCONFIRMED'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(f.date_utc)&&f.date_utc>=new Date().toISOString().slice(0,10)&&f.player_a?.name&&f.player_b?.name&&f.competition):[];
+  const tentative=kind==='Published feed'&&Array.isArray(doc.tentative_fixtures)?doc.tentative_fixtures.filter(f=>f&&f.status==='DATE_ONLY_UNCONFIRMED'&&/^\d{4}-\d{2}-\d{2}$/.test(f.date_utc)&&f.date_utc>=new Date().toISOString().slice(0,10)&&f.player_a?.name&&f.player_b?.name&&f.competition):[];
   const r=Model.model(doc.results,upcoming,at);
   display(r,kind==='Published feed'&&doc.source_verification==='PROVIDER_OBSERVED_UNCORROBORATED'?'Provider-observed sample · not independently verified':kind,tentative);
  }
