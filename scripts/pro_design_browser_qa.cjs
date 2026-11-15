@@ -23,7 +23,7 @@ const server=http.createServer((req,res)=>{
     const displayed=await page.locator('[data-pro-count="'+sport+'"]').innerText();
     assert(/^\d+$/.test(displayed)||displayed==='—','Unavailable sport counts must not masquerade as zero');
    }
-   assert((await page.locator('#pro-featured-status').innerText()).includes('No verified betting prices or EV.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'));
+   assert((await page.locator('#pro-featured-status').innerText()).includes('No verified bookmaker odds, EV or qualifying bets.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'),'Homepage must clearly deny verified betting value when source feeds are absent or unverified');
 
    assert.equal(await page.locator('[data-pro-slot]').count(),4);
    if(width<1020)await page.locator('#paper-open').click();
