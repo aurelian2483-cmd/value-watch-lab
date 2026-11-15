@@ -163,7 +163,7 @@ def bounded_public_snapshot(now, key):
     return {'schema_version':1,'research_only':True,'model_validation':'UNVALIDATED',
             'publication_gate':'BLOCKED','source_verification':'PROVIDER_OBSERVED_UNCORROBORATED',
             'generated_at_utc':now.isoformat().replace('+00:00','Z'),
-            'results':results,'fixtures':fixtures,'source_receipts':receipts,
+            'results':results,'fixtures':fixtures,'tentative_fixtures':tentative,'source_receipts':receipts,
             'coverage':{'sample_only':True,'historical_days_queried':dates,'checks':checks,
                         'results_published':len(results),'fixtures_published':len(fixtures),
                         'tentative_fixtures_displayed':len(tentative),
