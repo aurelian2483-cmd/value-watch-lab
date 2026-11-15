@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<title>Darts Research | Value Watch Pro</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header class="top"><a href="../" class="brand">◈ VALUE<span>WATCH PRO</span></a><nav><a href="../">Betting Hub</a><a href="../analyst/">Analyst Terminal</a><a href="../v3-research/">V3 Research</a></nav><span class="status">RESEARCH ONLY</span></header>
+<main id="main">
+<section class="hero">
+ <div><p class="eyebrow">NEW RESEARCH DIVISION · D1 ENGINE</p><h1>Precision at the oche.<br><em>Evidence before odds.</em></h1>
+ <p class="sub">A dedicated darts laboratory for historical Elo modelling, independent source checks and future match evaluation. No invented fixtures, prices or model performance.</p>
+ <div class="pills"><span>Historical Elo · K=24</span><span>Minimum 8 results per player</span><span>UNVALIDATED</span><span>Publication BLOCKED</span></div></div>
+ <div class="target" aria-hidden="true"><div class="ring r1"><div class="ring r2"><div class="ring r3"><div class="bull"></div></div></div></div><strong>D1</strong></div>
+</section>
+<div class="stats">
+ <article><span>Current fixtures</span><strong id="fixtures-count">0</strong><small>Verified source required</small></article>
+ <article><span>Source-backed historic results</span><strong id="historic-count">0</strong><small>Used for Elo only if supplied</small></article>
+ <article><span>Research forecasts</span><strong id="forecast-count">0</strong><small>Fail closed if inputs incomplete</small></article>
+ <article><span>Betting publication</span><strong>BLOCKED</strong><small>No odds or executable value</small></article>
+</div>
+<section class="panel" aria-labelledby="feed-heading"><div class="panel-head"><div><p class="eyebrow">01 · CURRENT COVERAGE</p><h2 id="feed-heading">Darts match intelligence</h2></div><button id="refresh" type="button">Refresh feed</button></div>
+<p id="feed-status" class="notice" role="status">Checking the research feed…</p>
+<div id="matches" class="matches" aria-live="polite"></div>
+</section>
+<section class="two">
+ <article class="panel" aria-labelledby="method-heading"><p class="eyebrow">02 · MODEL METHODOLOGY</p><h2 id="method-heading">How D1 calculates</h2><p>Baseline uses sequential historical match results to update a player's Elo strength. For the match winner, its expected chance is:</p>
+ <div class="formula">P(A wins) = 1 / (1 + 10^((Rᵦ − Rₐ) / 400))</div>
+ <p>Rating changes follow K × (actual result − expected result), with K = 24. Same-date results are grouped to avoid artificial within-day ordering; the research score requires at least eight previous matches per player.</p>
+ <p><strong>Not yet modelled:</strong> three-dart averages, checkout rates, throwing-first advantage, leg/set format and match-specific injuries. Those require verified historical inputs and controlled ablation tests.</p></article>
+ <article class="panel" aria-labelledby="sources-heading"><p class="eyebrow">03 · DATA INTEGRITY</p><h2 id="sources-heading">No fabricated live data</h2>
+ <p>The site's starter feed is deliberately empty until a permitted data provider supplies genuinely upcoming fixtures and completed results.</p>
+ <p>Research access: <a href="https://dartsapi.com/documentation" target="_blank" rel="noopener noreferrer">Darts API documentation</a>. This provider requires an API key and restricts free results to a delayed window. Its odds are not verified executable prices.</p>
+ <p>Imported local data are <strong>not independently verified</strong>. They may be used to explore mathematics, never to qualify bets.</p></article>
+</section>
+<section class="panel" aria-labelledby="local-heading"><p class="eyebrow">04 · LOCAL RESEARCH WORKBENCH</p><h2 id="local-heading">Test the Elo engine on your own historical JSON</h2>
+<p>Optional: import a JSON file containing <code>results</code> and <code>fixtures</code> arrays. The file stays in your browser session and is not uploaded to Value Watch. All timestamps must use UTC ISO format, and fixtures must be scheduled more than five minutes into the future.</p>
+<label class="file-label" for="import-json">Select research JSON file</label><input id="import-json" type="file" accept=".json,application/json">
+<p id="import-status" role="status" class="notice">No local file loaded. The published feed is checked independently.</p>
+<button id="reset" type="button">Clear local experiment</button>
+<details><summary>Show the required JSON format</summary><pre>{
+  "results": [
+    {
+      "id": "historical-match-id",
+      "played_at": "2026-10-01T15:00:00Z",
+      "status": "FINAL",
+      "player_a": {"id": "p1", "name": "Player One"},
+      "player_b": {"id": "p2", "name": "Player Two"},
+      "winner_id": "p1"
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "future-match-id",
+      "start_utc": "2026-12-01T19:00:00Z",
+      "status": "SCHEDULED",
+      "competition": "Example event",
+      "player_a": {"id": "p1", "name": "Player One"},
+      "player_b": {"id": "p2", "name": "Player Two"}
+    }
+  ]
+}</pre></details>
+</section>
+<footer>VALUE WATCH PRO · DARTS D1 · UNVALIDATED / BLOCKED · No betting advice or real-time executable odds. <a href="../">Return to Research Hub</a></footer>
+</main>
+<script src="./model.js?v=1" defer></script><script src="./app.js?v=1" defer></script>
+</body>
+</html>
