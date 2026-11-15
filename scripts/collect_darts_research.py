@@ -125,8 +125,9 @@ def bounded_public_snapshot(now, key):
         receipts.append({'endpoint':'results','day':day,'sha256':digest})
         checks.append({'day':day,'rows_returned':len(payload['data']),
                        'matched_day':len(rows),'has_more':bool(payload['meta'].get('next_cursor'))})
-    fixtures_raw,digest=request('/v1/fixtures',{'from':now.date().isoformat(),
+    fixtures_envelope,digest=request('/v1/fixtures',{'from':now.date().isoformat(),
         'to':(now.date()+timedelta(days=7)).isoformat(),'limit':100},key)
+    fixtures_raw=fixtures_envelope['data']
     receipts.append({'endpoint':'fixtures','sha256':digest})
     from darts_api_adapter import result as normalise_result, fixture as normalise_fixture
     results=[]; result_ids=set()
@@ -168,7 +169,7 @@ def bounded_public_snapshot(now, key):
                         'results_published':len(results),'fixtures_published':len(fixtures),
                         'tentative_fixtures_displayed':len(tentative),
                         'fixture_rows_returned':len(fixtures_raw),
-                        'fixture_more_pages':'UNKNOWN_UNCHECKED',
+                        'fixture_more_pages':bool(fixtures_envelope['meta'].get('next_cursor')),
                         'notice':'Limited public research display, not complete source coverage or calibrated predictions'}}
     
 def main():
