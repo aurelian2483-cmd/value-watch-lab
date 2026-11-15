@@ -1,0 +1,23 @@
+"use strict";
+const assert=require("node:assert/strict"),C=require("../v3-research/live-compare-core.js");
+const at=Date.parse("2026-11-15T11:00:00Z");
+const history=(id)=>[1,2,3].map(k=>({race_id:id+"-"+k,date:"2026-10-0"+k,run_type:"FLAT",position:k,runner_count:6,distance:"1m","going":"Standard"}));
+function race(){return {race_id:"202",startUTC:"2026-11-15T15:00:00Z",surface:"ALLWEATHER",distance:"1m",racecourse:"Newcastle",runner_data_status:"SINGLE_SOURCE_RUNNERS_OBSERVED",runner_observed_at_utc:"2026-11-15T10:55:00Z",active_runner_count:3,runner_source_sha256:"test-source",runner_source:"https://www.sportinglife.com/racing/racecards/test",runners:[1,2,3].map(id=>({horse_id:String(id),name:"Horse "+id,active_runner:true,runner_status:"RUNNER",previous_results:history(id)}))}}
+const r=race();const v3=C.computeV3(r,at);
+assert.equal(v3.available,true);
+assert.equal(v3.rows.length,3);
+assert.ok(Math.abs(v3.rows.reduce((s,x)=>s+x.weight,0)-1)<1e-8);
+const preRace={model:"FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",race_id:r.race_id,startUTC:r.startUTC,generated_at_utc:"2026-11-15T10:54:00Z",research_only:true,model_validation:"UNVALIDATED",publication_gate:"BLOCKED",runners:r.runners.map(x=>({horse_id:x.horse_id,model_probability:1/3}))};
+let feed={research_only:true,publication_gate:"BLOCKED",model_validation:"UNVALIDATED",form_forecasts:[preRace]};
+let cmp=C.compare(r,feed,at);assert.equal(cmp.v1Available,true);assert.equal(cmp.v3Available,true);assert.equal(cmp.oddsAvailable,false);assert.equal(cmp.bet_recommendation,null);assert.equal(cmp.expected_value,null);
+const stale=structuredClone(r);stale.runner_observed_at_utc="2026-11-15T10:00:00Z";assert.equal(C.computeV3(stale,at).available,false);
+const nohistory=structuredClone(r);nohistory.runners[0].previous_results=[];assert.equal(C.computeV3(nohistory,at).available,false);
+const duplicate=structuredClone(r);duplicate.runners[1].horse_id="1";assert.equal(C.computeV3(duplicate,at).available,false);
+const wrongField=structuredClone(feed);wrongField.form_forecasts[0].runners[0].horse_id="999";assert.equal(C.snapshotV1(r,wrongField,at),null);
+const later=structuredClone(feed);later.form_forecasts[0].generated_at_utc="2026-11-15T14:59:00Z";assert.equal(C.snapshotV1(r,later,at),null);
+const quoted=structuredClone(r);quoted.market_observation={status:"COMPLETE_SOURCE_OBSERVATION",bookmaker:"Sky Bet",executable_verified:false,verification:"SOURCE_OBSERVED_UNVERIFIED",source_sha256:r.runner_source_sha256,source:r.runner_source,bookmaker_market_id:"m-01",observed_at_utc:"2026-11-15T10:55:00Z",quotes:r.runners.map(x=>({horse_id:x.horse_id,decimal:4.0}))};
+assert.equal(C.compare(quoted,feed,at).oddsAvailable,true);
+quoted.market_observation.observed_at_utc="2026-11-15T10:00:00Z";assert.equal(C.compare(quoted,feed,at).oddsAvailable,false);
+quoted.market_observation.observed_at_utc="2026-11-15T10:55:00Z";quoted.market_observation.quotes.pop();assert.equal(C.compare(quoted,feed,at).oddsAvailable,false);
+assert.equal(C.yards("1m 2f"),2200);
+console.log("PASS V3 live comparison: full-field, normalization, V1 same field, stale/invalid abstentions, odds gating");
