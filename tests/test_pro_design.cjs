@@ -11,11 +11,11 @@ assert(home.includes('analyst/')&&home.includes('pro-landing')&&home.includes('d
 assert(home.includes('paper-lab/desk.js'),'Existing desk engine must be retained');
 assert(home.includes('paper-lab/engine.js'),'Existing calculations must be retained');
 assert(home.includes('paper-lab/store.js'),'Existing persisted slip format must be retained');
-assert(home.includes('pro-home.js?v=3')&&home.includes('pro-design.css?v=4'));
-for(const id of ['pro-featured-rows','pro-featured-status','pro-market-feeds'])assert(home.includes('id="'+id+'"'));
+assert(home.includes('pro-home.js?v=4')&&home.includes('pro-design.css?v=5'));
+for(const id of ['pro-featured-rows','pro-featured-status','pro-market-feeds','pro-feature-prev','pro-feature-next','pro-feature-refresh','pro-feature-page'])assert(home.includes('id="'+id+'"'));
 assert(home.includes('Smarter Betting Across')&&home.includes('href="./analyst/"'));
-assert(home.includes('pro-sources.js?v=1')&&analyst.includes('../pro-sources.js?v=1'));
-assert(homeJs.includes('Sources.summarize')&&homeJs.includes('Not verified')&&homeJs.includes('Unavailable'));
+assert(home.includes('pro-sources.js?v=2')&&analyst.includes('../pro-sources.js?v=1'));
+assert(homeJs.includes('Sources.summarize')&&homeJs.includes('Sources.featuredOrder')&&homeJs.includes('No verified bookmaker odds'));
 assert(analystJs.includes('Sources.summarize')&&analystJs.includes('Sources.load'));
 assert(require('fs').readFileSync('pro-sources.js','utf8').includes("publication_gate==='BLOCKED'"));
 assert(!home.includes('ROI +11.6%')&&!home.includes('+12.4%')&&!home.includes('Napoli vs Lazio'),'Reference image samples must not become production content');
