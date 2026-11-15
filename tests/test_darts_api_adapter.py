@@ -64,4 +64,29 @@ class CollectorPagination(unittest.TestCase):
    with self.assertRaisesRegex(RuntimeError,'request budget exhausted'):
     collector.request('/v1/results',{},'not-a-real-key')
 
+class CoverageProbe(unittest.TestCase):
+ def test_probe_uses_only_four_bounded_queries(self):
+  calls=[]
+  def fake_request(endpoint,params,key):
+   calls.append((endpoint,params))
+   return {'data':[],'meta':{'next_cursor':None,'data_as_of':'2026-11-07T00:00:00Z'}},'a'*64
+  with patch.object(collector,'request',side_effect=fake_request):
+   report=collector.coverage_probe(NOW,'not-a-real-key')
+  self.assertEqual(len(calls),4)
+  self.assertEqual([x[1]['from'] for x in calls[:3]],['2026-10-18','2026-11-01','2026-11-07'])
+  self.assertEqual(calls[3][0],'/v1/fixtures')
+  self.assertFalse(report['complete_history_collected'])
+  self.assertTrue(report['public_feed_unchanged'])
+  self.assertEqual(report['publication_gate'],'BLOCKED')
+ def test_probe_records_nonmatching_dates_not_fake_results(self):
+  def fake_request(endpoint,params,key):
+   if endpoint=='/v1/results':
+    return {'data':[{'played_on':'2026-09-01','match_id':'mt_sample'}],'meta':{'next_cursor':'opaque','data_as_of':None}},'a'*64
+   return {'data':[{'fixture_id':'fx_sample','starts_at':None}],'meta':{'next_cursor':None}},'b'*64
+  with patch.object(collector,'request',side_effect=fake_request):
+   report=collector.coverage_probe(NOW,'not-a-real-key')
+  self.assertEqual(report['audits'][0]['date_filter_violations'],1)
+  self.assertTrue(report['audits'][0]['has_next_page'])
+  self.assertEqual(report['audits'][-1]['sample_has_confirmed_time'],0)
+
 if __name__=='__main__':unittest.main()
