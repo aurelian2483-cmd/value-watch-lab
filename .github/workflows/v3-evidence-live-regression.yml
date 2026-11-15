@@ -1,0 +1,45 @@
+name: Live V3 evidence panel browser regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'v3-research/index.html'
+      - 'v3-research/evidence-status.js'
+      - 'v3-research/evidence-status.css'
+      - 'horse-research-status.json'
+      - 'scripts/v3_evidence_browser_qa.cjs'
+      - '.github/workflows/v3-evidence-live-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JS syntax and public gate
+        run: |
+          node --check v3-research/evidence-status.js
+          node --check v3-research/live-compare.js
+          node --check scripts/v3_evidence_browser_qa.cjs
+          node -e "const x=require('./horse-research-status.json');if(x.publication_gate!=='BLOCKED'||x.betting_eligible!==false||x.model_recommendations_enabled!==false)process.exit(1)"
+      - name: Install pinned browser tooling
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test live website source on desktop/mobile and stale/missing data
+        run: node scripts/v3_evidence_browser_qa.cjs
+      - name: Keep browser screenshots for evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-v3-evidence-regression-screenshots
+          path: /tmp/v3-evidence-*.png
+          retention-days: 14
+          if-no-files-found: warn
