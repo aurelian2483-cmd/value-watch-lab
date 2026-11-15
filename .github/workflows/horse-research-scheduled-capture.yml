@@ -39,6 +39,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_horse_bsp_v3_capture.py' -v
           python -m unittest discover -s tests -p 'test_archive_racing_field_observations.py' -v
           python -m unittest discover -s tests -p 'test_diff_racing_field_observations.py' -v
+          python -m unittest discover -s tests -p 'test_build_horse_evidence_dashboard.py' -v
       - name: Collect current official publisher observations without modifying website
         run: |
           set -euo pipefail
@@ -82,6 +83,19 @@ jobs:
             git pull --rebase origin research/horse-v3-isolated
             git push origin HEAD:research/horse-v3-isolated
           fi
+      - name: Produce read-only racing research quality dashboard
+        if: always()
+        run: |
+          mkdir -p /tmp/horse-research-health
+          python scripts/build_horse_evidence_dashboard.py --output /tmp/horse-research-health
+      - name: Upload independent daily research dashboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-evidence-health-dashboard
+          path: /tmp/horse-research-health/
+          retention-days: 60
+          if-no-files-found: warn
       - name: Archive diagnostics including any blocked or empty run
         if: always()
         uses: actions/upload-artifact@v4
