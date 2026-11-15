@@ -38,15 +38,17 @@ jobs:
           git rev-parse HEAD
           python -m unittest discover -s tests -p 'test_horse_bsp_v3_capture.py' -v
           python -m unittest discover -s tests -p 'test_archive_racing_field_observations.py' -v
-      - name: Read current main source snapshot without modifying it
+      - name: Collect fresh research-only racecards in isolated runner
         run: |
-          git fetch --depth=1 origin main
           mkdir -p /tmp/v3-capture
-          git show origin/main:racing-research-data.json > /tmp/v3-capture/racing-research-data.json
-          git rev-parse origin/main > /tmp/v3-capture/main-source-commit.txt
+          git rev-parse HEAD > /tmp/v3-capture/collector-code-commit.txt
+          python scripts/discover_horse_races.py | tee /tmp/v3-capture/discovery.json
+          python scripts/enrich_horse_runners.py | tee /tmp/v3-capture/enrichment.json
+          cp /tmp/horse-research/racing-research-data.json /tmp/v3-capture/racing-research-data.json
+          cp /tmp/horse-research/runner-audit.json /tmp/v3-capture/runner-audit.json
       - name: Preserve prospective publisher-observed field evidence
         run: |
-          python scripts/archive_racing_field_observations.py --feed /tmp/v3-capture/racing-research-data.json --source-commit-file /tmp/v3-capture/main-source-commit.txt --out research/horse-v3/field-observation-archive --diagnostics /tmp/v3-capture/field-coverage.json
+          python scripts/archive_racing_field_observations.py --feed /tmp/v3-capture/racing-research-data.json --collector-commit-file /tmp/v3-capture/collector-code-commit.txt --out research/horse-v3/field-observation-archive --diagnostics /tmp/v3-capture/field-coverage.json
       - name: Run fail-closed V3 snapshot attempt
         run: |
           python scripts/freeze_horse_v3_research.py --feed /tmp/v3-capture/racing-research-data.json --out research/horse-v3/live-archive | tee /tmp/v3-capture/coverage.json
