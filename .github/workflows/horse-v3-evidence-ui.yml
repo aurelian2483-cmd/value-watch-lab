@@ -13,6 +13,7 @@ on:
       - 'v3-research/live-compare-core.js'
       - 'tests/test_v3_evidence_status.cjs'
       - 'scripts/export_horse_research_site_status.py'
+      - 'scripts/v3_evidence_browser_qa.cjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -44,6 +45,20 @@ jobs:
         run: |
           python scripts/build_horse_evidence_dashboard.py --output /tmp/horse-v3-evidence-ui
           python scripts/export_horse_research_site_status.py --report /tmp/horse-v3-evidence-ui/evidence.json --out /tmp/horse-v3-evidence-ui/horse-research-status.json
+      - name: Install pinned browser test tools
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify desktop/mobile, stale/missing feed and existing V3 comparison
+        run: node scripts/v3_evidence_browser_qa.cjs
+      - name: Preserve rendered browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v3-evidence-browser-captures
+          path: /tmp/v3-evidence-*.png
+          retention-days: 14
+          if-no-files-found: warn
       - name: Preserve preview artifacts for deployment QA, not live site
         uses: actions/upload-artifact@v4
         with:
