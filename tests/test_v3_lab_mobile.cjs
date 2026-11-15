@@ -5,7 +5,7 @@ const root=path.resolve(__dirname,"..");
 const html=fs.readFileSync(path.join(root,"v3-research/index.html"),"utf8");
 const css=fs.readFileSync(path.join(root,"v3-research/lab.css"),"utf8");
 const js=fs.readFileSync(path.join(root,"v3-research/live-compare.js"),"utf8");
-assert.match(html,/<link rel="stylesheet" href="\.\/lab\.css\?v=1">/,"V3 page must load stylesheet");
+assert.match(html,/<link rel="stylesheet" href="\.\/lab\.css\?v=2">/,"V3 page must load stylesheet");
 assert.doesNotMatch(html,/<style(?:\s|>)/i,"Inline style block violates style-src self");
 assert.doesNotMatch(html,/\sstyle\s*=/i,"Inline style attribute violates style-src self");
 assert.match(html,/style-src 'self'/);
