@@ -1,0 +1,87 @@
+name: Scheduled isolated horse research evidence capture
+
+on:
+  schedule:
+    # UTC; runner scheduling is best effort, not guaranteed to the minute.
+    - cron: '17 8-20 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: horse-v3-source-capture
+  cancel-in-progress: false
+
+jobs:
+  capture-source-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated research branch (not website main)
+        uses: actions/checkout@v4
+        with:
+          ref: research/horse-v3-isolated
+          persist-credentials: true
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run feed, BSP/V3, source provenance and change-detection tests
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          python -m unittest discover -s tests -p 'test_horse_bsp_v3_capture.py' -v
+          python -m unittest discover -s tests -p 'test_archive_racing_field_observations.py' -v
+          python -m unittest discover -s tests -p 'test_diff_racing_field_observations.py' -v
+      - name: Collect current official publisher observations without modifying website
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/horse-scheduled
+          git rev-parse HEAD > /tmp/horse-scheduled/collector-code-commit.txt
+          python scripts/discover_horse_races.py | tee /tmp/horse-scheduled/discovery.json
+          python scripts/enrich_horse_runners.py | tee /tmp/horse-scheduled/enrichment.json
+          cp /tmp/horse-research/racing-research-data.json /tmp/horse-scheduled/racing-research-data.json
+          cp /tmp/horse-research/runner-audit.json /tmp/horse-scheduled/runner-audit.json
+      - name: Freeze new valid pre-event source field receipts
+        run: |
+          set -euo pipefail
+          python scripts/archive_racing_field_observations.py \
+            --feed /tmp/horse-scheduled/racing-research-data.json \
+            --collector-commit-file /tmp/horse-scheduled/collector-code-commit.txt \
+            --out research/horse-v3/field-observation-archive \
+            --diagnostics /tmp/horse-scheduled/field-coverage.json
+      - name: Compare consecutive publisher field changes without official inference
+        run: |
+          set -euo pipefail
+          python scripts/diff_racing_field_observations.py --output /tmp/horse-scheduled/field-changes.json
+      - name: Attempt strictly eligible prospective V3 forecasts
+        run: |
+          set -euo pipefail
+          python scripts/freeze_horse_v3_research.py \
+            --feed /tmp/horse-scheduled/racing-research-data.json \
+            --out research/horse-v3/live-archive | tee /tmp/horse-scheduled/v3-coverage.json
+      - name: Commit immutable research snapshots only to isolated branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if [ -d research/horse-v3/field-observation-archive ]; then
+            git add -- research/horse-v3/field-observation-archive
+          fi
+          if [ -d research/horse-v3/live-archive ]; then
+            git add -- research/horse-v3/live-archive
+          fi
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record scheduled horse research evidence [no betting]'
+            git pull --rebase origin research/horse-v3-isolated
+            git push origin HEAD:research/horse-v3-isolated
+          fi
+      - name: Archive diagnostics including any blocked or empty run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scheduled-horse-research-diagnostics
+          path: /tmp/horse-scheduled/
+          retention-days: 60
+          if-no-files-found: warn
