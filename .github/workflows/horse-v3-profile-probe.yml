@@ -1,0 +1,46 @@
+name: Horse V3 three-horse history source probe
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-v3-profile-probe.yml'
+      - 'scripts/horse_v3_profile_recovery_probe.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture-and-diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Log revision and run read-only recovery source probe
+        id: probe
+        continue-on-error: true
+        run: |
+          git rev-parse HEAD
+          python scripts/horse_v3_profile_recovery_probe.py
+      - name: Preserve captured source pages and field diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v3-profile-structure-probe
+          path: /tmp/horse-v3-profile-recovery/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Require successful probe
+        if: always()
+        run: |
+          if [ "${{ steps.probe.outcome }}" != "success" ]; then
+            echo "Source probe failed. No model training or data promotion is allowed."
+            exit 1
+          fi
