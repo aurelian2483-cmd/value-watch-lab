@@ -1,0 +1,40 @@
+name: Darts research source diagnostic (no publication)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/darts_api_adapter.py'
+      - 'scripts/collect_darts_research.py'
+      - 'tests/test_darts_api_adapter.py'
+      - '.github/workflows/darts-source-diagnostic.yml'
+permissions:
+  contents: read
+jobs:
+  offline-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -p 'test_darts_api_adapter.py' -v
+  provider-diagnostic:
+    if: github.event_name == 'workflow_dispatch'
+    needs: offline-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Probe permitted provider source only (fail closed if no secret)
+        env:
+          DARTS_API_KEY: ${{ secrets.DARTS_API_KEY }}
+        run: python scripts/collect_darts_research.py
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: darts-research-provider-diagnostic
+          path: work/darts/source-diagnostic.json
+          retention-days: 7

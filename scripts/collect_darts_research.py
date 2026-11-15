@@ -1,0 +1,66 @@
+"""Secure research-only Darts API data collection.
+
+Requires DARTS_API_KEY injected as environment secret. Never prints or writes
+the secret; never commits raw provider data or changes the public D1 feed.
+"""
+import json, os, sys, urllib.request, urllib.parse, urllib.error, hashlib
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from darts_api_adapter import adapt
+
+ROOT='https://api.dartsapi.com'
+def request(path, params, key):
+    url=ROOT+path+'?'+urllib.parse.urlencode(params)
+    req=urllib.request.Request(url, headers={'Authorization':'Bearer '+key,'User-Agent':'ValueWatch-DartsResearch/1.0','Accept':'application/json'})
+    try:
+        with urllib.request.urlopen(req,timeout=25) as res:
+            raw=res.read(3_000_001)
+    except urllib.error.HTTPError as e:
+        # Never echo response bodies, which might contain token-bearing URLs.
+        raise RuntimeError('Darts API request refused: HTTP '+str(e.code)) from None
+    if len(raw)>3_000_000:raise RuntimeError('Provider response too large')
+    data=json.loads(raw)
+    if not isinstance(data,dict) or not isinstance(data.get('data'),list) or not isinstance(data.get('meta'),dict):raise RuntimeError('Invalid provider envelope')
+    return data,hashlib.sha256(raw).hexdigest()
+
+def pages(endpoint, params, key, maxpages=6):
+    all_rows=[];receipts=[];cursor=None;seen=set()
+    for n in range(maxpages):
+        args=dict(params)
+        if cursor:args['cursor']=cursor
+        d,digest=request(endpoint,args,key)
+        receipts.append({'endpoint':endpoint,'sha256':digest,'returned':len(d['data']),'provider_plan':d['meta'].get('plan'),'provider_data_as_of':d['meta'].get('data_as_of')})
+        all_rows.extend(d['data'])
+        nxt=d['meta'].get('next_cursor')
+        if not nxt:break
+        if not isinstance(nxt,str) or nxt in seen:raise RuntimeError('Invalid or repeated pagination cursor')
+        seen.add(nxt);cursor=nxt
+    else:
+        if nxt:raise RuntimeError('Pagination exceeded safe page cap; partial feed withheld')
+    return all_rows,receipts
+
+def collect(now, key):
+    # Strictly old completed results: the free tier does not provide current-day outcomes.
+    day=now.date()
+    end=day-timedelta(days=8)
+    start=end-timedelta(days=89)
+    results,recs=pages('/v1/results',{'from':start.isoformat(),'to':end.isoformat(),'limit':200},key,6)
+    fixtures,frecs=pages('/v1/fixtures',{'from':day.isoformat(),'to':(day+timedelta(days=7)).isoformat(),'limit':100},key,5)
+    old,future=adapt(results,fixtures,now)
+    return {'schema_version':1,'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
+            'source_verification':'PROVIDER_OBSERVED_UNCORROBORATED','generated_at_utc':now.isoformat().replace('+00:00','Z'),
+            'results':old,'fixtures':future,
+            'coverage':{'returned_result_rows':len(results),'usable_result_rows':len(old),'returned_fixture_rows':len(fixtures),'confirmed_upcoming_fixtures':len(future),'history_period':[start.isoformat(),end.isoformat()],'pagination_complete':True},
+            'source_receipts':recs+frecs,'odds':None,'expected_value':None,'betting_eligible':False}
+
+def main():
+    key=os.environ.get('DARTS_API_KEY','')
+    if not key:raise SystemExit('DARTS_API_KEY not configured. No network request made, no public feed changed.')
+    now=datetime.now(timezone.utc)
+    report=collect(now,key)
+    path=Path('work/darts/source-diagnostic.json')
+    path.parent.mkdir(parents=True,exist_ok=True)
+    # Artifacts are public to repository readers. Export counts, not bulk provider rows.\n    safe={k:v for k,v in report.items() if k not in ('results','fixtures')}\n    path.write_text(json.dumps(safe,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+    print('Darts research diagnostic generated; result rows:',report['coverage']['usable_result_rows'],'confirmed fixture rows:',report['coverage']['confirmed_upcoming_fixtures'],'PUBLIC FEED UNCHANGED')
+
+if __name__=='__main__':main()
