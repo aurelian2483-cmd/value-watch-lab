@@ -1,0 +1,30 @@
+name: V3 top-four ranking and place-term research tests
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - 'scripts/horse_v3_top4_research.py'
+      - 'tests/test_horse_v3_top4_research.py'
+      - '.github/workflows/horse-v3-top4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-top-four-metrics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify isolated top-four and terms logic
+        run: |
+          git rev-parse HEAD
+          python -m unittest discover -s tests -p test_horse_v3_top4_research.py -v
