@@ -1,0 +1,42 @@
+name: Horse racing market benchmark research
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-market-benchmark.yml'
+      - 'scripts/horse_market_benchmark_v1.py'
+      - 'scripts/run_horse_market_benchmark.py'
+      - 'tests/test_horse_market_benchmark_v1.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  market-benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify frozen model and market math
+        run: |
+          git rev-parse HEAD
+          python -m unittest discover -s tests -p 'test_horse_market_benchmark_v1.py' -v
+      - name: Audit archived pre-event comparisons
+        run: |
+          python scripts/run_horse_market_benchmark.py
+      - name: Preserve research reports and exclusions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-market-benchmark-descriptive-only
+          path: research/horse-v3/market-benchmark-reports/
+          retention-days: 60
+          if-no-files-found: warn
