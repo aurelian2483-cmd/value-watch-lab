@@ -1371,30 +1371,43 @@
     make(card, 'p', 'Classification is not fact verification or an allegation of fraud. Verified ROI, win rate and trust score remain unavailable.', 'muted');
     button(card, 'Save private research note', () => { const state = store.get(); if (state.claims.length >= 100) throw Error('Private note limit reached. Export your research.'); saveEnvelope({ claims: [...state.claims, { reasoning, methodology: result.methodology, sources: result.sources, classification: result.classification, createdAt: new Date().toISOString(), ...context }] }); notice('Research note saved privately on this device.'); });
   }); });
-  // Use only source-reported final scores already present in the research archive.
-  // This feed is sparse; missing results must never be treated as losses or wins.
-  fetch(new URL('research-history.json',rootURL),{cache:'no-store'}).then(response => {
-    if(!response.ok)throw Error('archive unavailable');
+  // Independent score archive: never confuse research forecast ledger with a
+  // results-history sample. Incomplete/stale feeds fail closed; no invented picks.
+  fetch(new URL('historical-reliability-data.json',rootURL),{cache:'no-store'}).then(response => {
+    if(!response.ok)throw Error('seven-competition results archive not yet published');
     return response.json();
   }).then(data => {
-    if(data.research_only!==true || data.publication_gate!=='BLOCKED' || !Array.isArray(data.entries))
-      throw Error('archive validation failed');
-    const seen=new Set();
-    historicalResults = data.entries.filter(entry => {
-      if(!entry || !entry.home || !entry.away || !entry.kickoff_utc || !['H','D','A'].includes(entry.actual_outcome) || !Array.isArray(entry.source_receipts) || !entry.source_receipts.length)return false;
-      const sources=entry.source_receipts.map(x=>x.url||'').join(' ');
-      const league=entry.competition || (/\/eng\.1\/|\/E0\.csv|\/eng\.1\//i.test(sources)?'Premier League':/\/E1\.csv|\/eng\.2\//i.test(sources)?'Championship':null);
-      if(!league)return false;
-      entry.competition=league;
-      const id=[league,entry.home,entry.away,entry.kickoff_utc.slice(0,10)].join('|');
-      if(seen.has(id))return false;
-      seen.add(id);
+    if(data.schema_version!==1 || data.research_only!==true ||
+       data.model_validation!=='UNVALIDATED' || data.publication_gate!=='BLOCKED' ||
+       data.source_verification!=='SINGLE_SOURCE_UNVERIFIED' ||
+       !Array.isArray(data.audit) || data.audit.length!==7 ||
+       !Array.isArray(data.results) || data.results.length<90 ||
+       !Number.isFinite(Date.parse(data.generated_at_utc)))
+      throw Error('archive safety and coverage checks failed');
+    if(Date.now()-Date.parse(data.generated_at_utc)>72*3600000 ||
+       Date.parse(data.generated_at_utc)>Date.now()+600000)
+      throw Error('historical source archive is stale or invalid');
+    const sourceLeagues=new Set(data.audit.filter(a=>a.status==='SOURCE_REPORTED_UNVERIFIED'&&a.rows>0).map(a=>a.competition));
+    if(window.ValueWatchReliability.competitions.some(league=>!sourceLeagues.has(league)))
+      throw Error('a competition is missing');
+    const unique=new Set();
+    historicalResults=data.results.filter(entry=>{
+      if(!entry || !sourceLeagues.has(entry.competition) || !entry.home || !entry.away ||
+         !['H','D','A'].includes(entry.actual_outcome) ||
+         entry.time_precision!=='DATE_ONLY_END_OF_DAY' ||
+         !/^https:\/\/raw\.githubusercontent\.com\/oladeeayo\/open-matchday\//.test(entry.source_url||'') ||
+         !Number.isFinite(Date.parse(entry.kickoff_utc)) ||
+         Date.parse(entry.kickoff_utc)>=Date.now())return false;
+      const key=[entry.competition,entry.home,entry.away,entry.kickoff_utc].join('|');
+      if(unique.has(key))return false;
+      unique.add(key);
       return true;
     });
-    historicalStatus=historicalResults.length+' source-reported match results loaded (limited archive)';
+    historicalStatus=historicalResults.length+' source-reported 2026/27 results across seven competitions · refreshed '+dateText(data.generated_at_utc)+' · not independently verified';
     if(engineView==='reliability'){renderEvents();renderSlip();}
-  }).catch(() => {
-    historicalStatus='source history unavailable';
+  }).catch(error=>{
+    historicalResults=[];
+    historicalStatus='seven-competition archive unavailable or stale ('+error.message+')';
     if(engineView==='reliability'){renderEvents();renderSlip();}
   });
   store.subscribe(state => JSON.stringify([state.plan.id, state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick, state.claims]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderWildcard(); renderTracker(); }));
