@@ -52,6 +52,17 @@ class CaptureTests(unittest.TestCase):
     def test_stale_runner_observation_rejected(self):
         src=feed();src["races"][0]["runner_observed_at_utc"]="2026-11-15T09:00:00+00:00"
         self.assertIsNotNone(snapshot(src["races"][0],src,NOW,COMMIT)[1])
+    def test_stale_at_capture_even_when_valid_in_older_feed(self):
+        src=feed()
+        src["races"][0]["runner_observed_at_utc"]="2026-11-15T10:25:00+00:00"
+        record,why=snapshot(src["races"][0],src,NOW,COMMIT)
+        self.assertIsNone(record)
+        self.assertEqual(why,"RUNNER_OBSERVATION_STALE_AT_CAPTURE")
+    def test_version_two_only_for_fresh_capture(self):
+        src=feed()
+        record,why=snapshot(src["races"][0],src,NOW,COMMIT)
+        self.assertIsNone(why)
+        self.assertEqual(record["kind"],"SOURCE_OBSERVED_RACING_FIELD_V2")
     def test_after_off_rejected(self):
         src=feed();src["races"][0]["startUTC"]="2026-11-15T10:59:00+00:00"
         self.assertIsNotNone(snapshot(src["races"][0],src,NOW,COMMIT)[1])
