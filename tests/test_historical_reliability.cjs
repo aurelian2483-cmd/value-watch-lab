@@ -12,9 +12,9 @@ const past=[
   match('2026-09-05T12:00:00Z','Home FC','Side E','H'),
   match('2026-09-06T12:00:00Z','Away FC','Side F','D'),
   match('2026-09-07T12:00:00Z','Home FC','Side G','D'),
-  match('2026-09-08T12:00:00Z','Away FC','Side H','H'),
+  match('2026-09-08T12:00:00Z','Away FC','Side H','A'),
   match('2026-09-09T12:00:00Z','Home FC','Side I','H'),
-  match('2026-09-10T12:00:00Z','Away FC','Side J','H')
+  match('2026-09-10T12:00:00Z','Away FC','Side J','A')
 ];
 test('strong historic favourite is form candidate but has no verified value',()=>{
   const result=R.qualifyingEvidence(fixture,past);
