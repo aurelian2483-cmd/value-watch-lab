@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'none'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="theme-color" content="#0b1220"><title>Horse Racing V3 Lab | Value Watch Pro</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0b1220;color:#eaf0ff}
@@ -35,6 +35,14 @@ kbd{font:inherit;color:#a9cfff}
  <article class="card"><small>Further races under verification</small><div class="big">2</div><small>Newcastle + Wolverhampton</small></article>
  <article class="card"><small>Additional result links</small><div class="big">18</div><small>Structured source verification passed in GitHub Actions</small></article>
 </section>
+<section class="panel" aria-label="Live V1 versus V3 comparison">
+<h2>Live race comparison · V1 alongside V3</h2>
+<p>These are experimental, full-field research rankings generated only when eligible pre-race data is available. V1 and V3 mathematical weights are <strong>not calibrated probabilities</strong>. There is no betting recommendation or verified positive EV.</p>
+<p><button id="v3-refresh" type="button" style="background:#245184;color:#fff;border:1px solid #7798c6;border-radius:10px;padding:11px 18px;cursor:pointer">Refresh live racing snapshots</button></p>
+<p role="status" aria-live="polite" id="v3-live-status">Awaiting source checks…</p>
+<div id="v3-live-snapshot"><p>Live comparison starts when the race feed can be checked.</p></div>
+<p>* Weights are relative scores across the runner field, not approved fair odds. † Published bookmaker observations may be delayed, non-executable or absent. No automated betting or paper-slip injection.</p>
+</section>
 <section class="panel"><h2>Completed retrospective comparison</h2><p>Wolverhampton · 3 November 2025 · Race 887765 · five finishers. Same frozen form inputs and ranked field; V3 contextual weights are experimental and not calibrated.</p>
 <div class="scroller"><table><thead><tr><th>Model</th><th>Winner rank</th><th>Top-four overlap</th><th>Winner log loss ↓</th></tr></thead><tbody>
 <tr><td><strong>Frozen V1 form</strong></td><td>4th</td><td>3 of 4</td><td><strong>1.6855</strong></td></tr>
@@ -54,4 +62,4 @@ kbd{font:inherit;color:#a9cfff}
 <section class="panel"><h2>Research evidence and code</h2><p><a href="https://github.com/aurelian2483-cmd/value-watch-lab/blob/research/horse-v3-isolated/research/horse-v3/V3_FIRST_FIXED_ABLATION_RESULT.md">Fixed V1/V3 comparison report</a> · <a href="https://github.com/aurelian2483-cmd/value-watch-lab/actions/workflows/horse-v3-verify-next-two.yml">18-result verification workflow (passed)</a> · <a href="https://github.com/aurelian2483-cmd/value-watch-lab/blob/research/horse-v3-isolated/research/horse-v3/next-two-exact-result-urls.json">Exact source URL manifest</a></p>
 <p>Evidence snapshot prepared 15 November 2026. Verified source checks: 18/18 in GitHub Actions run 43669298914 (15 November 2026). This page is a static research snapshot, not a live status feed; consult GitHub Actions for subsequent test outcomes.</p></section>
 <p class="foot">Isolated branch: <kbd>research/horse-v3-isolated</kbd>. V1/V2 frozen. Main website and production betting logic unchanged until a separately audited release.</p>
-</main></body></html>
+</main><script defer src="./live-compare-core.js"></script><script defer src="./live-compare.js"></script></body></html>
