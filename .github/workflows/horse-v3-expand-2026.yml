@@ -38,6 +38,14 @@ jobs:
         run: |
           test -f /tmp/horse-v3-expanded/2026-jan-jun/dataset.json
           python scripts/audit_horse_v3_history.py /tmp/horse-v3-expanded/2026-jan-jun/dataset.json --output /tmp/horse-v3-expanded/2026-jan-jun/audit.json
+      - name: Diagnose historical form completeness (informational)
+        if: always()
+        run: |
+          if [ -f /tmp/horse-v3-expanded/2026-jan-jun/dataset.json ]; then
+            python scripts/diagnose_horse_v3_form_coverage.py /tmp/horse-v3-expanded/2026-jan-jun/dataset.json --output /tmp/horse-v3-expanded/2026-jan-jun/form-coverage.json
+          else
+            echo "No dataset available to diagnose"
+          fi
       - name: Save historical evidence and audit files
         if: always()
         uses: actions/upload-artifact@v4
