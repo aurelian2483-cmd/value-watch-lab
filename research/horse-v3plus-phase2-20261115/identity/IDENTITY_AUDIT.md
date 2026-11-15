@@ -1,5 +1,9 @@
 # Model identity and fresh-data audit
 
+## Final snapshot recheck
+
+At newer main commit `43065553c327a95904fe4d4ddaebccc75616fbd2`, provisional context ledger blob `3bf9fbaa2728448146b8cc5728bd00d216f3cbb8` still contains the same76 scored races. Compared every race ID, forecast hash, winner ID, log loss and Brier score against the original experiment inputs: zero additions or changes, and zero amendments. The ledger diff updates fetch-attempt counts and source recheck timestamps/receipts for existing races only. New metadata does not add validation races or change the reported numerical results. `late_snapshot_ledger_check.json` records the comparison.
+
 ## Deployment parity addendum
 
 Repository Pages workflow run `43744266481` completed successfully for the exact audited commit `69582ebc3d2196e2fb35276d8233c0e1f0d826bc` (created2026-11-15T18:00:31Z). This supports successful deployment workflow metadata, not independent confirmation of the bytes currently served or the browser runtime. Direct read-only access to the public Pages URL was unavailable through the web retrieval tool; no live bundle or displayed-card parity was verified. Report the model identity as pinned repository source identity. During this check a newer main commit `8c3b4e2054cf55303f4a0c4ec64641f647193289` had a Pages run `43754330321` in progress (created19:46:57Z). Do not imply that the latest deployment finished or that the current user's displayed runtime was inspected.
