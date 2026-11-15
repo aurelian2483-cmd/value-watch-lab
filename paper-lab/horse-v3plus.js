@@ -9,7 +9,7 @@
 })(typeof globalThis!=="undefined"?globalThis:this,function(){
   "use strict";
   const scriptBase=typeof document!=="undefined"?(document.currentScript?.src||document.querySelector('script[src*="horse-v3plus.js"]')?.src||new URL("paper-lab/horse-v3plus.js",document.baseURI).href):"https://example.invalid/paper-lab/horse-v3plus.js";
-  const URL=new URL("../horse-research-status.json",scriptBase).href;
+  const STATUS_URL=new URL("../horse-research-status.json",scriptBase).href;
   let state={ok:false,reason:"Evidence not loaded",forecastCount:0,generated:null};
   const targets=new Set();
   const REQUIRED=["current_day_races_with_source_observation","current_day_stale_last_observation_over_60m",
@@ -65,7 +65,7 @@
     if(typeof fetch!=="function")return state;
     try{
       const abort=typeof AbortController!=="undefined"?new AbortController():null;
-      const response=await fetch(URL,{cache:"no-store",signal:abort?.signal});
+      const response=await fetch(STATUS_URL,{cache:"no-store",signal:abort?.signal});
       if(!response.ok)throw Error("No source status");
       state=validate(await response.json());
     }catch(_){state={ok:false,reason:"Source unavailable",forecastCount:0,generated:null};}
