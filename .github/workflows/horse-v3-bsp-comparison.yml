@@ -1,0 +1,62 @@
+name: Horse V1 V3 Betfair BSP comparison — research
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-v3-bsp-comparison.yml'
+      - 'scripts/compare_horse_bsp_models.py'
+      - 'tests/test_compare_horse_bsp_models.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare-and-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute race matching and score tests
+        run: |
+          git rev-parse HEAD
+          python -m unittest discover -s tests -p 'test_compare_horse_bsp_models.py' -v
+      - name: Audit actual on-branch available BSP source coverage
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          sys.path.insert(0,'scripts')
+          from compare_horse_bsp_models import compare
+          base=Path('research/horse-v3/live-archive')
+          stored=list(base.glob('*/*.json')) if base.exists() else []
+          forecasts=[json.loads(p.read_text()) for p in stored]
+          # Official raw CSVs are deliberately never committed or downloaded.
+          # Only already-authorized, mapped evidence receipts can enter a research
+          # comparison. This staging namespace is empty until explicit import.
+          bspdir=Path('research/horse-v3/authorized-bsp-receipts')
+          sources=list(bspdir.glob('*.json')) if bspdir.exists() else []
+          bsps=[json.loads(p.read_text()) for p in sources]
+          report=compare(forecasts,bsps)
+          out=Path('/tmp/horse-bsp-comparison')
+          out.mkdir(parents=True,exist_ok=True)
+          (out/'coverage.json').write_text(json.dumps(report,indent=2)+'\n')
+          print(json.dumps({'actual_archived_v3_forecasts':len(forecasts),'actual_approved_bsp_receipts':len(bsps),
+                            'matched_comparisons':report['scored_records'],'publication_gate':report['publication_gate']}))
+          PY
+      - name: Preserve actual zero/positive coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v1-v3-bsp-comparison-research
+          path: /tmp/horse-bsp-comparison/
+          retention-days: 60
+          if-no-files-found: warn
