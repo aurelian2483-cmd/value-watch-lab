@@ -405,7 +405,7 @@
       else {
         if(event.provisionalEntry)make(record.market,'p','Choose a source-listed horse for manual paper research. Final declarations unverified; no model prediction or verified price.','provisional-entry-note small');
         const shown = event.sport === 'racing' && ordered.length > 6 ? ordered.slice(0, 5) : ordered;
-        const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), odds = make(b, 'small', '', 'selection-odds'); record.choices.set(choice.id, { element: b, modelBadge, name, price, caption, odds, previous: null }); };
+        const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), method = make(b, 'small', '', 'selection-methodology'), odds = make(b, 'small', '', 'selection-odds'); record.choices.set(choice.id, { element: b, modelBadge, name, price, caption, method, odds, previous: null }); };
         for (const choice of shown) append(record.market, choice);
         if (shown.length < event.choices.length) { const rest = details(record.market, 'Show all ' + event.choices.length + ' runners', 'runner-disclosure'); const grid = make(rest, 'div', undefined, 'market-grid'); for (const choice of ordered.slice(shown.length)) append(grid, choice); }
       }
@@ -418,6 +418,7 @@
       const value = estimated ? pct(choice.probability) : priced ? choice.quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'No estimate';
       write(view.price, value); write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
       write(view.odds, priced ? estimated ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'Bookmaker odds not connected');
+      write(view.method, event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' + (contextWeight ? ' · context weight, not win probability' : '') : 'Method: unavailable · no validated forecast');
       const leader = leaders.find(leader => leader.id === choice.id);
       const racingPick = event.sport === 'racing' ? racingPicks.find(pick => pick.choice.id === choice.id) : null;
       view.element.dataset.evidenceGreen=String(racingPick?.gate.green==='PROVISIONAL');
@@ -921,6 +922,7 @@
     make(panel,'p','GOLD WILDCARD · FIFTH EXPERIMENTAL PAPER SLIP','wildcard-risk-eyebrow');
     make(panel,'h4','Risk Studio · Build a speculative combination');
     make(panel,'p','Independent research tool inspired by the publicly described methods of three bettors. They do not participate, review or endorse these selections.','wildcard-note');
+    make(panel,'p','Darts · Elo D1 laboratory available. The published verified results/fixtures feed is empty, so Darts is excluded from combination picks until source-backed eligible events exist.','wildcard-darts-status');
     const lens=make(panel,'div',undefined,'wildcard-review-lenses');
     const rules=[
       ['Billy Walters lens','Market discipline','Current executable bookmaker prices: NOT VERIFIED. Examine injuries, line movement, price freshness and a fixed stake limit.'],
