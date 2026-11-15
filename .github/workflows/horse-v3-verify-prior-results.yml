@@ -1,0 +1,47 @@
+name: V3 verify recovered historical race results
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-v3-verify-prior-results.yml'
+      - 'scripts/verify_horse_v3_prior_results.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-six-records:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Record revision and verify six recovered historical results
+        id: verify
+        continue-on-error: true
+        run: |
+          python --version
+          git rev-parse HEAD
+          python scripts/verify_horse_v3_prior_results.py
+      - name: Preserve complete evidence and failed checks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v3-six-result-verification
+          path: /tmp/horse-v3-result-verification/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Enforce fail-closed verification
+        if: always()
+        run: |
+          if [ "${{ steps.verify.outcome }}" != "success" ]; then
+            echo "Unresolved historical result: no training approval."
+            exit 1
+          fi
