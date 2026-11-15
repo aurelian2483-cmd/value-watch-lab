@@ -22584,12 +22584,17 @@
         "verdict_sha256": "49fd3b6642b744a5636a06e24075b761b27211a9a2ae9032e55e2d209a365028",
         "observed_at_utc": "2026-11-15T13:41:40.141433+00:00",
         "original_publication_at_utc": null
-      }
+      },
+      "first_observed_at_utc": "2026-11-15T13:41:40.141433+00:00"
     }
   ],
-  "last_collector_run_utc": "2026-11-15T13:41:45.063011+00:00",
-  "collector_added": 1,
+  "last_collector_run_utc": "2026-11-15T13:54:01.255712+00:00",
+  "collector_added": 0,
   "collector_errors": [
+    {
+      "publisher": "Tipster Reviews",
+      "error": "<urlopen error [Errno 101] Network is unreachable>"
+    },
     {
       "publisher": "The Racing Forum",
       "error": "HTTP Error 403: Forbidden"
@@ -22626,19 +22631,8 @@
     {
       "publisher": "Tipster Reviews",
       "source_type": "blog",
-      "status": "fetched",
-      "items_scanned": 10,
-      "new_observations": 0,
-      "explicit_tip_observations": 0,
-      "review_only_mentions": 0,
-      "skip_reasons": {
-        "invalid_date": 6,
-        "invalid_link": 0,
-        "no_tip_language": 0,
-        "no_runner_match": 4,
-        "already_recorded": 0,
-        "after_start": 0
-      }
+      "status": "error",
+      "error": "<urlopen error [Errno 101] Network is unreachable>"
     },
     {
       "publisher": "JPW Racing Tipster",
@@ -22786,9 +22780,9 @@
       "publisher": "Timeform race-specific verdicts",
       "source_type": "tipster",
       "status": "fetched",
-      "items_scanned": 36,
-      "matched_selections": 29,
-      "explicit_tip_observations": 29,
+      "items_scanned": 34,
+      "matched_selections": 27,
+      "explicit_tip_observations": 27,
       "url": "https://www.sportinglife.com/racing/racecards"
     },
     {
@@ -22796,8 +22790,8 @@
       "source_type": "tipster",
       "status": "fetched",
       "items_scanned": 20,
-      "matched_selections": 11,
-      "explicit_tip_observations": 11,
+      "matched_selections": 9,
+      "explicit_tip_observations": 9,
       "url": "https://www.sportinglife.com/racing/timeform-racing-tips-today"
     },
     {
@@ -22814,23 +22808,23 @@
       "source_type": "tipster",
       "url": "https://www.olbg.com/betting-tips/Horse_Racing/2",
       "status": "fetched",
-      "items_scanned": 19,
-      "matched_selections": 12,
-      "explicit_tip_observations": 12,
+      "items_scanned": 17,
+      "matched_selections": 10,
+      "explicit_tip_observations": 10,
       "rejected_rows": 7,
       "limitation": "Partial first-page aggregate coverage; counts are not independently verified individual authors."
     }
   ],
   "racecard_health": {
-    "future_races": 36,
+    "future_races": 34,
     "status": "ready",
     "message": "Current and future source racecards checked"
   },
   "primary_post_checks": [],
   "community_pipeline": {
-    "upcoming_races": 36,
-    "upcoming_source_selections": 67,
-    "publisher_selections_matched": 52,
+    "upcoming_races": 34,
+    "upcoming_source_selections": 61,
+    "publisher_selections_matched": 46,
     "forum_items_scanned": 45,
     "upcoming_forum_candidates": 0,
     "checked_primary_posts": 0,
