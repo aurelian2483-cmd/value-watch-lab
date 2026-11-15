@@ -1,0 +1,57 @@
+name: V3 Lab evidence panel isolated UI checks
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-v3-evidence-ui.yml'
+      - 'v3-research/index.html'
+      - 'v3-research/evidence-status.js'
+      - 'v3-research/evidence-status.css'
+      - 'v3-research/lab.css'
+      - 'v3-research/live-compare.js'
+      - 'v3-research/live-compare-core.js'
+      - 'tests/test_v3_evidence_status.cjs'
+      - 'scripts/export_horse_research_site_status.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-isolated-v3-ui:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/horse-v3-isolated
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check JavaScript syntax, read-only research and legacy V3 elements
+        run: |
+          node --check v3-research/evidence-status.js
+          node --check v3-research/live-compare.js
+          node --check v3-research/live-compare-core.js
+          node tests/test_v3_evidence_status.cjs
+      - name: Check server side status gate
+        run: |
+          python -m unittest discover -s tests -p 'test_export_horse_research_site_status.py' -v
+      - name: Generate safe candidate JSON and source HTML dashboard
+        run: |
+          python scripts/build_horse_evidence_dashboard.py --output /tmp/horse-v3-evidence-ui
+          python scripts/export_horse_research_site_status.py --report /tmp/horse-v3-evidence-ui/evidence.json --out /tmp/horse-v3-evidence-ui/horse-research-status.json
+      - name: Preserve preview artifacts for deployment QA, not live site
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v3-evidence-ui-readonly-preview
+          path: |
+            /tmp/horse-v3-evidence-ui/
+            v3-research/index.html
+            v3-research/evidence-status.js
+            v3-research/evidence-status.css
+          retention-days: 30
+          if-no-files-found: error
