@@ -1,0 +1,42 @@
+name: Horse secondary archived field crosscheck
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - 'scripts/crosscheck_horse_secondary_fields.py'
+      - 'tests/test_crosscheck_horse_secondary_fields.py'
+      - '.github/workflows/horse-secondary-field-crosscheck.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  crosscheck:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test runner-field crosschecking and fail-closed gates
+        run: |
+          python -m unittest discover -s tests -p 'test_crosscheck_horse_secondary_fields.py' -v
+          python -m unittest discover -s tests -p 'test_audit_horse_field_revisions.py' -v
+      - name: Compare 10 disputed fields against cached second-publisher results
+        run: |
+          mkdir -p /tmp/horse-secondary-crosscheck
+          python scripts/crosscheck_horse_secondary_fields.py --output /tmp/horse-secondary-crosscheck/result.json
+      - name: Preserve inspected evidence and unresolved cases
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-secondary-field-crosscheck-research
+          path: /tmp/horse-secondary-crosscheck/
+          retention-days: 60
+          if-no-files-found: warn
