@@ -8,7 +8,8 @@
   if(root && root.document)root.ValueWatchHorseV3Plus=api;
 })(typeof globalThis!=="undefined"?globalThis:this,function(){
   "use strict";
-  const URL=new URL("../horse-research-status.json",typeof document!=="undefined"?document.baseURI:"https://example.invalid/paper-lab/").href;
+  const scriptBase=typeof document!=="undefined"?(document.currentScript?.src||document.querySelector('script[src*="horse-v3plus.js"]')?.src||new URL("paper-lab/horse-v3plus.js",document.baseURI).href):"https://example.invalid/paper-lab/horse-v3plus.js";
+  const URL=new URL("../horse-research-status.json",scriptBase).href;
   let state={ok:false,reason:"Evidence not loaded",forecastCount:0,generated:null};
   const targets=new Set();
   const REQUIRED=["current_day_races_with_source_observation","current_day_stale_last_observation_over_60m",
