@@ -12,4 +12,7 @@ assert.match(html,/style-src 'self'/);
 assert.ok(css.includes(".scroller")&&css.includes("@media(max-width:620px)"),"Mobile styles and horizontal scroll required");
 assert.match(js,/checked\.filter\(x=>x\.v1Available\|\|x\.v3Available\)/,"Only model-eligible races appear in comparison");
 assert.match(js,/oddsOnly\.length\+" odds-only races hidden/,"Coverage of withheld races must be transparent");
+assert.match(js,/Predicted finishing order · 1st–4th/,"Explicit first-to-fourth panel is required");
+assert.match(js,/race\.rows\.length<4/,"Never invent four places in a smaller field");
+assert.match(css,/\.v3-top4-grid/,"Mobile top-four display styles must exist");
 console.log("PASS: V3 Lab CSP stylesheet, mobile layout and eligible-model-only research tables");
