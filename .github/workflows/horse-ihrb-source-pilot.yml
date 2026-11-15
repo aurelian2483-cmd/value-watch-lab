@@ -1,0 +1,41 @@
+name: Horse IHRB regulator evidence isolated pilot
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - 'scripts/archive_ihrb_nonrunner_page.py'
+      - 'tests/test_archive_ihrb_nonrunner_page.py'
+      - '.github/workflows/horse-ihrb-source-pilot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-observe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test official regulator table parsing
+        run: python -m unittest discover -s tests -p 'test_archive_ihrb_nonrunner_page.py' -v
+      - name: Attempt live IHRB observation, fail closed on unavailable data
+        run: |
+          python scripts/archive_ihrb_nonrunner_page.py \
+            --out /tmp/ihrb-prospective/receipts \
+            --diagnostics /tmp/ihrb-prospective/diagnostics.json
+      - name: Preserve isolated non-price evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-ihrb-pilot-observation
+          path: /tmp/ihrb-prospective/
+          retention-days: 30
+          if-no-files-found: warn
