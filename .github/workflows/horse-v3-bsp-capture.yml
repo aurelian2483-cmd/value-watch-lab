@@ -10,6 +10,8 @@ on:
       - 'tests/test_horse_bsp_v3_capture.py'
       - 'scripts/archive_racing_field_observations.py'
       - 'tests/test_archive_racing_field_observations.py'
+      - 'scripts/diff_racing_field_observations.py'
+      - 'tests/test_diff_racing_field_observations.py'
       - '.github/workflows/horse-v3-bsp-capture.yml'
   workflow_dispatch:
 
@@ -38,6 +40,7 @@ jobs:
           git rev-parse HEAD
           python -m unittest discover -s tests -p 'test_horse_bsp_v3_capture.py' -v
           python -m unittest discover -s tests -p 'test_archive_racing_field_observations.py' -v
+          python -m unittest discover -s tests -p 'test_diff_racing_field_observations.py' -v
       - name: Collect fresh research-only racecards in isolated runner
         run: |
           mkdir -p /tmp/v3-capture
@@ -49,6 +52,9 @@ jobs:
       - name: Preserve prospective publisher-observed field evidence
         run: |
           python scripts/archive_racing_field_observations.py --feed /tmp/v3-capture/racing-research-data.json --collector-commit-file /tmp/v3-capture/collector-code-commit.txt --out research/horse-v3/field-observation-archive --diagnostics /tmp/v3-capture/field-coverage.json
+      - name: Compare consecutive validated V2 publisher fields
+        run: |
+          python scripts/diff_racing_field_observations.py --output /tmp/v3-capture/field-changes.json
       - name: Run fail-closed V3 snapshot attempt
         run: |
           python scripts/freeze_horse_v3_research.py --feed /tmp/v3-capture/racing-research-data.json --out research/horse-v3/live-archive | tee /tmp/v3-capture/coverage.json
