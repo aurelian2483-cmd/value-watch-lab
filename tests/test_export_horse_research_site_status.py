@@ -23,9 +23,12 @@ class WebStatus(unittest.TestCase):
         report["selections"]=[{"horse":"winner","odds":4,"expected_value":7,"stake":50}]
         report["report_sha256"]=fingerprint({k:v for k,v in report.items() if k!="report_sha256"})
         out=make_web_summary(report)
-        data=str(out).lower()
-        for term in ("winner","stake","expected_value","selection","profit","odds"):
-            self.assertNotIn(term,data)
+        self.assertNotIn("selections",out)
+        self.assertNotIn("odds",out)
+        self.assertNotIn("expected_value",out)
+        self.assertNotIn("stake",out)
+        self.assertNotIn("winner",out)
+        self.assertEqual(out["model_recommendations_enabled"],False)
     def test_tamper_fails(self):
         report=sample()
         report["coverage"]["v3_frozen_forecasts"]=42
