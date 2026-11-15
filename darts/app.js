@@ -24,15 +24,24 @@
   }
  }
  function loadDocument(doc,kind){
-  if(!doc||typeof doc!=='object'||Array.isArray(doc)||Object.keys(doc).some(k=>!allowedKeys.has(k)&&k!=='schema_version'&&k!=='research_only'&&k!=='model_validation'&&k!=='publication_gate'&&k!=='source_verification'&&k!=='generated_at_utc'))throw Error('Unexpected data schema');
+  if(!doc||typeof doc!=='object'||Array.isArray(doc)||Object.keys(doc).some(k=>!allowedKeys.has(k)&&!['schema_version','research_only','model_validation','publication_gate','source_verification','generated_at_utc','source_receipts','coverage'].includes(k)))throw Error('Unexpected data schema');
   if(kind==='Published feed'){
-   if(doc.schema_version!==1||doc.research_only!==true||doc.model_validation!=='UNVALIDATED'||doc.publication_gate!=='BLOCKED'||doc.source_verification!=='NOT_CONFIGURED')throw Error('Published source has not passed the required feed contract');
-   if(doc.results.length||doc.fixtures.length)throw Error('Published populated feed requires a separately reviewed source collector and verification status');
+   if(doc.schema_version!==1||doc.research_only!==true||doc.model_validation!=='UNVALIDATED'||doc.publication_gate!=='BLOCKED')throw Error('Published research-only feed safeguards missing');
+   if(doc.source_verification==='NOT_CONFIGURED'){
+    if(doc.results.length||doc.fixtures.length)throw Error('Unconfigured source cannot publish results');
+   }else if(doc.source_verification==='PROVIDER_OBSERVED_UNCORROBORATED'){
+    const receipts=doc.source_receipts;
+    if(!Array.isArray(receipts)||receipts.length!==4||!receipts.every(x=>x&&['results','fixtures'].includes(x.endpoint)&&/^[a-f0-9]{64}$/.test(x.sha256))||doc.coverage?.sample_only!==true)throw Error('Provider source receipts incomplete');
+    if(doc.results.length>80||doc.fixtures.length>12)throw Error('Bounded public display exceeded');
+    const observed=Date.parse(doc.generated_at_utc);
+    if(!Number.isFinite(observed)||observed>Date.now()+300000||Date.now()-observed>172800000)throw Error('Provider research snapshot stale or invalid');
+   }else throw Error('Unknown provider verification status');
   }
   if(!Array.isArray(doc.results)||!Array.isArray(doc.fixtures))throw Error('Expected results and fixtures arrays');
   const at=new Date().toISOString().replace(/\.\d{3}Z$/,'Z');
-  const r=Model.model(doc.results,doc.fixtures,at);
-  display(r,kind);
+  const upcoming=kind==='Published feed'?doc.fixtures.filter(f=>Date.parse(f.start_utc)>Date.now()+300000):doc.fixtures;
+  const r=Model.model(doc.results,upcoming,at);
+  display(r,kind==='Published feed'&&doc.source_verification==='PROVIDER_OBSERVED_UNCORROBORATED'?'Provider-observed sample · not independently verified':kind);
  }
  async function refresh(){
   if(local)return;
