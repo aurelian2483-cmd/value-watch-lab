@@ -68,7 +68,7 @@
    }
    
    if(contextResults.length){
-    const heading=elem("h3","Other racing disciplines · Context Form V1 (separate model)");
+    const heading=elem("h3","Additional racing · Context Form V1 (separate model)");
     region.append(heading);
     region.append(elem("p","This is the existing context-form research model, not frozen all-weather V1 and not V3. It only appears when pre-race runner and context checks are fresh. Uncalibrated relative weights; no betting advice."));
     for(const item of contextResults.slice(0,8)){
