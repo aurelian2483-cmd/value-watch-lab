@@ -1,0 +1,74 @@
+{
+  "league": "I1",
+  "home": "AC Milan",
+  "away": "Parma",
+  "kickoff_utc": "2026-12-06T19:45:00Z",
+  "espn_event_id": "401874995",
+  "league_name": "Serie A",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/scoreboard?dates=20261206&limit=100",
+      "sha256": "730e5ee985491cf0f964ed0945ca190bd782268d6e85ce0f53b3e710d1eeb1d9",
+      "observed_at_utc": "2026-11-15T23:10:22.088606Z"
+    },
+    {
+      "url": "https://www.skysports.com/serie-a-scores-fixtures/2026-12-01",
+      "sha256": "71f032e0ab60ecbdada7c8d5e5b3866f45037f681cae3b4f07222c2a83e0f71a",
+      "observed_at_utc": "2026-11-15T23:10:50.459778Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_I1_PRIOR_SEASON",
+  "prob_home": 0.4659637462987715,
+  "prob_draw": 0.3080973687202182,
+  "prob_away": 0.22593888498101025,
+  "training_basis": {
+    "mode": "PRIOR_SEASON",
+    "home_matches": 19,
+    "away_matches": 19,
+    "league_average_pseudo_matches": 5,
+    "small_sample": false,
+    "training_matches": 380,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2526/I1.csv",
+        "sha256": "709ae279617d16af226312bcceac941e71241745ddaf950bdac2b83afad4fcbb",
+        "observed_at_utc": "2026-11-15T23:10:51.684871Z"
+      }
+    ],
+    "training_sha256": "adcae5dfff42bac72b18870f9adfa5b351f7c2fba1d6c096b746b642567cc0b3",
+    "lambda_home": 1.1688335085458492,
+    "lambda_away": 0.7168063103864735,
+    "home_venue_inputs": {
+      "hgf": 25,
+      "hga": 21,
+      "hn": 19,
+      "agf": 28,
+      "aga": 14,
+      "an": 19
+    },
+    "away_venue_inputs": {
+      "hgf": 16,
+      "hga": 25,
+      "hn": 19,
+      "agf": 12,
+      "aga": 21,
+      "an": 19
+    },
+    "league_home_mean": 1.2763157894736843,
+    "league_away_mean": 1.15
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-15T23:11:03.615222Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "0dee29301c8e062751fb8215caa7c826744d324a9a51449b751692c01c16df17"
+}

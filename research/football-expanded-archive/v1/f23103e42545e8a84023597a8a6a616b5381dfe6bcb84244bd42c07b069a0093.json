@@ -1,0 +1,74 @@
+{
+  "league": "SP1",
+  "home": "Racing Santander",
+  "away": "Deportivo",
+  "kickoff_utc": "2026-12-05T13:00:00Z",
+  "espn_event_id": "401882780",
+  "league_name": "La Liga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=20261205&limit=100",
+      "sha256": "fbb4b1e430867709caaacd672c78bbf5a0d06309a0832c4b7a9a4d915ad902ed",
+      "observed_at_utc": "2026-11-15T23:10:21.055050Z"
+    },
+    {
+      "url": "https://www.skysports.com/la-liga-scores-fixtures/2026-12-01",
+      "sha256": "ae62d8f98882114aa61dd3b9e9839678b8364d5f6f7c642552f4198f462662c4",
+      "observed_at_utc": "2026-11-15T23:10:35.916664Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_SP1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.39403154671303325,
+  "prob_draw": 0.2394767438377977,
+  "prob_away": 0.366491709449169,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 6,
+    "away_matches": 6,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 119,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/SP1.csv",
+        "sha256": "b4c9a5cc1139f30dbd1026679c360de4626ce97fe64ae62ff1ff8ba3af0b7828",
+        "observed_at_utc": "2026-11-15T23:10:41.531087Z"
+      }
+    ],
+    "training_sha256": "9f6e663cce871e99b4a10abda3f3a0119996a3069ef0917c2427ba9a7f5c20a8",
+    "lambda_home": 1.5692380257888279,
+    "lambda_away": 1.5059146102982297,
+    "home_venue_inputs": {
+      "hgf": 11,
+      "hga": 11,
+      "hn": 6,
+      "agf": 6,
+      "aga": 19,
+      "an": 6
+    },
+    "away_venue_inputs": {
+      "hgf": 8,
+      "hga": 6,
+      "hn": 6,
+      "agf": 7,
+      "aga": 8,
+      "an": 6
+    },
+    "league_home_mean": 1.6134453781512605,
+    "league_away_mean": 1.2773109243697478
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-15T23:11:03.615222Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "f23103e42545e8a84023597a8a6a616b5381dfe6bcb84244bd42c07b069a0093"
+}
