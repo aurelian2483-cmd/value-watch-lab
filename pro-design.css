@@ -73,3 +73,15 @@ body{background-color:#030b17!important}
 /* Premium Council CTA belongs above the legacy Wildcard research snapshot. */
 .wildcard-council-launch{display:block;margin:12px 0;padding:12px 14px;border-radius:9px;background:linear-gradient(110deg,#fae49b,#bc8834);border:1px solid #ffe59f;color:#1e1b0e;font-size:12px;font-weight:900;text-align:center;box-shadow:0 0 17px #d39e2844}
 .wildcard-council-launch:hover{filter:brightness(1.08)}.wildcard-council-launch:focus-visible{outline:3px solid #70e9fa;outline-offset:3px}
+
+/* Honest, browsable four-sport preview instead of repetitive unpriced-market placeholders */
+.pro-feature-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pro-feature-controls button{cursor:pointer;background:#104767;color:#e5faff;border:1px solid #3c94b8;border-radius:8px;font-weight:750;font-size:12px;padding:9px 12px;min-height:40px}
+.pro-feature-controls button:disabled{opacity:.42;cursor:not-allowed}
+.pro-feature-controls button:focus-visible{outline:3px solid #9eeaff;outline-offset:3px}
+.pro-feature-controls span{font-size:11px;color:#cde7f5;flex:1;min-width:100px;text-align:center}
+.pro-featured .pro-featured-scroll table{min-width:460px}
+.pro-featured .pro-featured-scroll th:first-child,.pro-featured .pro-featured-scroll td:first-child{min-width:105px}
+.pro-featured .pro-featured-scroll th:nth-child(2),.pro-featured .pro-featured-scroll td:nth-child(2){min-width:180px;overflow-wrap:anywhere}
+.pro-featured .pro-featured-scroll td:nth-child(4){color:#c3dbf1}
+@media(max-width:720px){.pro-feature-controls{gap:6px}.pro-feature-controls button{font-size:11px;padding:8px}.pro-featured .pro-featured-scroll table{min-width:455px}.pro-featured .pro-featured-scroll{overscroll-behavior-x:contain}}
