@@ -26,7 +26,7 @@ def valid_forecast(f):
     if not isinstance(f.get("record_sha256"),str) or f["record_sha256"]!=fingerprint({k:v for k,v in f.items() if k!="record_sha256"}):
         raise ValueError("FORECAST_HASH_MISMATCH")
     start=when(f["startUTC"]);cut=when(f["generated_at_utc"])
-    if cut>=start.replace() or (start-cut).total_seconds()<300:raise ValueError("NOT_FROZEN_PRE_EVENT")
+    if (start-cut).total_seconds()<=300:raise ValueError("NOT_FROZEN_PRE_EVENT")
     p=vector(f["runners"])
     return (str(f["race_id"]),start),cut,p
 
@@ -62,11 +62,15 @@ def compare(forecasts,bsps,method="proportional"):
             valid_bsp_by_key[key]=(b,odds,winner)
         except (ValueError,TypeError,KeyError,OverflowError) as e:
             excluded[str(e) if isinstance(e,ValueError) else "INVALID_BSP_INPUT"]+=1
-    # Duplicate evidence must not silently select whichever happens to be first.
-    ids=[(str(b.get("race_id")),str(b.get("startUTC"))) for b in bsps if isinstance(b,dict)]
-    duplicate_keys={k for k in ids if ids.count(k)>1}
-    for key in list(valid_bsp_by_key):
-        if (key[0],key[1].isoformat()) in duplicate_keys or any((str(b.get("race_id")),when(b.get("startUTC"))) == key for b in bsps if isinstance(b,dict) and (str(b.get("race_id")),str(b.get("startUTC"))) in duplicate_keys):
+    # Duplicate/revised BSP receipts are ambiguous unless a source-ledger policy
+    # explicitly identifies the canonical observation. Refuse all copies.
+    frequencies=Counter()
+    for b in bsps:
+        if not isinstance(b,dict):continue
+        try:frequencies[(str(b["race_id"]),when(b["startUTC"]))]+=1
+        except (KeyError,TypeError,ValueError,OverflowError):continue
+    for key,count in frequencies.items():
+        if count>1:
             valid_bsp_by_key.pop(key,None)
             excluded["DUPLICATE_BSP_RACE"]+=1
     results=[];seen=set()
