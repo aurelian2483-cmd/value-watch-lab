@@ -1,0 +1,41 @@
+name: Horse archived BSP identity mapping worklist
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-bsp-mapping-worklist.yml'
+      - 'scripts/prepare_bsp_mapping_worklist.py'
+      - 'tests/test_prepare_bsp_mapping_worklist.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test non-price cross-provider worklist
+        run: |
+          python -m unittest discover -s tests -p 'test_prepare_bsp_mapping_worklist.py' -v
+          python -m unittest discover -s tests -p 'test_compare_horse_bsp_models.py' -v
+      - name: Build manifest from actual archived frozen forecasts
+        run: |
+          mkdir -p /tmp/horse-bsp-mapping
+          python scripts/prepare_bsp_mapping_worklist.py --output /tmp/horse-bsp-mapping/cross-provider-worklist.json
+      - name: Preserve race-level worklist and exclusion counts
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-bsp-identity-worklist-no-licensed-prices
+          path: /tmp/horse-bsp-mapping/cross-provider-worklist.json
+          retention-days: 60
+          if-no-files-found: error
