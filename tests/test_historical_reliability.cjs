@@ -31,3 +31,13 @@ test('future match results cannot affect the classification',()=>{
 test('missing history fails closed',()=>assert.equal(R.qualifyingEvidence(fixture,past.slice(0,3)).status,'INSUFFICIENT_HISTORY'));
 test('unsupported competitions fail closed',()=>assert.equal(R.qualifyingEvidence({...fixture,competition:'Ligue 1'},past).status,'OUTSIDE_SCOPE'));
 test('other competition histories are excluded',()=>assert.equal(R.qualifyingEvidence(fixture,past.map(r=>({...r,competition:'Serie A'}))).status,'INSUFFICIENT_HISTORY'));
+
+test('recognises common abbreviated team names without cross-league matching',()=>{
+ const renamed={...fixture,participants:[{name:'Manchester City'},{name:'Tottenham Hotspur'}]};
+ const dates=['01','02','03','04','05'];
+ const rows=dates.map((d,i)=>match('2026-09-'+d+'T12:00:00Z','Man City','Side '+i,i===4?'D':'H'))
+   .concat(dates.map((d,i)=>match('2026-10-'+d+'T12:00:00Z','Spurs','Other '+i,i===0?'H':'A')));
+ const result=R.qualifyingEvidence(renamed,rows);
+ assert.equal(result.status,'FORM_CANDIDATE');
+ assert.equal(result.side,'HOME');
+});
