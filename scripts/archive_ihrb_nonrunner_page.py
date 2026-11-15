@@ -53,7 +53,7 @@ def parse(raw,observed):
     parser=Tables();parser.feed(raw.decode("utf-8",errors="strict"))
     candidates=getattr(parser,"all_rows",[])
     if not candidates:raise ValueError("No non-runner table entries parsed: schema/unavailable/empty; abstain")
-    rows=[];seen=set()
+    rows=[];seen=set();excluded=0
     for cells in candidates:
         venue=cells[0].strip()
         m=re.fullmatch(r"(\d{2}/\d{2}/\d{4})\s+(.+)",venue)
@@ -61,6 +61,9 @@ def parse(raw,observed):
             raise ValueError("Unsupported official non-runner table schema")
         race_day=dt.datetime.strptime(m.group(1),"%d/%m/%Y").date()
         horse=re.match(r"^\d+:\s*(.+)",cells[2]).group(1).strip()
+        if not cells[4].strip():
+            excluded+=1
+            continue
         logged=dt.datetime.strptime(cells[4],"%d/%m/%Y %H:%M:%S").replace(tzinfo=TZ).astimezone(dt.timezone.utc)
         if logged>observed+dt.timedelta(minutes=5):raise ValueError("Future official log time")
         identity=(race_day.isoformat(),m.group(2).casefold(),cells[1],horse.casefold(),logged.isoformat())
@@ -68,10 +71,12 @@ def parse(raw,observed):
         seen.add(identity)
         rows.append({"race_day_local":race_day.isoformat(),"course":m.group(2).strip(),"race_number":int(cells[1]),
                      "horse_and_rider_text":horse,"excuse_text":cells[3],"reported_logged_at_utc":logged.isoformat()})
+    if not rows:raise ValueError("No complete regulator non-runner rows; abstain")
     receipt={"schema_version":1,"kind":"IHRB_OFFICIAL_NONRUNNER_PAGE_OBSERVED_V1",
              "research_only":True,"model_validation":"UNVALIDATED","publication_gate":"BLOCKED",
              "betting_eligible":False,"source_url":URL,"source_observed_at_utc":observed.isoformat(),
              "raw_source_sha256":hashlib.sha256(raw).hexdigest(),"rows":rows,
+             "rows_excluded_missing_logged_time":excluded,"source_table_complete":excluded==0,
              "source_independently_timestamp_attested":False,
              "official_logged_time_is_verified_publication_time":False,
              "limitations":["Displayed logged time is a regulator statement, not independently proved first public availability.",
@@ -96,7 +101,7 @@ def main():
     if path.exists() and json.loads(path.read_text())!=receipt:raise ValueError("Immutable receipt differs")
     if not path.exists():path.write_text(json.dumps(receipt,indent=2)+"\n")
     a.diagnostics.parent.mkdir(parents=True,exist_ok=True)
-    a.diagnostics.write_text(json.dumps({"regulator_rows":len(receipt["rows"]),"source_sha256":receipt["raw_source_sha256"],
+    a.diagnostics.write_text(json.dumps({"regulator_rows":len(receipt["rows"]),"incomplete_rows":receipt["rows_excluded_missing_logged_time"],"source_sha256":receipt["raw_source_sha256"],
                                          "status":"OBSERVED_NOT_INDEPENDENTLY_TIMESTAMPED","publication_gate":"BLOCKED"})+"\n")
     print(json.dumps({"regulator_rows":len(receipt["rows"]),"publication_gate":"BLOCKED"}))
 if __name__=="__main__":main()
