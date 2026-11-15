@@ -1,0 +1,46 @@
+name: Live V3+ Model Origin Safety and Browser QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'paper-lab/horse-v3plus.js'
+      - 'paper-lab/horse-v3plus.css'
+      - 'paper-lab/desk.js'
+      - 'index.html'
+      - 'paper-lab/index.html'
+      - 'tests/test_horse_v3plus.cjs'
+      - 'scripts/horse_v3plus_browser_qa.cjs'
+      - '.github/workflows/v3plus-live-browser-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-source-label-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source provenance label and blocked betting gate
+        run: |
+          node --check paper-lab/horse-v3plus.js
+          node --check paper-lab/desk.js
+          node tests/test_horse_v3plus.cjs
+      - name: Install browser QA
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Verify both live pages at desktop/mobile sizes
+        run: node scripts/horse_v3plus_browser_qa.cjs
+      - name: Save actual rendered UI proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-horse-v3plus-model-origin-screenshots
+          path: /tmp/v3plus-*.png
+          retention-days: 14
+          if-no-files-found: warn
