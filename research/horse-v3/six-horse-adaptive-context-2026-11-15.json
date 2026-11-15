@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "generated_date_utc": "2026-11-15",
+  "research_only": true,
+  "publication_gate": "BLOCKED",
+  "model_validation": "UNVALIDATED",
+  "scope": "RETROSPECTIVE_INDIVIDUAL_HORSE_CALCULATION_NOT_FULL_FIELD_PROBABILITY",
+  "source_files": [
+    "research/horse-v3/published-results-rechecked-2026-11-15.json",
+    "research/horse-v3/remaining-11-results-rechecked-2026-11-15.json",
+    "research/horse-v3/individual-history-recovery-overlay-2026-11-15.json",
+    "scripts/horse_v3_history_reliability.cjs"
+  ],
+  "target_races": [
+    {
+      "race_id": "890908",
+      "date": "2025-11-24",
+      "course": "Newcastle",
+      "target_distance_yards": 1765,
+      "going": "Standard",
+      "published_finishers": 8,
+      "runner_histories_reconstructed": 3,
+      "full_field_eligible": false
+    },
+    {
+      "race_id": "894962",
+      "date": "2025-12-22",
+      "course": "Wolverhampton",
+      "target_distance_yards": 1121,
+      "going": "Standard",
+      "published_finishers": 5,
+      "runner_histories_reconstructed": 3,
+      "full_field_eligible": false
+    }
+  ],
+  "individual_results": [
+    {
+      "race_id": "890908",
+      "horse_id": "1149987",
+      "name": "Samra Star",
+      "unique_prior_runs": 3,
+      "distance_weight": 0.055857531806147775,
+      "surface_weight": 0.055857531806147775,
+      "delta_logit": 0.00933476863130701
+    },
+    {
+      "race_id": "890908",
+      "horse_id": "1105875",
+      "name": "Electric Avenue",
+      "unique_prior_runs": 5,
+      "distance_weight": 0.07196909303699549,
+      "surface_weight": 0.055621187064620416,
+      "delta_logit": 0.02297991468849633
+    },
+    {
+      "race_id": "890908",
+      "horse_id": "1080616",
+      "name": "Second Fiddle",
+      "unique_prior_runs": 3,
+      "distance_weight": 0.05622747794810585,
+      "surface_weight": 0.05622747794810585,
+      "delta_logit": 0.03411299432032069
+    },
+    {
+      "race_id": "894962",
+      "horse_id": "1181759",
+      "name": "Beach Partee",
+      "unique_prior_runs": 3,
+      "distance_weight": 0.05597838408374963,
+      "surface_weight": 0.05597838408374963,
+      "delta_logit": -0.00797603290526944
+    },
+    {
+      "race_id": "894962",
+      "horse_id": "1184423",
+      "name": "U S S Charleston",
+      "unique_prior_runs": 3,
+      "distance_weight": 0.05522117698206435,
+      "surface_weight": 0.024999999999999998,
+      "delta_logit": -0.004427860901290133
+    },
+    {
+      "race_id": "894962",
+      "horse_id": "1182560",
+      "name": "Mister Moet",
+      "unique_prior_runs": 3,
+      "distance_weight": 0.05517894716390604,
+      "surface_weight": 0.0427685258054728,
+      "delta_logit": -0.01665703376915877
+    }
+  ],
+  "limitations": [
+    "Historical data manually reconstructed after races were settled and all results known",
+    "No independent pre-event source availability attestation",
+    "Same underlying racing publisher for the checked results",
+    "Only three runner histories reconstructed in each target full field (published 8 and 5 runners)",
+    "Do not softmax partial runner fields, calculate log loss, claim predictive success, or declare a training dataset",
+    "No live betting or market prices used"
+  ]
+}
