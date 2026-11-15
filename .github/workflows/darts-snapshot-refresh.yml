@@ -1,0 +1,71 @@
+name: Darts bounded source-backed research snapshot
+on:
+  schedule:
+    - cron: '43 9 * * *'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'darts/app.js'
+      - 'scripts/collect_darts_research.py'
+      - 'tests/test_darts_api_adapter.py'
+      - '.github/workflows/darts-snapshot-refresh.yml'
+permissions:
+  contents: read
+concurrency:
+  group: darts-snapshot-publish
+  cancel-in-progress: false
+jobs:
+  offline-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m unittest discover -s tests -p 'test_darts_api_adapter.py' -v
+      - run: node --check darts/app.js
+      - run: node tests/test_darts_model.cjs
+  publish-limited-feed:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: offline-tests
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch source-observed bounded sample, never odds
+        env:
+          DARTS_API_KEY: ${{ secrets.DARTS_API_KEY }}
+        run: python scripts/collect_darts_research.py --publish-sample
+      - name: Enforce research-only publication limits
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          p=pathlib.Path('darts/feed.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          assert d['research_only'] is True and d['model_validation']=='UNVALIDATED'
+          assert d['publication_gate']=='BLOCKED' and d['source_verification']=='PROVIDER_OBSERVED_UNCORROBORATED'
+          assert len(d['results'])<=80 and len(d['fixtures'])<=12
+          assert d['coverage']['sample_only'] is True and len(d['source_receipts'])==4
+          assert not set(d).intersection({'odds','expected_value','betting_eligible'})
+          print('Safe research sample:',len(d['results']),'results and',len(d['fixtures']),'fixtures')
+          PY
+      - name: Publish only bounded display sample
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- darts/feed.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh bounded Darts research sample [unvalidated]'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
