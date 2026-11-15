@@ -40,6 +40,8 @@ jobs:
           python -m unittest discover -s tests -p 'test_archive_racing_field_observations.py' -v
           python -m unittest discover -s tests -p 'test_diff_racing_field_observations.py' -v
           python -m unittest discover -s tests -p 'test_build_horse_evidence_dashboard.py' -v
+          python -m unittest discover -s tests -p 'test_archive_ihrb_nonrunner_page.py' -v
+          python -m unittest discover -s tests -p 'test_crosscheck_ihrb_publisher_candidates.py' -v
       - name: Collect current official publisher observations without modifying website
         run: |
           set -euo pipefail
@@ -61,6 +63,22 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/diff_racing_field_observations.py --output /tmp/horse-scheduled/field-changes.json
+      - name: Observe current Irish regulator non-runner log separately
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/horse-scheduled/ihrb
+          python scripts/archive_ihrb_nonrunner_page.py \
+            --out research/horse-v3/ihrb-nonrunner-archive \
+            --diagnostics /tmp/horse-scheduled/ihrb/collection.json
+      - name: Compare IHRB and publisher as UNVERIFIED identity candidates
+        if: always()
+        continue-on-error: true
+        run: |
+          python scripts/crosscheck_ihrb_publisher_candidates.py \
+            --fields research/horse-v3/field-observation-archive \
+            --regulator research/horse-v3/ihrb-nonrunner-archive \
+            --out /tmp/horse-scheduled/ihrb/candidate-matches.json
       - name: Attempt strictly eligible prospective V3 forecasts
         run: |
           set -euo pipefail
@@ -77,6 +95,9 @@ jobs:
           fi
           if [ -d research/horse-v3/live-archive ]; then
             git add -- research/horse-v3/live-archive
+          fi
+          if [ -d research/horse-v3/ihrb-nonrunner-archive ]; then
+            git add -- research/horse-v3/ihrb-nonrunner-archive
           fi
           if ! git diff --cached --quiet; then
             git commit -m 'Record scheduled horse research evidence [no betting]'
