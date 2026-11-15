@@ -18,8 +18,10 @@
    if(source.research_only!==true||source.publication_gate!=="BLOCKED"||source.model_validation!=="UNVALIDATED"||!Array.isArray(source.races)||feed.publication_gate!=="BLOCKED"||feed.model_validation!=="UNVALIDATED")throw Error("Source research safety gate rejected");
    const live=source.races.filter(r=>Number.isFinite(Date.parse(r.startUTC))&&Date.parse(r.startUTC)>now+300000).sort((a,b)=>Date.parse(a.startUTC)-Date.parse(b.startUTC)).slice(0,30);
    if(!live.length){region.append(elem("p","No upcoming races in the current source snapshot."));status.textContent="No comparable races currently available";return}
-   const usable=live.map(r=>C.compare(r,feed,now)).filter(x=>x.v1Available||x.v3Available||x.oddsAvailable);
-   if(!usable.length){region.append(elem("p","No currently eligible V1/V3 model snapshots or valid observed odds. The models are withholding forecasts rather than filling missing histories."));status.textContent=live.length+" upcoming race records inspected · 0 model or price snapshots currently eligible";return}
+   const checked=live.map(r=>C.compare(r,feed,now));
+   const usable=checked.filter(x=>x.v1Available||x.v3Available);
+   const oddsOnly=checked.filter(x=>!x.v1Available&&!x.v3Available&&x.oddsAvailable);
+   if(!usable.length){region.append(elem("p","No eligible V1 or V3 rankings in the current race snapshot. Both models correctly withhold predictions when the race type, runner observations, or historical form is outside their rules."));status.textContent=live.length+" upcoming races checked · 0 model-eligible races · "+oddsOnly.length+" odds-only races hidden from comparison";return}
    let dual=0,oddsCount=0;
    for(const race of usable.slice(0,12)){
     if(race.v1Available&&race.v3Available)dual++;
@@ -33,7 +35,7 @@
     race.rows.sort((a,b)=>(a.v3Rank??99)-(b.v3Rank??99)||(a.v1Rank??99)-(b.v1Rank??99)).forEach(h=>{const tr=document.createElement("tr");for(const value of [h.name,h.v1Rank??"—",h.v3Rank??"—",h.v1Weight===null?"—":(100*h.v1Weight).toFixed(1)+"%",h.v3Weight===null?"—":(100*h.v3Weight).toFixed(1)+"%",h.sourceObservedOdds===null?"—":h.sourceObservedOdds.toFixed(2)])pushCell(tr,value);body.append(tr)});
     table.append(body);wrapper.append(table);card.append(wrapper);if(race.oddsAvailable)card.append(elem("p","† Sky Bet via publisher; source-observed only. Not an executable price, verified market edge, or bet recommendation. Observed: "+race.observedAt));region.append(card);
    }
-   status.textContent=usable.length+" races with eligible research data · "+dual+" with both V1 and V3 · "+oddsCount+" with publisher-observed price snapshots. No validated betting picks.";
+   status.textContent=usable.length+" model-eligible races · "+dual+" with both V1 and V3 · "+oddsCount+" with publisher-observed prices · "+oddsOnly.length+" odds-only races hidden. No validated betting picks.";
   }catch(e){region.replaceChildren();region.append(elem("p","Live comparison unavailable. No odds or model selections inferred."));status.textContent=e?.name==="AbortError"?"Source request timed out":"Research feed could not be verified"}
  }
  document.getElementById("v3-refresh")?.addEventListener("click",load);
