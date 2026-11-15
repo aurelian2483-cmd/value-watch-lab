@@ -19,7 +19,7 @@ function form(h,day,target){
  return {form,distance:context(past.filter(x=>{const d=yards(x.p.distance);return d!==null&&Math.abs(d/target-1)<=params.distanceWindow})),surface:context(past.filter(x=>String(x.p.going||"").toLowerCase().startsWith("standard"))),usable:past.length}
 }
 function computeV3(race,now){
- const n=Date.parse(race.startUTC),day=new Date(n).toLocaleDateString("en-CA",{timeZone:"Europe/London"}),distance=yards(race.distance);
+ const n=Date.parse(race.startUTC),day=(()=>{const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/London",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(n));const d=Object.fromEntries(parts.map(x=>[x.type,x.value]));return d.year+"-"+d.month+"-"+d.day})(),distance=yards(race.distance);
  if(!Number.isFinite(n)||!validDate(day)||n<=now+300000||distance===null||race.surface!=="ALLWEATHER")return {available:false,reason:"Not eligible for the fixed all-weather flat V3 pilot"};
  if(race.runner_data_status!=="SINGLE_SOURCE_RUNNERS_OBSERVED"||!Number.isFinite(Date.parse(race.runner_observed_at_utc))||now-Date.parse(race.runner_observed_at_utc)>1800000||Date.parse(race.runner_observed_at_utc)>now+300000)return {available:false,reason:"Current runner observation absent or stale"};
  const candidates=race.runners||[],active=candidates.filter(x=>x.active_runner===true&&x.runner_status==="RUNNER");
