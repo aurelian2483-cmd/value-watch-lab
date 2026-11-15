@@ -24,12 +24,14 @@ class Tables(HTMLParser):
     def __init__(self):
         super().__init__();self.table=False;self.row=None;self.cell=None
         self.rows=[];self.heading=False;self.heading_text=[];self.context=""
-        self.selected=False
+        self.selected=False;self.header_row=False
     def handle_starttag(self,tag,attrs):
         if tag in ("h1","h2","h3","h4"):self.heading=True;self.heading_text=[]
         if tag=="table":self.table=True;self.selected=("non runner" in self.context and "reserve" not in self.context);self.rows=[]
-        if self.table and tag=="tr":self.row=[]
-        if self.table and self.row is not None and tag in ("th","td"):self.cell=[]
+        if self.table and tag=="tr":self.row=[];self.header_row=False
+        if self.table and self.row is not None and tag in ("th","td"):
+            self.cell=[]
+            if tag=="th":self.header_row=True
     def handle_data(self,data):
         if self.heading:self.heading_text.append(data)
         if self.cell is not None:self.cell.append(data)
@@ -40,7 +42,9 @@ class Tables(HTMLParser):
         if tag in ("th","td") and self.cell is not None and self.row is not None:
             self.row.append(" ".join("".join(self.cell).split()));self.cell=None
         if tag=="tr" and self.row is not None:
-            if self.selected and len(self.row)>=5:self.all_rows.append(self.row) if hasattr(self,"all_rows") else setattr(self,"all_rows",[self.row])
+            if self.selected and not self.header_row and len(self.row)>=5:
+                if not hasattr(self,"all_rows"):self.all_rows=[]
+                self.all_rows.append(self.row)
             self.row=None
         if tag=="table":self.table=False;self.selected=False
 
