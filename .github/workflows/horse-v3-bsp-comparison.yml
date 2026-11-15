@@ -36,9 +36,10 @@ jobs:
           import sys
           sys.path.insert(0,'scripts')
           from compare_horse_bsp_models import compare
-          base=Path('research/horse-v3/live-archive')
-          stored=list(base.glob('*/*.json')) if base.exists() else []
-          forecasts=[json.loads(p.read_text()) for p in stored]
+          v3dir=Path('research/horse-v3/live-archive')
+          v3paths=list(v3dir.glob('*/*.json')) if v3dir.exists() else []
+          v1paths=list(Path('research/horse-form-archive/v1').glob('*.json'))
+          forecasts=[json.loads(p.read_text()) for p in [*v1paths,*v3paths]]
           # Official raw CSVs are deliberately never committed or downloaded.
           # Only already-authorized, mapped evidence receipts can enter a research
           # comparison. This staging namespace is empty until explicit import.
@@ -49,7 +50,7 @@ jobs:
           out=Path('/tmp/horse-bsp-comparison')
           out.mkdir(parents=True,exist_ok=True)
           (out/'coverage.json').write_text(json.dumps(report,indent=2)+'\n')
-          print(json.dumps({'actual_archived_v3_forecasts':len(forecasts),'actual_approved_bsp_receipts':len(bsps),
+          print(json.dumps({'archived_v1_forecasts':len(v1paths),'archived_v3_forecasts':len(v3paths),'actual_approved_bsp_receipts':len(bsps),
                             'matched_comparisons':report['scored_records'],'publication_gate':report['publication_gate']}))
           PY
       - name: Preserve actual zero/positive coverage report
