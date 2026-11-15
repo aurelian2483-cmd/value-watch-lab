@@ -1,0 +1,43 @@
+name: Horse Dundalk public nonrunner chronology research
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-dundalk-nonrunner-audit.yml'
+      - 'scripts/audit_dundalk_public_nonrunners.py'
+      - 'tests/test_audit_dundalk_public_nonrunners.py'
+      - 'research/horse-v3/dundalk-public-nonrunner-evidence-2026-11-15.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify chronological nonrunner evidence safeguards
+        run: |
+          python -m unittest discover -s tests -p 'test_audit_dundalk_public_nonrunners.py' -v
+          python -m unittest discover -s tests -p 'test_audit_horse_field_revisions.py' -v
+      - name: Audit five public Dundalk result/nonrunner references
+        run: |
+          mkdir -p /tmp/dundalk-nonrunner-audit
+          python scripts/audit_dundalk_public_nonrunners.py --output /tmp/dundalk-nonrunner-audit/findings.json
+      - name: Preserve research-only status and detailed transitions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dundalk-nonrunner-chronology-research
+          path: /tmp/dundalk-nonrunner-audit/
+          retention-days: 60
+          if-no-files-found: warn
