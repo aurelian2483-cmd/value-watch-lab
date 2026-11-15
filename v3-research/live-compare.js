@@ -29,6 +29,27 @@
     const card=elem("article","");card.className="panel";
     card.append(elem("h3",String(race.racecourse||"Race")+" · "+new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/London",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(race.startUTC))));
     card.append(elem("p","V1: "+(race.v1Available?"Available":"No eligible pre-race snapshot")+" · V3: "+(race.v3Available?"Experimental ranking available":race.v3Reason||"Unavailable")+" · Odds: "+(race.oddsAvailable?"Publisher-observed; not executable":"Unavailable")));
+    const topPanel=elem("section","");topPanel.className="v3-top4";topPanel.setAttribute("aria-label","Predicted first to fourth places");
+    topPanel.append(elem("h4","Predicted finishing order · 1st–4th"));
+    const board=elem("div","");board.className="v3-top4-grid";
+    for(const [name,key,available] of [["V1 · Frozen form","v1Rank",race.v1Available],["V3 · Experimental","v3Rank",race.v3Available]]){
+     const column=elem("div","");column.className="v3-top4-model";column.append(elem("h5",name));
+     if(!available||race.rows.length<4){
+      column.append(elem("p",race.rows.length<4?"Fewer than four confirmed runners.":"No eligible full-field ranking."));
+     }else{
+      for(let place=1;place<=4;place++){
+       const horse=race.rows.find(h=>h[key]===place),entry=elem("div","");
+       entry.className="v3-place";
+       entry.append(elem("span",["🥇 1st","🥈 2nd","🥉 3rd","4️⃣ 4th"][place-1]));
+       entry.append(elem("strong",horse?.name||"Unavailable"));
+       column.append(entry);
+      }
+     }
+     board.append(column);
+    }
+    topPanel.append(board);
+    topPanel.append(elem("p","Rank order only; not a validated exact finish forecast or evidence that four places are paid."));
+    card.append(topPanel);
     const wrapper=elem("div","");wrapper.className="scroller";const table=document.createElement("table");const head=document.createElement("thead"),heading=document.createElement("tr");
     for(const t of ["Horse","V1 rank","V3 rank","V1 weight*","V3 weight*","Source odds†"])heading.append(elem("th",t));head.append(heading);table.append(head);
     const body=document.createElement("tbody");
