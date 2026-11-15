@@ -32,6 +32,7 @@ jobs:
           npm run test:browser
           node tests/test_pro_design.cjs
           node scripts/pro_design_browser_qa.cjs
+          node scripts/darts_browser_qa.cjs
       - name: Save QA report and screenshots
         if: always()
         uses: actions/upload-artifact@v4
