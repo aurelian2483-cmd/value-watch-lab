@@ -3,6 +3,9 @@ on:
   schedule:
     - cron: '43 9 * * *'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/darts-snapshot-refresh.yml']
   pull_request:
     paths:
       - 'darts/app.js'
@@ -29,7 +32,7 @@ jobs:
       - run: node --check darts/app.js
       - run: node tests/test_darts_model.cjs
   publish-limited-feed:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     needs: offline-tests
     runs-on: ubuntu-24.04
     permissions:
