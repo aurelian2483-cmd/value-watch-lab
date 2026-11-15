@@ -1,0 +1,55 @@
+name: V3 2026 historical racing expansion (research only)
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-v3-expand-2026.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  collect-2026-jan-jun:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Record code and environment
+        run: |
+          python --version
+          git rev-parse HEAD
+          sha256sum scripts/collect_horse_training_pilot.py scripts/collect_horse_v3_history.py scripts/audit_horse_v3_history.py
+      - name: Collect fixed-date 2026 historical racing sample
+        id: collect
+        continue-on-error: true
+        run: |
+          python scripts/collect_horse_v3_history.py --batch 2026-jan-jun --output /tmp/horse-v3-expanded --delay-seconds 2
+      - name: Independently audit structure and provenance
+        id: audit
+        if: always()
+        run: |
+          test -f /tmp/horse-v3-expanded/2026-jan-jun/dataset.json
+          python scripts/audit_horse_v3_history.py /tmp/horse-v3-expanded/2026-jan-jun/dataset.json --output /tmp/horse-v3-expanded/2026-jan-jun/audit.json
+      - name: Save historical evidence and audit files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v3-2026-jan-jun-retrospective
+          path: /tmp/horse-v3-expanded/2026-jan-jun/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Fail closed on collector or audit error
+        if: always()
+        run: |
+          if [ "${{ steps.collect.outcome }}" != "success" ] || [ "${{ steps.audit.outcome }}" != "success" ]; then
+            echo "Collection/audit failed: dataset must NOT be promoted or counted as verified."
+            exit 1
+          fi
