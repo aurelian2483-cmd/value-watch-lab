@@ -60,7 +60,7 @@ def snapshot(race,feed,now,source_commit):
         receipt={"schema_version":1,"kind":KIND,**GATES,"betting_eligible":False,
                  "race_id":race_id,"racecourse":str(race["racecourse"]),"startUTC":start.isoformat(),
                  "source_observed_at_utc":observed.isoformat(),"feed_generated_at_utc":generated.isoformat(),
-                 "capture_processed_at_utc":now.isoformat(),"main_source_commit":source_commit,
+                 "capture_processed_at_utc":now.isoformat(),"collector_code_commit":source_commit,
                  "source_url":source,"source_sha256":sha,"runners":rows,
                  "active_runner_ids":[r["horse_id"] for r in rows if r["active_runner"]],
                  "source_kind":"SPORTING_LIFE_PUBLISHER_OBSERVATION",
@@ -104,11 +104,11 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--feed",required=True,type=Path)
     p.add_argument("--out",required=True,type=Path)
-    p.add_argument("--source-commit-file",required=True,type=Path)
+    p.add_argument("--collector-commit-file",required=True,type=Path)
     p.add_argument("--diagnostics",required=True,type=Path)
     a=p.parse_args()
     report=archive(json.loads(a.feed.read_text()),a.out,dt.datetime.now(dt.timezone.utc),
-                   a.source_commit_file.read_text().strip())
+                   a.collector_commit_file.read_text().strip())
     a.diagnostics.parent.mkdir(parents=True,exist_ok=True)
     a.diagnostics.write_text(json.dumps(report,indent=2)+"\n")
     print(json.dumps(report))
