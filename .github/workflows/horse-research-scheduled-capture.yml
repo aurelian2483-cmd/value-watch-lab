@@ -1,6 +1,11 @@
 name: Scheduled isolated horse research evidence capture
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/horse-research-scheduled-capture.yml'
   schedule:
     # UTC; runner scheduling is best effort, not guaranteed to the minute.
     - cron: '17 8-20 * * *'
