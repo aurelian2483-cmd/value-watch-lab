@@ -42,6 +42,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_build_horse_evidence_dashboard.py' -v
           python -m unittest discover -s tests -p 'test_archive_ihrb_nonrunner_page.py' -v
           python -m unittest discover -s tests -p 'test_crosscheck_ihrb_publisher_candidates.py' -v
+          python -m unittest discover -s tests -p 'test_export_horse_research_site_status.py' -v
       - name: Collect current official publisher observations without modifying website
         run: |
           set -euo pipefail
@@ -109,6 +110,29 @@ jobs:
         run: |
           mkdir -p /tmp/horse-research-health
           python scripts/build_horse_evidence_dashboard.py --output /tmp/horse-research-health
+      - name: Export approved research-only website status
+        if: success()
+        run: |
+          set -euo pipefail
+          python scripts/export_horse_research_site_status.py \
+            --report /tmp/horse-research-health/evidence.json \
+            --out /tmp/horse-research-health/horse-research-status.json
+      - name: Update only public research status on main, preserving website code
+        if: success()
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin main
+          git worktree add --detach /tmp/horse-main origin/main
+          cp /tmp/horse-research-health/horse-research-status.json /tmp/horse-main/horse-research-status.json
+          cd /tmp/horse-main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- horse-research-status.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh read-only horse research evidence status [betting blocked]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
       - name: Upload independent daily research dashboard
         if: always()
         uses: actions/upload-artifact@v4
