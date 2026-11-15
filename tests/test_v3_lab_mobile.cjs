@@ -1,0 +1,15 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs"),path=require("node:path");
+const root=path.resolve(__dirname,"..");
+const html=fs.readFileSync(path.join(root,"v3-research/index.html"),"utf8");
+const css=fs.readFileSync(path.join(root,"v3-research/lab.css"),"utf8");
+const js=fs.readFileSync(path.join(root,"v3-research/live-compare.js"),"utf8");
+assert.match(html,/<link rel="stylesheet" href="\.\/lab\.css\?v=1">/,"V3 page must load stylesheet");
+assert.doesNotMatch(html,/<style(?:\s|>)/i,"Inline style block violates style-src self");
+assert.doesNotMatch(html,/\sstyle\s*=/i,"Inline style attribute violates style-src self");
+assert.match(html,/style-src 'self'/);
+assert.ok(css.includes(".scroller")&&css.includes("@media(max-width:620px)"),"Mobile styles and horizontal scroll required");
+assert.match(js,/checked\.filter\(x=>x\.v1Available\|\|x\.v3Available\)/,"Only model-eligible races appear in comparison");
+assert.match(js,/oddsOnly\.length\+" odds-only races hidden/,"Coverage of withheld races must be transparent");
+console.log("PASS: V3 Lab CSP stylesheet, mobile layout and eligible-model-only research tables");
