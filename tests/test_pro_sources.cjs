@@ -22,6 +22,21 @@ const summary=S.summarize([football,tennisNFL,horse],now);
 assert.equal(summary.upcoming.length,4);
 assert.deepEqual(summary.counts,{football:1,racing:1,tennis:1,nfl:1});
 assert.equal(summary.allSportsAvailable,true);
+
+const mixed=[
+ {sport:'racing',name:'Race A',startMs:1},
+ {sport:'racing',name:'Race B',startMs:2},
+ {sport:'racing',name:'Race C',startMs:3},
+ {sport:'racing',name:'Race D',startMs:4},
+ {sport:'football',name:'Fixture A',startMs:5},
+ {sport:'tennis',name:'Match A',startMs:6},
+ {sport:'nfl',name:'NFL A',startMs:7}
+];
+const featured=S.featuredOrder(mixed);
+assert.deepEqual(featured.map(x=>x.sport),['football','racing','tennis','nfl','racing','racing','racing']);
+assert.equal(featured.length,mixed.length,'No sourced event may be lost');
+assert.deepEqual(S.featuredOrder([]),[]);
+
 const stale=S.inspect('football',{...f,generated_at_utc:new Date(now-25*3600000).toISOString()},now);
 assert.equal(stale.state,'STALE_OR_UNDATED');assert.equal(stale.records.length,0);
 const partial=S.summarize([stale,horse,tennisNFL],now);
