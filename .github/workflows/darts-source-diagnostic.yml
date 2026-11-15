@@ -1,6 +1,13 @@
 name: Darts research source diagnostic (no publication)
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/darts_api_adapter.py'
+      - 'scripts/collect_darts_research.py'
+      - 'tests/test_darts_api_adapter.py'
+      - '.github/workflows/darts-source-diagnostic.yml'
   pull_request:
     paths:
       - 'scripts/darts_api_adapter.py'
@@ -19,7 +26,7 @@ jobs:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -p 'test_darts_api_adapter.py' -v
   provider-diagnostic:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     needs: offline-tests
     runs-on: ubuntu-24.04
     timeout-minutes: 8
