@@ -90,4 +90,34 @@ class CoverageProbe(unittest.TestCase):
   self.assertTrue(report['audits'][0]['has_next_page'])
   self.assertEqual(report['audits'][-1]['sample_has_confirmed_time'],0)
 
+class BoundedDartsPublication(unittest.TestCase):
+ def test_source_sample_is_research_only_and_date_only_is_not_a_prediction(self):
+  calls=[]
+  def fake_request(endpoint,params,key):
+   calls.append((endpoint,params))
+   if endpoint=='/v1/results':
+    row={**RESULT,'played_on':params['from']}
+    return {'data':[row], 'meta':{'next_cursor':None}},'a'*64
+   undated={**FIX,'date_confirmed':False,'starts_at':None,'date':'2026-11-17'}
+   return {'data':[undated], 'meta':{'next_cursor':None}},'b'*64
+  with patch.object(collector,'request',side_effect=fake_request):
+   d=collector.bounded_public_snapshot(NOW,'secret')
+  self.assertEqual(len(calls),4)
+  self.assertEqual(len(d['results']),3)
+  self.assertEqual(len(d['fixtures']),0)
+  self.assertEqual(len(d['tentative_fixtures']),1)
+  self.assertEqual(d['tentative_fixtures'][0]['status'],'DATE_ONLY_UNCONFIRMED')
+  self.assertTrue(d['coverage']['sample_only'])
+  self.assertEqual(d['source_verification'],'PROVIDER_OBSERVED_UNCORROBORATED')
+  self.assertEqual(d['publication_gate'],'BLOCKED')
+ def test_off_window_result_does_not_become_training_data(self):
+  def fake_request(endpoint,params,key):
+   if endpoint=='/v1/results':
+    return {'data':[RESULT], 'meta':{'next_cursor':'another-page'}},'a'*64
+   return {'data':[], 'meta':{'next_cursor':None}},'b'*64
+  with patch.object(collector,'request',side_effect=fake_request):
+   d=collector.bounded_public_snapshot(NOW,'secret')
+  self.assertEqual(len(d['results']),0)
+  self.assertTrue(d['coverage']['checks'][0]['has_more'])
+
 if __name__=='__main__':unittest.main()
