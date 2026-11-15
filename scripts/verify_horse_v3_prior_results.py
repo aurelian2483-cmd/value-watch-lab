@@ -64,7 +64,7 @@ def verify(row):
                 source_receipt=receipt,
                 confirmed={"date":summary["date"],"horse_id":str(row["horse_id"]),
                            "race_id":source_id,"finish_position":actual,"runner_count":starters,
-                           "run_type":row["run_type"],"course":summary["course_name"],
+                           "run_type_claimed_in_ledger":row["run_type"],"course":summary["course_name"],
                            "distance":summary["distance"],"going":summary["going"]})
  except Exception as e:
   result["error"]=str(e)[:250]
