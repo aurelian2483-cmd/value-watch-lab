@@ -103,7 +103,7 @@ class BoundedDartsPublication(unittest.TestCase):
   with patch.object(collector,'request',side_effect=fake_request):
    d=collector.bounded_public_snapshot(NOW,'secret')
   self.assertEqual(len(calls),4)
-  self.assertEqual(len(d['results']),3)
+  self.assertEqual(len(d['results']),1)  # repeated provider match ID is deduplicated
   self.assertEqual(len(d['fixtures']),0)
   self.assertEqual(len(d['tentative_fixtures']),1)
   self.assertEqual(d['tentative_fixtures'][0]['status'],'DATE_ONLY_UNCONFIRMED')
