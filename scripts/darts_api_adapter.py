@@ -39,7 +39,8 @@ def fixture(r, now):
     if not isinstance(people,list) or len(people)!=2:return None
     a,b=player(people[0]),player(people[1])
     if not a or not b or a['id']==b['id']:return None
-    event=r.get('event')
+    # Verified provider fixture shape uses 'competition', not 'event'.
+    event=r.get('competition')
     name=event.get('name') if isinstance(event,dict) else event
     if not isinstance(name,str) or not name.strip() or len(name)>160:return None
     return {'id':fid,'start_utc':start,'status':'SCHEDULED','competition':name.strip(),'player_a':a,'player_b':b}
