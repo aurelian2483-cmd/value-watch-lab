@@ -60,7 +60,7 @@ def main():
     report=collect(now,key)
     path=Path('work/darts/source-diagnostic.json')
     path.parent.mkdir(parents=True,exist_ok=True)
-    path.write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+    # Artifacts are public to repository readers. Export counts, not bulk provider rows.\n    safe={k:v for k,v in report.items() if k not in ('results','fixtures')}\n    path.write_text(json.dumps(safe,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
     print('Darts research diagnostic generated; result rows:',report['coverage']['usable_result_rows'],'confirmed fixture rows:',report['coverage']['confirmed_upcoming_fixtures'],'PUBLIC FEED UNCHANGED')
 
 if __name__=='__main__':main()
