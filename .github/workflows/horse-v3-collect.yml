@@ -32,26 +32,12 @@ jobs:
         continue-on-error: true
         run: |
           python scripts/collect_horse_v3_history.py --batch 2025-autumn --output /tmp/horse-v3-expanded --delay-seconds 2
-      - name: Validate reported counts and restrictions
+      - name: Independent structural and provenance audit
         id: audit
         if: always()
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          p=Path('/tmp/horse-v3-expanded/2025-autumn')
-          if not (p/'summary.json').exists() or not (p/'dataset.json').exists():
-              raise SystemExit('No dataset/summary generated; collector failed before completion')
-          s=json.loads((p/'summary.json').read_text())
-          d=json.loads((p/'dataset.json').read_text())
-          assert s['collected_races']==len(d['races'])
-          assert len(d['races'])==len({r['race_id'] for r in d['races']})
-          assert d['publication_gate']=='BLOCKED' and d['model_validation']=='UNVALIDATED'
-          assert all(r['date'][:4]=='2025' for r in d['races'])
-          print(json.dumps(s,indent=2))
-          if not d['races']:
-              raise SystemExit('No eligible races collected — investigation required')
-          PY
+          test -f /tmp/horse-v3-expanded/2025-autumn/dataset.json
+          python scripts/audit_horse_v3_history.py /tmp/horse-v3-expanded/2025-autumn/dataset.json --output /tmp/horse-v3-expanded/2025-autumn/audit.json
       - name: Save evidence for independent review
         if: always()
         uses: actions/upload-artifact@v4
