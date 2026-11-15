@@ -18,4 +18,22 @@ class MarketTests(unittest.TestCase):
   self.rides[0]['ride_status']='NONRUNNER';self.assertEqual(self.run_market()['favourite_horse_ids'],['2'])
  def test_rounded_decimal_is_checked_against_fraction(self):
   self.rides[0]['bookmakerOdds'][0].update(decimalOdds=3.33,fractionalOdds='7/3');self.assertEqual(self.run_market()['status'],'COMPLETE_SOURCE_OBSERVATION')
+ def test_invalid_market_identities_cannot_create_complete_market(self):
+  for key in ('bookmakerRaceid','bookmakerMarketId','selectionId'):
+   for invalid in (None, '', '   ', True, False, [], {}, 1.5):
+    with self.subTest(key=key, invalid=invalid):
+     original=copy.deepcopy(self.rides)
+     for ride in self.rides:ride['bookmakerOdds'][0][key]=invalid
+     result=self.run_market()
+     self.assertEqual(result['status'],'MISSING_MARKET_ID')
+     self.assertEqual(result['quotes'],[])
+     self.assertEqual(result['favourite_horse_ids'],[])
+     self.assertFalse(result['executable_verified'])
+     self.rides=original
+ def test_integer_market_identifiers_remain_supported(self):
+  for i,ride in enumerate(self.rides):
+   ride['bookmakerOdds'][0].update(bookmakerRaceid=123,bookmakerMarketId=456,selectionId=100+i)
+  result=self.run_market()
+  self.assertEqual(result['status'],'COMPLETE_SOURCE_OBSERVATION')
+  self.assertEqual(result['bookmaker_market_id'],'456')
 if __name__=='__main__':unittest.main()
