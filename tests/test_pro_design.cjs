@@ -11,7 +11,7 @@ assert(home.includes('analyst/')&&home.includes('pro-landing')&&home.includes('d
 assert(home.includes('paper-lab/desk.js'),'Existing desk engine must be retained');
 assert(home.includes('paper-lab/engine.js'),'Existing calculations must be retained');
 assert(home.includes('paper-lab/store.js'),'Existing persisted slip format must be retained');
-assert(home.includes('pro-home.js?v=4')&&home.includes('pro-design.css?v=5'));
+assert(home.includes('pro-home.js?v=4')&&home.includes('pro-design.css?v=6')&&home.includes('darts/home-preview.js?v=1'));
 for(const id of ['pro-featured-rows','pro-featured-status','pro-market-feeds','pro-feature-prev','pro-feature-next','pro-feature-refresh','pro-feature-page'])assert(home.includes('id="'+id+'"'));
 assert(home.includes('Smarter Betting Across')&&home.includes('href="./analyst/"'));
 assert(home.includes('pro-sources.js?v=2')&&analyst.includes('../pro-sources.js?v=1'));
