@@ -60,3 +60,26 @@ Status: **research-only documentary and numerical audit; no model or production 
 
 ## Audit actions performed
 Downloaded original non-expired GitHub Actions artifact 14157804601 and inspected its three ZIP members, row identities, score means and source coverage. Fetched original research-branch football replay and V3 ablation reports and checked branch inventory. No historical model fitting or re-execution of the original data collection pipeline was performed; no live deployment.
+
+
+## Step 4 continuation — targeted recovery of outstanding historical formula runs (2026-11-15)
+**Search performed:** inspected source branch `research/historical-reliability-challenger`, research-branch `research/horse-v3-individual-adaptive-pilot-20261115`, `research/horse-v3-isolated`, available repository code/commit search matches, and GitHub Actions run titles in sampled historical pages. These searches are not a complete audit of all 4,151 workflow runs or all expired artifacts.
+
+### FB-3749 — Original experiment not recovered
+- Verified branch code `reliability-lab/challenger.js` contains a **manual five-match pattern worksheet**, not a complete replay dataset. Rule: one team's last-five wins >=4 and opposing wins <=1 (symmetric for away), smoothed result-form proxy, de-vigged bookmaker probability and 50/50 proxy, with odds <=5 and estimated model EV >=5%. It includes neither immutable 3,749 individual match records nor a run summary reporting 279/175.
+- GitHub PR #48 explicitly describes the Historical Reliability Model link as an **unvalidated, manually supplied worksheet**; adding that button does not prove a historical 3,749-match backtest.
+- A *different* `historical-reliability-data.json` on `main` was found: generated **2026-11-15T09:30:11Z**, sourced from open-matchday single-source 2026/27 records and containing **734** historical results across seven competitions (Premier League 100, Championship 180, La Liga 119, Bundesliga 81, Serie A 110, Champions League 72, Europa League 72). It has no stored 3,749-match experimental selection census, no odds, and flags `UNVALIDATED/BLOCKED`. **Do not merge this 734-result archive into the separate conversation-reported 3,749 historical screen.**
+- Associated `.github/workflows/reliability-results-refresh.yml` executes `scripts/collect_reliability_history.py` and checks seven source audits; this is data collection, not evidence of a reproduced 3,749/279/175 formula run.
+- **Status:** model *pattern implementation* recovered; reported full original run and point-in-time features remain conversation-only. Requires original run output or an independently traceable immutable source dataset and old code revision.
+
+### HR-GRID34 — Original 12-configuration sweep not recovered
+- Confirmed `scripts/horse_context_pipeline.py` on main exposes a separate fixed heuristic with context similarity coefficients `distance: 1.0`, `going: 1.0`, `class: 0.5`, `course: 0.5`; `softmax_temperature_inverse: 2`, `distance_log_scale: 0.25`. These are **live source-code research defaults, not proof of the prior 12-run 34-race experiment**.
+- The isolated V3 branch uses yet another **+0.15 distance/+0.15 surface** ablation, in its documented *single-race* after-event test.
+- Current code search for exact `2.30722` finds the previously created conversation-recovery ledger, not a preserved original results grid. Commit searches for '12 configurations' and 'distance going' also did not identify an original sweep receipt.
+- The `research/horse-v3-individual-adaptive-pilot-20261115` branch contains source-linked individual-horse recovery/overlay JSON, but no 12-row experiment grid in its `research/horse-v3` directory.
+- **Status:** 34-race result is still conversation-reported. The `distance=1, going=2, temperature=4` experiment parameters must **not** be assumed equivalent to the current context pipeline's `distance=1, going=1, temperature_inverse=2` or the V3 pilot's 0.15 coefficients.
+
+### Verified operational evidence (not model validity)
+- GitHub Actions full research regression for the Step 4 draft PR commit `0dc5ac6c4287252bad8248eb7a5f76f9b2ac5aa6`: run `43745807306`, conclusion **success**. This is software regression status, not retrospective experiment reproduction.
+- Search limits: sampled Actions run-index pages and key research branch folders; no ZIP archive found for the original FB-3749 or HR-GRID34 run. **Do not label these original tests 'never happened'**; simply state original artifacts have not been located in the places inspected.
+- No code changes, no model fitting, no research-value promotion. Both long-term reported summary and missing provenance remain explicitly documented.
