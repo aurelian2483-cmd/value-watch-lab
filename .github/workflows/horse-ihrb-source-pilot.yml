@@ -7,6 +7,8 @@ on:
     paths:
       - 'scripts/archive_ihrb_nonrunner_page.py'
       - 'tests/test_archive_ihrb_nonrunner_page.py'
+      - 'scripts/crosscheck_ihrb_publisher_candidates.py'
+      - 'tests/test_crosscheck_ihrb_publisher_candidates.py'
       - '.github/workflows/horse-ihrb-source-pilot.yml'
   workflow_dispatch:
 
@@ -25,12 +27,20 @@ jobs:
         with:
           python-version: '3.12'
       - name: Test official regulator table parsing
-        run: python -m unittest discover -s tests -p 'test_archive_ihrb_nonrunner_page.py' -v
+        run: |
+          python -m unittest discover -s tests -p 'test_archive_ihrb_nonrunner_page.py' -v
+          python -m unittest discover -s tests -p 'test_crosscheck_ihrb_publisher_candidates.py' -v
       - name: Attempt live IHRB observation, fail closed on unavailable data
         run: |
           python scripts/archive_ihrb_nonrunner_page.py \
             --out /tmp/ihrb-prospective/receipts \
             --diagnostics /tmp/ihrb-prospective/diagnostics.json
+      - name: Compare official source with historical publisher receipts as UNVERIFIED candidates
+        run: |
+          python scripts/crosscheck_ihrb_publisher_candidates.py \
+            --fields research/horse-v3/field-observation-archive \
+            --regulator /tmp/ihrb-prospective/receipts \
+            --out /tmp/ihrb-prospective/candidates.json
       - name: Preserve isolated non-price evidence
         if: always()
         uses: actions/upload-artifact@v4
