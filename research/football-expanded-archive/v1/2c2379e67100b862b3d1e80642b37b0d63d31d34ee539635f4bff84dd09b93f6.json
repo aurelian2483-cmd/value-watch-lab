@@ -1,0 +1,74 @@
+{
+  "league": "E1",
+  "home": "Burnley",
+  "away": "Preston North End",
+  "kickoff_utc": "2026-12-06T12:00:00Z",
+  "espn_event_id": "401880122",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261206&limit=100",
+      "sha256": "ab333f8bf154c80b9b2d3c63894fae5c452f1edac0004be46d6519f7274547eb",
+      "observed_at_utc": "2026-11-15T15:52:22.806768Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-12-01",
+      "sha256": "2901ebe1d3eb1ef00b9f6ffd9089e4223be8d0c65161fe4833a9ecaab291274f",
+      "observed_at_utc": "2026-11-15T15:52:29.338018Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.5408452803033016,
+  "prob_draw": 0.2377729325536977,
+  "prob_away": 0.22138178714300066,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 7,
+    "away_matches": 7,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 180,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/E1.csv",
+        "sha256": "bdd804d2f60d84045368c8dea5abd76b29ad369dadf3c6ef6547873b72f34e4d",
+        "observed_at_utc": "2026-11-15T15:52:35.865544Z"
+      }
+    ],
+    "training_sha256": "4ce865eadccc25f75a71419d541597ac6879a4e6c15aad91c34cd7b3c322c08c",
+    "lambda_home": 1.7259481937194467,
+    "lambda_away": 1.013621794871795,
+    "home_venue_inputs": {
+      "hgf": 8,
+      "hga": 10,
+      "hn": 7,
+      "agf": 14,
+      "aga": 21,
+      "an": 8
+    },
+    "away_venue_inputs": {
+      "hgf": 8,
+      "hga": 13,
+      "hn": 8,
+      "agf": 5,
+      "aga": 17,
+      "an": 7
+    },
+    "league_home_mean": 1.6555555555555554,
+    "league_away_mean": 1.3
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-15T15:53:09.648007Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "2c2379e67100b862b3d1e80642b37b0d63d31d34ee539635f4bff84dd09b93f6"
+}
