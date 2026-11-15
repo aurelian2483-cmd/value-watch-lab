@@ -1,0 +1,69 @@
+name: V3 historical racing collection — isolated research
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-v3-collect.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  collect-2025-autumn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Capture execution identity
+        run: |
+          python --version
+          git rev-parse HEAD
+          sha256sum scripts/collect_horse_training_pilot.py scripts/collect_horse_v3_history.py
+      - name: Collect fixed-date autumn 2025 historical racing sample
+        id: collect
+        continue-on-error: true
+        run: |
+          python scripts/collect_horse_v3_history.py --batch 2025-autumn --output /tmp/horse-v3-expanded --delay-seconds 2
+      - name: Validate reported counts and restrictions
+        id: audit
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/horse-v3-expanded/2025-autumn')
+          if not (p/'summary.json').exists() or not (p/'dataset.json').exists():
+              raise SystemExit('No dataset/summary generated; collector failed before completion')
+          s=json.loads((p/'summary.json').read_text())
+          d=json.loads((p/'dataset.json').read_text())
+          assert s['collected_races']==len(d['races'])
+          assert len(d['races'])==len({r['race_id'] for r in d['races']})
+          assert d['publication_gate']=='BLOCKED' and d['model_validation']=='UNVALIDATED'
+          assert all(r['date'][:4]=='2025' for r in d['races'])
+          print(json.dumps(s,indent=2))
+          if not d['races']:
+              raise SystemExit('No eligible races collected — investigation required')
+          PY
+      - name: Save evidence for independent review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v3-2025-autumn-retrospective
+          path: /tmp/horse-v3-expanded/2025-autumn/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Report collection errors
+        if: always()
+        run: |
+          if [ "${{ steps.collect.outcome }}" != "success" ] || [ "${{ steps.audit.outcome }}" != "success" ]; then
+            echo "Collection or validation failed: no dataset expansion claim is permitted."
+            exit 1
+          fi
