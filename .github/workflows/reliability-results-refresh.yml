@@ -1,0 +1,54 @@
+name: Refresh Historical Reliability results
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 2,14 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/collect_reliability_history.py'
+      - 'tests/test_collect_reliability_history.py'
+      - '.github/workflows/reliability-results-refresh.yml'
+permissions:
+  contents: write
+concurrency:
+  group: historical-reliability-results
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check parser and fail-closed source handling
+        run: python -m unittest discover -s tests -p 'test_collect_reliability_history.py'
+      - name: Collect all seven competitions
+        run: python scripts/collect_reliability_history.py
+      - name: Validate output publication guards
+        run: |
+          python - <<'PY'
+          import json
+          feed=json.load(open('historical-reliability-data.json',encoding='utf-8'))
+          assert feed['schema_version']==1
+          assert feed['research_only'] and feed['publication_gate']=='BLOCKED'
+          assert feed['model_validation']=='UNVALIDATED'
+          assert feed['source_verification']=='SINGLE_SOURCE_UNVERIFIED'
+          assert len(feed['audit'])==7 and len(feed['results'])>=90
+          assert all(a['rows']>0 and a['status']=='SOURCE_REPORTED_UNVERIFIED' for a in feed['audit'])
+          PY
+      - name: Commit results snapshot only when changed
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add historical-reliability-data.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh seven-competition historical reliability results'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

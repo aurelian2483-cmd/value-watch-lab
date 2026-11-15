@@ -1,7 +1,9 @@
 'use strict';
 (function(root){
   const competitions=['Premier League','Championship','La Liga','Bundesliga','Serie A','Champions League','Europa League'];
-  const norm=s=>String(s||'').toLocaleLowerCase('en-GB').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/\b(fc|cf|afc|united football club)\b/g,'').replace(/[^a-z0-9]/g,'');
+  const raw=s=>String(s||'').toLocaleLowerCase('en-GB').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/\b(fc|cf|afc)\b/g,'').replace(/[^a-z0-9]/g,'');
+  const alias={mancity:'manchestercity',manutd:'manchesterunited',manunited:'manchesterunited',spurs:'tottenhamhotspur',tottenham:'tottenhamhotspur',nottmforest:'nottinghamforest',newcastleunited:'newcastle',leedsunited:'leeds',wolverhampton:'wolverhamptonwanderers',wolves:'wolverhamptonwanderers',brightonhovealbion:'brighton',intermilan:'internazionale',inter:'internazionale',acmilan:'milan',bayernmunich:'bayernmunchen',atleticomadrid:'atlmadrid',atletimadrid:'atlmadrid'};
+  const norm=s=>alias[raw(s)]||raw(s);
   function qualifyingEvidence(event, results) {
     if (!event || event.sport!=='football' || !competitions.includes(event.competition)) return {status:'OUTSIDE_SCOPE'};
     if (!Array.isArray(event.participants) || event.participants.length!==2 || !Number.isFinite(Date.parse(event.startUTC))) return {status:'MISSING_FIXTURE'};
