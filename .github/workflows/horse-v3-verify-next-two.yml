@@ -1,0 +1,48 @@
+name: Horse V3 verify 18 historical result leads
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-v3-verify-next-two.yml'
+      - 'scripts/horse_v3_verify_next_two.py'
+      - 'research/horse-v3/next-two-exact-result-urls.json'
+      - 'research/horse-v3/next-two-18-result-page-matches.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-retrospective-sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check all 18 race-result records and reject mismatches
+        id: verify
+        continue-on-error: true
+        run: |
+          git rev-parse HEAD
+          python scripts/horse_v3_verify_next_two.py
+      - name: Save source verification outcomes even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horse-v3-next-two-18-verification
+          path: /tmp/horse-v3-next-two-verification/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Block incomplete evidence
+        if: always()
+        run: |
+          if [ "${{ steps.verify.outcome }}" != "success" ]; then
+            echo "Publisher verification unresolved. Model scoring and website claims remain blocked."
+            exit 1
+          fi
