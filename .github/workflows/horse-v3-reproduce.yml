@@ -1,0 +1,38 @@
+name: V3 frozen challenger reproducibility (research only)
+
+on:
+  push:
+    branches:
+      - research/horse-v3-isolated
+    paths:
+      - '.github/workflows/horse-v3-reproduce.yml'
+      - 'research/horse-v3/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce-frozen-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
+      - name: Show environment and unchanged reference fingerprints
+        run: |
+          python --version
+          git rev-parse HEAD
+          sha256sum research/horse-challenger/model-v1.json research/horse-challenger/features-v1.json
+      - name: Install frozen reproduction dependencies
+        run: |
+          python -m pip install --disable-pip-version-check numpy scipy
+          python -m pip freeze | grep -E '^(numpy|scipy)=='
+      - name: Reproduce saved 26-race challenger evaluation
+        run: python scripts/reproduce_horse_challenger.py
