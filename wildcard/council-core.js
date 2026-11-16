@@ -169,6 +169,7 @@
  function screeningSummary(card){
   const examined=card.availableCount,sourceStates=Object.entries(card.sources||{});
   const unavailable=sourceStates.filter(([,state])=>state!=='OBSERVED').map(([id,state])=>({id,state}));
+  const observedSourceCount=sourceStates.length-unavailable.length;
   // These are *preliminary source-gated leads*, not every event supplied by providers.
   // No independently verified bookmaker price or calibrated probability is attached.
   const reasons=[
@@ -181,8 +182,8 @@
   return {qualified:0,examined,scope:'preliminary source-gated research leads',windowDays:card.windowDays,
    incomplete:true, // Market verification and independent model approval are absent, even if all feeds load.
    sourceUnavailable:unavailable,reasonCountsOverlap:true,reasons,
-   status:'PASS_RESEARCH_INCOMPLETE',fullyScreenedForBetting:false,
-   message:'PASS — No qualifying candidates established. '+0+' of '+examined+' preliminary leads cleared all five betting gates. Full event coverage and price/model verification remain incomplete.'};
+   status:observedSourceCount===0?'SOURCE_UNAVAILABLE':'PASS_RESEARCH_INCOMPLETE',fullyScreenedForBetting:false,
+   message:observedSourceCount===0?'Research incomplete — all five source feeds unavailable; no screening result established.':'PASS — No qualifying candidates established. 0 of '+examined+' preliminary leads cleared all five betting gates. Full event coverage and price/model verification remain incomplete.'};
  }
  function assumedMargin(legCount,marginPercent){
   if(!Number.isInteger(legCount)||legCount<1||legCount>5||typeof marginPercent!=='number'||!Number.isFinite(marginPercent)||marginPercent<0||marginPercent>20)return null;
