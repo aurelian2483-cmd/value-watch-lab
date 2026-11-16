@@ -258,7 +258,14 @@
       const b = button(tabs, label, () => loadStats(id, tab, panel, buttons)); b.dataset.statsTab = tab; b.setAttribute('aria-pressed', 'false'); buttons.set(tab, b);
     }
     evidence.addEventListener('toggle', () => { if (evidence.open && (!panel.dataset.loaded || panel.dataset.pending === 'true')) safely(() => loadStats(id, preferredStats(store.get().events.find(event => event.id === id)), panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
-    return { node: article, meta, time, title, status, conditions, prediction, market, racingPanel, racingDisclosure, seasonPanel, seasonDisclosure, choiceInformation, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
+    // Two primary disclosures keep all outcome cards visible while preserving original evidence widgets.
+    const researchGroup = details(article, 'Research Evidence', 'research-main-disclosure');
+    const advancedGroup = details(article, 'Advanced Analysis', 'research-main-disclosure');
+    article.insertBefore(researchGroup, tools);
+    article.insertBefore(advancedGroup, tools);
+    researchGroup.append(racingDisclosure, choiceDisclosure, evidence);
+    advancedGroup.append(seasonDisclosure, estimates, notes, matchView);
+    return { node: article, meta, time, title, status, conditions, prediction, market, racingPanel, racingDisclosure, researchGroup, advancedGroup, seasonPanel, seasonDisclosure, choiceInformation, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
   }
   function preferredStats(event) { return event?.stats?.h2h ? 'h2h' : Array.isArray(event?.stats?.recent) && event.stats.recent.length ? 'recent' : event?.stats?.rankings ? 'rankings' : 'sources'; }
   function patchCard(record, event) {
@@ -269,7 +276,7 @@
     const conditions = event.stats?.conditions; write(record.conditions, conditions ? [conditions.distance, conditions.going, conditions.raceClass && 'Class ' + conditions.raceClass].filter(Boolean).join(' · ') : event.choices[0]?.market || 'Research outcome');
     // Cross-sport v3 evidence signals: displayed independently from paper-slip selections.
     let evidencePanel=record.node.querySelector('.universal-evidence-v3');
-    if(!evidencePanel){const disclosure=details(null,'Research signals and methodology','compact-evidence-disclosure');evidencePanel=make(disclosure,'section',undefined,'universal-evidence-v3');record.prediction.after(disclosure);}
+    if(!evidencePanel){const disclosure=details(null,'Research signals and methodology','compact-evidence-disclosure');evidencePanel=make(disclosure,'section',undefined,'universal-evidence-v3');record.researchGroup.prepend(disclosure);}
     evidencePanel.replaceChildren();
     const evidenceTitle=make(evidencePanel,'strong','Evidence v3 · '+(sports[event.sport]||event.sport));
     // Show running event-level estimates separately from proposed research challengers.

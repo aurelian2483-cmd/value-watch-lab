@@ -42,6 +42,7 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   assert((await p.locator('.selection-price').filter({hasText:'%'}).count())>0);
   assert.equal(await p.locator('#build-scope option').count(),2);
   const checkLink=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.event-tools a');assert.equal(await checkLink.getAttribute('href'),'https://www.oddschecker.com/football');
+  await p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('details.research-main-disclosure').filter({has:p.locator('summary',{hasText:'Advanced Analysis'})}).first().locator('> summary').click();
   const matchBox=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.match-overview');await matchBox.locator('summary').click();await matchBox.locator('svg.sport-diagram').waitFor();assert.equal(await matchBox.locator('svg.sport-diagram').count(),1);assert((await matchBox.textContent()).includes('Live action and positions are not connected'));
   const estimateBox=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.model-details').first();await estimateBox.locator('summary').click();assert((await estimateBox.textContent()).includes('%'));
   report.checks.push('manual stake default, visible labelled estimates, two build scopes and external price-check links');
@@ -90,6 +91,7 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   await p.waitForFunction(()=>document.querySelectorAll('#slip-content .slip-selection').length===1);
   const second=p.locator('#events .event-card').filter({hasText:'Test Home 1'});await second.locator('.selection-button').first().click();await p.waitForFunction(()=>document.querySelectorAll('#slip-content .slip-selection').length===2);report.checks.push('cross-day selections');
   await p.locator('#slip-content .move-button[aria-label*="down"]').first().click();assert((await p.locator('#slip-content .slip-selection').first().textContent()).includes('Test Home 1'));report.checks.push('reorder selections');
+  await first.locator('details.research-main-disclosure').filter({has:p.locator('summary',{hasText:'Research Evidence'})}).first().locator('> summary').click();
   await first.locator('.evidence-details > summary').click();await first.locator('[data-stats-tab=h2h]').click();await first.locator('.stats-panel').getByText('Recorded meetings').waitFor();
   await p.evaluate(()=>window.__cardNode=document.querySelector('#events .event-card'));await p.locator('#stake').fill('2.50');await p.waitForTimeout(50);assert(await p.evaluate(()=>window.__cardNode===document.querySelector('#events .event-card')));assert(await first.locator('.evidence-details').evaluate(e=>e.open));report.checks.push('localized rendering retains event nodes and expanded statistics');
   await p.locator('#freeze').click();await p.locator('[data-view=history]').click();await p.locator('.history-card').first().waitFor();assert((await p.locator('#history').textContent()).includes('Test Home'));report.checks.push('immutable saved history');
