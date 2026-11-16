@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {compare}=require('../research/forecast-receipts/paired-hindsight.cjs');
 const G={research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED'};
 const forecast={...G,home:'Home FC',away:'Away FC',kickoff_utc:'2026-11-10T15:00:00Z',
- model_version:'POISSON_BASELINE_2025_26_V1',probabilities:[.5,.3,.2],
+ model_version:'POISSON_BASELINE_2025_26_V1',challenge_eligible:0,probabilities:[.5,.3,.2],
  capture_at_utc:'2026-11-09T12:00:00Z',source_generated_at_utc:'2026-11-09T11:30:00Z',
  source_sha256:'a'.repeat(64),repository_commit:'b'.repeat(40),timestamp_independently_attested:false};
 const receipt={...G,status:'REPOSITORY_SNAPSHOT_RECEIPT_NOT_INDEPENDENT_ATTESTATION',
