@@ -110,6 +110,8 @@ assert.equal(summary.examined,card.availableCount,'Show denominator as prelimina
 assert.equal(summary.windowDays,14);
 assert.equal(summary.fullyScreenedForBetting,false);
 assert.equal(summary.status,'PASS_RESEARCH_INCOMPLETE');
+const outage=C.collect(C.SOURCES.map(s=>({id:s.id,state:'UNAVAILABLE',data:null})),now,14);
+assert.equal(C.screeningSummary(outage).status,'SOURCE_UNAVAILABLE','All source failures must not masquerade as screened PASS');
 assert.equal(summary.reasons.find(r=>r.id==='price').count,card.availableCount);
 assert.equal(C.screeningSummary(slim).windowDays,7,'Discovery heading must follow selected horizon');
 assert.equal(C.screeningSummary(noHorse).sourceUnavailable.some(x=>x.id==='horse'),true,'Unobserved sources cannot imply complete screening');
