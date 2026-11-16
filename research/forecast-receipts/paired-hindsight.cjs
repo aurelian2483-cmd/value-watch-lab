@@ -35,6 +35,13 @@ function compare(receipt,settlement,externalCSV,now=Date.now()){
     if(!k){malformedExternal++;continue;}
     if(oddsMap.has(k)){oddsMap.set(k,null);duplicateExternal++;}else oddsMap.set(k,r);
   }
+  const digest=/^[a-f0-9]{64}$/i,commit=/^[a-f0-9]{40}$/i;
+  const receiptTime=ts(receipt.captured_at_utc);
+  const receiptValid=receiptTime!==null && digest.test(receipt.source_sha256||'') &&
+    commit.test(receipt.repository_commit||'');
+  // Reject metadata mismatches, rather than silently repairing history.
+  // A syntactically sound receipt still does not independently attest when the
+  // original probability estimate was created.
   const counts={forecast_records:receipt.records.length,corroborated_settlements:official.length,external_records:all.length,
     examined:0,paired_hindsight:0,no_corrob_final:0,no_external_market:0,ambiguous_identity:0,
     reversed_teams:0,disputed_result:0,missing_market:0,missing_prestart_receipt:0,
@@ -50,7 +57,13 @@ function compare(receipt,settlement,externalCSV,now=Date.now()){
     const versionKey=JSON.stringify([key,f.model_version]);
     if(seen.has(versionKey)){counts.duplicate_forecast++;continue;}
     seen.add(versionKey);counts.examined++;
-    if(ts(f.capture_at_utc)===null||ts(f.capture_at_utc)>=ts(f.kickoff_utc)){counts.missing_prestart_receipt++;continue;}
+    if(!receiptValid||f.capture_at_utc!==receipt.captured_at_utc ||
+       f.source_sha256!==receipt.source_sha256 || f.repository_commit!==receipt.repository_commit ||
+       !digest.test(f.source_sha256||'')||!commit.test(f.repository_commit||'') ||
+       ts(f.source_generated_at_utc)===null || ts(f.source_generated_at_utc)>receiptTime ||
+       ts(f.capture_at_utc)===null || ts(f.capture_at_utc)>=ts(f.kickoff_utc)){
+      counts.missing_prestart_receipt++;continue;
+    }
     if(!settlementMap.has(key)){counts.no_corrob_final++;continue;}
     const final=settlementMap.get(key);
     if(!final){counts.ambiguous_identity++;continue;}
