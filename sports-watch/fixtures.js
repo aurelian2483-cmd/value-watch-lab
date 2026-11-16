@@ -173,6 +173,25 @@
   tabs.forEach((button,index)=>button.addEventListener('click',()=>{mode=MODES[index];showMode();}));
   viewCoverage.addEventListener('click',()=>doc.querySelector('.coverage-panel').scrollIntoView({behavior:'auto',block:'start'}));
   showUpcoming.addEventListener('click',()=>{mode='upcoming';showMode();});
+  // Keep the prominent sport buttons and the actual live fixture selector in sync.
+  // Previously, these independent sport controls made a click appear ineffective.
+  const sportsButtons=el('sports');
+  if(sportsButtons)sportsButtons.addEventListener('click',event=>{
+    const button=event.target.closest('button[data-sport]');
+    if(!button||!sportsButtons.contains(button))return;
+    const chosen=button.dataset.sport;
+    if(chosen==='all'||SPORTS.includes(chosen)){
+      mode='live';
+      sportEl.value=chosen;
+      showMode();
+      doc.getElementById('fixture-title').scrollIntoView({behavior:'auto',block:'start'});
+    }else{
+      mode='manual';
+      showMode();
+      setStatus('Automatic live fixtures for '+chosen+' are not supported by this provider. Enter the match manually below.');
+      doc.getElementById('match-workflow-title').scrollIntoView({behavior:'auto',block:'start'});
+    }
+  });
   sportEl.addEventListener('change',loadFixtures);
   refresh.addEventListener('click',()=>{cache.clear();loadFixtures();});
   showMode();
