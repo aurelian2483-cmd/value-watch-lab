@@ -28,7 +28,7 @@ assert.equal(V.wording({ok:true,forecastCount:0}).active,false);
 assert.match(V.wording({ok:true,forecastCount:0}).badge,/AWAITING/);
 assert.equal(V.wording({ok:true,forecastCount:5}).active,false);
 const desk=fs.readFileSync(path.join(__dirname,"../paper-lab/desk.js"),"utf8");
-assert.match(desk,/ValueWatchHorseV3Plus\?\.attach\(record\.node, 'racing', leg\.model\)/);
+assert.match(desk,/ValueWatchHorseV3Plus\?\.attach\(reasonDetails, 'racing', leg\.model\)/);
 assert.match(desk,/ValueWatchHorseV3Plus\?\.attach\(record\.racingPanel, 'racing', event\.model\)/);
 for(const page of ["index.html","paper-lab/index.html"]){
  const html=fs.readFileSync(path.join(__dirname,"..",page),"utf8");
