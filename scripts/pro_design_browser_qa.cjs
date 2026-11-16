@@ -117,6 +117,7 @@ const server=http.createServer((req,res)=>{
    await page.screenshot({path:path.join(out,'pro-analyst-'+width+'.png'),fullPage:false});
    assert.deepEqual(errors,[],'Analyst runtime errors');
    await page.goto('http://127.0.0.1:8177/wildcard/',{waitUntil:'domcontentloaded'});
+   await page.locator('.council-research-disclosure > summary').click();
    await page.locator('#three-lenses .lens').first().waitFor({timeout:15000});
    await page.waitForFunction(()=>document.querySelector('#council-outcome')?.dataset.state!=='loading',{timeout:18000});
    assert.equal(await page.locator('#council-outcome').getAttribute('data-state'),'PASS_RESEARCH_INCOMPLETE','Research must show explicit conservative PASS state');
