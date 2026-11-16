@@ -6,9 +6,9 @@
 <body><header><span class="logo">▶</span><div><strong>CRICFy</strong> <small>WEB LAB · BROWSER PROTOTYPE</small></div></header>
 <main>
 <section id="home"><div class="hero"><div class="eyebrow">Browser-based test</div><h1>Select a sport. Browse matches.</h1><p>Choose a sport, add your own authorised channels or matches, and play compatible videos. This prototype does not execute the original Android APK or supply its streaming feeds.</p><button class="primary" data-page="player">Open video player →</button></div><div class="panel" id="apk-sources"><div class="eyebrow">Experimental · APK-discovered endpoints</div><h2>Original app service links</h2><p>These URLs were found inside the APK but are not verified safe or operational. No connections are made automatically. External links leave this site; do not enter credentials or install software from them.</p><div id="apk-links"></div><button class="secondary" id="test-lookup">Test channel lookup (read-only)</button><div class="status" id="lookup-status" role="status" aria-live="polite">Not tested in this browser.</div><pre id="lookup-preview" style="white-space:pre-wrap;word-break:break-word;font-size:12px;max-height:220px;overflow:auto;color:#b5c4d6"></pre></div><div class="panel" id="catalog-import"><div class="eyebrow">Browser-native · Opt-in</div><h2>Import authorised channels</h2><p>Load a JSON or standard M3U playlist from your device. Entries stay in this browser; nothing is uploaded to our website. Only HTTPS MP4, WebM, and HLS links are accepted. This does not unlock streams or bypass DRM, login, or provider restrictions.</p><label for="catalog-file">Choose JSON or M3U playlist</label><input type="file" id="catalog-file" accept=".json,.m3u,.m3u8,.txt,application/json,text/plain"><label for="catalog-text">Or paste JSON / M3U</label><textarea id="catalog-text" rows="5" style="display:block;width:100%;background:#0d1829;border:1px solid #455872;border-radius:12px;color:#fff;padding:12px;font:13px ui-monospace,monospace;resize:vertical" placeholder='[{"sport":"cricket","name":"Licensed channel","url":"https://example.org/video.m3u8"}]'></textarea><div class="row"><button class="secondary" id="catalog-example">Load test example</button><button class="primary" id="catalog-apply">Import channels</button><button class="secondary" id="catalog-export">Export catalogue</button><button class="secondary" id="catalog-clear">Clear catalogue</button></div><div id="catalog-status" class="status" role="status" aria-live="polite">No catalogue imported.</div></div><h2>Explore</h2><input id="search" placeholder="Search sports" aria-label="Search sports"><div id="sports" class="sport-grid"></div></section>
-<section id="matches" hidden><div class="row"><h2 id="sport-heading">Matches &amp; channels</h2><button class="secondary" data-page="home">← Sports</button></div><h3>Imported channels <span id="catalog-count" class="muted"></span></h3><div id="catalog-matches"></div><h3>My entries</h3><div id="matches-list"></div><div class="panel"><h3>Add match or channel</h3><label for="item-name">Name</label><input id="item-name" placeholder="Example: My authorised channel"><label for="item-url">Video URL (optional, HTTPS)</label><input id="item-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="add">Add entry</button><button class="secondary" id="clear-list">Clear sport</button></div><div id="item-status" class="status" role="status"></div></div></section>
+<section id="matches" hidden><div class="row"><h2 id="sport-heading">Matches &amp; channels</h2><button class="secondary" data-page="home">← Sports</button></div><h3>Imported channels <span id="catalog-count" class="muted"></span></h3><label for="channel-search">Find a channel in this sport</label><input id="channel-search" type="search" placeholder="Search imported channels" aria-label="Search imported channels"><div id="catalog-matches"></div><h3>My entries</h3><div id="matches-list"></div><div class="panel"><h3>Add match or channel</h3><label for="item-name">Name</label><input id="item-name" placeholder="Example: My authorised channel"><label for="item-url">Video URL (optional, HTTPS)</label><input id="item-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="add">Add entry</button><button class="secondary" id="clear-list">Clear sport</button></div><div id="item-status" class="status" role="status"></div></div></section>
 <section id="player" hidden><h2>Browser video player</h2><div class="panel"><p id="selected">No match or channel selected yet.</p><div class="row"><button class="secondary" id="back">← Back to matches</button></div><video id="video" class="player" controls playsinline preload="none"></video><p>Use a local video or an authorised browser-compatible HTTPS source.</p><label for="local-video">Choose video file</label><input id="local-video" type="file" accept="video/mp4,video/webm,video/*"><label for="video-url">Direct video URL</label><input id="video-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="load">Load video</button><button class="secondary" id="fullscreen">Fullscreen</button><button class="secondary" id="stop">Stop / clear</button></div><div id="player-status" class="status" role="status"></div><div class="panel" style="margin-top:20px"><h3>Playback diagnostic</h3><p>Test with a CC0 sample clip. This is not a CRICFy channel.</p><button class="secondary" id="demo-play">Load CC0 test clip</button><button class="secondary" id="device-check">Check browser</button><div id="device-report" class="status" role="status" aria-live="polite"></div></div></div></section>
-<section id="saved" hidden><h2>My favourites</h2><div id="favorites"></div></section>
+<section id="saved" hidden><h2>My favourites</h2><div id="favorites"></div><h3>Saved channels</h3><div id="channel-favorites"></div></section>
 <section id="about" hidden><h2>About this prototype</h2><div class="panel"><p>This independent browser-only research prototype demonstrates navigation, user-defined lists, local storage, and browser video playback. It is not an Android emulator and does not contain CRICFy APK code or live feeds.</p><p>Version 0.6 · Hosted-browser trial.</p><p id="js-status">JavaScript loaded successfully.</p><button class="secondary" id="reset-favs">Clear favourites</button></div></section>
 </main><nav class="bottom" aria-label="Navigation"><button class="tab active" data-page="home"><span>⌂</span>Home</button><button class="tab" data-page="player"><span>▶</span>Player</button><button class="tab" data-page="saved"><span>☆</span>Saved</button><button class="tab" data-page="about"><span>⚙</span>About</button></nav>
 <script>
@@ -23,8 +23,8 @@ function sportName(id){return cats.find(x=>x[0]===id)?.[1]||id}
 function openSport(id){if(!cats.some(x=>x[0]===id))return;sport=id;lastSport=id;$('sport-heading').textContent=(cats.find(x=>x[0]===id)[2])+' '+sportName(id)+' — Matches & channels';drawItems();page('matches')}
 function makeSport(c){const card=document.createElement('div');card.className='sport-card';const icon=document.createElement('div');icon.className='emoji';icon.textContent=c[2];const h=document.createElement('h3');h.textContent=c[1];const row=document.createElement('div');row.className='row';const open=document.createElement('button');open.textContent='Browse matches';open.onclick=()=>openSport(c[0]);const fav=document.createElement('button');fav.textContent=favs.includes(c[0])?'★':'☆';fav.setAttribute('aria-label','Toggle favourite '+c[1]);fav.onclick=()=>{favs=favs.includes(c[0])?favs.filter(x=>x!==c[0]):[...favs,c[0]];persist();drawSports();drawFavs()};row.append(open,fav);card.append(icon,h,row);return card}
 function drawSports(){const q=$('search').value.trim().toLowerCase();$('sports').replaceChildren(...cats.filter(c=>c[1].toLowerCase().includes(q)).map(makeSport))}
-function drawFavs(){const items=cats.filter(c=>favs.includes(c[0]));const dest=$('favorites');dest.replaceChildren();if(!items.length){dest.textContent='No favourites saved yet. Add a star on Home.';return}const grid=document.createElement('div');grid.className='sport-grid';grid.append(...items.map(makeSport));dest.append(grid)}
-function drawItems(){const dest=$('matches-list');dest.replaceChildren();const data=Array.isArray(entries[sport])?entries[sport]:[];if(!data.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No entries yet. Add a match or channel below.';dest.append(empty)}data.forEach((entry,i)=>{const card=document.createElement('div');card.className='item-card';const heading=document.createElement('h3');heading.textContent=entry.name;const desc=document.createElement('p');desc.textContent=entry.url?'Video URL supplied (not verified)':'No video URL supplied';const select=document.createElement('button');select.textContent='Select / play';select.onclick=()=>{$('selected').textContent=sportName(sport)+' · '+entry.name;lastSport=sport;if(entry.url)setVideo(entry.url);page('player')};const remove=document.createElement('button');remove.textContent='Remove';remove.onclick=()=>{entries[sport].splice(i,1);persist();drawItems()};card.append(heading,desc,select,document.createTextNode(' '),remove);dest.append(card)})}
+function drawFavs(){const items=cats.filter(c=>favs.includes(c[0]));const dest=$('favorites');dest.replaceChildren();if(!items.length){dest.textContent='No favourite sports saved yet. Add a star on Home.'}else{const grid=document.createElement('div');grid.className='sport-grid';grid.append(...items.map(makeSport));dest.append(grid)}if(typeof drawChannelFavs==='function')drawChannelFavs()}
+function drawItems(){const dest=$('matches-list');dest.replaceChildren();const data=Array.isArray(entries[sport])?entries[sport]:[];if(!data.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No entries yet. Add a match or channel below.';dest.append(empty)}data.forEach((entry,i)=>{const card=document.createElement('div');card.className='item-card';const heading=document.createElement('h3');heading.textContent=entry.name;const desc=document.createElement('p');desc.textContent=entry.url?'Video URL supplied (not verified)':'No video URL supplied';const select=document.createElement('button');select.textContent='Select / play';select.onclick=()=>{$('selected').textContent=sportName(sport)+' · '+entry.name;lastSport=sport;if(entry.url){$('video-url').value=entry.url;setVideo(entry.url)}else{$('video').pause();$('video').removeAttribute('src');$('video').load();$('video-url').value='';$('player-status').textContent='No URL supplied for this entry.'}page('player')};const remove=document.createElement('button');remove.textContent='Remove';remove.onclick=()=>{entries[sport].splice(i,1);persist();drawItems()};card.append(heading,desc,select,document.createTextNode(' '),remove);dest.append(card)})}
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>page(b.dataset.page)));
 $('search').addEventListener('input',drawSports);
 $('add').onclick=()=>{const name=$('item-name').value.trim(),url=$('item-url').value.trim();if(!name){$('item-status').textContent='Enter a name first.';return}if(url){try{if(new URL(url).protocol!=='https:')throw Error()}catch{$('item-status').textContent='Please provide a valid HTTPS URL.';return}}const arr=Array.isArray(entries[sport])?entries[sport]:[];if(arr.length>=100){$('item-status').textContent='Maximum 100 entries per sport.';return}arr.push({name,url});entries[sport]=arr;persist();$('item-name').value='';$('item-url').value='';$('item-status').textContent='Saved.';drawItems()};
@@ -32,7 +32,7 @@ $('clear-list').onclick=()=>{if(confirm('Delete the entries for this sport?')){e
 function setVideo(src){const v=$('video');v.pause();if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null}v.src=src;v.load();$('player-status').textContent='Source loaded. Tap Play.'}
 $('local-video').onchange=e=>{const f=e.target.files?.[0];if(!f)return;const url=URL.createObjectURL(f);setVideo(url);objectUrl=url};
 $('load').onclick=()=>{try{const u=new URL($('video-url').value.trim());if(u.protocol!=='https:')throw Error();setVideo(u.href)}catch{$('player-status').textContent='Enter a valid HTTPS video URL.'}};
-$('video').addEventListener('error',()=>{$('player-status').textContent='Playback failed. Check codec, permissions and video URL.'});
+$('video').addEventListener('error',()=>{const v=$('video'),code=v.error?.code||0;const reasons={1:'Playback cancelled.',2:'Network or source request failed.',3:'Video decoding failed (codec or damaged stream).',4:'Video format or source unsupported, or server rejected access.'};$('player-status').textContent='Playback failed: '+(reasons[code]||'Unknown media error.')+' For HLS, your browser and provider must both support playback.'});
 $('fullscreen').onclick=async()=>{const v=$('video');try{if(v.webkitEnterFullscreen)v.webkitEnterFullscreen();else if(v.requestFullscreen)await v.requestFullscreen();else $('player-status').textContent='Fullscreen not supported.'}catch{$('player-status').textContent='Fullscreen blocked.'}};
 $('stop').onclick=()=>{const v=$('video');v.pause();v.removeAttribute('src');v.load();if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null}$('player-status').textContent='Video cleared.'};
 $('back').onclick=()=>openSport(lastSport);
@@ -168,24 +168,60 @@ function importText(text){
 function saveCatalog(){
  try{localStorage.setItem(CATALOG_KEY,JSON.stringify(catalog));$('catalog-status').textContent='Saved '+catalog.length+' channels on this device.'}
  catch{$('catalog-status').textContent='Browser storage unavailable; imported list is temporary.'}
- drawCatalog();drawSports();
+ drawCatalog();drawSports();drawChannelFavs();
+}
+
+const CHANNEL_FAVS_KEY='cricfy-channel-favourites-v1';
+let channelFavs=safeLoad(CHANNEL_FAVS_KEY,[]);
+if(!Array.isArray(channelFavs))channelFavs=[];
+function channelKey(entry){return entry.sport+'|'+entry.url}
+function isChannelFav(entry){return channelFavs.includes(channelKey(entry))}
+function toggleChannelFav(entry){
+ const key=channelKey(entry);
+ channelFavs=isChannelFav(entry)?channelFavs.filter(x=>x!==key):[...channelFavs,key];
+ try{localStorage.setItem(CHANNEL_FAVS_KEY,JSON.stringify(channelFavs))}catch{}
+ drawCatalog();drawChannelFavs();
+}
+function playCatalogEntry(entry){
+ $('selected').textContent=sportName(entry.sport)+' · '+entry.name;
+ lastSport=entry.sport;$('video-url').value=entry.url;setVideo(entry.url);page('player');
+}
+function catalogCard(entry){
+ const card=document.createElement('div');card.className='item-card';
+ const title=document.createElement('h3');title.textContent=entry.name;
+ const info=document.createElement('p');info.textContent='Imported HTTPS video · availability not verified';
+ const btn=document.createElement('button');btn.textContent='Open in player';btn.onclick=()=>playCatalogEntry(entry);
+ const favorite=document.createElement('button');
+ favorite.textContent=isChannelFav(entry)?'★ Saved':'☆ Save';
+ favorite.setAttribute('aria-label',(isChannelFav(entry)?'Remove favourite ':'Save favourite ')+entry.name);
+ favorite.onclick=()=>toggleChannelFav(entry);
+ card.append(title,info,btn,document.createTextNode(' '),favorite);
+ return card;
 }
 function drawCatalog(){
  const list=$('catalog-matches');list.replaceChildren();
- const matches=catalog.filter(e=>e.sport===sport);
- $('catalog-count').textContent='('+matches.length+')';
+ const all=catalog.filter(e=>e.sport===sport);
+ const query=$('channel-search').value.trim().toLowerCase();
+ const matches=all.filter(e=>e.name.toLowerCase().includes(query));
+ $('catalog-count').textContent='('+matches.length+(query?' of '+all.length:'')+')';
  if(!matches.length){
-  const empty=document.createElement('div');empty.className='empty';empty.textContent='No imported channels for this sport.';list.append(empty);return
+  const empty=document.createElement('div');empty.className='empty';
+  empty.textContent=query?'No channel matches your search.':'No imported channels for this sport.';
+  list.append(empty);return;
  }
- matches.forEach(entry=>{
-  const card=document.createElement('div');card.className='item-card';
-  const title=document.createElement('h3');title.textContent=entry.name;
-  const info=document.createElement('p');info.textContent='Imported HTTPS video · availability not verified';
-  const btn=document.createElement('button');btn.textContent='Open in player';
-  btn.onclick=()=>{$('selected').textContent=sportName(entry.sport)+' · '+entry.name;lastSport=entry.sport;$('video-url').value=entry.url;setVideo(entry.url);page('player')};
-  card.append(title,info,btn);list.append(card);
- });
+ list.append(...matches.map(catalogCard));
 }
+function drawChannelFavs(){
+ const target=$('channel-favorites');target.replaceChildren();
+ const matches=catalog.filter(isChannelFav);
+ if(!matches.length){
+  const message=document.createElement('div');message.className='empty';
+  message.textContent='No saved imported channels. Open a sport and tap Save.';
+  target.append(message);return;
+ }
+ target.append(...matches.map(catalogCard));
+}
+$('channel-search').addEventListener('input',drawCatalog);
 const previousOpenSport=openSport;
 openSport=function(id){previousOpenSport(id);drawCatalog()};
 $('catalog-apply').onclick=()=>{
