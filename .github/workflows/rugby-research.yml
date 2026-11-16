@@ -35,7 +35,7 @@ jobs:
           assert d['schema_version']==1 and d['research_only'] is True
           assert d['publication_gate']=='BLOCKED' and d['model_validation']=='UNVALIDATED'
           assert all(x['code'] in ('RU','RL') and x['forecast_eligible'] is False for x in d['upcoming_fixtures'])
-          assert all(d['source_health'][code]['collection_status'] in ('SOURCE_UNAVAILABLE','PARTIAL_SOURCE_ERRORS','NO_CONFIRMED_FIXTURES','CONFIRMED_FIXTURES_OBSERVED') for code in ('RU','RL'))
+          assert all(d['source_health'][code]['collection_status'] in ('SOURCE_UNAVAILABLE','PARTIAL_SOURCE_ERRORS','NO_CONFIRMED_FIXTURES_IN_SAMPLE','CONFIRMED_FIXTURES_OBSERVED_IN_SAMPLE') for code in ('RU','RL'))
           print('Rugby fixtures:',len(d['upcoming_fixtures']))
           PY
       - name: Publish confirmed fixtures
