@@ -67,3 +67,26 @@
 .challenge-race small{color:#9dbcc8;font-size:10px}
 @media(max-width:1000px){.challenge-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.model-challenge-section{margin:16px 0;padding:12px}.challenge-grid{grid-template-columns:1fr}.challenge-tile{padding:12px}}
+
+/* PASS-first research result; PASS is a safe decision, not a betting approval. */
+.council-outcome{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;gap:18px;margin:0 0 24px;padding:24px;border:1px solid #54758a;border-radius:16px;background:linear-gradient(125deg,#123041,#0c1f31);box-shadow:0 14px 34px #0005}
+.council-outcome[data-state="PASS_RESEARCH_INCOMPLETE"]{border-color:#80b5ad;background:linear-gradient(130deg,#143d3b,#102a36)}
+.council-outcome[data-state="failed"]{border-color:#e4a469;background:linear-gradient(130deg,#3a2925,#192334)}
+.outcome-icon{display:grid;place-items:center;width:54px;height:54px;border-radius:12px;background:#285459;color:#d4ffec;font-weight:900;font-size:26px}
+.outcome-copy{min-width:0}.outcome-copy h2{font-size:clamp(20px,2.4vw,32px);line-height:1.2;margin:8px 0;color:#e9fff3}.outcome-copy p{line-height:1.6;color:#c1d7e0;font-size:13px}
+.outcome-reasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:10px;margin:16px 0}
+.outcome-reason{min-width:0;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px;border:1px solid #436778;border-radius:9px;background:#081e2bd9;color:#dce9f1;font-size:12px;overflow-wrap:break-word}
+.outcome-reason strong{flex-shrink:0;color:#e8cd89}.outcome-reason.missing{border-color:#986f40}
+.outcome-caveat{grid-column:1/-1;font-size:11px!important;color:#bfd1dc!important;margin:0}
+.outcome-meta{font-size:11px!important;color:#a2bfcd!important;margin-bottom:0}.outcome-retry{white-space:nowrap}
+.section-health{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;margin:10px 0;background:#12273a;border:1px solid #315571;border-radius:9px;color:#b9d0de;font-size:11px;line-height:1.5}
+.section-health button{border:1px solid #6b8aa1;color:#eaf9ff;background:#1d405b;border-radius:7px;padding:6px 10px}
+.lens-evidence-sample{border-top:1px solid #3f5870;padding-top:10px;color:#e9c77e;font-size:11px;line-height:1.5}
+.margin-analysis{padding:14px 16px;margin-top:15px;background:#0b2131;border:1px solid #47677a;border-radius:10px}
+.margin-analysis h3{font-size:16px;margin:0 0 8px;color:#f1d18a}
+.margin-analysis p,.margin-analysis small{font-size:12px;line-height:1.55;color:#c1d2df}
+.margin-analysis label{display:flex;flex-direction:column;gap:8px;font-size:12px;color:#d7ebf4}
+.margin-analysis input{max-width:140px;background:#091c2d;border:1px solid #6a8ca3;color:#fff;border-radius:7px;padding:9px}
+#margin-result{margin-top:12px;padding:11px;border-left:3px solid #e3bf7d;background:#29301f;color:#f0e7d2;line-height:1.6;font-size:12px}
+@media(max-width:780px){.council-outcome{grid-template-columns:auto minmax(0,1fr);padding:16px}.outcome-retry{grid-column:1/-1;justify-self:start}}
+@media(max-width:460px){.council-outcome{grid-template-columns:minmax(0,1fr)}.outcome-icon{display:none}.outcome-reasons{grid-template-columns:1fr}}
