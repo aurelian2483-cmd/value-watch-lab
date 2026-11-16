@@ -5,7 +5,7 @@
 </style></head>
 <body><header><span class="logo">▶</span><div><strong>CRICFy</strong> <small>WEB LAB · BROWSER PROTOTYPE</small></div></header>
 <main>
-<section id="home"><div class="hero"><div class="eyebrow">Browser-based test</div><h1>Select a sport. Browse matches.</h1><p>Choose a sport, add your own authorised channels or matches, and play compatible videos. This prototype does not execute the original Android APK or supply its streaming feeds.</p><button class="primary" data-page="player">Open video player →</button></div><h2>Explore</h2><input id="search" placeholder="Search sports" aria-label="Search sports"><div id="sports" class="sport-grid"></div></section>
+<section id="home"><div class="hero"><div class="eyebrow">Browser-based test</div><h1>Select a sport. Browse matches.</h1><p>Choose a sport, add your own authorised channels or matches, and play compatible videos. This prototype does not execute the original Android APK or supply its streaming feeds.</p><button class="primary" data-page="player">Open video player →</button></div><div class="panel" id="apk-sources"><div class="eyebrow">Experimental · APK-discovered endpoints</div><h2>Original app service links</h2><p>These URLs were found inside the APK but are not verified safe or operational. No connections are made automatically. External links leave this site; do not enter credentials or install software from them.</p><div id="apk-links"></div><button class="secondary" id="test-lookup">Test channel lookup (read-only)</button><div class="status" id="lookup-status" role="status" aria-live="polite">Not tested in this browser.</div><pre id="lookup-preview" style="white-space:pre-wrap;word-break:break-word;font-size:12px;max-height:220px;overflow:auto;color:#b5c4d6"></pre></div><h2>Explore</h2><input id="search" placeholder="Search sports" aria-label="Search sports"><div id="sports" class="sport-grid"></div></section>
 <section id="matches" hidden><div class="row"><h2 id="sport-heading">Matches &amp; channels</h2><button class="secondary" data-page="home">← Sports</button></div><div id="matches-list"></div><div class="panel"><h3>Add match or channel</h3><label for="item-name">Name</label><input id="item-name" placeholder="Example: My authorised channel"><label for="item-url">Video URL (optional, HTTPS)</label><input id="item-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="add">Add entry</button><button class="secondary" id="clear-list">Clear sport</button></div><div id="item-status" class="status" role="status"></div></div></section>
 <section id="player" hidden><h2>Browser video player</h2><div class="panel"><p id="selected">No match or channel selected yet.</p><div class="row"><button class="secondary" id="back">← Back to matches</button></div><video id="video" class="player" controls playsinline preload="none"></video><p>Use a local video or an authorised browser-compatible HTTPS source.</p><label for="local-video">Choose video file</label><input id="local-video" type="file" accept="video/mp4,video/webm,video/*"><label for="video-url">Direct video URL</label><input id="video-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="load">Load video</button><button class="secondary" id="fullscreen">Fullscreen</button><button class="secondary" id="stop">Stop / clear</button></div><div id="player-status" class="status" role="status"></div></div></section>
 <section id="saved" hidden><h2>My favourites</h2><div id="favorites"></div></section>
@@ -37,5 +37,39 @@ $('fullscreen').onclick=async()=>{const v=$('video');try{if(v.webkitEnterFullscr
 $('stop').onclick=()=>{const v=$('video');v.pause();v.removeAttribute('src');v.load();if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null}$('player-status').textContent='Video cleared.'};
 $('back').onclick=()=>openSport(lastSport);
 $('reset-favs').onclick=()=>{favs=[];persist();drawSports();drawFavs()};
+
+const discoveredSources=[
+ {label:'DokoPlay site',url:'https://dokoplay.xyz/'},
+ {label:'Channel lookup endpoint',url:'https://dokoplay.xyz/server_lookup.php?channel_id=premium'},
+ {label:'NewEmbedPlay site',url:'https://newembedplay.xyz/'},
+ {label:'Configured app address',url:'https://cfygsjsgdj141.top/'}
+];
+(function renderAPKLinks(){
+ const host=$('apk-links');
+ for(const entry of discoveredSources){
+  const panel=document.createElement('div');panel.className='item-card';
+  const title=document.createElement('h3');title.textContent=entry.label;
+  const address=document.createElement('p');address.textContent=entry.url;address.style.overflowWrap='anywhere';
+  const open=document.createElement('a');open.className='secondary';open.href=entry.url;
+  open.target='_blank';open.rel='noopener noreferrer';open.textContent='Open externally';open.style.display='inline-block';open.style.textDecoration='none';
+  panel.append(title,address,open);host.append(panel);
+ }
+})();
+$('test-lookup').addEventListener('click',async()=>{
+ const status=$('lookup-status'), preview=$('lookup-preview');
+ preview.textContent='';status.textContent='Testing direct browser access (no proxy)...';
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),6500);
+ try{
+  const response=await fetch(discoveredSources[1].url,{method:'GET',mode:'cors',credentials:'omit',redirect:'error',signal:controller.signal,headers:{Accept:'application/json, text/plain;q=0.8'}});
+  const kind=(response.headers.get('content-type')||'').toLowerCase();
+  status.textContent='HTTP '+response.status+' · '+(kind||'unknown content type')+'. Displaying a limited text preview only.';
+  if(!response.ok) return;
+  if(!kind.includes('json')&&!kind.includes('text/')){preview.textContent='Not a JSON/text response; refusing to interpret it as a video URL.';return}
+  const raw=(await response.text()).slice(0,1200);
+  preview.textContent=raw.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'');
+ }catch(e){status.textContent=e.name==='AbortError'?'Request timed out.':'No browser-readable response (network, CORS, or redirect blocked).';}
+ finally{clearTimeout(timer)}
+});
+
 drawSports();if(['home','matches','player','saved','about'].includes(location.hash.slice(1)))page(location.hash.slice(1));else page('home');
 </script></body></html>
