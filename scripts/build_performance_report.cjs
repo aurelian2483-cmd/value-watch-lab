@@ -30,7 +30,7 @@ const report={schema_version:1,kind:'INDEPENDENT_RESEARCH_PERFORMANCE_V1',resear
  generated_at_utc:generated.toISOString(),week_start_utc:key,week_end_exclusive_utc:periodEnd,
  evidence_sha256:inputHash,verified_betting_value:false,verified_roi:false,
  forecast_records:ledger.records.length,outcome_archive_records:results.records.length,contract_matched_pairs:model.totalScored??0,
- verdict:model.status,review:model.review,integrity:model.evidence,source_health:health,performance_by_sport:metrics,
+ verdict:model.status,review:model.review,integrity:model.evidence,source_health:health,performance_by_sport:metrics,paired_model_comparisons:P.compareModels(ledger,results),
  notes:['This is a rolling weekly research report, not a historical weekly backtest.',
  'No score is shown where no independently contract-matched prospective result exists.',
  'Provider status and receipt metadata are not external attestation of authenticity.',
