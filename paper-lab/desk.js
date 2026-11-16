@@ -1088,9 +1088,11 @@
     if(!target||!control)return;
     const currentWeek=wildcardWeek(today()),data=wildcardSaved();
     const saved=data?.entries?.find(row=>row.week===currentWeek);
+    const keepResearchOpen=Boolean(target.querySelector('.wildcard-archive[open]'));
     target.replaceChildren();
     const makeArchive=()=>{
       const archive=details(target,'Full Gold Council research · risk studio & current research radar','wildcard-archive');
+      archive.open=keepResearchOpen;
       renderWildcardRisk(archive);
       renderWildcardDiscovery(archive);
     };
@@ -1130,6 +1132,7 @@
     }
     make(target,'p','Verified bookmaker odds: unavailable · Combined win probability: unavailable · Potential payout: unavailable.','wildcard-compact-warning');
     const archive=details(target,'Full Gold Council research · source audit, limitations & alternatives','wildcard-archive');
+    archive.open=keepResearchOpen;
     make(archive,'p','Original frozen weekly snapshot · created '+dateText(review.generatedAt)+'. The current research radar can change as feeds refresh.','wildcard-note');
     make(archive,'p','Automated screening only, not approval by independent mathematicians or betting specialists. Model probabilities are unvalidated; fair value and real maximum winnings cannot be calculated.','wildcard-note');
     for(const sport of ['football','racing','tennis','nfl']){
