@@ -2,6 +2,11 @@ name: Prospective source-observed Tennis and NFL archive
 on:
   schedule:
     - cron: '35 * * * *'
+  # A controlled first collection on merge of this workflow edit; normal data pushes do not retrigger.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/prospective-evidence-capture.yml'
   workflow_dispatch:
   pull_request:
     paths:
@@ -29,7 +34,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_prospective_capture.py' -v
           python -m unittest discover -s tests -p 'test_result_observations.py' -v
   capture:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     needs: verify
     runs-on: ubuntu-24.04
     timeout-minutes: 10
