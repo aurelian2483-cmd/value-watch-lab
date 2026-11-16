@@ -1,6 +1,6 @@
 <!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#09131f"><title>Gold Wildcard Council · Value Watch Pro</title>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self';script-src 'self';style-src 'self';connect-src 'self';img-src 'self' data:;object-src 'none';base-uri 'self';form-action 'none'">
-<link rel="stylesheet" href="./council.css?v=4"></head><body><a class="skip" href="#council">Skip to Gold Council</a>
+<link rel="stylesheet" href="./council.css?v=5"></head><body><a class="skip" href="#council">Skip to Gold Council</a>
 <div class="wrapper"><header class="top">
 <a href="../" class="brand"><span class="mark">▥</span><span>VALUE WATCH <b>PRO</b><small>Sports Intelligence Centre</small></span></a>
 <nav aria-label="Primary"><a href="../">⌂ Betting Hub</a><a href="../analyst/">▥ Analyst Terminal</a><a class="active" href="./" aria-current="page">★ Gold Council</a><a href="../#slip-panel">▤ Four original slips</a></nav>
@@ -12,17 +12,23 @@
 <p class="lead">A featured research ticket shaped by market discipline, portfolio risk and racing mathematics—not a mechanical choice of how many legs to add.</p>
 <div class="hero-bottom"><span>✦ NOT A BETTING RECOMMENDATION</span><span id="time-stamp">Checking source files…</span></div>
 </section>
+<section class="council-outcome" id="council-outcome" data-state="loading" aria-labelledby="outcome-title" aria-live="polite">
+<div class="outcome-icon" aria-hidden="true">✓</div><div class="outcome-copy"><span class="eyebrow">RESEARCH SCREENING RESULT · NOT A BETTING SIGNAL</span>
+<h2 id="outcome-title">Loading published research sources…</h2><p id="outcome-subtitle">Checking source availability, eligibility and evidence. No selections are implied.</p>
+<div id="outcome-reasons" class="outcome-reasons"></div><p class="outcome-meta" id="outcome-meta">Last checked: not yet · research window: 14 days</p></div>
+<button type="button" class="refresh outcome-retry" data-retry>↻ Retry check</button>
+</section>
 <div class="primary-layout">
 <section class="ticket" aria-labelledby="ticket-title">
 <div class="ticket-glow"></div>
 <div class="ticket-head"><div><span class="eyebrow">★ THE GOLD STANDARD · WEEKLY RESEARCH</span><h2 id="ticket-title">THE COUNCIL CARD</h2></div><span class="ticket-no">01 / GOLD</span></div>
-<div class="ticket-summary"><span class="ticket-state">RESEARCH · NOT APPROVED</span><span id="window-label">14-day discovery window</span></div>
+<div class="ticket-summary"><span class="ticket-state">RESEARCH · NOT APPROVED</span><span id="window-label">14-day research horizon · checking</span></div>
 <div class="ticket-main">
 <div class="ticket-watermark" aria-hidden="true">★</div>
 <div id="ticket-legs" class="ticket-legs" aria-live="polite"><p class="muted">Checking future model-backed research events…</p></div>
 <div class="ticket-selection-note" id="ticket-selection-note">Screening methodology pending.</div>
 </div>
-<div class="ticket-review-strip" aria-label="Three automated Council decisions"><a href="#council-title"><span>WALTERS · PRICE</span><strong id="ticket-walters">Checking…</strong></a><a href="#council-title"><span>BLOOM · RISK</span><strong id="ticket-bloom">Checking…</strong></a><a href="#benter-heading"><span>BENTER · RACING</span><strong id="ticket-benter">Checking…</strong></a></div>
+<div class="ticket-review-strip" aria-label="Three automated Council decisions"><a href="#council-title"><span>PRICE DISCIPLINE</span><strong id="ticket-walters">Not run yet</strong></a><a href="#council-title"><span>PORTFOLIO RISK</span><strong id="ticket-bloom">Not run yet</strong></a><a href="#benter-heading"><span>RACING MODEL</span><strong id="ticket-benter">Not run yet</strong></a></div>
 <div class="ticket-racing-note" id="ticket-racing-note">Horse-racing review pending.</div>
 <div class="ticket-research-radar" id="ticket-research-radar" aria-live="polite">Checking blocked football and horse-racing research leads…</div>
 <details class="ticket-alternatives"><summary id="alternative-summary">Review other screened candidates</summary><div id="ticket-alternatives" aria-live="polite"><p class="muted">Loading screened alternatives…</p></div></details>
@@ -45,10 +51,10 @@
 </div>
 <section class="council-section" aria-labelledby="council-title">
 <div class="section-heading"><div><span class="eyebrow">THREE COMPETING METHODOLOGIES</span><h2 id="council-title">THE COUNCIL'S VERDICT</h2></div><p>Independent automated review lenses. No personal involvement, employment, endorsement or human sign-off by the named individuals.</p></div>
-<div id="three-lenses" class="lenses"><p class="muted">Preparing three-method audit…</p></div>
+<div class="section-health" id="lenses-health" aria-live="polite">Automated method reviews not run yet · <button type="button" data-retry>Retry</button></div><div id="three-lenses" class="lenses"><p class="muted">Not run yet. No personal reviews or endorsements.</p></div>
 </section>
 <section class="lab-section" aria-labelledby="benter-heading"><div class="lab-title"><span class="horse-icon" aria-hidden="true">♞</span><div><span class="eyebrow">BENTER-INSPIRED RACING DESK</span><h2 id="benter-heading">THE RACING LAB</h2></div><span class="lab-state" id="horse-state">CHECKING RACE DATA</span></div>
-<div class="lab-grid">
+<div class="section-health" id="racing-health" aria-live="polite">Racing evidence not checked yet · <button type="button" data-retry>Retry</button></div><div class="lab-grid">
 <div class="lab-body"><h3>Every runner earns a place.</h3><p>A horse must have a real future race, confirmed field/runner, pre-event forecast and source trace before being considered for the Council Card. Historical races and yesterday's favourites never become today's selections.</p><div class="lab-metrics"><div><small>Observed racecards</small><strong id="races-observed">—</strong></div><div><small>Current forecasts</small><strong id="horse-forecasts">—</strong></div><div><small>Archived forecasts</small><strong id="horse-archive">—</strong></div><div><small>Eligible contenders</small><strong id="horse-eligible">—</strong></div></div></div>
 <div class="lab-gates"><h3>Benter model challenge · actual archival evidence</h3>
 <div class="horse-scoreline"><span>Scored historic races</span><strong id="horse-scored">—</strong></div>
@@ -61,13 +67,18 @@
 </div></section>
 <section class="model-challenge-section" aria-labelledby="model-challenge-heading">
 <div class="section-heading"><div><span class="eyebrow">MATHEMATICAL RESEARCH · NOT BETTING PICKS</span><h2 id="model-challenge-heading">Four-method independent challenge</h2></div><p>Real-source diagnostics, missing evidence and conflicting hypotheses. Not expert endorsements or validated betting strategies.</p></div>
-<div id="model-challenge-summary" class="challenge-grid" aria-live="polite"><p>Evaluating source snapshots…</p></div>
+<div class="section-health" id="challenge-health" aria-live="polite">Model comparison not run yet · <button type="button" data-retry>Retry</button></div><div id="model-challenge-summary" class="challenge-grid" aria-live="polite"><p>Evaluating source snapshots…</p></div>
 <div id="horse-field-diagnostics" class="challenge-field"><p>Full-field racing probability checks pending.</p></div>
 </section>
 <section class="insight-layout">
-<div class="panel"><div class="panel-kicker">THE RESEARCH UNIVERSE</div><h2>What the four sports contribute</h2><div class="coverage" id="sport-coverage">Loading source coverage…</div></div>
-<div class="panel"><div class="panel-kicker">THE PRICE CHALLENGE</div><h2>Hypothetical ticket simulator</h2><p class="muted">Optional arithmetic for the featured legs only. Entered odds are unverified and local to this screen, with no implied bookmaker quote, calibrated likelihood or recommended stake.</p><div id="manual-prices" class="manual-prices"></div><label>Hypothetical stake (£, max 10)<input id="stake" inputmode="decimal" type="text" maxlength="5" value="1.00"></label><div class="sim-result" id="sim-result">Payout unavailable without valid prices for every leg.</div></div>
+<div class="panel"><div class="panel-kicker">THE RESEARCH UNIVERSE</div><h2>What the four sports contribute</h2><div class="section-health" id="coverage-health" aria-live="polite">Source coverage not checked yet · <button type="button" data-retry>Retry</button></div><div class="coverage" id="sport-coverage">Not checked yet.</div></div>
+<div class="panel"><div class="panel-kicker">THE PRICE CHALLENGE</div><h2>Hypothetical ticket simulator</h2><p class="muted">Optional arithmetic for the featured legs only. Entered odds are unverified and local to this screen, with no implied bookmaker quote, calibrated likelihood or recommended stake.</p><div id="manual-prices" class="manual-prices"></div><label>Hypothetical stake (£, max 10)<input id="stake" inputmode="decimal" type="text" maxlength="5" value="1.00"></label><div class="sim-result" id="sim-result">Payout unavailable without valid prices for every leg.</div>
+<div class="margin-analysis" aria-labelledby="margin-heading"><h3 id="margin-heading">Bookmaker margin drag · illustrative only</h3>
+<p>Actual overround requires prices for <strong>every outcome</strong> in each market. Selection prices alone cannot establish a bookmaker's margin.</p>
+<label>Assumed proportional margin per independent leg (%) <input type="number" id="assumed-margin" min="0" max="20" step="0.5" value="5" inputmode="decimal"></label>
+<div id="margin-result" aria-live="polite">Select a scenario to see a hypothetical margin illustration.</div>
+<small>For independent legs at assumed margin m, implied-probability inflation = (1+m)<sup>n</sup>−1. This is not measured overround, actual ticket EV or a guaranteed disadvantage of this size.</small></div></div>
 </section>
 <details class="audit-detail"><summary>View source restrictions and why candidates were excluded</summary><div id="audit-detail" class="audit-inner">Source checks pending.</div></details>
 <footer><p><b>INDEPENDENT CONCEPT.</b> Bill Benter, Tony Bloom and Billy Walters do not contribute to or endorse this software. Their names label methodological ideas only. No real betting service, price verification, actual stakes or wagers are connected.</p><p>Model validation UNVALIDATED · Publication BLOCKED · Research only</p></footer>
-</main></div><script src="./council-core.js?v=2" defer></script><script src="./model-challenge.js?v=1" defer></script><script src="./council.js?v=4" defer></script></body></html>
+</main></div><script src="./council-core.js?v=3" defer></script><script src="./model-challenge.js?v=1" defer></script><script src="./council.js?v=5" defer></script></body></html>

@@ -166,16 +166,43 @@
     selectionPolicy:'First source-gated future event per sport, ordered by start time within each sport; remaining events by start time. This is NOT an EV, confidence or win-probability ranking.',
     disclaimer:'Preliminary research, not approved selections. No verified Sky Bet odds, model calibration, joint probability or positive EV.'};
  }
+ function screeningSummary(card){
+  const examined=card.availableCount,sourceStates=Object.entries(card.sources||{});
+  const unavailable=sourceStates.filter(([,state])=>state!=='OBSERVED').map(([id,state])=>({id,state}));
+  const observedSourceCount=sourceStates.length-unavailable.length;
+  // These are *preliminary source-gated leads*, not every event supplied by providers.
+  // No independently verified bookmaker price or calibrated probability is attached.
+  const reasons=[
+   {id:'price',label:'No independently verified executable bookmaker price',count:examined},
+   {id:'validation',label:'No independently calibrated probability or approved model',count:examined}
+  ];
+  if(card.exclusions.footballCurrentSeason)reasons.push({id:'season',label:'Football current-season model evidence missing',count:card.exclusions.footballCurrentSeason});
+  if(card.exclusions.footballSchedule)reasons.push({id:'schedule',label:'Football fixture/model mismatch',count:card.exclusions.footballSchedule});
+  if(card.exclusions.racingPreEvent)reasons.push({id:'racing',label:'Racing pre-event evidence rejected',count:card.exclusions.racingPreEvent});
+  return {qualified:0,examined,scope:'preliminary source-gated research leads',windowDays:card.windowDays,
+   incomplete:true, // Market verification and independent model approval are absent, even if all feeds load.
+   sourceUnavailable:unavailable,reasonCountsOverlap:true,reasons,
+   status:observedSourceCount===0?'SOURCE_UNAVAILABLE':'PASS_RESEARCH_INCOMPLETE',fullyScreenedForBetting:false,
+   message:observedSourceCount===0?'Research incomplete — all five source feeds unavailable; no screening result established.':'PASS — No qualifying candidates established. 0 of '+examined+' preliminary leads cleared all five betting gates. Full event coverage and price/model verification remain incomplete.'};
+ }
+ function assumedMargin(legCount,marginPercent){
+  if(!Number.isInteger(legCount)||legCount<1||legCount>5||typeof marginPercent!=='number'||!Number.isFinite(marginPercent)||marginPercent<0||marginPercent>20)return null;
+  const factor=(1+marginPercent/100)**legCount;
+  return {legs:legCount,assumedPerLegMarginPercent:marginPercent,
+   impliedProbabilityInflationPercent:(factor-1)*100,
+   illustrativeFairPayoutReductionPercent:(1-1/factor)*100,
+   verified:false,independenceAssumed:true,expectedValue:null};
+ }
  function council(card,selected){
   const featured=Array.isArray(selected)?selected:(card.featured||[]),horse=card.horse;
   const uniqueSports=new Set(featured.map(c=>c.meta.sport));
   return [
-   {id:'walters',name:'Walters',role:'Market discipline',status:'PRICE CHECK REQUIRED',
-    decision:'HOLD',explanation:'No independently verified executable Sky Bet price or market movement; no defensible monetary edge can be calculated.'},
-   {id:'bloom',name:'Bloom',role:'Risk and portfolio',status:featured.length>=2?'DEPENDENCE UNKNOWN':'INSUFFICIENT LEGS',
-    decision:'REVIEW',explanation:featured.length>=2?'Different sports reduce some shared exposures, but independence, market correlations and settlement conventions remain untested.':'Insufficient model-backed selections for a cross-sport combination.'},
-   {id:'benter',name:'Benter',role:'Horse-racing model',status:horse.eligible?'RACING MODEL UNVALIDATED':'HORSE RACING NOT READY',
-    decision:'HOLD',explanation:horse.eligible?'Pre-race experimental horse evidence exists but fair-price and calibration checks are missing.':'No verified current pre-race horse candidate; '+horse.observed+' observed races and '+horse.historical+' historical forecasts cannot be promoted into live picks.'}
+   {id:'walters',name:'Price discipline',role:'Market price and evidence quality',status:'INSUFFICIENT EVIDENCE',
+    decision:'HOLD',sample:0,sampleUnit:'verified executable prices',explanation:'0 independently verified executable Sky Bet quotations; no market-based EV can be established.'},
+   {id:'bloom',name:'Portfolio risk',role:'Dependence, correlation and accumulation',status:'INSUFFICIENT EVIDENCE',
+    decision:'HOLD',sample:featured.length,sampleUnit:'preliminary research legs',explanation:featured.length>=2?'The displayed legs are unverified hypotheses; correlation and joint probability have not been estimated.':'Fewer than two preliminary source-gated leads are displayed; no correlation model can be evaluated.'},
+   {id:'benter',name:'Racing model',role:'Out-of-sample horse-racing validation',status:'INSUFFICIENT EVIDENCE',
+    decision:'HOLD',sample:horse.modelScore?.independent||0,sampleUnit:'independently verified outcomes in archived scorecard',explanation:horse.eligible?'Pre-race experimental research leads exist, but independent calibration and fair-price evidence are missing.':'No verified current pre-race horse pick. Historical observations cannot become live selections.'}
   ].map(x=>({...x,signoff:'AUTOMATED_METHOD_LENS_ONLY',cardSports:uniqueSports.size}));
  }
  function explainCandidate(c){
@@ -224,5 +251,5 @@
   return {multiplier:mult,gross,net:gross-stake,winningProbability:null,expectedValue:null,
     label:'Hypothetical arithmetic only, not executable betting prices'};
  }
- return Object.freeze({SOURCES,inspect,collect,council,scenarios,explainCandidate,compareScenario,hypotheticalReturn});
+ return Object.freeze({SOURCES,inspect,collect,council,scenarios,explainCandidate,compareScenario,hypotheticalReturn,screeningSummary,assumedMargin});
 });
