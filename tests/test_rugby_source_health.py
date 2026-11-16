@@ -16,8 +16,11 @@ class RugbySourceHealth(unittest.TestCase):
   self.assertEqual(output['upcoming_fixtures'],[])
   for code in ('RU','RL'):
    h=output['source_health'][code]
-   self.assertEqual(h['days_succeeded'],14)
-   self.assertEqual(h['collection_status'],'NO_CONFIRMED_FIXTURES')
+   self.assertEqual(h['days_succeeded'],2)
+   self.assertEqual(h['days_requested'],2)
+   self.assertEqual(h['horizon_days'],14)
+   self.assertFalse(h['complete_horizon_coverage'])
+   self.assertEqual(h['collection_status'],'NO_CONFIRMED_FIXTURES_IN_SAMPLE')
    self.assertEqual(h['rows_returned'],0)
   self.assertEqual(output['publication_gate'],'BLOCKED')
  def test_provider_failure_is_not_misreported_as_empty_schedule(self):
@@ -31,7 +34,8 @@ class RugbySourceHealth(unittest.TestCase):
   example={'idEvent':'12345','strSport':'Rugby','strHomeTeam':'A','strAwayTeam':'B','strLeague':'Example League','idLeague':'100','strTimestamp':None}
   output=collect(NOW,lambda url:json.dumps({'events':[example]}).encode())
   self.assertEqual(output['upcoming_fixtures'],[])
-  self.assertEqual(output['source_health']['RU']['rows_without_confirmed_start'],14)
+  self.assertEqual(output['source_health']['RU']['rows_without_confirmed_start'],2)
   self.assertEqual(output['source_health']['RL']['rows_matching_sport'],0)
+  self.assertEqual(output['source_health']['RL']['days_requested'],2)
 
 if __name__=='__main__': unittest.main()
