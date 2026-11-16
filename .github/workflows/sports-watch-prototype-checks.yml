@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/sports-watch-secure-prototype
+      - feature/sports-watch-livetv-handoff-test
       - fix/sports-watch-live-data-reliability
       - fix/sports-watch-select-visible-result
       - feature/sports-watch-coverage-handoff
@@ -31,6 +32,8 @@ jobs:
       - name: Probe live fixture provider connectivity and response schema
         continue-on-error: true
         run: node sports-watch/feed-smoke.cjs
+      - name: Validate external LiveTV.sx handoff constraints
+        run: node --test sports-watch/livetv-handoff.test.cjs
       - name: Install repository test dependencies
         run: npm ci --ignore-scripts
       - name: Install Chromium for browser QA
@@ -45,6 +48,7 @@ jobs:
           node --check sports-watch/sports-watch.js
           node --check sports-watch/fixtures.js
           node --check sports-watch/coverage.js
+          node --check sports-watch/livetv-handoff.js
       - name: Verify standalone prototype assets
         run: |
           test -s sports-watch/index.html
@@ -52,5 +56,6 @@ jobs:
           test -s sports-watch/sports-watch.js
           test -s sports-watch/fixtures.js
           test -s sports-watch/coverage.js
+          test -s sports-watch/livetv-handoff.js
           grep -q 'href="./sports-watch/"' index.html
           grep -q 'frame-src https://www.youtube-nocookie.com' sports-watch/index.html
