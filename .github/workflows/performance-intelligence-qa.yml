@@ -1,0 +1,51 @@
+name: Performance intelligence release QA (staging only)
+on:
+  pull_request:
+    paths:
+      - 'validation-centre/**'
+      - 'scripts/build_performance_report.cjs'
+      - 'tests/test_performance_intelligence.cjs'
+      - 'tests/test_performance_release_integrity.cjs'
+      - '.github/workflows/performance-intelligence-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  performance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify research metrics, evidence gates and security invariants
+        run: |
+          node --check validation-centre/performance-core.js
+          node --check validation-centre/app.js
+          node tests/test_performance_intelligence.cjs
+          node tests/test_performance_release_integrity.cjs
+      - name: Build strictly offline weekly report from checked-in evidence
+        run: |
+          node scripts/build_performance_report.cjs
+          node - <<'NODE'
+          const fs=require('fs'),assert=require('assert/strict');
+          const x=JSON.parse(fs.readFileSync('research/performance-report-latest.json','utf8'));
+          const led=JSON.parse(fs.readFileSync('prediction-ledger.json','utf8'));
+          const outcomes=JSON.parse(fs.readFileSync('results-feed.json','utf8'));
+          assert.equal(x.kind,'INDEPENDENT_RESEARCH_PERFORMANCE_V1');
+          assert.equal(x.research_only,true);assert.equal(x.model_validation,'UNVALIDATED');
+          assert.equal(x.publication_gate,'BLOCKED');
+          assert.equal(x.verified_betting_value,false);assert.equal(x.verified_roi,false);
+          assert.equal(x.forecast_records,led.records.length);
+          assert.equal(x.outcome_archive_records,outcomes.records.length);
+          assert.equal(x.source_health.length,7);
+          assert.equal(Object.keys(x.performance_by_sport).length,7);
+          assert(Array.isArray(x.paired_model_comparisons));
+          assert(x.contract_matched_pairs<=Math.min(led.records.length,outcomes.records.length));
+          console.log('PASS: weekly offline report and 7 sport source-coverage readiness');
+          NODE
+      - name: Confirm PR has no generated archive mutations
+        run: |
+          git status --short
+          git diff --exit-code -- prediction-ledger.json results-feed.json
