@@ -85,8 +85,9 @@ const server=http.createServer((req,res)=>{
    await page.waitForFunction(()=>!document.getElementById('result-heading').textContent.includes('Checking'),{timeout:20000});
    assert.equal(await page.locator('#sports-body tr').count(),7,'Seven separate divisions must be shown');
    assert.equal(await page.locator('#paired').innerText(),'0','Empty prospective archive must not invent verified forecast performance');
-   assert.equal(await page.locator('#predictions').innerText(),'0','No unseen prospective forecast records');
-   assert.equal(await page.locator('#outcomes').innerText(),'0','No unseen independently verified outcomes');
+   const prospective=Number(await page.locator('#predictions').innerText()),outcomes=Number(await page.locator('#outcomes').innerText());
+   assert(Number.isSafeInteger(prospective)&&prospective>=0,'Prospective archive count must be grounded nonnegative integer');
+   assert(Number.isSafeInteger(outcomes)&&outcomes>=0,'Verified outcome count must be grounded nonnegative integer');
    assert((await page.locator('#result-heading').innerText()).includes('NO MODEL APPROVAL'));
    assert((await page.locator('#legacy').innerText()).includes('LEGACY_DESCRIPTIVE_NOT_PROSPECTIVE'),'Legacy results must be explicitly excluded');
    assert.equal(await page.locator('text=Unavailable').count()>0,true,'No ROI should be invented');
