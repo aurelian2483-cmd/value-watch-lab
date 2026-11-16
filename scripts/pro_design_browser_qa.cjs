@@ -72,7 +72,9 @@ const server=http.createServer((req,res)=>{
    await page.waitForFunction(()=>!document.getElementById('refreshed').textContent.includes('Checking research'),{timeout:12000});
    assert((await page.locator('#refreshed').innerText()).includes('Research snapshot available')||(await page.locator('#refreshed').innerText()).includes('STALE SNAPSHOT'));
    assert((await page.locator('#source-health').innerText()).includes('Partial source sample only'),'Rugby source health must disclose incomplete coverage');
-   assert((await page.locator('#fixtures').innerText()).includes('No source-confirmed future fixtures'),'No unsourced rugby events or model forecasts');
+   const rugbyFixtures=await page.locator('#fixtures .fixture').count();
+   if(!rugbyFixtures) assert((await page.locator('#fixtures').innerText()).includes('No source-confirmed future fixtures'),'Missing rugby coverage must not invent fixtures');
+   else assert((await page.locator('#fixtures').innerText()).includes('No validated model probability'),'Sourced rugby schedule must not imply forecasts');
    await page.locator('[data-code="RL"]').click();
    assert.equal(await page.locator('[data-code="RL"]').getAttribute('aria-pressed'),'true');
    assert((await page.locator('#sport-heading').innerText()).includes('Rugby League'));
