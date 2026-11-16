@@ -30,6 +30,15 @@ class MarketTests(unittest.TestCase):
      self.assertEqual(result['favourite_horse_ids'],[])
      self.assertFalse(result['executable_verified'])
      self.rides=original
+ def test_overflowing_fraction_cannot_publish_nonfinite_or_zero_profit_price(self):
+  cases=[('9'*400+'/'+ '9'*400,3),('2/'+ '9'*400,1.001),('0/1',1.001)]
+  for fraction,decimal in cases:
+   with self.subTest(fraction=fraction[:20], decimal=decimal):
+    self.rides[0]['bookmakerOdds'][0].update(fractionalOdds=fraction,decimalOdds=decimal)
+    result=self.run_market()
+    self.assertEqual(result['status'],'INVALID_QUOTE')
+    self.assertEqual(result['quotes'],[])
+    self.assertEqual(result['favourite_horse_ids'],[])
  def test_integer_market_identifiers_remain_supported(self):
   for i,ride in enumerate(self.rides):
    ride['bookmakerOdds'][0].update(bookmakerRaceid=123,bookmakerMarketId=456,selectionId=100+i)
