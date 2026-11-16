@@ -125,7 +125,9 @@
     cancelLoadTimeout();
     frame.removeAttribute('src');
     frame.hidden=true;
+    frame.style.display='none';
     empty.hidden=false;
+    empty.style.display='flex';
     stop.disabled=true;
     fullscreen.disabled=true;
     ytLink.hidden=true;
@@ -145,7 +147,9 @@
     const currentRequest = ++playerRequest;
     frame.src=safe;
     frame.hidden=false;
+    frame.style.display='block';
     empty.hidden=true;
+    empty.style.display='none';
     stop.disabled=false;
     fullscreen.disabled=false;
     ytLink.href='https://www.youtube.com/watch?v='+id;
