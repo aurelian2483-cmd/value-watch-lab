@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/collect_rugby.py'
+      - 'tests/test_rugby_source_health.py'
       - '.github/workflows/rugby-research.yml'
   schedule:
     - cron: '35 7 * * *'
@@ -24,6 +25,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m py_compile scripts/collect_rugby.py
+      - run: python -m unittest discover -s tests -p 'test_rugby_source_health.py' -v
       - run: python -u scripts/collect_rugby.py
       - name: Validate isolated research data
         run: |
@@ -33,6 +35,7 @@ jobs:
           assert d['schema_version']==1 and d['research_only'] is True
           assert d['publication_gate']=='BLOCKED' and d['model_validation']=='UNVALIDATED'
           assert all(x['code'] in ('RU','RL') and x['forecast_eligible'] is False for x in d['upcoming_fixtures'])
+          assert all(d['source_health'][code]['collection_status'] in ('SOURCE_UNAVAILABLE','PARTIAL_SOURCE_ERRORS','NO_CONFIRMED_FIXTURES','CONFIRMED_FIXTURES_OBSERVED') for code in ('RU','RL'))
           print('Rugby fixtures:',len(d['upcoming_fixtures']))
           PY
       - name: Publish confirmed fixtures

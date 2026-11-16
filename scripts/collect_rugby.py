@@ -22,7 +22,7 @@ def collect(now=None,fetch=get):
     now=now or dt.datetime.now(UTC)
     events={};audit={}
     for code,sport in SPORTS.items():
-        health={'days_requested':14,'days_succeeded':0,'source_errors':[],'free_api_may_truncate':True,'events':0}
+        health={'days_requested':14,'days_succeeded':0,'source_errors':[],'free_api_may_truncate':True,'events':0,'rows_returned':0,'rows_matching_sport':0,'rows_without_confirmed_start':0}
         for offset in range(14):
             date=(now+dt.timedelta(days=offset)).date().isoformat()
             url='https://www.thesportsdb.com/api/v1/json/123/eventsday.php?'+urllib.parse.urlencode({'d':date,'s':sport})
@@ -33,9 +33,11 @@ def collect(now=None,fetch=get):
                 if rows is None:rows=[]
                 if not isinstance(rows,list):raise ValueError('Invalid events schema')
                 health['days_succeeded']+=1
+                health['rows_returned']+=len(rows)
                 receipt={'url':url,'sha256':hashlib.sha256(raw).hexdigest(),'observed_at_utc':stamp(now)}
                 for row in rows:
-                    if row.get('strSport')!=sport:continue
+                    if not isinstance(row,dict) or row.get('strSport')!=sport:continue
+                    health['rows_matching_sport']+=1
                     home=row.get('strHomeTeam');away=row.get('strAwayTeam')
                     league=row.get('strLeague');league_id=row.get('idLeague')
                     event_id=row.get('idEvent')
@@ -43,7 +45,9 @@ def collect(now=None,fetch=get):
                     if home.strip()==away.strip():continue
                     # Date-only observations cannot establish a kick-off time.
                     start=row.get('strTimestamp')
-                    if not isinstance(start,str) or not start.strip():continue
+                    if not isinstance(start,str) or not start.strip():
+                        health['rows_without_confirmed_start']+=1
+                        continue
                     try:
                         parsed=dt.datetime.fromisoformat(start.replace('Z','+00:00'))
                         if parsed.tzinfo is None or not now+dt.timedelta(minutes=5)<parsed<now+dt.timedelta(days=14):continue
@@ -62,6 +66,7 @@ def collect(now=None,fetch=get):
             except Exception as exc:
                 health['source_errors'].append({'day':date,'error':type(exc).__name__})
         health['events']=sum(row['code']==code for row in events.values())
+        health['collection_status']='SOURCE_UNAVAILABLE' if health['days_succeeded']==0 else 'PARTIAL_SOURCE_ERRORS' if health['days_succeeded']<health['days_requested'] else 'NO_CONFIRMED_FIXTURES' if health['events']==0 else 'CONFIRMED_FIXTURES_OBSERVED'
         audit[code]=health
     return {'schema_version':1,'generated_at_utc':stamp(now),'research_only':True,
         'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
@@ -73,7 +78,5 @@ def collect(now=None,fetch=get):
             'No verified odds, probability, expected value or betting recommendations.']}
 if __name__=='__main__':
     result=collect()
-    if result['upcoming_fixtures']:
-        (ROOT/'rugby-research-data.json').write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n')
-        print('Published',len(result['upcoming_fixtures']),'rugby fixtures')
-    else:print('No source-confirmed rugby fixtures; retained existing published snapshot')
+    (ROOT/'rugby-research-data.json').write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+    print('Published current rugby source health and',len(result['upcoming_fixtures']),'confirmed fixtures; no probabilities or betting picks')
