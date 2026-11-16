@@ -31,7 +31,7 @@ const main=async()=>{
    await context.route('https://sportscore.com/**',route=>{
      const requested=new URL(route.request().url());
      const sport=requested.searchParams.get('sport');
-     const upcoming=requested.pathname.includes('/fixtures/');
+     const upcoming=requested.searchParams.get('status')==='upcoming';
      const matches=upcoming
        ? (sport==='tennis'?[{home:'Player Alpha',away:'Player Beta',status:'upcoming',time:'2026-11-16T16:00:00Z',competition:'Test tennis'}]:[])
        : (sport==='football'?[{home:'Live Home',away:'Live Away',status:'live',time:'2026-11-16T12:00:00Z',competition:'Test league',home_score:1,away_score:0},{home:'Finished',away:'Game',status:'finished',time:'2026-11-16T10:00:00Z'}]:[]);
