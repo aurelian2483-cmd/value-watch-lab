@@ -37,6 +37,8 @@ const main=async()=>{
    assert.equal(await page.getByRole('button',{name:/Darts/}).getAttribute('aria-pressed'),'true');
    await page.getByRole('button',{name:/All sports/}).click();
    assert.equal(await page.locator('.provider').count(),12);
+   // Simulate a stale CSS rule overriding the HTML hidden attribute on iOS.
+   await page.addStyleTag({content:'.player-empty[hidden]{display:flex}'});
    const input=page.locator('#video-url');
    await input.fill('https://livetv.sx/');
    await page.getByRole('button',{name:'Load video'}).click();
