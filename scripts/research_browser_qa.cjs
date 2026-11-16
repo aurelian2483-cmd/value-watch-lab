@@ -49,7 +49,7 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   await p.evaluate(value=>localStorage.setItem('vw26-prototype-v2',value),legacy24);
   const workspaceBefore = await p.evaluate(()=>localStorage.getItem('value-watch-research-desk-v4'));
   assert.equal(await p.locator('#engine-select').inputValue(),'current');
-  await p.locator('#engine-select').focus(); await p.keyboard.press('e'); await p.keyboard.press('Tab');
+  await p.locator('#engine-select').focus(); await p.keyboard.press('ArrowDown'); await p.keyboard.press('Tab');
   assert.equal(await p.locator('#engine-select').inputValue(),'experimental');
   assert((await p.locator('#engine-analysis').textContent()).includes('ILLUSTRATIVE'));
   assert((await p.locator('#engine-analysis').textContent()).includes('Unavailable'));
