@@ -18,6 +18,9 @@ on:
       - 'tests/test_result_reconciliation.py'
       - 'scripts/collect_secondary_nfl_results.py'
       - 'tests/test_secondary_nfl_results.py'
+      - 'validation-centre/performance-core.js'
+      - 'scripts/build_performance_report.cjs'
+      - 'tests/test_performance_intelligence.cjs'
       - '.github/workflows/prospective-evidence-capture.yml'
 permissions:
   contents: read
@@ -39,6 +42,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_result_observations.py' -v
           python -m unittest discover -s tests -p 'test_result_reconciliation.py' -v
           python -m unittest discover -s tests -p 'test_secondary_nfl_results.py' -v
+          node tests/test_performance_intelligence.cjs
   capture:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     needs: verify
@@ -61,6 +65,8 @@ jobs:
         run: python scripts/collect_secondary_nfl_results.py
       - name: Build conservative corroboration review queue
         run: python scripts/reconcile_result_evidence.py
+      - name: Produce rolling weekly descriptive performance and source-health report
+        run: node scripts/build_performance_report.cjs
       - name: Validate immutable archive contract and unverified queue
         run: |
           python - <<'PY'
@@ -85,6 +91,10 @@ jobs:
           assert review['independently_verified_results_added']==0
           assert review['publication_gate']=='BLOCKED'
           assert all(row['auto_certified'] is False and row['betting_eligible'] is False for row in review['items'])
+          report=json.loads(Path('research/performance-report-latest.json').read_text())
+          assert report['publication_gate']=='BLOCKED' and report['verified_betting_value'] is False and report['verified_roi'] is False
+          assert report['contract_matched_pairs']==0 if not json.loads(Path('results-feed.json').read_text())['records'] else report['contract_matched_pairs']>=0
+          assert len(report['source_health'])==7
           print('Frozen forecasts:',len(ledger['records']),'New:',audit['appended'],'Pending unverified outcomes:',queue['pending_count'])
           PY
       - name: Persist archive and audit only, never overwrite current forecasts
@@ -92,7 +102,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- prediction-ledger.json research/prospective-capture-audit.json research/pending-independent-results.json research/provider-result-observations.json research/secondary-result-evidence.json research/result-review-status.json
+          git add -- prediction-ledger.json research/prospective-capture-audit.json research/pending-independent-results.json research/provider-result-observations.json research/secondary-result-evidence.json research/result-review-status.json research/performance-report-latest.json research/performance-reports
           if ! git diff --cached --quiet; then
             git commit -m 'Append prospective Tennis/NFL experimental evidence (no outcome certification)'
             # Rebase conflicts fail closed; never force-push or silently overwrite competing archives.

@@ -84,6 +84,11 @@ const server=http.createServer((req,res)=>{
    await page.goto('http://127.0.0.1:8177/validation-centre/',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!document.getElementById('result-heading').textContent.includes('Checking'),{timeout:20000});
    assert.equal(await page.locator('#sports-body tr').count(),7,'Seven separate divisions must be shown');
+   assert.equal(await page.locator('#performance-rows tr').count(),7,'All seven sports need honest performance statuses');
+   assert((await page.locator('#performance-state').innerText()).toLowerCase().includes('contract-matched'),'Performance must show its independent sample evidence state');
+   assert.equal(await page.locator('#model-comparison').count(),1,'Paired model comparisons must have a visible container');
+   assert.equal(await page.locator('#calibration-bars').count(),1,'Calibration must expose accessible chart container');
+   assert((await page.locator('#coverage-report').innerText()).length>20,'Seven-sport coverage must not be silent or empty');
    assert.equal(await page.locator('#paired').innerText(),'0','Empty prospective archive must not invent verified forecast performance');
    const prospective=Number(await page.locator('#predictions').innerText()),outcomes=Number(await page.locator('#outcomes').innerText());
    assert(Number.isSafeInteger(prospective)&&prospective>=0,'Prospective archive count must be grounded nonnegative integer');

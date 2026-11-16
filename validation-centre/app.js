@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const C=window.ValueWatchIndependentValidation,$=id=>document.getElementById(id),SOURCES=['research-dashboard-data.json','horse-research-status.json','other-sports-data.json','darts/feed.json','rugby-research-data.json','research-history.json','prediction-ledger.json','results-feed.json','research/result-review-status.json'];
+const C=window.ValueWatchIndependentValidation,$=id=>document.getElementById(id),SOURCES=['research-dashboard-data.json','horse-research-status.json','other-sports-data.json','darts/feed.json','rugby-research-data.json','research-history.json','prediction-ledger.json','results-feed.json','research/result-review-status.json','research/performance-report-latest.json'];
 const write=(id,s)=>$(id).textContent=String(s);
 const add=(p,tag,value,cls)=>{const e=document.createElement(tag);if(value!==undefined)e.textContent=String(value);if(cls)e.className=cls;p.append(e);return e};
 const when=ts=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',dateStyle:'medium',timeStyle:'short'}).format(new Date(ts))+' UK';
@@ -52,6 +52,50 @@ function showReview(feed,forecastCount){
  for(const key of valid){if(!counts[key])continue;const tile=add(box,'div');add(tile,'span',labels[key]);add(tile,'strong',counts[key]);}
  meta.textContent='Last review snapshot: '+(feed.generated_at_utc&&Number.isFinite(Date.parse(feed.generated_at_utc))?when(feed.generated_at_utc):'undated')+' · No approved outcomes or betting performance claimed.';
 }
+function showPerformance(ledger,outcomes,review,weekly){
+ const core=window.ValueWatchPerformanceIntelligence;
+ const body=$('performance-rows'),bars=$('calibration-bars');body.replaceChildren();bars.replaceChildren();
+ const f=x=>typeof x==='number'&&Number.isFinite(x)?x.toFixed(3):'—';
+ if(!core){write('performance-state','Performance module unavailable; no independent claims.');return;}
+ const summary=core.build(ledger,outcomes,review,Date.now());
+ write('performance-state',summary.status==='INVALID_ARCHIVE'?'INVALID SCORED ARCHIVE — METRICS BLOCKED':summary.totalScored+' contract-matched prospective result(s) · no model certified');
+ for(const sport of core.SPORTS){
+   const m=summary.metrics[sport.id],row=add(body,'tr');
+   add(row,'td',sport.name);add(row,'td',m.n);
+   const ci=m.hitInterval;
+   add(row,'td',m.accuracy===null?'—':(100*m.accuracy).toFixed(1)+'% ('+(100*ci.lower).toFixed(0)+'–'+(100*ci.upper).toFixed(0)+'%)');
+   add(row,'td',f(m.brier));add(row,'td',f(m.uniformBrier));add(row,'td',f(m.logLoss));add(row,'td',m.status,'blocked');
+ }
+ const comparisons=core.compareModels(ledger,outcomes),comparisonBox=$('model-comparison');comparisonBox.replaceChildren();
+ if(!comparisons.length)add(comparisonBox,'p','No same-event pairs of distinct frozen model versions are available. No winner claimed.');
+ else {
+  const t=add(comparisonBox,'table'),h=add(add(t,'thead'),'tr');['Sport','Model A','Model B','Paired events','Mean Brier A','Mean Brier B','Status'].forEach(x=>add(h,'th',x));const tbody=add(t,'tbody');
+  for(const m of comparisons.slice(0,30)){const row=add(tbody,'tr');for(const x of [m.sport,m.modelA,m.modelB,m.pairedEvents,f(m.meanBrierA),f(m.meanBrierB),m.status])add(row,'td',x);}
+ }
+ const active=core.SPORTS.filter(s=>summary.metrics[s.id].n>0);
+ if(active.length){
+   const s=active.reduce((best,next)=>summary.metrics[next.id].n>summary.metrics[best.id].n?next:best,active[0]);
+   const m=summary.metrics[s.id];write('calibration-note',s.name+' · '+m.n+' independently contract-matched forecast(s). Reliability bins are descriptive and may be unstable.');
+   bars.setAttribute('aria-label',s.name+' reliability: observed top-pick accuracy by forecast-confidence bin');
+   for(const bin of m.calibration.bins){
+    if(!bin.count)continue;
+    const cell=add(bars,'div',undefined,'calibration-row');
+    add(cell,'span',Math.round(bin.lower*100)+'–'+Math.round(bin.upper*100)+'% confidence');
+    const track=add(cell,'div',undefined,'calibration-track');
+    const fill=add(track,'div',undefined,'calibration-fill');fill.style.width=Math.max(0,Math.min(100,100*bin.observed))+'%';
+    add(cell,'strong',(bin.observed*100).toFixed(1)+'% · n='+bin.count);
+   }
+ }else write('calibration-note','Not enough independently paired prospective outcomes; no calibration curve can be calculated.');
+ const weeklyValid=weekly?.schema_version===1&&weekly?.research_only===true&&weekly?.publication_gate==='BLOCKED'&&weekly?.verified_betting_value===false&&weekly?.verified_roi===false;
+ write('performance-report-meta',weeklyValid?'Latest rolling weekly report: '+weekly.week_start_utc+' · '+weekly.contract_matched_pairs+' descriptive pair(s) · '+weekly.verdict:'Weekly research report unavailable or awaiting its first scheduled generation.');
+ const cover=$('coverage-report');cover.replaceChildren();
+ if(weeklyValid&&Array.isArray(weekly.source_health)&&weekly.source_health.length===7){
+   const table=add(cover,'table'),head=add(add(table,'thead'),'tr');
+   ['Sport','Observed source','Source age','Forecast capture','Secondary outcome'].forEach(t=>add(head,'th',t));
+   const b=add(table,'tbody');
+   for(const item of weekly.source_health){const tr=add(b,'tr');for(const x of [item.sport,item.source,item.sourceStatus,item.captureSupport,item.secondaryResultSupport])add(tr,'td',x??'Unavailable');}
+ }else add(cover,'p','Coverage report unavailable; no claim of seven fully operational model pipelines.');
+}
 async function refresh(){
  const token=++generation,button=$('retry'),started=Date.now();
  button.disabled=true;$('result-heading').textContent='Checking source archives…';
@@ -65,6 +109,7 @@ async function refresh(){
  const health=C.sourceHealth(feeds,Date.now()),legacy=C.descriptiveHistory(feeds['research-history.json']);
  draw(score,health,legacy);
  showReview(feeds['research/result-review-status.json'],score.audit.predictionRecords);
+ showPerformance(feeds['prediction-ledger.json'],feeds['results-feed.json'],feeds['research/result-review-status.json'],feeds['research/performance-report-latest.json']);
  const unavailable=health.filter(x=>x.sourceStatus!=='CURRENT');
  const incomplete=failed.length>0||unavailable.length>0||score.state==='INVALID_ARCHIVE';
  $('result-heading').textContent=incomplete?'EVIDENCE INCOMPLETE — NO MODEL APPROVAL':'NO MODEL APPROVAL — INDEPENDENT EVIDENCE INSUFFICIENT';

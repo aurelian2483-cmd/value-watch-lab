@@ -1,0 +1,26 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const html=read('validation-centre/index.html'),app=read('validation-centre/app.js'),core=read('validation-centre/performance-core.js'),report=read('scripts/build_performance_report.cjs');
+assert(html.includes('http-equiv="Content-Security-Policy"'));
+assert(html.includes("script-src 'self'"));
+assert(html.includes("connect-src 'self'"));
+assert(html.includes('id="performance-rows"')&&html.includes('id="coverage-report"'));
+assert(html.includes('id="model-comparison"')&&html.includes('id="calibration-bars"'));
+assert(html.indexOf('src="./core.js"')<html.indexOf('src="./performance-core.js"'));
+assert(html.indexOf('src="./performance-core.js"')<html.indexOf('src="./app.js"'));
+assert(!/innerHTML\s*=|eval\s*\(|new Function\s*\(/.test(app+core));
+assert(!/GenUI|fetch\s*\(/.test(core));
+assert(app.includes("textContent=String(value)")&&app.includes("textContent=String(s)"));
+assert(report.includes('verified_betting_value:false'));
+assert(report.includes('verified_roi:false'));
+assert(report.includes("publication_gate:'BLOCKED'"));
+const ledger=JSON.parse(read('prediction-ledger.json')),outcome=JSON.parse(read('results-feed.json'));
+assert.equal(ledger.kind,'PROSPECTIVE_PREDICTION_LEDGER');assert.equal(outcome.kind,'VERIFIED_OUTCOME_FEED');
+const P=require('../validation-centre/performance-core.js');
+const s=P.build(ledger,outcome,null,Date.now());
+assert.equal(s.verifiedValue,false);assert.equal(s.verifiedROI,false);
+assert.equal(Object.keys(s.metrics).length,7);
+assert((s.totalScored??0)<=Math.min(ledger.records.length,outcome.records.length)); // never demand a hardcoded zero after future real results
+console.log('PASS release integrity: CSP, safe rendering, no remote score source, blocked betting and live-archive sample');
