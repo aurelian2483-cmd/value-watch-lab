@@ -17,7 +17,9 @@ def prediction():
 def primary():
     return {'prediction_id':prediction()['prediction_id'],'sport':'tennis','event_id':'atp-123',
      'market':'MATCH_WINNER','actual_outcome':'p1','status':'SINGLE_PROVIDER_FINAL_UNVERIFIED',
-     'independently_verified':False,'betting_eligible':False}
+     'independently_verified':False,'betting_eligible':False,
+     'source_url':prediction()['source_url'],'source_observed_at_utc':iso(NOW-timedelta(hours=1)),
+     'provider_response_sha256':'a'*64}
 def secondary():
     return {'prediction_id':prediction()['prediction_id'],'sport':'tennis','event_id':'atp-123',
      'market':'MATCH_WINNER','actual_outcome':'p1','status':'SECONDARY_UNVERIFIED',
@@ -59,6 +61,11 @@ class Review(unittest.TestCase):
                       {'status':'VERIFIED'},{'source_url':'http://example.com'}]:
             s=secondary();s.update(patch)
             self.assertEqual(test(s=[s])['status_counts']['SECONDARY_INVALID'],1)
+    def test_invalid_primary_receipt_and_chronology(self):
+        for fields in [{'source_observed_at_utc':START},{'provider_response_sha256':'bad'},
+                       {'source_url':'https://not-original.example/results'}]:
+            p=primary();p.update(fields)
+            self.assertEqual(test(p=[p])['status_counts']['IDENTITY_CONFLICT'],1)
     def test_duplicate_or_bad_primary(self):
         self.assertEqual(test(p=[primary(),primary()])['status_counts']['IDENTITY_CONFLICT'],1)
         p=primary();p['sport']='nfl'
