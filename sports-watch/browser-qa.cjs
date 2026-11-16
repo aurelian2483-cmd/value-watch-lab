@@ -117,6 +117,8 @@ const main=async()=>{
    assert.equal(await page.locator('#player-empty').isVisible(),true,'placeholder must return when playback stops');
    assert.equal(await page.locator('#youtube-link').isVisible(),false);
    // Four-stage workflow: keep the match while switching approved YouTube links.
+   // Clear the top sport selection: unclassified manual entries must not inherit a prior sport.
+   await page.getByRole('button',{name:/All sports/}).click();
    await page.locator('#match-name').fill('Test Team A vs Test Team B');
    await page.locator('#match-competition').fill('Test fixture only');
    await page.getByRole('button',{name:'Select match'}).click();
