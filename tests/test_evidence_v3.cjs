@@ -20,10 +20,10 @@ event.communityTips=[post('Alice'),{...post('Bob'),publishedAt:'2026-11-09T12:00
 event.communityTips=[{...post('Alice'),sourceUrl:'https://example.org/'},post('Bob')];assert.equal(run().yellow,'NOT_AWARDED');
 for(const sport of ['racing','tennis','nfl']){event.sport=sport;event.communityTips=[];assert.equal(run().blue,'NOT_AWARDED');}
 const html=fs.readFileSync(root+'/paper-lab/index.html','utf8');
-assert.match(html,/evidence-v3\.js/);assert.match(html,/desk\.js/);
+assert.match(html,/evidence-v3\.js/);assert.match(html,/desk-compact-20261116\.js/);
 const main=fs.readFileSync(root+'/index.html','utf8');
 assert.match(main,/evidence-v3\.js/,'The public entrypoint must load the colour evaluator');
-assert(main.indexOf('evidence-v3.js')<main.indexOf('/desk.js'));
+assert(main.indexOf('evidence-v3.js')<main.indexOf('/desk-compact-20261116.js'));
 assert.match(code,/primaryPostVerified/);
 const forecasts={...event,sport:'racing',choices:event.choices.map(c=>({id:c.id,quote:null,forecastPrice:{kind:'PUBLISHER_BETTING_FORECAST',decimal:c.quote.decimal,observedAt,source:'https://example.org/publisher-market'}})),communityTips:[post('Alice'),post('Bob')]};
 const fg=gate(forecasts,forecasts.choices[0],now);
