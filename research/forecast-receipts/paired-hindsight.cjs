@@ -15,7 +15,7 @@ function id(home,away,kickoff){
 }
 function compare(receipt,settlement,externalCSV,now=Date.now()){
   if(receipt?.status!=='REPOSITORY_SNAPSHOT_RECEIPT_NOT_INDEPENDENT_ATTESTATION'||
-     receipt?.publication_gate!=='BLOCKED'||receipt?.model_validation!=='UNVALIDATED'||
+     receipt?.research_only!==true||receipt?.publication_gate!=='BLOCKED'||receipt?.model_validation!=='UNVALIDATED'||
      !Array.isArray(receipt.records)||receipt.records.length>20000)throw Error('Invalid captured forecast receipt');
   const official=Audit.normalizeFootballResults(settlement,now);
   const settlementMap=new Map();
@@ -52,7 +52,9 @@ function compare(receipt,settlement,externalCSV,now=Date.now()){
   const seen=new Set();
   for(const f of receipt.records){
     const key=id(f?.home,f?.away,f?.kickoff_utc);
-    if(!key||f?.publication_gate!=='BLOCKED'||f?.timestamp_independently_attested!==false||
+    if(!key||f?.research_only!==true||f?.model_validation!=='UNVALIDATED'||
+       f?.publication_gate!=='BLOCKED'||f?.challenge_eligible!==0||
+       f?.timestamp_independently_attested!==false||
        !f?.model_version||!Array.isArray(f?.probabilities)){counts.invalid_record++;continue;}
     const versionKey=JSON.stringify([key,f.model_version]);
     if(seen.has(versionKey)){counts.duplicate_forecast++;continue;}
