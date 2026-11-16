@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Darts Research | Value Watch Pro</title>
-<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="./style.css?v=2">
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
@@ -22,6 +22,16 @@
  <article><span>Research forecasts</span><strong id="forecast-count">0</strong><small>Fail closed if inputs incomplete</small></article>
  <article><span>Betting publication</span><strong>BLOCKED</strong><small>No odds or executable value</small></article>
 </div>
+<section class="panel darts-coverage-panel" aria-labelledby="coverage-heading">
+ <p class="eyebrow">PUBLISHED FEED · SOURCE AUDIT</p><h2 id="coverage-heading">Research coverage & verification</h2>
+ <div class="coverage-grid">
+  <div><span>Upcoming confirmed-time fixtures</span><strong id="coverage-confirmed">—</strong></div>
+  <div><span>Date-only unconfirmed fixtures</span><strong id="coverage-tentative">—</strong></div>
+  <div><span>Historical match records</span><strong id="coverage-history">—</strong></div>
+ </div>
+ <p id="coverage-verification" class="notice" role="status">Checking published research evidence…</p>
+ <p class="coverage-disclaimer">Provider observations are not independent verification of fixtures, historical matches, odds or model accuracy. Research-only; betting publication remains blocked.</p>
+</section>
 <section class="panel" aria-labelledby="feed-heading"><div class="panel-head"><div><p class="eyebrow">01 · CURRENT COVERAGE</p><h2 id="feed-heading">Darts match intelligence</h2></div><button id="refresh" type="button">Refresh feed</button></div>
 <p id="feed-status" class="notice" role="status">Checking the research feed…</p>
 <div id="matches" class="matches" aria-live="polite"></div>
@@ -66,6 +76,6 @@
 </section>
 <footer>VALUE WATCH PRO · DARTS D1 · UNVALIDATED / BLOCKED · No betting advice or real-time executable odds. <a href="../">Return to Research Hub</a></footer>
 </main>
-<script src="./model.js?v=1" defer></script><script src="./app.js?v=1" defer></script>
+<script src="./model.js?v=1" defer></script><script src="./app.js?v=2" defer></script>
 </body>
 </html>

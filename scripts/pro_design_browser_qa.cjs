@@ -25,12 +25,18 @@ const server=http.createServer((req,res)=>{
    }
    assert((await page.locator('#pro-featured-status').innerText()).includes('No verified bookmaker odds, EV or qualifying bets.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'),'Homepage must clearly deny verified betting value when source feeds are absent or unverified');
 
-   await page.waitForFunction(()=>!document.getElementById('pro-darts-feed-status').textContent.includes('Checking darts'),{timeout:12000});
    assert.equal(await page.locator('.pro-darts-preview').count(),1,'Homepage must have one darts preview');
-   assert.equal(await page.locator('#pro-darts-count').innerText(),'0','Unconfigured darts feed must not invent fixtures');
-   assert((await page.locator('#pro-darts-feed-status').innerText()).includes('No verified darts fixture feed'),'Darts must disclose missing live source');
+   assert.equal(await page.locator('#pro-darts-feed-status').count(),0,'Detailed coverage must not clutter homepage');
+   assert((await page.locator('.pro-darts-preview-summary').innerText()).includes('no verified betting fixtures'),'Homepage must retain research warning');
    assert.equal(await page.locator('.pro-darts-preview a[href="./darts/"]').count(),1,'Darts CTA must open laboratory');
    assert.equal(await page.locator('[data-pro-count="darts"]').count(),0,'Research-only darts must not be counted as an existing validated sport filter');
+   await page.goto('http://127.0.0.1:8177/darts/',{waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>!document.getElementById('coverage-verification').textContent.includes('Checking published'),{timeout:12000});
+   assert.equal(await page.locator('#coverage-confirmed').count(),1);
+   assert.equal(await page.locator('#coverage-tentative').count(),1);
+   assert.equal(await page.locator('#coverage-history').count(),1);
+   assert((await page.locator('#coverage-verification').innerText()).includes('BLOCKED'),'Darts lab must retain verification gate');
+   await page.goto('http://127.0.0.1:8177/',{waitUntil:'domcontentloaded'});
    assert.equal(await page.locator('[data-pro-slot]').count(),4);
    if(width<1020)await page.locator('#paper-open').click();
    await page.locator('.wildcard-archive > summary').first().click();

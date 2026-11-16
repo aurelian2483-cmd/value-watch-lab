@@ -3,6 +3,13 @@
  const Model=window.ValueWatchDarts, $=id=>document.getElementById(id);
  const feed='./feed.json', allowedKeys=new Set(['results','fixtures']);
  let local=null;
+ const coverage=(confirmed,tentative,history,status)=>{
+  $('coverage-confirmed').textContent=confirmed;
+  $('coverage-tentative').textContent=tentative;
+  $('coverage-history').textContent=history;
+  $('coverage-verification').textContent=status;
+ };
+
  const element=(parent,tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);if(cls)n.className=cls;parent.append(n);return n};
  function clear(){ $('matches').replaceChildren();$('fixtures-count').textContent='0';$('historic-count').textContent='0';$('forecast-count').textContent='0'; }
  function display(report,kind,tentative=[]){
@@ -47,6 +54,10 @@
   const at=new Date().toISOString().replace(/\.\d{3}Z$/,'Z');
   const upcoming=kind==='Published feed'?doc.fixtures.filter(f=>Date.parse(f.start_utc)>Date.now()+300000):doc.fixtures;
   const tentative=kind==='Published feed'&&Array.isArray(doc.tentative_fixtures)?doc.tentative_fixtures.filter(f=>f&&f.status==='DATE_ONLY_UNCONFIRMED'&&/^\d{4}-\d{2}-\d{2}$/.test(f.date_utc)&&f.date_utc>=new Date().toISOString().slice(0,10)&&f.player_a?.name&&f.player_b?.name&&f.competition):[];
+  if(kind==='Published feed'){
+   if(doc.source_verification==='NOT_CONFIGURED')coverage('0','0','0','No verified source feed configured. No independent fixture or result verification. UNVALIDATED / BLOCKED.');
+   else coverage(String(upcoming.length),String(tentative.length),String(doc.results.length),'Provider-observed sample · NOT independently verified · UNVALIDATED / BLOCKED.');
+  }else coverage('—','—','—','Local illustrative experiment: published provider counts not displayed. No independent verification.');
   const r=Model.model(doc.results,upcoming,at);
   display(r,kind==='Published feed'&&doc.source_verification==='PROVIDER_OBSERVED_UNCORROBORATED'?'Provider-observed sample · not independently verified':kind,tentative);
  }
@@ -56,7 +67,7 @@
    const response=await fetch(feed+'?v='+Date.now(),{cache:'no-store'});
    if(!response.ok)throw Error('Research feed unavailable');
    const doc=await response.json();loadDocument(doc,'Published feed');
-  }catch(error){clear();$('feed-status').textContent='Darts research feed unavailable ('+(error?.message||'unknown error')+'). No predictions displayed.'}
+  }catch(error){clear();coverage('—','—','—','Published feed unavailable or invalid · no verified research counts. UNVALIDATED / BLOCKED.');$('feed-status').textContent='Darts research feed unavailable ('+(error?.message||'unknown error')+'). No predictions displayed.'}
  }
  $('refresh').addEventListener('click',()=>{local=null;$('import-json').value='';$('import-status').textContent='Local experiment cleared; loading the published feed.';refresh()});
  $('reset').addEventListener('click',()=>{local=null;$('import-json').value='';$('import-status').textContent='Local experiment cleared.';refresh()});
