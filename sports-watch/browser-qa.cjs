@@ -22,6 +22,11 @@ const main=async()=>{
  try {
   for (const viewport of [{width:1440,height:900},{width:1024,height:768},{width:768,height:1024},{width:390,height:844}]) {
    const context=await browser.newContext({viewport,serviceWorkers:'block'});
+   // Serve an older CSS version that lacks the hidden-placeholder override.
+   await context.route('**/sports-watch.css*', route => {
+     const oldCss=fs.readFileSync(path.join(ROOT,'sports-watch.css'),'utf8').replace('.video-area iframe[hidden],.player-empty[hidden]{display:none}', '.video-area iframe[hidden]{display:none}');
+     return route.fulfill({status:200,contentType:'text/css',body:oldCss});
+   });
    await context.route('https://**/*',route=>route.abort());
    const page=await context.newPage();
    const errors=[];
@@ -37,8 +42,6 @@ const main=async()=>{
    assert.equal(await page.getByRole('button',{name:/Darts/}).getAttribute('aria-pressed'),'true');
    await page.getByRole('button',{name:/All sports/}).click();
    assert.equal(await page.locator('.provider').count(),12);
-   // Simulate a stale CSS rule overriding the HTML hidden attribute on iOS.
-   await page.addStyleTag({content:'.player-empty[hidden]{display:flex}'});
    const input=page.locator('#video-url');
    await input.fill('https://livetv.sx/');
    await page.getByRole('button',{name:'Load video'}).click();
