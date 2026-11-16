@@ -25,4 +25,12 @@ assert.equal(P.build(l([p]),r([o]),review(1,Date.now()-4*3600000)).review.status
 assert.equal(P.build(l([p]),r([o]),review(0,Date.now())).review.status,'REVIEW_INCONSISTENT');
 assert.equal(P.wilson(0,0),null);assert(P.wilson(1,1).lower>0&&P.wilson(1,1).upper<=1);
 assert(P.wilson(5,10).lower<.5&&P.wilson(5,10).upper>.5);
-console.log('PASS performance: zero-evidence states, paired scores, uniform reference, Wilson bounds, calibration and integrity');
+const rival={...p,prediction_id:'b',model_version:'CHALLENGER_V1',probabilities:{player1:.6,player2:.4}};
+const cmp=P.compareModels(l([p,rival]),r([o]));
+assert.equal(cmp.length,1);assert.equal(cmp[0].pairedEvents,1);
+assert.equal(cmp[0].modelA,'CHALLENGER_V1');assert.equal(cmp[0].modelB,'FIXED_ELO_K24_V1');
+assert.equal(cmp[0].status,'INSUFFICIENT_PAIRED_SAMPLE');
+assert.equal(P.compareModels(l([p]),r([o])).length,0);
+assert.equal(P.compareModels(l([p,rival]),r([o,o])).length,0);
+assert.equal(P.compareModels(l([p,{...rival,event_id:'atp-102'}]),r([o])).length,0);
+console.log('PASS performance: zero-evidence states, paired scores, matched model comparisons, Wilson bounds, calibration and integrity');
