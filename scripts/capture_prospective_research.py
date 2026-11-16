@@ -73,7 +73,12 @@ def snapshot_candidates(feed, now):
                 source_hash = event['source_sha256']
                 if not isinstance(source_hash, str) or not SHA.fullmatch(source_hash):
                     raise ValueError('SOURCE_FINGERPRINT')
-                if not isinstance(event.get('source'), str) or not event['source'].startswith('https://site.api.espn.com/apis/site/v2/sports/'):
+                if not isinstance(event.get('source'), str):
+                    raise ValueError('SOURCE_URL')
+                from urllib.parse import urlsplit
+                origin = urlsplit(event['source'])
+                required_path = '/apis/site/v2/sports/' + ('tennis/' if sport == 'tennis' else 'football/nfl/')
+                if origin.scheme != 'https' or origin.netloc != 'site.api.espn.com' or not origin.path.startswith(required_path) or origin.username or origin.password:
                     raise ValueError('SOURCE_URL')
                 outcomes = f['outcomes']
                 if not isinstance(outcomes, list) or len(outcomes) != (2 if sport == 'tennis' else 3):
@@ -110,7 +115,7 @@ def snapshot_candidates(feed, now):
                 reject(str(exc) if isinstance(exc, ValueError) else 'INVALID_FIELDS')
     return records, audit
 
-def append_only(ledger, candidates):
+def append_only(ledger, candidates, audit=None):
     if ledger.get('schemaVersion') != 1 or ledger.get('kind') != 'PROSPECTIVE_PREDICTION_LEDGER' or ledger.get('modelValidated') is not False or not isinstance(ledger.get('records'), list):
         raise ValueError('Invalid ledger contract')
     existing = {}
@@ -128,8 +133,11 @@ def append_only(ledger, candidates):
         seen[key] = record
         prior = existing.get(key)
         if prior is not None:
-            # Existing records must NEVER be overwritten, including after model revisions.
-            # Material differences are logged for manual review, not treated as new forecasts.
+            # Revisions are withheld, not silently counted as new independent predictions.
+            changes = any(prior.get(k) != record.get(k) for k in
+                          ('event_start_utc','model_version','market','probabilities','training_fingerprint'))
+            if changes and audit is not None:
+                audit['revisions_withheld'] = audit.get('revisions_withheld', 0) + 1
             continue
         ledger['records'].append(record)
         existing[key] = record
@@ -159,7 +167,7 @@ def run(root,now):
     ledger=json.loads(path.read_text(encoding='utf-8'))
     results=json.loads((root/'results-feed.json').read_text(encoding='utf-8'))
     candidate,audit=snapshot_candidates(feed,now)
-    count=append_only(ledger,candidate)
+    count=append_only(ledger,candidate,audit)
     queue=review_queue(ledger,results,now)
     audit.update({'appended':count,'total_frozen':len(ledger['records']),'review_pending':queue['pending_count'],'generated_at_utc':iso(now),
                   'note':'Source-observed experimental snapshots, not independently verified forecasts or outcomes.'})
