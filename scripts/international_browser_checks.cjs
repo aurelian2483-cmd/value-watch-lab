@@ -15,8 +15,12 @@ module.exports=async function(browser,base){
   if(await page.locator('#sport').isVisible())await page.selectOption('#sport','football');else await page.locator('[data-sport=football]:visible').first().click();
   const card=page.locator('#events .event-card');await card.waitFor();assert.equal(await card.count(),1);
   const text=await card.textContent();assert(text.includes('International teams · recent captured results'));assert(!text.includes('This season only'));assert(text.includes('40.0%'));assert(text.includes('5 captured matches'));
-  await card.locator('details').filter({has:page.locator('summary', {hasText:'Form and season comparison'})}).first().locator('> summary').click();
-  // Compact cards intentionally collapse the form panel; reveal it before accessing nested sources.\n  const seasonDisclosure=card.locator('details.compact-evidence-disclosure').filter({has:page.locator('summary', {hasText:'Form and season comparison'})}).first();\n  await seasonDisclosure.locator('> summary').click();\n  const form=card.locator('.season-comparison details').filter({has:page.locator('summary', {hasText:'Synthetic Nation A · 5 captured matches'})}).last();await form.locator('> summary').click();assert.equal(await form.locator('a').count(),5);
+  // Expand the primary advanced panel, then the nested form disclosure before inspecting source links.
+  await card.locator('details.research-main-disclosure').filter({has:page.locator('summary', {hasText:'Advanced Analysis'})}).first().locator('> summary').click();
+  const seasonDisclosure=card.locator('details.compact-evidence-disclosure').filter({has:page.locator('summary', {hasText:'Form and season comparison'})}).first();
+  await seasonDisclosure.locator('> summary').click();
+  const form=card.locator('.season-comparison details').filter({has:page.locator('summary', {hasText:'Synthetic Nation A · 5 captured matches'})}).last();
+  await form.locator('> summary').click();assert.equal(await form.locator('a').count(),5);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);
   results.push({width,separateInternationalPanel:true,sourcedResults:true,experimentalEstimate:true});await page.close();
  }
