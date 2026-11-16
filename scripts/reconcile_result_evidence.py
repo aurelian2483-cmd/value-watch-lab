@@ -45,6 +45,24 @@ def secondary_ok(e,p,now):
     except (KeyError,TypeError,ValueError,AttributeError):
         return False
 
+def primary_ok(e,p,now):
+    if not isinstance(e,dict) or e.get('prediction_id')!=p['prediction_id']:
+        return False
+    if e.get('sport')!=p['sport'] or e.get('event_id')!=p['event_id'] or e.get('market')!=p['market']:
+        return False
+    if e.get('status')!='SINGLE_PROVIDER_FINAL_UNVERIFIED' or e.get('independently_verified') is not False or e.get('betting_eligible') is not False:
+        return False
+    if e.get('actual_outcome') not in p['probabilities']:return False
+    try:
+        observed=utc(e['source_observed_at_utc'])
+        start=utc(p['event_start_utc'])
+        response=e['provider_response_sha256']
+        return (start<observed<=now and e.get('source_url')==p.get('source_url')
+                and isinstance(response,str) and len(response)==64
+                and all(ch in '0123456789abcdef' for ch in response.lower()))
+    except (KeyError,ValueError,TypeError):
+        return False
+
 def reconcile(ledger,primary,secondary,now):
     if not isinstance(ledger,dict) or ledger.get('schemaVersion')!=1 or ledger.get('kind')!='PROSPECTIVE_PREDICTION_LEDGER' or not isinstance(ledger.get('records'),list):
         raise ValueError('Invalid frozen prediction ledger')
@@ -80,10 +98,7 @@ def reconcile(ledger,primary,secondary,now):
             state='IDENTITY_CONFLICT'
         elif not a:
             state='AWAITING_PRIMARY_FINAL'
-        elif (a.get('status')!='SINGLE_PROVIDER_FINAL_UNVERIFIED' or a.get('independently_verified') is not False
-              or a.get('betting_eligible') is not False or a.get('sport')!=p.get('sport')
-              or a.get('event_id')!=p.get('event_id') or a.get('market')!=p.get('market')
-              or a.get('actual_outcome') not in p['probabilities']):
+        elif not primary_ok(a,p,now):
             state='IDENTITY_CONFLICT'
         elif not b:
             state='AWAITING_INDEPENDENT_SOURCE'
