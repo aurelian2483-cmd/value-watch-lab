@@ -5,8 +5,8 @@
 </style></head>
 <body><header><span class="logo">▶</span><div><strong>CRICFy</strong> <small>WEB LAB · BROWSER PROTOTYPE</small></div></header>
 <main>
-<section id="home"><div class="hero"><div class="eyebrow">Browser-based test</div><h1>Select a sport. Browse matches.</h1><p>Choose a sport, add your own authorised channels or matches, and play compatible videos. This prototype does not execute the original Android APK or supply its streaming feeds.</p><button class="primary" data-page="player">Open video player →</button></div><div class="panel" id="apk-sources"><div class="eyebrow">Experimental · APK-discovered endpoints</div><h2>Original app service links</h2><p>These URLs were found inside the APK but are not verified safe or operational. No connections are made automatically. External links leave this site; do not enter credentials or install software from them.</p><div id="apk-links"></div><button class="secondary" id="test-lookup">Test channel lookup (read-only)</button><div class="status" id="lookup-status" role="status" aria-live="polite">Not tested in this browser.</div><pre id="lookup-preview" style="white-space:pre-wrap;word-break:break-word;font-size:12px;max-height:220px;overflow:auto;color:#b5c4d6"></pre></div><h2>Explore</h2><input id="search" placeholder="Search sports" aria-label="Search sports"><div id="sports" class="sport-grid"></div></section>
-<section id="matches" hidden><div class="row"><h2 id="sport-heading">Matches &amp; channels</h2><button class="secondary" data-page="home">← Sports</button></div><div id="matches-list"></div><div class="panel"><h3>Add match or channel</h3><label for="item-name">Name</label><input id="item-name" placeholder="Example: My authorised channel"><label for="item-url">Video URL (optional, HTTPS)</label><input id="item-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="add">Add entry</button><button class="secondary" id="clear-list">Clear sport</button></div><div id="item-status" class="status" role="status"></div></div></section>
+<section id="home"><div class="hero"><div class="eyebrow">Browser-based test</div><h1>Select a sport. Browse matches.</h1><p>Choose a sport, add your own authorised channels or matches, and play compatible videos. This prototype does not execute the original Android APK or supply its streaming feeds.</p><button class="primary" data-page="player">Open video player →</button></div><div class="panel" id="apk-sources"><div class="eyebrow">Experimental · APK-discovered endpoints</div><h2>Original app service links</h2><p>These URLs were found inside the APK but are not verified safe or operational. No connections are made automatically. External links leave this site; do not enter credentials or install software from them.</p><div id="apk-links"></div><button class="secondary" id="test-lookup">Test channel lookup (read-only)</button><div class="status" id="lookup-status" role="status" aria-live="polite">Not tested in this browser.</div><pre id="lookup-preview" style="white-space:pre-wrap;word-break:break-word;font-size:12px;max-height:220px;overflow:auto;color:#b5c4d6"></pre></div><div class="panel" id="catalog-import"><div class="eyebrow">Browser-native · Opt-in</div><h2>Import authorised channels</h2><p>Load a JSON channel list from your device. Entries stay in this browser; nothing is uploaded to our website. Only HTTPS MP4, WebM, and HLS links are accepted. This does not unlock streams or bypass DRM, login, or provider restrictions.</p><label for="catalog-file">Choose a JSON catalogue</label><input type="file" id="catalog-file" accept=".json,application/json"><label for="catalog-text">Or paste JSON</label><textarea id="catalog-text" rows="5" style="display:block;width:100%;background:#0d1829;border:1px solid #455872;border-radius:12px;color:#fff;padding:12px;font:13px ui-monospace,monospace;resize:vertical" placeholder='[{"sport":"cricket","name":"Licensed channel","url":"https://example.org/video.m3u8"}]'></textarea><div class="row"><button class="primary" id="catalog-apply">Import catalogue</button><button class="secondary" id="catalog-export">Export catalogue</button><button class="secondary" id="catalog-clear">Clear catalogue</button></div><div id="catalog-status" class="status" role="status" aria-live="polite">No catalogue imported.</div></div><h2>Explore</h2><input id="search" placeholder="Search sports" aria-label="Search sports"><div id="sports" class="sport-grid"></div></section>
+<section id="matches" hidden><div class="row"><h2 id="sport-heading">Matches &amp; channels</h2><button class="secondary" data-page="home">← Sports</button></div><h3>Imported channels <span id="catalog-count" class="muted"></span></h3><div id="catalog-matches"></div><h3>My entries</h3><div id="matches-list"></div><div class="panel"><h3>Add match or channel</h3><label for="item-name">Name</label><input id="item-name" placeholder="Example: My authorised channel"><label for="item-url">Video URL (optional, HTTPS)</label><input id="item-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="add">Add entry</button><button class="secondary" id="clear-list">Clear sport</button></div><div id="item-status" class="status" role="status"></div></div></section>
 <section id="player" hidden><h2>Browser video player</h2><div class="panel"><p id="selected">No match or channel selected yet.</p><div class="row"><button class="secondary" id="back">← Back to matches</button></div><video id="video" class="player" controls playsinline preload="none"></video><p>Use a local video or an authorised browser-compatible HTTPS source.</p><label for="local-video">Choose video file</label><input id="local-video" type="file" accept="video/mp4,video/webm,video/*"><label for="video-url">Direct video URL</label><input id="video-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="load">Load video</button><button class="secondary" id="fullscreen">Fullscreen</button><button class="secondary" id="stop">Stop / clear</button></div><div id="player-status" class="status" role="status"></div></div></section>
 <section id="saved" hidden><h2>My favourites</h2><div id="favorites"></div></section>
 <section id="about" hidden><h2>About this prototype</h2><div class="panel"><p>This independent browser-only research prototype demonstrates navigation, user-defined lists, local storage, and browser video playback. It is not an Android emulator and does not contain CRICFy APK code or live feeds.</p><p>Version 0.6 · Hosted-browser trial.</p><p id="js-status">JavaScript loaded successfully.</p><button class="secondary" id="reset-favs">Clear favourites</button></div></section>
@@ -70,6 +70,77 @@ $('test-lookup').addEventListener('click',async()=>{
  }catch(e){status.textContent=e.name==='AbortError'?'Request timed out.':'No browser-readable response (network, CORS, or redirect blocked).';}
  finally{clearTimeout(timer)}
 });
+
+
+const CATALOG_KEY='cricfy-web-catalog-v1';
+let catalog=safeLoad(CATALOG_KEY,[]);
+if(!Array.isArray(catalog))catalog=[];
+function validCatalogItem(raw){
+ if(!raw||typeof raw!=='object'||Array.isArray(raw))throw Error('Each entry must be an object.');
+ const sport=String(raw.sport||'').toLowerCase().trim();
+ const name=String(raw.name||'').trim();
+ const url=String(raw.url||'').trim();
+ if(!cats.some(c=>c[0]===sport))throw Error('Unknown sport: '+sport);
+ if(!name||name.length>120)throw Error('Channel name must be 1–120 characters.');
+ let parsed;
+ try{parsed=new URL(url)}catch{throw Error('Invalid channel URL for '+name)}
+ if(parsed.protocol!=='https:'||parsed.username||parsed.password)throw Error('HTTPS URL without credentials required for '+name);
+ if(!/\.(m3u8|mp4|webm)(?:$|[?#])/i.test(parsed.pathname+parsed.search+parsed.hash))throw Error('Direct .m3u8, .mp4 or .webm URL required for '+name);
+ return {sport,name,url:parsed.href};
+}
+function parseCatalog(text){
+ if(text.length>300000)throw Error('Catalogue exceeds 300 KB.');
+ const parsed=JSON.parse(text);
+ if(!Array.isArray(parsed))throw Error('Expected a JSON array.');
+ if(parsed.length>500)throw Error('Limit is 500 entries.');
+ const records=parsed.map(validCatalogItem);
+ const uniques=new Set();
+ return records.filter(e=>{const key=e.sport+'|'+e.name+'|'+e.url;if(uniques.has(key))return false;uniques.add(key);return true});
+}
+function saveCatalog(){
+ try{localStorage.setItem(CATALOG_KEY,JSON.stringify(catalog));$('catalog-status').textContent='Saved '+catalog.length+' channels on this device.'}
+ catch{$('catalog-status').textContent='Browser storage unavailable; imported list is temporary.'}
+ drawCatalog();drawSports();
+}
+function drawCatalog(){
+ const list=$('catalog-matches');list.replaceChildren();
+ const matches=catalog.filter(e=>e.sport===sport);
+ $('catalog-count').textContent='('+matches.length+')';
+ if(!matches.length){
+  const empty=document.createElement('div');empty.className='empty';empty.textContent='No imported channels for this sport.';list.append(empty);return
+ }
+ matches.forEach(entry=>{
+  const card=document.createElement('div');card.className='item-card';
+  const title=document.createElement('h3');title.textContent=entry.name;
+  const info=document.createElement('p');info.textContent='Imported HTTPS video · availability not verified';
+  const btn=document.createElement('button');btn.textContent='Open in player';
+  btn.onclick=()=>{$('selected').textContent=sportName(entry.sport)+' · '+entry.name;lastSport=entry.sport;$('video-url').value=entry.url;setVideo(entry.url);page('player')};
+  card.append(title,info,btn);list.append(card);
+ });
+}
+const previousOpenSport=openSport;
+openSport=function(id){previousOpenSport(id);drawCatalog()};
+$('catalog-apply').onclick=()=>{
+ try{
+  const input=$('catalog-text').value.trim();
+  if(!input)throw Error('Paste JSON or choose a JSON file.');
+  catalog=parseCatalog(input);saveCatalog();$('catalog-status').textContent='Imported '+catalog.length+' channels. Open a sport to view them.';
+ }catch(e){$('catalog-status').textContent='Import failed: '+e.message}
+};
+$('catalog-file').onchange=async event=>{
+ const file=event.target.files&&event.target.files[0];if(!file)return;
+ if(file.size>300000){$('catalog-status').textContent='File too large (300 KB maximum).';return}
+ try{$('catalog-text').value=await file.text();$('catalog-status').textContent='File loaded. Tap Import catalogue to validate.'}
+ catch{$('catalog-status').textContent='Could not read the selected file.'}
+};
+$('catalog-clear').onclick=()=>{if(confirm('Clear the imported catalogue on this device?')){catalog=[];saveCatalog()}};
+$('catalog-export').onclick=()=>{
+ const blob=new Blob([JSON.stringify(catalog,null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download='cricfy-authorised-catalog.json';a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+if(catalog.length){$('catalog-status').textContent=catalog.length+' imported channel(s) on this device.'}
 
 drawSports();if(['home','matches','player','saved','about'].includes(location.hash.slice(1)))page(location.hash.slice(1));else page('home');
 </script></body></html>
