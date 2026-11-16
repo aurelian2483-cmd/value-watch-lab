@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/sports-watch-secure-prototype
+      - fix/sports-watch-live-data-reliability
       - fix/sports-watch-select-visible-result
       - feature/sports-watch-coverage-handoff
       - feature/sports-watch-live-fixture-picker
@@ -27,6 +28,9 @@ jobs:
         run: node --test sports-watch/fixtures.test.cjs
       - name: Validate official coverage source trust
         run: node --test sports-watch/coverage.test.cjs
+      - name: Probe live fixture provider connectivity and response schema
+        continue-on-error: true
+        run: node sports-watch/feed-smoke.cjs
       - name: Install repository test dependencies
         run: npm ci --ignore-scripts
       - name: Install Chromium for browser QA
