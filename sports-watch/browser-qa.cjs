@@ -52,6 +52,10 @@ const main=async()=>{
    assert.match(await page.locator('#selected-match').innerText(),/Live Home vs Live Away/);
    assert.equal(await page.locator('#coverage-sport').inputValue(),'football');
    assert.match(await page.locator('#coverage-selected').innerText(),/Live Home vs Live Away/);
+   assert.equal(await page.locator('#fixture-selection-result').isVisible(),true,'fixture selection must visibly acknowledge selected game');
+   assert.match(await page.locator('#fixture-selection-name').innerText(),/Live Home vs Live Away/);
+   assert.equal(await page.locator('.coverage-panel').isVisible(),true);
+   await page.getByRole('button',{name:'View coverage options'}).click();
    assert.ok(await page.locator('.coverage-card').count()>0);
    assert.equal(await page.locator('.coverage-card').first().getAttribute('target'),'_blank');
    assert.equal(await page.locator('#source-a').inputValue(),'','official coverage suggestions must not inject video links');
@@ -60,6 +64,16 @@ const main=async()=>{
    await page.locator('.fixture-card').first().waitFor({state:'visible'});
    assert.equal(await page.locator('.fixture-card').count(),1);
    assert.match(await page.locator('.fixture-card').first().innerText(),/Player Alpha vs Player Beta/);
+
+   // A sport with zero live responses should offer an honest Upcoming option.
+   await page.locator('#fixture-live').click();
+   await page.locator('#fixture-sport').selectOption('basketball');
+   await page.locator('#fixture-view-upcoming').waitFor({state:'visible'});
+   assert.match(await page.locator('#fixture-status').innerText(),/No confirmed live fixtures/);
+   await page.locator('#fixture-view-upcoming').click();
+   assert.equal(await page.locator('#fixture-upcoming').getAttribute('aria-pressed'),'true');
+   await page.locator('#fixture-sport').selectOption('tennis');
+   await page.locator('.fixture-card').first().waitFor({state:'visible'});
    await page.locator('#fixture-manual').click();
    assert.equal(await page.locator('.fixture-card').count(),0);
    assert.match(await page.locator('#fixture-status').innerText(),/Manual entry selected/);
