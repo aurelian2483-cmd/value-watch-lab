@@ -1,0 +1,815 @@
+test_amendment_requires_link_and_preserves_original (__main__.ResearchPipelineTests.test_amendment_requires_link_and_preserves_original) ... ERROR
+test_bad_similarity (__main__.ResearchPipelineTests.test_bad_similarity) ... ERROR
+test_bool_not_number (__main__.ResearchPipelineTests.test_bool_not_number) ... ERROR
+test_capture_normalization (__main__.ResearchPipelineTests.test_capture_normalization) ... ERROR
+test_duplicate_runner (__main__.ResearchPipelineTests.test_duplicate_runner) ... ERROR
+test_future_runner_observation (__main__.ResearchPipelineTests.test_future_runner_observation) ... ERROR
+test_hash_corruption (__main__.ResearchPipelineTests.test_hash_corruption) ... ERROR
+test_history_duplicate (__main__.ResearchPipelineTests.test_history_duplicate) ... ERROR
+test_history_future (__main__.ResearchPipelineTests.test_history_future) ... ERROR
+test_history_unknown (__main__.ResearchPipelineTests.test_history_unknown) ... ERROR
+test_idempotence (__main__.ResearchPipelineTests.test_idempotence) ... ERROR
+test_immutable_write (__main__.ResearchPipelineTests.test_immutable_write) ... ERROR
+test_incomplete_field (__main__.ResearchPipelineTests.test_incomplete_field) ... ERROR
+test_json_duplicate_keys (__main__.ResearchPipelineTests.test_json_duplicate_keys) ... ERROR
+test_json_malformed (__main__.ResearchPipelineTests.test_json_malformed) ... ERROR
+test_json_nan (__main__.ResearchPipelineTests.test_json_nan) ... ERROR
+test_late_capture_blocked (__main__.ResearchPipelineTests.test_late_capture_blocked) ... ERROR
+test_naive_timestamp (__main__.ResearchPipelineTests.test_naive_timestamp) ... ERROR
+test_offset_equivalence (__main__.ResearchPipelineTests.test_offset_equivalence) ... ERROR
+test_partial_files_not_ledger (__main__.ResearchPipelineTests.test_partial_files_not_ledger) ... ERROR
+test_path_traversal (__main__.ResearchPipelineTests.test_path_traversal) ... ERROR
+test_prior_race_excluded (__main__.ResearchPipelineTests.test_prior_race_excluded) ... ERROR
+test_raw_baseline_and_challenger_exact_phase2 (__main__.ResearchPipelineTests.test_raw_baseline_and_challenger_exact_phase2) ... ERROR
+test_result_field_change (__main__.ResearchPipelineTests.test_result_field_change) ... ERROR
+test_result_idempotence (__main__.ResearchPipelineTests.test_result_idempotence) ... ERROR
+test_result_payload_hash (__main__.ResearchPipelineTests.test_result_payload_hash) ... ERROR
+test_result_receipt_before_race (__main__.ResearchPipelineTests.test_result_receipt_before_race) ... ERROR
+test_result_review_required (__main__.ResearchPipelineTests.test_result_review_required) ... ERROR
+test_result_source_duplicate (__main__.ResearchPipelineTests.test_result_source_duplicate) ... ERROR
+test_result_sources_disagree (__main__.ResearchPipelineTests.test_result_sources_disagree) ... ERROR
+test_result_two_sources_required (__main__.ResearchPipelineTests.test_result_two_sources_required) ... ERROR
+test_result_valid_manual_evidence (__main__.ResearchPipelineTests.test_result_valid_manual_evidence) ... ERROR
+test_stale_runner_observation (__main__.ResearchPipelineTests.test_stale_runner_observation) ... ERROR
+test_store_outside_research_rejected (__main__.ResearchPipelineTests.test_store_outside_research_rejected) ... ERROR
+test_summer_london_rollover (__main__.ResearchPipelineTests.test_summer_london_rollover) ... ERROR
+test_target_outcome_rejected (__main__.ResearchPipelineTests.test_target_outcome_rejected) ... ERROR
+test_timezone_no_database_fails_closed (__main__.ResearchPipelineTests.test_timezone_no_database_fails_closed) ... ERROR
+test_vector_corruption (__main__.ResearchPipelineTests.test_vector_corruption) ... ERROR
+test_winter_london (__main__.ResearchPipelineTests.test_winter_london) ... ERROR
+test_wrong_gate (__main__.ResearchPipelineTests.test_wrong_gate) ... ERROR
+test_wrong_model (__main__.ResearchPipelineTests.test_wrong_model) ... ERROR
+test_wrong_parameter (__main__.ResearchPipelineTests.test_wrong_parameter) ... ERROR
+test_wrong_percentile (__main__.ResearchPipelineTests.test_wrong_percentile) ... ERROR
+test_wrong_recency (__main__.ResearchPipelineTests.test_wrong_recency) ... ERROR
+test_zero_metrics_are_unavailable (__main__.ResearchPipelineTests.test_zero_metrics_are_unavailable) ... ERROR
+
+======================================================================
+ERROR: test_amendment_requires_link_and_preserves_original (__main__.ResearchPipelineTests.test_amendment_requires_link_and_preserves_original)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-396s4x9n\\snapshots\\.partial-zh7lf3kg' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-396s4x9n\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_bad_similarity (__main__.ResearchPipelineTests.test_bad_similarity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-mdiq96zu\\snapshots\\.partial-x2pl7y2s' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-mdiq96zu\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_bool_not_number (__main__.ResearchPipelineTests.test_bool_not_number)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-e2rgzbqe\\snapshots\\.partial-e0rlhypn' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-e2rgzbqe\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_capture_normalization (__main__.ResearchPipelineTests.test_capture_normalization)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-cbkdf5l4\\snapshots\\.partial-lhor9w5b' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-cbkdf5l4\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_duplicate_runner (__main__.ResearchPipelineTests.test_duplicate_runner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-vi042yo1\\snapshots\\.partial-h_8ldztv' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-vi042yo1\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_future_runner_observation (__main__.ResearchPipelineTests.test_future_runner_observation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-64d33733\\snapshots\\.partial-jna39kac' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-64d33733\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_hash_corruption (__main__.ResearchPipelineTests.test_hash_corruption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-2vazdsl4\\snapshots\\.partial-ad636gsx' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-2vazdsl4\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_history_duplicate (__main__.ResearchPipelineTests.test_history_duplicate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-9g5za8fm\\snapshots\\.partial-e6mlbh7b' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-9g5za8fm\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_history_future (__main__.ResearchPipelineTests.test_history_future)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-5hqcgq1z\\snapshots\\.partial-yul1kr9w' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-5hqcgq1z\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_history_unknown (__main__.ResearchPipelineTests.test_history_unknown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-65plmejz\\snapshots\\.partial-322m443y' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-65plmejz\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_idempotence (__main__.ResearchPipelineTests.test_idempotence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-66_r6cff\\snapshots\\.partial-ficl9nqv' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-66_r6cff\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_immutable_write (__main__.ResearchPipelineTests.test_immutable_write)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-hvdo4jt6\\snapshots\\.partial-0hy8r50k' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-hvdo4jt6\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_incomplete_field (__main__.ResearchPipelineTests.test_incomplete_field)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-t41a9eyh\\snapshots\\.partial-qut440w5' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-t41a9eyh\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_json_duplicate_keys (__main__.ResearchPipelineTests.test_json_duplicate_keys)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-lr5k8rai\\snapshots\\.partial-tff2yg1o' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-lr5k8rai\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_json_malformed (__main__.ResearchPipelineTests.test_json_malformed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-ayhmuyls\\snapshots\\.partial-b1bcfqby' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-ayhmuyls\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_json_nan (__main__.ResearchPipelineTests.test_json_nan)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-11xk293u\\snapshots\\.partial-7ot7mzra' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-11xk293u\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_late_capture_blocked (__main__.ResearchPipelineTests.test_late_capture_blocked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-c68pe_bw\\snapshots\\.partial-l30m_y6i' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-c68pe_bw\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_naive_timestamp (__main__.ResearchPipelineTests.test_naive_timestamp)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-k63e2nq1\\snapshots\\.partial-8psq5wom' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-k63e2nq1\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_offset_equivalence (__main__.ResearchPipelineTests.test_offset_equivalence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-j6211clv\\snapshots\\.partial-05tfwsjv' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-j6211clv\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_partial_files_not_ledger (__main__.ResearchPipelineTests.test_partial_files_not_ledger)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-dnmt5mfg\\snapshots\\.partial-mi3wefte' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-dnmt5mfg\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_path_traversal (__main__.ResearchPipelineTests.test_path_traversal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-1m6tmv15\\snapshots\\.partial-tb8pe0gq' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-1m6tmv15\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_prior_race_excluded (__main__.ResearchPipelineTests.test_prior_race_excluded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-2a_8fevl\\snapshots\\.partial-x2t5rw7i' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-2a_8fevl\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_raw_baseline_and_challenger_exact_phase2 (__main__.ResearchPipelineTests.test_raw_baseline_and_challenger_exact_phase2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-8w491jyo\\snapshots\\.partial-dqsb0uho' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-8w491jyo\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_result_field_change (__main__.ResearchPipelineTests.test_result_field_change)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-acmy2acj\\snapshots\\.partial-gwnofo52' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-acmy2acj\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_result_idempotence (__main__.ResearchPipelineTests.test_result_idempotence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-i2429h43\\snapshots\\.partial-8f9svkmu' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-i2429h43\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_result_payload_hash (__main__.ResearchPipelineTests.test_result_payload_hash)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-ffjoxk9n\\snapshots\\.partial-5r3tb248' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-ffjoxk9n\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_result_receipt_before_race (__main__.ResearchPipelineTests.test_result_receipt_before_race)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-a72vc52v\\snapshots\\.partial-gux7mje9' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-a72vc52v\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_result_review_required (__main__.ResearchPipelineTests.test_result_review_required)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-lyh978lv\\snapshots\\.partial-hkifb0p2' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-lyh978lv\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_result_source_duplicate (__main__.ResearchPipelineTests.test_result_source_duplicate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-bcinqzqq\\snapshots\\.partial-_ws_wgk5' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-bcinqzqq\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_result_sources_disagree (__main__.ResearchPipelineTests.test_result_sources_disagree)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-sf3panpt\\snapshots\\.partial-ob83i3da' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-sf3panpt\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_result_two_sources_required (__main__.ResearchPipelineTests.test_result_two_sources_required)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-8uho96uv\\snapshots\\.partial-hp6ql66g' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-8uho96uv\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_result_valid_manual_evidence (__main__.ResearchPipelineTests.test_result_valid_manual_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-75eld55y\\snapshots\\.partial-q1owvv1_' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-75eld55y\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_stale_runner_observation (__main__.ResearchPipelineTests.test_stale_runner_observation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-yr7jppu0\\snapshots\\.partial-5iyrxiyw' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-yr7jppu0\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_store_outside_research_rejected (__main__.ResearchPipelineTests.test_store_outside_research_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-5ilkqali\\snapshots\\.partial-9984dpue' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-5ilkqali\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_summer_london_rollover (__main__.ResearchPipelineTests.test_summer_london_rollover)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-zkr_ed4j\\snapshots\\.partial-nb0g_9j7' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-zkr_ed4j\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_target_outcome_rejected (__main__.ResearchPipelineTests.test_target_outcome_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-r9bem4ra\\snapshots\\.partial-yf2mtu_x' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-r9bem4ra\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_timezone_no_database_fails_closed (__main__.ResearchPipelineTests.test_timezone_no_database_fails_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-vzcuig29\\snapshots\\.partial-0z9ki9zp' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-vzcuig29\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_vector_corruption (__main__.ResearchPipelineTests.test_vector_corruption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-0uiir1_9\\snapshots\\.partial-g5dyquco' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-0uiir1_9\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_winter_london (__main__.ResearchPipelineTests.test_winter_london)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-52y2sup9\\snapshots\\.partial-fw8ke0kh' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-52y2sup9\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_wrong_gate (__main__.ResearchPipelineTests.test_wrong_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-a1gihmfn\\snapshots\\.partial-119rk_9v' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-a1gihmfn\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_wrong_model (__main__.ResearchPipelineTests.test_wrong_model)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-uqytyihd\\snapshots\\.partial-lr0g1syq' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-uqytyihd\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_wrong_parameter (__main__.ResearchPipelineTests.test_wrong_parameter)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-n3w0kh_8\\snapshots\\.partial-w0su8mxo' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-n3w0kh_8\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_wrong_percentile (__main__.ResearchPipelineTests.test_wrong_percentile)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-myvfuyuh\\snapshots\\.partial-qcxz6kgg' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-myvfuyuh\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_wrong_recency (__main__.ResearchPipelineTests.test_wrong_recency)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-pmk4ff8v\\snapshots\\.partial-dpqt6oj4' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-pmk4ff8v\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+======================================================================
+ERROR: test_zero_metrics_are_unavailable (__main__.ResearchPipelineTests.test_zero_metrics_are_unavailable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\test_phase3.py", line 40, in setUp
+    ab.register(self.root,self.now-timedelta(minutes=5))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 195, in register
+    spec_hash=store_object(root,'snapshots',spec)
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 181, in store_object
+    digest=sha(payload);write_once(root/kind/(digest+'.json'),payload);return digest
+                        ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\Documents\Codex\2026-11-15\new-chat\work\phase3\phase3_ab.py", line 173, in write_once
+    try:os.link(tmp,path)
+        ~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-ll9tbgfu\\snapshots\\.partial-5m2i2azw' -> 'C:\\Users\\georg\\Documents\\Codex\\2026-11-15\\new-chat\\work\\phase3\\state\\synthetic-test-ll9tbgfu\\snapshots\\f54d0af3f90210183910a1c3e17b4535deb9a2e2fed2ad028a58dfb4ab2bb01a.json'
+
+----------------------------------------------------------------------
+Ran 45 tests in 0.357s
+
+FAILED (errors=45)

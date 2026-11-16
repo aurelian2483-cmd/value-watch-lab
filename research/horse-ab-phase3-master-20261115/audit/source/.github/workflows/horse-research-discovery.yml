@@ -1,0 +1,68 @@
+name: Horse racing experimental discovery
+on:
+  push:
+    branches: [main]
+    paths: ['scripts/published_racing_selections.py', 'scripts/collect_racing_community.py', 'tests/test_published_racing_selections.py', 'scripts/horse_refresh_session.py', 'scripts/horse_refresh_cycle.sh', 'tests/test_horse_refresh_session.py', 'scripts/horse_refresh_gate.py', 'tests/test_horse_refresh_gate.py', 'scripts/preserve_horse_evidence.py', 'tests/test_horse_evidence.py', 'scripts/horse_context_pipeline.py', 'scripts/archive_horse_markets.py', 'tests/test_horse_context.py', 'tests/test_horse_market_archive.py', 'scripts/discover_horse_races.py', 'scripts/horse_reference_baseline.py', 'scripts/horse_secondary_source.py', 'tests/test_horse_discovery.py', 'tests/test_horse_reference.py', 'tests/test_horse_secondary.py', 'scripts/enrich_horse_runners.py', 'scripts/horse_market.py', 'tests/test_horse_market.py', 'tests/test_horse_runners.py', '.github/workflows/horse-research-discovery.yml', 'scripts/horse_model_pipeline.py', 'tests/test_horse_model.py', 'scripts/horse_challenger.py', 'tests/test_horse_challenger.py', 'research/horse-challenger/model-v1.json']
+  schedule:
+    # Ten-minute collection attempts, including overnight; prices expire in 30 minutes.
+    - cron: '3,13,23,33,43,53 * * * *'
+  workflow_dispatch:
+    inputs:
+      active_cycles:
+        description: 'Collection cycles, 20 minutes apart (1â€“6; only 04:00â€“22:00 UTC)'
+        required: false
+        default: '1'
+        type: choice
+        options: ['1', '2', '3', '4', '5', '6']
+  # Independent completion events provide a bounded fallback when cron is delayed.
+  # This workflow is deliberately absent from this list to prevent recursion.
+  workflow_run:
+    workflows: ['Full research regression', 'Refresh factual football fixtures', 'Tennis and NFL experimental research', 'Expanded football leagues research']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: write
+concurrency:
+  group: horse-research-discovery
+  cancel-in-progress: false
+jobs:
+  refresh_gate:
+    runs-on: ubuntu-24.04
+    outputs:
+      refresh: ${{ steps.gate.outputs.refresh }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check bounded fallback refresh eligibility
+        id: gate
+        run: python scripts/horse_refresh_gate.py
+  discovery:
+    needs: refresh_gate
+    if: needs.refresh_gate.outputs.refresh == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 125
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test race discovery controls
+        run: python -m unittest discover -s tests -p 'test_horse*.py'
+      - name: Collect and publish bounded racing refresh session
+        env:
+          RACING_API_USERNAME: ${{ secrets.RACING_API_USERNAME }}
+          RACING_API_PASSWORD: ${{ secrets.RACING_API_PASSWORD }}
+        run: python -u scripts/horse_refresh_session.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: horse-research-source-snapshots
+          path: /tmp/horse-session/
+          retention-days: 90
+          if-no-files-found: warn
