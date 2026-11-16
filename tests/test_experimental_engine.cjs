@@ -21,7 +21,7 @@ for (const file of ['index.html','paper-lab/index.html']) {
  for (const name of ['current','experimental','compare','reliability']) assert(html.includes(`<option value="${name}">`));
  assert(html.includes('id="engine-select"'));
  assert(!html.includes('data-engine="'));
- assert(html.indexOf('experimental.js')<html.indexOf('desk.js'));
+ assert(html.indexOf('experimental.js')<html.indexOf('desk-compact-20261116.js'));
  for (const sport of ['football','racing','tennis','nfl']) assert(html.includes(`data-sport="${sport}"`));
  assert(html.includes('UNVALIDATED')); assert(html.includes('BLOCKED'));
 }
