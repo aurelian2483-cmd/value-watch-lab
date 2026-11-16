@@ -42,7 +42,7 @@
     const blocked=reason=>({...GATES,status:'INELIGIBLE',reason});
     if(!event_id||!market_id||typeof event_id!=='string'||typeof market_id!=='string')return blocked('Missing stable event/market identity');
     const start=time(start_utc),frozen=time(model_frozen_at_utc),close=time(closing_observed_at_utc);
-    if(start===null||frozen===null||close===null||frozen>=start||close>start||close<frozen)
+    if(start===null||frozen===null||close===null||frozen>=start||close>=start||close<frozen)
       return blocked('Invalid chronological observations');
     if(!closing_source||typeof closing_source!=='string'||!/^https:\/\/[^\s/]+/i.test(closing_source))
       return blocked('Missing attributable closing price source');
@@ -50,7 +50,7 @@
     if(!market||!vector(model_probabilities)||market.probabilities.length!==model_probabilities.length)
       return blocked('Incomplete same-market odds or model probability vector');
     if(!Number.isSafeInteger(winner_index)||winner_index<0||winner_index>=market.probabilities.length)
-      return blocked('No independently verified outcome index');
+      return blocked('Invalid or absent outcome index; independent settlement verification required');
     const original=score(model_probabilities,winner_index),baseline=score(market.probabilities,winner_index);
     const result={...GATES,status:'RETROSPECTIVE_RESEARCH',event_id,market_id,
       closing_benchmark:'HINDSIGHT_ONLY_NOT_MODEL_INPUT',market_de_vig_method:market.method,
