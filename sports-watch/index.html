@@ -8,8 +8,8 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <title>Sports Watch | Value Watch Pro</title>
 <meta name="description" content="A separate, privacy-conscious sports video research workspace with approved provider links and a YouTube embed tester.">
-<link rel="stylesheet" href="./sports-watch.css?v=20261116b">
-<script src="./sports-watch.js?v=20261116b" defer></script>
+<link rel="stylesheet" href="./sports-watch.css?v=20261116c">
+<script src="./sports-watch.js?v=20261116c" defer></script>
 </head>
 <body>
 <a class="skip" href="#content">Skip to Sports Watch</a>
@@ -31,6 +31,38 @@
       <button type="button" data-sport="darts" aria-pressed="false">🎯 Darts</button>
       <button type="button" data-sport="rugby" aria-pressed="false">🏉 Rugby</button>
       <button type="button" data-sport="golf" aria-pressed="false">⛳ Golf</button>
+    </div>
+  </section>
+  <section class="panel match-workflow" aria-labelledby="match-workflow-title">
+    <div class="sectionheading"><div><div class="eyebrow">SPORTS WATCH · FOUR-STEP WORKFLOW</div><h2 id="match-workflow-title">Choose match → choose source → review link → watch</h2></div><span class="tag">Manual match entry · no live feed</span></div>
+    <div class="workflow-grid">
+      <section aria-labelledby="choose-match-title" class="workflow-step"><h3 id="choose-match-title"><span class="step-number">1</span> Select your game</h3>
+        <form id="match-form" class="workflow-form">
+          <label for="match-name">Match or event</label><input id="match-name" maxlength="100" required placeholder="e.g. Home team vs Away team">
+          <label for="match-competition">Competition (optional)</label><input id="match-competition" maxlength="80" placeholder="Competition name">
+          <button type="submit">Select match</button>
+        </form>
+        <p id="selected-match" class="workflow-summary" role="status">No match selected. Enter a match above; this page does not invent live fixtures.</p>
+      </section>
+      <section aria-labelledby="choose-sources-title" class="workflow-step"><h3 id="choose-sources-title"><span class="step-number">2</span> Choose backup links</h3>
+        <form id="source-form" class="workflow-form">
+          <label for="source-a">Source A · primary YouTube URL</label><input id="source-a" type="url" maxlength="1024" placeholder="https://www.youtube.com/watch?v=...">
+          <label for="source-b">Source B · backup YouTube URL</label><input id="source-b" type="url" maxlength="1024" placeholder="Optional second video">
+          <label for="source-c">Source C · backup YouTube URL</label><input id="source-c" type="url" maxlength="1024" placeholder="Optional third video">
+          <button type="submit">Check links</button>
+        </form>
+        <p class="workflow-hint">Links are entered by you, not scraped or automatically discovered. Switching preserves the selected match.</p>
+      </section>
+      <section aria-labelledby="review-sources-title" class="workflow-step"><h3 id="review-sources-title"><span class="step-number">3</span> Review link security</h3>
+        <p id="source-security-status" role="status" aria-live="polite">Enter a match and check source URLs before playback.</p>
+        <div id="source-choice-list" class="source-choices"></div>
+        <p class="workflow-hint">URL validation checks domain, HTTPS and video ID only. It cannot guarantee safety, rights, availability, or uninterrupted playback.</p>
+      </section>
+      <section aria-labelledby="watch-step-title" class="workflow-step"><h3 id="watch-step-title"><span class="step-number">4</span> Watch or switch</h3>
+        <p id="active-source" role="status">No active source.</p>
+        <div class="switch-actions"><button type="button" id="next-source" disabled>Try next checked source</button><button type="button" id="back-source" disabled>Previous source</button></div>
+        <p class="workflow-hint">Select a checked link to load the existing player below. If it stops, switch to another checked link; no unverified mirror is substituted automatically.</p>
+      </section>
     </div>
   </section>
   <div class="columns">
