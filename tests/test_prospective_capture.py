@@ -24,7 +24,7 @@ def event(sport='tennis'):
     probs=[{'id':'a','probability':.6},{'id':'b','probability':.4}]
     if sport=='nfl':
         probs=[{'id':'a','probability':.58},{'id':'tie','probability':.02},{'id':'b','probability':.4}]
-    return {'id':'test-1','startUTC':start,'participants':participants,'source':'https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261117',
+    return {'id':'test-1','startUTC':start,'participants':participants,'source':('https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261117' if sport == 'tennis' else 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20261117'),
             'source_sha256':HASH,'source_collected_at_utc':source_at,
             'forecast':{'model':'FIXED_ELO_K24_V1','market':cap.MARKETS[sport],
                         'calibrated':False,'odds':None,'expected_value':None,'training_matches':70,
@@ -47,7 +47,9 @@ class CaptureTests(unittest.TestCase):
         self.assertEqual(cap.append_only(l,items),1)
         original=copy.deepcopy(l['records'][0])
         later=copy.deepcopy(items[0]);later['probabilities']={'a':.2,'b':.8}
-        self.assertEqual(cap.append_only(l,[later]),0)
+        revision_audit={}
+        self.assertEqual(cap.append_only(l,[later],revision_audit),0)
+        self.assertEqual(revision_audit['revisions_withheld'],1)
         self.assertEqual(l['records'][0],original)
         self.assertEqual(l['records'][0]['recorded_at_utc'],iso(NOW))
         self.assertEqual(cap.append_only(l,items),0)
@@ -75,6 +77,10 @@ class CaptureTests(unittest.TestCase):
         f=feed();f['sports']['tennis']['events'][0]['forecast']['outcomes'][0]['id']='unknown'
         self.assertEqual(cap.snapshot_candidates(f,NOW)[0],[])
         f=feed();f['sports']['tennis']['events'][0]['forecast']['generated_at_utc']=iso(NOW+timedelta(hours=1))
+        self.assertEqual(cap.snapshot_candidates(f,NOW)[0],[])
+    def test_cross_sport_source_rejected(self):
+        f=feed('nfl')
+        f['sports']['nfl']['events'][0]['source']='https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261117'
         self.assertEqual(cap.snapshot_candidates(f,NOW)[0],[])
     def test_nfl_market_and_tie(self):
         f=feed('nfl')
