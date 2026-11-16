@@ -102,7 +102,27 @@
     status.textContent=message;
     status.classList.toggle('error',Boolean(isError));
   }
+  let playerRequest = 0;
+  let loadTimeout = null;
+  function cancelLoadTimeout() {
+    if (loadTimeout !== null) {
+      clearTimeout(loadTimeout);
+      loadTimeout = null;
+    }
+  }
+  frame.addEventListener('load', () => {
+    if (frame.hidden || !frame.getAttribute('src')) return;
+    cancelLoadTimeout();
+    setStatus('YouTube iframe responded. This does not guarantee video playback. If it is black or shows an error, use the Watch on YouTube link.', false);
+  });
+  frame.addEventListener('error', () => {
+    if (frame.hidden) return;
+    cancelLoadTimeout();
+    setStatus('The video frame failed to load. Use Watch on YouTube for this video.', true);
+  });
   function stopVideo() {
+    ++playerRequest;
+    cancelLoadTimeout();
     frame.removeAttribute('src');
     frame.hidden=true;
     empty.hidden=false;
@@ -121,6 +141,8 @@
     }
     const safe=embedUrl(id);
     if (!safe) return;
+    cancelLoadTimeout();
+    const currentRequest = ++playerRequest;
     frame.src=safe;
     frame.hidden=false;
     empty.hidden=true;
@@ -128,7 +150,12 @@
     fullscreen.disabled=false;
     ytLink.href='https://www.youtube.com/watch?v='+id;
     ytLink.hidden=false;
-    setStatus('Video player loaded. Playback may be blocked by the video owner or unavailable in your region.',false);
+    setStatus('Requesting YouTube player… If the frame stays black, use the Watch on YouTube link.',false);
+    loadTimeout = setTimeout(() => {
+      if (currentRequest === playerRequest && !frame.hidden) {
+        setStatus('No iframe load confirmation yet. YouTube may be blocked by extensions, network filtering or embedding permissions. Try Watch on YouTube.',true);
+      }
+    }, 12000);
   });
   stop.addEventListener('click',stopVideo);
   fullscreen.addEventListener('click',()=>{

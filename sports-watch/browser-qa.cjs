@@ -46,9 +46,13 @@ const main=async()=>{
    await page.getByRole('button',{name:'Load video'}).click();
    assert.equal(await page.locator('#player').getAttribute('src'),'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ');
    assert.equal(await page.locator('#player').isVisible(),true);
+   assert.equal(await page.locator('#youtube-link').isVisible(),true);
+   assert.equal(await page.locator('#youtube-link').getAttribute('href'),'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+   assert.match(await page.locator('#player-status').innerText(),/YouTube|player/i);
    await page.getByRole('button',{name:'Stop playback'}).click();
    assert.equal(await page.locator('#player').getAttribute('src'),null);
    assert.equal(await page.locator('#player').isVisible(),false);
+   assert.equal(await page.locator('#youtube-link').isVisible(),false);
    assert.deepEqual(errors,[],'page JavaScript errors at '+viewport.width);
    console.log('PASS Sports Watch browser smoke test',viewport.width+'x'+viewport.height);
    await context.close();

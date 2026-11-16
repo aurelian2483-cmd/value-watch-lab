@@ -38,15 +38,15 @@
       <div class="panelhead"><div><span class="eyebrow">VIDEO DESK</span><h2 id="player-title">Protected player</h2></div><span class="tag">User initiated only</span></div>
       <div id="video-area" class="video-area">
         <div id="player-empty" class="player-empty"><div class="screen-icon" aria-hidden="true">▶</div><strong>No video selected</strong><span>Paste a permitted YouTube sports video or live-stream link below. Embedding must be enabled by the video owner.</span></div>
-        <iframe id="player" title="Sports video player" hidden allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation" loading="lazy"></iframe>
+        <iframe id="player" title="Sports video player" hidden allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation" loading="eager"></iframe>
       </div>
       <form id="video-form" class="video-form">
         <label for="video-url">YouTube sports video URL</label>
         <div class="input-row"><input id="video-url" type="url" autocomplete="off" inputmode="url" spellcheck="false" placeholder="https://www.youtube.com/watch?v=..." maxlength="1024" required><button type="submit">Load video</button></div>
-        <div class="action-row"><button id="stop" class="secondary" type="button" disabled>Stop playback</button><button id="fullscreen" class="secondary" type="button" disabled>Fullscreen</button><a id="youtube-link" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" hidden>View on YouTube ↗</a></div>
-        <p id="player-status" class="status" role="status" aria-live="polite">Supported: youtube.com/watch, youtu.be and youtube.com/live URLs. We do not automatically detect video availability.</p>
+        <div class="action-row"><button id="stop" class="secondary" type="button" disabled>Stop playback</button><button id="fullscreen" class="secondary" type="button" disabled>Fullscreen</button><a id="youtube-link" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" hidden>Watch on YouTube if player fails ↗</a></div>
+        <p id="player-status" class="status" role="status" aria-live="polite">Supported: youtube.com/watch, youtu.be and youtube.com/live URLs. We can load the frame but cannot confirm that YouTube allows the video to play.</p>
       </form>
-      <p class="fineprint">Embedding may be unavailable, geo-restricted, age-restricted or require an external subscription. YouTube may display ads, even with privacy-enhanced mode. Playback is not guaranteed.</p>
+      <p class="fineprint"><strong>If the player stays black or displays Error 153, 101 or 150, use the Watch on YouTube link.</strong> YouTube can block third-party playback even when its own website works. Embedding may be unavailable, geo-restricted, age-restricted or require an external subscription. YouTube may display ads, even with privacy-enhanced mode. Playback is not guaranteed.</p>
     </section>
     <aside class="sidebar">
       <section class="panel" aria-labelledby="research-title"><div class="eyebrow">SIDE-BY-SIDE RESEARCH</div><h2 id="research-title">Value Watch intelligence</h2><p>Compare what you see with existing source-backed analysis. Video playback does not influence model probability or verify bookmaker odds.</p><div class="big-links"><a href="../" target="_blank" rel="noopener noreferrer">Open research desk <span>↗</span></a><a href="../analyst/" target="_blank" rel="noopener noreferrer">Open analyst terminal <span>↗</span></a><a href="../darts/" target="_blank" rel="noopener noreferrer">Open darts research <span>↗</span></a></div></section>
