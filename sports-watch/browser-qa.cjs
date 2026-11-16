@@ -22,6 +22,11 @@ const main=async()=>{
  try {
   for (const viewport of [{width:1440,height:900},{width:1024,height:768},{width:768,height:1024},{width:390,height:844}]) {
    const context=await browser.newContext({viewport,serviceWorkers:'block'});
+   // Serve an older CSS version that lacks the hidden-placeholder override.
+   await context.route('**/sports-watch.css*', route => {
+     const oldCss=fs.readFileSync(path.join(ROOT,'sports-watch.css'),'utf8').replace('.video-area iframe[hidden],.player-empty[hidden]{display:none}', '.video-area iframe[hidden]{display:none}');
+     return route.fulfill({status:200,contentType:'text/css',body:oldCss});
+   });
    await context.route('https://**/*',route=>route.abort());
    const page=await context.newPage();
    const errors=[];
