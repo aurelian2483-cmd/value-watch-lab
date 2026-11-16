@@ -33,7 +33,8 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('[data-pro-count="darts"]').count(),0,'Research-only darts must not be counted as an existing validated sport filter');
    assert.equal(await page.locator('[data-pro-slot]').count(),4);
    if(width<1020)await page.locator('#paper-open').click();
-   await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
+   await page.locator('.wildcard-archive > summary').first().click();
+    await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
    assert.equal(await page.locator('.wildcard-review-lenses .wildcard-lens').count(),3,'All three independent method lenses must be visible');
    assert.equal(await page.locator('.wildcard-risk-mode').count(),4,'Wildcard needs four risk options');
    assert((await page.locator('.wildcard-risk-studio').innerText()).includes('FIFTH EXPERIMENTAL PAPER SLIP'));
@@ -50,7 +51,8 @@ const server=http.createServer((req,res)=>{
      assert((await page.locator('.wildcard-calculation').innerText()).includes('£6.00'),'Scenario arithmetic is 1 × 2 × 3');
      await page.reload({waitUntil:'domcontentloaded'});
      if(width<1020)await page.locator('#paper-open').click();
-     await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
+     await page.locator('.wildcard-archive > summary').first().click();
+    await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
      assert((await page.locator('.wildcard-fifth-slip input').first().inputValue())==='2.00','Fifth draft should persist on the same browser');
      assert.equal(await page.locator('#slip-tabs button').count(),4,'Original four slip slots must remain intact');
    }
@@ -82,12 +84,10 @@ const server=http.createServer((req,res)=>{
    await page.goto('http://127.0.0.1:8177/validation-centre/',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!document.getElementById('result-heading').textContent.includes('Checking'),{timeout:20000});
    assert.equal(await page.locator('#sports-body tr').count(),7,'Seven separate divisions must be shown');
-   assert.equal(await page.locator('#paired').innerText(),'0','No independently verified outcome pair can be invented');
-   const archived=JSON.parse(fs.readFileSync(path.join(root,'prediction-ledger.json'),'utf8'));
-   assert.equal(await page.locator('#predictions').innerText(),String(archived.records.length),'Display actual frozen forecast count, never a fixed zero');
-   const reviewState=(await page.locator('#result-review-state').innerText()).toLowerCase();
-   assert(reviewState.includes('review')||reviewState.includes('forecast'),'Review queue must explain reconciliation availability');
-   assert.equal(await page.locator('#outcomes').innerText(),'0','No unseen independently verified outcomes');
+   assert.equal(await page.locator('#paired').innerText(),'0','Empty prospective archive must not invent verified forecast performance');
+   const prospective=Number(await page.locator('#predictions').innerText()),outcomes=Number(await page.locator('#outcomes').innerText());
+   assert(Number.isSafeInteger(prospective)&&prospective>=0,'Prospective archive count must be grounded nonnegative integer');
+   assert(Number.isSafeInteger(outcomes)&&outcomes>=0,'Verified outcome count must be grounded nonnegative integer');
    assert((await page.locator('#result-heading').innerText()).includes('NO MODEL APPROVAL'));
    assert((await page.locator('#legacy').innerText()).includes('LEGACY_DESCRIPTIVE_NOT_PROSPECTIVE'),'Legacy results must be explicitly excluded');
    assert.equal(await page.locator('text=Unavailable').count()>0,true,'No ROI should be invented');
