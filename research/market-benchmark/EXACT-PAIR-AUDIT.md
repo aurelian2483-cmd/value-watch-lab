@@ -6,6 +6,18 @@ The original `research-history.json` reports **18 entries**, `sample_size: 18`, 
 
 Any exact same-named fixture remains only a potential identity match until third-party timing, league, competition, settlement and pre-event archive are verified. The code outputs zero model-versus-market paired scores by design, even if two records match perfectly.
 
+## Observed first overlap check — 16 November 2026
+
+Using the immutable external CSV blob `d846f87991977b062a8250a61572e1c0075be3db` and the currently published `research-history.json`:
+
+- **18** Value Watch archived football research entries.
+- **1** exact fixture overlap: Newcastle v Everton, 2 November 2026, 20:00 UTC.
+- **17** unmatched archive entries by exact kickoff and team text.
+- The external result and archived result agree on an away win for the single overlap, and the external CSV includes a complete closing 1X2 quote vector.
+- **0** independently timestamp-attested forecast records; therefore **0** eligible paired market-vs-model scores.
+
+This check identifies an *identity candidate*, not a demonstrated pre-kickoff model forecast. Even the overlapping record cannot be used for model-versus-market performance until stronger original archive evidence exists. The external source is a track record, not an exhaustive fixture registry.
+
 Run:
 
 ```sh
