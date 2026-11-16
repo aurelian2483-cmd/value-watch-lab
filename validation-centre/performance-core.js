@@ -68,5 +68,42 @@ function build(ledger,outcomes,review,now=Date.now()){
  return {status:total?'DESCRIPTIVE_RESULTS_ONLY':'NO_PAIRED_RESULTS',totalScored:total,metrics:rows,evidence,review:health,verifiedValue:false,verifiedROI:false,
    note:'Scores use only contract-matched outcomes. Uniform baselines are weak references, not bookmaker or trained model comparators. Wilson intervals are for top-pick hit rates, not Brier/log loss. No sample size alone certifies calibration or betting value.'};
 }
-return Object.freeze({SPORTS,wilson,reviewHealth,build});
+function compareModels(ledger,outcomes){
+ if(!Array.isArray(ledger?.records)||!Array.isArray(outcomes?.records))return [];
+ const finals=new Map(),bad=new Set(),seen=new Set(),grouped=new Map();
+ for(const o of outcomes.records){
+   if(Validator.validateOutcome(o))continue;
+   const k=[o.sport,o.event_id,o.market].join('|');
+   if(finals.has(k))bad.add(k);else finals.set(k,o);
+ }
+ for(const p of ledger.records){
+   if(Validator.validatePrediction(p)||seen.has(p.prediction_id))continue;
+   seen.add(p.prediction_id);
+   const key=[p.sport,p.event_id,p.market].join('|'),outcome=finals.get(key);
+   if(!outcome||bad.has(key)||!Object.hasOwn(p.probabilities,outcome.actual_outcome)||Date.parse(outcome.observed_at_utc)<=Date.parse(p.event_start_utc))continue;
+   const model=p.model_version,values=Object.entries(p.probabilities);
+   if(!grouped.has(key))grouped.set(key,new Map());
+   const models=grouped.get(key);
+   if(models.has(model)){models.set(model,null);continue}
+   models.set(model,{sport:p.sport,model,loss:-Math.log(p.probabilities[outcome.actual_outcome]),
+    brier:values.reduce((acc,[k,pr])=>acc+(pr-(k===outcome.actual_outcome?1:0))**2,0)});
+ }
+ const sums=new Map();
+ for(const models of grouped.values()){
+   const valid=[...models.values()].filter(Boolean);
+   for(let i=0;i<valid.length;i++)for(let j=i+1;j<valid.length;j++){
+    const [a,b]=[valid[i],valid[j]].sort((x,y)=>x.model.localeCompare(y.model));
+    const key=a.sport+'|'+a.model+'|'+b.model;
+    const item=sums.get(key)||{sport:a.sport,modelA:a.model,modelB:b.model,pairedEvents:0,sumBrierA:0,sumBrierB:0,sumLogLossA:0,sumLogLossB:0};
+    item.pairedEvents++;item.sumBrierA+=a.brier;item.sumBrierB+=b.brier;item.sumLogLossA+=a.loss;item.sumLogLossB+=b.loss;sums.set(key,item);
+   }
+ }
+ return [...sums.values()].sort((a,b)=>b.pairedEvents-a.pairedEvents).map(x=>({
+  sport:x.sport,modelA:x.modelA,modelB:x.modelB,pairedEvents:x.pairedEvents,
+  meanBrierA:x.sumBrierA/x.pairedEvents,meanBrierB:x.sumBrierB/x.pairedEvents,
+  meanLogLossA:x.sumLogLossA/x.pairedEvents,meanLogLossB:x.sumLogLossB/x.pairedEvents,
+  status:x.pairedEvents<30?'INSUFFICIENT_PAIRED_SAMPLE':'DESCRIPTIVE_ONLY_NOT_STATISTICALLY_CERTIFIED'
+ }));
+}
+return Object.freeze({SPORTS,wilson,reviewHealth,build,compareModels});
 });
