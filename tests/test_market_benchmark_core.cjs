@@ -23,6 +23,7 @@ assert.equal(result.publication_gate,'BLOCKED');
 assert.equal(result.closing_benchmark,'HINDSIGHT_ONLY_NOT_MODEL_INPUT');
 assert(Math.abs(result.model.logLoss-Math.log(2))<1e-12);
 assert.equal(M.evaluate({...row,closing_observed_at_utc:'2026-11-22T15:00:01Z'}).status,'INELIGIBLE');
+assert.equal(M.evaluate({...row,closing_observed_at_utc:'2026-11-22T15:00:00Z'}).status,'INELIGIBLE');
 assert.equal(M.evaluate({...row,model_frozen_at_utc:'2026-11-22T15:00:00Z'}).status,'INELIGIBLE');
 assert.equal(M.evaluate({...row,closing_source:'javascript:bad()'}).status,'INELIGIBLE');
 assert.equal(M.evaluate({...row,closing_odds:[2,3]}).status,'INELIGIBLE');
