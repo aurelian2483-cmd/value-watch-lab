@@ -42,6 +42,7 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   assert((await p.locator('.selection-price').filter({hasText:'%'}).count())>0);
   assert.equal(await p.locator('#build-scope option').count(),2);
   const checkLink=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.event-tools a');assert.equal(await checkLink.getAttribute('href'),'https://www.oddschecker.com/football');
+  await p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('details.research-main-disclosure').filter({has:p.locator('summary',{hasText:'Advanced Analysis'})}).first().locator('> summary').click();
   const matchBox=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.match-overview');await matchBox.locator('summary').click();await matchBox.locator('svg.sport-diagram').waitFor();assert.equal(await matchBox.locator('svg.sport-diagram').count(),1);assert((await matchBox.textContent()).includes('Live action and positions are not connected'));
   const estimateBox=p.locator('.event-card').filter({hasText:'Test Home 0'}).locator('.model-details').first();await estimateBox.locator('summary').click();assert((await estimateBox.textContent()).includes('%'));
   report.checks.push('manual stake default, visible labelled estimates, two build scopes and external price-check links');
