@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const methods=require('../paper-lab/methodology-status.js');
 for(const sport of ['football','racing','tennis','nfl']){
-  const rows=methods.forEvent({sport,model:{name:'TEST_SOURCE_MODEL'}});
+  const rows=methods.forEvent({sport,model:{name:'TEST_SOURCE_MODEL'},choices:[{probability:0.55}]});
   assert.equal(rows[0].status,'EXPERIMENTAL_ACTIVE');
   assert.equal(rows[0].name,'TEST_SOURCE_MODEL');
   assert(rows.slice(1).every(row=>row.status==='NOT_CONNECTED'));
