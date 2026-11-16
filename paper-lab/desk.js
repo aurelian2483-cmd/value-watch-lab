@@ -267,6 +267,18 @@
     if(!evidencePanel){evidencePanel=make(record.node,'section',undefined,'universal-evidence-v3');record.prediction.after(evidencePanel);}
     evidencePanel.replaceChildren();
     const evidenceTitle=make(evidencePanel,'strong','Evidence v3 · '+(sports[event.sport]||event.sport));
+    // Show running event-level estimates separately from proposed research challengers.
+    // No challenger probability is calculated or implied by this display.
+    const methodRows=window.ValueWatchMethodologyStatus?.forEvent(event)||[];
+    if(methodRows.length){
+      const methodStrip=make(evidencePanel,'div',undefined,'methodology-comparison');
+      methodStrip.style.cssText='margin:8px 0;display:flex;flex-wrap:wrap;gap:6px;';
+      for(const method of methodRows){
+        const item=make(methodStrip,'span',method.name+' · '+method.status.replaceAll('_',' '),'small');
+        item.title=method.detail;
+        item.style.cssText='padding:5px 8px;border:1px solid #52718b;border-radius:8px;background:#15293e;color:#c7e4f8;max-width:100%;overflow-wrap:anywhere;';
+      }
+    }
     const contenders=(event.choices||[]).filter(c=>evaluateEvidenceSafe(event,c).green==='PROVISIONAL');
     const favourite=contenders.length===1?contenders[0]:null;
     const badges=favourite?evaluateEvidenceSafe(event,favourite):null;
