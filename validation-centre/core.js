@@ -43,7 +43,7 @@
   return null;
  }
  function validateOutcome(o){
-  if(!object(o)||!text(o.event_id)||!text(o.market)||!text(o.actual_outcome)||!iso(o.observed_at_utc)||o.independently_verified!==true||!Array.isArray(o.source_receipts)||o.source_receipts.length<2)return 'OUTCOME_UNVERIFIED';
+  if(!object(o)||!text(o.event_id)||!SPORTS.some(s=>s.id===o.sport)||!text(o.market)||!text(o.actual_outcome)||!iso(o.observed_at_utc)||o.independently_verified!==true||!Array.isArray(o.source_receipts)||o.source_receipts.length<2)return 'OUTCOME_UNVERIFIED';
   const urls=new Set(),hashes=new Set();
   for(const r of o.source_receipts){
    if(!object(r)||!SHA.test(r.sha256||'')||!iso(r.observed_at_utc)||!text(r.url))return 'INVALID_RESULT_RECEIPTS';
@@ -66,7 +66,7 @@
   audit.predictionRecords=ledger.records.length;audit.outcomeRecords=outcomes.records.length;
   const resultByKey=new Map(),badKeys=new Set(),seenIds=new Set(),sums=Object.fromEntries(SPORTS.map(s=>[s.id,{n:0,brier:0,loss:0}]));
   for(const o of outcomes.records){
-   const reason=validateOutcome(o),key=o?.event_id+'|'+o?.market;
+   const reason=validateOutcome(o),key=o?.sport+'|'+o?.event_id+'|'+o?.market;
    if(reason){audit.invalidOutcomes++;errors.push('Outcome withheld: '+reason);continue}
    if(resultByKey.has(key)){badKeys.add(key);audit.duplicateOutcomes++;continue}
    resultByKey.set(key,o);
@@ -75,7 +75,7 @@
    const reason=validatePrediction(p);
    if(reason){audit.invalidPredictions++;errors.push('Forecast withheld: '+reason);continue}
    if(seenIds.has(p.prediction_id)){audit.duplicatePredictions++;continue}seenIds.add(p.prediction_id);
-   const key=p.event_id+'|'+p.market,outcome=resultByKey.get(key);
+   const key=p.sport+'|'+p.event_id+'|'+p.market,outcome=resultByKey.get(key);
    if(badKeys.has(key)){audit.identityFailures++;continue}
    if(!outcome){audit.unmatchedPredictions++;continue}
    if(Date.parse(outcome.observed_at_utc)<=Date.parse(p.event_start_utc)){audit.chronologyFailures++;continue}
