@@ -7,7 +7,7 @@ This workflow captures **already published** experimental forecast vectors from 
 - Each receipt includes actual processing clock, source SHA-256 and repository commit SHA.
 - Duplicate, started and incomplete event observations are excluded; output is generated as an immutable, non-overwriting run artifact with a 90-day retention period.
 - Receipts do **not** independently certify that the source was immutable when originally published. The GitHub Actions run metadata and retained artifact provide additional traceability but are **not** independent trusted timestamp notarisation.
-- No automatic scheduled workflow, modifications to the four slips, or publishable betting scores are included.
+- One daily scheduled research-only capture (06:37 UTC), plus manual dispatch; no modifications to the four slips or publishable betting scores. Scheduled capture will fail closed when source data is stale or invalid.
 - No existing research archive is overwritten. Source-generated timestamp is metadata, not independent proof of pre-match model publication.
 - Archive records remain `challenge_eligible: 0`, `timestamp_independently_attested: false`, `UNVALIDATED` and `BLOCKED`.
 
