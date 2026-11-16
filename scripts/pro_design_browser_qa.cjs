@@ -33,7 +33,8 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('[data-pro-count="darts"]').count(),0,'Research-only darts must not be counted as an existing validated sport filter');
    assert.equal(await page.locator('[data-pro-slot]').count(),4);
    if(width<1020)await page.locator('#paper-open').click();
-   await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
+   await page.locator('.wildcard-archive > summary').first().click();
+    await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
    assert.equal(await page.locator('.wildcard-review-lenses .wildcard-lens').count(),3,'All three independent method lenses must be visible');
    assert.equal(await page.locator('.wildcard-risk-mode').count(),4,'Wildcard needs four risk options');
    assert((await page.locator('.wildcard-risk-studio').innerText()).includes('FIFTH EXPERIMENTAL PAPER SLIP'));
@@ -50,7 +51,8 @@ const server=http.createServer((req,res)=>{
      assert((await page.locator('.wildcard-calculation').innerText()).includes('£6.00'),'Scenario arithmetic is 1 × 2 × 3');
      await page.reload({waitUntil:'domcontentloaded'});
      if(width<1020)await page.locator('#paper-open').click();
-     await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
+     await page.locator('.wildcard-archive > summary').first().click();
+    await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
      assert((await page.locator('.wildcard-fifth-slip input').first().inputValue())==='2.00','Fifth draft should persist on the same browser');
      assert.equal(await page.locator('#slip-tabs button').count(),4,'Original four slip slots must remain intact');
    }
