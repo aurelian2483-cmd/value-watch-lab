@@ -12,7 +12,7 @@ assert(html.indexOf('src="./core.js"')<html.indexOf('src="./performance-core.js"
 assert(html.indexOf('src="./performance-core.js"')<html.indexOf('src="./app.js"'));
 assert(!/innerHTML\s*=|eval\s*\(|new Function\s*\(/.test(app+core));
 assert(!/GenUI|fetch\s*\(/.test(core));
-assert(app.includes("textContent=String(v)"));
+assert(app.includes("textContent=String(value)")&&app.includes("textContent=String(s)"));
 assert(report.includes('verified_betting_value:false'));
 assert(report.includes('verified_roi:false'));
 assert(report.includes("publication_gate:'BLOCKED'"));
