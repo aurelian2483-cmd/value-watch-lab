@@ -18,7 +18,7 @@
     const home=String(value.home ?? value.home_team ?? '').trim().slice(0,100);
     const away=String(value.away ?? value.away_team ?? '').trim().slice(0,100);
     if (!home || !away) return null;
-    const status=safeStatus(value.status);
+    const status=safeStatus(value.status) !== 'other' ? safeStatus(value.status) : safeStatus(value.status_text);
     if (status!==mode) return null;
     const time=String(value.time ?? value.start_time ?? value.kickoff_utc ?? '').trim();
     const iso=Date.parse(time);
@@ -28,9 +28,11 @@
   }
   function makeUrl(sport,mode,day){
     if (!SPORTS.includes(sport) || !['live','upcoming'].includes(mode)) return null;
-    if (mode==='live') return API+'/api/widget/matches/?sport='+sport+'&limit=50';
     if (!/^\d{4}-\d{2}-\d{2}$/.test(day||'')) return null;
-    return API+'/api/v1/fixtures/?sport='+sport+'&status=upcoming&limit=100&date='+day;
+    return API+'/api/v1/fixtures/?sport='+sport+'&status='+mode+'&limit=100&date='+day;
+  }
+  function widgetUrl(sport){
+    return SPORTS.includes(sport)?API+'/api/widget/matches/?sport='+sport+'&limit=50':null;
   }
   function listFromPayload(data){
     if (!data || typeof data!=='object') return null;
@@ -41,7 +43,7 @@
     if (data.data && Array.isArray(data.data.fixtures)) return data.data.fixtures;
     return null;
   }
-  const api=Object.freeze({safeStatus,normalizeMatch,makeUrl,listFromPayload,SPORTS});
+  const api=Object.freeze({safeStatus,normalizeMatch,makeUrl,widgetUrl,listFromPayload,SPORTS});
   if (typeof module!=='undefined' && module.exports) module.exports=api;
   if (!root.document) return;
   const doc=root.document;
@@ -80,21 +82,27 @@
     const d=new Date(Date.now()+days*86400000);
     return d.toISOString().slice(0,10);
   }
+  async function fetchRows(target,signal){
+    const cached=cache.get(target);
+    if (cached && Date.now()-cached.at<MAX_AGE_MS) return cached.value;
+    const response=await root.fetch(target,{mode:'cors',credentials:'omit',cache:'no-store',signal});
+    if (!response.ok) throw new Error('Sports data request failed ('+response.status+')');
+    const json=await response.json();
+    const rows=listFromPayload(json);
+    if (!rows) throw new Error('Sports data format changed');
+    cache.set(target,{at:Date.now(),value:rows});
+    return rows;
+  }
   async function querySport(sport,kind,signal){
-    const url=makeUrl(sport,kind,dateUtc(0));
-    const allUrls=kind==='upcoming'?[url,makeUrl(sport,kind,dateUtc(1))]:[url];
-    const responses=await Promise.all(allUrls.map(async target=>{
-      const cached=cache.get(target);
-      if (cached && Date.now()-cached.at<MAX_AGE_MS) return cached.value;
-      const response=await root.fetch(target,{mode:'cors',credentials:'omit',cache:'no-store',signal});
-      if (!response.ok) throw new Error('Sports data request failed ('+response.status+')');
-      const json=await response.json();
-      const rows=listFromPayload(json);
-      if (!rows) throw new Error('Sports data format changed');
-      cache.set(target,{at:Date.now(),value:rows});
-      return rows;
-    }));
-    return responses.flat().map(row=>normalizeMatch(row,sport,kind)).filter(Boolean);
+    // Dedicated date-scoped fixtures avoid recent completed matches displacing
+    // live matches in the provider's capped recent-match widget.
+    const days=kind==='live'?[-1,0]:[0,1,2];
+    const urls=days.map(offset=>makeUrl(sport,kind,dateUtc(offset)));
+    if(kind==='live')urls.push(widgetUrl(sport)); // secondary source for provider gaps
+    const outcomes=await Promise.allSettled(urls.map(url=>fetchRows(url,signal)));
+    const successes=outcomes.filter(o=>o.status==='fulfilled');
+    if(!successes.length)throw new Error('All fixture endpoints failed for '+sport);
+    return {matches:successes.flatMap(o=>o.value.map(row=>normalizeMatch(row,sport,kind)).filter(Boolean)),partial:successes.length<urls.length};
   }
   function render(items){
     results.replaceChildren();
@@ -151,12 +159,13 @@
     const outcomes=await Promise.allSettled(sports.map(s=>querySport(s,requestedMode,controller.signal)));
     if(current!==generation)return;
     refresh.disabled=false;
-    const good=outcomes.filter(o=>o.status==='fulfilled').flatMap(o=>o.value);
+    const good=outcomes.filter(o=>o.status==='fulfilled').flatMap(o=>o.value.matches);
     const failures=outcomes.filter(o=>o.status==='rejected');
+    const partialFeeds=outcomes.filter(o=>o.status==='fulfilled'&&o.value.partial).length;
     const ordered=good.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
     render(ordered);
-    if(failures.length){
-      const note=failures.length===outcomes.length?'Fixture data unavailable: network blocked, source offline or response changed. Try Refresh fixtures or enter a match manually.':'Partial coverage: '+failures.length+' sport feed(s) failed. ';
+    if(failures.length||partialFeeds){
+      const note=failures.length===outcomes.length?'Fixture data unavailable: network blocked, source offline or response changed. Try Refresh fixtures or enter a match manually.':'Partial provider coverage: '+(failures.length+partialFeeds)+' sport feed(s) had at least one failed endpoint. ';
       if(failures.length===outcomes.length){results.replaceChildren();showUpcoming.hidden=requestedMode!=='live';setStatus(note);}
       else setStatus(statusEl.textContent+' '+note);
     }
@@ -164,6 +173,25 @@
   tabs.forEach((button,index)=>button.addEventListener('click',()=>{mode=MODES[index];showMode();}));
   viewCoverage.addEventListener('click',()=>doc.querySelector('.coverage-panel').scrollIntoView({behavior:'auto',block:'start'}));
   showUpcoming.addEventListener('click',()=>{mode='upcoming';showMode();});
+  // Keep the prominent sport buttons and the actual live fixture selector in sync.
+  // Previously, these independent sport controls made a click appear ineffective.
+  const sportsButtons=el('sports');
+  if(sportsButtons)sportsButtons.addEventListener('click',event=>{
+    const button=event.target.closest('button[data-sport]');
+    if(!button||!sportsButtons.contains(button))return;
+    const chosen=button.dataset.sport;
+    if(chosen==='all'||SPORTS.includes(chosen)){
+      mode='live';
+      sportEl.value=chosen;
+      showMode();
+      doc.getElementById('fixture-title').scrollIntoView({behavior:'auto',block:'start'});
+    }else{
+      mode='manual';
+      showMode();
+      setStatus('Automatic live fixtures for '+chosen+' are not supported by this provider. Enter the match manually below.');
+      doc.getElementById('match-workflow-title').scrollIntoView({behavior:'auto',block:'start'});
+    }
+  });
   sportEl.addEventListener('change',loadFixtures);
   refresh.addEventListener('click',()=>{cache.clear();loadFixtures();});
   showMode();

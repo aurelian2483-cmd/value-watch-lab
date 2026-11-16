@@ -31,7 +31,7 @@ const main=async()=>{
    await context.route('https://sportscore.com/**',route=>{
      const requested=new URL(route.request().url());
      const sport=requested.searchParams.get('sport');
-     const upcoming=requested.pathname.includes('/fixtures/');
+     const upcoming=requested.searchParams.get('status')==='upcoming';
      const matches=upcoming
        ? (sport==='tennis'?[{home:'Player Alpha',away:'Player Beta',status:'upcoming',time:'2026-11-16T16:00:00Z',competition:'Test tennis'}]:[])
        : (sport==='football'?[{home:'Live Home',away:'Live Away',status:'live',time:'2026-11-16T12:00:00Z',competition:'Test league',home_score:1,away_score:0},{home:'Finished',away:'Game',status:'finished',time:'2026-11-16T10:00:00Z'}]:[]);
@@ -88,8 +88,16 @@ const main=async()=>{
    await page.getByRole('button',{name:/Darts/}).click();
    assert.equal(await page.locator('.provider').count(),3);
    assert.equal(await page.getByRole('button',{name:/Darts/}).getAttribute('aria-pressed'),'true');
+   assert.equal(await page.locator('#fixture-manual').getAttribute('aria-pressed'),'true','unsupported sport chip must make manual mode explicit');
+   assert.match(await page.locator('#fixture-status').innerText(),/not supported/);
    await page.getByRole('button',{name:/All sports/}).click();
    assert.equal(await page.locator('.provider').count(),12);
+   assert.equal(await page.locator('#fixture-live').getAttribute('aria-pressed'),'true','All sports chip should activate Live Now');
+   assert.equal(await page.locator('#fixture-sport').inputValue(),'all');
+   await page.getByRole('button',{name:/Football/}).first().click();
+   assert.equal(await page.locator('#fixture-sport').inputValue(),'football');
+   await page.locator('.fixture-card').first().waitFor({state:'visible'});
+
    const input=page.locator('#video-url');
    await input.fill('https://livetv.sx/');
    await page.getByRole('button',{name:'Load video'}).click();
@@ -109,6 +117,8 @@ const main=async()=>{
    assert.equal(await page.locator('#player-empty').isVisible(),true,'placeholder must return when playback stops');
    assert.equal(await page.locator('#youtube-link').isVisible(),false);
    // Four-stage workflow: keep the match while switching approved YouTube links.
+   // Clear the top sport selection: unclassified manual entries must not inherit a prior sport.
+   await page.getByRole('button',{name:/All sports/}).click();
    await page.locator('#match-name').fill('Test Team A vs Test Team B');
    await page.locator('#match-competition').fill('Test fixture only');
    await page.getByRole('button',{name:'Select match'}).click();
