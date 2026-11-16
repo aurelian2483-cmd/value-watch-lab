@@ -18,7 +18,7 @@ const server=http.createServer((req,res)=>{
    await page.goto('http://127.0.0.1:8191/darts/',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>{const s=document.querySelector('#feed-status')?.textContent||'';return s.includes('UNVALIDATED / BLOCKED')||(s.includes('unavailable')&&!s.includes('Checking'))});
    const originalCount=await page.locator('#forecast-count').innerText();
-   assert(/^\\d+$/.test(originalCount),'Published forecast count must be numeric');
+   assert(/^\d+$/.test(originalCount),'Published forecast count must be numeric');
    assert((await page.locator('#feed-status').innerText()).includes('BLOCKED'));
    const results=Array.from({length:8},(_,i)=>({id:'r'+i,played_at:'2026-10-'+String(i+1).padStart(2,'0')+'T11:00:00Z',status:'FINAL',player_a:{id:'a',name:'Player A'},player_b:{id:'b',name:'Player B'},winner_id:'a'}));
    const fixtures=[{id:'future',start_utc:'2099-06-01T20:00:00Z',status:'SCHEDULED',competition:'Local test',player_a:{id:'a',name:'Player A'},player_b:{id:'b',name:'Player B'}}];
