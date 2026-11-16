@@ -1,0 +1,36 @@
+name: Freeze published football forecasts as research receipt
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '37 6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regression guards
+        run: node tests/test_forecast_snapshot_receipts.cjs
+      - name: Capture original published research probabilities
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p "${RUNNER_TEMP}/valuewatch-forecast-receipts"
+          node research/forecast-receipts/capture.cjs \
+            research-dashboard-data.json \
+            "${RUNNER_TEMP}/valuewatch-forecast-receipts/forecast-receipt.json"
+      - name: Preserve receipt as limited-access workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: experimental-forecast-receipt
+          path: ${{ runner.temp }}/valuewatch-forecast-receipts/forecast-receipt.json
+          retention-days: 90
+          if-no-files-found: error
