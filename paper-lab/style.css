@@ -197,3 +197,28 @@
 .wildcard-archive{border:1px solid #b48a48;border-radius:10px;margin:12px 0;padding:10px;background:#3f311b;overflow-wrap:anywhere}
 .wildcard-archive>summary{cursor:pointer;color:#fff0c2;font-size:12px;font-weight:800;padding:5px 2px;line-height:1.5}
 .wildcard-archive:focus-within{outline:2px solid #ffe5a5;outline-offset:2px}
+
+/* Compact four-slip view. Keep historical records in the DOM and never delete saved entries. */
+.slip-selections{display:flex;flex-direction:column;gap:8px}
+.slip-selection.slip-current{order:1}
+.slip-selection.slip-archived{order:3}
+.slip-current-heading{order:0}
+.slip-archived-heading{order:2}
+.slip-selections>.slip-empty,.slip-selections>.generation-note{order:4}
+.slip-selections.slip-archive-collapsed>.slip-selection.slip-archived{display:none}
+.slip-section-heading{background:#1a3049;border:1px solid #3e5975;border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:3px}
+.slip-section-heading strong{color:#e5f0ff;font-size:12px}
+.slip-section-heading small{color:#a9c2dd;font-size:10px;line-height:1.45}
+.slip-archive-toggle{background:#20354e;border:1px solid #6883a0;border-radius:7px;padding:10px;text-align:left;color:#dceaff;font-size:12px;font-weight:750;cursor:pointer}
+.slip-archive-toggle:hover{background:#2b4664}
+.slip-archive-toggle:focus-visible{outline:3px solid #f1cd7a;outline-offset:2px}
+.slip-archive-status{display:inline-flex;align-items:center;background:#3d301e;color:#ffd89a;border-radius:5px;padding:4px 7px;font-size:10px;font-weight:650;margin:4px 0}
+.slip-selection{padding:10px!important}
+.slip-selection-top>strong{font-size:14px!important}
+.slip-selection-meta{font-size:10px!important;line-height:1.4!important;margin:3px 0!important}
+.slip-selection .leg-context-details{margin:7px 0;border-top:1px solid #324860;padding-top:7px;color:#bcd0e5}
+.slip-selection .leg-context-details>summary{font-size:10px;cursor:pointer;font-weight:650;color:#adcaed}
+.slip-selection .leg-context-details>.slip-selection-meta{font-size:10px!important}
+.slip-selection .leg-state{font-size:10px;margin:4px 0}
+.slip-selection .selection-actions{margin:6px 0}
+.slip-selection .leg-evidence>summary{font-size:10px;cursor:pointer}

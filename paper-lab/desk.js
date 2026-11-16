@@ -817,29 +817,36 @@
   }
   function patchLeg(record, leg, position, slot) {
     const signature = JSON.stringify([leg, position, slot.id, slot.legs.length, store.get().replacing, store.get().claims, store.get().plan.from, store.get().plan.to], (key, value) => key === 'ageMs' ? undefined : value); if (record.signature === signature) return;
-    const opened = record.node.querySelector('details')?.open; record.signature = signature; record.node.replaceChildren();
+    const opened = record.node.querySelector('.leg-evidence')?.open; record.signature = signature; record.node.replaceChildren();
+    const liveEvent = store.get().events.find(event => event.id === leg.eventId);
+    const started = Number.isFinite(Date.parse(leg.startUTC)) && Date.parse(leg.startUTC) <= Date.now();
+    const archived = started || !liveEvent || leg.currentStatus?.selectable === false;
+    record.node.classList.toggle('slip-archived', archived);
+    record.node.classList.toggle('slip-current', !archived);
     const top = make(record.node, 'div', undefined, 'slip-selection-top'); make(top, 'strong', leg.label);
     button(top, '×', () => savePlan(E.removeSelection(store.get().plan, slot.id, leg.id)), 'remove-button').setAttribute('aria-label', 'Remove ' + leg.label);
     make(record.node, 'p', symbols[leg.sport] + ' ' + leg.event, 'slip-selection-meta'); make(record.node, 'p', dateText(leg.startUTC) + ' · ' + leg.market, 'slip-selection-meta');
-    make(record.node,'p','Why selected: experimental research model or sourced research evidence. This is not a verified bookmaker favourite or a validated win prediction.','slip-selection-meta');
-    const state = E.statusOf(store.get().events.find(event => event.id === leg.eventId));
+    const reasonDetails = details(record.node,'Selection explanation & limitations','leg-context-details');
+    make(reasonDetails,'p','Why selected: experimental research model or sourced research evidence. This is not a verified bookmaker favourite or a validated win prediction.','slip-selection-meta');
+    const state = E.statusOf(liveEvent);
+    if (archived) make(record.node,'span',started?'Past event · saved research':!liveEvent?'Not in current snapshots · saved research':'Unavailable for current selection · saved research','slip-archive-status');
     make(record.node, 'span', !leg.currentStatus?.selectable ? leg.currentStatus?.label || state.label : leg.quote?.decimal ? leg.quote.decimal.toFixed(2) + ' · unverified source price' : (typeof leg.probability === 'number' ? pct(leg.probability) + (leg.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' context weight' : ' model win estimate') + ' · UNVALIDATED · odds not connected' : 'No model estimate · odds not connected'), 'leg-state' + (!leg.currentStatus?.selectable ? ' is-warning' : ''));
     if(leg.provisionalEntry)make(record.node,'p','Provisional paper entry · final declarations unverified','warning-line');
     // Mathematical hurdle only: this is not an estimated probability or positive-EV claim.
     if (Number.isFinite(leg.quote?.decimal) && leg.quote.decimal > 1) {
       const hurdle = 100 / leg.quote.decimal;
-      make(record.node,'p','Breakeven hurdle: '+hurdle.toFixed(1)+'% at captured decimal odds '+leg.quote.decimal.toFixed(2)+(leg.quote.decimal < 2 ? ' · short-price risk: a high win rate is required' : '')+' · price unverified','slip-selection-meta');
+      make(reasonDetails,'p','Breakeven hurdle: '+hurdle.toFixed(1)+'% at captured decimal odds '+leg.quote.decimal.toFixed(2)+(leg.quote.decimal < 2 ? ' · short-price risk: a high win rate is required' : '')+' · price unverified','slip-selection-meta');
     } else {
-      make(record.node,'p','Breakeven hurdle: UNKNOWN · no captured decimal price','slip-selection-meta');
+      make(reasonDetails,'p','Breakeven hurdle: UNKNOWN · no captured decimal price','slip-selection-meta');
     }
     if (leg.sport === 'racing') {
-      window.ValueWatchHorseV3Plus?.attach(record.node, 'racing', leg.model);
-      const marketAudit = details(record.node, 'Exchange movement & closing line · research', 'leg-market-audit');
+      window.ValueWatchHorseV3Plus?.attach(reasonDetails, 'racing', leg.model);
+      const marketAudit = details(reasonDetails, 'Exchange movement & closing line · research', 'leg-market-audit');
       make(marketAudit,'p','Exchange trend: UNKNOWN · no verified timestamped Betfair exchange price pair or matched-volume evidence is connected.','small');
       make(marketAudit,'p','Betfair SP / Closing Line Value: UNKNOWN · no independently attributable BSP benchmark is connected.','small');
       make(marketAudit,'p','No steamer, drifter, 20% drift, convergence or CLV claim is inferred from bookmaker prices.','small');
     }
-    if (day(leg.startUTC) < store.get().plan.from || day(leg.startUTC) > store.get().plan.to) make(record.node, 'p', 'Outside your selected dates · original selection retained', 'warning-line');
+    if (day(leg.startUTC) < store.get().plan.from || day(leg.startUTC) > store.get().plan.to) make(reasonDetails, 'p', 'Outside your selected dates · original selection retained', 'warning-line');
     const actions = make(record.node, 'div', undefined, 'selection-actions');
     const up = button(actions, '↑', () => savePlan(E.moveSelection(store.get().plan, slot.id, leg.id, position - 1)), 'move-button'); up.disabled = position === 0; up.setAttribute('aria-label', 'Move ' + leg.label + ' up');
     const down = button(actions, '↓', () => savePlan(E.moveSelection(store.get().plan, slot.id, leg.id, position + 1)), 'move-button'); down.disabled = position === slot.legs.length - 1; down.setAttribute('aria-label', 'Move ' + leg.label + ' down');
@@ -1195,6 +1202,7 @@
       (persistence.locked ? ' · Browser storage locked; export your work before retrying.' : '') +
       '. Research only; no verified expected value.');
   }
+  let archivedSlipVisible = false;
   function renderSlip() {
     const state = store.get(), slot = state.plan.slots[state.slot], evaluation = E.evaluateSlot(slot, state.events);
     renderEngine(evaluation);
@@ -1205,6 +1213,26 @@
     const signature = JSON.stringify([state.plan.id, state.plan.revision, state.slot, evaluation, state.replacing, state.claims, state.plan.from, state.plan.to], (key, value) => key === 'ageMs' ? undefined : value); if (slipSignature === signature) return; slipSignature = signature;
     const root = $('slip-content'); if (!legs.size) root.replaceChildren(); root.querySelectorAll('.slip-empty, .generation-note').forEach(element => element.remove());
     S.reconcile(root, evaluation.legs.map(leg => leg.id), legs, id => { const row = make(null, 'article', undefined, 'slip-selection'); row.dataset.legId = id; return { node: row, signature: '' }; }, (record, id) => { const position = evaluation.legs.findIndex(leg => leg.id === id); patchLeg(record, evaluation.legs[position], position, slot); });
+    root.querySelectorAll('.slip-section-heading').forEach(element => element.remove());
+    const currentCount = root.querySelectorAll('.slip-selection.slip-current').length;
+    const archivedCount = root.querySelectorAll('.slip-selection.slip-archived').length;
+    root.classList.toggle('slip-archive-collapsed', !archivedSlipVisible);
+    if(slot.legs.length){
+      const currentHeading=make(root,'div',undefined,'slip-section-heading slip-current-heading');
+      make(currentHeading,'strong','Current research · '+currentCount);
+      make(currentHeading,'small','Upcoming selections with an event in the current source snapshot. Research only, no validated value.');
+      if(archivedCount){
+        const historic=make(root,'div',undefined,'slip-section-heading slip-archived-heading');
+        const toggle=button(historic,(archivedSlipVisible?'Hide':'Show')+' saved history / unresolved · '+archivedCount,()=>{
+          archivedSlipVisible=!archivedSlipVisible;
+          root.classList.toggle('slip-archive-collapsed',!archivedSlipVisible);
+          write(toggle,(archivedSlipVisible?'Hide':'Show')+' saved history / unresolved · '+archivedCount);
+          toggle.setAttribute('aria-expanded',String(archivedSlipVisible));
+        },'slip-archive-toggle');
+        toggle.setAttribute('aria-expanded',String(archivedSlipVisible));
+        make(historic,'small','Past, absent from current feeds or no longer selectable. Nothing is deleted.');
+      }
+    }
     if (!slot.legs.length) empty(root, 'Your perspective starts here.', 'Choose an outcome or build a research shortlist. Empty slips are valid.').classList.add('slip-empty');
     if (slot.generation) make(root, 'p', slot.generation.reason, 'generation-note small');
     const metrics = $('slip-metrics'); metrics.replaceChildren();
