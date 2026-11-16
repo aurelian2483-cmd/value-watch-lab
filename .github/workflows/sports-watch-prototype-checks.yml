@@ -1,0 +1,26 @@
+name: Sports Watch isolated checks
+on:
+  push:
+    branches:
+      - feature/sports-watch-secure-prototype
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Sports Watch URLs and sports filters
+        run: node --test sports-watch/sports-watch.test.cjs
+      - name: Check JavaScript syntax
+        run: node --check sports-watch/sports-watch.js
+      - name: Verify standalone prototype assets
+        run: |
+          test -s sports-watch/index.html
+          test -s sports-watch/sports-watch.css
+          test -s sports-watch/sports-watch.js
+          grep -q 'frame-src https://www.youtube-nocookie.com' sports-watch/index.html
