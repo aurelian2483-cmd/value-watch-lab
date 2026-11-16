@@ -2,6 +2,8 @@ name: Freeze published football forecasts as research receipt
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '37 6 * * *'
 
 permissions:
   contents: read
