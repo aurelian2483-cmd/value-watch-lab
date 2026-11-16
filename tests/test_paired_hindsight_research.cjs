@@ -4,8 +4,10 @@ const {compare}=require('../research/forecast-receipts/paired-hindsight.cjs');
 const G={research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED'};
 const forecast={...G,home:'Home FC',away:'Away FC',kickoff_utc:'2026-11-10T15:00:00Z',
  model_version:'POISSON_BASELINE_2025_26_V1',probabilities:[.5,.3,.2],
- capture_at_utc:'2026-11-09T12:00:00Z',timestamp_independently_attested:false};
-const receipt={...G,status:'REPOSITORY_SNAPSHOT_RECEIPT_NOT_INDEPENDENT_ATTESTATION',records:[forecast]};
+ capture_at_utc:'2026-11-09T12:00:00Z',source_generated_at_utc:'2026-11-09T11:30:00Z',
+ source_sha256:'a'.repeat(64),repository_commit:'b'.repeat(40),timestamp_independently_attested:false};
+const receipt={...G,status:'REPOSITORY_SNAPSHOT_RECEIPT_NOT_INDEPENDENT_ATTESTATION',
+ captured_at_utc:'2026-11-09T12:00:00Z',source_sha256:'a'.repeat(64),repository_commit:'b'.repeat(40),records:[forecast]};
 const sources=[
  {url:'https://example.org/final',sha256:'a'.repeat(64),received_at_utc:'2026-11-11T10:00:00Z'},
  {url:'https://other.example/final',sha256:'b'.repeat(64),received_at_utc:'2026-11-11T10:01:00Z'}];
@@ -34,4 +36,7 @@ assert.equal(compare({...receipt,records:[forecast,forecast]},final,header+row,n
 assert.equal(compare({...receipt,records:[{...forecast,capture_at_utc:'2026-11-11T10:00:00Z'}]},final,header+row,now).counts.missing_prestart_receipt,1);
 assert.throws(()=>compare({...receipt,status:'PROMOTED'},final,header+row,now),/Invalid/);
 assert.throws(()=>compare(receipt,final,'a,b\n1,2',now),/External closing-market/);
+assert.equal(compare({...receipt,source_sha256:'c'.repeat(64)},final,header+row,now).counts.missing_prestart_receipt,1);
+assert.equal(compare({...receipt,records:[{...forecast,source_generated_at_utc:'2026-11-10T16:00:00Z'}]},final,header+row,now).counts.missing_prestart_receipt,1);
+assert.equal(compare({...receipt,records:[{...forecast,repository_commit:'bad'}]},final,header+row,now).counts.missing_prestart_receipt,1);
 console.log('Paired hindsight: identical events, corroborated results, quote and attestation safeguards passed');
