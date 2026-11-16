@@ -1,6 +1,6 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.ValueWatchPerformanceIntelligence=api})(typeof globalThis!=='undefined'?globalThis:this,function(){
 'use strict';
-const Validator=typeof module==='object'&&module.exports?require('./core.js'):root.ValueWatchIndependentValidation;
+const Validator=typeof module==='object'&&module.exports?require('./core.js'):globalThis.ValueWatchIndependentValidation;
 const SPORTS=Validator.SPORTS;
 const VALID_REVIEW=['AWAITING_EVENT','AWAITING_PRIMARY_FINAL','AWAITING_INDEPENDENT_SOURCE','SECONDARY_CONFLICT','SECONDARY_INVALID','READY_FOR_HUMAN_REVIEW','IDENTITY_CONFLICT','ARCHIVE_INVALID'];
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
