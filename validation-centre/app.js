@@ -66,6 +66,12 @@ function showPerformance(ledger,outcomes,review,weekly){
    add(row,'td',m.accuracy===null?'—':(100*m.accuracy).toFixed(1)+'% ('+(100*ci.lower).toFixed(0)+'–'+(100*ci.upper).toFixed(0)+'%)');
    add(row,'td',f(m.brier));add(row,'td',f(m.uniformBrier));add(row,'td',f(m.logLoss));add(row,'td',m.status,'blocked');
  }
+ const comparisons=core.compareModels(ledger,outcomes),comparisonBox=$('model-comparison');comparisonBox.replaceChildren();
+ if(!comparisons.length)add(comparisonBox,'p','No same-event pairs of distinct frozen model versions are available. No winner claimed.');
+ else {
+  const t=add(comparisonBox,'table'),h=add(add(t,'thead'),'tr');['Sport','Model A','Model B','Paired events','Mean Brier A','Mean Brier B','Status'].forEach(x=>add(h,'th',x));const tbody=add(t,'tbody');
+  for(const m of comparisons.slice(0,30)){const row=add(tbody,'tr');for(const x of [m.sport,m.modelA,m.modelB,m.pairedEvents,f(m.meanBrierA),f(m.meanBrierB),m.status])add(row,'td',x);}
+ }
  const active=core.SPORTS.filter(s=>summary.metrics[s.id].n>0);
  if(active.length){
    const s=active.reduce((best,next)=>summary.metrics[next.id].n>summary.metrics[best.id].n?next:best,active[0]);
