@@ -90,3 +90,10 @@
 #margin-result{margin-top:12px;padding:11px;border-left:3px solid #e3bf7d;background:#29301f;color:#f0e7d2;line-height:1.6;font-size:12px}
 @media(max-width:780px){.council-outcome{grid-template-columns:auto minmax(0,1fr);padding:16px}.outcome-retry{grid-column:1/-1;justify-self:start}}
 @media(max-width:460px){.council-outcome{grid-template-columns:minmax(0,1fr)}.outcome-icon{display:none}.outcome-reasons{grid-template-columns:1fr}}
+
+/* The Gold Council keeps the main ticket immediately visible; technical sections are optional. */
+.council-research-disclosure{border:1px solid #a88844;border-radius:13px;background:#142638;margin:24px 0;overflow:hidden}
+.council-research-disclosure>summary{padding:18px 20px;color:#ffe5a8;background:#3e321e;font-weight:800;cursor:pointer;font-size:15px}
+.council-research-disclosure[open]>summary{border-bottom:1px solid #876e38}
+.council-research-content{padding:0 16px 12px}
+@media(max-width:650px){.council-research-disclosure>summary{font-size:13px;padding:15px}}
