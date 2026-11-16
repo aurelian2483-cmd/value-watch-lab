@@ -142,8 +142,8 @@ for(const path of ['index.html','paper-lab/index.html']){
   const content=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
   assert(content.includes('id="paper-eligibility-audit"'),path+' must expose eligibility disclosure');
   assert(content.includes('engine.js?v=3.4.64'),path+' must load updated engine');
-  assert(content.includes('desk.js?v=3.4.71'),path+' must load updated disclosure');
-  assert(content.includes('style.css?v=3.4.49'),path+' must load updated styling');
+  assert(content.includes('desk.js?v=3.4.72'),path+' must load updated disclosure');
+  assert(content.includes('style.css?v=3.4.50'),path+' must load updated styling');
 }
 console.log('Four-sport eligibility, zero-forced-picks and preserved manual paper plans passed');
 
@@ -171,7 +171,7 @@ assert(deskAudit.includes('E.footballSeasonMaturity(event)'), 'Football maturity
 for(const path of ['index.html','paper-lab/index.html']){
  const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
  assert(html.includes('engine.js?v=3.4.64'),'Updated football engine cache revision required');
- assert(html.includes('desk.js?v=3.4.71'),'Updated football UI cache revision required');
+ assert(html.includes('desk.js?v=3.4.72'),'Updated football UI cache revision required');
 }
 console.log('Football venue sample maturity, 5–7 checkpoint and no invented manager or transfer impact passed');
 
@@ -245,7 +245,7 @@ for(const path of ['index.html','paper-lab/index.html']){
  const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
  assert(html.includes('id="fresh-daily-slips"'),path+' must expose a fresh daily rollover control');
  assert(html.includes('engine.js?v=3.4.64'),path+' must load fresh generator');
- assert(html.includes('desk.js?v=3.4.71'),path+' must load safe refresh controller');
+ assert(html.includes('desk.js?v=3.4.72'),path+' must load safe refresh controller');
 }
 const dailyUI=fs.readFileSync(require('node:path').join(__dirname,'..','paper-lab','desk.js'),'utf8');
 assert(dailyUI.includes('saveEnvelope({plan:next,history,replacing:null})'),'Archive and new plan must be persisted together');
@@ -355,7 +355,7 @@ for(const path of ['index.html','paper-lab/index.html']) {
  assert(html.indexOf('id="weekly-wildcard"') < html.indexOf('id="slip-tabs"'),
    'Wildcard must be above four paper slips');
  assert(html.includes('engine.js?v=3.4.64'),'Browser needs new wildcard engine');
- assert(html.includes('desk.js?v=3.4.71'),'Browser needs new wildcard desk');
- assert(html.includes('style.css?v=3.4.49'),'Browser needs gold-card stylesheet');
+ assert(html.includes('desk.js?v=3.4.72'),'Browser needs new wildcard desk');
+ assert(html.includes('style.css?v=3.4.50'),'Browser needs gold-card stylesheet');
 }
 console.log('Weekly Wildcard research-only gates, source integrity, sport coverage and gold panel passed');
