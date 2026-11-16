@@ -234,8 +234,13 @@
     const meta = make(header, 'span', '', 'event-meta'), time = make(header, 'time', '', 'event-time'), title = make(article, 'h3', '', 'event-title');
     const status = make(article, 'span', '', 'event-status'), conditions = make(article, 'p', '', 'event-conditions');
     const prediction = make(article, 'div', '', 'prediction-summary'); prediction.setAttribute('aria-live', 'polite');
-    const racingPanel = make(article, 'section', undefined, 'racing-highlights'); racingPanel.setAttribute('aria-label', 'Horse racing research highlights');
-    const market = make(article, 'div', undefined, 'market-grid'), seasonPanel = make(article, 'section', undefined, 'season-comparison'), explanation = make(article, 'p', '', 'market-explanation'); seasonPanel.setAttribute('aria-label','Current-season-only model comparison');
+    const racingDisclosure = details(article, 'Horse racing · research evidence & source audit', 'compact-evidence-disclosure');
+    const racingPanel = make(racingDisclosure, 'section', undefined, 'racing-highlights'); racingPanel.setAttribute('aria-label', 'Horse racing research highlights');
+    const market = make(article, 'div', undefined, 'market-grid');
+    const choiceDisclosure = details(article, 'Runner / outcome source and model information', 'compact-evidence-disclosure compact-choice-disclosure');
+    const choiceInformation = make(choiceDisclosure, 'div', undefined, 'compact-choice-information');
+    const seasonDisclosure = details(article, 'Form and season comparison', 'compact-evidence-disclosure');
+    const seasonPanel = make(seasonDisclosure, 'section', undefined, 'season-comparison'), explanation = make(article, 'p', '', 'market-explanation'); seasonPanel.setAttribute('aria-label','Current-season-only model comparison');
     const tools = make(article, 'div', undefined, 'event-tools');
     const check = link(tools, 'Check prices on Oddschecker ↗', 'https://www.oddschecker.com/');
     const note = button(tools, 'Add private note', () => {
@@ -253,7 +258,7 @@
       const b = button(tabs, label, () => loadStats(id, tab, panel, buttons)); b.dataset.statsTab = tab; b.setAttribute('aria-pressed', 'false'); buttons.set(tab, b);
     }
     evidence.addEventListener('toggle', () => { if (evidence.open && (!panel.dataset.loaded || panel.dataset.pending === 'true')) safely(() => loadStats(id, preferredStats(store.get().events.find(event => event.id === id)), panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
-    return { node: article, meta, time, title, status, conditions, prediction, market, racingPanel, seasonPanel, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
+    return { node: article, meta, time, title, status, conditions, prediction, market, racingPanel, racingDisclosure, seasonPanel, seasonDisclosure, choiceInformation, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
   }
   function preferredStats(event) { return event?.stats?.h2h ? 'h2h' : Array.isArray(event?.stats?.recent) && event.stats.recent.length ? 'recent' : event?.stats?.rankings ? 'rankings' : 'sources'; }
   function patchCard(record, event) {
@@ -264,7 +269,7 @@
     const conditions = event.stats?.conditions; write(record.conditions, conditions ? [conditions.distance, conditions.going, conditions.raceClass && 'Class ' + conditions.raceClass].filter(Boolean).join(' · ') : event.choices[0]?.market || 'Research outcome');
     // Cross-sport v3 evidence signals: displayed independently from paper-slip selections.
     let evidencePanel=record.node.querySelector('.universal-evidence-v3');
-    if(!evidencePanel){evidencePanel=make(record.node,'section',undefined,'universal-evidence-v3');record.prediction.after(evidencePanel);}
+    if(!evidencePanel){const disclosure=details(null,'Research signals and methodology','compact-evidence-disclosure');evidencePanel=make(disclosure,'section',undefined,'universal-evidence-v3');record.prediction.after(disclosure);}
     evidencePanel.replaceChildren();
     const evidenceTitle=make(evidencePanel,'strong','Evidence v3 · '+(sports[event.sport]||event.sport));
     // Show running event-level estimates separately from proposed research challengers.
@@ -296,6 +301,7 @@
     record.racingPanel.replaceChildren();
     // V3+ is model provenance only; it must never modify the selection decision.
     if(event.sport === 'racing') window.ValueWatchHorseV3Plus?.attach(record.racingPanel, 'racing', event.model);
+    record.racingDisclosure.hidden = event.sport !== 'racing';
     record.racingPanel.hidden = event.sport !== 'racing';
     record.racingPanel.style.cssText = event.sport === 'racing' ? 'display:block;visibility:visible;opacity:1;height:auto;min-height:0;overflow:visible;padding:14px 16px;margin:14px 0;border:1px solid #52718b;border-radius:12px;background:#172b38;color:#f1f5f9;line-height:1.55' : 'display:none';
     if (event.sport === 'racing') {
@@ -394,6 +400,18 @@
       }
     }
     const racingPicks = racingHighlights(event);
+    // Compact universal header keeps selection signals visible without duplicating full source research.
+    let quickSignals = record.node.querySelector('.compact-event-signals');
+    if (!quickSignals) { quickSignals = make(null, 'div', undefined, 'compact-event-signals'); record.market.before(quickSignals); }
+    quickSignals.replaceChildren();
+    if (event.sport === 'racing') {
+      const highlights = racingPicks.map(item => item.choice.label + ' · ' + item.labels.join(' + '));
+      make(quickSignals, 'span', highlights.length ? 'Experimental signals: ' + highlights.join('; ') : 'No confirmed research signal', 'compact-signal-pill');
+    } else {
+      const first = E.modelLeaders(event).find(item => item.rank === 1);
+      make(quickSignals, 'span', first ? 'Unvalidated model leader: ' + (event.choices.find(choice => choice.id === first.id)?.label || 'Unavailable') : 'Model comparison unavailable', 'compact-signal-pill');
+    }
+    make(quickSignals, 'span', 'Research only · source prices unverified', 'compact-evidence-note');
     const review = E.footballEvidenceReview(event);
     const leaders = E.modelLeaders(event), ordered = event.sport === 'racing' ? [...leaders.map(leader => event.choices.find(choice => choice.id === leader.id)), ...event.choices.filter(choice => !leaders.some(leader => leader.id === choice.id))] : event.choices;
     const structural = JSON.stringify([status.code === 'STARTED',event.futureScheduleOnly,event.provisionalEntry, ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id), racingPicks.map(pick => pick.choice.id)]);
@@ -416,7 +434,7 @@
       else if (status.code === 'STARTED') make(record.market, 'span', event.score?.label ? 'Recorded final: ' + event.score.label : 'Event has started or finished · additions closed', 'archived-status');
       else {
         if(event.provisionalEntry)make(record.market,'p','Choose a source-listed horse for manual paper research. Final declarations unverified; no model prediction or verified price.','provisional-entry-note small');
-        const shown = event.sport === 'racing' && ordered.length > 6 ? ordered.slice(0, 5) : ordered;
+        const shown = ordered; // All participants visible for comparison across all sports.
         const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), method = make(b, 'small', '', 'selection-methodology'), odds = make(b, 'small', '', 'selection-odds'); record.choices.set(choice.id, { element: b, modelBadge, name, price, caption, method, odds, previous: null }); };
         for (const choice of shown) append(record.market, choice);
         if (shown.length < event.choices.length) { const rest = details(record.market, 'Show all ' + event.choices.length + ' runners', 'runner-disclosure'); const grid = make(rest, 'div', undefined, 'market-grid'); for (const choice of ordered.slice(shown.length)) append(grid, choice); }
@@ -458,6 +476,14 @@
       view.element.setAttribute('aria-label', choice.label + ' · ' + (leader ? leader.rank === 1 ? 'model first choice · ' : 'model alternative · ' : '') + value + (contextWeight ? ' context weight' : estimated ? ' model estimate' : ' source odds') + ' · ' + (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name);
       if (priced && view.previous !== null && view.previous !== choice.quote.decimal) { view.element.classList.remove('odds-up', 'odds-down'); view.element.classList.add(choice.quote.decimal > view.previous ? 'odds-up' : 'odds-down'); }
       view.previous = priced ? choice.quote.decimal : null;
+    }
+    // Preserve detailed per-choice source information in an expandable panel rather than repeating it on every card.
+    record.choiceInformation.replaceChildren();
+    for (const choice of event.choices) {
+      const row = make(record.choiceInformation, 'div', undefined, 'compact-choice-info-row');
+      make(row, 'strong', choice.label);
+      make(row, 'p', Number.isFinite(choice.quote?.decimal) ? 'Source-observed odds: ' + choice.quote.decimal.toFixed(2) + ' · unverified' : Number.isFinite(choice.forecastPrice?.decimal) ? 'Publisher forecast: ' + choice.forecastPrice.decimal.toFixed(2) + ' · not bookmaker odds' : 'No source-observed bookmaker odds', 'small');
+      make(row, 'p', event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' : 'Method unavailable · no validated forecast', 'small');
     }
     const comparison = event.sport === 'football' ? event.seasonComparison : null;
     const signature = JSON.stringify([event.sport,event.international,event.internationalAnalysis,comparison,event.seasonForm,event.choices.map(choice=>choice.label)]);
