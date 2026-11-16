@@ -4,7 +4,7 @@ const make=(tag,parent,txt,cls)=>{const e=document.createElement(tag);if(txt!==u
 const fmtTime=v=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(v));
 const name=s=>s==='football'?'Football':s==='racing'?'Horse racing':s==='tennis'?'Tennis':'NFL';
 const emoji={walters:'◈',bloom:'▥',benter:'♞'};
-let report=null,active=null;
+let report=null,active=null,requestSequence=0,lastChecked=null;
 async function source(s,now){
  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),13000);
  try{
@@ -13,6 +13,33 @@ async function source(s,now){
   return C.inspect(s.id,await res.json(),now);
  }catch(e){return {id:s.id,state:'UNAVAILABLE',data:null,error:String(e?.message||e).slice(0,100)}}
  finally{clearTimeout(timer)}
+}
+const state=(id,message)=>{const target=$(id);if(target)target.firstChild?target.firstChild.textContent=message:target.prepend(document.createTextNode(message))};
+function updateState(id,message){const target=$(id);if(!target)return;const text=[...target.childNodes].find(n=>n.nodeType===Node.TEXT_NODE);if(text)text.textContent=message+' · ';else target.prepend(document.createTextNode(message+' · '))}
+function showOutcome(card,now){
+ const summary=C.screeningSummary(card),box=$('council-outcome'),reasons=$('outcome-reasons');reasons.replaceChildren();
+ box.dataset.state=summary.status;
+ $('outcome-title').textContent='PASS — No qualifying candidates established';
+ $('outcome-subtitle').textContent='0 of '+summary.examined+' preliminary source-gated research leads cleared every betting gate. This is not a count of every event in the '+summary.windowDays+'-day window. Research is incomplete, so no comprehensive market screening result is claimed.';
+ for(const reason of summary.reasons){
+   const line=make('div',reasons,undefined,'outcome-reason');
+   make('span',line,reason.label);make('strong',line,String(reason.count));
+ }
+ for(const unavailable of summary.sourceUnavailable){
+   const line=make('div',reasons,undefined,'outcome-reason missing');
+   make('span',line,'Source '+unavailable.id+' unavailable ('+unavailable.state+')');make('strong',line,'INCOMPLETE');
+ }
+ make('p',reasons,'Rejection reasons overlap; the displayed counts must not be added together. Feed failures and unverified market coverage prohibit a complete screening claim.','outcome-caveat');
+ $('outcome-meta').textContent='Last checked '+fmtTime(now)+' UK · '+summary.windowDays+'-day research horizon · '+summary.examined+' preliminary leads · 0 betting-qualified';
+}
+function showMargin(){
+ const output=$('margin-result');if(!output)return;
+ const raw=$('assumed-margin').value;
+ const m=raw.trim()===''?NaN:Number(raw);
+ const count=active?.legs.length||0;
+ if(!count){output.textContent='No displayed legs. A combined-margin illustration is unavailable.';return}
+ const estimate=C.assumedMargin(count,m);
+ output.textContent=estimate?'Assuming '+estimate.assumedPerLegMarginPercent.toFixed(1)+'% proportional margin per independent leg across '+count+' leg(s): '+estimate.impliedProbabilityInflationPercent.toFixed(1)+'% implied-probability inflation and '+estimate.illustrativeFairPayoutReductionPercent.toFixed(1)+'% reduction versus combined fair decimal payout. Not actual market overround or ticket EV.':'Enter an assumed margin between 0% and 20%; no actual bookmaker margin is available.';
 }
 function showCard(card,choice){
  const scenario=C.scenarios(card).find(x=>x.id===choice)||C.scenarios(card)[0];
@@ -59,6 +86,7 @@ function showCard(card,choice){
  showCouncil(card,scenario.legs);
  showRadar(card);
  renderPriceInputs(scenario);
+ showMargin();
 }
 function showRadar(card){
  const target=$('ticket-research-radar');target.replaceChildren();
@@ -99,7 +127,8 @@ function showCouncil(card,selected){
   const state=make('span',e,item.status,'lens-status');
   const compact=$('ticket-'+item.id);if(compact)compact.textContent=item.status;
   make('p',e,item.explanation);
-  make('p',e,'Not a personal endorsement or independent expert approval.','lens-caveat');
+  make('p',e,'Evidence sample: '+item.sample+' '+item.sampleUnit+'. Outcome: '+item.status+'.','lens-evidence-sample');
+  make('p',e,'Automated methodology only, inspired by public approaches associated with Billy Walters, Tony Bloom and Bill Benter. No personal endorsement or independent expert approval.','lens-caveat');
  }
 }
 function showRacing(card){
@@ -197,17 +226,57 @@ function showModelChallenge(horseData,footballData,now){
  make('p',fields,'Football source challenge: '+f.eligible+' preliminary current-season model records; '+f.excluded+' excluded. No independently verified bookmaker price or betting edge.');
 }
 async function refresh(){
- $('time-stamp').textContent='Checking source files…';
- const now=Date.now(),days=Number($('horizon').value),results=await Promise.all(C.SOURCES.map(x=>source(x,now)));
- report=C.collect(results,now,days);
- $('time-stamp').textContent='Source snapshot check · '+fmtTime(now)+' UK';
- showCard(report,$('scenario').value);showRacing(report);showCoverage(report);showAudit(report);
- // Feed payloads are passed only after Council source-freshness gates.
- showModelChallenge(results.find(x=>x.id==='horse'&&x.state==='OBSERVED')?.data,results.find(x=>x.id==='football'&&x.state==='OBSERVED')?.data,now);
+ const seq=++requestSequence;
+ const now=Date.now(),days=Number($('horizon').value),button=$('refresh');
+ lastChecked=now;button.disabled=true;
+ $('time-stamp').textContent='Loading research sources · '+fmtTime(now)+' UK';
+ $('council-outcome').dataset.state='loading';
+ $('outcome-title').textContent='Checking source coverage and betting gates…';
+ $('outcome-subtitle').textContent='Source loading has a timeout. No qualifying outcome will be invented.';
+ $('outcome-reasons').replaceChildren();
+ $('outcome-meta').textContent='Check started '+fmtTime(now)+' UK · '+days+'-day research horizon';
+ $('window-label').textContent=days+'-day research horizon · loading';
+ for(const id of ['lenses-health','racing-health','challenge-health','coverage-health'])updateState(id,'Loading source snapshots');
+ try{
+  const results=await Promise.all(C.SOURCES.map(x=>source(x,now)));
+  if(seq!==requestSequence)return;
+  report=C.collect(results,now,days);
+  showOutcome(report,now);
+  $('time-stamp').textContent='Source check complete · '+fmtTime(now)+' UK';
+  showCard(report,$('scenario').value);showRacing(report);showCoverage(report);showAudit(report);
+  showModelChallenge(results.find(x=>x.id==='horse'&&x.state==='OBSERVED')?.data,results.find(x=>x.id==='football'&&x.state==='OBSERVED')?.data,now);
+  const failed=results.filter(x=>x.state!=='OBSERVED');
+  const msg=failed.length?'Partial data · '+failed.length+' source(s) missing or stale':'Loaded source snapshots · no independently verified bookmaker prices';
+  updateState('lenses-health',msg+' · automated method review complete');
+  updateState('racing-health',report.sources.horse==='OBSERVED'?'Loaded · racing evidence is research-only':'Unavailable · verified current racing evidence missing');
+  updateState('challenge-health','Loaded · model challenge diagnostics are experimental');
+  updateState('coverage-health',msg);
+ }catch(e){
+  if(seq!==requestSequence)return;
+  report=null;active=null;
+  $('council-outcome').dataset.state='failed';
+  $('outcome-title').textContent='Research check failed — no result claimed';
+  $('outcome-subtitle').textContent='The screening did not complete: '+String(e?.message||e).slice(0,130)+'. Use Retry check to reload.';
+  $('outcome-meta').textContent='Failed check at '+fmtTime(now)+' UK · '+days+'-day requested window';
+  $('time-stamp').textContent='Check failed · '+fmtTime(now)+' UK';
+  $('ticket-legs').replaceChildren();
+  make('p',$('ticket-legs'),'Research temporarily unavailable. No candidates or payouts were produced.','muted');
+  $('lead-count').textContent='—';$('ticket-selection-note').textContent='Failed source processing; all candidate and model verdicts withheld.';
+  for(const id of ['lenses-health','racing-health','challenge-health','coverage-health'])updateState(id,'Failed · last attempted '+fmtTime(now)+' UK · retry available');
+  $('three-lenses').replaceChildren();make('p',$('three-lenses'),'Not run · research check failed.','muted');
+  $('model-challenge-summary').replaceChildren();make('p',$('model-challenge-summary'),'Not run · source processing failed.','muted');
+  $('horse-field-diagnostics').replaceChildren();make('p',$('horse-field-diagnostics'),'Not run · source processing failed.','muted');
+  $('sport-coverage').replaceChildren();make('p',$('sport-coverage'),'Unavailable · source processing failed.','muted');
+  $('manual-prices').replaceChildren();
+  $('sim-result').textContent='Payout unavailable: research check failed.';
+  showMargin();
+ }finally{if(seq===requestSequence)button.disabled=false}
 }
 $('refresh').addEventListener('click',refresh);
+for(const b of document.querySelectorAll('[data-retry]'))b.addEventListener('click',refresh);
 $('horizon').addEventListener('change',refresh);
 $('scenario').addEventListener('change',()=>{if(report)showCard(report,$('scenario').value)});
 $('stake').addEventListener('input',calculate);
-refresh().catch(e=>{$('time-stamp').textContent='Council data unavailable: '+String(e?.message||e).slice(0,80)});
+$('assumed-margin').addEventListener('input',showMargin);
+refresh();
 })();
