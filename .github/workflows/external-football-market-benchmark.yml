@@ -21,6 +21,7 @@ jobs:
         run: |
           node tests/test_market_benchmark_core.cjs
           node tests/test_tipsaudit_benchmark.cjs
+          node tests/test_football_pair_audit.cjs
       - name: Fetch exact CC BY football research export
         shell: bash
         run: |
@@ -57,10 +58,28 @@ jobs:
               raise SystemExit('Research gate mismatch')
           print('Reviewed market benchmark reproduced:', c['scored'],'market-only scored records')
           PY
+      - name: Audit archived Value Watch football fixture overlap (no scoring)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/market-benchmark/football-pair-audit.cjs \
+            research-history.json \
+            "${RUNNER_TEMP}/valuewatch-market/source.csv" \
+            "${RUNNER_TEMP}/valuewatch-market/pair-audit.json"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'valuewatch-market/pair-audit.json'
+          d=json.loads(p.read_text())
+          if d['counts']['eligible_paired_scores'] != 0 or d['publication_gate'] != 'BLOCKED':
+              raise SystemExit('Audit attempted an unverified model comparison')
+          print('Safe fixture-link audit completed; no model-vs-market validation claimed')
+          PY
       - name: Upload aggregate summary only
         uses: actions/upload-artifact@v4
         with:
           name: external-football-market-summary
-          path: ${{ runner.temp }}/valuewatch-market/summary.json
+          path: |
+            ${{ runner.temp }}/valuewatch-market/summary.json
+            ${{ runner.temp }}/valuewatch-market/pair-audit.json
           retention-days: 7
           if-no-files-found: error
