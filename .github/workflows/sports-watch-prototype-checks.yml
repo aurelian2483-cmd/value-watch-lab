@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/sports-watch-secure-prototype
+      - feature/sports-watch-coverage-handoff
       - feature/sports-watch-live-fixture-picker
       - feature/sports-watch-four-stage-source-switcher
       - fix/sports-watch-ios-cached-placeholder-20261116
@@ -23,6 +24,8 @@ jobs:
         run: node --test sports-watch/sports-watch.test.cjs
       - name: Validate live fixture parsing and source boundaries
         run: node --test sports-watch/fixtures.test.cjs
+      - name: Validate official coverage source trust
+        run: node --test sports-watch/coverage.test.cjs
       - name: Install repository test dependencies
         run: npm ci --ignore-scripts
       - name: Install Chromium for browser QA
@@ -33,11 +36,13 @@ jobs:
         run: |
           node --check sports-watch/sports-watch.js
           node --check sports-watch/fixtures.js
+          node --check sports-watch/coverage.js
       - name: Verify standalone prototype assets
         run: |
           test -s sports-watch/index.html
           test -s sports-watch/sports-watch.css
           test -s sports-watch/sports-watch.js
           test -s sports-watch/fixtures.js
+          test -s sports-watch/coverage.js
           grep -q 'href="./sports-watch/"' index.html
           grep -q 'frame-src https://www.youtube-nocookie.com' sports-watch/index.html

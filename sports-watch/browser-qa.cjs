@@ -10,7 +10,7 @@ const MIME = { '.html':'text/html; charset=utf-8','.js':'application/javascript;
 const server = http.createServer((req,res)=>{
   const requested = new URL(req.url,'http://127.0.0.1').pathname;
   const file = requested==='/'?'index.html':requested.slice(1);
-  if (!['index.html','sports-watch.css','sports-watch.js','fixtures.js'].includes(file)){res.writeHead(404);res.end();return;}
+  if (!['index.html','sports-watch.css','sports-watch.js','fixtures.js','coverage.js'].includes(file)){res.writeHead(404);res.end();return;}
   const p=path.join(ROOT,file);
   try {res.writeHead(200,{'Content-Type':MIME[path.extname(file)],'X-Content-Type-Options':'nosniff'});res.end(fs.readFileSync(p));}
   catch(e){res.writeHead(500);res.end();}
@@ -50,6 +50,11 @@ const main=async()=>{
    assert.equal(await page.locator('.fixture-attribution a').first().innerText(),'Powered by SportScore');
    await page.locator('.fixture-card').first().click();
    assert.match(await page.locator('#selected-match').innerText(),/Live Home vs Live Away/);
+   assert.equal(await page.locator('#coverage-sport').inputValue(),'football');
+   assert.match(await page.locator('#coverage-selected').innerText(),/Live Home vs Live Away/);
+   assert.ok(await page.locator('.coverage-card').count()>0);
+   assert.equal(await page.locator('.coverage-card').first().getAttribute('target'),'_blank');
+   assert.equal(await page.locator('#source-a').inputValue(),'','official coverage suggestions must not inject video links');
    assert.equal(await page.locator('#source-a').inputValue(),'','fixture selection must not invent video links');
    await page.locator('#fixture-upcoming').click();
    await page.locator('.fixture-card').first().waitFor({state:'visible'});
@@ -93,6 +98,11 @@ const main=async()=>{
    await page.locator('#match-competition').fill('Test fixture only');
    await page.getByRole('button',{name:'Select match'}).click();
    assert.match(await page.locator('#selected-match').innerText(),/Test Team A vs Test Team B/);
+   assert.match(await page.locator('#coverage-selected').innerText(),/Choose its sport/);
+   assert.equal(await page.locator('.coverage-card').count(),0,'manual match without sport must not guess broadcaster');
+   await page.locator('#coverage-sport').selectOption('darts');
+   assert.ok(await page.locator('.coverage-card').count()>0);
+   assert.match(await page.locator('.coverage-card').first().innerText(),/Official destination/);
    await page.locator('#source-a').fill('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
    await page.locator('#source-b').fill('https://youtu.be/9bZkp7q19f0');
    await page.locator('#source-c').fill('https://livetv.sx/');

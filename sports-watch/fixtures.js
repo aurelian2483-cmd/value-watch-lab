@@ -121,6 +121,7 @@
         matchInput.value=match.home+' vs '+match.away;
         competitionInput.value=match.competition||match.sport.toUpperCase();
         matchForm.requestSubmit();
+        doc.dispatchEvent(new CustomEvent('sports-watch:fixture-selected',{detail:{sport:match.sport}}));
         statusEl.textContent='Selected '+match.home+' vs '+match.away+'. Add permitted video links in Step 2; broadcast availability is not verified.';
         doc.getElementById('match-workflow-title').scrollIntoView({behavior:'smooth',block:'start'});
       });

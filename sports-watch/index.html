@@ -8,9 +8,10 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://sportscore.com; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <title>Sports Watch | Value Watch Pro</title>
 <meta name="description" content="A separate, privacy-conscious sports video research workspace with approved provider links and a YouTube embed tester.">
-<link rel="stylesheet" href="./sports-watch.css?v=20261116d">
-<script src="./sports-watch.js?v=20261116d" defer></script>
-<script src="./fixtures.js?v=20261116d" defer></script>
+<link rel="stylesheet" href="./sports-watch.css?v=20261116e">
+<script src="./sports-watch.js?v=20261116e" defer></script>
+<script src="./fixtures.js?v=20261116e" defer></script>
+<script src="./coverage.js?v=20261116e" defer></script>
 </head>
 <body>
 <a class="skip" href="#content">Skip to Sports Watch</a>
@@ -89,6 +90,17 @@
         <p class="workflow-hint">Select a checked link to load the existing player below. If it stops, switch to another checked link; no unverified mirror is substituted automatically.</p>
       </section>
     </div>
+  </section>
+  <section class="panel coverage-panel" aria-labelledby="coverage-title">
+    <div class="sectionheading"><div><div class="eyebrow">OFFICIAL COVERAGE · SOURCE FINDER</div><h2 id="coverage-title">Coverage options for your match</h2></div><span class="tag">Event rights not checked</span></div>
+    <p id="coverage-selected" role="status" aria-live="polite">Choose a match above to see relevant official broadcaster and league destinations.</p>
+    <div class="coverage-controls"><label for="coverage-sport">Sport</label>
+      <select id="coverage-sport">
+        <option value="all">Choose sport</option><option value="football">Football</option><option value="racing">Horse racing</option><option value="tennis">Tennis</option><option value="nfl">NFL</option><option value="darts">Darts</option><option value="rugby">Rugby</option><option value="golf">Golf</option><option value="basketball">Basketball</option><option value="cricket">Cricket</option>
+      </select>
+    </div>
+    <div id="coverage-results" class="coverage-results"></div>
+    <p class="workflow-hint">These are official coverage and schedules destinations, not confirmed broadcasters for your selected event. No streaming URL is copied from third-party mirrors, no ads or paywalls are bypassed, and no website is guaranteed safe. If an official provider offers an embeddable YouTube broadcast, paste its published URL into the checked source selector above.</p>
   </section>
   <div class="columns">
     <section class="panel player-panel" aria-labelledby="player-title">
