@@ -143,7 +143,7 @@ for(const path of ['index.html','paper-lab/index.html']){
   assert(content.includes('id="paper-eligibility-audit"'),path+' must expose eligibility disclosure');
   assert(content.includes('engine.js?v=3.4.64'),path+' must load updated engine');
   assert(content.includes('desk.js?v=3.4.71'),path+' must load updated disclosure');
-  assert(content.includes('style.css?v=3.4.47'),path+' must load updated styling');
+  assert(content.includes('style.css?v=3.4.49'),path+' must load updated styling');
 }
 console.log('Four-sport eligibility, zero-forced-picks and preserved manual paper plans passed');
 
@@ -356,6 +356,6 @@ for(const path of ['index.html','paper-lab/index.html']) {
    'Wildcard must be above four paper slips');
  assert(html.includes('engine.js?v=3.4.64'),'Browser needs new wildcard engine');
  assert(html.includes('desk.js?v=3.4.71'),'Browser needs new wildcard desk');
- assert(html.includes('style.css?v=3.4.47'),'Browser needs gold-card stylesheet');
+ assert(html.includes('style.css?v=3.4.49'),'Browser needs gold-card stylesheet');
 }
 console.log('Weekly Wildcard research-only gates, source integrity, sport coverage and gold panel passed');

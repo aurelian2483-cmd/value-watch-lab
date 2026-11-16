@@ -740,11 +740,27 @@
     if ($('competition').dataset.signature !== signature) {
       $('competition').dataset.signature = signature; $('competition').replaceChildren(); const all = make($('competition'), 'option', 'All competitions'); all.value = 'all';
       for (const name of competitions) { const option = make($('competition'), 'option', name); option.value = name; }
-      $('competition-nav').replaceChildren(); button($('competition-nav'), 'All competitions', () => store.update(state => ({ ...state, competition: 'all', limit: 24 })), 'competition-button');
-      for (const name of competitions.slice(0, 16)) button($('competition-nav'), name, () => store.update(state => ({ ...state, competition: name, limit: 24 })), 'competition-button');
+      write($('competition-count'), String(competitions.length));
+      $('competition-nav').replaceChildren();
+      button($('competition-nav'), 'All competitions', () => store.update(state => ({ ...state, competition: 'all', limit: 24 })), 'competition-button').dataset.competition = 'all';
+      for (const name of competitions) button($('competition-nav'), name, () => store.update(state => ({ ...state, competition: name, limit: 24 })), 'competition-button').dataset.competition = name;
     }
     $('competition').value = competitions.includes(state.competition) ? state.competition : 'all';
+    const needle = $('competition-search').value.trim().toLocaleLowerCase();
+    let visible = 0;
+    $('competition-nav').querySelectorAll('button[data-competition]').forEach(element => {
+      const selected = element.dataset.competition === state.competition;
+      element.classList.toggle('active', selected);
+      element.setAttribute('aria-pressed', String(selected));
+      const match = element.dataset.competition === 'all' || element.dataset.competition.toLocaleLowerCase().includes(needle);
+      element.hidden = !match;
+      if (match) visible++;
+    });
+    const noResults = $('competition-nav').querySelector('.competition-no-results');
+    if (noResults) noResults.remove();
+    if (visible === 1 && needle) make($('competition-nav'), 'p', 'No matching competitions', 'rail-empty competition-no-results');
   }
+  $('competition-search').addEventListener('input', () => safely(renderNavigation));
   let trackerSignature = '';
   function renderTracker() {
     const rows = filtered(store.get()), signature = JSON.stringify(rows.map(event => [event.id, event.score, E.statusOf(event).code])); if (signature === trackerSignature) return; trackerSignature = signature;
@@ -816,7 +832,8 @@
   let engineView = 'current';
   try { engineView = X.mode(storage.getItem(X.preferenceKey)); } catch { /* Default view remains usable without storage. */ }
   function renderEngine(evaluation) {
-    document.querySelectorAll('[data-engine]').forEach(element => element.setAttribute('aria-pressed', String(element.dataset.engine === engineView)));
+    const engineSelect = $('engine-select');
+    if (engineSelect) engineSelect.value = engineView;
     write($('engine-status'), ({current:'Current Engine 2.5 · existing research workflow.', experimental:'Experimental Engine 3.0 · illustrative, uncalibrated research mathematics.', compare:'Side-by-Side Compare · same captured inputs; no reranking.', reliability:'Historical Reliability · automatic research-only favourite-pattern filter; not certified value picks.'})[engineView]);
     const root = $('engine-analysis'); root.hidden = engineView === 'current'; root.replaceChildren();
     if (root.hidden) return;
@@ -878,12 +895,12 @@
     }
     make(root, 'p', 'Formulae: EV = p×o−1; break-even = 1/o; fragility = p−1/o; variance = o²p(1−p). Unit stake = 1; no actual stake or settlement implied.', 'small');
   }
-  document.querySelectorAll('[data-engine]').forEach(element => element.addEventListener('click', () => safely(() => {
-    engineView = X.mode(element.dataset.engine);
+  $('engine-select').addEventListener('change', event => safely(() => {
+    engineView = X.mode(event.target.value);
     renderSlip();
     renderEvents();
     try { storage.setItem(X.preferenceKey, engineView); } catch { write($('engine-status'), $('engine-status').textContent + ' View preference could not be saved on this device.'); }
-  })));
+  }));
   const wildcardStorageKey = 'value-watch-weekly-wildcard-v1';
   const wildcardSportNames = {football:'Football',racing:'Horse racing',tennis:'Tennis',nfl:'NFL'};
   function wildcardWeek(date) {
