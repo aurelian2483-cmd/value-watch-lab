@@ -14,7 +14,7 @@ This release is **stacked on PR #77** (the Independent Validation Centre). It ca
 - Existing ledger entries are never edited, and repeated scheduler runs do not duplicate them.
 - Late, stale, ambiguous, invalid, nonpre-event, incorrectly scoped or uncalibrated-model-probability input is withheld.
 - Revision of an existing event/model/market does not alter the frozen first version, even if its probabilities change. The same unique prediction ID remains first-write-wins.
-- No results-feed record is added by this collector. The review queue does not invent final scores or classify a source as independently verified.
+- **Neither collector writes to \`results-feed.json\`**. A single ESPN response is not independent verification. The result observation queue cannot establish a verified score or certified model performance. No selection is settled automatically.
 - The existing external football result script uses a **different legacy schema** and is not connected automatically.
 - Every distinct sport requires independently proven market semantics and an approved source adapter. This first release supports the existing Tennis and NFL producer only; Football, Horse Racing, Darts, Rugby Union and Rugby League will have separate connectors after source/identity/chronology review.
 - Git commit history gives a record of changes but **does not itself guarantee a tamper-proof or cryptographically immutable archive**. Independent protected storage, audit credentials and outcome-source corroboration are necessary for a certified result.
