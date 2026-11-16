@@ -8,10 +8,10 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://sportscore.com; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <title>Sports Watch | Value Watch Pro</title>
 <meta name="description" content="A separate, privacy-conscious sports video research workspace with approved provider links and a YouTube embed tester.">
-<link rel="stylesheet" href="./sports-watch.css?v=20261116e">
-<script src="./sports-watch.js?v=20261116e" defer></script>
-<script src="./fixtures.js?v=20261116e" defer></script>
-<script src="./coverage.js?v=20261116e" defer></script>
+<link rel="stylesheet" href="./sports-watch.css?v=20261116f">
+<script src="./sports-watch.js?v=20261116f" defer></script>
+<script src="./fixtures.js?v=20261116f" defer></script>
+<script src="./coverage.js?v=20261116f" defer></script>
 </head>
 <body>
 <a class="skip" href="#content">Skip to Sports Watch</a>
@@ -56,6 +56,12 @@
     </div>
     <p id="fixture-status" role="status" aria-live="polite">Loading verified fixture data from SportScore…</p>
     <div id="fixture-results" class="fixture-results"></div>
+    <div id="fixture-selection-result" class="fixture-selection-result" role="status" aria-live="polite" hidden>
+      <strong id="fixture-selection-name"></strong>
+      <p>Match selected. Your available coverage destinations appear below. A selected match does not imply a working video stream.</p>
+      <button id="fixture-view-coverage" type="button">View coverage options</button>
+    </div>
+    <button id="fixture-view-upcoming" type="button" class="fixture-upcoming-fallback" hidden>No live matches listed — show upcoming</button>
     <p class="workflow-hint">Fixtures and statuses come from SportScore and may be delayed or incomplete. Selecting a fixture fills the match selector below; it does not provide or verify a video stream. Darts, NFL, racing, rugby and golf remain available via manual match entry.</p>
     <p class="fixture-attribution"><a href="https://sportscore.com/" rel="dofollow" title="Sports data by SportScore">Powered by SportScore</a> · <a href="https://sportscore.com/developers/terms/" target="_blank" rel="noopener noreferrer">Data terms</a></p>
   </section>

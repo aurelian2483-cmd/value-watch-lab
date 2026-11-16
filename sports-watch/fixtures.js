@@ -49,7 +49,8 @@
   const statusEl=el('fixture-status'),results=el('fixture-results'),sportEl=el('fixture-sport'),refresh=el('fixture-refresh');
   const tabs=['live','upcoming','manual'].map(mode=>el('fixture-'+mode));
   const matchForm=el('match-form'),matchInput=el('match-name'),competitionInput=el('match-competition');
-  if (![statusEl,results,sportEl,refresh,matchForm,matchInput,competitionInput,...tabs].every(Boolean)) return;
+  const selectionResult=el('fixture-selection-result'),selectionName=el('fixture-selection-name'),viewCoverage=el('fixture-view-coverage'),showUpcoming=el('fixture-view-upcoming');
+  if (![statusEl,results,sportEl,refresh,matchForm,matchInput,competitionInput,selectionResult,selectionName,viewCoverage,showUpcoming,...tabs].every(Boolean)) return;
 
   let mode='live',generation=0;
   const cache=new Map();
@@ -61,6 +62,7 @@
     sportEl.disabled=manual;
     refresh.disabled=manual;
     results.replaceChildren();
+    showUpcoming.hidden=true;
     if (manual){
       if (controller) controller.abort();
       ++generation;
@@ -97,9 +99,11 @@
   function render(items){
     results.replaceChildren();
     if (!items.length){
-      setStatus('No '+(mode==='live'?'confirmed live':'upcoming')+' fixtures returned for the selected sport(s). This does not prove no matches exist elsewhere.');
+      showUpcoming.hidden=mode==='upcoming';
+      setStatus('No '+(mode==='live'?'confirmed live':'upcoming')+' fixtures returned for the selected sport(s). This does not prove no matches exist elsewhere. Choose Upcoming or enter a match manually.');
       return;
     }
+    showUpcoming.hidden=true;
     const unique=new Set();
     let shown=0;
     for(const match of items){
@@ -122,8 +126,10 @@
         competitionInput.value=match.competition||match.sport.toUpperCase();
         matchForm.requestSubmit();
         doc.dispatchEvent(new CustomEvent('sports-watch:fixture-selected',{detail:{sport:match.sport}}));
-        statusEl.textContent='Selected '+match.home+' vs '+match.away+'. Add permitted video links in Step 2; broadcast availability is not verified.';
-        doc.getElementById('match-workflow-title').scrollIntoView({behavior:'smooth',block:'start'});
+        selectionName.textContent=match.home+' vs '+match.away;
+        selectionResult.hidden=false;
+        statusEl.textContent='Selected '+match.home+' vs '+match.away+'. Official coverage destinations are shown below; video availability is not verified.';
+        doc.querySelector('.coverage-panel').scrollIntoView({behavior:'auto',block:'start'});
       });
       results.append(item);
       shown++;
@@ -139,6 +145,7 @@
     const requestedMode=mode;
     const sports=sportEl.value==='all'?SPORTS.slice():[sportEl.value].filter(s=>SPORTS.includes(s));
     results.replaceChildren();
+    showUpcoming.hidden=true;
     setStatus('Checking '+(requestedMode==='live'?'live':'upcoming')+' match data…');
     refresh.disabled=true;
     const outcomes=await Promise.allSettled(sports.map(s=>querySport(s,requestedMode,controller.signal)));
@@ -150,11 +157,13 @@
     render(ordered);
     if(failures.length){
       const note=failures.length===outcomes.length?'Fixture data unavailable: network blocked, source offline or response changed. Try Refresh fixtures or enter a match manually.':'Partial coverage: '+failures.length+' sport feed(s) failed. ';
-      if(failures.length===outcomes.length){results.replaceChildren();setStatus(note);}
+      if(failures.length===outcomes.length){results.replaceChildren();showUpcoming.hidden=requestedMode!=='live';setStatus(note);}
       else setStatus(statusEl.textContent+' '+note);
     }
   }
   tabs.forEach((button,index)=>button.addEventListener('click',()=>{mode=MODES[index];showMode();}));
+  viewCoverage.addEventListener('click',()=>doc.querySelector('.coverage-panel').scrollIntoView({behavior:'auto',block:'start'}));
+  showUpcoming.addEventListener('click',()=>{mode='upcoming';showMode();});
   sportEl.addEventListener('change',loadFixtures);
   refresh.addEventListener('click',()=>{cache.clear();loadFixtures();});
   showMode();
