@@ -10,7 +10,7 @@ const MIME = { '.html':'text/html; charset=utf-8','.js':'application/javascript;
 const server = http.createServer((req,res)=>{
   const requested = new URL(req.url,'http://127.0.0.1').pathname;
   const file = requested==='/'?'index.html':requested.slice(1);
-  if (!['index.html','sports-watch.css','sports-watch.js'].includes(file)){res.writeHead(404);res.end();return;}
+  if (!['index.html','sports-watch.css','sports-watch.js','fixtures.js'].includes(file)){res.writeHead(404);res.end();return;}
   const p=path.join(ROOT,file);
   try {res.writeHead(200,{'Content-Type':MIME[path.extname(file)],'X-Content-Type-Options':'nosniff'});res.end(fs.readFileSync(p));}
   catch(e){res.writeHead(500);res.end();}
@@ -28,11 +28,39 @@ const main=async()=>{
      return route.fulfill({status:200,contentType:'text/css',body:oldCss});
    });
    await context.route('https://**/*',route=>route.abort());
+   await context.route('https://sportscore.com/**',route=>{
+     const requested=new URL(route.request().url());
+     const sport=requested.searchParams.get('sport');
+     const upcoming=requested.pathname.includes('/fixtures/');
+     const matches=upcoming
+       ? (sport==='tennis'?[{home:'Player Alpha',away:'Player Beta',status:'upcoming',time:'2026-11-16T16:00:00Z',competition:'Test tennis'}]:[])
+       : (sport==='football'?[{home:'Live Home',away:'Live Away',status:'live',time:'2026-11-16T12:00:00Z',competition:'Test league',home_score:1,away_score:0},{home:'Finished',away:'Game',status:'finished',time:'2026-11-16T10:00:00Z'}]:[]);
+     return route.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify({matches,fixtures:matches})});
+   });
    const page=await context.newPage();
    const errors=[];
    page.on('pageerror',err=>errors.push(err.message));
    await page.goto(url,{waitUntil:'load'});
    assert.equal(await page.title(),'Sports Watch | Value Watch Pro');
+   // Default Live Now is backed by a mocked provider response, not invented app data.
+   assert.equal(await page.locator('#fixture-live').getAttribute('aria-pressed'),'true');
+   await page.locator('.fixture-card').first().waitFor({state:'visible'});
+   assert.equal(await page.locator('.fixture-card').count(),1,'finished event must be excluded from live list');
+   assert.match(await page.locator('.fixture-card').first().innerText(),/Live Home vs Live Away/);
+   assert.equal(await page.locator('.fixture-attribution a').first().innerText(),'Powered by SportScore');
+   await page.locator('.fixture-card').first().click();
+   assert.match(await page.locator('#selected-match').innerText(),/Live Home vs Live Away/);
+   assert.equal(await page.locator('#source-a').inputValue(),'','fixture selection must not invent video links');
+   await page.locator('#fixture-upcoming').click();
+   await page.locator('.fixture-card').first().waitFor({state:'visible'});
+   assert.equal(await page.locator('.fixture-card').count(),1);
+   assert.match(await page.locator('.fixture-card').first().innerText(),/Player Alpha vs Player Beta/);
+   await page.locator('#fixture-manual').click();
+   assert.equal(await page.locator('.fixture-card').count(),0);
+   assert.match(await page.locator('#fixture-status').innerText(),/Manual entry selected/);
+   await page.locator('#fixture-live').click();
+   await page.locator('.fixture-card').first().waitFor({state:'visible'});
+
    assert.equal(await page.locator('.provider').count(),12);
    assert.equal(await page.locator('#sport-count').innerText(),'12 provider destinations');
    const layout=await page.evaluate(()=>({body:document.documentElement.scrollWidth,window:window.innerWidth}));
