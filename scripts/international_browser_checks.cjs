@@ -15,7 +15,7 @@ module.exports=async function(browser,base){
   if(await page.locator('#sport').isVisible())await page.selectOption('#sport','football');else await page.locator('[data-sport=football]:visible').first().click();
   const card=page.locator('#events .event-card');await card.waitFor();assert.equal(await card.count(),1);
   const text=await card.textContent();assert(text.includes('International teams · recent captured results'));assert(!text.includes('This season only'));assert(text.includes('40.0%'));assert(text.includes('5 captured matches'));
-  const form=card.locator('details').filter({has:page.locator('summary', {hasText:'Synthetic Nation A · 5 captured matches'})}).first();await form.locator('> summary').click();assert.equal(await form.locator('a').count(),5);
+  const form=card.locator('.season-comparison details').filter({has:page.locator('summary', {hasText:'Synthetic Nation A · 5 captured matches'})}).last();await form.locator('> summary').click();assert.equal(await form.locator('a').count(),5);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(errors,[]);
   results.push({width,separateInternationalPanel:true,sourcedResults:true,experimentalEstimate:true});await page.close();
  }
