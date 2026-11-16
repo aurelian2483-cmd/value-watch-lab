@@ -29,4 +29,5 @@ jobs:
           test -s sports-watch/index.html
           test -s sports-watch/sports-watch.css
           test -s sports-watch/sports-watch.js
+          grep -q 'href="./sports-watch/"' index.html
           grep -q 'frame-src https://www.youtube-nocookie.com' sports-watch/index.html
