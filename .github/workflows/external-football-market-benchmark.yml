@@ -1,0 +1,66 @@
+name: External football market benchmark (research only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  score-pinned-market:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout reviewed research tools
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify market research library tests
+        run: |
+          node tests/test_market_benchmark_core.cjs
+          node tests/test_tipsaudit_benchmark.cjs
+      - name: Fetch exact CC BY football research export
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/valuewatch-market"
+          curl --fail --location --silent --show-error --retry 2 --max-time 45 --max-filesize 5000000 \
+            "https://raw.githubusercontent.com/tipsaudit/track-record-public/main/datasets/tipsaudit-predictions-all.csv" \
+            --output "${RUNNER_TEMP}/valuewatch-market/source.csv"
+          python3 - <<'PY'
+          import hashlib, os, pathlib
+          path=pathlib.Path(os.environ['RUNNER_TEMP'])/'valuewatch-market/source.csv'
+          blob=path.read_bytes()
+          digest=hashlib.sha1(b'blob '+str(len(blob)).encode()+b'\0'+blob).hexdigest()
+          expected='d846f87991977b062a8250a61572e1c0075be3db'
+          if digest!=expected:
+              raise SystemExit('Pinned source blob changed; review source and regenerate benchmark before accepting new evidence.')
+          print('Pinned public source blob verified:',digest)
+          PY
+      - name: Score external closing-market benchmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/market-benchmark/tipsaudit-benchmark.cjs \
+            "${RUNNER_TEMP}/valuewatch-market/source.csv" \
+            "${RUNNER_TEMP}/valuewatch-market/summary.json"
+          python3 - <<'PY'
+          import json,os,pathlib
+          src=pathlib.Path(os.environ['RUNNER_TEMP'])/'valuewatch-market/summary.json'
+          r=json.loads(src.read_text())
+          c=r['counts']
+          if c['submitted']!=8124 or c['scored']!=8079 or c['excluded']!=45:
+              raise SystemExit('Historical dataset census differs from reviewed findings')
+          if r['publication_gate']!='BLOCKED' or r['model_validation']!='UNVALIDATED':
+              raise SystemExit('Research gate mismatch')
+          print('Reviewed market benchmark reproduced:', c['scored'],'market-only scored records')
+          PY
+      - name: Upload aggregate summary only
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-football-market-summary
+          path: ${{ runner.temp }}/valuewatch-market/summary.json
+          retention-days: 7
+          if-no-files-found: error
