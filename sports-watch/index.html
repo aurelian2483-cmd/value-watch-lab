@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<title>Sports Watch | Value Watch Pro</title>
+<meta name="description" content="A separate, privacy-conscious sports video research workspace with approved provider links and a YouTube embed tester.">
+<link rel="stylesheet" href="./sports-watch.css">
+<script src="./sports-watch.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to Sports Watch</a>
+<header class="topbar">
+  <a href="../" class="brand" aria-label="Back to Value Watch Pro"><span class="logo">V</span><span>VALUE <strong>WATCH PRO</strong><small>SPORTS INTELLIGENCE CENTRE</small></span></a>
+  <nav aria-label="Other research areas"><a href="../">Research desk</a><a href="../analyst/">Analyst terminal</a><a href="../wildcard/">Gold council</a></nav>
+</header>
+<main id="content" class="shell">
+  <div class="eyebrow">EXPERIMENTAL RESEARCH MODULE · NOT A STREAMING SERVICE</div>
+  <div class="headline"><div><h1>Sports <em>Watch</em></h1><p>Watch an authorised, embeddable video beside your Value Watch research. The page does not import Android apps, remove third-party adverts or provide unlicensed streams.</p></div><span class="flag">Standalone prototype</span></div>
+  <section class="filter-section" aria-labelledby="sports-label">
+    <div class="sectionheading"><h2 id="sports-label">Choose your sport</h2><span id="sport-count" role="status" aria-live="polite"></span></div>
+    <div id="sports" class="sports" role="group" aria-label="Filter official sports providers">
+      <button type="button" data-sport="all" aria-pressed="true">◈ All sports</button>
+      <button type="button" data-sport="football" aria-pressed="false">⚽ Football</button>
+      <button type="button" data-sport="racing" aria-pressed="false">♞ Racing</button>
+      <button type="button" data-sport="tennis" aria-pressed="false">🎾 Tennis</button>
+      <button type="button" data-sport="nfl" aria-pressed="false">🏈 NFL</button>
+      <button type="button" data-sport="darts" aria-pressed="false">🎯 Darts</button>
+      <button type="button" data-sport="rugby" aria-pressed="false">🏉 Rugby</button>
+      <button type="button" data-sport="golf" aria-pressed="false">⛳ Golf</button>
+    </div>
+  </section>
+  <div class="columns">
+    <section class="panel player-panel" aria-labelledby="player-title">
+      <div class="panelhead"><div><span class="eyebrow">VIDEO DESK</span><h2 id="player-title">Protected player</h2></div><span class="tag">User initiated only</span></div>
+      <div id="video-area" class="video-area">
+        <div id="player-empty" class="player-empty"><div class="screen-icon" aria-hidden="true">▶</div><strong>No video selected</strong><span>Paste a permitted YouTube sports video or live-stream link below. Embedding must be enabled by the video owner.</span></div>
+        <iframe id="player" title="Sports video player" hidden allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation" loading="lazy"></iframe>
+      </div>
+      <form id="video-form" class="video-form">
+        <label for="video-url">YouTube sports video URL</label>
+        <div class="input-row"><input id="video-url" type="url" autocomplete="off" inputmode="url" spellcheck="false" placeholder="https://www.youtube.com/watch?v=..." maxlength="1024" required><button type="submit">Load video</button></div>
+        <div class="action-row"><button id="stop" class="secondary" type="button" disabled>Stop playback</button><button id="fullscreen" class="secondary" type="button" disabled>Fullscreen</button><a id="youtube-link" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" hidden>View on YouTube ↗</a></div>
+        <p id="player-status" class="status" role="status" aria-live="polite">Supported: youtube.com/watch, youtu.be and youtube.com/live URLs. We do not automatically detect video availability.</p>
+      </form>
+      <p class="fineprint">Embedding may be unavailable, geo-restricted, age-restricted or require an external subscription. YouTube may display ads, even with privacy-enhanced mode. Playback is not guaranteed.</p>
+    </section>
+    <aside class="sidebar">
+      <section class="panel" aria-labelledby="research-title"><div class="eyebrow">SIDE-BY-SIDE RESEARCH</div><h2 id="research-title">Value Watch intelligence</h2><p>Compare what you see with existing source-backed analysis. Video playback does not influence model probability or verify bookmaker odds.</p><div class="big-links"><a href="../" target="_blank" rel="noopener noreferrer">Open research desk <span>↗</span></a><a href="../analyst/" target="_blank" rel="noopener noreferrer">Open analyst terminal <span>↗</span></a><a href="../darts/" target="_blank" rel="noopener noreferrer">Open darts research <span>↗</span></a></div></section>
+      <section class="panel safety" aria-labelledby="security-title"><div class="eyebrow">SOURCE CONTROL</div><h2 id="security-title">Restricted by design</h2><p>Only validated YouTube video IDs can enter this embedded player. Other URLs are rejected, including APK streaming links, ad redirect destinations and LiveTV.sx.</p><ul><li>No third-party advertising SDKs imported</li><li>No automatic popups or streaming scrapers</li><li>External provider links open separately</li><li>Does not claim to eliminate all malware</li></ul></section>
+    </aside>
+  </div>
+  <section class="panel directory" aria-labelledby="directory-title"><div class="sectionheading"><div><div class="eyebrow">OFFICIAL PROVIDER DIRECTORY</div><h2 id="directory-title">Find coverage for <span id="current-sport">all sports</span></h2></div><span class="tag">Availability not verified</span></div><p>These are official sports and broadcaster destinations, not a verified live-stream schedule. Some require subscription or a UK TV Licence; coverage differs by event and region.</p><div id="providers" class="provider-grid"></div><p id="empty-providers" class="status" hidden>No providers listed for this filter. Use official rights holders for coverage in your region.</p></section>
+  <footer><span>VALUE WATCH PRO · Sports Watch prototype</span><span>Research only · No real bets placed · No playback rights implied</span></footer>
+</main>
+</body>
+</html>
