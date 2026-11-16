@@ -18,3 +18,11 @@ After merge, start **Freeze published football forecasts as research receipt** u
 This deliberately fails if no fresh source data is present or no GitHub commit identity can be established. To reach stronger independent verification, add a separately controlled timestamp witness/notary and a second-source settlement feed; do not label the existing source timestamps independently verified until that evidence exists.
 
 Test with `node tests/test_forecast_snapshot_receipts.cjs`.
+
+## Experimental settlement audit
+
+`settlement-audit.cjs` reuses the repository's existing two-publisher result-corroboration logic. It matches a previously saved receipt to later reported final results using exact team text, UTC start and model name, then reports **exploratory, explicitly unattested** model log loss and multiclass Brier.
+
+Because neither a capture receipt nor two publishers of a result independently certify the original forecast's publication timestamp, the audit always reports `attested_eligible: 0` and never claims verified betting performance. It does not compare closing bookmaker prices. Its summary is only a diagnostic for archive and results alignment.
+
+Test with `node tests/test_forecast_settlement_audit.cjs`. A future workflow may evaluate a retained receipt against subsequently published verified-results data, but no automatic retroactive promotion is authorised.
