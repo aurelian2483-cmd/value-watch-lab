@@ -105,6 +105,8 @@ def snapshot_candidates(feed, now):
                     'snapshot_sha256': digest(feed),
                     'probabilities': probs,
                     'source_fingerprint': source_hash,
+                    'source_url': event['source'],
+                    'participant_ids': sorted(ids),
                     'source_observed_at_utc': iso(observed_at),
                     'training_fingerprint': f['training_sha256'],
                     'research_only': True, 'model_validated': False
