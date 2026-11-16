@@ -167,5 +167,118 @@
       frame.requestFullscreen().catch(()=>setStatus('Fullscreen was blocked by the browser.',true));
     }
   });
+  // Manual match/source workflow. URL checks are structural, not a malware or playback guarantee.
+  const matchForm=doc.getElementById('match-form');
+  const matchName=doc.getElementById('match-name');
+  const competition=doc.getElementById('match-competition');
+  const selectedMatch=doc.getElementById('selected-match');
+  const sourceForm=doc.getElementById('source-form');
+  const sourceInputs=['source-a','source-b','source-c'].map(id=>doc.getElementById(id));
+  const securityStatus=doc.getElementById('source-security-status');
+  const choices=doc.getElementById('source-choice-list');
+  const activeSource=doc.getElementById('active-source');
+  const nextSource=doc.getElementById('next-source');
+  const backSource=doc.getElementById('back-source');
+  if ([matchForm,matchName,competition,selectedMatch,sourceForm,securityStatus,choices,activeSource,nextSource,backSource,...sourceInputs].every(Boolean)) {
+    let matchSelected=false;
+    let checkedSources=[];
+    let activeIndex=-1;
+    function setSelectionButtons() {
+      nextSource.disabled=checkedSources.length<2 || activeIndex<0 || activeIndex>=checkedSources.length-1;
+      backSource.disabled=checkedSources.length<2 || activeIndex<=0;
+    }
+    function selectSource(index) {
+      if (!matchSelected || !Number.isInteger(index) || index<0 || index>=checkedSources.length) return;
+      const source=checkedSources[index];
+      // Use the existing permitted YouTube player and its URL validation.
+      input.value=source.url;
+      if (typeof form.requestSubmit==='function') form.requestSubmit();
+      else form.querySelector('button[type="submit"]').click();
+      activeIndex=index;
+      activeSource.textContent='Selected: Source '+source.label+' · '+selectedMatch.textContent;
+      choices.querySelectorAll('button[data-source-index]').forEach(button=>{
+        button.setAttribute('aria-pressed',String(Number(button.dataset.sourceIndex)===index));
+      });
+      setSelectionButtons();
+    }
+    function clearSources(message) {
+      checkedSources=[];
+      activeIndex=-1;
+      choices.replaceChildren();
+      activeSource.textContent='No active source.';
+      securityStatus.textContent=message;
+      setSelectionButtons();
+    }
+    matchForm.addEventListener('submit',event=>{
+      event.preventDefault();
+      const name=matchName.value.trim();
+      if (!name) return;
+      const comp=competition.value.trim();
+      selectedMatch.textContent=comp ? name+' · '+comp : name;
+      matchSelected=true;
+      stopVideo();
+      clearSources('Match selected. Enter and check up to three permitted YouTube sources.');
+    });
+    sourceForm.addEventListener('submit',event=>{
+      event.preventDefault();
+      stopVideo();
+      if (!matchSelected) {
+        clearSources('Select a match first before checking video sources.');
+        return;
+      }
+      const labels=['A','B','C'];
+      const values=sourceInputs.map((field,index)=>({label:labels[index],url:field.value.trim()}));
+      const entered=values.filter(source=>source.url);
+      if (!entered.length) {
+        clearSources('Enter at least one YouTube URL. No source has been checked.');
+        return;
+      }
+      const invalid=entered.filter(source=>!youtubeId(source.url));
+      if (invalid.length) {
+        clearSources('Rejected source '+invalid.map(source=>source.label).join(', ')+': only recognised HTTPS YouTube video URLs are permitted. Fix these links and check again.');
+        return;
+      }
+      const seen=new Set();
+      checkedSources=entered.filter(source=>{
+        const id=youtubeId(source.url);
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      }).map(source=>({label:source.label,url:'https://www.youtube.com/watch?v='+youtubeId(source.url)}));
+      activeIndex=-1;
+      choices.replaceChildren();
+      checkedSources.forEach((source,index)=>{
+        const button=doc.createElement('button');
+        button.type='button';
+        button.dataset.sourceIndex=String(index);
+        button.setAttribute('aria-pressed','false');
+        button.textContent='Source '+source.label+' · HTTPS YouTube URL checked · Select';
+        choices.append(button);
+      });
+      securityStatus.textContent=checkedSources.length+' structurally checked YouTube source(s). This is not confirmation that the videos are playable or rights-cleared.';
+      activeSource.textContent='Choose a checked source to watch the selected match.';
+      setSelectionButtons();
+    });
+    choices.addEventListener('click',event=>{
+      const button=event.target.closest('button[data-source-index]');
+      if (!button || !choices.contains(button)) return;
+      selectSource(Number(button.dataset.sourceIndex));
+    });
+    nextSource.addEventListener('click',()=>selectSource(activeIndex+1));
+    backSource.addEventListener('click',()=>selectSource(activeIndex-1));
+    sourceInputs.forEach(field=>field.addEventListener('input',()=>{
+      if (checkedSources.length) {
+        stopVideo();
+        clearSources('Source URLs changed. Recheck all links before playback.');
+      }
+    }));
+    stop.addEventListener('click',()=>{
+      activeIndex=-1;
+      activeSource.textContent='Playback stopped. Select a checked source to resume.';
+      choices.querySelectorAll('button[data-source-index]').forEach(button=>button.setAttribute('aria-pressed','false'));
+      setSelectionButtons();
+    });
+    setSelectionButtons();
+  }
   setSport('all');
 })(typeof globalThis !== 'undefined' ? globalThis : this);
