@@ -7,6 +7,8 @@ on:
     paths:
       - 'scripts/capture_prospective_research.py'
       - 'tests/test_prospective_capture.py'
+      - 'scripts/observe_pending_results.py'
+      - 'tests/test_result_observations.py'
       - '.github/workflows/prospective-evidence-capture.yml'
 permissions:
   contents: read
@@ -22,8 +24,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Fail-closed offline capture tests
-        run: python -m unittest discover -s tests -p 'test_prospective_capture.py' -v
+      - name: Fail-closed offline capture and result-observation tests
+        run: |
+          python -m unittest discover -s tests -p 'test_prospective_capture.py' -v
+          python -m unittest discover -s tests -p 'test_result_observations.py' -v
   capture:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     needs: verify
@@ -40,6 +44,8 @@ jobs:
           python-version: '3.12'
       - name: Validate current source and append immutable-first records
         run: python scripts/capture_prospective_research.py
+      - name: Collect provider-observed finals without independent verification
+        run: python scripts/observe_pending_results.py
       - name: Validate immutable archive contract and unverified queue
         run: |
           python - <<'PY'
@@ -54,6 +60,9 @@ jobs:
           assert all(r['automatic_settlement'] is False for r in queue['pending'])
           assert audit['total_frozen']==len(ledger['records'])
           assert audit['appended']>=0 and audit['eligible']>=audit['appended']
+          observations=json.loads(Path('research/provider-result-observations.json').read_text())
+          assert observations['research_only'] is True and observations['publication_gate']=='BLOCKED'
+          assert all(r['independently_verified'] is False and r['betting_eligible'] is False for r in observations['observations'])
           print('Frozen forecasts:',len(ledger['records']),'New:',audit['appended'],'Pending unverified outcomes:',queue['pending_count'])
           PY
       - name: Persist archive and audit only, never overwrite current forecasts
@@ -61,7 +70,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- prediction-ledger.json research/prospective-capture-audit.json research/pending-independent-results.json
+          git add -- prediction-ledger.json research/prospective-capture-audit.json research/pending-independent-results.json research/provider-result-observations.json
           if ! git diff --cached --quiet; then
             git commit -m 'Append prospective Tennis/NFL experimental evidence (no outcome certification)'
             # Rebase conflicts fail closed; never force-push or silently overwrite competing archives.
