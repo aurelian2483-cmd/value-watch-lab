@@ -104,6 +104,26 @@ for(const p of ['wildcard/index.html','wildcard/council.js','wildcard/council.cs
  assert(!s.includes('ROI +11.6%')&&!s.includes('Napoli vs Lazio'));
 }
 new vm.Script(fs.readFileSync('wildcard/council.js','utf8'));
+const summary=C.screeningSummary(card);
+assert.equal(summary.qualified,0,'Research hypotheses cannot be represented as qualified bets');
+assert.equal(summary.examined,card.availableCount,'Show denominator as preliminary leads');
+assert.equal(summary.windowDays,14);
+assert.equal(summary.fullyScreenedForBetting,false);
+assert.equal(summary.status,'PASS_RESEARCH_INCOMPLETE');
+assert.equal(summary.reasons.find(r=>r.id==='price').count,card.availableCount);
+assert.equal(C.screeningSummary(slim).windowDays,7,'Discovery heading must follow selected horizon');
+assert.equal(C.screeningSummary(noHorse).sourceUnavailable.some(x=>x.id==='horse'),true,'Unobserved sources cannot imply complete screening');
+const lensStatuses=C.council(card,C.scenarios(card)[0].legs);
+assert(lensStatuses.every(x=>x.status==='INSUFFICIENT EVIDENCE'));
+assert.deepEqual(lensStatuses.map(x=>x.name),['Price discipline','Portfolio risk','Racing model']);
+assert(lensStatuses.every(x=>Number.isInteger(x.sample)&&x.sample>=0&&x.sampleUnit));
+const margin=C.assumedMargin(4,5);
+assert(Math.abs(margin.impliedProbabilityInflationPercent-21.550625)<1e-7);
+assert(Math.abs(margin.illustrativeFairPayoutReductionPercent-(1-1/1.05**4)*100)<1e-10);
+assert.equal(margin.verified,false);
+assert.equal(margin.expectedValue,null);
+assert.equal(C.assumedMargin(2,NaN),null);
+assert.equal(C.assumedMargin(0,5),null);
 const home=fs.readFileSync('index.html','utf8');
 assert(fs.readFileSync('wildcard/index.html','utf8').includes('ticket-selection-note'));
 assert(fs.readFileSync('wildcard/index.html','utf8').includes('ticket-research-radar'));
