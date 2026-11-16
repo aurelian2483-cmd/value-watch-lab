@@ -816,7 +816,8 @@
   let engineView = 'current';
   try { engineView = X.mode(storage.getItem(X.preferenceKey)); } catch { /* Default view remains usable without storage. */ }
   function renderEngine(evaluation) {
-    document.querySelectorAll('[data-engine]').forEach(element => element.setAttribute('aria-pressed', String(element.dataset.engine === engineView)));
+    const engineSelect = $('engine-select');
+    if (engineSelect) engineSelect.value = engineView;
     write($('engine-status'), ({current:'Current Engine 2.5 · existing research workflow.', experimental:'Experimental Engine 3.0 · illustrative, uncalibrated research mathematics.', compare:'Side-by-Side Compare · same captured inputs; no reranking.', reliability:'Historical Reliability · automatic research-only favourite-pattern filter; not certified value picks.'})[engineView]);
     const root = $('engine-analysis'); root.hidden = engineView === 'current'; root.replaceChildren();
     if (root.hidden) return;
@@ -878,12 +879,12 @@
     }
     make(root, 'p', 'Formulae: EV = p×o−1; break-even = 1/o; fragility = p−1/o; variance = o²p(1−p). Unit stake = 1; no actual stake or settlement implied.', 'small');
   }
-  document.querySelectorAll('[data-engine]').forEach(element => element.addEventListener('click', () => safely(() => {
-    engineView = X.mode(element.dataset.engine);
+  $('engine-select').addEventListener('change', event => safely(() => {
+    engineView = X.mode(event.target.value);
     renderSlip();
     renderEvents();
     try { storage.setItem(X.preferenceKey, engineView); } catch { write($('engine-status'), $('engine-status').textContent + ' View preference could not be saved on this device.'); }
-  })));
+  }));
   const wildcardStorageKey = 'value-watch-weekly-wildcard-v1';
   const wildcardSportNames = {football:'Football',racing:'Horse racing',tennis:'Tennis',nfl:'NFL'};
   function wildcardWeek(date) {
