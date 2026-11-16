@@ -740,11 +740,27 @@
     if ($('competition').dataset.signature !== signature) {
       $('competition').dataset.signature = signature; $('competition').replaceChildren(); const all = make($('competition'), 'option', 'All competitions'); all.value = 'all';
       for (const name of competitions) { const option = make($('competition'), 'option', name); option.value = name; }
-      $('competition-nav').replaceChildren(); button($('competition-nav'), 'All competitions', () => store.update(state => ({ ...state, competition: 'all', limit: 24 })), 'competition-button');
-      for (const name of competitions.slice(0, 16)) button($('competition-nav'), name, () => store.update(state => ({ ...state, competition: name, limit: 24 })), 'competition-button');
+      write($('competition-count'), String(competitions.length));
+      $('competition-nav').replaceChildren();
+      button($('competition-nav'), 'All competitions', () => store.update(state => ({ ...state, competition: 'all', limit: 24 })), 'competition-button').dataset.competition = 'all';
+      for (const name of competitions) button($('competition-nav'), name, () => store.update(state => ({ ...state, competition: name, limit: 24 })), 'competition-button').dataset.competition = name;
     }
     $('competition').value = competitions.includes(state.competition) ? state.competition : 'all';
+    const needle = $('competition-search').value.trim().toLocaleLowerCase();
+    let visible = 0;
+    $('competition-nav').querySelectorAll('button[data-competition]').forEach(element => {
+      const selected = element.dataset.competition === state.competition;
+      element.classList.toggle('active', selected);
+      element.setAttribute('aria-pressed', String(selected));
+      const match = element.dataset.competition === 'all' || element.dataset.competition.toLocaleLowerCase().includes(needle);
+      element.hidden = !match;
+      if (match) visible++;
+    });
+    const noResults = $('competition-nav').querySelector('.competition-no-results');
+    if (noResults) noResults.remove();
+    if (visible === 1 && needle) make($('competition-nav'), 'p', 'No matching competitions', 'rail-empty competition-no-results');
   }
+  $('competition-search').addEventListener('input', () => safely(renderNavigation));
   let trackerSignature = '';
   function renderTracker() {
     const rows = filtered(store.get()), signature = JSON.stringify(rows.map(event => [event.id, event.score, E.statusOf(event).code])); if (signature === trackerSignature) return; trackerSignature = signature;
