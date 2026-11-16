@@ -28,6 +28,22 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_prospective_capture.py' -v
           python -m unittest discover -s tests -p 'test_result_observations.py' -v
+      - name: Dry-run against real published Tennis/NFL producer snapshot without writing archives
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import timedelta
+          from pathlib import Path
+          from scripts.capture_prospective_research import utc, snapshot_candidates
+          feed=json.loads(Path('other-sports-data.json').read_text(encoding='utf-8'))
+          now=utc(feed['generated_at_utc'])+timedelta(seconds=30)
+          rows,audit=snapshot_candidates(feed,now)
+          print('Real-feed dry run:',len(rows),'pre-event candidates; source observations screened:',audit['events_examined'])
+          print('Fail-closed reasons:',audit['rejected'])
+          assert audit['eligible']==len(rows)
+          assert audit['events_examined']>=len(rows)
+          assert all(r['recorded_at_utc']<=r['event_start_utc'] for r in rows)
+          PY
   capture:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     needs: verify
