@@ -88,8 +88,16 @@ const main=async()=>{
    await page.getByRole('button',{name:/Darts/}).click();
    assert.equal(await page.locator('.provider').count(),3);
    assert.equal(await page.getByRole('button',{name:/Darts/}).getAttribute('aria-pressed'),'true');
+   assert.equal(await page.locator('#fixture-manual').getAttribute('aria-pressed'),'true','unsupported sport chip must make manual mode explicit');
+   assert.match(await page.locator('#fixture-status').innerText(),/not supported/);
    await page.getByRole('button',{name:/All sports/}).click();
    assert.equal(await page.locator('.provider').count(),12);
+   assert.equal(await page.locator('#fixture-live').getAttribute('aria-pressed'),'true','All sports chip should activate Live Now');
+   assert.equal(await page.locator('#fixture-sport').inputValue(),'all');
+   await page.getByRole('button',{name:/Football/}).first().click();
+   assert.equal(await page.locator('#fixture-sport').inputValue(),'football');
+   await page.locator('.fixture-card').first().waitFor({state:'visible'});
+
    const input=page.locator('#video-url');
    await input.fill('https://livetv.sx/');
    await page.getByRole('button',{name:'Load video'}).click();
