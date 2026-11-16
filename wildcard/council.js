@@ -4,7 +4,7 @@ const make=(tag,parent,txt,cls)=>{const e=document.createElement(tag);if(txt!==u
 const fmtTime=v=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(v));
 const name=s=>s==='football'?'Football':s==='racing'?'Horse racing':s==='tennis'?'Tennis':'NFL';
 const emoji={walters:'◈',bloom:'▥',benter:'♞'};
-let report=null,active=null,requestSequence=0,lastChecked=null;
+let report=null,active=null,requestSequence=0;
 async function source(s,now){
  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),13000);
  try{
@@ -228,7 +228,7 @@ function showModelChallenge(horseData,footballData,now){
 async function refresh(){
  const seq=++requestSequence;
  const now=Date.now(),days=Number($('horizon').value),button=$('refresh');
- lastChecked=now;button.disabled=true;
+ button.disabled=true;
  $('time-stamp').textContent='Loading research sources · '+fmtTime(now)+' UK';
  $('council-outcome').dataset.state='loading';
  $('outcome-title').textContent='Checking source coverage and betting gates…';
@@ -247,10 +247,10 @@ async function refresh(){
   showModelChallenge(results.find(x=>x.id==='horse'&&x.state==='OBSERVED')?.data,results.find(x=>x.id==='football'&&x.state==='OBSERVED')?.data,now);
   const failed=results.filter(x=>x.state!=='OBSERVED');
   const msg=failed.length?'Partial data · '+failed.length+' source(s) missing or stale':'Loaded source snapshots · no independently verified bookmaker prices';
-  updateState('lenses-health',msg+' · automated method review complete');
-  updateState('racing-health',report.sources.horse==='OBSERVED'?'Loaded · racing evidence is research-only':'Unavailable · verified current racing evidence missing');
-  updateState('challenge-health','Loaded · model challenge diagnostics are experimental');
-  updateState('coverage-health',msg);
+  updateState('lenses-health',msg+' · automated method review complete · Last checked '+fmtTime(now)+' UK');
+  updateState('racing-health',(report.sources.horse==='OBSERVED'?'Loaded · racing evidence is research-only':'Unavailable · verified current racing evidence missing')+' · Last checked '+fmtTime(now)+' UK');
+  updateState('challenge-health','Loaded · model challenge diagnostics are experimental · Last checked '+fmtTime(now)+' UK');
+  updateState('coverage-health',msg+' · Last checked '+fmtTime(now)+' UK');
  }catch(e){
   if(seq!==requestSequence)return;
   report=null;active=null;
