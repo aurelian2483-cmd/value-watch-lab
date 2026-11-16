@@ -8,7 +8,7 @@ for(const id of ['events','slip-panel','slip-tabs','weekly-wildcard','search','g
  assert(home.includes('id="'+id+'"'),'Existing functional control changed: '+id);
 }
 assert(home.includes('analyst/')&&home.includes('pro-landing')&&home.includes('data-pro-slot="4"'));
-assert(home.includes('paper-lab/desk.js'),'Existing desk engine must be retained');
+assert(home.includes('paper-lab/desk-compact-20261116.js'),'Existing desk engine must be retained');
 assert(home.includes('paper-lab/engine.js'),'Existing calculations must be retained');
 assert(home.includes('paper-lab/store.js'),'Existing persisted slip format must be retained');
 assert(home.includes('pro-home.js?v=4')&&home.includes('pro-design.css?v=6')&&home.includes('darts/home-preview.js?v=1'));
