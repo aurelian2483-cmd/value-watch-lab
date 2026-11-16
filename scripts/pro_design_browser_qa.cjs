@@ -85,7 +85,8 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('#paired').innerText(),'0','No independently verified outcome pair can be invented');
    const archived=JSON.parse(fs.readFileSync(path.join(root,'prediction-ledger.json'),'utf8'));
    assert.equal(await page.locator('#predictions').innerText(),String(archived.records.length),'Display actual frozen forecast count, never a fixed zero');
-   assert((await page.locator('#result-review-state').innerText()).includes('review') || (await page.locator('#result-review-state').innerText()).includes('forecast'), 'Review queue must explain reconciliation availability');
+   const reviewState=(await page.locator('#result-review-state').innerText()).toLowerCase();
+   assert(reviewState.includes('review')||reviewState.includes('forecast'),'Review queue must explain reconciliation availability');
    assert.equal(await page.locator('#outcomes').innerText(),'0','No unseen independently verified outcomes');
    assert((await page.locator('#result-heading').innerText()).includes('NO MODEL APPROVAL'));
    assert((await page.locator('#legacy').innerText()).includes('LEGACY_DESCRIPTIVE_NOT_PROSPECTIVE'),'Legacy results must be explicitly excluded');
