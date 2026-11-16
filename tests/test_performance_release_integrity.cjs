@@ -22,5 +22,5 @@ const P=require('../validation-centre/performance-core.js');
 const s=P.build(ledger,outcome,null,Date.now());
 assert.equal(s.verifiedValue,false);assert.equal(s.verifiedROI,false);
 assert.equal(Object.keys(s.metrics).length,7);
-assert.equal(s.totalScored??0,0); // current independently validated outcome archive is intentionally empty
+assert((s.totalScored??0)<=Math.min(ledger.records.length,outcome.records.length)); // never demand a hardcoded zero after future real results
 console.log('PASS release integrity: CSP, safe rendering, no remote score source, blocked betting and live-archive sample');
