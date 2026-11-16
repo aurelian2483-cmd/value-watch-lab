@@ -100,3 +100,20 @@
 .wildcard-risk-studio button:focus-visible,.wildcard-risk-studio input:focus-visible,.wildcard-risk-studio select:focus-visible{outline:3px solid #bdf4ff;outline-offset:2px}
 @media(max-width:860px){.wildcard-review-lenses{grid-template-columns:1fr}.wildcard-risk-modes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:460px){.wildcard-risk-studio{padding:12px}.wildcard-fifth-slip{padding:11px}.wildcard-risk-mode{min-height:48px}}
+
+
+/* Research provenance visible on every model outcome, without changing its odds or probabilities. */
+.selection-methodology{display:block;margin-top:5px;color:#b4dff4;font-size:11px;line-height:1.5;overflow-wrap:break-word;word-break:normal}
+.selection-button{min-width:0;overflow-wrap:break-word}
+.wildcard-risk-studio,.wildcard-fifth-slip,.wildcard-review-lenses,.wildcard-lens{min-width:0;max-width:100%}
+.wildcard-review-lenses{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.wildcard-lens{overflow-wrap:break-word;word-break:normal}
+.wildcard-lens p{overflow-wrap:break-word;word-break:normal;hyphens:auto}
+.wildcard-risk-modes{grid-template-columns:repeat(auto-fit,minmax(min(100%,115px),1fr))}
+.wildcard-risk-mode{overflow-wrap:normal;word-break:normal;hyphens:none}
+.wildcard-fifth-leg input{max-width:100%;min-width:0}
+.wildcard-darts-status{padding:10px 12px;border:1px solid #567489;border-radius:8px;background:#142c3d;color:#d3eaf6;font-size:12px;line-height:1.6}
+.sport-research-link{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid #34506a;border-radius:9px;color:#cde8f5;text-decoration:none;font-weight:700;margin-top:8px}
+.sport-research-link small{display:block;color:#a6bfd0;font-size:11px;font-weight:400}
+.sport-research-link:focus-visible{outline:3px solid #8ecaff;outline-offset:2px}
+@media(max-width:520px){.wildcard-risk-modes{grid-template-columns:repeat(2,minmax(0,1fr))}.wildcard-review-lenses{grid-template-columns:1fr}.wildcard-lens{padding:14px}.wildcard-fifth-leg{min-width:0}}
