@@ -5,7 +5,7 @@
 </style></head>
 <body><header><span class="logo">▶</span><div><strong>CRICFy</strong> <small>WEB LAB · BROWSER PROTOTYPE</small></div></header>
 <main>
-<section id="home"><div class="hero"><div class="eyebrow">Browser-based test</div><h1>Select a sport. Browse matches.</h1><p>Choose a sport, add your own authorised channels or matches, and play compatible videos. This prototype does not execute the original Android APK or supply its streaming feeds.</p><button class="primary" data-page="player">Open video player →</button></div><div class="panel" id="apk-sources"><div class="eyebrow">Experimental · APK-discovered endpoints</div><h2>Original app service links</h2><p>These URLs were found inside the APK but are not verified safe or operational. No connections are made automatically. External links leave this site; do not enter credentials or install software from them.</p><div id="apk-links"></div><button class="secondary" id="test-lookup">Test channel lookup (read-only)</button><div class="status" id="lookup-status" role="status" aria-live="polite">Not tested in this browser.</div><pre id="lookup-preview" style="white-space:pre-wrap;word-break:break-word;font-size:12px;max-height:220px;overflow:auto;color:#b5c4d6"></pre></div><div class="panel" id="catalog-import"><div class="eyebrow">Browser-native · Opt-in</div><h2>Import authorised channels</h2><p>Load a JSON channel list from your device. Entries stay in this browser; nothing is uploaded to our website. Only HTTPS MP4, WebM, and HLS links are accepted. This does not unlock streams or bypass DRM, login, or provider restrictions.</p><label for="catalog-file">Choose a JSON catalogue</label><input type="file" id="catalog-file" accept=".json,application/json"><label for="catalog-text">Or paste JSON</label><textarea id="catalog-text" rows="5" style="display:block;width:100%;background:#0d1829;border:1px solid #455872;border-radius:12px;color:#fff;padding:12px;font:13px ui-monospace,monospace;resize:vertical" placeholder='[{"sport":"cricket","name":"Licensed channel","url":"https://example.org/video.m3u8"}]'></textarea><div class="row"><button class="secondary" id="catalog-example">Load test example</button><button class="primary" id="catalog-apply">Import catalogue</button><button class="secondary" id="catalog-export">Export catalogue</button><button class="secondary" id="catalog-clear">Clear catalogue</button></div><div id="catalog-status" class="status" role="status" aria-live="polite">No catalogue imported.</div></div><h2>Explore</h2><input id="search" placeholder="Search sports" aria-label="Search sports"><div id="sports" class="sport-grid"></div></section>
+<section id="home"><div class="hero"><div class="eyebrow">Browser-based test</div><h1>Select a sport. Browse matches.</h1><p>Choose a sport, add your own authorised channels or matches, and play compatible videos. This prototype does not execute the original Android APK or supply its streaming feeds.</p><button class="primary" data-page="player">Open video player →</button></div><div class="panel" id="apk-sources"><div class="eyebrow">Experimental · APK-discovered endpoints</div><h2>Original app service links</h2><p>These URLs were found inside the APK but are not verified safe or operational. No connections are made automatically. External links leave this site; do not enter credentials or install software from them.</p><div id="apk-links"></div><button class="secondary" id="test-lookup">Test channel lookup (read-only)</button><div class="status" id="lookup-status" role="status" aria-live="polite">Not tested in this browser.</div><pre id="lookup-preview" style="white-space:pre-wrap;word-break:break-word;font-size:12px;max-height:220px;overflow:auto;color:#b5c4d6"></pre></div><div class="panel" id="catalog-import"><div class="eyebrow">Browser-native · Opt-in</div><h2>Import authorised channels</h2><p>Load a JSON or standard M3U playlist from your device. Entries stay in this browser; nothing is uploaded to our website. Only HTTPS MP4, WebM, and HLS links are accepted. This does not unlock streams or bypass DRM, login, or provider restrictions.</p><label for="catalog-file">Choose JSON or M3U playlist</label><input type="file" id="catalog-file" accept=".json,.m3u,.m3u8,.txt,application/json,text/plain"><label for="catalog-text">Or paste JSON / M3U</label><textarea id="catalog-text" rows="5" style="display:block;width:100%;background:#0d1829;border:1px solid #455872;border-radius:12px;color:#fff;padding:12px;font:13px ui-monospace,monospace;resize:vertical" placeholder='[{"sport":"cricket","name":"Licensed channel","url":"https://example.org/video.m3u8"}]'></textarea><div class="row"><button class="secondary" id="catalog-example">Load test example</button><button class="primary" id="catalog-apply">Import channels</button><button class="secondary" id="catalog-export">Export catalogue</button><button class="secondary" id="catalog-clear">Clear catalogue</button></div><div id="catalog-status" class="status" role="status" aria-live="polite">No catalogue imported.</div></div><h2>Explore</h2><input id="search" placeholder="Search sports" aria-label="Search sports"><div id="sports" class="sport-grid"></div></section>
 <section id="matches" hidden><div class="row"><h2 id="sport-heading">Matches &amp; channels</h2><button class="secondary" data-page="home">← Sports</button></div><h3>Imported channels <span id="catalog-count" class="muted"></span></h3><div id="catalog-matches"></div><h3>My entries</h3><div id="matches-list"></div><div class="panel"><h3>Add match or channel</h3><label for="item-name">Name</label><input id="item-name" placeholder="Example: My authorised channel"><label for="item-url">Video URL (optional, HTTPS)</label><input id="item-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="add">Add entry</button><button class="secondary" id="clear-list">Clear sport</button></div><div id="item-status" class="status" role="status"></div></div></section>
 <section id="player" hidden><h2>Browser video player</h2><div class="panel"><p id="selected">No match or channel selected yet.</p><div class="row"><button class="secondary" id="back">← Back to matches</button></div><video id="video" class="player" controls playsinline preload="none"></video><p>Use a local video or an authorised browser-compatible HTTPS source.</p><label for="local-video">Choose video file</label><input id="local-video" type="file" accept="video/mp4,video/webm,video/*"><label for="video-url">Direct video URL</label><input id="video-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="load">Load video</button><button class="secondary" id="fullscreen">Fullscreen</button><button class="secondary" id="stop">Stop / clear</button></div><div id="player-status" class="status" role="status"></div><div class="panel" style="margin-top:20px"><h3>Playback diagnostic</h3><p>Test with a CC0 sample clip. This is not a CRICFy channel.</p><button class="secondary" id="demo-play">Load CC0 test clip</button><button class="secondary" id="device-check">Check browser</button><div id="device-report" class="status" role="status" aria-live="polite"></div></div></div></section>
 <section id="saved" hidden><h2>My favourites</h2><div id="favorites"></div></section>
@@ -123,6 +123,48 @@ function parseCatalog(text){
  const uniques=new Set();
  return records.filter(e=>{const key=e.sport+'|'+e.name+'|'+e.url;if(uniques.has(key))return false;uniques.add(key);return true});
 }
+
+function mapM3USport(group){
+ const g=String(group||'').toLowerCase();
+ if(/cricket/.test(g))return 'cricket';
+ if(/football|soccer|uefa|fifa/.test(g))return 'football';
+ if(/basketball|nba|wnba/.test(g))return 'basketball';
+ if(/tennis|atp|wta/.test(g))return 'tennis';
+ if(/motorsport|formula|nascar|motogp|f1\b/.test(g))return 'motorsport';
+ return 'other';
+}
+function parseM3U(text){
+ if(text.length>300000)throw Error('Playlist exceeds 300 KB.');
+ const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/);
+ if(lines[0]?.trim()!=='#EXTM3U')throw Error('An M3U playlist must begin with #EXTM3U.');
+ const records=[];let pending=null;let skipped=0;
+ for(let i=1;i<lines.length;i++){
+  const line=lines[i].trim();
+  if(!line)continue;
+  if(/^#EXTINF:/i.test(line)){
+   const group=line.match(/group-title\s*=\s*"([^"]{0,160})"/i)?.[1]||'';
+   const comma=line.indexOf(',');
+   pending={sport:mapM3USport(group),name:(comma>=0?line.slice(comma+1):'').trim()};
+  }else if(line[0]==='#')continue;
+  else if(pending){
+   try{records.push(validCatalogItem({...pending,url:line}))}catch{skipped++}
+   pending=null;
+   if(records.length>500)throw Error('Maximum 500 supported channels.');
+  }else skipped++;
+ }
+ if(!records.length)throw Error('No supported HTTPS MP4, WebM or HLS entries found.');
+ return {records:dedupeCatalog(records),skipped};
+}
+function dedupeCatalog(records){
+ const seen=new Set();
+ return records.filter(e=>{const key=e.sport+'|'+e.name+'|'+e.url;if(seen.has(key))return false;seen.add(key);return true});
+}
+function importText(text){
+ const clean=text.trimStart();
+ if(clean.startsWith('#EXTM3U'))return parseM3U(clean);
+ return {records:parseCatalog(text),skipped:0};
+}
+
 function saveCatalog(){
  try{localStorage.setItem(CATALOG_KEY,JSON.stringify(catalog));$('catalog-status').textContent='Saved '+catalog.length+' channels on this device.'}
  catch{$('catalog-status').textContent='Browser storage unavailable; imported list is temporary.'}
@@ -150,13 +192,13 @@ $('catalog-apply').onclick=()=>{
  try{
   const input=$('catalog-text').value.trim();
   if(!input)throw Error('Paste JSON or choose a JSON file.');
-  catalog=parseCatalog(input);saveCatalog();$('catalog-status').textContent='Imported '+catalog.length+' channels. Open a sport to view them.';
+  const result=importText(input);catalog=result.records;saveCatalog();$('catalog-status').textContent='Imported '+catalog.length+' channels'+(result.skipped?' ('+result.skipped+' unsupported entries skipped)':'')+'. Open a sport to view them.';
  }catch(e){$('catalog-status').textContent='Import failed: '+e.message}
 };
 $('catalog-file').onchange=async event=>{
  const file=event.target.files&&event.target.files[0];if(!file)return;
  if(file.size>300000){$('catalog-status').textContent='File too large (300 KB maximum).';return}
- try{$('catalog-text').value=await file.text();$('catalog-status').textContent='File loaded. Tap Import catalogue to validate.'}
+ try{$('catalog-text').value=await file.text();$('catalog-status').textContent='File loaded. Tap Import channels to validate.'}
  catch{$('catalog-status').textContent='Could not read the selected file.'}
 };
 $('catalog-clear').onclick=()=>{if(confirm('Clear the imported catalogue on this device?')){catalog=[];saveCatalog()}};
