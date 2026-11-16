@@ -67,6 +67,16 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('#slip-tabs button[data-slot="2"]').getAttribute('aria-pressed'),'true','Pro paper slip must use existing slip state');
    await page.screenshot({path:path.join(out,'pro-home-'+width+'.png'),fullPage:false});
    assert.deepEqual(errors,[],'Home page JS runtime errors');
+   assert.equal(await page.locator('a.sport-research-link[href="./rugby/"]').count(),1,'Rugby source-status research must be linked independently of betting sports');
+   await page.goto('http://127.0.0.1:8177/rugby/',{waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>!document.getElementById('refreshed').textContent.includes('Checking research'),{timeout:12000});
+   assert((await page.locator('#refreshed').innerText()).includes('Research snapshot available')||(await page.locator('#refreshed').innerText()).includes('STALE SNAPSHOT'));
+   assert((await page.locator('#source-health').innerText()).includes('Partial source sample only'),'Rugby source health must disclose incomplete coverage');
+   assert((await page.locator('#fixtures').innerText()).includes('No source-confirmed future fixtures'),'No unsourced rugby events or model forecasts');
+   await page.locator('[data-code="RL"]').click();
+   assert.equal(await page.locator('[data-code="RL"]').getAttribute('aria-pressed'),'true');
+   assert((await page.locator('#sport-heading').innerText()).includes('Rugby League'));
+   assert((await page.locator('.disclosure').innerText()).includes('BLOCKED'));
    await page.goto('http://127.0.0.1:8177/analyst/',{waitUntil:'domcontentloaded'});
    await page.locator('#results-count').waitFor();
    await page.waitForFunction(()=>!document.getElementById('analyst-state').textContent.includes('Checking source'),{timeout:12000});
