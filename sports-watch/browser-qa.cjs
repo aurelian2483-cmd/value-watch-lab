@@ -78,6 +78,7 @@ const main=async()=>{
    assert.equal(await page.locator('.fixture-card').count(),0);
    assert.match(await page.locator('#fixture-status').innerText(),/Manual entry selected/);
    await page.locator('#fixture-live').click();
+   await page.locator('#fixture-sport').selectOption('football');
    await page.locator('.fixture-card').first().waitFor({state:'visible'});
 
    assert.equal(await page.locator('.provider').count(),12);
