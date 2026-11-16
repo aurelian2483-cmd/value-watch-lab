@@ -6,6 +6,7 @@ import json
 import pathlib
 import urllib.parse
 import urllib.request
+import urllib.error
 
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 UTC=dt.timezone.utc
@@ -21,9 +22,18 @@ def get(url):
 def collect(now=None,fetch=get):
     now=now or dt.datetime.now(UTC)
     events={};audit={}
+    # The free endpoint failed after the first ten day queries in an observed run.
+    # Restrict each collection to two independently sampled dates per sport.
+    # This is intentionally incomplete coverage; no model forecasts are enabled.
+    horizon_days=14
+    rotation=1+(now.date().toordinal()%13)
+    offsets=(0,rotation)
     for code,sport in SPORTS.items():
-        health={'days_requested':14,'days_succeeded':0,'source_errors':[],'free_api_may_truncate':True,'events':0,'rows_returned':0,'rows_matching_sport':0,'rows_without_confirmed_start':0}
-        for offset in range(14):
+        health={'days_requested':len(offsets),'horizon_days':horizon_days,
+                'sampled_offsets':list(offsets),'complete_horizon_coverage':False,
+                'days_succeeded':0,'source_errors':[],'free_api_may_truncate':True,
+                'events':0,'rows_returned':0,'rows_matching_sport':0,'rows_without_confirmed_start':0}
+        for offset in offsets:
             date=(now+dt.timedelta(days=offset)).date().isoformat()
             url='https://www.thesportsdb.com/api/v1/json/123/eventsday.php?'+urllib.parse.urlencode({'d':date,'s':sport})
             try:
@@ -64,9 +74,10 @@ def collect(now=None,fetch=get):
                         events.pop(key,None)
                     else:events[key]=candidate
             except Exception as exc:
-                health['source_errors'].append({'day':date,'error':type(exc).__name__})
+                health['source_errors'].append({'day':date,'error':type(exc).__name__,
+                    'http_status':exc.code if isinstance(exc,urllib.error.HTTPError) else None})
         health['events']=sum(row['code']==code for row in events.values())
-        health['collection_status']='SOURCE_UNAVAILABLE' if health['days_succeeded']==0 else 'PARTIAL_SOURCE_ERRORS' if health['days_succeeded']<health['days_requested'] else 'NO_CONFIRMED_FIXTURES' if health['events']==0 else 'CONFIRMED_FIXTURES_OBSERVED'
+        health['collection_status']='SOURCE_UNAVAILABLE' if health['days_succeeded']==0 else 'PARTIAL_SOURCE_ERRORS' if health['days_succeeded']<health['days_requested'] else 'NO_CONFIRMED_FIXTURES_IN_SAMPLE' if health['events']==0 else 'CONFIRMED_FIXTURES_OBSERVED_IN_SAMPLE'
         audit[code]=health
     return {'schema_version':1,'generated_at_utc':stamp(now),'research_only':True,
         'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
