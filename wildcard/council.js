@@ -19,8 +19,8 @@ function updateState(id,message){const target=$(id);if(!target)return;const text
 function showOutcome(card,now){
  const summary=C.screeningSummary(card),box=$('council-outcome'),reasons=$('outcome-reasons');reasons.replaceChildren();
  box.dataset.state=summary.status;
- $('outcome-title').textContent='PASS — No qualifying candidates established';
- $('outcome-subtitle').textContent='0 of '+summary.examined+' preliminary source-gated research leads cleared every betting gate. This is not a count of every event in the '+summary.windowDays+'-day window. Research is incomplete, so no comprehensive market screening result is claimed.';
+ $('outcome-title').textContent=summary.status==='SOURCE_UNAVAILABLE'?'Research incomplete — sources unavailable':'PASS — No qualifying candidates established';
+ $('outcome-subtitle').textContent=summary.status==='SOURCE_UNAVAILABLE'?'No reliable screening could be completed because all published source feeds are unavailable or stale. No claim of zero qualifying events is made.': '0 of '+summary.examined+' preliminary source-gated research leads cleared every betting gate. This is not a count of every event in the '+summary.windowDays+'-day window. Research is incomplete, so no comprehensive market screening result is claimed.';
  for(const reason of summary.reasons){
    const line=make('div',reasons,undefined,'outcome-reason');
    make('span',line,reason.label);make('strong',line,String(reason.count));
@@ -30,7 +30,7 @@ function showOutcome(card,now){
    make('span',line,'Source '+unavailable.id+' unavailable ('+unavailable.state+')');make('strong',line,'INCOMPLETE');
  }
  make('p',reasons,'Rejection reasons overlap; the displayed counts must not be added together. Feed failures and unverified market coverage prohibit a complete screening claim.','outcome-caveat');
- $('outcome-meta').textContent='Last checked '+fmtTime(now)+' UK · '+summary.windowDays+'-day research horizon · '+summary.examined+' preliminary leads · 0 betting-qualified';
+ $('outcome-meta').textContent='Last checked '+fmtTime(now)+' UK · '+summary.windowDays+'-day research horizon · '+(summary.status==='SOURCE_UNAVAILABLE'?'screening unavailable':summary.examined+' preliminary leads · 0 betting-qualified');
 }
 function showMargin(){
  const output=$('margin-result');if(!output)return;
