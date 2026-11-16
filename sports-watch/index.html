@@ -8,10 +8,11 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://sportscore.com; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <title>Sports Watch | Value Watch Pro</title>
 <meta name="description" content="A separate, privacy-conscious sports video research workspace with approved provider links and a YouTube embed tester.">
-<link rel="stylesheet" href="./sports-watch.css?v=20261116f">
-<script src="./sports-watch.js?v=20261116f" defer></script>
-<script src="./fixtures.js?v=20261116g" defer></script>
-<script src="./coverage.js?v=20261116f" defer></script>
+<link rel="stylesheet" href="./sports-watch.css?v=20261116h">
+<script src="./sports-watch.js?v=20261116h" defer></script>
+<script src="./fixtures.js?v=20261116h" defer></script>
+<script src="./coverage.js?v=20261116h" defer></script>
+<script src="./livetv-handoff.js?v=20261116h" defer></script>
 </head>
 <body>
 <a class="skip" href="#content">Skip to Sports Watch</a>
@@ -34,6 +35,18 @@
       <button type="button" data-sport="rugby" aria-pressed="false">🏉 Rugby</button>
       <button type="button" data-sport="golf" aria-pressed="false">⛳ Golf</button>
     </div>
+  </section>
+  <section class="panel livetv-panel" aria-labelledby="livetv-title">
+    <div class="sectionheading"><div><div class="eyebrow">EXPERIMENTAL · EXTERNAL EVENT DIRECTORY</div><h2 id="livetv-title">LiveTV.sx match lookup</h2></div><span class="tag">External website · not verified</span></div>
+    <p>Use LiveTV.sx to look for a match on its own website. Sports Watch does not embed its streams, scrape its listings, verify its links, or bypass its adverts, access rules or copyright restrictions.</p>
+    <div class="livetv-actions">
+      <label for="livetv-match-label">Selected match</label>
+      <input id="livetv-match-label" readonly value="No match selected yet" aria-label="Selected match for LiveTV.sx lookup">
+      <button type="button" id="livetv-copy-match" disabled>Copy match name</button>
+      <a id="livetv-open" href="https://livetv.sx/enx/" target="_blank" rel="noopener noreferrer external" referrerpolicy="no-referrer">Open LiveTV.sx in a separate tab</a>
+    </div>
+    <p id="livetv-status" class="workflow-hint" role="status" aria-live="polite">Select a fixture below, or manually enter a match, then open the external directory and locate it by name.</p>
+    <p class="workflow-hint">Important: LiveTV.sx may be unavailable, restricted, or contain unsafe redirects and unauthorised broadcasts. Opening a link does not mean it is secure or licensed. For verified viewing, use the official coverage finder below.</p>
   </section>
   <section class="panel fixtures-panel" aria-labelledby="fixture-title">
     <div class="sectionheading"><div><div class="eyebrow">MATCH DISCOVERY · SPORTSCORE DATA</div><h2 id="fixture-title">Find a game to watch</h2></div><span class="tag">Video availability not verified</span></div>
