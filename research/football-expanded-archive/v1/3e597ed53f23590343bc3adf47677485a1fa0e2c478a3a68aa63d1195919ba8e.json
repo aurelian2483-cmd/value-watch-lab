@@ -1,0 +1,74 @@
+{
+  "league": "SP1",
+  "home": "Sevilla",
+  "away": "M\u00e1laga",
+  "kickoff_utc": "2026-12-07T20:00:00Z",
+  "espn_event_id": "401882778",
+  "league_name": "La Liga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=20261207&limit=100",
+      "sha256": "4fa62dfa268a8f8da56db5cc7676d518f0289a5a7d67c24c4a71a6afbccd5929",
+      "observed_at_utc": "2026-11-17T02:04:47.647057Z"
+    },
+    {
+      "url": "https://www.skysports.com/la-liga-scores-fixtures/2026-12-01",
+      "sha256": "ed4dd8e243711839ba72c540cdcbd71394295b5413e492587b22fc3a693cd59d",
+      "observed_at_utc": "2026-11-17T02:05:04.713613Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_SP1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.5272921526393846,
+  "prob_draw": 0.2652884740039125,
+  "prob_away": 0.2074193733567029,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 6,
+    "away_matches": 6,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 119,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/SP1.csv",
+        "sha256": "b4c9a5cc1139f30dbd1026679c360de4626ce97fe64ae62ff1ff8ba3af0b7828",
+        "observed_at_utc": "2026-11-17T02:05:12.895363Z"
+      }
+    ],
+    "training_sha256": "9f6e663cce871e99b4a10abda3f3a0119996a3069ef0917c2427ba9a7f5c20a8",
+    "lambda_home": 1.4715710147695442,
+    "lambda_away": 0.8130046494456851,
+    "home_venue_inputs": {
+      "hgf": 7,
+      "hga": 7,
+      "hn": 6,
+      "agf": 10,
+      "aga": 12,
+      "an": 6
+    },
+    "away_venue_inputs": {
+      "hgf": 6,
+      "hga": 12,
+      "hn": 6,
+      "agf": 3,
+      "aga": 11,
+      "an": 6
+    },
+    "league_home_mean": 1.6134453781512605,
+    "league_away_mean": 1.2773109243697478
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-17T02:05:44.769668Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "3e597ed53f23590343bc3adf47677485a1fa0e2c478a3a68aa63d1195919ba8e"
+}
