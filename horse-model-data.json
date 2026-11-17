@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-17T21:24:55.638147+00:00",
+  "generated_at_utc": "2026-11-17T22:19:11.575699+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -10,7 +10,7 @@
     "provider": "The Racing API",
     "connection_status": "CONNECTED",
     "schedule_matches": 0,
-    "result_rows_cached": 519,
+    "result_rows_cached": 520,
     "errors": [],
     "verification_scope": "Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established."
   },
@@ -25,7 +25,7 @@
     "errors": [],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED",
-    "collection_completed_at_utc": "2026-11-17T21:24:07.261850+00:00"
+    "collection_completed_at_utc": "2026-11-17T22:18:23.796193+00:00"
   },
   "race_count": 25,
   "reference_baseline_audit": {
@@ -1711,7 +1711,7 @@
     },
     "source_unavailable_rechecks": 0,
     "selection_policy": "Latest archived forecast per race/model, captured at least five minutes before scheduled start.",
-    "cross_source_verified_results": 50,
+    "cross_source_verified_results": 49,
     "cross_source_entries": [
       {
         "record_sha256": "61e99fd669a27075ca5ddab4ada773b0f088313bd469e31d3304ef25a34ad009",
@@ -3819,49 +3819,6 @@
           "publication_gate": "BLOCKED",
           "challenge_eligible": 0
         }
-      },
-      {
-        "record_sha256": "a44a2768960d4f0ee7d8ab07c37b2b160bf81b0fa2ed9e62900b023472465d80",
-        "race_id": "948861",
-        "racecourse": "Southwell",
-        "startUTC": "2026-11-17T20:30:00+00:00",
-        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
-        "winner_horse_id": "1181424",
-        "scored_at_utc": "2026-11-17T21:24:55.638147+00:00",
-        "multiclass_brier_score": 0.9330526399407947,
-        "log_loss": 2.6210720983140274,
-        "equal_chance_brier_score": 0.9230769230769231,
-        "equal_chance_log_loss": 2.5649493574615367,
-        "source_receipt": {
-          "url": "https://www.sportinglife.com/racing/racecards/2026-11-17/southwell/racecard/948861/midnite-a-next-generation-betting-app-handicap",
-          "sha256": "4f873e8f4a77ff567235d47d3a029f28542eeb4f20aa9f673449dcaab26c7e95",
-          "observed_at_utc": "2026-11-17T21:24:55.638147+00:00"
-        },
-        "verification": "SINGLE_SOURCE_PROVISIONAL",
-        "independently_verified": false,
-        "challenge_eligible": 0,
-        "publication_gate": "BLOCKED",
-        "result_recheck_status": "NOT_RECHECKED",
-        "result_last_checked_at_utc": "2026-11-17T21:24:55.638147+00:00",
-        "cross_source_evidence": {
-          "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
-          "record_sha256": "a44a2768960d4f0ee7d8ab07c37b2b160bf81b0fa2ed9e62900b023472465d80",
-          "primary_receipt": {
-            "url": "https://www.sportinglife.com/racing/racecards/2026-11-17/southwell/racecard/948861/midnite-a-next-generation-betting-app-handicap",
-            "sha256": "4f873e8f4a77ff567235d47d3a029f28542eeb4f20aa9f673449dcaab26c7e95",
-            "observed_at_utc": "2026-11-17T21:24:55.638147+00:00"
-          },
-          "secondary_receipt": {
-            "url": "https://api.theracingapi.com/v1/results/today/free?region=gb&region=ire&limit=100&skip=0",
-            "sha256": "052c554e6f5571e3f3736c968916080e16c2ddd7db1cebf5b18442c1cae47ea0",
-            "observed_at_utc": "2026-11-17T21:24:55.451160+00:00",
-            "rate_limit_retries": 0
-          },
-          "secondary_race_id": "rac_32304667525",
-          "winner_horse_id": "1181424",
-          "publication_gate": "BLOCKED",
-          "challenge_eligible": 0
-        }
       }
     ],
     "cross_source_pending": [
@@ -3899,6 +3856,10 @@
       },
       {
         "race_id": "948524",
+        "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
+      },
+      {
+        "race_id": "948861",
         "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
       }
     ],
@@ -3976,19 +3937,19 @@
         "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1": {
           "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
           "parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "scored_races": 50,
+          "scored_races": 49,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.00727488390065324,
-          "mean_log_loss_delta_vs_equal_chance": -0.04284704697102026,
+          "mean_brier_delta_vs_equal_chance": -0.007626936977480276,
+          "mean_log_loss_delta_vs_equal_chance": -0.04486683855925517,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.013922355183957425,
-            "upper": -0.0014092011997944986,
+            "lower": -0.014006007118976628,
+            "upper": -0.0013941539598658762,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.07389440510151817,
-            "upper": -0.011392244157599637,
+            "lower": -0.07722629234306697,
+            "upper": -0.015470951120202433,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -4003,16 +3964,16 @@
             {
               "lower": 0.05,
               "upper": 0.1,
-              "runner_observations": 364,
-              "mean_model_probability": 0.07995183481032749,
-              "observed_win_frequency": 0.07417582417582418
+              "runner_observations": 352,
+              "mean_model_probability": 0.08013553186924503,
+              "observed_win_frequency": 0.07386363636363637
             },
             {
               "lower": 0.1,
               "upper": 0.15,
-              "runner_observations": 153,
-              "mean_model_probability": 0.11427255326204029,
-              "observed_win_frequency": 0.13725490196078433
+              "runner_observations": 152,
+              "mean_model_probability": 0.11433198225050738,
+              "observed_win_frequency": 0.13815789473684212
             },
             {
               "lower": 0.15,
@@ -4131,7 +4092,7 @@
         }
       ],
       "winner_horse_id": "1181424",
-      "result_verification": "TWO_PUBLISHER_CORROBORATED",
+      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
       "result_recheck_status": "NOT_RECHECKED",
       "result_last_checked_at_utc": "2026-11-17T21:24:55.638147+00:00",
       "publication_gate": "BLOCKED",
@@ -5683,7 +5644,7 @@
   ],
   "settled_history_limit": 20,
   "race_cycle_audit": {
-    "checked_at_utc": "2026-11-17T21:24:55.638147+00:00",
+    "checked_at_utc": "2026-11-17T22:19:11.575699+00:00",
     "race_date_uk": "2026-11-17",
     "collection_scope": "CURRENT_UK_DAY_ONLY",
     "upcoming_observed_races": 0,

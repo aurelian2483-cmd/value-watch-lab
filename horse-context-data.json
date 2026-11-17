@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-17T21:25:06.799721+00:00",
+  "generated_at_utc": "2026-11-17T22:19:16.209062+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -66043,7 +66043,7 @@
     },
     "source_unavailable_rechecks": 0,
     "selection_policy": "Latest archived forecast per race/model, captured at least five minutes before scheduled start.",
-    "cross_source_verified_results": 71,
+    "cross_source_verified_results": 70,
     "cross_source_entries": [
       {
         "record_sha256": "8fc22d193f83089f68df56dd01b7591b575069913a85488eda11e836e2d2f10d",
@@ -69054,49 +69054,6 @@
           "publication_gate": "BLOCKED",
           "challenge_eligible": 0
         }
-      },
-      {
-        "record_sha256": "f97318e26164eed5fae003d4942592d1ff67165ae3fa81ce03bc2258b03ac8f2",
-        "race_id": "948861",
-        "racecourse": "Southwell",
-        "startUTC": "2026-11-17T20:30:00+00:00",
-        "model": "CONTEXT_FORM_RESEARCH_V1",
-        "winner_horse_id": "1181424",
-        "scored_at_utc": "2026-11-17T21:25:06.799721+00:00",
-        "multiclass_brier_score": 0.9309608163241168,
-        "log_loss": 2.607321220656831,
-        "equal_chance_brier_score": 0.9230769230769231,
-        "equal_chance_log_loss": 2.5649493574615367,
-        "source_receipt": {
-          "url": "https://www.sportinglife.com/racing/racecards/2026-11-17/southwell/racecard/948861/midnite-a-next-generation-betting-app-handicap",
-          "sha256": "4f873e8f4a77ff567235d47d3a029f28542eeb4f20aa9f673449dcaab26c7e95",
-          "observed_at_utc": "2026-11-17T21:25:06.799721+00:00"
-        },
-        "verification": "SINGLE_SOURCE_PROVISIONAL",
-        "independently_verified": false,
-        "challenge_eligible": 0,
-        "publication_gate": "BLOCKED",
-        "result_recheck_status": "NOT_RECHECKED",
-        "result_last_checked_at_utc": "2026-11-17T21:25:06.799721+00:00",
-        "cross_source_evidence": {
-          "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
-          "record_sha256": "f97318e26164eed5fae003d4942592d1ff67165ae3fa81ce03bc2258b03ac8f2",
-          "primary_receipt": {
-            "url": "https://www.sportinglife.com/racing/racecards/2026-11-17/southwell/racecard/948861/midnite-a-next-generation-betting-app-handicap",
-            "sha256": "4f873e8f4a77ff567235d47d3a029f28542eeb4f20aa9f673449dcaab26c7e95",
-            "observed_at_utc": "2026-11-17T21:25:06.799721+00:00"
-          },
-          "secondary_receipt": {
-            "url": "https://api.theracingapi.com/v1/results/today/free?region=gb&region=ire&limit=100&skip=0",
-            "sha256": "052c554e6f5571e3f3736c968916080e16c2ddd7db1cebf5b18442c1cae47ea0",
-            "observed_at_utc": "2026-11-17T21:24:55.451160+00:00",
-            "rate_limit_retries": 0
-          },
-          "secondary_race_id": "rac_32304667525",
-          "winner_horse_id": "1181424",
-          "publication_gate": "BLOCKED",
-          "challenge_eligible": 0
-        }
       }
     ],
     "cross_source_pending": [
@@ -69158,6 +69115,10 @@
       },
       {
         "race_id": "948524",
+        "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
+      },
+      {
+        "race_id": "948861",
         "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
       }
     ],
@@ -70120,7 +70081,7 @@
         }
       ],
       "winner_horse_id": "1181424",
-      "result_verification": "TWO_PUBLISHER_CORROBORATED",
+      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
       "result_recheck_status": "NOT_RECHECKED",
       "result_last_checked_at_utc": "2026-11-17T21:25:06.799721+00:00",
       "publication_gate": "BLOCKED",
