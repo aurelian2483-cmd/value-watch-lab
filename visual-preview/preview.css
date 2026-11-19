@@ -331,3 +331,49 @@
 .visual-preview .pro-landing > :is(.pro-steps, .pro-disclosure) {
   display: none;
 }
+
+.visual-preview .pro-landing > .preview-sports-panel {
+  position: static;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr);
+  align-items: start;
+  gap: clamp(.75rem, 2vw, 1.25rem);
+  margin-block-start: .9rem;
+  padding: clamp(.75rem, 2vw, 1.2rem);
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  border: 1px solid #294760;
+  border-radius: .85rem;
+  background: #0b1524;
+}
+.preview-sports-panel > .rail-section { margin: 0; min-width: 0; }
+.visual-preview .preview-sports-panel .section-label { display: flex; }
+.preview-sports-panel .competition-search-wrap,
+.preview-sports-panel #competition-nav { display: none; }
+.visual-preview .preview-sports-panel .competition-rail { display: block; }
+.preview-sports-panel .competition-rail .filter-select { display: block; min-width: 0; }
+.preview-sports-panel #competition { width: 100%; min-width: 0; max-width: 100%; }
+.preview-sports-panel .rail-footer { grid-column: 1 / -1; margin: 0; }
+@media (min-width: 761px) {
+  .preview-sports-panel .rail-footer { display: flex; flex-wrap: wrap; gap: .45rem 1rem; }
+  .preview-sports-panel .rail-footer p { margin: 0; }
+}
+.visual-preview .pro-landing:has(> .preview-sports-panel) + .workspace-grid { grid-template-columns: minmax(0, 1fr) 344px; }
+@media (min-width: 1500px) {
+  .visual-preview .pro-landing:has(> .preview-sports-panel) + .workspace-grid { grid-template-columns: minmax(0, 1fr) 375px; }
+}
+@media (min-width: 1021px) and (max-width: 1190px) {
+  .visual-preview .pro-landing:has(> .preview-sports-panel) + .workspace-grid { grid-template-columns: minmax(0, 1fr) 310px; }
+}
+@media (max-width: 1020px) {
+  .visual-preview .pro-landing:has(> .preview-sports-panel) + .workspace-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .visual-preview .pro-landing > .preview-sports-panel { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+  .visual-preview .preview-sports-panel .tracker-rail { display: block; grid-column: 1 / -1; }
+  .visual-preview .preview-sports-panel .sport-navigation { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .visual-preview .pro-landing > .preview-sports-panel { grid-template-columns: minmax(0, 1fr); }
+}
