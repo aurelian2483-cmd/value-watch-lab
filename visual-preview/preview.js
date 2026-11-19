@@ -1,0 +1,35 @@
+'use strict';
+
+(() => {
+  const toggle = document.getElementById('visual-preview-switch');
+  if (new URLSearchParams(location.search).get('view') !== 'visual-preview') return;
+
+  document.documentElement.classList.add('visual-preview');
+  toggle.textContent = 'Return to classic design';
+  const classic = new URL(location.href);
+  classic.searchParams.delete('view');
+  toggle.href = classic.href;
+
+  const sports = [
+    ['[data-pro-sport="football"]', 'Football', 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 5 4 3-1.5 5h-5L8 10l4-3Zm0 0V2m4 8 5-2m-6.5 7 3 5m-8-5-3 5M8 10 3 8'],
+    ['[data-pro-sport="racing"]', 'Horse racing', 'M5 21h14M8 21v-3h9v3M8 18v-4l4-4-1-3-4 4-3-2 6-7 1 3c5 0 8 4 8 8v5H8Z'],
+    ['[data-pro-sport="tennis"]', 'Tennis', 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM4 6c5 1 8 4 8 9 0 2-.5 4-2 7M14 2c-1 3-.5 6 2 8 1 1 3 2 6 2'],
+    ['[data-pro-sport="nfl"]', 'NFL', 'M3 21C1 10 10 1 21 3c2 11-7 20-18 18ZM8 16l8-8m-7 4 3 3m0-6 3 3M4 15l5 5m6-16 5 5'],
+    ['a[href="./darts/"]', 'Darts Lab', 'M20 12a8 8 0 1 1-8-8m4 8a4 4 0 1 1-4-4m0 4 8-8m-4 0h4V0'],
+    ['a[href="./rugby/"]', 'Rugby Lab', 'M3 21C1 10 10 1 21 3c2 11-7 20-18 18ZM4 14l6 6M14 4l6 6M8 16l8-8']
+  ];
+  const nav = document.querySelector('.pro-topnav');
+  const svgNamespace = 'http://www.w3.org/2000/svg';
+  for (const [selector, label, pathData] of sports) {
+    const item = nav.querySelector(selector);
+    if (!item) continue;
+    const icon = document.createElementNS(svgNamespace, 'svg');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.setAttribute('focusable', 'false');
+    const path = document.createElementNS(svgNamespace, 'path');
+    path.setAttribute('d', pathData);
+    icon.append(path);
+    item.replaceChildren(icon, document.createTextNode(label));
+  }
+})();

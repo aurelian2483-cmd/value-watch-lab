@@ -1,0 +1,79 @@
+.visual-preview-rugby { display: none; }
+
+.visual-preview {
+  --preview-ink: #f3f8ff;
+  --preview-muted: #bbcbe0;
+  --preview-line: #344d66;
+  --preview-accent: #78e8db;
+}
+
+.visual-preview .pro-topnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.visual-preview .pro-topnav :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 44px;
+  padding: .55rem .85rem;
+  color: var(--preview-ink);
+  background: #13273d;
+  border: 1px solid var(--preview-line);
+  border-radius: .65rem;
+}
+
+.visual-preview .pro-topnav svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  color: var(--preview-accent);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.visual-preview .pro-topnav :is(a, button):hover,
+.visual-preview .pro-topnav :is(.active, [aria-pressed="true"]) {
+  border-color: var(--preview-accent);
+  background: #1b384d;
+}
+
+.visual-preview :is(a, button, input, select):focus-visible {
+  outline: 3px solid var(--preview-accent);
+  outline-offset: 3px;
+}
+
+.visual-preview .pro-hero {
+  border: 1px solid var(--preview-line);
+  background: radial-gradient(ellipse at 85% 0%, #1e4960, transparent 65%), #102136;
+}
+
+.visual-preview .pro-hero h2 {
+  font-size: clamp(1.8rem, 4vw, 3.9rem);
+  line-height: 1.08;
+}
+
+.visual-preview :is(.event-card, .pro-slip-card) {
+  border-color: var(--preview-line);
+  border-radius: .9rem;
+}
+
+.visual-preview .event-card { padding: clamp(.75rem, 1.5vw, 1.25rem); }
+.visual-preview .event-card :is(h3,h4) { color: var(--preview-ink); }
+.visual-preview .event-card .event-meta { color: var(--preview-muted); }
+
+.visual-preview :is(.weekly-wildcard, .pro-wildcard-card) {
+  border: 1px solid #be9548;
+  border-radius: .9rem;
+  background: radial-gradient(ellipse at top right, #624713, transparent 65%), #252015;
+}
+
+@media (max-width: 760px) {
+  .visual-preview .pro-topnav { gap: .4rem; }
+  .visual-preview .pro-topnav :is(a, button) { padding: .5rem .7rem; }
+}
