@@ -7,11 +7,16 @@ import sys
 import urllib.parse
 import urllib.error
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
-from collect_rugby import collect
+from collect_rugby import collect, source_start
 
 NOW=dt.datetime(2026,11,16,10,tzinfo=dt.timezone.utc)
 
 class RugbySourceHealth(unittest.TestCase):
+ def test_documented_provider_utc_timestamp_without_z(self):
+  self.assertEqual(source_start('2026-11-21T20:10:00'),dt.datetime(2026,11,21,20,10,tzinfo=dt.timezone.utc))
+  self.assertEqual(source_start('2026-11-21T21:10:00+01:00'),source_start('2026-11-21T20:10:00'))
+  for missing in (None,'2026-11-21','20:10:00','2026-11-21 20:10:00'):
+   with self.assertRaises(ValueError):source_start(missing)
  def test_every_date_checked_and_future_game_not_missed(self):
   requested=[]
   def fetch(url):
@@ -19,10 +24,11 @@ class RugbySourceHealth(unittest.TestCase):
    requested.append((query['s'][0],query['d'][0]))
    rows=[]
    if query['s']==['Rugby'] and query['d']==['2026-11-21']:
-    rows=[{'idEvent':'12345','strSport':'Rugby','strHomeTeam':'A','strAwayTeam':'B','strLeague':'Example League','idLeague':'100','strTimestamp':'2026-11-21T15:00:00Z'}]
+    rows=[{'idEvent':'12345','strSport':'Rugby','strHomeTeam':'A','strAwayTeam':'B','strLeague':'Example League','idLeague':'100','strTimestamp':'2026-11-21T15:00:00'}]
    return json.dumps({'events':rows}).encode()
   output=collect(NOW,fetch)
   self.assertEqual(len(set(requested)),28)
+  self.assertEqual([r[0] for r in requested[:2]],['Rugby','Rugby League'])
   self.assertEqual(len(output['upcoming_fixtures']),1)
   self.assertEqual(output['upcoming_fixtures'][0]['code'],'RU')
   self.assertFalse(output['upcoming_fixtures'][0]['forecast_eligible'])
@@ -32,7 +38,7 @@ class RugbySourceHealth(unittest.TestCase):
    calls.append(url)
    raise urllib.error.HTTPError(url,429,'rate limit',{},None)
   output=collect(NOW,fetch)
-  self.assertLessEqual(len(calls),2)
+  self.assertEqual(len(calls),1)
   for code in ('RU','RL'):
    self.assertFalse(output['source_health'][code]['all_dates_checked'])
    self.assertEqual(output['source_health'][code]['days_succeeded'],0)
