@@ -1,6 +1,7 @@
 'use strict';
 (function (root) {
   const specs = [
+    {id:'racing-future',label:'Seven-day racing coverage',filename:'racing-future-coverage.json',owner:'Horse Racing Manager',maxAgeHours:6},
     {id:'racing-forecasts',label:'Racing forecast coverage',filename:'horse-predictions-data.json',owner:'Horse Racing Manager',maxAgeHours:6},
     {id:'darts',label:'Darts fixtures',filename:'darts/feed.json',owner:'Darts Manager',maxAgeHours:48},
     {id:'darts-analysis',label:'Darts analysis',filename:'darts/analysis.json',owner:'Darts Manager',maxAgeHours:48},
@@ -14,6 +15,11 @@
       quote?.observed_at_utc : quote?.updated_at_utc || quote?.captured_at_utc));
   }
   function context(id, data, now) {
+    if (id==='racing-future' && Array.isArray(data.days)) {
+      const gaps=data.days.filter(day=>['SOURCE_DATE_MISMATCH','COLLECTION_FAILED'].includes(day?.index_status));
+      const recovered=gaps.filter(day=>Number.isInteger(day.meeting_page_races)&&day.meeting_page_races>0);
+      if(gaps.length)return {pending:'Racing index failed on '+gaps.length+' dated requests. Dated meeting pages supplied provisional cards on '+recovered.length+' of those dates.'};
+    }
     if (id==='darts-analysis' && data.status==='AWAITING_PAGINATED_COLLECTION') {
       return {pending:'Darts historical analysis is awaiting complete pagination.'};
     }

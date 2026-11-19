@@ -4,7 +4,7 @@ const js=fs.readFileSync(__dirname+'/app.js','utf8'),html=fs.readFileSync(__dirn
 const css=fs.readFileSync(__dirname+'/style.css','utf8');
 const historyJS=fs.readFileSync(__dirname+'/history.js','utf8');
 const briefingJS=fs.readFileSync(__dirname+'/briefing.js','utf8');
-assert(html.includes('./history.js?v=4')&&html.includes('./briefing.js?v=4')&&html.includes('./app.js?v=5')&&html.includes('./style.css?v=4'));
+assert(html.includes('./history.js?v=4')&&html.includes('./briefing.js?v=4')&&html.includes('./app.js?v=6')&&html.includes('./style.css?v=4'));
 for(const id of ['briefing-title','briefing-date','briefing-risk','b-p1','b-new','b-degraded','b-aged','b-repeated','b-cleared','briefing-notes','briefing-step','briefing-warning'])assert(html.includes('id="'+id+'"'), 'Missing daily briefing element: '+id);
 assert(html.includes('id="history-board"')&&html.includes('id="history-summary"')&&html.includes('id="history-warning"'));
 assert(html.includes('READ-ONLY RESEARCH OVERSIGHT'));
@@ -41,7 +41,7 @@ async function run(denied){
  const val=id=>nodes.get(id)?.textContent;
  assert.equal(nodes.get('sports').children.length,6,'Six independent sport manager cards required');
  assert.equal(val('m-approved'),'0','No fabricated betting approval');
- assert.equal(nodes.get('source-table').children.length,10);
+ assert.equal(nodes.get('source-table').children.length,11);
  assert(nodes.get('history-board').children.length>0,'Browser-local incident history rendered');
  assert.match(val('history-summary'),/saved on this device/);
  assert.match(val('briefing-title'),/NO CURRENT SOURCE EXCEPTIONS|URGENT REVIEW/);
@@ -52,9 +52,9 @@ async function run(denied){
  assert.match(val('action-summary'),/recommended action/);
 
  assert.equal(nodes.get('export').disabled,false,'Report export should become available');
- assert(requests.length===10&&requests.every(r=>r.opts.cache==='no-store'),'Only read the ten configured sources');
+ assert(requests.length===11&&requests.every(r=>r.opts.cache==='no-store'),'Only read the eleven configured sources');
  assert(requests.every(r=>r.opts.method===undefined||r.opts.method==='GET'),'No writes');
- if(denied){assert.equal(val('m-feeds'),'9 / 10');assert.match(val('decision-title'),/ESCALATE/);assert(nodes.get('action-board').children.some(n=>n.children.some(h=>h.children?.some(c=>c.textContent==='P1'))),'Feed failure must produce P1 action')}
- else{assert.equal(val('m-feeds'),'10 / 10');assert.match(val('decision-title'),/DATA CHECKS PASSED/);assert.equal(val('m-alerts'),'0')}
+ if(denied){assert.equal(val('m-feeds'),'10 / 11');assert.match(val('decision-title'),/ESCALATE/);assert(nodes.get('action-board').children.some(n=>n.children.some(h=>h.children?.some(c=>c.textContent==='P1'))),'Feed failure must produce P1 action')}
+ else{assert.equal(val('m-feeds'),'11 / 11');assert.match(val('decision-title'),/DATA CHECKS PASSED/);assert.equal(val('m-alerts'),'0')}
 }
 (async()=>{await run(false);await run(true);console.log('PASS: standalone operations dashboard, six desks, read-only requests, gate protection, failure escalation, export controls and responsive markup')})().catch(error=>{console.error(error);process.exitCode=1});

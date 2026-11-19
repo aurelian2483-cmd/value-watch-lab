@@ -9,6 +9,7 @@ const data={
  racing:doc({races:[{race_id:'R'}],coverage_verified:true}),
  other:doc({sports:{tennis:{events:[{id:'T'}]},nfl:{events:[{id:'N'}]}},collection_errors:{}}),
  horse:doc({form_forecasts:[]}),
+ 'racing-future':doc({days:[],provisional_racecards:0,meeting_fixtures:0}),
  'racing-forecasts':doc({forecasts:[],skipped:[]}),
  darts:doc({fixtures:[]}),
  'darts-analysis':doc({fixtures:[]}),
@@ -21,7 +22,7 @@ function write(){for(const f of SOURCES){const file=path.join(base,f.filename);f
 try{
  write();
  let report=audit(base,now);
- assert.equal(report.priority,'CLEAR');assert.equal(report.feeds.length,10);assert.equal(report.sports.length,7);
+ assert.equal(report.priority,'CLEAR');assert.equal(report.feeds.length,11);assert.equal(report.sports.length,7);
  assert.equal(report.qualifiedBettingApprovals,0);assert.equal(report.bookmakerPricesVerified,false);
  assert.equal(report.notLiveWebsiteCheck,true);assert.equal(report.changesApplied,false);
  assert.match(markdown(report),/not a verified live-site/);
@@ -40,10 +41,13 @@ try{
  fs.rmSync(path.join(base,'horse-model-data.json'));report=audit(base,now);assert(report.issues.some(x=>x.code==='horse:FEED_UNAVAILABLE'));
  fs.writeFileSync(path.join(base,'horse-model-data.json'),'[]');report=audit(base,now);assert(report.issues.some(x=>x.code==='horse:FEED_UNAVAILABLE'));
  data['darts-analysis']={...data['darts-analysis'],status:'AWAITING_PAGINATED_COLLECTION',generated_at_utc:null};
- data['hybrid-prices'].records=[];write();
+ data['hybrid-prices'].records=[];
+ data['racing-future'].days=[{index_status:'SOURCE_DATE_MISMATCH',meeting_page_races:12},{index_status:'COLLECTION_FAILED',meeting_page_races:0}];
+ write();
  report=audit(base,now);
  assert(report.issues.some(x=>x.code==='darts-analysis:PENDING'));
  assert(report.issues.some(x=>x.code==='hybrid-prices:PENDING'));
+ assert.match(report.issues.find(x=>x.code==='racing-future:PENDING').description,/failed on 2.*1 of those dates/);
  const issueText=markdown(report);assert.match(issueText,/Manager actions/);assert.match(issueText,/UNVALIDATED \/ BLOCKED/);assert(!issueText.includes('NaN'));
  console.log('PASS: offline source audit, seven sports, P1/P2 gates, freshness, missing/malformed/future feeds, deterministic signatures and zero source writes');
 }finally{fs.rmSync(base,{recursive:true,force:true})}

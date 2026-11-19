@@ -258,6 +258,15 @@ def write_validated_snapshot(data,target=OUT):
   raise
  return target
 
+def write_coverage_summary(data, target=ROOT/'racing-future-coverage.json'):
+ """Publish counts without making Operations download full runner histories."""
+ days=[{'date':row['date'],'index_status':row['status'],
+        'meeting_page_races':row.get('meeting_page_races',0)} for row in data['days']]
+ summary={key:data[key] for key in ('schema_version','research_only','publication_gate','model_validation','generated_at_utc')}
+ summary.update(days=days,meeting_fixtures=len(data['fixture_meetings']),
+                provisional_racecards=len(data['races']),coverage_verified=False)
+ Path(target).write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
+
 if __name__=='__main__':
  data=collect_api() if os.environ.get('HORSE_RACING_API_KEY') else collect()
  target_dates=[x['date'] for x in data['days']]
@@ -289,4 +298,5 @@ if __name__=='__main__':
  data['collection_status']='PARTIAL_SOURCE_COVERAGE' if data['failed_dates'] or data['fixture_source_status']!='SOURCE_OBSERVED' else 'SOURCE_OBSERVED_NOT_COMPLETE'
  data['limitations'].append('A successful source request is not proof of complete racing coverage. Failed dates are explicitly reported.')
  write_validated_snapshot(data)
+ write_coverage_summary(data)
  print(json.dumps({'future_races':len(data['races']),'publisher_forecasts':sum(r.get('publisher_forecast',{}).get('status')=='COMPLETE_PUBLISHER_FORECAST' for r in data['races']),'fixture_meetings':len(data['fixture_meetings']),'fixture_source_status':data['fixture_source_status'],'failed_index_days':len(data['failed_dates']),'meeting_page_failures':sum(x['status']=='COLLECTION_FAILED' for x in receipts)}))

@@ -6,7 +6,7 @@ const code=fs.readFileSync('ops-control/app.js','utf8');
 const ids=['clock','refresh','export','director-badge','decision-title','decision-summary','decision-tag','audit-time','m-feeds','m-sports','m-alerts','m-approved','sports','issues','source-table','it-status','it-summary','action-board','action-summary','history-board','history-summary','history-warning','briefing-title','briefing-date','briefing-risk','b-p1','b-new','b-degraded','b-aged','b-repeated','b-cleared','briefing-notes','briefing-step','briefing-warning'];
 for(const id of ids)assert(html.includes('id="'+id+'"'), 'Missing audited dashboard element: '+id);
 for(const needle of ['../research-dashboard-data.json','../racing-research-data.json','../other-sports-data.json','../horse-model-data.json',"publication_gate","UNVALIDATED","BLOCKED","independentExpertSignoff:false"])assert(code.includes(needle),'Missing expected read-only control: '+needle);
-assert(html.includes('history.js?v=4')&&html.includes('briefing.js?v=4')&&html.includes('app.js?v=5')&&html.includes('style.css?v=4'));
+assert(html.includes('history.js?v=4')&&html.includes('briefing.js?v=4')&&html.includes('app.js?v=6')&&html.includes('style.css?v=4'));
 assert(css.includes('.sport-grid')&&css.includes('@media'));
 function node(tag='div'){
  return {tag,children:[],style:{},disabled:false,className:'',textContent:'',listeners:{},classList:{add(){}},append(...x){this.children.push(...x)},replaceChildren(...x){this.children=x},addEventListener(type,handler){this.listeners[type]=handler},remove(){},click(){},setAttribute(){},getAttribute(){return null}};
@@ -42,7 +42,7 @@ vm.runInNewContext(code,context,{filename:'ops-control/app.js',timeout:1500});
 const sleep=()=>new Promise(resolve=>setTimeout(resolve,30));
 (async()=>{
  await sleep();
- assert.equal(el['m-feeds'].textContent,'10 / 10');
+ assert.equal(el['m-feeds'].textContent,'11 / 11');
  assert.equal(el['m-approved'].textContent,'0');
  assert.equal(el.sports.children.length,6);
  assert.equal(el.export.disabled,false);
@@ -54,7 +54,7 @@ const sleep=()=>new Promise(resolve=>setTimeout(resolve,30));
  failHorse=true;
  await el.refresh.listeners.click();
  await sleep();
- assert.equal(el['m-feeds'].textContent,'9 / 10','Unavailable specialist feed must be reported');
+ assert.equal(el['m-feeds'].textContent,'10 / 11','Unavailable specialist feed must be reported');
  assert.match(el['director-badge'].textContent,/ATTENTION/i);
  assert.match(el['history-summary'].textContent,/saved on this device/);
  assert.equal(el['m-approved'].textContent,'0','Missing data must never certify a bet');

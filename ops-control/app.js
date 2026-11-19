@@ -56,6 +56,11 @@ function evaluateSport(spec,feeds,messages){
    details.push('Candidate selections: '+niceNumber(ncount(f.candidate_selections)));
    details.push('Qualified selections: '+niceNumber(ncount(f.qualified_selections)));
    details.push('Full external race coverage: '+(f.coverage_verified===true?'Claimed verified':'Not verified'));
+   const future=feeds.find(x=>x.id==='racing-future');
+   if(future?.gateOK && !future.stale){
+     details.push('Seven-day provisional cards: '+niceNumber(future.data.provisional_racecards));
+     details.push('Scheduled meetings: '+niceNumber(future.data.meeting_fixtures));
+   }
    const forecast=feeds.find(x=>x.id==='racing-forecasts')?.data;
    if(forecast){
      details.push('Race forecasts: '+niceNumber(ncount(forecast.forecasts)));
@@ -74,6 +79,9 @@ function evaluateSport(spec,feeds,messages){
    count=ncount(f.upcoming_fixtures);
    for(const [code,label] of [['RU','Union'],['RL','League']])
      details.push(label+' provider fixtures: '+niceNumber(f.upcoming_fixtures?.filter?.(item=>item.code===code).length));
+   const league=f.source_health?.RL;
+   if(league?.collection_status==='NO_CONFIRMED_FIXTURES_IN_SAMPLE' && Number.isInteger(league.horizon_days))
+     details.push('League provider found no timed fixtures in its '+league.horizon_days+'-day sample. The official Rugby Lab calendar covers later dates.');
  }else{
    const sport=f.sports?.[spec.id];
    count=ncount(sport?.events);
@@ -191,7 +199,7 @@ function renderSources(feeds){
  const body=$('source-table');body.replaceChildren();
  for(const f of feeds){const tr=add(body,'tr');
    add(tr,'td',f.label);add(tr,'td',f.ok?fmtTime(f.stamp):'—');add(tr,'td',hourAge(f.age));
-   const cell=add(tr,'td');cell.append(cls(!f.ok||!f.gateOK?'blocked':f.stale?'caution':'good',!f.ok?'UNAVAILABLE':!f.gateOK?'GATE NOT VERIFIED':f.pending?'PENDING':f.stale?'STALE':'RESPONDING'));
+   const cell=add(tr,'td');cell.append(cls(!f.ok||!f.gateOK?'blocked':(f.stale||f.pending)?'caution':'good',!f.ok?'UNAVAILABLE':!f.gateOK?'GATE NOT VERIFIED':f.pending?'PENDING':f.stale?'STALE':'RESPONDING'));
  }
 }
 function exportReport(){if(!latest)return;const blob=new Blob([JSON.stringify(latest,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const anchor=document.createElement('a');anchor.href=url;anchor.download='value-watch-operations-'+new Date(latest.checkedAt).toISOString().slice(0,10)+'.json';document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}

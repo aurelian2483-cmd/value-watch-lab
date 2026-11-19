@@ -42,7 +42,7 @@ jobs:
           if ! git diff --quiet -- racing-future-data.json; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add racing-future-data.json
+            git add -- racing-future-data.json racing-future-coverage.json
             git commit -m 'Refresh seven-day source-observed racing schedules'
             git pull --rebase origin main
             git push origin HEAD:main
