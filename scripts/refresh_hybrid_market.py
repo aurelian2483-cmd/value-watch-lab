@@ -9,6 +9,7 @@ import math
 from pathlib import Path
 import re
 import tempfile
+from urllib.error import HTTPError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
@@ -38,12 +39,15 @@ def fetch(url, host):
     if address.scheme != 'https' or address.netloc != host or address.query or address.fragment:
         raise ValueError('Unexpected market source URL')
     request = Request(url, headers={'Cache-Control': 'no-cache', 'User-Agent': 'ValueWatchResearch/1.0'})
-    with OPENER.open(request, timeout=15) as response:
-        if response.geturl() != url:
-            raise ValueError('Unexpected market source redirect')
-        raw = response.read(3_000_001)
-        date = parsedate_to_datetime(response.headers['Date'])
-        cache_age = int(response.headers.get('Age', '0'))
+    try:
+        with OPENER.open(request, timeout=15) as response:
+            if response.geturl() != url:
+                raise ValueError('Unexpected market source redirect')
+            raw = response.read(3_000_001)
+            date = parsedate_to_datetime(response.headers['Date'])
+            cache_age = int(response.headers.get('Age', '0'))
+    except HTTPError as error:
+        raise ValueError(f'{host} returned HTTP {error.code}') from None
     now = datetime.now(timezone.utc)
     if not raw or len(raw) > 3_000_000 or abs(now-date) > timedelta(minutes=2) or not 0 <= cache_age <= 30:
         raise ValueError('Missing, stale or oversized market response')
