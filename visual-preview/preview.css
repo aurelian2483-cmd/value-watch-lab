@@ -11,6 +11,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: .5rem;
+  position: relative;
+  overflow: visible;
 }
 
 .visual-preview .pro-topnav :is(a, button) {
@@ -156,6 +158,60 @@
   color: #fff;
   background: #173751;
 }
+.preview-nav-menu { margin-inline-start: auto; }
+.preview-nav-menu > summary {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  min-height: 44px;
+  height: 100%;
+  padding: .55rem .85rem;
+  border: 1px solid #173751;
+  border-radius: .65rem;
+  background: #173751;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+.preview-nav-menu > summary::-webkit-details-marker { display: none; }
+.preview-nav-menu > summary::after {
+  content: '';
+  width: .45rem;
+  height: .45rem;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-block-start: -.2rem;
+}
+.preview-nav-menu[open] > summary::after {
+  transform: rotate(225deg);
+  margin-block-start: .2rem;
+}
+.preview-nav-menu > summary:focus-visible {
+  outline: 3px solid #165968;
+  outline-offset: 3px;
+}
+.preview-nav-links {
+  position: absolute;
+  inset-inline-end: 0;
+  z-index: 12;
+  display: grid;
+  gap: .35rem;
+  width: min(15rem, 100%);
+  margin-block-start: .4rem;
+  padding: .5rem;
+  border: 1px solid #aebfd3;
+  border-radius: .75rem;
+  background: #edf3f9;
+  box-shadow: 0 8px 24px #10213638;
+}
+.visual-preview .pro-topnav .preview-nav-links a {
+  justify-content: flex-start;
+  white-space: normal;
+}
+
 .visual-preview .pro-hero {
   min-height: 0;
   padding: clamp(1.2rem, 3vw, 3rem);

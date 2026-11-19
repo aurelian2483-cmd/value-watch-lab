@@ -22,6 +22,30 @@
     ['a[href="./rugby/"]', 'Rugby Lab', 'M3 21C1 10 10 1 21 3c2 11-7 20-18 18ZM4 14l6 6M14 4l6 6M8 16l8-8']
   ];
   const nav = document.querySelector('.pro-topnav');
+  const navItems = Array.from(nav.children);
+  const menuLinks = navItems.slice(navItems.indexOf(toggle));
+  const menu = document.createElement('details');
+  menu.className = 'preview-nav-menu';
+  const summary = document.createElement('summary');
+  summary.textContent = 'Menu';
+  const links = document.createElement('div');
+  links.className = 'preview-nav-links';
+  toggle.before(menu);
+  menu.append(summary, links);
+  links.append(...menuLinks);
+
+  document.addEventListener('click', event => {
+    if (!menu.contains(event.target) || links.contains(event.target)) menu.open = false;
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || event.defaultPrevented || !menu.open) return;
+    menu.open = false;
+    if (menu.contains(document.activeElement)) {
+      event.preventDefault();
+      summary.focus();
+    }
+  });
+
   const svgNamespace = 'http://www.w3.org/2000/svg';
   for (const [selector, label, pathData] of sports) {
     const item = nav.querySelector(selector);
