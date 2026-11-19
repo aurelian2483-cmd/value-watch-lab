@@ -18,6 +18,12 @@
     } catch { return null; }
   };
 
+  function matchedRecord(event, evidence) {
+    const matches = evidence?.schema_version === 1 && Array.isArray(evidence.records)
+      ? evidence.records.filter(row => row?.event_id === event.id && row.start_utc === event.startUTC && row.market === market) : [];
+    return matches.length === 1 ? matches[0] : null;
+  }
+
   function evaluate(event, evidence, now = Date.now()) {
     const result = { probabilities: null, selection: null, reason: '', ...benchmarkCore.GATES };
     if (event?.sport !== 'football') return { ...result, reason: 'Football regulation-time result only.' };
@@ -35,9 +41,7 @@
           !(instant(receipt?.observed_at_utc) <= modelAt))) {
       return { ...result, reason: 'Fresh current-season model with enough venue history is missing.' };
     }
-    const matches = evidence?.schema_version === 1 && Array.isArray(evidence.records)
-      ? evidence.records.filter(row => row?.event_id === event.id && row.start_utc === event.startUTC && row.market === market) : [];
-    const record = matches.length === 1 ? matches[0] : null;
+    const record = matchedRecord(event, evidence);
     const observation = record?.benchmark;
     const benchmarkSource = source(observation?.source);
     const fresh = timestamp => {
@@ -69,8 +73,23 @@
       id, decimal: quote.prices[id], estimatedEV: probabilities[i] * quote.prices[id] - 1
     })).filter(row => row.decimal <= 5 && row.estimatedEV >= 0.05)
       .sort((a, b) => b.estimatedEV - a.estimatedEV);
-    return { ...result, probabilities, selection: candidates[0] || null,
+    return { ...result, probabilities, checkedBothMarkets: true, selection: candidates[0] || null,
       reason: candidates.length ? 'Experimental paper candidate.' : 'No outcome meets the research price and estimated-value thresholds.' };
   }
-  return { evaluate };
+  function capturedComparison(event, evidence, now = Date.now()) {
+    if (event?.sport !== 'football') return null;
+    const record = matchedRecord(event, evidence);
+    const capturedAt = instant(record?.snapshot_at_utc);
+    const floor = Math.min(instant(record?.benchmark?.observed_at_utc), instant(record?.sky_bet?.observed_at_utc));
+    if (!(capturedAt <= now && now - floor > maxQuoteAge) || !record.frozen_model) return null;
+
+    const replay = evaluate({ ...event, observedAt: record.frozen_model.observed_at_utc,
+      seasonComparison: record.frozen_model.comparison }, evidence, capturedAt);
+    if (!replay.checkedBothMarkets) return null;
+    return { at:record.snapshot_at_utc, probabilities:replay.probabilities,
+      sources:[{ label:record.benchmark.source_id === 'PINNACLE_VIA_ODDSRUN' ? 'Pinnacle via OddsRun' : 'Market benchmark', url:source(record.benchmark.source).href },
+        { label:'Sky Bet', url:source(record.sky_bet.source).href }],
+      hadCandidate:Boolean(replay.selection) };
+  }
+  return { evaluate, capturedComparison };
 });

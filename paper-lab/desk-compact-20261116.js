@@ -1041,13 +1041,23 @@
   }
   function hybridResult(event, entry) {
     if (entry.pending && event?.startUTC && event.sport === 'football') return {reason:'Checking benchmark coverage…'};
-    return globalThis.ValueWatchHybrid?.evaluate(event, entry.data) || {reason:'Hybrid module unavailable.'};
+    const engine = globalThis.ValueWatchHybrid;
+    if (!engine) return {reason:'Hybrid module unavailable.'};
+    const result = engine.evaluate(event, entry.data);
+    return result.probabilities ? result : {...result, captured:engine.capturedComparison(event, entry.data)};
   }
   function hybridLines(parent, result) {
     if (result.probabilities) make(parent, 'p', 'Home / draw / away · ' + result.probabilities.map(pct).join(' / '));
     const candidate = result.selection;
     if (candidate) make(parent, 'p', candidate.id.toUpperCase() + ' · ' + candidate.decimal.toFixed(2) + ' Sky Bet · estimated EV ' + pct(candidate.estimatedEV));
-    else make(parent, 'p', result.reason);
+    else if (result.captured) {
+      const capture = result.captured;
+      make(parent, 'p', 'Archived market comparison · ' + dateText(capture.at) + ' UK');
+      make(parent, 'p', 'Home / draw / away · ' + capture.probabilities.map(pct).join(' / '));
+      make(parent, 'p', (capture.hadCandidate ? 'Historical paper candidate' : 'PASS at capture') + ' · refreshed prices required', 'small');
+      const sources = details(parent, 'Archived sources');
+      for (const receipt of capture.sources) link(sources, receipt.label, receipt.url);
+    } else make(parent, 'p', result.reason);
   }
   function renderFrozenCandidate(parent, fixture) {
     if (fixture?.sport !== 'football') {
@@ -1132,16 +1142,18 @@
       }
       const rows = fixtures.map(event => ({event, result:hybridResult(event, entry)}));
       const ready = rows.filter(row => row.result.probabilities);
-      make(root, 'p', fixtures.length + ' fixtures · ' + ready.length + ' blended estimates · ' +
-        ready.filter(row => row.result.selection).length + ' paper suggestions');
-      for (const row of ready.slice(0, state.limit)) {
+      const archived = rows.filter(row => row.result.captured);
+      make(root, 'p', fixtures.length + ' fixtures · ' + ready.length + ' current blends · ' +
+        ready.filter(row => row.result.selection).length + ' paper suggestions' +
+        (archived.length ? ' · ' + archived.length + ' archived comparisons' : ''));
+      for (const row of [...ready, ...archived].slice(0, state.limit)) {
         const item = make(root, 'div', undefined, 'engine-hybrid-result');
         make(item, 'h4', row.event.name);
         hybridLines(item, row.result);
       }
       const missing = new Map();
       for (const row of rows) {
-        if (!row.result.probabilities) missing.set(row.result.reason, (missing.get(row.result.reason) || 0) + 1);
+        if (!row.result.probabilities && !row.result.captured) missing.set(row.result.reason, (missing.get(row.result.reason) || 0) + 1);
       }
       for (const [reason, count] of missing) make(root, 'p', count + ' fixtures · ' + reason, 'small');
       return;

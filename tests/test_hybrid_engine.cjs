@@ -52,3 +52,20 @@ for (const change of [
   assert.deepEqual(result.probabilities,actual.probabilities);
   assert.equal(result.selection,null);
 }
+
+const captures = require('../paper-lab/hybrid-market-data.json');
+const captured = captures.records.find(row => row.sky_bet?.source_event_id === '36289930');
+const when = Date.parse(captured.snapshot_at_utc);
+const fixture = {id:captured.event_id,sport:'football',startUTC:captured.start_utc,
+  observedAt:captured.frozen_model.observed_at_utc,seasonComparison:captured.frozen_model.comparison};
+const capturedResult = evaluate(fixture,captures,when);
+assert.equal(capturedResult.checkedBothMarkets,true);
+assert.equal(capturedResult.selection,null);
+const { capturedComparison } = require('../paper-lab/hybrid.js');
+assert.equal(capturedComparison(fixture,captures,when),null);
+const later = when + 40 * 60000;
+assert.equal(evaluate(fixture,captures,later).probabilities,null);
+const archived = capturedComparison({...fixture,seasonComparison:null},captures,later);
+assert.deepEqual(archived.probabilities,capturedResult.probabilities);
+assert.equal(archived.hadCandidate,false);
+assert.equal(capturedComparison({...fixture,id:'wrong'},captures,later),null);
