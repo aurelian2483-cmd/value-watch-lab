@@ -1416,29 +1416,19 @@
     if(!target||!control)return;
     const currentWeek=wildcardWeek(today()),data=wildcardSaved();
     const saved=data?.entries?.find(row=>row.week===currentWeek);
-    const keepResearchOpen=Boolean(target.querySelector('.wildcard-archive[open]'));
+    const keepResearchOpen=Boolean(target.querySelector('.wildcard-current-audit[open]'));
+    const keepSavedOpen=Boolean(target.querySelector('.wildcard-saved-review[open]'));
     target.replaceChildren();
-    const makeArchive=()=>{
-      const archive=details(target,'Full Gold Council research · risk studio & current research radar','wildcard-archive');
-      archive.open=keepResearchOpen;
-      renderWildcardRisk(archive);
-      renderWildcardDiscovery(archive);
-    };
-    if(!saved||saved.review?.kind!=='WEEKLY_WILDCARD_PAPER_RESEARCH'){
-      control.disabled=false;
-      write(control,'Review this week\'s wildcard');
-      make(target,'p','No frozen weekly review for the current UK week. Research remains separate from your four paper slips.','wildcard-note');
-      if(data?.entries?.length)make(target,'p','An earlier weekly snapshot is stored separately on this device.','wildcard-note');
-      makeArchive();
-      return;
-    }
-    control.disabled=true;
-    write(control,'This week\'s review saved');
-    const review=saved.review;
+    const frozen=saved?.review?.kind==='WEEKLY_WILDCARD_PAPER_RESEARCH'?saved.review:null;
+    control.hidden=Boolean(frozen);
+    control.disabled=Boolean(frozen);
+    write(control,'Save this week\'s research');
+    const from=today(),to=plusDays(from,6);
+    const review=E.weeklyWildcardReview(store.get().events,from,to,Date.now());
     const heading=make(target,'div',undefined,'wildcard-compact-heading');
-    make(heading,'strong','Gold Wildcard · '+review.from+' to '+review.to);
-    make(heading,'span','EXPERIMENTAL · NOT APPROVED','wildcard-compact-status');
-    make(target,'p','Saved weekly research shortlist · these experimental estimates are not calibrated probabilities or verified betting opportunities.','wildcard-compact-intro');
+    make(heading,'strong','Current seven-day review');
+    make(heading,'span','Paper research','wildcard-compact-status');
+    make(target,'p',from+' to '+to+' · UK dates. Estimates are experimental.','wildcard-compact-intro');
     const grid=make(target,'div',undefined,'wildcard-shortlist');
     for(const sport of ['football','racing','tennis','nfl']){
       const cov=review.coverage?.find(row=>row.sport===sport);
@@ -1446,7 +1436,7 @@
       const box=make(grid,'article',undefined,'wildcard-shortlist-card'+(chosen?'':' wildcard-shortlist-pass'));
       const top=make(box,'div',undefined,'wildcard-shortlist-top');
       make(top,'strong',(symbols[sport]||'')+' '+(wildcardSportNames[sport]||sport));
-      make(top,'small',(cov?.eligible||0)+' research candidate'+((cov?.eligible||0)===1?'':'s'));
+      make(top,'small',(cov?.eligible||0)+' model lead'+((cov?.eligible||0)===1?'':'s'));
       if(!chosen){
         make(box,'strong','PASS · No supported selection','wildcard-shortlist-pick');
         make(box,'small','No qualifying model and source evidence.','wildcard-shortlist-detail');
@@ -1455,29 +1445,33 @@
       make(box,'strong',chosen.outcome,'wildcard-shortlist-pick');
       make(box,'small',chosen.event+' · '+dateText(chosen.startUTC),'wildcard-shortlist-detail');
       make(box,'strong',pct(chosen.experimentalProbability)+' · experimental estimate','wildcard-shortlist-estimate');
-      const live=store.get().events.find(e=>e.id===chosen.eventId),status=live?E.statusOf(live):null;
-      if(status&&!status.selectable)make(box,'small','Historical review only · '+status.label,'wildcard-shortlist-warning');
     }
-    make(target,'p','Verified bookmaker odds: unavailable · Combined win probability: unavailable · Potential payout: unavailable.','wildcard-compact-warning');
-    const archive=details(target,'Full Gold Council research · source audit, limitations & alternatives','wildcard-archive');
+    make(target,'p','Combined slip: verified prices unavailable.','wildcard-compact-warning');
+    if(frozen){
+      const original=details(target,'Saved weekly review · '+frozen.from+' to '+frozen.to,'wildcard-archive wildcard-saved-review');
+      original.open=keepSavedOpen;
+      make(original,'p','Saved '+dateText(frozen.generatedAt)+'. These are the original research selections.','wildcard-note');
+      for(const chosen of frozen.selections||[]){
+        const section=make(original,'div',undefined,'wildcard-sport');
+        make(section,'strong',(wildcardSportNames[chosen.sport]||chosen.sport)+' · '+chosen.outcome);
+        make(section,'p',chosen.event+' · '+dateText(chosen.startUTC));
+        const live=store.get().events.find(event=>event.id===chosen.eventId && event.startUTC===chosen.startUTC);
+        const status=live?E.statusOf(live):null;
+        if(status?.code==='STARTED' && live?.score?.label)make(section,'p','Source score: '+live.score.label,'small');
+        else if(Date.parse(chosen.startUTC)<=Date.now())make(section,'p','Scheduled start passed · result unavailable in this view.','small');
+        else if(status)make(section,'p',status.label,'small');
+        make(section,'p','Saved experimental estimate: '+pct(chosen.experimentalProbability)+
+          ' · Evidence score '+chosen.evidenceScore+' · '+chosen.sourceReceiptCount+' source receipt(s)','small');
+      }
+      for(const row of frozen.coverage||[]){
+        if(!frozen.selections?.some(choice=>choice.sport===row.sport))
+          make(original,'p',(wildcardSportNames[row.sport]||row.sport)+' · PASS when saved','wildcard-note');
+      }
+    }
+    const archive=details(target,'Source audit, limitations and alternatives','wildcard-archive wildcard-current-audit');
     archive.open=keepResearchOpen;
-    make(archive,'p','Original frozen weekly snapshot · created '+dateText(review.generatedAt)+'. The current research radar can change as feeds refresh.','wildcard-note');
-    make(archive,'p','Automated screening only, not approval by independent mathematicians or betting specialists. Model probabilities are unvalidated; fair value and real maximum winnings cannot be calculated.','wildcard-note');
-    for(const sport of ['football','racing','tennis','nfl']){
-      const cov=review.coverage?.find(row=>row.sport===sport);
-      const chosen=review.selections?.find(row=>row.sport===sport);
-      const section=make(archive,'div',undefined,'wildcard-sport');
-      make(section,'strong',(wildcardSportNames[sport]||sport)+' · '+(cov?.eligible||0)+' eligible research candidates');
-      if(chosen){
-        make(section,'p',chosen.event+' · '+chosen.outcome+' · '+dateText(chosen.startUTC));
-        make(section,'p','Experimental estimate: '+pct(chosen.experimentalProbability)+' · Evidence score '+chosen.evidenceScore+' · '+chosen.sourceReceiptCount+' source receipt(s)');
-        const live=store.get().events.find(e=>e.id===chosen.eventId),status=live?E.statusOf(live):null;
-        make(section,'p',status&&!status.selectable?'Current status: '+status.label+'. Historical review only.':'Automated preliminary selection · NOT verified market favourite');
-      }else make(section,'p','No qualifying supported model and source evidence. No selection forced.');
-    }
-    make(archive,'p','Potential payout: unavailable · Verified bookmaker odds: unavailable · Combined win probability: unavailable.','wildcard-result-header');
     const list=make(archive,'ul',undefined,'wildcard-review-list');
-    for(const note of review.notes||[])make(list,'li',note);
+    for(const note of review.notes)make(list,'li',note);
     renderWildcardRisk(archive);
     renderWildcardDiscovery(archive);
   }
