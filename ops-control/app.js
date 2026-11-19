@@ -55,6 +55,8 @@ function evaluateSport(spec,feeds,messages){
    count=ncount(f.races);
    details.push('Candidate selections: '+niceNumber(ncount(f.candidate_selections)));
    details.push('Qualified selections: '+niceNumber(ncount(f.qualified_selections)));
+   const superseded=ncount(f.runner_audit?.superseded_racecards);
+   if(superseded)details.push('Superseded racecards excluded from the count: '+superseded);
    details.push('Full external race coverage: '+(f.coverage_verified===true?'Claimed verified':'Not verified'));
    const future=feeds.find(x=>x.id==='racing-future');
    if(future?.gateOK && !future.stale){

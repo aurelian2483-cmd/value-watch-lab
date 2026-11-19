@@ -4,7 +4,7 @@ const js=fs.readFileSync(__dirname+'/app.js','utf8'),html=fs.readFileSync(__dirn
 const css=fs.readFileSync(__dirname+'/style.css','utf8');
 const historyJS=fs.readFileSync(__dirname+'/history.js','utf8');
 const briefingJS=fs.readFileSync(__dirname+'/briefing.js','utf8');
-assert(html.includes('./history.js?v=4')&&html.includes('./briefing.js?v=4')&&html.includes('./app.js?v=6')&&html.includes('./style.css?v=4'));
+assert(html.includes('./history.js?v=4')&&html.includes('./briefing.js?v=4')&&html.includes('./app.js?v=7')&&html.includes('./style.css?v=4'));
 for(const id of ['briefing-title','briefing-date','briefing-risk','b-p1','b-new','b-degraded','b-aged','b-repeated','b-cleared','briefing-notes','briefing-step','briefing-warning'])assert(html.includes('id="'+id+'"'), 'Missing daily briefing element: '+id);
 assert(html.includes('id="history-board"')&&html.includes('id="history-summary"')&&html.includes('id="history-warning"'));
 assert(html.includes('READ-ONLY RESEARCH OVERSIGHT'));
