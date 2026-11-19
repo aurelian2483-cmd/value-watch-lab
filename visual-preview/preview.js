@@ -5,6 +5,9 @@
   if (new URLSearchParams(location.search).get('view') !== 'visual-preview') return;
 
   document.documentElement.classList.add('visual-preview');
+  const heroHeading = document.querySelector('.pro-hero h2');
+  if (heroHeading) heroHeading.textContent = 'Sports Research Desk';
+
   toggle.textContent = 'Return to classic design';
   const classic = new URL(location.href);
   classic.searchParams.delete('view');

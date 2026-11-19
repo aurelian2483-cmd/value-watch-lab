@@ -129,3 +129,82 @@
   color: var(--preview-accent);
   text-decoration: underline;
 }
+
+/* Light research workspace with a dark masthead and a gold council card. */
+.visual-preview body {
+  background: #e6edf5;
+}
+.visual-preview .pro-landing {
+  background: #edf3f9;
+  border: 1px solid #c6d4e3;
+  border-radius: 1.25rem;
+  margin-block: .75rem;
+  padding: clamp(.75rem, 2vw, 1.75rem);
+}
+.visual-preview .pro-topnav :is(a, button) {
+  color: #172d44;
+  background: #fff;
+  border-color: #aebfd3;
+}
+.visual-preview .pro-topnav svg { color: #146b63; }
+.visual-preview .pro-topnav :is(a, button):hover,
+.visual-preview .pro-topnav :is(.active, [aria-pressed="true"]) {
+  background: #dff5ef;
+  border-color: #22776e;
+}
+.visual-preview .pro-topnav #visual-preview-switch {
+  color: #fff;
+  background: #173751;
+}
+.visual-preview .pro-hero {
+  min-height: 0;
+  padding: clamp(1.2rem, 3vw, 3rem);
+  border-radius: 1rem;
+  background: radial-gradient(ellipse at 80% 0%, #23546b, transparent 72%), #102136;
+}
+.visual-preview .pro-hero h2 { letter-spacing: -.055em; }
+.visual-preview .pro-hero .pro-arena-sport { background-color: #12314e; }
+.visual-preview .pro-reference-panel {
+  color: #172d44;
+  background: #fff;
+  border-color: #c6d4e3;
+  border-radius: 1rem;
+}
+.visual-preview .pro-reference-panel :is(h3, th, td, .pro-source-summary, .pro-market-check span) {
+  color: #243d55;
+}
+.visual-preview .pro-reference-panel a { color: #155d64; }
+.visual-preview .pro-featured th { background: #e7f0f7; }
+.visual-preview .pro-featured td { border-color: #d2dfeb; }
+.visual-preview .pro-market-check strong {
+  color: #15384b;
+  background: #e6f1f4;
+}
+.visual-preview .pro-wildcard-card {
+  background: radial-gradient(ellipse at top right, #8f630f, transparent 72%), #30240f;
+}
+.visual-preview .research-methods {
+  max-width: none;
+  box-shadow: 0 4px 12px #11243916;
+}
+@media (max-width: 760px) {
+  .visual-preview .pro-landing { border-radius: .8rem; }
+  .visual-preview .pro-hero .pro-hero-arena { display: none; }
+  .visual-preview .pro-hero h2 { font-size: clamp(1.8rem, 8vw, 2.7rem); }
+}
+.visual-preview .pro-quick-filters button {
+  color: #173751;
+  border-color: #aebfd3;
+  background: #f2f6fb;
+}
+.visual-preview .pro-quick-filters button strong { color: #14635e; }
+.visual-preview .pro-quick-filters button:is(:hover, [aria-pressed="true"]) {
+  background: #dff5ef;
+  border-color: #22776e;
+}
+.visual-preview .pro-featured tbody tr:nth-child(even) { background: #f1f6fb; }
+.visual-preview .pro-featured .pro-featured-scroll td:nth-child(4) { color: #244a62; }
+.visual-preview .pro-topnav :is(a, button):focus-visible,
+.visual-preview .pro-reference-panel :is(a, button, [tabindex]):focus-visible {
+  outline-color: #165968;
+}
