@@ -458,7 +458,7 @@
   }
 
   function clearSlot(plan, slotId, now = Date.now()) {
-    return change(plan, slotId, slot => { slot.legs = []; slot.generation = null; }, now);
+    return change(plan, slotId, slot => { slot.legs = []; slot.generation = null; slot.keepEmpty = true; }, now);
   }
 
   function setRecordedQuote(plan, slotId, legId, observation, now = Date.now()) {
@@ -810,13 +810,13 @@
       note:'A visible research lead is not an eligible bet. Missing prices or calibration prevent positive-EV and payout claims.'};
   }
 
-  function generateResearch(plan, events, now = Date.now()) {
+  function generateResearch(plan, events, now = Date.now(), { slotId, automatic = false } = {}) {
     let next = clone(plan);
     const {candidates} = researchCandidatePool(plan, events, now);
     const signatures = new Set(next.slots.filter(slot => slot.legs.length).map(slot => slot.legs.map(leg => leg.id).sort().join('|')));
     for (const approach of APPROACHES) {
       const current = getSlot(next, approach.id);
-      if (current.legs.length) continue;
+      if (current.legs.length || (slotId && current.id !== slotId) || (automatic && current.keepEmpty === true)) continue;
       let rows = evidenceBalancedOrder(candidates);
       if (approach.id === 'explorer') {
         const groups = new Map(['football','racing','tennis','nfl'].map(sport => [sport, []]));
@@ -836,7 +836,7 @@
       }
       signatures.add(signature);
       for (const row of rows) next = addSelection(next, approach.id, row.event, row.choice.id, now);
-      next = change(next, approach.id, slot => { slot.generation = { at: new Date(now).toISOString(), status: 'EXPERIMENTAL_RESEARCH_SHORTLIST', candidateCount: candidates.length, policy: 'EVIDENCE_COVERAGE_EQUAL_SCORE_ROTATION_V1', reason: 'Ranked by source coverage, with sport rotation only when evidence scores are equal. The chosen outcome has the largest existing experimental model estimate. No sports are forced and this is not an EV ranking or validated recommendation.' }; }, now);
+      next = change(next, approach.id, slot => { delete slot.keepEmpty; slot.generation = { at: new Date(now).toISOString(), status: 'EXPERIMENTAL_RESEARCH_SHORTLIST', candidateCount: candidates.length, policy: 'EVIDENCE_COVERAGE_EQUAL_SCORE_ROTATION_V1', reason: 'Ranked by source coverage, with sport rotation only when evidence scores are equal. The chosen outcome has the largest existing experimental model estimate. No sports are forced and this is not an EV ranking or validated recommendation.' }; }, now);
     }
     return next;
   }

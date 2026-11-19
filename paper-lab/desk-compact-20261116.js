@@ -1542,6 +1542,8 @@
     const state = store.get(), slot = state.plan.slots[state.slot], evaluation = E.evaluateSlot(slot, state.events);
     renderEngine(evaluation);
     renderSlipHealth(state);
+    if ($('preview-clear-slip')) $('preview-clear-slip').disabled = !slot.legs.length || persistence.locked;
+    if ($('preview-reset-slip')) $('preview-reset-slip').disabled = !state.events.length || persistence.locked;
     write($('slip-title'), slot.name); write($('slip-subtitle'), slot.description); write($('slip-count'), slot.legs.length + ' / 15'); write($('mobile-count'), state.plan.slots.reduce((sum, slot) => sum + slot.legs.length, 0));
     document.querySelectorAll('[data-slot]').forEach(element => { const active = Number(element.dataset.slot) === state.slot + 1; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
     if (document.activeElement !== $('stake')) $('stake').value = slot.stakeMinor ? (slot.stakeMinor / 100).toFixed(2) : ''; $('slip-structure').value = slot.structure;
@@ -1741,11 +1743,11 @@
     store.update(state => ({...state, events:state.events.map(event => ({...event,communityTips:matchCommunity(event)})), eventVersion:state.eventVersion+1}));
     // Community data arrives asynchronously after the initial racecard snapshot.
     // Fill only empty paper slips; never replace user choices or historical legs.
-    if (!persistence.failed) {
+    if (!persistence.failed && store.get().autoFill !== false) {
       const state = store.get();
       const eligible = state.events.filter(event => day(event.startUTC) >= state.plan.from && day(event.startUTC) <= state.plan.to);
       if (eligible.length && state.plan.slots.some(slot => !slot.legs.length)) {
-        const generated = E.generateResearch(state.plan, eligible);
+        const generated = E.generateResearch(state.plan, eligible, Date.now(), { automatic: true });
         if (generated.slots.some((slot,index) => slot.legs.length !== state.plan.slots[index].legs.length)) savePlan(generated);
       }
     }
@@ -1774,7 +1776,7 @@
         const current = store.get().plan;
         const eligible = events.filter(event => !event.futureScheduleOnly && day(event.startUTC) >= current.from && day(event.startUTC) <= current.to);
         if (current.slots.some(slot => !slot.legs.length) && eligible.length) {
-          const generated = E.generateResearch(current, eligible);
+          const generated = E.generateResearch(current, eligible, Date.now(), { automatic: true });
           if (generated.slots.some((slot, index) => slot.legs.length !== current.slots[index].legs.length)) savePlan(generated);
         }
       }
@@ -1819,6 +1821,26 @@
   $('stake').addEventListener('input', event => { try { savePlan(E.setStake(store.get().plan, store.get().slot + 1, event.target.value || '0')); event.target.removeAttribute('aria-invalid'); } catch { event.target.setAttribute('aria-invalid', 'true'); } });
   $('stake').addEventListener('blur', () => { $('stake').value = store.get().plan.slots[store.get().slot].stakeMinor ? (store.get().plan.slots[store.get().slot].stakeMinor / 100).toFixed(2) : ''; $('stake').removeAttribute('aria-invalid'); });
   $('clear-slip').addEventListener('click', () => safely(() => savePlan(E.clearSlot(store.get().plan, store.get().slot + 1))));
+  const inlineSlipStatus = message => write($('preview-slip-status'), message);
+  $('preview-clear-slip')?.addEventListener('click', () => safely(() => {
+    const {plan,slot} = store.get();
+    saveEnvelope({plan:E.clearSlot(plan,slot+1),replacing:null});
+    inlineSlipStatus('This slip is clear.');
+    $('preview-reset-slip').focus();
+  }));
+  $('preview-reset-slip')?.addEventListener('click', () => safely(() => {
+    const {plan,slot,events} = store.get();
+    const current = plan.slots[slot];
+    const next = E.generateResearch(E.clearSlot(plan,slot+1),events,Date.now(),{slotId:current.id});
+    if (!next.slots[slot].legs.length) {
+      inlineSlipStatus('No supported suggestions for this slip in the current date range.');
+      return;
+    }
+    if (current.legs.length && !window.confirm('Replace the selections on this slip with current suggestions?')) return;
+    saveEnvelope({plan:next,replacing:null});
+    inlineSlipStatus('Suggested picks restored.');
+  }));
+  document.querySelectorAll('[data-pro-slot]').forEach(card => card.addEventListener('click', () => inlineSlipStatus('')));
   let pendingBackup = null, backupRevision = 0;
   $('backup-file').addEventListener('change', async event => {
     const revision = ++backupRevision;

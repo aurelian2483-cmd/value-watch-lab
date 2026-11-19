@@ -331,6 +331,15 @@ const weeklyEvents=[
  {...event(804,'racing'),providerStatus:'DORMANT',fieldConfirmed:true,model:null,choices:[{id:'a',label:'A',probability:null,market:'Win'},{id:'b',label:'B',probability:null,market:'Win'}]},
  event(805,'tennis')
 ];
+const inlinePlan=E.createPlan({from:'2026-11-08',to:'2026-11-14'});
+const cleared=E.restore(E.serialize(E.clearSlot(inlinePlan,1,now)));
+const background=E.generateResearch(cleared,weeklyEvents,now,{automatic:true});
+assert.equal(background.slots[0].legs.length,0,'Background refresh respects the deliberate clear');
+assert(background.slots.slice(1).some(slot=>slot.legs.length),'Other approaches can still auto-fill');
+const resetSlip=E.generateResearch(cleared,weeklyEvents,now,{slotId:cleared.slots[0].id});
+assert(resetSlip.slots[0].legs.length);
+assert.equal(resetSlip.slots[0].keepEmpty,undefined);
+assert.deepEqual(resetSlip.slots.slice(1),cleared.slots.slice(1),'Restoring one slip must preserve the other three');
 const oldWeekData=JSON.stringify(weeklyEvents);
 const weeklyReview=E.weeklyWildcardReview(weeklyEvents,'2026-11-08','2026-11-14',now);
 assert.equal(weeklyReview.kind,'WEEKLY_WILDCARD_PAPER_RESEARCH');

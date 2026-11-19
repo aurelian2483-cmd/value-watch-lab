@@ -264,3 +264,41 @@
 .visual-preview .pro-reference-panel :is(a, button, [tabindex]):focus-visible {
   outline-color: #165968;
 }
+
+
+#preview-slip-dropdown[hidden] { display: none; }
+#preview-slip-dropdown {
+  margin-block: .8rem 1rem;
+  padding: .75rem;
+  border: 1px solid #aebfd3;
+  border-radius: .85rem;
+  background: #e6edf5;
+}
+#preview-slip-dropdown .preview-close-slip { margin-block-end: .65rem; }
+.visual-preview #preview-slip-dropdown #slip-panel {
+  position: static;
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  visibility: visible;
+  transform: none;
+  border: 0;
+  border-radius: .65rem;
+}
+#preview-slip-dropdown #paper-close,
+#preview-slip-dropdown[data-mode="slip"] #weekly-wildcard,
+#preview-slip-dropdown[data-mode="slip"] .slip-refresh-tools,
+#preview-slip-dropdown[data-mode="slip"] #clear-slip,
+#preview-slip-dropdown[data-mode="gold"] #slip-panel > :not(#weekly-wildcard) { display: none; }
+.preview-slip-controls { display: none; }
+#preview-slip-dropdown[data-mode="slip"] .preview-slip-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem;
+  margin-block: .7rem;
+}
+.preview-slip-controls p { margin: 0; }
