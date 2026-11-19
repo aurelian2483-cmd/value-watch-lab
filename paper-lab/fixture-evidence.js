@@ -15,7 +15,11 @@
   function validAnalysis(doc, now) {
     const age = now - Date.parse(doc?.generated_at_utc), coverage = doc?.coverage;
     if (doc?.schema_version !== 1 || doc.model !== Darts.VERSION || doc.research_only !== true || doc.model_validation !== 'UNVALIDATED' || doc.publication_gate !== 'BLOCKED' || doc.betting_eligible !== false || doc.odds !== null || doc.expected_value !== null || doc.raw_history_published !== false || doc.source_verification !== 'PROVIDER_OBSERVED_UNCORROBORATED' || !iso(doc.generated_at_utc) || age < 0 || age > 48*3600000) return false;
-    if (!Number.isInteger(doc.training_matches) || doc.training_matches < 0 || doc.training_matches > 50000 || coverage?.pagination_complete !== true || coverage.usable_result_rows !== doc.training_matches || coverage.returned_result_rows !== doc.training_matches) return false;
+    const excluded = coverage?.non_final_result_rows_excluded === undefined ? 0 : coverage.non_final_result_rows_excluded;
+    if (!Number.isInteger(doc.training_matches) || doc.training_matches < 0 || doc.training_matches > 50000 ||
+        coverage?.pagination_complete !== true || coverage.usable_result_rows !== doc.training_matches ||
+        !Number.isInteger(excluded) || excluded < 0 || coverage.returned_result_rows !== doc.training_matches + excluded ||
+        coverage.returned_result_rows > 50000) return false;
     const period = coverage.history_period;
     if (!Array.isArray(period) || period.length !== 2 || !period.every(date) || Date.parse(period[1])-Date.parse(period[0]) !== 27*86400000 || Date.parse(period[1]) >= Date.parse(doc.generated_at_utc.slice(0,10))) return false;
     if (doc.training_matches && (!date(doc.history_latest_date) || doc.history_latest_date < period[0] || doc.history_latest_date > period[1])) return false;

@@ -46,6 +46,9 @@ const aggregate = {...gates,...Darts.model(results,[match],gates.generated_at_ut
  coverage:{pagination_complete:true,history_period:['2026-10-15','2026-11-11'],usable_result_rows:8,returned_result_rows:8},
  source_receipts:Array.from({length:5},(_,i)=>({endpoint:i===4?'/v1/fixtures':'/v1/results',sha256:'a'.repeat(64)}))};
 assert(F.validAnalysis(aggregate,now));
+const withExclusion = structuredClone(aggregate);
+Object.assign(withExclusion.coverage,{returned_result_rows:9,non_final_result_rows_excluded:1});
+assert(F.validAnalysis(withExclusion,now),'counted non-final rows do not invalidate final-match training');
 const sparse = {...doc,results:results.slice(0,1)};
 const analysed = F.normalize('darts',sparse,[],now,aggregate);
 assert.equal(analysed.fixtures[0].model.prior_a,8,'complete aggregate replaces bounded sample analysis');
@@ -56,7 +59,7 @@ assert.equal(F.normalize('darts',sparse,[{...official,participants:['Bob','Alice
 for(const mutation of [
  a=>a.publication_gate='OPEN',a=>a.generated_at_utc='2026-11-20T00:00:00Z',
  a=>a.generated_at_utc='2026-11-10T00:00:00Z',a=>a.coverage.pagination_complete=false,
- a=>a.coverage.returned_result_rows=9,a=>a.source_receipts=[],a=>a.raw_history_published=true,
+ a=>a.coverage.returned_result_rows=9,a=>a.coverage.non_final_result_rows_excluded=null,a=>a.source_receipts=[],a=>a.raw_history_published=true,
  a=>a.fixtures[0].prob_a=0.999,a=>a.fixtures[0].prior_a=0,a=>a.model='UNRECOGNISED'
 ]) {
  const bad=structuredClone(aggregate);mutation(bad);
