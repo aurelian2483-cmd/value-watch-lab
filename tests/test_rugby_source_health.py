@@ -7,7 +7,7 @@ import sys
 import urllib.parse
 import urllib.error
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
-from collect_rugby import collect, source_start
+from collect_rugby import collect, source_start, parse_nrl_calendar
 
 NOW=dt.datetime(2026,11,16,10,tzinfo=dt.timezone.utc)
 
@@ -75,5 +75,25 @@ class RugbySourceHealth(unittest.TestCase):
   self.assertEqual(output['source_health']['RU']['rows_without_confirmed_start'],14)
   self.assertEqual(output['source_health']['RL']['rows_matching_sport'],0)
   self.assertEqual(output['source_health']['RL']['days_requested'],14)
+
+class NrlCalendarTests(unittest.TestCase):
+ def calendar(self, kickoff='20270304T090500Z', stamp='20261116T080000Z', host='www.nrl.com'):
+  return ('BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n'
+          'UID:nrl-2027-round-1-roosters-v-broncos@jordthedan.github.io\n'
+          f'DTSTART:{kickoff}\nDTSTAMP:{stamp}\n'
+          'SUMMARY:Roosters vs Broncos\n'
+          f'URL:https://{host}/draw/nrl-premiership/2027/round-1/roosters-v-broncos/\n'
+          'BEGIN:VALARM\nSUMMARY:ignored alarm\nEND:VALARM\nEND:VEVENT\nEND:VCALENDAR\n').encode()
+ def test_future_and_fresh_are_rugby_league_schedule_only(self):
+  d=parse_nrl_calendar(self.calendar(),NOW)
+  self.assertEqual(d['status'],'FUTURE_FIXTURES_OBSERVED')
+  self.assertEqual(d['fixtures'][0]['home'],'Sydney Roosters')
+  self.assertEqual(d['fixtures'][0]['kickoff_utc'],'2027-03-04T09:05:00Z')
+  self.assertFalse(d['fixtures'][0]['forecast_eligible'])
+ def test_historical_stale_or_unlinked_rows_do_not_become_fixtures(self):
+  self.assertEqual(parse_nrl_calendar(self.calendar(kickoff='20261004T083000Z'),NOW)['status'],'NO_FUTURE_FIXTURES_OBSERVED')
+  self.assertEqual(parse_nrl_calendar(self.calendar(stamp='20261110T050000Z'),NOW)['status'],'STALE')
+  self.assertEqual(parse_nrl_calendar(self.calendar(host='example.com'),NOW)['withheld_fixtures'],1)
+  with self.assertRaises(ValueError):parse_nrl_calendar(self.calendar(kickoff='20270304T090500'),NOW)
 
 if __name__=='__main__': unittest.main()

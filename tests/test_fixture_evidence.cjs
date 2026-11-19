@@ -71,6 +71,17 @@ for(const mutation of [a=>a.fixtures[0].id='different',a=>a.fixtures[0].player_a
  assert.equal(F.normalize('darts',sparse,[],now,mismatch).fixtures[0].model.prior_a,1,'stale fixture identity must not receive an old prediction');
 }
 const rugby={...gates,upcoming_fixtures:['RU','RL'].map(code=>({code,home:'Team A',away:'Team B',kickoff_utc:'2026-11-20T18:00:00Z',competition_name:'Test '+code,source_receipts:[{url:'https://example.org/'+code}]}))};
+const nrlRow={code:'RL',competition_code:'RL:NRL',competition_name:'NRL Premiership',home:'Melbourne Storm',
+ away:'Wests Tigers',kickoff_utc:'2027-02-28T01:00:00Z',forecast_eligible:false,source_receipts:[{url:'https://www.nrl.com/'}]};
+const nrlDoc={...rugby,nrl_calendar:{status:'FUTURE_FIXTURES_OBSERVED',published_at_utc:new Date(now).toISOString(),fixtures:[nrlRow]}};
+const vegasCalendarMatch={code:'RL',date:'2027-02-27',venueZone:'America/Los_Angeles',competition:'NRL Premiership',
+ participants:['Melbourne Storm','Wests Tigers'],sources:['https://www.nrl.com/vegas']};
+const merged=F.normalize('rugby',nrlDoc,[vegasCalendarMatch],now).fixtures.filter(row=>row.calendar);
+assert.equal(merged.length,1);
+assert.equal(merged[0].date,'2027-02-28','Dated Vegas announcement and UK kickoff merge');
+assert.equal(merged[0].official,true);
+assert.equal(merged[0].selectable,false);
+assert.equal(F.nrlCalendarRows(nrlDoc,now+4*86400000).length,0,'stale GitHub fixture snapshot withheld');
 report=F.normalize('rugby',rugby,[],now);
 assert.equal(report.fixtures.length,2,'rugby codes remain distinct');
 assert(report.fixtures.every(r=>r.model===null&&r.odds===null&&!r.selectable));

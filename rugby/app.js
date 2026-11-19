@@ -1,6 +1,7 @@
 'use strict';
 (()=>{
  const el=id=>document.getElementById(id);
+ const evidence=window.ResearchFixtureEvidence;
  const labels={RU:'Rugby Union',RL:'Rugby League'};
  let snapshot=null,selected=new URL(location.href).searchParams.get('code')==='RL'?'RL':'RU';
  function node(parent,tag,value,cls){const x=document.createElement(tag);if(value!==undefined)x.textContent=String(value);if(cls)x.className=cls;parent.append(x);return x}
@@ -8,6 +9,7 @@
    el('sport-heading').textContent=labels[selected];
    for(const b of document.querySelectorAll('[data-code]'))b.setAttribute('aria-pressed',String(b.dataset.code===selected));
    const health=el('source-health'),fixtures=el('fixtures');health.replaceChildren();fixtures.replaceChildren();
+   el('github-calendar-fixtures').replaceChildren();
    const officialRows=[...document.querySelectorAll('#official-snapshot [data-desk-code]')].filter(row=>{
      const zone=row.dataset.deskZone==='America/Los_Angeles'?'America/Los_Angeles':'Europe/London';
      const today=new Intl.DateTimeFormat('sv-SE',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -17,6 +19,22 @@
      const summary=node(health,'p',officialRows.length+' upcoming fixtures from official schedules · ');
      const calendar=node(summary,'a','View official calendar');
      calendar.href=selected==='RL'?'#league-calendar':'#official-snapshot';
+   }
+   const nrl=snapshot?.nrl_calendar;
+   if(selected==='RL' && nrl){
+     const calendarRows=evidence?.nrlCalendarRows(snapshot,Date.now())||[];
+     const label=nrl.status==='NO_FUTURE_FIXTURES_OBSERVED'
+       ?'GitHub NRL snapshot has no upcoming kickoffs.'
+       :calendarRows.length?calendarRows.length+' upcoming kickoffs in the GitHub NRL calendar.':'GitHub NRL calendar unavailable or stale.';
+     node(health,'p',label);
+     if(nrl.latest_listed_kickoff_utc && Number.isFinite(Date.parse(nrl.latest_listed_kickoff_utc)))
+       node(health,'p','Latest event in GitHub feed: '+new Date(nrl.latest_listed_kickoff_utc).toLocaleDateString('en-GB',{timeZone:'Europe/London',dateStyle:'long'}));
+     if(nrl.withheld_fixtures>0)node(health,'p',nrl.withheld_fixtures+' calendar entries withheld pending a matched team or official fixture link.');
+     for(const row of calendarRows.slice(0,30)){
+       const card=node(el('github-calendar-fixtures'),'article',undefined,'fixture');
+       node(card,'h4',row.home+' vs '+row.away);
+       node(card,'p',new Date(row.kickoff_utc).toLocaleString('en-GB',{timeZone:'Europe/London',dateStyle:'medium',timeStyle:'short'})+' UK · Schedule only');
+     }
    }
    if(!snapshot){node(health,'p','No usable source snapshot. Never infer that the fixture calendar is complete.','notice');node(fixtures,'p','Source data unavailable.');return}
    const h=snapshot.source_health?.[selected];

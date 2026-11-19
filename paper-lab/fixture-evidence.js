@@ -64,6 +64,15 @@
   function calendarDate(now, zone) {
     return new Intl.DateTimeFormat('sv-SE', {timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
   }
+  function nrlCalendarRows(doc, now) {
+    const calendar = doc?.nrl_calendar;
+    const published = Date.parse(calendar?.published_at_utc);
+    if (doc?.research_only !== true || doc?.publication_gate !== 'BLOCKED' ||
+        calendar?.status !== 'FUTURE_FIXTURES_OBSERVED' || !Number.isFinite(published) ||
+        published > now + 300000 || now - published > 72*3600000) return [];
+    return list(calendar.fixtures).filter(row => row?.code === 'RL' && row.competition_code === 'RL:NRL' &&
+      row.forecast_eligible === false && iso(row.kickoff_utc) && Date.parse(row.kickoff_utc) > now);
+  }
   function normalize(sport, doc, official = [], now = Date.now(), analysis = null, markets = null) {
     const valid = doc?.schema_version === 1 && doc.research_only === true && doc.model_validation === 'UNVALIDATED' && doc.publication_gate === 'BLOCKED' && iso(doc.generated_at_utc);
     const age = now - Date.parse(doc?.generated_at_utc);
@@ -92,6 +101,16 @@
       add({date:day(row.kickoff_utc),start:row.kickoff_utc,provider:row,participants:[name(row.home),name(row.away)],
         competition:name(row.competition_name),code:row.code,sources:links(row.source_receipts),official:false});
     }
+    if (valid && sport === 'rugby') for (const row of nrlCalendarRows(doc, now)) {
+      const start = Date.parse(row.kickoff_utc), date = day(row.kickoff_utc);
+      const participants = [name(row.home),name(row.away)];
+      const listed = records.filter(other => other.code === 'RL' && other.official && !other.start &&
+        other.competition === row.competition_name && other.participants.every((team,index)=>team===participants[index]) &&
+        other.date === calendarDate(start, other.venueZone || 'Europe/London'));
+      if (listed.length === 1) listed[0].date = date;
+      add({date,start:row.kickoff_utc,participants,competition:name(row.competition_name),code:'RL',
+        sources:links(row.source_receipts),official:false,calendar:true});
+    }
     const pairing = row => JSON.stringify([row.competition.toLocaleLowerCase('en-GB'),
       row.participants.map(player => player.toLocaleLowerCase('en-GB')).sort()]);
     const officialDarts = new Map();
@@ -115,17 +134,18 @@
       const prior = merged.get(key);
       if (!prior) merged.set(key, {...row, id:key});
       else {
-        if (prior.start && row.start && prior.start !== row.start) prior.timeConflict = true;
+        if (prior.start && row.start && Date.parse(prior.start) !== Date.parse(row.start)) prior.timeConflict = true;
         prior.start = prior.start || row.start;
         prior.provider = prior.provider || row.provider;
         prior.official = prior.official || row.official;
+        prior.calendar = prior.calendar || row.calendar;
         prior.sources = links([...prior.sources, ...row.sources]);
       }
     }
     const fixtures = [...merged.values()].sort((a,b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name));
     for (const row of fixtures) {
       row.observedAt = row.provider && valid ? doc.generated_at_utc : null;
-      row.sourceStatus = row.official ? (row.start && sport === 'darts' ? 'Official schedule date · provider match time unverified' : 'Official schedule snapshot') : current ? 'Provider observation · independently unverified' : 'Provider snapshot stale or unconfirmed';
+      row.sourceStatus = row.calendar && row.official ? 'Official match listing · GitHub calendar source' : row.official ? (row.start && sport === 'darts' ? 'Official schedule date · provider match time unverified' : 'Official schedule snapshot') : row.calendar ? 'GitHub NRL calendar · schedule only' : current ? 'Provider observation · independently unverified' : 'Provider snapshot stale or unconfirmed';
       row.model = null;
       row.reason = sport === 'rugby' ? 'No rugby prediction model or team-result history is connected.' : 'D1 needs a confirmed match time and matched player IDs.';
       if (sport === 'darts' && row.provider && current && row.start && Date.parse(row.start) > now + 300000 && !row.timeConflict) {
@@ -174,5 +194,5 @@
         (!state.query || (row.name + ' ' + row.competition).toLocaleLowerCase('en-GB').includes(state.query.toLocaleLowerCase('en-GB')));
     });
   }
-  return {normalize, matching, validAnalysis, matchingDartsAnalysis};
+  return {normalize, matching, validAnalysis, matchingDartsAnalysis, nrlCalendarRows};
 });
