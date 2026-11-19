@@ -54,10 +54,12 @@ def collect(now, key):
     end=day-timedelta(days=8)
     start=end-timedelta(days=27)
     results=[];recs=[]
-    # Four disjoint, fully paginated UTC week windows; fail closed on any incomplete week.
-    for offset in range(0,28,7):
+    # Exact-day queries match the verified provider filter behaviour. A weekly
+    # query exceeded 20 pages on 19 Nov; never accept that partial archive.
+    # Fully paginate each day within the existing overall 100-request budget.
+    for offset in range(28):
         first=start+timedelta(days=offset)
-        last=min(first+timedelta(days=6),end)
+        last=first
         batch,receipts=pages('/v1/results',{'from':first.isoformat(),'to':last.isoformat(),'limit':200},key,20)
         if any(not isinstance(row,dict) or not isinstance(row.get('played_on'),str) or not first.isoformat()<=row['played_on']<=last.isoformat() for row in batch):
             raise RuntimeError('Provider returned results outside the requested history window; analysis withheld')
@@ -70,7 +72,7 @@ def collect(now, key):
     return {'schema_version':1,'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
             'source_verification':'PROVIDER_OBSERVED_UNCORROBORATED','generated_at_utc':now.isoformat().replace('+00:00','Z'),
             'results':old,'fixtures':future,
-            'coverage':{'returned_result_rows':len(results),'usable_result_rows':len(old),'returned_fixture_rows':len(fixtures),'confirmed_upcoming_fixtures':len(future),'history_period':[start.isoformat(),end.isoformat()],'pagination_complete':True,'requests_this_run':REQUEST_COUNT,'diagnostic_window':'FOUR_FULL_SEVEN_DAY_WINDOWS'},
+            'coverage':{'returned_result_rows':len(results),'usable_result_rows':len(old),'returned_fixture_rows':len(fixtures),'confirmed_upcoming_fixtures':len(future),'history_period':[start.isoformat(),end.isoformat()],'pagination_complete':True,'requests_this_run':REQUEST_COUNT,'diagnostic_window':'TWENTY_EIGHT_FULL_DAY_WINDOWS'},
             'source_receipts':recs+frecs,'odds':None,'expected_value':None,'betting_eligible':False}
 
 def analysis_snapshot(now, key):
