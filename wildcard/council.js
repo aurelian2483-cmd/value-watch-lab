@@ -162,6 +162,13 @@ function showCoverage(card){
   fill.style.width=(card.counts[sport]/max*100).toFixed(1)+'%';
   make('strong',row,String(card.counts[sport]));
  }
+ for(const item of card.coverageOnly){
+  const row=make('div',parent,undefined,'coverage-row');
+  const link=make('a',row,item.sport==='darts'?'Darts':'Rugby Union & League');
+  link.href='../'+item.sport+'/#official-snapshot';
+  make('span',row,(item.fixtures===null?'Feed unavailable':item.fixtures+' timed fixture(s) in window')+' · '+item.detail);
+  make('strong',row,'PASS');
+ }
 }
 function showAudit(card){
  const out=$('audit-detail');out.replaceChildren();

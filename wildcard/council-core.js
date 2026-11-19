@@ -10,7 +10,9 @@
   {id:'other',file:'other-sports-data.json',maxHours:24},
   {id:'racing',file:'racing-research-data.json',maxHours:6},
   {id:'horse',file:'horse-predictions-data.json',maxHours:6},
-  {id:'horse-model',file:'horse-model-data.json',maxHours:6}
+  {id:'horse-model',file:'horse-model-data.json',maxHours:6},
+  {id:'darts',file:'darts/feed.json',maxHours:48},
+  {id:'rugby',file:'rugby-research-data.json',maxHours:48}
  ];
  const date=x=>typeof x==='string'&&Number.isFinite(Date.parse(x))?Date.parse(x):null;
  const gate=d=>!!(d&&d.research_only===true&&d.model_validation==='UNVALIDATED'&&d.publication_gate==='BLOCKED');
@@ -20,6 +22,8 @@
   const src=SOURCES.find(s=>s.id===id);
   if(!src)throw Error('Unknown council data source');
   if(!gate(data))return {id,state:'GATE_REJECTED',data:null};
+  if((id==='darts'&&!Array.isArray(data.fixtures))||(id==='rugby'&&!Array.isArray(data.upcoming_fixtures)))
+   return {id,state:'INVALID_COVERAGE',data:null};
   const timestamp=date(data.generated_at_utc),age=timestamp===null?NaN:now-timestamp;
   if(!Number.isFinite(age)||age< -300000||age>src.maxHours*3600000)
    return {id,state:'STALE_OR_UNDATED',data:null,generated:timestamp};
@@ -51,6 +55,15 @@
    }
    seen.add(c.id);rows.push(c);
   }
+  const darts=find('darts'), rugby=find('rugby');
+  const coverageOnly=[
+   {sport:'darts', fixtures:darts?darts.fixtures.filter(f=>inside(date(f?.start_utc))).length:null,
+    detail:'Darts D1 · provider sample. Independent match verification and model calibration required.'},
+   {sport:'rugby', fixtures:rugby?rugby.upcoming_fixtures.filter(f=>f?.forecast_eligible===false&&inside(date(f.kickoff_utc))).length:null,
+    detail:rugby?'Fixture coverage only · Union '+(rugby.source_health?.RU?.days_succeeded??0)+'/'+(rugby.source_health?.RU?.horizon_days??'—')+
+      ' days · League '+(rugby.source_health?.RL?.days_succeeded??0)+'/'+(rugby.source_health?.RL?.horizon_days??'—')+' days. No prediction model.':
+      'Fixture feed unavailable. No prediction model.'}
+  ];
   const football=find('football');
   if(football){
    const forecasts=Array.isArray(football.experimental_model_forecasts)?football.experimental_model_forecasts:[];
@@ -158,7 +171,7 @@
     all:ordered,featured:ordered.slice(0,3),availableCount:ordered.length,
     footballReview:{blockedExamples:footballLeads,blockedCurrentSeason:exclusions.footballCurrentSeason},
     counts:Object.fromEntries(SPORTS.map(s=>[s,ordered.filter(x=>x.meta.sport===s).length])),
-    exclusions,
+    exclusions,coverageOnly,
     horse:{observed:horseObserved,historical,skipped,currentForecasts:forecasts.length,nestedForecasts,modelScore,researchLeads:horseResearch,
       rejected:horseRejected,eligible:ordered.filter(x=>x.meta.sport==='racing').length,
       status:!horse?'SOURCE_UNAVAILABLE':forecasts.length===0?'NO_CURRENT_PRE_RACE_FORECASTS':nestedForecasts===forecasts.length?'RACE_LEVEL_RESEARCH_ONLY':horseRejected?'PRE_RACE_GATES_REJECTED':'RESEARCH_ONLY',
