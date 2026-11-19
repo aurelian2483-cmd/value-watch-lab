@@ -10,9 +10,10 @@
   {id:'football',filename:'research-dashboard-data.json',maxAgeHours:24},
   {id:'racing',filename:'racing-research-data.json',maxAgeHours:6},
   {id:'other',filename:'other-sports-data.json',maxAgeHours:24},
+  {id:'rugby',filename:'rugby-research-data.json',maxAgeHours:48},
   {id:'history',filename:'research-history.json',maxAgeHours:168}
  ];
- const sports=['football','racing','tennis','nfl'];
+ const sports=['football','racing','tennis','nfl','rugby'];
  function stamp(s){if(typeof s!=='string')return null;const n=Date.parse(s);return Number.isFinite(n)?n:null}
  function safeName(v){return typeof v==='string'&&v.trim()?v.trim().slice(0,220):null}
  function gate(d){return !!(d&&typeof d==='object'&&!Array.isArray(d)&&d.research_only===true&&d.model_validation==='UNVALIDATED'&&d.publication_gate==='BLOCKED')}
@@ -48,16 +49,22 @@
     add('racing',e.racecourse+' · '+(safeName(e.name)||'Race '+e.race_id),e.startUTC,String(e.race_id),e.forecast_eligible===true&&e.prediction!=null);
    }
   }else if(id==='other'){
-   if(!data.sports||typeof data.sports!=='object'||!sports.slice(2).every(k=>Array.isArray(data.sports[k]?.events)))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
+   if(!data.sports||typeof data.sports!=='object'||!['tennis','nfl'].every(k=>Array.isArray(data.sports[k]?.events)))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
    for(const sport of ['tennis','nfl'])for(const e of data.sports[sport].events.slice(0,300)){
     if(!e||!safeName(e.id)||!safeName(e.name))continue;
     add(sport,e.name,e.startUTC,e.id,Array.isArray(e.forecast?.outcomes)&&e.forecast.outcomes.length>0);
+   }
+  }else if(id==='rugby'){
+   if(!Array.isArray(data.upcoming_fixtures))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
+   for(const e of data.upcoming_fixtures.slice(0,300)){
+    if(!e||!safeName(e.home)||!safeName(e.away)||!safeName(e.event_id))continue;
+    add('rugby',e.home+' vs '+e.away,e.kickoff_utc,e.event_id,false);
    }
   }
   return {id,state:invalid.length?'PARTIAL_RECORDS':'OBSERVED',fresh:true,generatedAt:ts,records,data,invalidCount:invalid.length};
  }
  function summarize(results,now=Date.now()){
-  const events=[],available=new Set(),counts={football:null,racing:null,tennis:null,nfl:null};
+  const events=[],available=new Set(),counts=Object.fromEntries(sports.map(s=>[s,null]));
   for(const r of results){
    if(!r||r.fresh!==true||!Array.isArray(r.records))continue;
    for(const sport of r.id==='other'?['tennis','nfl']:[r.id]){
@@ -69,7 +76,7 @@
    }
   }
   const upcoming=events.filter(x=>x.startMs>=now).sort((a,b)=>a.startMs-b.startMs||a.sport.localeCompare(b.sport)||a.name.localeCompare(b.name));
-  return {events,upcoming,counts,available:[...available],totalAvailable:upcoming.length,allSportsAvailable:available.size===4};
+  return {events,upcoming,counts,available:[...available],totalAvailable:upcoming.length,allSportsAvailable:available.size===sports.length};
  }
  function featuredOrder(upcoming){
   if(!Array.isArray(upcoming))return [];

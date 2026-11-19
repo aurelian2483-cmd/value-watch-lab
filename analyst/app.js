@@ -12,7 +12,7 @@ function apply(){
  const tbody=$('analyst-events');tbody.replaceChildren();
  for(const x of found.slice(0,80)){
   const tr=add(tbody,'tr');
-  add(tr,'td',x.sport==='racing'?'Horse Racing':x.sport==='nfl'?'NFL':x.sport[0].toUpperCase()+x.sport.slice(1));
+  add(tr,'td',x.sport==='racing'?'Horse Racing':x.sport==='nfl'?'NFL':x.sport==='rugby'?'Rugby':x.sport[0].toUpperCase()+x.sport.slice(1));
   add(tr,'td',x.name);add(tr,'td',ukTime(x.startUTC));
   add(tr,'td',x.hasModel?'Experimental · uncalibrated':'Unavailable');
   add(tr,'td','Not verified');add(tr,'td','Unavailable');add(tr,'td','PASS / UNGRADED');
@@ -20,13 +20,13 @@ function apply(){
  if(!found.length){const tr=add(tbody,'tr');const cell=add(tr,'td','No source-backed observations meet these filters.');cell.colSpan=7}
  text('results-count',found.length+' matching source observations'+(found.length>80?' · first 80 shown':''));
  const overview=$('sport-overview');overview.replaceChildren();
- for(const name of ['football','racing','tennis','nfl']){
+ for(const name of ['football','racing','tennis','nfl','rugby']){
   const n=records.filter(x=>x.sport===name).length,entry=add(overview,'div',undefined,'overview-row');
-  add(entry,'span',name==='racing'?'♞ Horse Racing':name==='nfl'?'◆ NFL':name==='tennis'?'◉ Tennis':'⚽ Football');add(entry,'strong',n+' records');
+  add(entry,'span',name==='racing'?'♞ Horse Racing':name==='nfl'?'◆ NFL':name==='tennis'?'◉ Tennis':name==='rugby'?'🏉 Rugby':'⚽ Football');add(entry,'strong',n+' records');
  }
  text('metric-events',records.length);
- const bars=$('sport-bars');bars.replaceChildren();const top=Math.max(1,...['football','racing','tennis','nfl'].map(x=>records.filter(r=>r.sport===x).length));
- for(const name of ['football','racing','tennis','nfl']){
+ const bars=$('sport-bars');bars.replaceChildren();const top=Math.max(1,...['football','racing','tennis','nfl','rugby'].map(x=>records.filter(r=>r.sport===x).length));
+ for(const name of ['football','racing','tennis','nfl','rugby']){
   const count=records.filter(r=>r.sport===name).length,line=add(bars,'div',undefined,'sport-bar-row');
   add(line,'span',name==='racing'?'Racing':name==='nfl'?'NFL':name[0].toUpperCase()+name.slice(1));
   const track=add(line,'div',undefined,'sport-bar-track'),fill=add(track,'div',undefined,'sport-bar-fill');fill.style.width=(100*count/top).toFixed(1)+'%';add(line,'strong',count);
@@ -75,12 +75,12 @@ function sources(){
  const node=$('source-status');node.replaceChildren();
  for(const f of feeds){
   const line=add(node,'div',undefined,'source-row');
-  add(line,'span',f.id==='other'?'Tennis / NFL':f.id==='history'?'Research archive':f.id==='racing'?'Horse racing':'Football');
+  add(line,'span',f.id==='other'?'Tennis / NFL':f.id==='history'?'Research archive':f.id==='racing'?'Horse racing':f.id==='rugby'?'Rugby':'Football');
   add(line,'strong',f.state==='OBSERVED'?'SOURCE OBSERVED':f.state);
   if(f.generatedAt!==null){const ageHours=Math.max(0,(Date.now()-f.generatedAt)/3600000);add(line,'small','Updated '+ageHours.toFixed(1)+'h ago')}
  }
  const note=$('takeaways');note.replaceChildren();
- for(const msg of ['Model calibration and verified bookmaker prices remain unavailable.','Four independent sport research feeds are assessed without inventing a Grade A/B selection.','Your original paper slips and weekly wildcard remain in the homepage workspace.']){
+ for(const msg of ['Model calibration and verified bookmaker prices remain unavailable.','Five sports are assessed without inventing a Grade A/B selection.','Your original paper slips and weekly wildcard remain in the homepage workspace.']){
   add(note,'p',msg);
  }
 }
@@ -94,7 +94,7 @@ async function refresh(){
   records=summary.events;
   apply();sources();historic();diagnostics();
   const problematic=feeds.filter(f=>f.state!=='OBSERVED');
-  text('analyst-state',problematic.length?'Source warning: '+problematic.map(f=>f.id+' '+f.state).join('; '):'4 source groups checked · models unvalidated');
+  text('analyst-state',problematic.length?'Source warning: '+problematic.map(f=>f.id+' '+f.state).join('; '):feeds.length+' source groups checked · models unvalidated');
   text('selection-note',problematic.length?'Only fresh, gated records displayed. Excluded sources: '+problematic.map(f=>f.id+' ('+f.state+')').join(', ')+'. No result is a qualified betting recommendation.':'Only fresh, gated source records displayed; no result is a qualified betting recommendation.');
  }catch(e){
   records=[];feeds=[];archive=null;

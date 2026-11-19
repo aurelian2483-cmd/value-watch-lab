@@ -11,6 +11,7 @@ const f={...base,upcoming_fixtures:[
 ]};
 const other={...base,sports:{tennis:{events:[{id:'t-1',name:'A vs B',startUTC:new Date(now+600000).toISOString(),forecast:{outcomes:[{id:'A',probability:.5}]}}]},nfl:{events:[{id:'n-1',name:'C vs D',startUTC:new Date(now+7200000).toISOString()}]}}};
 const racing={...base,races:[{race_id:'r-1',racecourse:'Ascot',startUTC:new Date(now+1800000).toISOString(),forecast_eligible:false,prediction:null}]};
+const rugby={...base,upcoming_fixtures:[{event_id:'ru-1',home:'France',away:'Argentina',kickoff_utc:new Date(now+5400000).toISOString()}]};
 const history={...base,entries:[],metrics_status:'INSUFFICIENT_SAMPLE'};
 const football=S.inspect('football',f,now);
 assert.equal(football.state,'PARTIAL_RECORDS');
@@ -18,9 +19,11 @@ assert.equal(football.records.length,2,'duplicate and invalid fixture must not b
 assert.equal(football.records[0].hasModel,true);
 const tennisNFL=S.inspect('other',other,now),horse=S.inspect('racing',racing,now);
 assert.equal(tennisNFL.state,'OBSERVED');assert.equal(horse.state,'OBSERVED');
-const summary=S.summarize([football,tennisNFL,horse],now);
-assert.equal(summary.upcoming.length,4);
-assert.deepEqual(summary.counts,{football:1,racing:1,tennis:1,nfl:1});
+const rugbyFeed=S.inspect('rugby',rugby,now);
+assert.equal(rugbyFeed.state,'OBSERVED');assert.equal(rugbyFeed.records[0].hasModel,false);
+const summary=S.summarize([football,tennisNFL,horse,rugbyFeed],now);
+assert.equal(summary.upcoming.length,5);
+assert.deepEqual(summary.counts,{football:1,racing:1,tennis:1,nfl:1,rugby:1});
 assert.equal(summary.allSportsAvailable,true);
 
 const mixed=[
@@ -30,10 +33,11 @@ const mixed=[
  {sport:'racing',name:'Race D',startMs:4},
  {sport:'football',name:'Fixture A',startMs:5},
  {sport:'tennis',name:'Match A',startMs:6},
- {sport:'nfl',name:'NFL A',startMs:7}
+ {sport:'nfl',name:'NFL A',startMs:7},
+ {sport:'rugby',name:'Rugby A',startMs:8}
 ];
 const featured=S.featuredOrder(mixed);
-assert.deepEqual(featured.map(x=>x.sport),['football','racing','tennis','nfl','racing','racing','racing']);
+assert.deepEqual(featured.map(x=>x.sport),['football','racing','tennis','nfl','rugby','racing','racing','racing']);
 assert.equal(featured.length,mixed.length,'No sourced event may be lost');
 assert.deepEqual(S.featuredOrder([]),[]);
 
@@ -60,5 +64,5 @@ assert.equal(sourceTime,now);assert.equal(S.stamp('bad'),null);
  assert.equal(loaded.state,'PARTIAL_RECORDS');
  const fail=await S.load('football','../',async()=>{throw Error('offline')},now);
  assert.equal(fail.state,'UNAVAILABLE');assert.deepEqual(fail.records,[]);
- console.log('PASS: shared source read-only gates, strict ages, valid four-sport counts, schema, deduplication and partial availability');
+ console.log('PASS: shared source read-only gates, strict ages, valid five-sport counts, schema, deduplication and partial availability');
 })().catch(e=>{console.error(e);process.exitCode=1});
