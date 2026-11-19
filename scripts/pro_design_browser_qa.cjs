@@ -75,7 +75,29 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('#slip-tabs button[data-slot="2"]').getAttribute('aria-pressed'),'true','Pro paper slip must use existing slip state');
    await page.screenshot({path:path.join(out,'pro-home-'+width+'.png'),fullPage:false});
    assert.deepEqual(errors,[],'Home page JS runtime errors');
-   assert.equal(await page.locator('a.sport-research-link[href="./rugby/"]').count(),1,'Rugby source-status research must be linked independently of betting sports');
+   for (const sport of ['darts','rugby']) {
+     await page.locator('#sport-nav button[data-sport="'+sport+'"]').click();
+     await page.waitForFunction(s => {
+       const panel=document.querySelector('[data-fixture-sport="'+s+'"]');
+       return panel && !panel.textContent.includes('Loading '+s+' sources');
+     },sport);
+     assert.equal(await page.locator('#sport').inputValue(),sport,'Sport stays on the main desk');
+     assert.equal(await page.locator('.fixture-events').count(),1,'One selected-sport panel');
+     assert.equal(await page.locator('#find-racing').isVisible(),false,'Racing-only action hidden');
+     assert.equal(await page.locator('#generate').isEnabled(),false,'No unsupported filtered slip building');
+     assert(!(await page.locator('#events').innerText()).includes('Paper selections and betting prices are unavailable for this view'),'Old blanket fixture-only fallback removed');
+     const matchCards=page.locator('.fixture-event-card');
+     if(await matchCards.count()) {
+       assert.equal(await matchCards.first().locator('.fixture-outcome').count(),2,'Each match shows both participants');
+       assert((await matchCards.first().innerText()).includes('Odds not supplied'),'Missing quotes stay explicit');
+       assert((await matchCards.first().locator('.fixture-model-status').innerText()).length>10,'Model availability is explained per match');
+     }
+     await page.locator('#build-scope').selectOption('all');
+     assert.equal(await page.locator('#generate').isEnabled(),true,'All-sports research remains available');
+     await page.locator('#build-scope').selectOption('filters');
+     assert.equal(await page.locator('#generate').isEnabled(),false);
+     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Match cards fit desktop and mobile');
+   }
    await page.goto('http://127.0.0.1:8177/rugby/',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!document.getElementById('refreshed').textContent.includes('Checking research'),{timeout:12000});
    assert((await page.locator('#refreshed').innerText()).includes('Research snapshot available')||(await page.locator('#refreshed').innerText()).includes('STALE SNAPSHOT'));
