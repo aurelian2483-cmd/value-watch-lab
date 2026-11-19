@@ -27,7 +27,7 @@
  <div class="coverage-grid">
   <div><span>Upcoming confirmed-time fixtures</span><strong id="coverage-confirmed">—</strong></div>
   <div><span>Date-only unconfirmed fixtures</span><strong id="coverage-tentative">—</strong></div>
-  <div><span>Historical match records</span><strong id="coverage-history">—</strong></div>
+  <div><span>Historical records in the public sample</span><strong id="coverage-history">—</strong></div>
  </div>
  <p id="coverage-verification" class="notice" role="status">Checking published research evidence…</p>
  <p class="coverage-disclaimer">Provider observations are not independent verification of fixtures, historical matches, odds or model accuracy. Research-only; betting publication remains blocked.</p>
@@ -42,7 +42,7 @@
  <p>Rating changes follow K × (actual result − expected result), with K = 24. Same-date results are grouped to avoid artificial within-day ordering; the research score requires at least eight previous matches per player.</p>
  <p><strong>Not yet modelled:</strong> three-dart averages, checkout rates, throwing-first advantage, leg/set format and match-specific injuries. Those require verified historical inputs and controlled ablation tests.</p></article>
  <article class="panel" aria-labelledby="sources-heading"><p class="eyebrow">03 · DATA INTEGRITY</p><h2 id="sources-heading">No fabricated live data</h2>
- <p>The site's starter feed is deliberately empty until a permitted data provider supplies genuinely upcoming fixtures and completed results.</p>
+ <p>The published feed includes a bounded sample of provider fixtures and results. D1 uses the 28-day aggregate when the match time and player IDs agree.</p>
  <p>Research access: <a href="https://dartsapi.com/documentation" target="_blank" rel="noopener noreferrer">Darts API documentation</a>. This provider requires an API key and restricts free results to a delayed window. Its odds are not verified executable prices.</p>
  <p>Imported local data are <strong>not independently verified</strong>. They may be used to explore mathematics, never to qualify bets.</p></article>
 </section>
@@ -87,6 +87,6 @@
 </section>
 <footer>VALUE WATCH PRO · DARTS D1 · UNVALIDATED / BLOCKED · No betting advice or real-time executable odds. <a href="../">Return to Research Hub</a></footer>
 </main>
-<script src="./model.js?v=1" defer></script><script src="./app.js?v=2" defer></script>
+<script src="./model.js?v=1" defer></script><script src="../paper-lab/fixture-evidence.js?v=8" defer></script><script src="./app.js?v=3" defer></script>
 </body>
 </html>

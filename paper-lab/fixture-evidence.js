@@ -32,6 +32,11 @@
       return f.status === 'EXPERIMENTAL_UNCALIBRATED' && [f.rating_a,f.rating_b,f.prob_a,f.prob_b].every(Number.isFinite) && f.prob_a > 0 && f.prob_b > 0 && Math.abs(f.prob_a+f.prob_b-1)<1e-10 && Math.abs(f.prob_a-Darts.prob(f.rating_a,f.rating_b))<1e-10;
     });
   }
+  function matchingDartsAnalysis(analysis, fixture) {
+    return analysis.fixtures.find(row => row.id === fixture.id && row.start_utc === fixture.start_utc &&
+      row.competition === fixture.competition && ['player_a','player_b'].every(k =>
+        row[k]?.id === fixture[k]?.id && row[k]?.name === fixture[k]?.name));
+  }
   function observedMarkets(document, row, now) {
     if (document?.schema_version !== 1 || document.research_only !== true || document.publication_gate !== 'BLOCKED' ||
         row.timeConflict || !row.official) return null;
@@ -127,7 +132,7 @@
         try {
           const report = Darts.model(history, [row.provider], new Date(now).toISOString());
           row.model = report.fixtures[0];
-          const aggregate = analysisCurrent && analysis.fixtures.find(f => f.id === row.provider.id && f.start_utc === row.provider.start_utc && f.competition === row.provider.competition && ['player_a','player_b'].every(k => f[k]?.id === row.provider[k]?.id && f[k]?.name === row.provider[k]?.name));
+          const aggregate = analysisCurrent && matchingDartsAnalysis(analysis, row.provider);
           if (aggregate) {
             row.model = {...aggregate};
             row.analysisObservedAt = analysis.generated_at_utc;
@@ -169,5 +174,5 @@
         (!state.query || (row.name + ' ' + row.competition).toLocaleLowerCase('en-GB').includes(state.query.toLocaleLowerCase('en-GB')));
     });
   }
-  return {normalize, matching, validAnalysis};
+  return {normalize, matching, validAnalysis, matchingDartsAnalysis};
 });

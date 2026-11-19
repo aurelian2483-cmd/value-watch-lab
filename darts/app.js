@@ -1,6 +1,6 @@
 'use strict';
 (()=>{
- const Model=window.ValueWatchDarts, $=id=>document.getElementById(id);
+ const Model=window.ValueWatchDarts, Evidence=window.ResearchFixtureEvidence, $=id=>document.getElementById(id);
  const feed='./feed.json', allowedKeys=new Set(['results','fixtures']);
  let local=null;
  const coverage=(confirmed,tentative,history,status)=>{
@@ -36,7 +36,7 @@
    element(card,'small','Elo: '+f.rating_a.toFixed(1)+' vs '+f.rating_b.toFixed(1)+' · previous matches '+f.prior_a+'/'+f.prior_b+' · NOT CALIBRATED');
   }
  }
- function loadDocument(doc,kind){
+ function loadDocument(doc,kind,analysis=null){
   if(!doc||typeof doc!=='object'||Array.isArray(doc)||Object.keys(doc).some(k=>!allowedKeys.has(k)&&!['schema_version','research_only','model_validation','publication_gate','source_verification','generated_at_utc','source_receipts','coverage','tentative_fixtures'].includes(k)))throw Error('Unexpected data schema');
   if(kind==='Published feed'){
    if(doc.schema_version!==1||doc.research_only!==true||doc.model_validation!=='UNVALIDATED'||doc.publication_gate!=='BLOCKED')throw Error('Published research-only feed safeguards missing');
@@ -59,14 +59,31 @@
    else coverage(String(upcoming.length),String(tentative.length),String(doc.results.length),'Provider-observed sample · NOT independently verified · UNVALIDATED / BLOCKED.');
   }else coverage('—','—','—','Local illustrative experiment: published provider counts not displayed. No independent verification.');
   const r=Model.model(doc.results,upcoming,at);
-  display(r,kind==='Published feed'&&doc.source_verification==='PROVIDER_OBSERVED_UNCORROBORATED'?'Provider-observed sample · not independently verified':kind,tentative);
+  let usingAggregate=false;
+  if(kind==='Published feed' && doc.source_verification==='PROVIDER_OBSERVED_UNCORROBORATED' &&
+     Evidence?.validAnalysis(analysis,Date.parse(at))){
+   r.fixtures=r.fixtures.map(fixture=>{
+    const result=Evidence.matchingDartsAnalysis(analysis,fixture);
+    if(result)usingAggregate=true;
+    return result||fixture;
+   });
+   if(usingAggregate)r.training_matches=analysis.training_matches;
+  }
+  const label=usingAggregate?'D1 · 28-day provider history':
+   kind==='Published feed'&&doc.source_verification==='PROVIDER_OBSERVED_UNCORROBORATED'?'Provider-observed sample':kind;
+  display(r,label,tentative);
  }
  async function refresh(){
   if(local)return;
   try{
-   const response=await fetch(feed+'?v='+Date.now(),{cache:'no-store'});
+   const version='?v='+Date.now(), options={cache:'no-store'};
+   const [response,analysis]=await Promise.all([
+    fetch(feed+version,options),
+    fetch('./analysis.json'+version,options).then(r=>r.ok?r.json():null).catch(()=>null)
+   ]);
    if(!response.ok)throw Error('Research feed unavailable');
-   const doc=await response.json();loadDocument(doc,'Published feed');
+   const doc=await response.json();
+   if(!local)loadDocument(doc,'Published feed',analysis);
   }catch(error){clear();coverage('—','—','—','Published feed unavailable or invalid · no verified research counts. UNVALIDATED / BLOCKED.');$('feed-status').textContent='Darts research feed unavailable ('+(error?.message||'unknown error')+'). No predictions displayed.'}
  }
  $('refresh').addEventListener('click',()=>{local=null;$('import-json').value='';$('import-status').textContent='Local experiment cleared; loading the published feed.';refresh()});
