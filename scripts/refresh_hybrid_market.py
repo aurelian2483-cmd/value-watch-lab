@@ -33,6 +33,21 @@ ALIASES = {
 }
 
 
+class MarketRateLimit(Exception):
+    def __init__(self, host, retry_after):
+        self.host = host
+        now = datetime.now(timezone.utc)
+        try:
+            limit = now + timedelta(seconds=int(retry_after))
+        except (TypeError, ValueError, OverflowError):
+            try:
+                limit = parsedate_to_datetime(retry_after).astimezone(timezone.utc)
+            except (TypeError, ValueError, OverflowError):
+                limit = now + timedelta(minutes=60)
+        self.retry_at = max(limit, now + timedelta(minutes=15))
+        super().__init__(f'{host} rate limited market refresh until {self.retry_at.isoformat()}')
+
+
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
@@ -61,6 +76,8 @@ def fetch(url, host):
             date = parsedate_to_datetime(response.headers['Date'])
             cache_age = int(response.headers.get('Age', '0'))
     except HTTPError as error:
+        if error.code == 429:
+            raise MarketRateLimit(host, error.headers.get('Retry-After')) from None
         raise ValueError(f'{host} returned HTTP {error.code}') from None
     now = datetime.now(timezone.utc)
     if not raw or len(raw) > 3_000_000 or abs(now-date) > timedelta(minutes=2) or not 0 <= cache_age <= 30:
@@ -265,11 +282,19 @@ def main():
     doc = json.loads(args.feed.read_text())
     if doc.get('schema_version') != 1 or not isinstance(doc.get('records'), list):
         raise ValueError('Unsafe market evidence envelope')
+    previous_status = doc.get('collection_status')
+    if previous_status and instant(previous_status['retry_after_utc']) > datetime.now(timezone.utc):
+        print('Market source cooldown active until', previous_status['retry_after_utc'])
+        return
     updated = 0
     failures = 0
+    limited = None
     for idx, record in enumerate(doc['records']):
         try:
             candidate = refresh(record, datetime.now(timezone.utc))
+        except MarketRateLimit as error:
+            limited = error
+            break
         except (KeyError, ValueError, TypeError, OSError, IndexError) as error:
             detail = str(error) if type(error) is ValueError and not isinstance(error, json.JSONDecodeError) else type(error).__name__
             print('Market refresh skipped for a reviewed fixture:', detail)
@@ -278,34 +303,46 @@ def main():
         if candidate is not None:
             doc['records'][idx] = candidate
             updated += 1
-    try:
-        fixtures = json.loads((ROOT/'football-expanded-data.json').read_text())
-        paired_ids = {row['event_id'] for row in doc['records'] if row.get('sky_bet')}
-        benchmark_count = 0
-        by_id = {row['event_id']:row for row in doc['records']}
-        for record in collect_benchmarks(fixtures, paired_ids, datetime.now(timezone.utc)):
-            previous = by_id.get(record['event_id'])
-            if previous and instant(previous['benchmark']['observed_at_utc']) >= instant(record['benchmark']['observed_at_utc']):
-                continue
-            by_id[record['event_id']] = record
-            benchmark_count += 1
-        if benchmark_count:
-            benchmarks = sorted((row for row in by_id.values() if not row.get('sky_bet')),
-                                key=lambda row:instant(row['snapshot_at_utc']), reverse=True)
-            paired = [row for row in by_id.values() if row.get('sky_bet')]
-            doc['records'] = paired + benchmarks[:30]
-        print('Fresh benchmark-only observations:', benchmark_count)
-        updated += benchmark_count
-    except (KeyError, ValueError, TypeError, OSError, IndexError) as error:
-        print('Benchmark discovery unavailable:', str(error) if type(error) is ValueError else type(error).__name__)
-        failures += 1
-    if updated:
+    if limited is None:
+        try:
+            fixtures = json.loads((ROOT/'football-expanded-data.json').read_text())
+            paired_ids = {row['event_id'] for row in doc['records'] if row.get('sky_bet')}
+            benchmark_count = 0
+            by_id = {row['event_id']:row for row in doc['records']}
+            for record in collect_benchmarks(fixtures, paired_ids, datetime.now(timezone.utc)):
+                previous = by_id.get(record['event_id'])
+                if previous and instant(previous['benchmark']['observed_at_utc']) >= instant(record['benchmark']['observed_at_utc']):
+                    continue
+                by_id[record['event_id']] = record
+                benchmark_count += 1
+            if benchmark_count:
+                benchmarks = sorted((row for row in by_id.values() if not row.get('sky_bet')),
+                                    key=lambda row:instant(row['snapshot_at_utc']), reverse=True)
+                paired = [row for row in by_id.values() if row.get('sky_bet')]
+                doc['records'] = paired + benchmarks[:30]
+            print('Fresh benchmark-only observations:', benchmark_count)
+            updated += benchmark_count
+        except MarketRateLimit as error:
+            limited = error
+        except (KeyError, ValueError, TypeError, OSError, IndexError) as error:
+            print('Benchmark discovery unavailable:', str(error) if type(error) is ValueError else type(error).__name__)
+            failures += 1
+    status_changed = False
+    if limited:
+        print(str(limited))
+        doc['collection_status'] = {'state':'RATE_LIMITED','source':limited.host,
+                                    'retry_after_utc':limited.retry_at.isoformat()}
+        status_changed = True
+    elif previous_status:
+        doc.pop('collection_status', None)
+        status_changed = True
+    if updated or status_changed:
         with tempfile.NamedTemporaryFile(dir=args.feed.parent, mode='w', encoding='utf-8', delete=False) as out:
             json.dump(doc, out, indent=2)
             out.write('\n')
         Path(out.name).replace(args.feed)
     print('Total market observations updated:', updated)
-    if failures and not updated:
+    if failures and not updated and not limited:
         raise SystemExit('All attempted market refreshes failed. The last valid snapshot is retained.')
 
 

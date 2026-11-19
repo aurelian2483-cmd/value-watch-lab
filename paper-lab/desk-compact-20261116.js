@@ -1206,6 +1206,10 @@
         ready.filter(row => row.result.checkedBothMarkets).length + ' paired price checks · ' +
         ready.filter(row => row.result.selection).length + ' paper suggestions' +
         (archived.length ? ' · ' + archived.length + ' archived comparisons' : ''));
+      const collection = entry.data?.collection_status;
+      if (collection?.state === 'RATE_LIMITED' && Date.parse(collection.retry_after_utc) > Date.now())
+        make(root, 'p', 'The market source is limiting refreshes. Next attempt after ' +
+          dateText(collection.retry_after_utc) + ' UK.', 'small');
       for (const row of [...ready, ...archived].slice(0, state.limit)) {
         const item = make(root, 'div', undefined, 'engine-hybrid-result');
         make(item, 'h4', row.event.name);
