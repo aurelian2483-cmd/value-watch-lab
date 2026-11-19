@@ -76,6 +76,17 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(a['observations'],[])
         p=prediction();p['event_start_utc']=iso(NOW+timedelta(days=1))
         self.assertEqual(S.collect(ledger([p]),archive(),NOW,unavailable)['candidate_records'],0)
+    def test_nflverse_exact_kickoff_and_team_order(self):
+        forecast=prediction()
+        identity={'home_id':'10','away_id':'20','home_code':'BAL','away_code':'LAC'}
+        row={'game_type':'REG','home_team':'BAL','away_team':'LAC','gameday':'2026-11-19',
+             'gametime':'13:00','home_score':'20','away_score':'23','game_id':'2026_11_LAC_BAL'}
+        got=S.nflverse_observation({'777':[row]},identity,forecast,NOW,SHA)
+        self.assertEqual(got['actual_outcome'],'20')
+        self.assertFalse(got['independently_verified'])
+        for patch in ({'gametime':'18:00'},{'home_team':'LAC'},{'away_score':''},{'game_type':'PRE'}):
+            self.assertIsNone(S.nflverse_observation({'777':[dict(row,**patch)]},identity,forecast,NOW,SHA))
+        self.assertIsNone(S.nflverse_observation({'777':[row,row]},identity,forecast,NOW,SHA))
     def test_source_guard(self):
         self.assertFalse(S.allowed_espn('https://evil.example/scoreboard'))
         self.assertFalse(S.allowed_espn('http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard'))

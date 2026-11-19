@@ -67,7 +67,8 @@
      initial.plan.slots.every(slot => !slot.legs.length)){
     initial.plan=E.createPlan({from:today(),to:plusDays(today(),6)});
   }
-  const store = S.createStore({ ...initial, events: [], eventVersion: 0, snapshotState: null, slot: 0, sport: 'all', competition: 'all', query: '', eventView: 'upcoming', view: 'events', limit: 24, replacing: null, clockTick: 0 });
+  const requestedSport = new URLSearchParams(location.search).get('sport');
+  const store = S.createStore({ ...initial, events: [], eventVersion: 0, snapshotState: null, slot: 0, sport: Object.hasOwn(sports, requestedSport) ? requestedSport : 'all', competition: 'all', query: '', eventView: 'upcoming', view: 'events', limit: 24, replacing: null, clockTick: 0 });
   let legacy = [];
   try { const raw = storage.getItem('value-watch-paper-lab-v3'); legacy = Object.values(raw ? JSON.parse(raw) : {}).map(plan => PaperLab.restore(JSON.stringify(plan))); }
   catch { notice('Earlier research could not be read; its original storage is untouched.'); }

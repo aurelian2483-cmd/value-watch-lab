@@ -2,11 +2,13 @@
 """Read-only two-provider NFL research corroboration, not independent certification.
 
 ESPN is used ONLY to resolve an already-frozen ESPN participant ID to its team
-name and home/away slot. TheSportsDB is the separate result observation source.
+name and home/away slot. TheSportsDB and nflverse supply separate result observations.
 No scores are copied from ESPN into this source. Neither results-feed.json nor
 betting status is ever written. Missing/ambiguous/partial results fail closed.
 """
+import csv
 import hashlib
+import io
 import json
 import re
 import urllib.request
@@ -14,9 +16,13 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlencode, urlsplit
+from zoneinfo import ZoneInfo
 
 from capture_prospective_research import ROOT, iso, utc
 
+NFLVERSE='https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv'
+EASTERN=ZoneInfo('America/New_York')
+TEAM_ALIASES={'LAR':'LA','WSH':'WAS','JAC':'JAX'}
 API='https://www.thesportsdb.com/api/v1/json/123/eventsday.php'
 MAX_BYTES=3_000_000
 MAX_DAYS=7
@@ -66,7 +72,8 @@ def espn_identity(doc,p):
             names=[home.get('team',{}).get('displayName'),away.get('team',{}).get('displayName')]
             if not all(canon(x) for x in names) or canon(names[0])==canon(names[1]):continue
             found.append({'home_id':str(home['id']),'away_id':str(away['id']),
-                          'home_name':names[0],'away_name':names[1]})
+                          'home_name':names[0],'away_name':names[1],
+                          'home_code':home.get('team',{}).get('abbreviation'),'away_code':away.get('team',{}).get('abbreviation')})
     return found[0] if len(found)==1 else None
 
 def sportsdb_observation(doc,identity,p,now,source_url,receipt):
@@ -101,7 +108,57 @@ def sportsdb_observation(doc,identity,p,now,source_url,receipt):
              'final_score':{'home':h,'away':a}})
     return matches[0] if len(matches)==1 else None
 
-def collect(ledger,previous,now,fetcher=read_json):
+def read_nflverse():
+    request=urllib.request.Request(NFLVERSE,headers={'Accept':'text/csv','User-Agent':'ValueWatchResearch/1.0'})
+    with urllib.request.urlopen(request,timeout=18) as response:
+        endpoint=urlsplit(response.geturl())
+        if endpoint.scheme!='https' or endpoint.hostname not in {'github.com','release-assets.githubusercontent.com','objects.githubusercontent.com'}:
+            raise ValueError('Unknown schedule asset host')
+        raw=response.read(MAX_BYTES+1)
+    if len(raw)>MAX_BYTES:
+        raise ValueError('Schedule asset exceeds the size limit')
+    reader=csv.DictReader(io.StringIO(raw.decode('utf-8-sig')))
+    required={'espn','game_id','game_type','gameday','gametime','home_team','away_team','home_score','away_score'}
+    if not required.issubset(reader.fieldnames or []):
+        raise ValueError('NFL schedule fields missing')
+    indexed=defaultdict(list)
+    for row in reader:
+        if row['espn'] and row['espn'].isdecimal():
+            indexed[row['espn']].append(row)
+    return indexed,hashlib.sha256(raw).hexdigest()
+
+
+def nflverse_observation(index,identity,p,now,receipt):
+    rows=index.get(p['event_id'].removeprefix('nfl-'),[])
+    if len(rows)!=1 or not re.fullmatch('[0-9a-f]{64}',receipt):
+        return None
+    row=rows[0]
+    home_code=identity.get('home_code')
+    away_code=identity.get('away_code')
+    if row['game_type']!='REG' or row['home_team']!=TEAM_ALIASES.get(home_code,home_code) or row['away_team']!=TEAM_ALIASES.get(away_code,away_code):
+        return None
+    try:
+        kickoff=datetime.strptime(row['gameday']+' '+row['gametime'],'%Y-%m-%d %H:%M').replace(tzinfo=EASTERN)
+        if kickoff!=utc(p['event_start_utc']) or kickoff>now-timedelta(hours=6):
+            return None
+    except (KeyError,TypeError,ValueError):
+        return None
+    if not re.fullmatch(r'\d{4}_\d{2}_[A-Z]{2,3}_[A-Z]{2,3}',row['game_id'] or ''):
+        return None
+    if not all(re.fullmatch(r'\d{1,3}',row.get(k) or '') for k in ('home_score','away_score')):
+        return None
+    home,away=int(row['home_score']),int(row['away_score'])
+    winner='tie' if home==away else identity['home_id'] if home>away else identity['away_id']
+    if winner not in p['probabilities']:
+        return None
+    return {'prediction_id':p['prediction_id'],'sport':'nfl','event_id':p['event_id'],'market':p['market'],
+        'actual_outcome':winner,'status':'SECONDARY_UNVERIFIED','independently_verified':False,'betting_eligible':False,
+        'participant_ids':list(p['participant_ids']),'observed_at_utc':iso(now),'source_url':NFLVERSE,
+        'response_sha256':receipt,'source_event_id':row['game_id'],'source_match_status':'SCHEDULE_SCORED',
+        'final_score':{'home':home,'away':away}}
+
+
+def collect(ledger,previous,now,fetcher=read_json,schedules_fetcher=None):
     if ledger.get('schemaVersion')!=1 or ledger.get('kind')!='PROSPECTIVE_PREDICTION_LEDGER' or not isinstance(ledger.get('records'),list):
         raise ValueError('Invalid forecast ledger')
     if previous.get('schema_version')!=1 or previous.get('publication_gate')!='BLOCKED' or not isinstance(previous.get('observations'),list):
@@ -133,7 +190,7 @@ def collect(ledger,previous,now,fetcher=read_json):
         if not doc:continue
         identity=espn_identity(doc,p)
         if identity:by_day[utc(p['event_start_utc']).date().isoformat()].append((p,identity))
-    appended=0;unmatched=0;days_scanned=0
+    appended=0;days_scanned=0
     for day,items in sorted(by_day.items())[:MAX_DAYS]:
         url=API+'?'+urlencode({'d':day,'s':'American Football','l':'NFL'})
         try:
@@ -144,15 +201,28 @@ def collect(ledger,previous,now,fetcher=read_json):
             errors+=1;continue
         for p,identity in items:
             evidence=sportsdb_observation(result,identity,p,now,url,hash_value)
-            if not evidence:unmatched+=1;continue
+            if not evidence:continue
             previous['observations'].append(evidence)
             stored[p['prediction_id']]=evidence
             appended+=1
+    remaining=[(p,identity) for rows in by_day.values() for p,identity in rows
+               if p['prediction_id'] not in stored]
+    nflverse_claims=0
+    if remaining and schedules_fetcher:
+        try:
+            index,receipt=schedules_fetcher()
+            for p,identity in remaining:
+                evidence=nflverse_observation(index,identity,p,now,receipt)
+                if evidence:
+                    previous['observations'].append(evidence)
+                    nflverse_claims+=1
+        except (ValueError,OSError,TimeoutError,TypeError,csv.Error):
+            errors+=1
     previous['observations'].sort(key=lambda x:x['prediction_id'])
     return {'candidate_records':len(pending),'first_provider_requests':min(len(by_source),MAX_ESPN_URLS),
-            'second_provider_days_scanned':days_scanned,'new_secondary_claims':appended,
+            'second_provider_days_scanned':days_scanned,'new_secondary_claims':appended+nflverse_claims,'nflverse_claims':nflverse_claims,
             'total_secondary_claims':len(previous['observations']),
-            'unmatched_events':unmatched,'source_errors':errors,
+            'unmatched_events':len(remaining)-nflverse_claims,'source_errors':errors,
             'status':'SECONDARY_PROVIDER_OBSERVATIONS_ONLY_UNVERIFIED'}
 
 def run(root,now):
@@ -164,7 +234,7 @@ def run(root,now):
        'notice':'Separate public sports provider claims only; no automatic independent verification'}
     if previous.get('research_only') is not True or previous.get('publication_gate')!='BLOCKED':
         raise ValueError('Unsafe secondary source archive')
-    status=collect(ledger,previous,now)
+    status=collect(ledger,previous,now,schedules_fetcher=read_nflverse)
     previous['generated_at_utc']=iso(now)
     path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(json.dumps(previous,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')

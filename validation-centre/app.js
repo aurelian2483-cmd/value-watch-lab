@@ -33,7 +33,8 @@ function draw(evaluation,health,legacy){
 }
 function showReview(feed,forecastCount){
  const box=$('result-review-summary');box.replaceChildren();
- const status=$('result-review-state'),meta=$('result-review-meta');
+ const status=$('result-review-state'),meta=$('result-review-meta'),priority=$('result-review-matches');
+ priority.replaceChildren();
  if(!feed||feed.schema_version!==1||feed.research_only!==true||feed.publication_gate!=='BLOCKED'||feed.independently_verified_results_added!==0||!Array.isArray(feed.items)||!feed.status_counts||typeof feed.status_counts!=='object'){
   status.textContent='Review report unavailable or unsafe; no result-verification claims can be made.';
   meta.textContent='Predictions remain experimental. Missing or stale review reports do not alter independent scoring.';
@@ -50,6 +51,14 @@ function showReview(feed,forecastCount){
  status.textContent=feed.total_predictions_checked+' frozen forecast(s) tracked · 0 automatically certified outcomes';
  const labels={AWAITING_EVENT:'Events not yet complete',AWAITING_PRIMARY_FINAL:'Awaiting first provider final',AWAITING_INDEPENDENT_SOURCE:'Awaiting independent source',SECONDARY_CONFLICT:'Sources disagree',SECONDARY_INVALID:'Secondary evidence invalid',READY_FOR_HUMAN_REVIEW:'Requires human verification',IDENTITY_CONFLICT:'Identity or duplicate conflict',ARCHIVE_INVALID:'Archive contract failure'};
  for(const key of valid){if(!counts[key])continue;const tile=add(box,'div');add(tile,'span',labels[key]);add(tile,'strong',counts[key]);}
+ for(const row of feed.items){
+   if(row.review_state!=='READY_FOR_HUMAN_REVIEW' || row.sport!=='nfl')continue;
+   const teams=/^\d{4}_\d{2}_([A-Z]{2,3})_([A-Z]{2,3})$/.exec(row.source_game_id||'');
+   const score=row.observed_score;
+   if(!teams || ![score?.home,score?.away].every(n=>Number.isInteger(n)&&n>=0&&n<=999))continue;
+   const match=add(priority,'p',teams[1]+' '+score.away+'–'+score.home+' '+teams[2]+' · ESPN and nflverse agree on the outcome · awaiting human verification. ');
+   add(match,'a','nflverse schedule CSV').href='https://github.com/nflverse/nflverse-data/releases/tag/schedules';
+ }
  meta.textContent='Last review snapshot: '+(feed.generated_at_utc&&Number.isFinite(Date.parse(feed.generated_at_utc))?when(feed.generated_at_utc):'undated')+' · No approved outcomes or betting performance claimed.';
 }
 function showPerformance(ledger,outcomes,review,weekly){

@@ -22,7 +22,7 @@ const health=P.SPORTS.map(s=>{
  return {sport:s.id,source:file,sourceStatus:!data?'MISSING':!fresh?'STALE_OR_UNDATED':'RECENT',
   upstreamResearchOnly:data?.research_only===true,modelValidated:false,
   captureSupport:['tennis','nfl'].includes(s.id)?'PROSPECTIVE_CAPTURE_ENABLED':'NO_UNIFIED_PROSPECTIVE_ADAPTER',
-  secondaryResultSupport:s.id==='nfl'?'UNVERIFIED_SECOND_PROVIDER_PILOT':'NOT_ESTABLISHED'};
+  secondaryResultSupport:s.id==='nfl'?'UNVERIFIED_THESPORTSDB_AND_NFLVERSE':'NOT_ESTABLISHED'};
 });
 const metrics={};for(const s of P.SPORTS)metrics[s.id]=model.metrics[s.id];
 const inputHash=stable({predictions:ledger.records,results:results.records,review:review?.status_counts,reviewTime:review?.generated_at_utc});

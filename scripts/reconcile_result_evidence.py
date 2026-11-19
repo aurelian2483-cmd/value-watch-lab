@@ -114,7 +114,10 @@ def reconcile(ledger,primary,secondary,now):
         items.append({'prediction_id':key,'sport':p['sport'],'event_id':p['event_id'],
                       'event_start_utc':p.get('event_start_utc'),
                       'review_state':state,'auto_certified':False,'betting_eligible':False,
-                      'observed_result':a.get('actual_outcome') if a and state not in ('IDENTITY_CONFLICT','ARCHIVE_INVALID') else None})
+                      'observed_result':a.get('actual_outcome') if a and state not in ('IDENTITY_CONFLICT','ARCHIVE_INVALID') else None,
+                      **({'source_game_id':b['source_event_id'],'observed_score':b['final_score']}
+                          if state=='READY_FOR_HUMAN_REVIEW' and b['source_url']=='https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv'
+                          and isinstance(b.get('source_event_id'),str) and isinstance(b.get('final_score'),dict) else {})})
     return {'schema_version':1,'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
       'generated_at_utc':iso(now),'total_predictions_checked':len(items),
       'status_counts':dict(states),'items':items,'independently_verified_results_added':0,
