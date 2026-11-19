@@ -869,11 +869,45 @@
     }
   }
   const X = ResearchExperimental;
+  const sportsMethods = typeof ValueWatchSportMethods === 'undefined' ? null : ValueWatchSportMethods;
+  const methodModes = sportsMethods?.modes || {};
+  const researchMode = value => Object.hasOwn(methodModes, value) ? value : X.mode(value);
+  const methodSnapshots = new Map();
+  for (const [id, method] of Object.entries(methodModes)) {
+    const option = make($('engine-select'), 'option', method.label);
+    option.value = id;
+  }
   let engineView = 'current';
-  try { engineView = X.mode(storage.getItem(X.preferenceKey)); } catch { /* Default view remains usable without storage. */ }
+  try { engineView = researchMode(storage.getItem(X.preferenceKey)); } catch { /* Default view remains usable without storage. */ }
   function renderEngine(evaluation) {
     const engineSelect = $('engine-select');
     if (engineSelect) engineSelect.value = engineView;
+    const method = methodModes[engineView];
+    if (method) {
+      write($('engine-status'), method.label + ' · Research only');
+      const root = $('engine-analysis');
+      root.hidden = false;
+      root.replaceChildren();
+      make(root, 'h3', 'Research suggestions');
+      make(root, 'p', 'PASS for betting · UNVALIDATED · Publication blocked');
+      const mode = engineView;
+      let entry = methodSnapshots.get(mode);
+      if (!entry || (!entry.pending && Date.now() - entry.at >= 60000)) {
+        entry = {pending:true, at:Date.now()};
+        methodSnapshots.set(mode, entry);
+        sportsMethods.read(mode).then(result => { entry.result = result; }).catch(() => {
+          entry.result = {note:'Research feed unavailable or invalid.', rows:[]};
+        }).finally(() => {
+          entry.pending = false;
+          if (engineView === mode) renderEngine(evaluation);
+        });
+      }
+      if (entry.pending) { make(root, 'p', 'Loading published research…'); return; }
+      make(root, 'p', entry.result.note);
+      for (const row of entry.result.rows) make(root, 'p', row, 'small');
+      if (!entry.result.rows.length) make(root, 'p', 'No eligible research suggestions in the current feed.');
+      return;
+    }
     write($('engine-status'), ({current:'Current Engine 2.5 · existing research workflow.', experimental:'Experimental Engine 3.0 · illustrative, uncalibrated research mathematics.', compare:'Side-by-Side Compare · same captured inputs; no reranking.', reliability:'Historical Reliability · automatic research-only favourite-pattern filter; not certified value picks.'})[engineView]);
     const root = $('engine-analysis'); root.hidden = engineView === 'current'; root.replaceChildren();
     if (root.hidden) return;
@@ -936,7 +970,7 @@
     make(root, 'p', 'Formulae: EV = p×o−1; break-even = 1/o; fragility = p−1/o; variance = o²p(1−p). Unit stake = 1; no actual stake or settlement implied.', 'small');
   }
   $('engine-select').addEventListener('change', event => safely(() => {
-    engineView = X.mode(event.target.value);
+    engineView = researchMode(event.target.value);
     renderSlip();
     renderEvents();
     try { storage.setItem(X.preferenceKey, engineView); } catch { write($('engine-status'), $('engine-status').textContent + ' View preference could not be saved on this device.'); }
