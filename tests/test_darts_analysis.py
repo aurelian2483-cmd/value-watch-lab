@@ -67,7 +67,7 @@ class DartsAnalysis(unittest.TestCase):
             if endpoint == '/v1/results':payload['data'][0]['winner'] = None
             return payload,digest
         request.side_effect = bad
-        with self.assertRaisesRegex(RuntimeError, 'normalization'):
+        with self.assertRaisesRegex(RuntimeError, 'normalization.*INVALID_PLAYER=56'):
             collector.analysis_snapshot(NOW,'test-key')
 
 if __name__ == '__main__':unittest.main()

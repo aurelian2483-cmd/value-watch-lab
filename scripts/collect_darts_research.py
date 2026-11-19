@@ -4,9 +4,10 @@ Requires DARTS_API_KEY injected as environment secret. Never prints or writes
 the secret; never commits raw provider data or changes the public D1 feed.
 """
 import json, os, sys, urllib.request, urllib.parse, urllib.error, hashlib, time, subprocess
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from darts_api_adapter import adapt
+from darts_api_adapter import adapt, result_issue
 
 ROOT='https://api.dartsapi.com'
 REQUEST_LIMIT=100
@@ -68,7 +69,10 @@ def collect(now, key):
     fixtures,frecs=pages('/v1/fixtures',{'from':day.isoformat(),'to':(day+timedelta(days=7)).isoformat(),'limit':500},key,10)
     old,future=adapt(results,fixtures,now)
     future=[row for row in future if day.isoformat()<=row['start_utc'][:10]<=(day+timedelta(days=7)).isoformat()]
-    if len(old)!=len(results):raise RuntimeError('Historical rows failed normalization; incomplete analysis withheld')
+    if len(old)!=len(results):
+        issues=Counter(issue for row in results if (issue:=result_issue(row,now)))
+        raise RuntimeError('Historical rows failed normalization; analysis withheld ('+
+                           ', '.join(f'{reason}={count}' for reason,count in sorted(issues.items()))+')')
     return {'schema_version':1,'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
             'source_verification':'PROVIDER_OBSERVED_UNCORROBORATED','generated_at_utc':now.isoformat().replace('+00:00','Z'),
             'results':old,'fixtures':future,

@@ -15,15 +15,23 @@ def player(p):
     if not isinstance(pid,str) or not PID.fullmatch(pid) or not isinstance(name,str) or not name.strip() or len(name)>160:return None
     return {'id':pid,'name':name.strip()}
 
-def result(r, now):
-    if not isinstance(r,dict) or r.get('result_status')!='final' or not isinstance(r.get('match_id'),str) or not MID.fullmatch(r['match_id']):return None
+def result_issue(r, now):
+    if not isinstance(r,dict):return 'INVALID_ROW'
+    if r.get('result_status')!='final':return 'NOT_FINAL'
+    if not isinstance(r.get('match_id'),str) or not MID.fullmatch(r['match_id']):return 'INVALID_MATCH_ID'
     a,b=player(r.get('winner')),player(r.get('loser'))
-    if not a or not b or a['id']==b['id']:return None
+    if not a or not b:return 'INVALID_PLAYER'
+    if a['id']==b['id']:return 'DUPLICATE_PLAYER'
     d=r.get('played_on')
     try:
-        if not isinstance(d,str) or date.fromisoformat(d).isoformat()!=d or date.fromisoformat(d)>=now.astimezone(timezone.utc).date():return None
-    except ValueError:return None
-    return {'id':r['match_id'],'played_at':d+'T12:00:00Z','source_date_precision':'DAY_ONLY','timestamp_is_carrier':True,'status':'FINAL','player_a':a,'player_b':b,'winner_id':a['id']}
+        if not isinstance(d,str) or date.fromisoformat(d).isoformat()!=d or date.fromisoformat(d)>=now.astimezone(timezone.utc).date():return 'INVALID_MATCH_DATE'
+    except ValueError:return 'INVALID_MATCH_DATE'
+    return None
+
+def result(r, now):
+    if result_issue(r,now):return None
+    a,b=player(r['winner']),player(r['loser'])
+    return {'id':r['match_id'],'played_at':r['played_on']+'T12:00:00Z','source_date_precision':'DAY_ONLY','timestamp_is_carrier':True,'status':'FINAL','player_a':a,'player_b':b,'winner_id':a['id']}
 
 def fixture(r, now):
     if not isinstance(r,dict):return None
