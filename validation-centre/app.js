@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const C=window.ValueWatchIndependentValidation,$=id=>document.getElementById(id),SOURCES=['research-dashboard-data.json','horse-research-status.json','other-sports-data.json','darts/feed.json','rugby-research-data.json','research-history.json','prediction-ledger.json','results-feed.json','research/result-review-status.json','research/performance-report-latest.json'];
+const C=window.ValueWatchIndependentValidation,$=id=>document.getElementById(id),SOURCES=['research-dashboard-data.json','horse-research-status.json','other-sports-data.json','darts/feed.json','rugby-research-data.json','research-history.json','prediction-ledger.json','results-feed.json','research/result-review-status.json','research/performance-report-latest.json','research/provider-result-observations.json','research/secondary-result-evidence.json'];
 const write=(id,s)=>$(id).textContent=String(s);
 const add=(p,tag,value,cls)=>{const e=document.createElement(tag);if(value!==undefined)e.textContent=String(value);if(cls)e.className=cls;p.append(e);return e};
 const when=ts=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',dateStyle:'medium',timeStyle:'short'}).format(new Date(ts))+' UK';
@@ -31,7 +31,7 @@ function draw(evaluation,health,legacy){
  if(evaluation.state==='INVALID_ARCHIVE')add(box,'p','Archive contract invalid: do not use any scores.','issue');
  write('legacy',legacy.count+' legacy history entry/entries detected · '+legacy.status+'. '+(legacy.note||'No historical performance evidence imported.'));
 }
-function showReview(feed,forecastCount){
+function showReview(feed,forecastCount,primary,secondary){
  const box=$('result-review-summary');box.replaceChildren();
  const status=$('result-review-state'),meta=$('result-review-meta'),priority=$('result-review-matches');
  priority.replaceChildren();
@@ -42,8 +42,15 @@ function showReview(feed,forecastCount){
  }
  const valid=['AWAITING_EVENT','AWAITING_PRIMARY_FINAL','AWAITING_INDEPENDENT_SOURCE','SECONDARY_CONFLICT','SECONDARY_INVALID','READY_FOR_HUMAN_REVIEW','IDENTITY_CONFLICT','ARCHIVE_INVALID'];
  const counts=feed.status_counts;
- const n=Object.values(counts).reduce((a,b)=>a+(Number.isInteger(b)&&b>=0?b:0),0);
- if(n!==feed.items.length||feed.items.length!==forecastCount||Object.keys(counts).some(k=>!valid.includes(k))||feed.items.some(x=>x.auto_certified!==false||x.betting_eligible!==false)){
+ const actual=Object.create(null), seen=new Set();
+ const rowsValid=feed.items.length===forecastCount && feed.total_predictions_checked===forecastCount && feed.items.every(row=>{
+  if(!row || row.auto_certified!==false || row.betting_eligible!==false ||
+     typeof row.prediction_id!=='string' || seen.has(row.prediction_id) || !valid.includes(row.review_state))return false;
+  seen.add(row.prediction_id);
+  actual[row.review_state]=(actual[row.review_state]||0)+1;
+  return true;
+ });
+ if(!rowsValid||Object.entries(counts).some(([k,n])=>!valid.includes(k)||!Number.isInteger(n)||n<0)||valid.some(k=>(counts[k]??0)!==(actual[k]??0))){
   status.textContent='Review report inconsistent with current frozen forecast ledger; withheld.';
   meta.textContent='Retry when the next complete capture/report snapshot is published.';
   return;
@@ -51,8 +58,11 @@ function showReview(feed,forecastCount){
  status.textContent=feed.total_predictions_checked+' frozen forecast(s) tracked · 0 automatically certified outcomes';
  const labels={AWAITING_EVENT:'Events not yet complete',AWAITING_PRIMARY_FINAL:'Awaiting first provider final',AWAITING_INDEPENDENT_SOURCE:'Awaiting independent source',SECONDARY_CONFLICT:'Sources disagree',SECONDARY_INVALID:'Secondary evidence invalid',READY_FOR_HUMAN_REVIEW:'Requires human verification',IDENTITY_CONFLICT:'Identity or duplicate conflict',ARCHIVE_INVALID:'Archive contract failure'};
  for(const key of valid){if(!counts[key])continue;const tile=add(box,'div');add(tile,'span',labels[key]);add(tile,'strong',counts[key]);}
- const tennisReady=feed.items.filter(row=>row.sport==='tennis'&&row.review_state==='READY_FOR_HUMAN_REVIEW').length;
- if(tennisReady)add(priority,'p',tennisReady+' tennis results have matching second-source evidence and await human verification.');
+ const tennisReady=feed.items.filter(row=>row.sport==='tennis'&&row.review_state==='READY_FOR_HUMAN_REVIEW');
+ if(tennisReady.length){
+  add(priority,'p',tennisReady.length+' tennis results have matching second-source evidence and await human verification.');
+  showTennisSources(priority,tennisReady,primary,secondary);
+ }
  for(const row of feed.items){
    if(row.review_state!=='READY_FOR_HUMAN_REVIEW' || row.sport!=='nfl')continue;
    const teams=/^\d{4}_\d{2}_([A-Z]{2,3})_([A-Z]{2,3})$/.exec(row.source_game_id||'');
@@ -62,6 +72,50 @@ function showReview(feed,forecastCount){
    add(match,'a','nflverse schedule CSV').href='https://github.com/nflverse/nflverse-data/releases/tag/schedules';
  }
  meta.textContent='Last review snapshot: '+(feed.generated_at_utc&&Number.isFinite(Date.parse(feed.generated_at_utc))?when(feed.generated_at_utc):'undated')+' · No approved outcomes or betting performance claimed.';
+}
+function showTennisSources(parent,rows,primary,secondary){
+ const index=(doc,status)=>{
+  const records=new Map();
+  if(doc?.schema_version!==1 || doc.publication_gate!=='BLOCKED' || !Array.isArray(doc.observations))return records;
+  const seen=new Set();
+  for(const row of doc.observations){
+   const id=row?.prediction_id;
+   if(typeof id!=='string')continue;
+   if(seen.has(id)){records.delete(id);continue}
+   seen.add(id);
+   if(row.status===status&&row.independently_verified===false&&row.betting_eligible===false)records.set(id,row);
+  }
+  return records;
+ };
+ const source=(value,hosts)=>{
+  try{const url=new URL(value);return url.protocol==='https:'&&hosts.includes(url.hostname)&&
+   !url.username&&!url.password&&!url.port?url.href:null}
+  catch{return null}
+ };
+ const byPrimary=index(primary,'SINGLE_PROVIDER_FINAL_UNVERIFIED');
+ const bySecondary=index(secondary,'SECONDARY_UNVERIFIED');
+ const details=add(parent,'details',undefined,'review-match-details');
+ add(details,'summary','Inspect tennis source evidence');
+ const list=add(details,'ul');
+ let matched=0;
+ for(const row of rows){
+  const first=byPrimary.get(row.prediction_id),second=bySecondary.get(row.prediction_id);
+  if(!first||!second||[first,second].some(item=>item.sport!=='tennis'||item.event_id!==row.event_id||
+    item.market!=='MATCH_WINNER'||item.actual_outcome!==row.observed_result))continue;
+  const from=source(first.source_url,['site.api.espn.com']);
+  const corroboration=source(second.source_url,['www.nittoatpfinals.com','wtafiles.wtatennis.com']);
+  const players=second.source_match_players,winner=second.source_match_winner;
+  if(!from||!corroboration||!Array.isArray(players)||players.length!==2||
+    !players.every(name=>typeof name==='string'&&name.trim()&&name.length<=150)||!players.includes(winner))continue;
+  const item=add(list,'li');
+  add(item,'strong',players.join(' vs '));
+  add(item,'p','Observed winner: '+winner);
+  add(item,'a','ESPN result source').href=from;
+  add(item,'span',' · ');
+  add(item,'a','Tournament result source').href=corroboration;
+  matched++;
+ }
+ if(matched<rows.length)add(details,'p',String(rows.length-matched)+' review entries are missing matching source links in the loaded snapshot.');
 }
 function showPerformance(ledger,outcomes,review,weekly){
  const core=window.ValueWatchPerformanceIntelligence;
@@ -119,7 +173,7 @@ async function refresh(){
  const score=C.evaluate(feeds['prediction-ledger.json'],feeds['results-feed.json']);
  const health=C.sourceHealth(feeds,Date.now()),legacy=C.descriptiveHistory(feeds['research-history.json']);
  draw(score,health,legacy);
- showReview(feeds['research/result-review-status.json'],score.audit.predictionRecords);
+ showReview(feeds['research/result-review-status.json'],score.audit.predictionRecords,feeds['research/provider-result-observations.json'],feeds['research/secondary-result-evidence.json']);
  showPerformance(feeds['prediction-ledger.json'],feeds['results-feed.json'],feeds['research/result-review-status.json'],feeds['research/performance-report-latest.json']);
  const unavailable=health.filter(x=>x.sourceStatus!=='CURRENT');
  const incomplete=failed.length>0||unavailable.length>0||score.state==='INVALID_ARCHIVE';

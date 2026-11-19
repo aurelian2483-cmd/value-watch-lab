@@ -12,6 +12,14 @@ const f={...base,upcoming_fixtures:[
 const other={...base,sports:{tennis:{events:[{id:'t-1',name:'A vs B',startUTC:new Date(now+600000).toISOString(),forecast:{outcomes:[{id:'A',probability:.5}]}}]},nfl:{events:[{id:'n-1',name:'C vs D',startUTC:new Date(now+7200000).toISOString()}]}}};
 const racing={...base,races:[{race_id:'r-1',racecourse:'Ascot',startUTC:new Date(now+1800000).toISOString(),forecast_eligible:false,prediction:null}]};
 const rugby={...base,upcoming_fixtures:[{event_id:'ru-1',home:'France',away:'Argentina',kickoff_utc:new Date(now+5400000).toISOString()}]};
+const timed={id:'dart-1',start_utc:new Date(now+2700000).toISOString(),status:'SCHEDULED',
+ player_a:{name:'Alice',id:'a'},player_b:{name:'Bob',id:'b'}};
+const darts={...base,schema_version:1,source_verification:'PROVIDER_OBSERVED_UNCORROBORATED',
+ fixtures:[timed,{...timed,id:'dart-2',status:'DATE_ONLY_UNCONFIRMED'}],
+ tentative_fixtures:[{id:'dart-3',date_utc:'2026-11-13'}]};
+const dartsFeed=S.inspect('darts',darts,now);
+assert.equal(dartsFeed.records.length,1,'Only timed Darts fixtures enter the upcoming list');
+assert.equal(S.inspect('darts',{...darts,source_verification:'NOT_CONFIGURED'},now).fresh,false);
 const history={...base,entries:[],metrics_status:'INSUFFICIENT_SAMPLE'};
 const football=S.inspect('football',f,now);
 assert.equal(football.state,'PARTIAL_RECORDS');
@@ -21,9 +29,9 @@ const tennisNFL=S.inspect('other',other,now),horse=S.inspect('racing',racing,now
 assert.equal(tennisNFL.state,'OBSERVED');assert.equal(horse.state,'OBSERVED');
 const rugbyFeed=S.inspect('rugby',rugby,now);
 assert.equal(rugbyFeed.state,'OBSERVED');assert.equal(rugbyFeed.records[0].hasModel,false);
-const summary=S.summarize([football,tennisNFL,horse,rugbyFeed],now);
-assert.equal(summary.upcoming.length,5);
-assert.deepEqual(summary.counts,{football:1,racing:1,tennis:1,nfl:1,rugby:1});
+const summary=S.summarize([football,tennisNFL,horse,dartsFeed,rugbyFeed],now);
+assert.equal(summary.upcoming.length,6);
+assert.deepEqual(summary.counts,{football:1,racing:1,tennis:1,nfl:1,darts:1,rugby:1});
 assert.equal(summary.allSportsAvailable,true);
 
 const mixed=[
@@ -34,10 +42,11 @@ const mixed=[
  {sport:'football',name:'Fixture A',startMs:5},
  {sport:'tennis',name:'Match A',startMs:6},
  {sport:'nfl',name:'NFL A',startMs:7},
+ {sport:'darts',name:'Darts A',startMs:8},
  {sport:'rugby',name:'Rugby A',startMs:8}
 ];
 const featured=S.featuredOrder(mixed);
-assert.deepEqual(featured.map(x=>x.sport),['football','racing','tennis','nfl','rugby','racing','racing','racing']);
+assert.deepEqual(featured.map(x=>x.sport),['football','racing','tennis','nfl','darts','rugby','racing','racing','racing']);
 assert.equal(featured.length,mixed.length,'No sourced event may be lost');
 assert.deepEqual(S.featuredOrder([]),[]);
 
@@ -64,5 +73,5 @@ assert.equal(sourceTime,now);assert.equal(S.stamp('bad'),null);
  assert.equal(loaded.state,'PARTIAL_RECORDS');
  const fail=await S.load('football','../',async()=>{throw Error('offline')},now);
  assert.equal(fail.state,'UNAVAILABLE');assert.deepEqual(fail.records,[]);
- console.log('PASS: shared source read-only gates, strict ages, valid five-sport counts, schema, deduplication and partial availability');
+ console.log('PASS: shared source read-only gates, strict ages, valid six-sport counts, schema, deduplication and partial availability');
 })().catch(e=>{console.error(e);process.exitCode=1});

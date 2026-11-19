@@ -448,13 +448,23 @@
         if (shown.length < event.choices.length) { const rest = details(record.market, 'Show all ' + event.choices.length + ' runners', 'runner-disclosure'); const grid = make(rest, 'div', undefined, 'market-grid'); for (const choice of ordered.slice(shown.length)) append(grid, choice); }
       }
     }
+    const compactRunners = event.sport === 'racing' && record.choices.size > 0 &&
+      event.choices.every(choice => !Number.isFinite(choice.probability) &&
+        !Number.isFinite(choice.quote?.decimal) && !Number.isFinite(choice.forecastPrice?.decimal));
+    record.market.classList.toggle('runner-list-compact', compactRunners);
+    const marketHeading = record.market.querySelector('.runner-list-heading');
+    if (!compactRunners) marketHeading?.remove();
+    else if (!marketHeading) {
+      const heading = make(null, 'p', 'Runner list · estimates and prices unavailable', 'runner-list-heading small');
+      record.market.prepend(heading);
+    }
     for (const choice of event.choices) {
       const view = record.choices.get(choice.id); if (!view) continue;
       const chosen = selected.some(leg => leg.eventId === event.id && leg.choiceId === choice.id), priced = typeof choice.quote?.decimal === 'number', publishedForecast=typeof choice.forecastPrice?.decimal==='number';
       const estimated = event.model && typeof choice.probability === 'number';
       const contextWeight = event.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT';
       const value = estimated ? pct(choice.probability) : priced ? choice.quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'No estimate';
-      write(view.price, event.provisionalEntry && !estimated && !priced && !publishedForecast ? '' : value); view.price.hidden = !view.price.textContent; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
+      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
       write(view.odds, priced ? estimated ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'Bookmaker odds not connected');
       write(view.method, event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' + (contextWeight ? ' · context weight, not win probability' : '') : 'Method: unavailable · no validated forecast');
       const leader = leaders.find(leader => leader.id === choice.id);
@@ -481,7 +491,9 @@
       view.modelBadge.style.setProperty('color', racingPick ? agreement ? '#fef08a' : hasCommunity ? '#bfdbfe' : '#e1ffae' : '', racingPick ? 'important' : '');
       view.element.classList.toggle('is-model-first', leader?.rank === 1); view.element.classList.toggle('is-model-alternative', leader?.rank === 2);
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
-      view.element.setAttribute('aria-label', choice.label + ' · ' + (leader ? leader.rank === 1 ? 'model first choice · ' : 'model alternative · ' : '') + value + (contextWeight ? ' context weight' : estimated ? ' model estimate' : ' source odds') + ' · ' + (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name);
+      const metric = contextWeight ? value + ' context weight' : estimated ? value + ' model estimate' :
+        priced ? value + ' source odds' : publishedForecast ? value + ' publisher forecast' : 'estimate unavailable';
+      view.element.setAttribute('aria-label', choice.label + ' · ' + (leader ? leader.rank === 1 ? 'model first choice · ' : 'model alternative · ' : '') + metric + ' · ' + (status.selectable ? (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name : 'paper selection unavailable'));
       if (priced && view.previous !== null && view.previous !== choice.quote.decimal) { view.element.classList.remove('odds-up', 'odds-down'); view.element.classList.add(choice.quote.decimal > view.previous ? 'odds-up' : 'odds-down'); }
       view.previous = priced ? choice.quote.decimal : null;
     }
@@ -704,7 +716,6 @@
       }).catch(() => {
         if (fixtureSnapshots.get(sport) === request) fixtureSnapshots.set(sport, {fixtures:[], usable:false, hasOfficial:false});
       }).finally(() => safely(() => {
-        renderFixtureCounts(store.get());
         renderNavigation();
         renderEvents();
       }));
@@ -715,10 +726,12 @@
     return ResearchFixtureEvidence.matching(snapshot, state);
   }
   function renderFixtureCounts(state) {
+    let total = 0;
     for (const sport of Object.keys(fixtureLabs)) {
       const snapshot = loadFixtureSnapshot(sport);
       const available = snapshot.usable || snapshot.hasOfficial;
       const count = snapshot.loading ? '…' : available ? matchingFixtures(snapshot, state).length : '—';
+      if (Number.isInteger(count)) total += count;
       const status = snapshot.loading ? 'Loading fixtures' : available ? count + ' fixtures in selected view' : 'Fixture sources unavailable';
       document.querySelectorAll('[data-count="' + sport + '"]').forEach(badge => {
         write(badge, count);
@@ -726,6 +739,7 @@
         badge.setAttribute('aria-label', status);
       });
     }
+    return total;
   }
   function renderFixtureLab(root, state, sport = state.sport) {
     const lab = fixtureLabs[sport], snapshot = loadFixtureSnapshot(sport);
@@ -826,6 +840,8 @@
     const rows = isReliability
       ? normalRows.filter(event => currentHistoryStatus(event).status === 'FORM_CANDIDATE')
       : normalRows;
+    const activeLabs = Object.keys(fixtureLabs).filter(sport => state.sport === sport || (state.sport === 'all' && !isReliability));
+    const fixtureRowsPresent = activeLabs.some(sport => matchingFixtures(loadFixtureSnapshot(sport),state).length > 0);
     const visible = rows.slice(0, state.limit), root = $('events'); root.setAttribute('aria-busy', 'false');
     if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more, .fixture-events').forEach(element => element.remove());
     S.reconcile(root, visible.map(event => event.id), cards, createCard, (record, id) => patchCard(record, visible.find(event => event.id === id)));
@@ -835,7 +851,7 @@
       const upcomingMeetings=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to); const box = empty(root, '0 verified racecards · '+upcomingMeetings.length+' scheduled meetings', (upcomingMeetings.length ? 'Meeting dates and courses are available, but race times, runners and odds are not yet verified. See the scheduled meetings below. ' : 'No meeting fixtures are loaded for the selected dates. ') + 'Racecards remain unavailable until verified source data is collected.', { label: 'Show next 14 days', run: () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'upcoming' })); $('search').value = ''; $('event-view').value = 'upcoming'; preset('14'); } }); box.classList.add('event-empty');
       if (latest && latest !== today()) button(box, 'View dated previous cards', () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'all' })); $('search').value = ''; $('event-view').value = 'all'; setRange(latest, latest); }, 'button button-quiet');
     }
-    else if (!visible.length && !fixtureLabs[state.sport]) { const box = empty(root,
+    else if (!visible.length && !fixtureLabs[state.sport] && !fixtureRowsPresent) { const box = empty(root,
       isReliability ? 'No historical form candidates with sufficient evidence' :
       state.snapshotState?.status === 'unavailable' ? 'Research sources unavailable' : 'No events match this view',
       isReliability ? 'Automatic seven-competition screening is active. Existing source records do not establish five earlier results for both teams and the required win pattern in this view. No predictions or odds were invented. Switch engines or widen the date range. Historical archive: '+historicalStatus+'.' :
@@ -922,13 +938,10 @@
     }
     write($('coverage-summary'), rows.length + ' matching your filters · ' + state.events.length + ' total loaded records across all dates. Coverage is incomplete; zero means no matching records in these feeds.');
     let fixtureCount = 0;
-    if (fixtureLabs[state.sport] || (state.sport === 'all' && !isReliability)) {
-      for (const sport of Object.keys(fixtureLabs).filter(sport => state.sport === 'all' || state.sport === sport))
-        fixtureCount += renderFixtureLab(root, state, sport);
-    }
+    for (const sport of activeLabs) fixtureCount += renderFixtureLab(root, state, sport);
     if (fixtureLabs[state.sport]) {
       write($('event-summary'), fixtureCount + (fixtureCount === 1 ? ' match' : ' matches') + ' in the selected view · ' + state.plan.from + ' → ' + state.plan.to);
-      write($('coverage-summary'), 'Available schedule and model evidence is shown below. These feeds do not supply bookmaker prices.');
+      write($('coverage-summary'), 'Schedule and model evidence appear on each match. Any captured prices are dated source observations.');
     } else {
       write($('event-summary'), rows.length + ' research events' + (state.sport === 'all' && !isReliability ? ' + ' + fixtureCount + ' darts/rugby calendar matches' : '') + ' · ' + state.plan.from + ' → ' + state.plan.to + ' · UK time');
     }
@@ -936,11 +949,18 @@
 
   function renderNavigation() {
     const state = store.get(); $('sport').value = state.sport;
-    document.querySelectorAll('[data-sport]').forEach(element => { const active = element.dataset.sport === state.sport; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
-    document.querySelectorAll('[data-count]').forEach(element => {
-      if (!fixtureLabs[element.dataset.count]) write(element, filtered({ ...state, sport: element.dataset.count }).length);
+    document.querySelectorAll('[data-sport], [data-pro-sport]').forEach(element => {
+      const active = (element.dataset.sport || element.dataset.proSport) === state.sport;
+      element.classList.toggle('active', active);
+      element.setAttribute('aria-pressed', String(active));
     });
-    renderFixtureCounts(state);
+    const fixtureCount = renderFixtureCounts(state);
+    document.querySelectorAll('[data-count]').forEach(element => {
+      const sport = element.dataset.count;
+      if (fixtureLabs[sport]) return;
+      const count = filtered({ ...state, sport }).length;
+      write(element, sport === 'all' ? count + fixtureCount : count);
+    });
     const fixtureCompetitions = Object.keys(fixtureLabs).filter(sport => state.sport === 'all' || state.sport === sport).flatMap(sport => matchingFixtures(loadFixtureSnapshot(sport), {...state,competition:'all'}).map(row => row.competition));
     const competitions = [...new Set([...filtered({ ...state, competition: 'all' }).map(event => event.competition), ...fixtureCompetitions])].filter(Boolean).sort(), signature = JSON.stringify(competitions);
     if (state.competition !== 'all' && !competitions.includes(state.competition)) store.update(current => ({ ...current, competition: 'all', limit: 24 }));
@@ -1144,7 +1164,11 @@
       return;
     }
     write($('engine-status'), ({current:'Current Engine 2.5 · existing research workflow.', experimental:'Engine 3.0 · frozen recent-form football model + market.', hybrid:'Hybrid 3.1 · current-season football model + independent market.', compare:'Compare the saved estimate with each experimental method.', reliability:'Historical Reliability · automatic research-only favourite-pattern filter; not certified value picks.'})[engineView]);
-    const root = $('engine-analysis'); root.hidden = engineView === 'current'; root.replaceChildren();
+    const root = $('engine-analysis');
+    const openComparisons = new Set([...root.querySelectorAll('details[data-comparison][open]')].map(row => row.dataset.comparison));
+    const focusedComparison = document.activeElement?.matches('summary') ?
+      document.activeElement.parentElement.dataset.comparison : undefined;
+    root.hidden = engineView === 'current'; root.replaceChildren();
     if (root.hidden) return;
     if (engineView === 'reliability') {
       const available = filtered(store.get()).filter(event => event.sport==='football');
@@ -1172,6 +1196,7 @@
       const ready = rows.filter(row => row.result.probabilities);
       const archived = rows.filter(row => row.result.captured);
       make(root, 'p', fixtures.length + ' fixtures · ' + ready.length + ' current blends · ' +
+        ready.filter(row => row.result.checkedBothMarkets).length + ' paired price checks · ' +
         ready.filter(row => row.result.selection).length + ' paper suggestions' +
         (archived.length ? ' · ' + archived.length + ' archived comparisons' : ''));
       for (const row of [...ready, ...archived].slice(0, state.limit)) {
@@ -1195,8 +1220,13 @@
       make(glossary, 'p', '2.5 shows the saved estimate. 3.0 blends its frozen recent-form forecast and market at 50/50. 3.1 blends the current-season forecast and an independent market at 50/50, then checks a separate Sky Bet price.');
     }
     for (const leg of evaluation.legs) {
-      const row = make(root, 'article', undefined, 'engine-comparison' + (entry ? ' engine-comparison-three' : ' engine-comparison-single'));
-      make(row, 'h4', leg.event + ' · ' + leg.label);
+      const disclosure = make(root, 'details', undefined, 'engine-selection-details');
+      const key = JSON.stringify([leg.eventId, leg.startUTC, leg.choiceId]);
+      disclosure.dataset.comparison = key;
+      disclosure.open = openComparisons.has(key);
+      const summary = make(disclosure, 'summary', leg.event + ' · ' + leg.label);
+      if (focusedComparison === key) summary.focus({preventScroll:true});
+      const row = make(disclosure, 'div', undefined, 'engine-comparison' + (entry ? ' engine-comparison-three' : ' engine-comparison-single'));
       const fixture = state.events.find(item => item.id === leg.eventId && item.startUTC === leg.startUTC);
       if (entry) {
         const current = make(row, 'div');
@@ -1753,7 +1783,7 @@
   $('date-from').value = initial.plan.from; $('date-to').value = initial.plan.to;
   document.querySelectorAll('[data-range]').forEach(element => { element.addEventListener('click', () => safely(() => preset(element.dataset.range))); const active = !restored && element.dataset.range === '7'; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
   function chooseSport(sport) {
-    store.update(state => ({ ...state, sport, view: fixtureLabs[sport] ? 'events' : state.view, competition: 'all', limit: 24 }));
+    store.update(state => ({ ...state, sport, view: 'events', competition: 'all', limit: 24 }));
     if (fixtureLabs[sport]) $('events-view').scrollIntoView({block:'start'});
   }
   document.querySelectorAll('[data-sport]').forEach(element => element.addEventListener('click', () => chooseSport(element.dataset.sport)));

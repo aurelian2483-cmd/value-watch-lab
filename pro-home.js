@@ -8,15 +8,29 @@ function ready(){
   const sport=btn.getAttribute('data-pro-sport');
   const target=document.querySelector('#sport-nav button[data-sport="'+sport+'"]');
   if(target)target.click();
-  root.querySelectorAll('[data-pro-sport]').forEach(b=>b.setAttribute('aria-pressed',String(b.getAttribute('data-pro-sport')===sport)));
-  document.getElementById('main-content')?.scrollIntoView({behavior:'smooth',block:'start'});
+  const main=document.getElementById('main-content');
+  main?.scrollIntoView({block:'start'});
+  main?.focus({preventScroll:true});
  }));
+ const showSlips=()=>{
+  const open=document.getElementById('paper-open'),panel=document.getElementById('slip-panel');
+  if(open&&window.matchMedia?.('(max-width: 1000px)').matches){open.click();return}
+  panel?.scrollIntoView({block:'start'});
+  panel?.focus({preventScroll:true});
+ };
  root.querySelectorAll('[data-pro-slot]').forEach(btn=>btn.addEventListener('click',()=>{
   const n=btn.getAttribute('data-pro-slot');
   document.querySelector('#slip-tabs button[data-slot="'+n+'"]')?.click();
-  const open=document.getElementById('paper-open');
-  if(open&&window.matchMedia?.('(max-width: 1000px)').matches)open.click();
-  document.getElementById('slip-panel')?.scrollIntoView({behavior:'smooth',block:'start'});
+  showSlips();
+ }));
+ root.querySelector('[data-open-paper]')?.addEventListener('click',event=>{event.preventDefault();showSlips()});
+ root.querySelectorAll('[data-open-events]').forEach(link=>link.addEventListener('click',event=>{
+  event.preventDefault();
+  document.querySelector('#app-tabs [data-view="events"]')?.click();
+  queueMicrotask(()=>{
+   document.getElementById('events-view')?.scrollIntoView({block:'start'});
+   document.getElementById('main-content')?.focus({preventScroll:true});
+  });
  }));
 }
 function cell(parent,label){const td=document.createElement('td');td.textContent=String(label);parent.append(td)}
@@ -31,7 +45,7 @@ function renderFeatured(){
  body.replaceChildren();
  for(const item of featured.slice(page*FEATURE_PAGE_SIZE,(page+1)*FEATURE_PAGE_SIZE)){
   const tr=document.createElement('tr');tr.className='pro-feature-event';
-  const label={football:'⚽ Football',racing:'♞ Horse racing',tennis:'🎾 Tennis',nfl:'🏈 NFL',rugby:'🏉 Rugby'}[item.sport]||item.sport;
+  const label={football:'⚽ Football',racing:'♞ Horse racing',tennis:'🎾 Tennis',nfl:'🏈 NFL',darts:'🎯 Darts',rugby:'🏉 Rugby'}[item.sport]||item.sport;
   const when=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(item.startMs));
   for(const value of [label,item.name,when,item.hasModel?'Experimental model record':'No model record'])cell(tr,value);
   body.append(tr);
@@ -45,17 +59,17 @@ async function showFeatured(){
  const status=document.getElementById('pro-featured-status'),health=document.getElementById('pro-market-feeds'),refresh=document.getElementById('pro-feature-refresh');
  if(!Sources||!status||!health||loading)return;
  loading=true;if(refresh)refresh.disabled=true;
- const now=Date.now(),ids=['football','racing','other','rugby'];
+ const now=Date.now(),ids=Sources.SOURCES.filter(source=>source.id!=='history').map(source=>source.id);
  try{
   const feeds=await Promise.all(ids.map(id=>Sources.load(id,'./',window.fetch.bind(window),now)));
   const summary=Sources.summarize(feeds,now),invalid=feeds.filter(x=>x.state!=='OBSERVED');
   for(const sport of Sources.sports)document.querySelectorAll('[data-pro-count="'+sport+'"]').forEach(el=>{el.textContent=summary.counts[sport]===null?'—':String(summary.counts[sport])});
-  const all=document.querySelector('[data-pro-count="all"]');if(all)all.textContent=summary.allSportsAvailable?String(summary.totalAvailable):'—';
+  const all=document.querySelector('[data-pro-count="all"]');if(all)all.textContent=summary.available.length?String(summary.totalAvailable):'—';
   featured=Sources.featuredOrder(summary.upcoming);page=0;
-  health.textContent=feeds.filter(x=>x.state==='OBSERVED').length+'/'+feeds.length+' source groups fully checked'+(invalid.length?' · review needed':'');
+  health.textContent=feeds.filter(x=>x.state==='OBSERVED').length+'/'+feeds.length+' current source groups'+(invalid.length?' · review needed':'');
   const stamps=feeds.filter(x=>x.fresh&&Number.isFinite(x.generatedAt)).map(x=>x.generatedAt);
   const updated=stamps.length?new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(Math.min(...stamps))):'unavailable';
-  status.textContent=summary.upcoming.length+' monitored upcoming events · '+summary.available.length+'/'+Sources.sports.length+' sports with usable feeds · oldest source snapshot '+updated+' UK'+(invalid.length?' · '+invalid.map(x=>x.id+': '+x.state).join(', '):'')+'. No verified bookmaker odds, EV or qualifying bets.';
+  status.textContent=summary.upcoming.length+' upcoming events with start times · '+summary.available.length+'/'+Sources.sports.length+' sports with usable feeds · oldest source snapshot '+updated+' UK'+(invalid.length?' · '+invalid.map(x=>x.id+': '+x.state).join(', '):'')+'. No verified bookmaker odds, EV or qualifying bets.';
  }catch{
   featured=[];page=0;status.textContent='Source check unavailable; no events confirmed.';health.textContent='Unavailable';
  }finally{loading=false;if(refresh)refresh.disabled=false;renderFeatured()}

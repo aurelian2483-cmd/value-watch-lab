@@ -166,12 +166,14 @@ def main():
     if doc.get('schema_version') != 1 or not isinstance(doc.get('records'), list):
         raise ValueError('Unsafe market evidence envelope')
     updated = 0
+    failures = 0
     for idx, record in enumerate(doc['records']):
         try:
             candidate = refresh(record, datetime.now(timezone.utc))
         except (KeyError, ValueError, TypeError, OSError, IndexError) as error:
             detail = str(error) if type(error) is ValueError and not isinstance(error, json.JSONDecodeError) else type(error).__name__
             print('Market refresh skipped for a reviewed fixture:', detail)
+            failures += 1
             continue
         if candidate is not None:
             doc['records'][idx] = candidate
@@ -182,6 +184,8 @@ def main():
             out.write('\n')
         Path(out.name).replace(args.feed)
     print('Fresh football research market pairs:', updated)
+    if failures and not updated:
+        raise SystemExit('All attempted market refreshes failed. The last valid snapshot is retained.')
 
 
 if __name__ == '__main__':

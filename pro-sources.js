@@ -10,10 +10,11 @@
   {id:'football',filename:'research-dashboard-data.json',maxAgeHours:24},
   {id:'racing',filename:'racing-research-data.json',maxAgeHours:6},
   {id:'other',filename:'other-sports-data.json',maxAgeHours:24},
+  {id:'darts',filename:'darts/feed.json',maxAgeHours:48},
   {id:'rugby',filename:'rugby-research-data.json',maxAgeHours:48},
   {id:'history',filename:'research-history.json',maxAgeHours:168}
  ];
- const sports=['football','racing','tennis','nfl','rugby'];
+ const sports=['football','racing','tennis','nfl','darts','rugby'];
  function stamp(s){if(typeof s!=='string')return null;const n=Date.parse(s);return Number.isFinite(n)?n:null}
  function safeName(v){return typeof v==='string'&&v.trim()?v.trim().slice(0,220):null}
  function gate(d){return !!(d&&typeof d==='object'&&!Array.isArray(d)&&d.research_only===true&&d.model_validation==='UNVALIDATED'&&d.publication_gate==='BLOCKED')}
@@ -54,6 +55,14 @@
     if(!e||!safeName(e.id)||!safeName(e.name))continue;
     add(sport,e.name,e.startUTC,e.id,Array.isArray(e.forecast?.outcomes)&&e.forecast.outcomes.length>0);
    }
+  }else if(id==='darts'){
+   if(data.schema_version!==1||data.source_verification!=='PROVIDER_OBSERVED_UNCORROBORATED'||!Array.isArray(data.fixtures))
+    return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
+   for(const e of data.fixtures.slice(0,12)){
+    if(e?.status!=='SCHEDULED'||!safeName(e.player_a?.name)||!safeName(e.player_b?.name)||
+       !safeName(e.player_a?.id)||!safeName(e.player_b?.id)||e.player_a.id===e.player_b.id)continue;
+    add('darts',e.player_a.name+' vs '+e.player_b.name,e.start_utc,e.id,false);
+   }
   }else if(id==='rugby'){
    if(!Array.isArray(data.upcoming_fixtures))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
    for(const e of data.upcoming_fixtures.slice(0,300)){
@@ -91,7 +100,7 @@
  async function load(id,base='',fetcher=fetch,now=Date.now()){
   const source=SOURCES.find(x=>x.id===id);if(!source)throw Error('Unknown source');
   try{
-   const response=await fetcher(base+source.filename,{cache:'no-store'});
+   const response=await fetcher(base+source.filename,{cache:'no-store',signal:AbortSignal.timeout(12000)});
    if(!response.ok)throw Error('HTTP '+response.status);
    return inspect(id,await response.json(),now);
   }catch(err){return {id,state:'UNAVAILABLE',fresh:false,generatedAt:null,records:[],data:null,error:String(err?.message||err).slice(0,120)}}
