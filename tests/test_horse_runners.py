@@ -6,7 +6,7 @@ import sys
 import unittest
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE.parent/'scripts') if HERE.name=='tests' else str(HERE))
-from enrich_horse_runners import parse_card
+from enrich_horse_runners import parse_card, superseded_racecards
 class RunnerTests(unittest.TestCase):
  def setUp(self):
   self.race={'race_id':'123','racecourse':'Test Course','startUTC':'2026-11-02T17:00:00Z','source_runner_count':1,'source':'https://www.sportinglife.com/racing/racecards/test/racecard/123/test'}
@@ -14,6 +14,18 @@ class RunnerTests(unittest.TestCase):
    {'race_id':111,'date':'2026-10-10','position':2},{'race_id':123,'date':'2026-11-02','position':1},{'race_id':999,'date':'2026-11-03','position':1}]}}
   self.props={'hasError':False,'race':{'race_summary':{'race_summary_reference':{'id':123},'course_name':'Test Course','date':'2026-11-02','time':'17:00','ride_count':1,'race_stage':'DORMANT'},'rides':[ride]}}
   self.now=dt.datetime(2026,11,2,16,tzinfo=dt.timezone.utc)
+ def test_completed_replacement_only_suppresses_a_matching_earlier_card(self):
+  before=dict(country='IRE',racecourse='Thurles',name='Beginners Chase',
+   runner_data_status='SINGLE_SOURCE_RUNNERS_OBSERVED',race_stage='DORMANT',
+   race_id='old',startUTC='2026-11-02T12:05:00Z',source='old',runner_source_sha256='a'*64,
+   runners=[{'horse_id':str(h)} for h in range(8)])
+  final=dict(before,race_id='final',race_stage='WEIGHEDIN',startUTC='2026-11-02T12:08:00Z',
+   source='final',runner_source_sha256='b'*64,runners=before['runners'][:5])
+  matches=superseded_racecards([before,final],self.now)
+  self.assertEqual([(r['race_id'],r['replacement_race_id']) for r in matches],[('old','final')])
+  self.assertEqual(superseded_racecards([before,dict(final,runners=[*final['runners'],{'horse_id':'other'}])],self.now),[])
+  self.assertEqual(superseded_racecards([before,dict(final,race_stage='DORMANT')],self.now),[])
+  self.assertEqual(superseded_racecards([before,final],dt.datetime(2026,11,2,12,7,tzinfo=dt.timezone.utc)),[])
  def raw(self,p=None):return ('<script id="__NEXT_DATA__">'+json.dumps({'props':{'pageProps':p or self.props}})+'</script>').encode()
  def test_nonrunner_identity_and_history_filter(self):
   nr=copy.deepcopy(self.props['race']['rides'][0]);nr['horse']['horse_reference']['id']=10;nr['ride_status']='NONRUNNER';self.props['race']['rides'].append(nr)

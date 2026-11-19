@@ -66,9 +66,13 @@ function reconcile(primary,secondary,observedAt){
  const active=secondary.meetings.filter(x=>x.status==='ACTIVE'),cancelled=secondary.meetings.filter(x=>x.status==='ABANDONED');
  const missing=active.filter(x=>!normalized.has(clean(x.name))).map(x=>x.name);
  const unexpected=[...normalized.keys()].filter(k=>!active.some(x=>clean(x.name)===k)).map(k=>normalized.get(k).racecourse);
- const raceCountMismatches=active.filter(x=>normalized.has(clean(x.name))).filter(x=>{
-   const p=normalized.get(clean(x.name));return p.source_race_count!==x.races;
- }).map(x=>({meeting:x.name,primary:normalized.get(clean(x.name)).source_race_count,secondary:x.races}));
+ const raceCountMismatches=active.flatMap(x=>{
+   const meeting=normalized.get(clean(x.name));if(!meeting)return [];
+   const excluded=meeting.superseded_race_count;
+   const primaryCount=Number.isInteger(excluded)&&excluded>0&&excluded<meeting.source_race_count?
+     meeting.source_race_count-excluded:meeting.source_race_count;
+   return primaryCount===x.races?[]:[{meeting:x.name,primary:primaryCount,secondary:x.races}];
+ });
  // Critical: never call secondary agreement proof of total global coverage.
  return {status:missing.length||unexpected.length||raceCountMismatches.length?'DISCREPANCY':'MEETING_LIST_MATCHED_NOT_CERTIFIED',receipt,missing,unexpected,raceCountMismatches,secondaryActive:active.length,secondaryAbandoned:cancelled.map(x=>x.name),decision:'RETAIN_P2',reason:'Secondary venue/race counts are a cross-check, not independent certification of declarations or worldwide source completeness'};
 }

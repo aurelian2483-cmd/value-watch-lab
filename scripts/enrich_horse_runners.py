@@ -152,6 +152,29 @@ def collect(race):
  (ROOT/'runner-sources'/(race['race_id']+'.html')).write_bytes(raw)
  return fields
 
+def superseded_racecards(races, observed):
+ """Identify a stale pre-race card backed by a unique completed replacement."""
+ groups={}
+ for row in races:
+  if row.get('runner_data_status')!='SINGLE_SOURCE_RUNNERS_OBSERVED':continue
+  key=(row['country'],row['racecourse'],row['name'].strip().casefold())
+  groups.setdefault(key,[]).append(row)
+ replacements=[]
+ for rows in groups.values():
+  if len(rows)!=2:continue
+  before,final=sorted(rows,key=lambda row:stamp(row['startUTC']))
+  if before['race_stage']!='DORMANT' or final['race_stage']!='WEIGHEDIN':continue
+  first_time,final_time=stamp(before['startUTC']),stamp(final['startUTC'])
+  if final_time>=observed or not dt.timedelta(0)<final_time-first_time<=dt.timedelta(minutes=5):continue
+  earlier_ids={runner['horse_id'] for runner in before['runners']}
+  final_ids={runner['horse_id'] for runner in final['runners']}
+  if len(final_ids)<4 or not final_ids<=earlier_ids:continue
+  replacements.append({'race_id':before['race_id'],'replacement_race_id':final['race_id'],
+   'racecourse':before['racecourse'],'source':before['source'],'replacement_source':final['source'],
+   'source_sha256':before['runner_source_sha256'],'replacement_sha256':final['runner_source_sha256'],
+   'matching_final_runners':len(final_ids),'reason':'SUPERSEDED_BY_MATCHED_COMPLETED_CARD'})
+ return replacements
+
 def main():
  path=ROOT/'racing-research-data.json';data=json.loads(path.read_text())
  if data.get('research_only') is not True or data.get('publication_gate')!='BLOCKED' or data.get('model_validation')!='UNVALIDATED':raise ValueError('Unsafe racing feed')
@@ -168,8 +191,15 @@ def main():
    except Exception as exc:
     race['runner_data_status']='RUNNER_SOURCE_UNAVAILABLE_OR_INVALID'
     errors.append({'race_id':race['race_id'],'error':str(exc)})
+ replacements=superseded_racecards(races,dt.datetime.now(UTC))
+ superseded={item['race_id'] for item in replacements}
+ if superseded:
+  data['races']=[r for r in races if r['race_id'] not in superseded]
+  for meeting in data['discovery_coverage']['included_meetings']:
+   count=sum(item['racecourse']==meeting['racecourse'] for item in replacements)
+   if count:meeting['superseded_race_count']=count
  report={'status':'RUNNER_OBSERVATIONS_COLLECTED' if not errors else 'PARTIAL_RUNNER_OBSERVATIONS',
-  'races_received':len(races),'races_enriched':connected,
+  'races_received':len(races),'races_enriched':connected,'superseded_racecards':replacements,
   'active_runner_observations':sum(r.get('active_runner_count',0) for r in races),
   'non_runner_observations':sum(r.get('non_runner_count',0) for r in races),
   'pre_event_races':sum(r.get('capture_phase')=='PRE_EVENT' for r in races),

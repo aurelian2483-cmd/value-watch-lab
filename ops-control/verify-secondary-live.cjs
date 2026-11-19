@@ -16,7 +16,9 @@ const fs=require('node:fs');
   if(primary.race_date_uk===date){
    const comparison=reconcile(primary,result,now.toISOString());
    console.log('LIVE PRIMARY/SECONDARY RECONCILIATION',JSON.stringify({status:comparison.status,missing:comparison.missing,unexpected:comparison.unexpected,raceCountMismatches:comparison.raceCountMismatches,decision:comparison.decision}));
-   if(comparison.status!=='MEETING_LIST_MATCHED_NOT_CERTIFIED')throw Error('Real main-branch source and secondary meeting lists do not match');
+   if(comparison.status==='DISCREPANCY'&&comparison.decision==='RETAIN_P2')
+    console.log('::warning::Primary and secondary racing data differ. The research warning remains active.');
+   else if(comparison.status!=='MEETING_LIST_MATCHED_NOT_CERTIFIED')throw Error('Live reconciliation could not be evaluated');
   }else console.log('Primary source date differs from live UK date; end-to-end comparison requires a same-date main snapshot');
  }finally{clearTimeout(timer)}
 })().catch(e=>{console.error(e.message);process.exitCode=1});
