@@ -440,7 +440,7 @@
       }
       else if (status.code === 'STARTED') make(record.market, 'span', event.score?.label ? 'Recorded final: ' + event.score.label : 'Event has started or finished · additions closed', 'archived-status');
       else {
-        if(event.provisionalEntry)make(record.market,'p','Choose a source-listed horse for manual paper research. Final declarations unverified; no model prediction or verified price.','provisional-entry-note small');
+        if(event.provisionalEntry)make(record.market,'p','Provisional entries · final declarations and prices unverified.','provisional-entry-note small');
         const shown = ordered; // All participants visible for comparison across all sports.
         const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), method = make(b, 'small', '', 'selection-methodology'), odds = make(b, 'small', '', 'selection-odds'); record.choices.set(choice.id, { element: b, modelBadge, name, price, caption, method, odds, previous: null }); };
         for (const choice of shown) append(record.market, choice);
@@ -453,7 +453,7 @@
       const estimated = event.model && typeof choice.probability === 'number';
       const contextWeight = event.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT';
       const value = estimated ? pct(choice.probability) : priced ? choice.quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'No estimate';
-      write(view.price, value); write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
+      write(view.price, event.provisionalEntry && !estimated && !priced && !publishedForecast ? '' : value); view.price.hidden = !view.price.textContent; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
       write(view.odds, priced ? estimated ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'Bookmaker odds not connected');
       write(view.method, event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' + (contextWeight ? ' · context weight, not win probability' : '') : 'Method: unavailable · no validated forecast');
       const leader = leaders.find(leader => leader.id === choice.id);
@@ -545,7 +545,7 @@
     }
     if (record.matchView.open) renderMatchOverview(record.matchPanel, event);
     record.prediction.hidden = !event.model && event.sport !== 'racing';
-    write(record.prediction, event.racecardConflict ? 'Racecard conflict: competing listings have overlapping runners. Selection is paused until the active racecard can be confirmed.' : leaders.length ? leaders.map(leader => (leader.rank === 1 ? 'Model first choice: ' : 'Alternative: ') + event.choices.find(choice => choice.id === leader.id).label).join(' · ') + (event.model.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' · experimental form ranking, not calibrated win chances' : ' · experimental model ranking') + (review?.notes.length ? ' · EVIDENCE REVIEW REQUIRED — model ranking is NOT a betting recommendation' : '') : event.model ? 'Model estimates are tied or no longer current; no distinct current first choice.' : 'No model selection: ' + (event.predictionStatus?.label || 'Model inputs unavailable.'));
+    write(record.prediction, event.racecardConflict ? 'Racecard conflict: competing listings have overlapping runners. Selection is paused until the active racecard can be confirmed.' : leaders.length ? leaders.map(leader => (leader.rank === 1 ? 'Model first choice: ' : 'Alternative: ') + event.choices.find(choice => choice.id === leader.id).label).join(' · ') + (event.model.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' · experimental form ranking, not calibrated win chances' : ' · experimental model ranking') + (review?.notes.length ? ' · EVIDENCE REVIEW REQUIRED — model ranking is NOT a betting recommendation' : '') : event.model ? 'Model estimates are tied or no longer current; no distinct current first choice.' : event.provisionalEntry ? 'Model estimate pending confirmed runners.' : 'No model selection: ' + (event.predictionStatus?.label || 'Model inputs unavailable.'));
     record.prediction.classList.toggle('evidence-review-required', Boolean(review?.notes.length));
     const notes = state.claims.filter(note => note.eventId === event.id);
     record.notes.hidden = !notes.length;
@@ -687,6 +687,7 @@
           .map(row => ({date:row.dataset.deskDate,
             participants:row.textContent.trim().split(' · ')[0].split(' vs '),
             competition:row.dataset.deskCompetition,
+            session:row.dataset.deskSession,
             code:row.dataset.deskCode,
             sources:[...(row.querySelectorAll('a[href]').length ? row.querySelectorAll('a[href]') : officialDoc.querySelectorAll('#official-snapshot a[href]'))].map(a => a.getAttribute('href'))}));
         const evidence = ResearchFixtureEvidence.normalize(sport, doc, officialRows, Date.now(), analysis.status === 'fulfilled' ? analysis.value : null);
@@ -753,21 +754,21 @@
       card.dataset.fixtureId = row.id;
       const header = make(card, 'div', undefined, 'event-card-header');
       make(header, 'span', row.competition + (row.code === 'RL' ? ' · Rugby League' : row.code === 'RU' ? ' · Rugby Union' : ''), 'event-meta');
-      const time = make(header, 'time', row.start ? dateText(row.start) + ' UK' : row.date + ' · match time unconfirmed', 'event-time');
-      time.dateTime = row.start || row.date;
+      const time = make(header, 'time', row.start ? dateText(row.start) + ' UK' : row.session ? dateText(row.session) + ' UK session' : row.date + ' · match time unconfirmed', 'event-time');
+      time.dateTime = row.start || row.session || row.date;
       make(card, 'h3', row.name, 'event-title');
       make(card, 'p', row.sourceStatus, 'event-status');
       const outcomes = make(card, 'div', undefined, 'fixture-outcomes');
       row.participants.forEach((participant,index) => {
         const outcome = make(outcomes, 'div', undefined, 'fixture-outcome');
         make(outcome, 'strong', participant);
-        make(outcome, 'span', 'Odds not supplied');
         if (row.model?.prob_a !== null && row.model?.prob_a !== undefined)
           make(outcome, 'span', 'D1 estimate: ' + pct(index === 0 ? row.model.prob_a : row.model.prob_b) + ' · uncalibrated');
       });
       make(card, 'p', row.reason, 'fixture-model-status');
-      make(card, 'p', 'Betting selection unavailable · no verified price or validated edge.', 'small');
+      make(card, 'p', 'Bookmaker odds unavailable · Paper research only', 'small');
       const evidence = details(card, 'Match evidence and sources', 'compact-evidence-disclosure');
+      if (row.providerDateConflict) make(evidence, 'p', 'Provider listed ' + row.providerDateConflict + '. The PDC schedule gives the date shown above.');
       if (row.model) make(evidence, 'p', 'D1 prior matches: ' + row.model.prior_a + ' / ' + row.model.prior_b + '. Historical sample is provider-observed, not independently verified.');
       for (const source of row.sources) link(evidence, 'View source · ' + new URL(source).hostname, source);
       if (!row.sources.length) make(evidence, 'p', 'Provider observation has no public per-match source URL.');
@@ -1024,6 +1025,56 @@
   }
   let engineView = 'current';
   try { engineView = researchMode(storage.getItem(X.preferenceKey)); } catch { /* Default view remains usable without storage. */ }
+  let hybridEvidence;
+  function loadHybridEvidence() {
+    if (hybridEvidence && Date.now() - hybridEvidence.at < 60000) return hybridEvidence;
+    const entry = {at:Date.now(), pending:true, data:null};
+    hybridEvidence = entry;
+    fetchFixtureSource(new URL('paper-lab/hybrid-market-data.json', rootURL), 'json')
+      .then(data => { entry.data = data; })
+      .catch(() => {})
+      .finally(() => {
+        entry.pending = false;
+        if (hybridEvidence === entry && ['compare','hybrid'].includes(engineView)) safely(renderSlip);
+      });
+    return entry;
+  }
+  function hybridResult(event, entry) {
+    if (entry.pending && event?.startUTC && event.sport === 'football') return {reason:'Checking benchmark coverage…'};
+    return globalThis.ValueWatchHybrid?.evaluate(event, entry.data) || {reason:'Hybrid module unavailable.'};
+  }
+  function hybridLines(parent, result) {
+    if (result.probabilities) make(parent, 'p', 'Home / draw / away · ' + result.probabilities.map(pct).join(' / '));
+    const candidate = result.selection;
+    if (candidate) make(parent, 'p', candidate.id.toUpperCase() + ' · ' + candidate.decimal.toFixed(2) + ' Sky Bet · estimated EV ' + pct(candidate.estimatedEV));
+    else make(parent, 'p', result.reason);
+  }
+  function renderFrozenCandidate(parent, fixture) {
+    if (fixture?.sport !== 'football') {
+      make(parent, 'p', fixture ? 'Football regulation-time result only.' : 'Current fixture unavailable.');
+      return;
+    }
+    const ordered = ['home','draw','away'].map(id => fixture.choices?.find(choice => choice.id === id));
+    if (!/poisson.form.alpha.0[.]025.v1/i.test(fixture.model?.name || '')) {
+      make(parent, 'p', 'Frozen recent-form forecast unavailable.');
+      return;
+    }
+    const now = Date.now();
+    const quotes = ordered.map(choice => choice?.quote);
+    const consistent = quotes.every(q => q && Number.isFinite(q.decimal) && q.decimal > 1 &&
+      q.status === 'SOURCE_OBSERVED_UNVERIFIED' && Number.isFinite(Date.parse(q.observedAt)) &&
+      now - Date.parse(q.observedAt) >= 0 && now - Date.parse(q.observedAt) <= 1800000 &&
+      Date.parse(fixture.startUTC) > now + 300000 && Date.parse(q.observedAt) < Date.parse(fixture.startUTC) - 300000 &&
+      q.bookmaker && q.source && q.bookmaker === quotes[0]?.bookmaker && q.source === quotes[0]?.source);
+    const candidate = consistent ? X.marketCandidate(ordered.map(c => c?.probability), quotes.map(q => q.decimal)) : null;
+    if (!candidate) {
+      make(parent, 'p', 'Fresh, matched home/draw/away input unavailable.');
+      return;
+    }
+    make(parent, 'p', 'Home / draw / away · ' + candidate.probabilities.map(pct).join(' / '));
+    make(parent, 'p', candidate.selection === 'PASS' ? 'PASS · below 5% estimated EV or above odds cap' :
+      candidate.selection + ' · odds ' + candidate.selectedOdds.toFixed(2) + ' · estimated EV ' + pct(candidate.estimatedEV));
+  }
   function renderEngine(evaluation) {
     const engineSelect = $('engine-select');
     if (engineSelect) engineSelect.value = engineView;
@@ -1054,7 +1105,7 @@
       if (!entry.result.rows.length) make(root, 'p', 'No eligible research suggestions in the current feed.');
       return;
     }
-    write($('engine-status'), ({current:'Current Engine 2.5 · existing research workflow.', experimental:'Experimental Engine 3.0 · illustrative, uncalibrated research mathematics.', compare:'Side-by-Side Compare · same captured inputs; no reranking.', reliability:'Historical Reliability · automatic research-only favourite-pattern filter; not certified value picks.'})[engineView]);
+    write($('engine-status'), ({current:'Current Engine 2.5 · existing research workflow.', experimental:'Engine 3.0 · frozen recent-form football model + market.', hybrid:'Hybrid 3.1 · current-season football model + independent market.', compare:'Compare the saved estimate with each experimental method.', reliability:'Historical Reliability · automatic research-only favourite-pattern filter; not certified value picks.'})[engineView]);
     const root = $('engine-analysis'); root.hidden = engineView === 'current'; root.replaceChildren();
     if (root.hidden) return;
     if (engineView === 'reliability') {
@@ -1069,51 +1120,71 @@
       if(!candidates.length)make(root,'p','No candidate satisfies the strict form rule with the historical evidence currently loaded. No matches are added merely to fill the list.');
       return;
     }
-    make(root, 'h3', 'Selected paper slip · ' + store.get().plan.slots[store.get().slot].name);
-    make(root, 'p', 'ILLUSTRATIVE: ±3 percentage points is a sensitivity scenario, not measured uncertainty. Calibration, Bayesian uncertainty, adaptive ranking and backtesting are not implemented here. No joint probability or portfolio EV is inferred.', 'small');
-    if (!evaluation.legs.length) make(root, 'p', 'Choose an outcome to inspect its supplied inputs. No example probabilities or prices are substituted.');
+    const entry = engineView === 'experimental' ? null : loadHybridEvidence();
+    const state = store.get();
+    if (engineView === 'hybrid') {
+      make(root, 'h3', 'Football paper suggestions');
+      make(root, 'p', 'UNVALIDATED · Paper research only', 'small');
+      const fixtures = filtered(state).filter(event => event.sport === 'football');
+      if (entry.pending || !fixtures.length) {
+        make(root, 'p', entry.pending ? 'Checking market evidence…' : 'No football fixtures match these filters.');
+        return;
+      }
+      const rows = fixtures.map(event => ({event, result:hybridResult(event, entry)}));
+      const ready = rows.filter(row => row.result.probabilities);
+      make(root, 'p', fixtures.length + ' fixtures · ' + ready.length + ' blended estimates · ' +
+        ready.filter(row => row.result.selection).length + ' paper suggestions');
+      for (const row of ready.slice(0, state.limit)) {
+        const item = make(root, 'div', undefined, 'engine-hybrid-result');
+        make(item, 'h4', row.event.name);
+        hybridLines(item, row.result);
+      }
+      const missing = new Map();
+      for (const row of rows) {
+        if (!row.result.probabilities) missing.set(row.result.reason, (missing.get(row.result.reason) || 0) + 1);
+      }
+      for (const [reason, count] of missing) make(root, 'p', count + ' fixtures · ' + reason, 'small');
+      return;
+    }
+
+    make(root, 'h3', 'Selected paper slip · ' + state.plan.slots[state.slot].name);
+    make(root, 'p', 'UNVALIDATED · Paper research only', 'small');
+    if (!evaluation.legs.length) make(root, 'p', 'Choose an outcome to compare its evidence.');
+    if (evaluation.legs.length) {
+      const glossary = details(root, 'How the methods differ');
+      make(glossary, 'p', '2.5 shows the saved estimate. 3.0 blends its frozen recent-form forecast and market at 50/50. 3.1 blends the current-season forecast and an independent market at 50/50, then checks a separate Sky Bet price.');
+    }
     for (const leg of evaluation.legs) {
-      const row = make(root, 'article', undefined, 'engine-comparison');
+      const row = make(root, 'article', undefined, 'engine-comparison' + (entry ? ' engine-comparison-three' : ' engine-comparison-single'));
       make(row, 'h4', leg.event + ' · ' + leg.label);
-      const current = make(row, 'div');
-      if (engineView === 'compare') make(current, 'h4', 'Current Engine 2.5');
-      make(current, 'p', 'Captured estimate: ' + pct(leg.probability) + ' · ' + (leg.model?.probabilityKind || 'No model input') + ' · UNVALIDATED');
-      make(current, 'p', 'Source decimal price: ' + (leg.quote?.decimal ?? 'Unavailable') + ' · ' + leg.quoteState + ' · not executable', 'small');
+      const fixture = state.events.find(item => item.id === leg.eventId && item.startUTC === leg.startUTC);
+      if (entry) {
+        const current = make(row, 'div');
+        make(current, 'h5', '2.5 · Saved estimate');
+        make(current, 'p', typeof leg.probability === 'number' ? pct(leg.probability) : 'Estimate unavailable');
+        if (leg.model?.probabilityKind) make(current, 'p', leg.model.probabilityKind === 'EXPERIMENTAL_CURRENT_SEASON_COMPARISON' ? 'Current-season Poisson' : leg.model.name || leg.model.probabilityKind, 'small');
+        make(current, 'p', leg.quote?.decimal ? 'Recorded price ' + leg.quote.decimal + ' · unverified' : 'Price unavailable', 'small');
+      }
       const experimental = make(row, 'div');
-      make(experimental, 'h4', 'Experimental Engine 3.0');
-      // Model is view-only: never modify the live event, slip, ranking or tip.
-      const fixture = store.get().events.find(item => item.id === leg.eventId);
-      if (String(fixture?.sport || '').toLowerCase() === 'football') {
-        const panel = make(experimental, 'div', undefined, 'engine-market-candidate');
-        make(panel, 'h4', 'Frozen 50/50 market candidate · odds cap 5.00');
-        const ordered = ['home', 'draw', 'away'].map(id => fixture.choices?.find(choice => choice.id === id));
-        const formulaIdentified = /poisson.form.alpha.0[.]025.v1/i.test(fixture.model?.name || '');
-        const now = Date.now();
-        const quotes = ordered.map(choice => choice?.quote);
-        const consistent = quotes.every(q => q && Number.isFinite(q.decimal) && q.decimal > 1 &&
-          q.status === 'SOURCE_OBSERVED_UNVERIFIED' && Number.isFinite(Date.parse(q.observedAt)) &&
-          now - Date.parse(q.observedAt) >= 0 && now - Date.parse(q.observedAt) <= 1800000 &&
-          Date.parse(q.observedAt) < Date.parse(fixture.startUTC) - 300000 &&
-          q.bookmaker && q.source && q.bookmaker === quotes[0]?.bookmaker && q.source === quotes[0]?.source);
-        const candidate = formulaIdentified && consistent && ordered.every(c => typeof c?.probability === 'number')
-          ? X.marketCandidate(ordered.map(c => c.probability), quotes.map(q => q.decimal)) : null;
-        if (!candidate) make(panel, 'p', 'PASS · Requires the frozen recent-form model and all three fresh, source-matched pre-kickoff home/draw/away prices. No substitution with a different model or invented odds.');
-        else {
-          make(panel, 'p', 'Home / draw / away: ' + candidate.probabilities.map(pct).join(' / '));
-          make(panel, 'p', 'Candidate: ' + candidate.selection + (candidate.selection === 'PASS' ? ' · below 5% estimated EV or above odds cap' : ' · odds ' + candidate.selectedOdds.toFixed(2) + ' · estimated EV ' + pct(candidate.estimatedEV)));
-        }
-        make(panel, 'p', 'Research only · price execution unverified · no effect on existing selections.', 'small');
+      make(experimental, 'h5', '3.0 · Frozen recent-form blend');
+      renderFrozenCandidate(experimental, fixture);
+      if (entry) {
+        const hybrid = make(row, 'div');
+        make(hybrid, 'h5', '3.1 · Current-season hybrid');
+        hybridLines(hybrid, hybridResult(fixture || {sport:leg.sport}, entry));
       }
 
+      const scenario = details(row, 'Price sensitivity on saved 2.5 estimate', 'engine-sensitivity evidence-details');
       const result = leg.canCalculate && leg.currentStatus.selectable ? X.calculate(leg.probability, leg.quote?.decimal) : null;
-      if (!result) { make(experimental, 'p', 'Unavailable: a supplied model input and a current source-matched price for a selectable outcome are required. No probability or odds inferred.'); continue; }
-      make(experimental, 'p', 'Conditional arithmetic only. Racing context weights are not calibrated win probabilities; these results do not establish value.', 'small');
-      make(experimental, 'p', 'Central EV: ' + pct(result.centralEV) + ' · break-even p: ' + pct(result.breakEven));
-      make(experimental, 'p', 'Sensitivity p: ' + pct(result.low) + ' / ' + pct(result.probability) + ' / ' + pct(result.high) + ' → EV: ' + pct(result.lowEV) + ' / ' + pct(result.centralEV) + ' / ' + pct(result.highEV));
-      make(experimental, 'p', 'Fragility (p − 1/o): ' + (result.fragility * 100).toFixed(2) + ' percentage points. A nonpositive margin means no positive central EV.');
-      make(experimental, 'p', 'Unit-stake payoff variance: ' + result.variance.toFixed(4) + ' · EV sensitivity dEV/dp: ' + result.sensitivity.toFixed(4));
+      if (!result) {
+        make(scenario, 'p', 'Requires a saved estimate and a current source-matched price.');
+        continue;
+      }
+      make(scenario, 'p', 'Illustrative ±3 percentage-point scenarios. Racing context weights are uncalibrated.', 'small');
+      make(scenario, 'p', 'Central EV ' + pct(result.centralEV) + ' · break-even ' + pct(result.breakEven));
+      make(scenario, 'p', 'Scenario EV · ' + [result.lowEV,result.centralEV,result.highEV].map(pct).join(' / '));
+      make(scenario, 'p', 'Margin to break-even ' + (result.fragility * 100).toFixed(2) + ' pp · payoff variance ' + result.variance.toFixed(4) + ' · EV sensitivity ' + result.sensitivity.toFixed(4), 'small');
     }
-    make(root, 'p', 'Formulae: EV = p×o−1; break-even = 1/o; fragility = p−1/o; variance = o²p(1−p). Unit stake = 1; no actual stake or settlement implied.', 'small');
   }
   $('engine-select').addEventListener('change', event => safely(() => {
     engineView = researchMode(event.target.value);
@@ -1653,7 +1724,7 @@
   $('competition').addEventListener('change', event => store.update(state => ({ ...state, competition: event.target.value, limit: 24 })));
   $('event-view').addEventListener('change', event => store.update(state => ({ ...state, eventView: event.target.value, limit: 24 })));
   let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
-  $('refresh').addEventListener('click', () => safely(() => { fixtureSnapshots.clear(); renderFixtureCounts(store.get()); renderEvents(); return refresh(); }));
+  $('refresh').addEventListener('click', () => safely(() => { if (!hybridEvidence?.pending) hybridEvidence = null; fixtureSnapshots.clear(); renderFixtureCounts(store.get()); renderEvents(); return refresh(); }));
   $('find-racing')?.addEventListener('click',()=>safely(()=>{racingCandidatesRequested=true;renderRacingCandidates();$('racing-candidates')?.scrollIntoView?.({block:'nearest'});}));
   $('wildcard-build')?.addEventListener('click',()=>safely(createWeeklyWildcard));
   for (const id of ['fresh-daily-slips','fresh-daily-slips-panel'])

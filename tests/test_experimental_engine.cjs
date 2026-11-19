@@ -18,7 +18,7 @@ for (const mode of [null,'invalid',{},undefined]) assert.equal(X.mode(mode),'cur
 const fs = require('node:fs');
 for (const file of ['index.html','paper-lab/index.html']) {
  const html = fs.readFileSync(file,'utf8');
- for (const name of ['current','experimental','compare','reliability']) assert(html.includes(`<option value="${name}">`));
+ for (const name of ['current','experimental','hybrid','compare','reliability']) assert(html.includes(`<option value="${name}">`));
  assert(html.includes('id="engine-select"'));
  assert(!html.includes('data-engine="'));
  assert(html.indexOf('experimental.js')<html.indexOf('desk-compact-20261116.js'));

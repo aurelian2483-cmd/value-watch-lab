@@ -31,6 +31,15 @@ assert.equal(F.normalize('darts',{...doc,publication_gate:'OPEN'},[official],now
 const conflict=F.normalize('darts',{...doc,fixtures:[match,{...match,id:'m2',start_utc:'2026-11-20T19:00:00Z'}]},[],now).fixtures[0];
 assert.equal(conflict.start,null);assert.equal(conflict.model,null);assert.match(conflict.reason,/Conflicting/);
 assert.equal(F.normalize('darts',null,[official],now).fixtures[0].start,null);
+const dateConflict = {status:'DATE_ONLY_UNCONFIRMED', date_utc:'2026-11-19', player_a:a, player_b:b, competition:'Test Cup'};
+const withSession = {...official, session:'2026-11-20T19:00:00Z'};
+report = F.normalize('darts',{...doc,fixtures:[],tentative_fixtures:[dateConflict]},[withSession],now);
+assert.equal(report.fixtures.length,1,'one official fixture replaces the adjacent-day, date-only provider duplicate');
+assert.equal(report.fixtures[0].date,'2026-11-20');
+assert.equal(report.fixtures[0].providerDateConflict,'2026-11-19');
+assert.equal(report.fixtures[0].session,withSession.session);
+assert.equal(report.fixtures[0].start,null,'a session time is not a match time');
+assert.equal(report.fixtures[0].model,null);
 const Darts = require('../darts/model.js');
 const aggregate = {...gates,...Darts.model(results,[match],gates.generated_at_utc),raw_history_published:false,
  source_verification:'PROVIDER_OBSERVED_UNCORROBORATED',history_latest_date:'2026-11-08',

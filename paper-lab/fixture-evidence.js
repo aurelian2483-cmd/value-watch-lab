@@ -39,6 +39,7 @@
       records.push({...row, sport, name:row.participants.join(' vs '), odds:null, selectable:false});
     };
     for (const row of official) add({...row, participants:list(row.participants).map(name), official:true, start:null,
+      session:iso(row.session) && day(row.session) === row.date ? row.session : null,
       competition:name(row.competition) || (sport === 'darts' ? 'PDC schedule' : 'Rugby schedule'), sources:links(row.sources)});
     if (valid && sport === 'darts') {
       for (const row of [...list(doc.fixtures), ...list(doc.tentative_fixtures)]) {
@@ -54,10 +55,26 @@
       add({date:day(row.kickoff_utc),start:row.kickoff_utc,provider:row,participants:[name(row.home),name(row.away)],
         competition:name(row.competition_name),code:row.code,sources:links(row.source_receipts),official:false});
     }
+    const pairing = row => JSON.stringify([row.competition.toLocaleLowerCase('en-GB'),
+      row.participants.map(player => player.toLocaleLowerCase('en-GB')).sort()]);
+    const officialDarts = new Map();
+    for (const row of records) {
+      if (sport === 'darts' && row.official) {
+        const key = pairing(row);
+        officialDarts.set(key, [...(officialDarts.get(key) || []), row]);
+      }
+    }
+    const rowKey = row => [sport,row.code || (sport === 'darts' ? 'DARTS' : 'RU'),row.date,
+      row.participants.map(x => x.toLocaleLowerCase('en-GB')).sort().join('|')].join(':');
     const merged = new Map();
     for (const row of records) {
-      const pair = row.participants.map(x => x.toLocaleLowerCase('en-GB')).sort().join('|');
-      const key = [sport,row.code || (sport === 'darts' ? 'DARTS' : 'RU'),row.date,pair].join(':');
+      const officialDates = officialDarts.get(pairing(row));
+      if (!row.official && !row.start && officialDates?.length === 1 &&
+          Math.abs(Date.parse(row.date) - Date.parse(officialDates[0].date)) === 86400000) {
+        merged.get(rowKey(officialDates[0])).providerDateConflict = row.date;
+        continue;
+      }
+      const key = rowKey(row);
       const prior = merged.get(key);
       if (!prior) merged.set(key, {...row, id:key});
       else {
@@ -97,6 +114,9 @@
       }
       if (!current && row.provider) row.reason = 'Provider data is stale or unconfirmed; refresh required before analysis.';
       if (row.timeConflict) { row.start = null; row.model = null; row.reason = 'Conflicting start times in the source feed; prediction withheld.'; }
+      if (sport === 'darts' && !row.start && !row.timeConflict && (row.official || current)) {
+        row.reason = 'Individual start time is unconfirmed. D1 also requires matched player IDs and enough earlier results.';
+      }
       row.blockers = [row.reason, 'No bookmaker odds supplied for this match.'];
     }
     return {fixtures, valid, current, historyCount:history.length, observedAt:valid ? doc.generated_at_utc : null,

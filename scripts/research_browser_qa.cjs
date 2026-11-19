@@ -17,7 +17,7 @@ const base = 'http://127.0.0.1:8173';
 const report = { screenshots: [], pageErrors: [], accessibility: [], checks: [] };
 const guard = { schema_version:1,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',generated_at_utc:'2026-11-08T08:55:00Z' };
 const receipt = {url:'https://example.org/qa-fixture',sha256:'a'.repeat(64),observed_at_utc:guard.generated_at_utc};
-const fixtureRows = Array.from({length:6},(_,i)=>({home:'Test Home '+i,away:'Test Away '+i,league:'PL',league_name:'Synthetic QA competition',kickoff_utc:'2026-11-0'+(i%2 ? '9':'8')+'T18:00:00Z',schedule_source_receipts:[receipt],current_season_comparison:{...guard,season:'2627',method:'CURRENT_SEASON_POISSON_COMPARISON_V1',prob_home:.45,prob_draw:.3,prob_away:.25,home_venue_matches:8,away_venue_matches:8,small_sample:true,odds:null,expected_value:null},head_to_head_research:{sample_size:8,home_team_wins:3,draws:2,away_team_wins:3,most_recent_match_date:'2026-05-01',history_data_observed_at_utc:guard.generated_at_utc}}));
+const fixtureRows = Array.from({length:6},(_,i)=>({home:'Test Home '+i,away:'Test Away '+i,league:'PL',league_name:'Synthetic QA competition',kickoff_utc:'2026-11-0'+(i%2 ? '9':'8')+'T18:00:00Z',schedule_source_receipts:[receipt],current_season_comparison:{...guard,season:'2627',method:'CURRENT_SEASON_POISSON_COMPARISON_V1',prob_home:.45,prob_draw:.3,prob_away:.25,home_venue_matches:8,away_venue_matches:8,small_sample:true,unvalidated:true,training_sha256:receipt.sha256,source_receipts:[receipt],cutoff_utc:'2026-11-0'+(i%2 ? '9':'8')+'T18:00:00Z',odds:null,expected_value:null},head_to_head_research:{sample_size:8,home_team_wins:3,draws:2,away_team_wins:3,most_recent_match_date:'2026-05-01',history_data_observed_at_utc:guard.generated_at_utc}}));
 const football = {...guard,upcoming_fixtures:fixtureRows,experimental_model_forecasts:fixtureRows.map(row=>({...row,...guard,model:'SYNTHETIC_QA_MODEL',prob_home:.45,prob_draw:.3,prob_away:.25,odds:null,expected_value:null}))};
 function race(price=2){return {...guard,races:[{race_id:'qa-race',racecourse:'Test Course',name:'Synthetic QA race',startUTC:'2026-11-08T17:00:00Z',observedAtUTC:guard.generated_at_utc,runner_observed_at_utc:guard.generated_at_utc,source:receipt.url,runner_source:receipt.url,runner_source_sha256:'source',race_stage:'DORMANT',runner_data_status:'SINGLE_SOURCE_RUNNERS_OBSERVED',active_runner_count:2,runners:[{horse_id:'a',name:'Test Runner A',active_runner:true,runner_status:'RUNNER',previous_results:[]},{horse_id:'b',name:'Test Runner B',active_runner:true,runner_status:'RUNNER',previous_results:[]}],market_observation:{status:'COMPLETE_SOURCE_OBSERVATION',bookmaker:'Sky Bet',executable_verified:false,verification:'SOURCE_OBSERVED_UNVERIFIED',source:receipt.url,source_sha256:'source',bookmaker_market_id:'win',observed_at_utc:guard.generated_at_utc,quotes:[{horse_id:'a',decimal:price},{horse_id:'b',decimal:3}]}}]};}
 const racingPrediction={...guard,model:'CONTEXT_FORM_RESEARCH_V1',forecasts:[{...guard,model:'CONTEXT_FORM_RESEARCH_V1',challenge_eligible:0,race_id:'qa-race',startUTC:'2026-11-08T17:00:00Z',record_sha256:'a'.repeat(64),context_signature:'b'.repeat(64),odds:null,expected_value:null,run_type:'CHASE',runners:[{horse_id:'a',name:'Test Runner A',model_probability:.4},{horse_id:'b',name:'Test Runner B',model_probability:.6}]}],skipped:[],current_field_checks:{['a'.repeat(64)]:{status:'FRESH_MATCHING_FIELD_AND_CONTEXT',context_signature:'b'.repeat(64),runner_source_sha256:'source',runner_observed_at_utc:guard.generated_at_utc,active_runner_ids:['a','b']}}};
@@ -36,6 +36,15 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   await page.setViewportSize({width:1920,height:1080});await noOverflow(page,'real large desktop');
   const test=await browser.newContext({viewport:{width:1440,height:1000}});const p=await test.newPage();p.on('pageerror',error=>report.pageErrors.push(error.message));await p.clock.install({time:new Date('2026-11-08T09:00:00Z')});let racePrice=2,failExpanded=false,omitFootball=false;
   await p.route('**/*-data.json',async route=>{const name=new URL(route.request().url()).pathname.split('/').pop();let doc=name==='research-dashboard-data.json'?(omitFootball?{...football,upcoming_fixtures:[],experimental_model_forecasts:[]}:football):name==='football-expanded-data.json'?{...guard,upcoming_fixtures:[],experimental_model_forecasts:[]}:name==='racing-research-data.json'?race(racePrice):name==='horse-predictions-data.json'?racingPrediction:name==='other-sports-data.json'?{...guard,sports:{}}:null;if(!doc)return route.continue();if(failExpanded&&name==='football-expanded-data.json')return route.abort();return route.fulfill({contentType:'application/json',body:JSON.stringify(doc)});});
+  await p.route('**/hybrid-market-data.json', route => {
+    const start = fixtureRows[0].kickoff_utc;
+    const market = {verified:true, observed_at_utc:guard.generated_at_utc};
+    const record = {event_id:JSON.stringify(['football',JSON.stringify(['PL',fixtureRows[0].home,fixtureRows[0].away]),start]),
+      start_utc:start, market:'FOOTBALL_90_MINUTE_1X2',
+      benchmark:{...market,source_id:'QA_BENCHMARK',source:'https://example.org/synthetic-benchmark',prices:{home:2,draw:3.8,away:4.5}},
+      sky_bet:{...market,source_id:'SKY_BET',source:'https://skybet.com/synthetic-qa',prices:{home:2.5,draw:3,away:4}}};
+    return route.fulfill({json:{schema_version:1,records:[record]}});
+  });
   await p.route('**/research-history.json',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({...guard,entries:[]})}));
   await p.goto(base+'/',{waitUntil:'networkidle'});await waitBoard(p);assert.equal(await p.locator('#events .event-card').count(),7);
   assert.equal(await p.locator('#stake').inputValue(),'');
@@ -52,10 +61,12 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   assert.equal(await p.locator('#engine-select').inputValue(),'current');
   await p.locator('#engine-select').focus(); await p.keyboard.press('ArrowDown'); await p.keyboard.press('Tab');
   assert.equal(await p.locator('#engine-select').inputValue(),'experimental');
-  assert((await p.locator('#engine-analysis').textContent()).includes('ILLUSTRATIVE'));
-  assert((await p.locator('#engine-analysis').textContent()).includes('Unavailable'));
+  assert((await p.locator('#engine-status').textContent()).includes('frozen recent-form'));
+  await p.locator('#engine-select').selectOption('hybrid');
+  await p.locator('.engine-hybrid-result').getByText(/HOME · 2\.50 Sky Bet/).waitFor();
+  assert.match(await p.locator('.engine-hybrid-result').innerText(), /Home \/ draw \/ away · 47\.9%/);
   await p.locator('#engine-select').selectOption('compare');
-  assert((await p.locator('#engine-analysis').textContent()).includes('Current Engine 2.5'));
+  assert((await p.locator('#engine-status').textContent()).includes('Compare the saved estimate'));
   assert.equal(await p.evaluate(()=>localStorage.getItem('value-watch-research-desk-v4')),workspaceBefore);
   await p.reload({waitUntil:'networkidle'}); await waitBoard(p);
   assert.equal(await p.locator('#engine-select').inputValue(),'compare');
@@ -75,14 +86,22 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   },football);
   await p.reload({waitUntil:'networkidle'}); await waitBoard(p);
   await p.locator('#engine-select').selectOption('compare');
-  assert((await p.locator('#engine-analysis').textContent()).includes('Central EV: 12.5%'));
-  assert((await p.locator('#engine-analysis').textContent()).includes('variance: 1.5469'));
+  const engineAnalysis = p.locator('#engine-analysis');
+  await engineAnalysis.getByText('3.1 · Current-season hybrid', {exact:true}).first().waitFor();
+  assert((await engineAnalysis.textContent()).includes('2.5 · Saved estimate'));
+  assert((await engineAnalysis.textContent()).includes('3.0 · Frozen recent-form blend'));
+  await engineAnalysis.getByText(/Home \/ draw \/ away · 47\.9%/).first().waitFor();
+  const sensitivity = engineAnalysis.locator('.engine-sensitivity').first();
+  assert.equal(await sensitivity.evaluate(node => node.open), false);
+  await sensitivity.locator('summary').click();
+  assert((await sensitivity.textContent()).includes('Central EV 12.5%'));
+  assert((await sensitivity.textContent()).includes('variance 1.5469'));
   await p.clock.setSystemTime(new Date('2026-11-08T09:31:00Z')); await p.locator('#engine-select').selectOption('experimental');
-  assert((await p.locator('#engine-analysis').textContent()).includes('Unavailable'));
+  assert((await p.locator('#engine-analysis').textContent()).includes('Requires a saved estimate and a current source-matched price.'));
   await p.clock.setSystemTime(new Date('2026-11-08T09:00:00Z'));
   await p.evaluate(value=>localStorage.setItem('value-watch-research-desk-v4',value),workspaceBefore);
   await p.locator('#engine-select').selectOption('current'); await p.reload({waitUntil:'networkidle'}); await waitBoard(p);
-  report.checks.push('keyboard engine switch, comparison, missing inputs, persistence, unchanged workspace, mobile layout and accessibility');
+  report.checks.push('keyboard engine switch, distinct 3.1 forecast and paper suggestion, comparison, missing inputs, persistence, unchanged workspace, mobile layout and accessibility');
   await p.locator('[data-range=tomorrow]').click();assert((await p.locator('#coverage-summary').textContent()).includes('matching your filters'));await p.locator('[data-sport=racing]').click();await p.locator('#events .event-empty').waitFor();assert((await p.locator('#events').textContent()).includes('scheduled meetings'));await p.locator('#events').getByRole('button',{name:'Show next 14 days',exact:true}).click();await p.locator('#events .event-card').waitFor();assert.equal(await p.locator('#date-from').inputValue(),'2026-11-08');assert.equal(await p.locator('#date-to').inputValue(),'2026-11-21');await p.locator('[data-sport=all]').click();await p.locator('[data-range="7"]').click();report.checks.push('racing coverage gap explains unavailable cards and offers working range recovery');
   const first=p.locator('#events .event-card').filter({hasText:'Test Home 0'});
   // Run clear + first manual click in one browser task so an asynchronous

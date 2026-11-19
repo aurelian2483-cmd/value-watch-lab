@@ -90,7 +90,7 @@ const server=http.createServer((req,res)=>{
      const matchCards=page.locator('.fixture-event-card');
      if(await matchCards.count()) {
        assert.equal(await matchCards.first().locator('.fixture-outcome').count(),2,'Each match shows both participants');
-       assert((await matchCards.first().innerText()).includes('Odds not supplied'),'Missing quotes stay explicit');
+       assert((await matchCards.first().innerText()).includes('Bookmaker odds unavailable'),'Missing quotes stay explicit');
        assert((await matchCards.first().locator('.fixture-model-status').innerText()).length>10,'Model availability is explained per match');
      }
      await page.locator('#build-scope').selectOption('all');
