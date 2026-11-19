@@ -1,14 +1,14 @@
-name: Hybrid 3.1 football market pilot
+name: Hybrid 3.1 football market refresh
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
       - '.github/workflows/hybrid-market-pilot.yml'
+      - 'scripts/refresh_hybrid_market.py'
   schedule:
-    # Time-boxed to the November pilot. The collector also enforces the fixture cutoff.
-    - cron: '7,27,47 20-23 19 11 *'
-    - cron: '7,27,47 0-19 20 11 *'
+    # Offset from the start of the hour to reduce launch delays.
+    - cron: '7,22,37,52 * * * *'
 permissions:
   contents: write
 concurrency:

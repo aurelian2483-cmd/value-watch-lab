@@ -1078,8 +1078,15 @@
     if (hybridEvidence && Date.now() - hybridEvidence.at < 60000) return hybridEvidence;
     const entry = {at:Date.now(), pending:true, data:null};
     hybridEvidence = entry;
-    fetchFixtureSource(new URL('paper-lab/hybrid-market-data.json', rootURL), 'json')
-      .then(data => { entry.data = data; })
+    const bundled = () => fetchFixtureSource(new URL('paper-lab/hybrid-market-data.json', rootURL), 'json');
+    const published = rootURL.hostname === 'aurelian2483-cmd.github.io' && rootURL.pathname === '/value-watch-lab/'
+      ? fetchFixtureSource(new URL('https://raw.githubusercontent.com/aurelian2483-cmd/value-watch-lab/main/paper-lab/hybrid-market-data.json'), 'json')
+        .then(data => {
+          if (data?.schema_version !== 1 || !Array.isArray(data.records)) throw Error('Market feed unavailable');
+          return data;
+        }).catch(bundled)
+      : bundled();
+    published.then(data => { entry.data = data; })
       .catch(() => {})
       .finally(() => {
         entry.pending = false;

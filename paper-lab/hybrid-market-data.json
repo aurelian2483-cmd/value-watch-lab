@@ -5,15 +5,15 @@
       "event_id": "[\"football\",\"[\\\"D1\\\",\\\"Bayern Munich\\\",\\\"FC Cologne\\\"]\",\"2026-11-20T19:30:00Z\"]",
       "start_utc": "2026-11-20T19:30:00Z",
       "market": "FOOTBALL_90_MINUTE_1X2",
-      "snapshot_at_utc": "2026-11-19T20:01:03.396108+00:00",
+      "snapshot_at_utc": "2026-11-19T23:03:17.801215+00:00",
       "benchmark": {
         "source": "https://www.goldedge.net/odds/football/germany/bundesliga/bayern-munich-1-fc-koln-oe50gg4",
-        "source_sha256": "7d0d00e3a6c7f1363f83a4669131a5d2c03f8a85914ff673fed5323746ade40a",
-        "captured_at_utc": "2026-11-19T20:00:58.340723+00:00",
-        "http_date_utc": "2026-11-19T20:00:58+00:00",
+        "source_sha256": "c6cb86b60ac34df325a44dae7ad8c5862cce4fef0c1c87ae7b280863c6ee457f",
+        "captured_at_utc": "2026-11-19T23:03:13.352733+00:00",
+        "http_date_utc": "2026-11-19T23:03:13+00:00",
         "source_id": "PINNACLE_VIA_GOLDEDGE",
         "verified": true,
-        "observed_at_utc": "2026-11-19T20:00:34+00:00",
+        "observed_at_utc": "2026-11-19T23:00:24+00:00",
         "prices": {
           "home": 1.07,
           "draw": 15.64,
@@ -28,16 +28,16 @@
       },
       "sky_bet": {
         "source": "https://skybet.com/football/german-bundesliga/bayern-munich-v-fc-koln/e-36289930",
-        "source_sha256": "6d8268cf216c2cc1ff99cb6f64ce2e9f0f35309e45e7c7f403cf61bb4181f892",
-        "captured_at_utc": "2026-11-19T20:01:03.396108+00:00",
-        "http_date_utc": "2026-11-19T20:01:03+00:00",
+        "source_sha256": "4d81710c4f6bfa15fb8d481dfb1e444fce14ab4de41ec0893f3acf85a58af563",
+        "captured_at_utc": "2026-11-19T23:03:17.801215+00:00",
+        "http_date_utc": "2026-11-19T23:03:17+00:00",
         "source_id": "SKY_BET",
         "verified": true,
-        "observed_at_utc": "2026-11-19T20:01:03.396108+00:00",
+        "observed_at_utc": "2026-11-19T23:03:17.801215+00:00",
         "prices": {
           "home": 1.05,
           "draw": 17,
-          "away": 26
+          "away": 23
         },
         "source_event_id": "36289930",
         "source_market_id": "ppb:sbkMarket:930.395567999",
@@ -71,6 +71,222 @@
           "expected_value": null,
           "small_sample": true
         }
+      }
+    },
+    {
+      "event_id": "[\"football\",\"[\\\"D1\\\",\\\"Werder Bremen\\\",\\\"Hamburg SV\\\"]\",\"2026-11-22T16:30:00Z\"]",
+      "start_utc": "2026-11-22T16:30:00Z",
+      "market": "FOOTBALL_90_MINUTE_1X2",
+      "snapshot_at_utc": "2026-11-19T23:05:30.303535+00:00",
+      "frozen_model": {
+        "observed_at_utc": "2026-11-19T17:38:43.038091Z",
+        "comparison": {
+          "method": "CURRENT_SEASON_POISSON_COMPARISON_V1",
+          "season": "2627",
+          "prob_home": 0.6995880394479118,
+          "prob_draw": 0.16646730009215133,
+          "prob_away": 0.13394466045993686,
+          "home_venue_matches": 4,
+          "away_venue_matches": 5,
+          "training_matches": 81,
+          "training_sha256": "9a2dd5a7a5c71a8d150b77f94e2d2a78abb2ebf83d5ab78030fe8aad2b289d74",
+          "source_receipts": [
+            {
+              "url": "https://www.football-data.co.uk/mmz4281/2627/D1.csv",
+              "sha256": "85b5ff5199866f452016473e927ff2431c05c7b2ae045b5edd3b7f5bb5847d2a",
+              "observed_at_utc": "2026-11-19T17:38:20.781182Z"
+            }
+          ],
+          "cutoff_utc": "2026-11-22T16:30:00Z",
+          "unvalidated": true,
+          "research_only": true,
+          "publication_gate": "BLOCKED",
+          "odds": null,
+          "expected_value": null,
+          "small_sample": true
+        }
+      },
+      "benchmark": {
+        "source": "https://www.goldedge.net/odds/football/germany/bundesliga/werder-bremen-hamburger-sv-u4qojzq",
+        "source_sha256": "7a5ce374939ca4ec5e16040e91f8c1232434dd6a5229619edbe7b7864d8be7a2",
+        "captured_at_utc": "2026-11-19T23:05:30.303535+00:00",
+        "http_date_utc": "2026-11-19T23:05:30+00:00",
+        "source_id": "PINNACLE_VIA_GOLDEDGE",
+        "verified": true,
+        "observed_at_utc": "2026-11-19T23:00:24+00:00",
+        "prices": {
+          "home": 1.675,
+          "draw": 4.46,
+          "away": 4.61
+        },
+        "source_event_id": "u4qojzq",
+        "source_team_names": [
+          "Werder Bremen",
+          "Hamburger SV"
+        ],
+        "timestamp_basis": "GOLDEDGE_PINNACLE_1X2_OBSERVATION_TIME"
+      }
+    },
+    {
+      "event_id": "[\"football\",\"[\\\"D1\\\",\\\"Borussia M\u00f6nchengladbach\\\",\\\"Borussia Dortmund\\\"]\",\"2026-11-21T14:30:00Z\"]",
+      "start_utc": "2026-11-21T14:30:00Z",
+      "market": "FOOTBALL_90_MINUTE_1X2",
+      "snapshot_at_utc": "2026-11-19T23:05:26.005394+00:00",
+      "frozen_model": {
+        "observed_at_utc": "2026-11-19T17:38:43.038091Z",
+        "comparison": {
+          "method": "CURRENT_SEASON_POISSON_COMPARISON_V1",
+          "season": "2627",
+          "prob_home": 0.29722591114733626,
+          "prob_draw": 0.2190138880644663,
+          "prob_away": 0.4837602007881974,
+          "home_venue_matches": 4,
+          "away_venue_matches": 4,
+          "training_matches": 81,
+          "training_sha256": "9a2dd5a7a5c71a8d150b77f94e2d2a78abb2ebf83d5ab78030fe8aad2b289d74",
+          "source_receipts": [
+            {
+              "url": "https://www.football-data.co.uk/mmz4281/2627/D1.csv",
+              "sha256": "85b5ff5199866f452016473e927ff2431c05c7b2ae045b5edd3b7f5bb5847d2a",
+              "observed_at_utc": "2026-11-19T17:38:20.781182Z"
+            }
+          ],
+          "cutoff_utc": "2026-11-21T14:30:00Z",
+          "unvalidated": true,
+          "research_only": true,
+          "publication_gate": "BLOCKED",
+          "odds": null,
+          "expected_value": null,
+          "small_sample": true
+        }
+      },
+      "benchmark": {
+        "source": "https://www.goldedge.net/odds/football/germany/bundesliga/borussia-monchengladbach-borussia-dortmund-11z0t3y",
+        "source_sha256": "88a9181c896a051d39d7388639806635480185b67d4c32574c07fc9b411fb866",
+        "captured_at_utc": "2026-11-19T23:05:26.005394+00:00",
+        "http_date_utc": "2026-11-19T23:05:25+00:00",
+        "source_id": "PINNACLE_VIA_GOLDEDGE",
+        "verified": true,
+        "observed_at_utc": "2026-11-19T23:00:24+00:00",
+        "prices": {
+          "home": 5.41,
+          "draw": 4.65,
+          "away": 1.564
+        },
+        "source_event_id": "11z0t3y",
+        "source_team_names": [
+          "Borussia Monchengladbach",
+          "Borussia Dortmund"
+        ],
+        "timestamp_basis": "GOLDEDGE_PINNACLE_1X2_OBSERVATION_TIME"
+      }
+    },
+    {
+      "event_id": "[\"football\",\"[\\\"D1\\\",\\\"1. FC Union Berlin\\\",\\\"RB Leipzig\\\"]\",\"2026-11-21T14:30:00Z\"]",
+      "start_utc": "2026-11-21T14:30:00Z",
+      "market": "FOOTBALL_90_MINUTE_1X2",
+      "snapshot_at_utc": "2026-11-19T23:05:25.988364+00:00",
+      "frozen_model": {
+        "observed_at_utc": "2026-11-19T17:38:43.038091Z",
+        "comparison": {
+          "method": "CURRENT_SEASON_POISSON_COMPARISON_V1",
+          "season": "2627",
+          "prob_home": 0.5286266535977836,
+          "prob_draw": 0.22511853411675534,
+          "prob_away": 0.24625481228546106,
+          "home_venue_matches": 5,
+          "away_venue_matches": 4,
+          "training_matches": 81,
+          "training_sha256": "9a2dd5a7a5c71a8d150b77f94e2d2a78abb2ebf83d5ab78030fe8aad2b289d74",
+          "source_receipts": [
+            {
+              "url": "https://www.football-data.co.uk/mmz4281/2627/D1.csv",
+              "sha256": "85b5ff5199866f452016473e927ff2431c05c7b2ae045b5edd3b7f5bb5847d2a",
+              "observed_at_utc": "2026-11-19T17:38:20.781182Z"
+            }
+          ],
+          "cutoff_utc": "2026-11-21T14:30:00Z",
+          "unvalidated": true,
+          "research_only": true,
+          "publication_gate": "BLOCKED",
+          "odds": null,
+          "expected_value": null,
+          "small_sample": true
+        }
+      },
+      "benchmark": {
+        "source": "https://www.goldedge.net/odds/football/germany/bundesliga/union-berlin-rb-leipzig-so749ic",
+        "source_sha256": "b5b1cee5cedf8c0db556bafd9d3ab8325066adbe1f4651598afa217cb33d080f",
+        "captured_at_utc": "2026-11-19T23:05:25.988364+00:00",
+        "http_date_utc": "2026-11-19T23:05:25+00:00",
+        "source_id": "PINNACLE_VIA_GOLDEDGE",
+        "verified": true,
+        "observed_at_utc": "2026-11-19T23:00:24+00:00",
+        "prices": {
+          "home": 5.89,
+          "draw": 4.78,
+          "away": 1.515
+        },
+        "source_event_id": "so749ic",
+        "source_team_names": [
+          "Union Berlin",
+          "RB Leipzig"
+        ],
+        "timestamp_basis": "GOLDEDGE_PINNACLE_1X2_OBSERVATION_TIME"
+      }
+    },
+    {
+      "event_id": "[\"football\",\"[\\\"D1\\\",\\\"Schalke 04\\\",\\\"VfB Stuttgart\\\"]\",\"2026-11-21T17:30:00Z\"]",
+      "start_utc": "2026-11-21T17:30:00Z",
+      "market": "FOOTBALL_90_MINUTE_1X2",
+      "snapshot_at_utc": "2026-11-19T23:05:25.960316+00:00",
+      "frozen_model": {
+        "observed_at_utc": "2026-11-19T17:38:43.038091Z",
+        "comparison": {
+          "method": "CURRENT_SEASON_POISSON_COMPARISON_V1",
+          "season": "2627",
+          "prob_home": 0.349627551656772,
+          "prob_draw": 0.28143919312518684,
+          "prob_away": 0.3689332552180411,
+          "home_venue_matches": 4,
+          "away_venue_matches": 5,
+          "training_matches": 81,
+          "training_sha256": "9a2dd5a7a5c71a8d150b77f94e2d2a78abb2ebf83d5ab78030fe8aad2b289d74",
+          "source_receipts": [
+            {
+              "url": "https://www.football-data.co.uk/mmz4281/2627/D1.csv",
+              "sha256": "85b5ff5199866f452016473e927ff2431c05c7b2ae045b5edd3b7f5bb5847d2a",
+              "observed_at_utc": "2026-11-19T17:38:20.781182Z"
+            }
+          ],
+          "cutoff_utc": "2026-11-21T17:30:00Z",
+          "unvalidated": true,
+          "research_only": true,
+          "publication_gate": "BLOCKED",
+          "odds": null,
+          "expected_value": null,
+          "small_sample": true
+        }
+      },
+      "benchmark": {
+        "source": "https://www.goldedge.net/odds/football/germany/bundesliga/schalke-04-stuttgart-k52td7l",
+        "source_sha256": "7fc4a98394d03298285abb17890def127fdce8776f08630feed700288cf65414",
+        "captured_at_utc": "2026-11-19T23:05:25.960316+00:00",
+        "http_date_utc": "2026-11-19T23:05:25+00:00",
+        "source_id": "PINNACLE_VIA_GOLDEDGE",
+        "verified": true,
+        "observed_at_utc": "2026-11-19T23:04:54+00:00",
+        "prices": {
+          "home": 4.07,
+          "draw": 4.16,
+          "away": 1.813
+        },
+        "source_event_id": "k52td7l",
+        "source_team_names": [
+          "Schalke 04",
+          "Stuttgart"
+        ],
+        "timestamp_basis": "GOLDEDGE_PINNACLE_1X2_OBSERVATION_TIME"
       }
     }
   ]
