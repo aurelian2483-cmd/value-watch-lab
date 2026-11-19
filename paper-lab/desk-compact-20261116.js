@@ -897,7 +897,7 @@
     }
     if (fixtureLabs[state.sport]) {
       write($('event-summary'), fixtureCount + (fixtureCount === 1 ? ' match' : ' matches') + ' in the selected view · ' + state.plan.from + ' → ' + state.plan.to);
-      write($('coverage-summary'), 'Match evidence is shown below. Prices and predictions appear only when supplied and supported.');
+      write($('coverage-summary'), 'Available schedule and model evidence is shown below. These feeds do not supply bookmaker prices.');
     } else {
       write($('event-summary'), rows.length + ' research events' + (state.sport === 'all' && !isReliability ? ' + ' + fixtureCount + ' darts/rugby calendar matches' : '') + ' · ' + state.plan.from + ' → ' + state.plan.to + ' · UK time');
     }
