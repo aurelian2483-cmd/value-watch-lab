@@ -31,6 +31,33 @@ assert.equal(F.normalize('darts',{...doc,publication_gate:'OPEN'},[official],now
 const conflict=F.normalize('darts',{...doc,fixtures:[match,{...match,id:'m2',start_utc:'2026-11-20T19:00:00Z'}]},[],now).fixtures[0];
 assert.equal(conflict.start,null);assert.equal(conflict.model,null);assert.match(conflict.reason,/Conflicting/);
 assert.equal(F.normalize('darts',null,[official],now).fixtures[0].start,null);
+const Darts = require('../darts/model.js');
+const aggregate = {...gates,...Darts.model(results,[match],gates.generated_at_utc),raw_history_published:false,
+ source_verification:'PROVIDER_OBSERVED_UNCORROBORATED',history_latest_date:'2026-11-08',
+ coverage:{pagination_complete:true,history_period:['2026-10-15','2026-11-11'],usable_result_rows:8,returned_result_rows:8},
+ source_receipts:Array.from({length:5},(_,i)=>({endpoint:i===4?'/v1/fixtures':'/v1/results',sha256:'a'.repeat(64)}))};
+assert(F.validAnalysis(aggregate,now));
+const sparse = {...doc,results:results.slice(0,1)};
+const analysed = F.normalize('darts',sparse,[],now,aggregate);
+assert.equal(analysed.fixtures[0].model.prior_a,8,'complete aggregate replaces bounded sample analysis');
+assert.equal(analysed.fixtures[0].analysisHistory,8);
+assert.match(analysed.fixtures[0].reason,/recent results are delayed/);
+assert.equal(analysed.fixtures[0].selectable,false);
+assert.equal(F.normalize('darts',sparse,[{...official,participants:['Bob','Alice']}],now,aggregate).fixtures[0].model.prob_a,aggregate.fixtures[0].prob_b);
+for(const mutation of [
+ a=>a.publication_gate='OPEN',a=>a.generated_at_utc='2026-11-20T00:00:00Z',
+ a=>a.generated_at_utc='2026-11-10T00:00:00Z',a=>a.coverage.pagination_complete=false,
+ a=>a.coverage.returned_result_rows=9,a=>a.source_receipts=[],a=>a.raw_history_published=true,
+ a=>a.fixtures[0].prob_a=0.999,a=>a.fixtures[0].prior_a=0,a=>a.model='UNRECOGNISED'
+]) {
+ const bad=structuredClone(aggregate);mutation(bad);
+ assert.equal(F.validAnalysis(bad,now),false,'invalid aggregate rejected');
+ assert.equal(F.normalize('darts',sparse,[],now,bad).fixtures[0].model.prior_a,1,'safe bounded sample retained');
+}
+for(const mutation of [a=>a.fixtures[0].id='different',a=>a.fixtures[0].player_a={id:'new',name:'Alice'},a=>a.fixtures[0].start_utc='2026-11-21T18:00:00Z']) {
+ const mismatch=structuredClone(aggregate);mutation(mismatch);
+ assert.equal(F.normalize('darts',sparse,[],now,mismatch).fixtures[0].model.prior_a,1,'stale fixture identity must not receive an old prediction');
+}
 const rugby={...gates,upcoming_fixtures:['RU','RL'].map(code=>({code,home:'Team A',away:'Team B',kickoff_utc:'2026-11-20T18:00:00Z',competition_name:'Test '+code,source_receipts:[{url:'https://example.org/'+code}]}))};
 report=F.normalize('rugby',rugby,[],now);
 assert.equal(report.fixtures.length,2,'rugby codes remain distinct');

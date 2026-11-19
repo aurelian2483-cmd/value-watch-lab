@@ -12,10 +12,27 @@
   const day = value => new Intl.DateTimeFormat('sv-SE', {timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value));
   const url = value => { try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password ? u.href : null; } catch { return null; } };
   const links = rows => [...new Set(list(rows).map(row => url(typeof row === 'string' ? row : row?.url)).filter(Boolean))];
-  function normalize(sport, doc, official = [], now = Date.now()) {
+  function validAnalysis(doc, now) {
+    const age = now - Date.parse(doc?.generated_at_utc), coverage = doc?.coverage;
+    if (doc?.schema_version !== 1 || doc.model !== Darts.VERSION || doc.research_only !== true || doc.model_validation !== 'UNVALIDATED' || doc.publication_gate !== 'BLOCKED' || doc.betting_eligible !== false || doc.odds !== null || doc.expected_value !== null || doc.raw_history_published !== false || doc.source_verification !== 'PROVIDER_OBSERVED_UNCORROBORATED' || !iso(doc.generated_at_utc) || age < 0 || age > 48*3600000) return false;
+    if (!Number.isInteger(doc.training_matches) || doc.training_matches < 0 || doc.training_matches > 50000 || coverage?.pagination_complete !== true || coverage.usable_result_rows !== doc.training_matches || coverage.returned_result_rows !== doc.training_matches) return false;
+    const period = coverage.history_period;
+    if (!Array.isArray(period) || period.length !== 2 || !period.every(date) || Date.parse(period[1])-Date.parse(period[0]) !== 27*86400000 || Date.parse(period[1]) >= Date.parse(doc.generated_at_utc.slice(0,10))) return false;
+    if (doc.training_matches && (!date(doc.history_latest_date) || doc.history_latest_date < period[0] || doc.history_latest_date > period[1])) return false;
+    if (!Array.isArray(doc.source_receipts) || doc.source_receipts.length < 5 || doc.source_receipts.length > 90 || doc.source_receipts.some(r => !['/v1/results','/v1/fixtures'].includes(r?.endpoint) || !/^[a-f0-9]{64}$/.test(r.sha256))) return false;
+    if (!Array.isArray(doc.fixtures) || doc.fixtures.length > 12 || new Set(doc.fixtures.map(f=>f?.id)).size !== doc.fixtures.length) return false;
+    return doc.fixtures.every(f => {
+      if (!f || !iso(f.start_utc) || ![f.prior_a,f.prior_b].every(n=>Number.isInteger(n)&&n>=0&&n<=doc.training_matches)) return false;
+      const enough = f.prior_a >= Darts.MIN_MATCHES && f.prior_b >= Darts.MIN_MATCHES;
+      if (!enough) return f.status === 'INSUFFICIENT_HISTORY' && f.prob_a === null && f.prob_b === null;
+      return f.status === 'EXPERIMENTAL_UNCALIBRATED' && [f.rating_a,f.rating_b,f.prob_a,f.prob_b].every(Number.isFinite) && f.prob_a > 0 && f.prob_b > 0 && Math.abs(f.prob_a+f.prob_b-1)<1e-10 && Math.abs(f.prob_a-Darts.prob(f.rating_a,f.rating_b))<1e-10;
+    });
+  }
+  function normalize(sport, doc, official = [], now = Date.now(), analysis = null) {
     const valid = doc?.schema_version === 1 && doc.research_only === true && doc.model_validation === 'UNVALIDATED' && doc.publication_gate === 'BLOCKED' && iso(doc.generated_at_utc);
     const age = now - Date.parse(doc?.generated_at_utc);
     const current = valid && age >= 0 && age <= 48 * 3600000;
+    const analysisCurrent = sport === 'darts' && validAnalysis(analysis, now);
     const records = [], history = valid && sport === 'darts' ? list(doc.results) : [];
     const add = row => {
       if (!date(row.date) || row.participants.length !== 2 || row.participants.some(x => !name(x)) || row.participants[0] === row.participants[1]) return;
@@ -61,6 +78,13 @@
         try {
           const report = Darts.model(history, [row.provider], new Date(now).toISOString());
           row.model = report.fixtures[0];
+          const aggregate = analysisCurrent && analysis.fixtures.find(f => f.id === row.provider.id && f.start_utc === row.provider.start_utc && f.competition === row.provider.competition && ['player_a','player_b'].every(k => f[k]?.id === row.provider[k]?.id && f[k]?.name === row.provider[k]?.name));
+          if (aggregate) {
+            row.model = {...aggregate};
+            row.analysisObservedAt = analysis.generated_at_utc;
+            row.analysisHistory = analysis.training_matches;
+            row.analysisPeriod = analysis.coverage.history_period;
+          }
           if (row.participants[0].toLocaleLowerCase('en-GB') !== row.model.player_a.name.toLocaleLowerCase('en-GB')) {
             const m = row.model;
             row.model = {...m,player_a:m.player_b,player_b:m.player_a,prior_a:m.prior_b,prior_b:m.prior_a,prob_a:m.prob_b,prob_b:m.prob_a,rating_a:m.rating_b,rating_b:m.rating_a};
@@ -68,6 +92,7 @@
           row.reason = row.model.prob_a === null
             ? 'Insufficient history: ' + row.model.prior_a + ' / ' + row.model.prior_b + ' earlier matches; D1 requires 8 per player.'
             : 'D1 experimental estimate · uncalibrated; no verified betting edge.';
+          if (aggregate) row.reason += ' Based on ' + analysis.training_matches + ' results from ' + analysis.coverage.history_period.join(' to ') + '; recent results are delayed.';
         } catch { row.reason = 'Historical records or fixture identity failed the D1 input checks.'; }
       }
       if (!current && row.provider) row.reason = 'Provider data is stale or unconfirmed; refresh required before analysis.';
@@ -75,6 +100,7 @@
       row.blockers = [row.reason, 'No bookmaker odds supplied for this match.'];
     }
     return {fixtures, valid, current, historyCount:history.length, observedAt:valid ? doc.generated_at_utc : null,
+      analysisHistoryCount:analysisCurrent ? analysis.training_matches : null,
       sourceHealth:valid ? doc.source_health : null};
   }
   function matching(snapshot, state, now = Date.now()) {
@@ -87,5 +113,5 @@
         (!state.query || (row.name + ' ' + row.competition).toLocaleLowerCase('en-GB').includes(state.query.toLocaleLowerCase('en-GB')));
     });
   }
-  return {normalize, matching};
+  return {normalize, matching, validAnalysis};
 });
