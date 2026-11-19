@@ -28,7 +28,31 @@
       return f.status === 'EXPERIMENTAL_UNCALIBRATED' && [f.rating_a,f.rating_b,f.prob_a,f.prob_b].every(Number.isFinite) && f.prob_a > 0 && f.prob_b > 0 && Math.abs(f.prob_a+f.prob_b-1)<1e-10 && Math.abs(f.prob_a-Darts.prob(f.rating_a,f.rating_b))<1e-10;
     });
   }
-  function normalize(sport, doc, official = [], now = Date.now(), analysis = null) {
+  function observedMarkets(document, row, now) {
+    if (document?.schema_version !== 1 || document.research_only !== true || document.publication_gate !== 'BLOCKED' ||
+        row.timeConflict || !row.official) return null;
+    const candidates = list(document.records).filter(record => record?.code === row.code &&
+      name(record.competition).toLowerCase() === row.competition.toLowerCase() &&
+      Array.isArray(record.participants) && record.participants.length === 2 &&
+      row.participants.every((player, i) => player.toLowerCase() === name(record.participants[i]).toLowerCase()) &&
+      iso(record.start_utc) && day(record.start_utc) === row.date &&
+      (!row.start || Date.parse(row.start) === Date.parse(record.start_utc)));
+    if (candidates.length !== 1) return null;
+    const record = candidates[0], start = Date.parse(record.start_utc), darts = row.code === 'DARTS';
+    if (record.market !== (darts ? 'MATCH_WINNER' : 'THREE_WAY_MATCH_RESULT')) return null;
+    const labels = darts ? row.participants : [row.participants[0], 'Draw', row.participants[1]];
+    const priceRow = side => {
+      const address = url(side?.source), captured = Date.parse(side?.captured_at_utc);
+      if (!address || !name(side.bookmaker) || !/^[a-f0-9]{64}$/.test(side.sha256 || '') ||
+          !iso(side.captured_at_utc) || captured > now || captured >= start || !Array.isArray(side.prices) ||
+          side.prices.length !== labels.length || side.prices.some(price => !Number.isFinite(price) || price <= 1)) return null;
+      return {source:address, bookmaker:name(side.bookmaker), at:side.captured_at_utc, prices:side.prices};
+    };
+    const benchmark = priceRow(record.benchmark), sky = priceRow(record.sky_bet);
+    if (!benchmark || !sky || /^sky[ -]*bet/i.test(benchmark.bookmaker) || !/^sky[ -]*bet/i.test(sky.bookmaker)) return null;
+    return {listedStart:record.start_utc, labels, benchmark, sky, directSource:url(record.direct_bookmaker_page)};
+  }
+  function normalize(sport, doc, official = [], now = Date.now(), analysis = null, markets = null) {
     const valid = doc?.schema_version === 1 && doc.research_only === true && doc.model_validation === 'UNVALIDATED' && doc.publication_gate === 'BLOCKED' && iso(doc.generated_at_utc);
     const age = now - Date.parse(doc?.generated_at_utc);
     const current = valid && age >= 0 && age <= 48 * 3600000;
@@ -38,7 +62,7 @@
       if (!date(row.date) || row.participants.length !== 2 || row.participants.some(x => !name(x)) || row.participants[0] === row.participants[1]) return;
       records.push({...row, sport, name:row.participants.join(' vs '), odds:null, selectable:false});
     };
-    for (const row of official) add({...row, participants:list(row.participants).map(name), official:true, start:null,
+    for (const row of official) add({...row, participants:list(row.participants).map(name), official:true, start:sport === 'rugby' && iso(row.start) && day(row.start) === row.date ? row.start : null,
       session:iso(row.session) && day(row.session) === row.date ? row.session : null,
       competition:name(row.competition) || (sport === 'darts' ? 'PDC schedule' : 'Rugby schedule'), sources:links(row.sources)});
     if (valid && sport === 'darts') {
@@ -88,7 +112,7 @@
     const fixtures = [...merged.values()].sort((a,b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name));
     for (const row of fixtures) {
       row.observedAt = row.provider && valid ? doc.generated_at_utc : null;
-      row.sourceStatus = row.official ? (row.start ? 'Official schedule date · provider match time unverified' : 'Official schedule snapshot') : current ? 'Provider observation · independently unverified' : 'Provider snapshot stale or unconfirmed';
+      row.sourceStatus = row.official ? (row.start && sport === 'darts' ? 'Official schedule date · provider match time unverified' : 'Official schedule snapshot') : current ? 'Provider observation · independently unverified' : 'Provider snapshot stale or unconfirmed';
       row.model = null;
       row.reason = sport === 'rugby' ? 'No rugby prediction model or team-result history is connected.' : 'D1 needs a confirmed match time and matched player IDs.';
       if (sport === 'darts' && row.provider && current && row.start && Date.parse(row.start) > now + 300000 && !row.timeConflict) {
@@ -117,7 +141,11 @@
       if (sport === 'darts' && !row.start && !row.timeConflict && (row.official || current)) {
         row.reason = 'Individual start time is unconfirmed. D1 also requires matched player IDs and enough earlier results.';
       }
-      row.blockers = [row.reason, 'No bookmaker odds supplied for this match.'];
+      row.marketEvidence = observedMarkets(markets, row, now);
+      if (sport === 'darts' && row.marketEvidence && !row.model && !row.start) {
+        row.reason = 'D1 estimate withheld. The sources give a market-listed time and the PDC session, and D1 still needs independently matched timing and sufficient player history.';
+      }
+      row.blockers = [row.reason, row.marketEvidence ? 'Dated market observations only.' : 'No captured bookmaker prices for this match.'];
     }
     return {fixtures, valid, current, historyCount:history.length, observedAt:valid ? doc.generated_at_utc : null,
       analysisHistoryCount:analysisCurrent ? analysis.training_matches : null,

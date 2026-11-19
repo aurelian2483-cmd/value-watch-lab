@@ -663,6 +663,7 @@
     rugby: { name:'Rugby', feed:'rugby-research-data.json' }
   };
   const fixtureSnapshots = new Map();
+  let fixtureMarketRequest;
   const fixtureBase = new URL(location.pathname.endsWith('/paper-lab/') || location.pathname.endsWith('/paper-lab/index.html') ? '../' : './', location.href);
   async function fetchFixtureSource(url, format) {
     const response = await fetch(url, {cache:'no-store', signal:AbortSignal.timeout(10000)});
@@ -678,8 +679,9 @@
       Promise.allSettled([
         fetchFixtureSource(new URL(fixtureLabs[sport].feed, fixtureBase), 'json'),
         fetchFixtureSource(new URL(sport + '/', fixtureBase), 'text'),
-        sport === 'darts' ? fetchFixtureSource(new URL('darts/analysis.json', fixtureBase), 'json') : Promise.resolve(null)
-      ]).then(([feed, official, analysis]) => {
+        sport === 'darts' ? fetchFixtureSource(new URL('darts/analysis.json', fixtureBase), 'json') : Promise.resolve(null),
+        fixtureMarketRequest ||= fetchFixtureSource(new URL('paper-lab/fixture-market-evidence.json', fixtureBase), 'json')
+      ]).then(([feed, official, analysis, markets]) => {
         const doc = feed.status === 'fulfilled' ? feed.value : null;
         const officialDoc = official.status === 'fulfilled'
           ? new DOMParser().parseFromString(official.value, 'text/html') : null;
@@ -688,9 +690,10 @@
             participants:row.textContent.trim().split(' · ')[0].split(' vs '),
             competition:row.dataset.deskCompetition,
             session:row.dataset.deskSession,
+            start:row.dataset.deskStart,
             code:row.dataset.deskCode,
             sources:[...(row.querySelectorAll('a[href]').length ? row.querySelectorAll('a[href]') : officialDoc.querySelectorAll('#official-snapshot a[href]'))].map(a => a.getAttribute('href'))}));
-        const evidence = ResearchFixtureEvidence.normalize(sport, doc, officialRows, Date.now(), analysis.status === 'fulfilled' ? analysis.value : null);
+        const evidence = ResearchFixtureEvidence.normalize(sport, doc, officialRows, Date.now(), analysis.status === 'fulfilled' ? analysis.value : null, markets.status === 'fulfilled' ? markets.value : null);
         if (fixtureSnapshots.get(sport) === request) {
           fixtureSnapshots.set(sport, {...evidence, usable:evidence.current,
             hasOfficial:Boolean(officialDoc?.querySelector('#official-snapshot'))});
@@ -746,7 +749,7 @@
           : 'No provider collection report available') + '.');
       }
     }
-    make(audit, 'p', 'The connected feeds supply no bookmaker odds. Match cards below show the available model evidence and specific missing inputs.');
+    make(audit, 'p', 'Market snapshots are dated observations. Match cards show available sources and model inputs.');
     const labLink = make(audit, 'a', 'Open ' + lab.name + ' Research Lab');
     labLink.href = new URL(sport + '/', fixtureBase).href;
     for (const row of fixtures.slice(0,state.limit)) {
@@ -766,7 +769,19 @@
           make(outcome, 'span', 'D1 estimate: ' + pct(index === 0 ? row.model.prob_a : row.model.prob_b) + ' · uncalibrated');
       });
       make(card, 'p', row.reason, 'fixture-model-status');
-      make(card, 'p', 'Bookmaker odds unavailable · Paper research only', 'small');
+      if (!row.marketEvidence) make(card, 'p', 'Bookmaker odds unavailable · Paper research only', 'small');
+      else {
+        const market = row.marketEvidence;
+        if (!row.start) make(card, 'p', 'Market-listed time · ' + dateText(market.listedStart) + ' UK', 'small');
+        const prices = details(card, 'Captured prices · paper research', 'compact-evidence-disclosure');
+        make(prices, 'p', market.labels.join(' / '), 'small');
+        for (const receipt of [market.benchmark, market.sky]) {
+          make(prices, 'p', receipt.bookmaker + ' · ' + receipt.prices.map(price => price.toFixed(2)).join(' / ') +
+            ' · captured ' + dateText(receipt.at) + ' UK');
+          link(prices, 'View ' + receipt.bookmaker + ' source', receipt.source);
+        }
+        if (market.directSource) link(prices, 'Check the current Sky Bet listing', market.directSource);
+      }
       const evidence = details(card, 'Match evidence and sources', 'compact-evidence-disclosure');
       if (row.providerDateConflict) make(evidence, 'p', 'Provider listed ' + row.providerDateConflict + '. The PDC schedule gives the date shown above.');
       if (row.model) make(evidence, 'p', 'D1 prior matches: ' + row.model.prior_a + ' / ' + row.model.prior_b + '. Historical sample is provider-observed, not independently verified.');
@@ -1736,7 +1751,7 @@
   $('competition').addEventListener('change', event => store.update(state => ({ ...state, competition: event.target.value, limit: 24 })));
   $('event-view').addEventListener('change', event => store.update(state => ({ ...state, eventView: event.target.value, limit: 24 })));
   let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
-  $('refresh').addEventListener('click', () => safely(() => { if (!hybridEvidence?.pending) hybridEvidence = null; fixtureSnapshots.clear(); renderFixtureCounts(store.get()); renderEvents(); return refresh(); }));
+  $('refresh').addEventListener('click', () => safely(() => { if (!hybridEvidence?.pending) hybridEvidence = null; fixtureMarketRequest = null; fixtureSnapshots.clear(); renderFixtureCounts(store.get()); renderEvents(); return refresh(); }));
   $('find-racing')?.addEventListener('click',()=>safely(()=>{racingCandidatesRequested=true;renderRacingCandidates();$('racing-candidates')?.scrollIntoView?.({block:'nearest'});}));
   $('wildcard-build')?.addEventListener('click',()=>safely(createWeeklyWildcard));
   for (const id of ['fresh-daily-slips','fresh-daily-slips-panel'])

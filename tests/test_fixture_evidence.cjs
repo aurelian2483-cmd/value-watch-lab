@@ -84,3 +84,28 @@ for(const [sport,path] of [['darts','darts/feed.json'],['rugby','rugby-research-
  console.log(sport+': '+actual.fixtures.length+' provider calendar records, '+actual.historyCount+' historical records');
 }
 console.log('Fixture evidence: D1, sparse history, deduplication, timestamps, source safeguards, rugby identities and filters passed');
+
+const captures = require('../paper-lab/fixture-market-evidence.json');
+const afterCapture = Date.parse('2026-11-19T19:15:00Z');
+const officialPrice = {date:'2026-11-20', session:'2026-11-20T19:00:00Z',code:'DARTS',
+  participants:['Gerwyn Price','Niko Springer'],competition:'Grand Slam of Darts'};
+const pricedDart = F.normalize('darts',null,[officialPrice],afterCapture,null,captures).fixtures[0];
+assert.equal(pricedDart.marketEvidence.listedStart,'2026-11-20T20:45:00Z');
+assert.equal(pricedDart.marketEvidence.sky.prices[1],5.5);
+assert.equal(pricedDart.start,null,'a market listing does not upgrade a session to a confirmed individual start');
+assert.equal(pricedDart.selectable,false);
+assert.equal(F.normalize('darts',null,[officialPrice],now,null,captures).fixtures[0].marketEvidence,null,'future observations withheld');
+const officialUnion = {date:'2026-11-21',start:'2026-11-21T14:10:00Z',code:'RU',
+  participants:['England','New Zealand'],competition:'Nations Championship'};
+const pricedUnion = F.normalize('rugby',null,[officialUnion],afterCapture,null,captures).fixtures[0];
+assert.equal(pricedUnion.start,officialUnion.start);
+assert.deepEqual(pricedUnion.marketEvidence.labels,['England','Draw','New Zealand']);
+assert.deepEqual(pricedUnion.marketEvidence.sky.prices,[2.1,17,1.8]);
+assert.equal(pricedUnion.odds,null);
+assert.equal(pricedUnion.selectable,false);
+for (const args of [
+  [{...officialUnion,start:'2026-11-21T15:10:00Z'},captures],
+  [{...officialUnion,code:'RL'},captures],
+  [officialUnion,{...captures,publication_gate:'OPEN'}],
+  [officialUnion,{...captures,records:[...captures.records,captures.records[1]]}]
+]) assert.equal(F.normalize('rugby',null,[args[0]],afterCapture,null,args[1]).fixtures[0].marketEvidence,null);
