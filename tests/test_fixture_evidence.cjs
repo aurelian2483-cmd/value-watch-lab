@@ -109,3 +109,13 @@ for (const args of [
   [officialUnion,{...captures,publication_gate:'OPEN'}],
   [officialUnion,{...captures,records:[...captures.records,captures.records[1]]}]
 ]) assert.equal(F.normalize('rugby',null,[args[0]],afterCapture,null,args[1]).fixtures[0].marketEvidence,null);
+
+const vegas = {date:'2027-02-27',code:'RL',participants:['Bradford Bulls','Leigh Leopards'],competition:'Betfred Super League',
+  venue:'Allegiant Stadium',venueZone:'America/Los_Angeles',sources:['https://superleague.co.uk/vegas']};
+const vegasCalendar = F.normalize('rugby',null,[vegas],now);
+assert.equal(vegasCalendar.fixtures[0].start,null);
+assert.equal(vegasCalendar.fixtures[0].venue,'Allegiant Stadium');
+assert.equal(vegasCalendar.fixtures[0].selectable,false);
+const vegasFilter = {plan:{from:'2027-02-27',to:'2027-02-28'},eventView:'upcoming',competition:'all'};
+assert.equal(F.matching(vegasCalendar,vegasFilter,Date.parse('2027-02-28T07:59:00Z')).length,1);
+assert.equal(F.matching(vegasCalendar,vegasFilter,Date.parse('2027-02-28T08:00:00Z')).length,0);

@@ -691,6 +691,8 @@
             competition:row.dataset.deskCompetition,
             session:row.dataset.deskSession,
             start:row.dataset.deskStart,
+            venue:row.dataset.deskVenue,
+            venueZone:row.dataset.deskZone,
             code:row.dataset.deskCode,
             sources:[...(row.querySelectorAll('a[href]').length ? row.querySelectorAll('a[href]') : officialDoc.querySelectorAll('#official-snapshot a[href]'))].map(a => a.getAttribute('href'))}));
         const evidence = ResearchFixtureEvidence.normalize(sport, doc, officialRows, Date.now(), analysis.status === 'fulfilled' ? analysis.value : null, markets.status === 'fulfilled' ? markets.value : null);
@@ -740,6 +742,15 @@
     if (snapshot.observedAt) make(heading, 'p', 'Provider snapshot: ' + dateText(snapshot.observedAt) + (snapshot.usable ? '' : ' · stale or unconfirmed'), 'small');
     if (!snapshot.usable) make(heading, 'p', 'Provider feed unavailable or stale. Any retained calendar records are shown with their source status.', 'small');
     if (!fixtures.length) make(heading, 'p', 'No collected matches match these dates, competition and search. This does not establish that no games are scheduled.');
+    if (sport === 'rugby') {
+      const calendar = make(heading, 'a', 'Open Rugby League calendar', 'text-link');
+      calendar.href = new URL('rugby/?code=RL#league-calendar', fixtureBase).href;
+      const nextLeague = ResearchFixtureEvidence.matching(snapshot, {...state, competition:'all', query:'', eventView:'upcoming',
+        plan:{from:plusDays(state.plan.to, 1), to:'9999-12-31'}}).find(row => row.code === 'RL' && row.official);
+      if (nextLeague && state.sport === 'rugby' && state.eventView === 'upcoming' && state.competition === 'all' && !state.query) {
+        button(heading, 'Show next announced Rugby League fixtures', () => setRange(nextLeague.date,plusDays(nextLeague.date, 13)), 'button button-secondary');
+      }
+    }
     const audit = details(heading, 'Source coverage and missing inputs');
     if (sport === 'rugby') {
       for (const code of ['RU','RL']) {
@@ -757,10 +768,11 @@
       card.dataset.fixtureId = row.id;
       const header = make(card, 'div', undefined, 'event-card-header');
       make(header, 'span', row.competition + (row.code === 'RL' ? ' · Rugby League' : row.code === 'RU' ? ' · Rugby Union' : ''), 'event-meta');
-      const time = make(header, 'time', row.start ? dateText(row.start) + ' UK' : row.session ? dateText(row.session) + ' UK session' : row.date + ' · match time unconfirmed', 'event-time');
+      const time = make(header, 'time', row.start ? dateText(row.start) + ' UK' : row.session ? dateText(row.session) + ' UK session' : row.date + (row.venueZone ? ' · Las Vegas date · UK kickoff TBC' : ' · match time unconfirmed'), 'event-time');
       time.dateTime = row.start || row.session || row.date;
       make(card, 'h3', row.name, 'event-title');
       make(card, 'p', row.sourceStatus, 'event-status');
+      if (row.venue) make(card, 'p', row.venue, 'small');
       const outcomes = make(card, 'div', undefined, 'fixture-outcomes');
       row.participants.forEach((participant,index) => {
         const outcome = make(outcomes, 'div', undefined, 'fixture-outcome');

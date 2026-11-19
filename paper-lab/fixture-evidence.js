@@ -9,7 +9,7 @@
   const name = value => typeof value === 'string' ? value.trim().slice(0, 200) : '';
   const iso = value => typeof value === 'string' && /T.*(?:Z|[+-]\d\d:\d\d)$/.test(value) && Number.isFinite(Date.parse(value));
   const date = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value + 'T12:00:00Z')) && new Date(value + 'T12:00:00Z').toISOString().slice(0,10) === value;
-  const day = value => new Intl.DateTimeFormat('sv-SE', {timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value));
+  const day = value => calendarDate(value, 'Europe/London');
   const url = value => { try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password ? u.href : null; } catch { return null; } };
   const links = rows => [...new Set(list(rows).map(row => url(typeof row === 'string' ? row : row?.url)).filter(Boolean))];
   function validAnalysis(doc, now) {
@@ -52,6 +52,9 @@
     if (!benchmark || !sky || /^sky[ -]*bet/i.test(benchmark.bookmaker) || !/^sky[ -]*bet/i.test(sky.bookmaker)) return null;
     return {listedStart:record.start_utc, labels, benchmark, sky, directSource:url(record.direct_bookmaker_page)};
   }
+  function calendarDate(now, zone) {
+    return new Intl.DateTimeFormat('sv-SE', {timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
+  }
   function normalize(sport, doc, official = [], now = Date.now(), analysis = null, markets = null) {
     const valid = doc?.schema_version === 1 && doc.research_only === true && doc.model_validation === 'UNVALIDATED' && doc.publication_gate === 'BLOCKED' && iso(doc.generated_at_utc);
     const age = now - Date.parse(doc?.generated_at_utc);
@@ -63,6 +66,7 @@
       records.push({...row, sport, name:row.participants.join(' vs '), odds:null, selectable:false});
     };
     for (const row of official) add({...row, participants:list(row.participants).map(name), official:true, start:sport === 'rugby' && iso(row.start) && day(row.start) === row.date ? row.start : null,
+      venue:name(row.venue), venueZone:row.code === 'RL' && row.venueZone === 'America/Los_Angeles' ? row.venueZone : null,
       session:iso(row.session) && day(row.session) === row.date ? row.session : null,
       competition:name(row.competition) || (sport === 'darts' ? 'PDC schedule' : 'Rugby schedule'), sources:links(row.sources)});
     if (valid && sport === 'darts') {
@@ -154,7 +158,7 @@
   function matching(snapshot, state, now = Date.now()) {
     const today = day(new Date(now).toISOString());
     return list(snapshot?.fixtures).filter(row => {
-      const past = row.start ? Date.parse(row.start) <= now : row.date < today;
+      const past = row.start ? Date.parse(row.start) <= now : row.date < (row.venueZone ? calendarDate(now,row.venueZone) : today);
       return row.date >= state.plan.from && row.date <= state.plan.to &&
         (state.eventView === 'all' || (state.eventView === 'history' ? past : !past)) &&
         (state.competition === 'all' || row.competition === state.competition) &&
