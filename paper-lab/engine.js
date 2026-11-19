@@ -302,6 +302,7 @@
   function statusOf(event, now = Date.now()) {
     const state = (code, label, selectable = false) => ({ code, label, selectable, ageMs: event ? now - instant(event.observedAt) : null });
     if (!event || !Number.isFinite(instant(event.startUTC)) || !Number.isFinite(instant(event.observedAt))) return state('UNAVAILABLE', 'Event information unavailable');
+    if (event.racecardConflict) return state('RACECARD_CONFLICT', 'Racecard conflict · review needed');
     if (event.identityConflict) return state('IDENTITY_CONFLICT', 'Conflicting event observations');
     const providerStatus = String(event.providerStatus || '').toUpperCase();
     if (/CANCEL|ABANDON|VOID/.test(providerStatus)) return state('CANCELLED', 'Cancelled or abandoned');
@@ -341,6 +342,28 @@
       const previous = identities.get(identityDay);
       if (previous && instant(previous.startUTC) !== instant(event.startUTC)) { previous.identityConflict = true; event.identityConflict = true; previous.status = statusOf(previous, now); event.status = statusOf(event, now); }
       else identities.set(identityDay, event);
+    }
+    // Separate race IDs can describe competing versions of the same racecard.
+    // Keep both receipts, but only flag closely timed, like-named cards with overlapping fields.
+    const racecards = new Map();
+    for (const event of events) {
+      if (event.sport !== 'racing' || event.provisionalEntry || !event.providerEventId) continue;
+      const name = event.name.toLowerCase().replace(/\s+/g, ' ').trim();
+      const group = key(name, Core.day(event.startUTC));
+      const earlierCards = racecards.get(group) || [];
+      const ids = new Set(event.participants.map(runner => runner.id));
+      for (const previous of earlierCards) {
+        const minutesApart = (instant(event.startUTC) - instant(previous.startUTC)) / 60000;
+        if (minutesApart > 10 || previous.providerEventId === event.providerEventId) continue;
+        const overlap = previous.participants.filter(runner => ids.has(runner.id)).length;
+        if (overlap < 2 || overlap * 2 < Math.min(ids.size, previous.participants.length)) continue;
+        for (const card of [previous, event]) {
+          card.racecardConflict = true;
+          card.status = statusOf(card, now);
+        }
+      }
+      earlierCards.push(event);
+      racecards.set(group, earlierCards);
     }
     Object.defineProperty(events, 'diagnostics', { value: diagnostics, enumerable: false });
     return events;
