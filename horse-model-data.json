@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-19T17:00:53.155796+00:00",
+  "generated_at_utc": "2026-11-19T17:40:47.151433+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -9,8 +9,8 @@
   "secondary_source_audit": {
     "provider": "The Racing API",
     "connection_status": "CONNECTED",
-    "schedule_matches": 6,
-    "result_rows_cached": 581,
+    "schedule_matches": 4,
+    "result_rows_cached": 582,
     "errors": [],
     "verification_scope": "Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established."
   },
@@ -21,17 +21,17 @@
     "races_enriched": 34,
     "active_runner_observations": 361,
     "non_runner_observations": 22,
-    "pre_event_races": 6,
+    "pre_event_races": 5,
     "errors": [],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED",
-    "collection_completed_at_utc": "2026-11-19T17:00:16.774659+00:00"
+    "collection_completed_at_utc": "2026-11-19T17:39:45.392819+00:00"
   },
   "race_count": 34,
   "reference_baseline_audit": {
     "status": "REFERENCE_BENCHMARKS_ONLY",
     "model": "EQUAL_CHANCE_REFERENCE_V1",
-    "available_references": 6,
+    "available_references": 4,
     "new_archived_records": 0,
     "skipped": [
       {
@@ -144,6 +144,14 @@
       },
       {
         "race_id": "949243",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "949244",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "949245",
         "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
       }
     ],
@@ -3846,26 +3854,26 @@
       },
       {
         "race_id": "949244",
-        "reason": "INSUFFICIENT_FORM_FOR_FULL_FIELD"
+        "reason": "NOT_PRE_EVENT_WITH_BUFFER"
       },
       {
         "race_id": "949245",
-        "reason": "INSUFFICIENT_FORM_FOR_FULL_FIELD"
+        "reason": "NOT_PRE_EVENT_WITH_BUFFER"
       }
     ],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED"
   },
   "performance": {
-    "scored_forecasts": 68,
+    "scored_forecasts": 69,
     "independently_verified_results": 0,
     "verification": "SINGLE_SOURCE_PROVISIONAL",
     "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
     "metrics": {
-      "mean_multiclass_brier_score": 0.8922775089207717,
-      "mean_log_loss": 2.290540698150312,
-      "mean_equal_chance_brier_score": 0.897787996317408,
-      "mean_equal_chance_log_loss": 2.3230255374255577
+      "mean_multiclass_brier_score": 0.8923295910155964,
+      "mean_log_loss": 2.2916335781175143,
+      "mean_equal_chance_brier_score": 0.8980616002355133,
+      "mean_equal_chance_log_loss": 2.3253716405032745
     },
     "entries": [
       {
@@ -5499,17 +5507,33 @@
         "publication_gate": "BLOCKED",
         "result_recheck_status": "NOT_RECHECKED",
         "result_last_checked_at_utc": "2026-11-19T17:00:53.155796+00:00"
+      },
+      {
+        "record_sha256": "451b2ac8468870f3392b38494f50f170ff185b88ae7eb3783b1f4cf484fa5b78",
+        "race_id": "949243",
+        "racecourse": "Newcastle",
+        "startUTC": "2026-11-19T16:40:00+00:00",
+        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+        "winner_horse_id": "1212887",
+        "scored_at_utc": "2026-11-19T17:40:47.151433+00:00",
+        "multiclass_brier_score": 0.8958711734636731,
+        "log_loss": 2.36594941588729,
+        "equal_chance_brier_score": 0.9166666666666666,
+        "equal_chance_log_loss": 2.4849066497880004,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-19/newcastle/racecard/949243/aw-trials-day-lingfield-2nd-jan-2027-nursery",
+          "sha256": "233ce2e36d7ec48c3e54b1a817673f48aca958c7ae0c86fa3d8a7e4703ca45a8",
+          "observed_at_utc": "2026-11-19T17:40:47.151433+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-19T17:40:47.151433+00:00"
       }
     ],
     "pending": [
-      {
-        "race_id": "949239",
-        "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
-      },
-      {
-        "race_id": "949243",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
       {
         "race_id": "949246",
         "reason": "WAITING_FOR_FINAL_RESULT"
@@ -5525,6 +5549,10 @@
       {
         "race_id": "949759",
         "reason": "WAITING_FOR_FINAL_RESULT"
+      },
+      {
+        "race_id": "949239",
+        "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
       },
       {
         "race_id": "949077",
@@ -5560,7 +5588,7 @@
     },
     "source_unavailable_rechecks": 0,
     "selection_policy": "Latest archived forecast per race/model, captured at least five minutes before scheduled start.",
-    "cross_source_verified_results": 56,
+    "cross_source_verified_results": 57,
     "cross_source_entries": [
       {
         "record_sha256": "61e99fd669a27075ca5ddab4ada773b0f088313bd469e31d3304ef25a34ad009",
@@ -7969,6 +7997,49 @@
           "publication_gate": "BLOCKED",
           "challenge_eligible": 0
         }
+      },
+      {
+        "record_sha256": "451b2ac8468870f3392b38494f50f170ff185b88ae7eb3783b1f4cf484fa5b78",
+        "race_id": "949243",
+        "racecourse": "Newcastle",
+        "startUTC": "2026-11-19T16:40:00+00:00",
+        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+        "winner_horse_id": "1212887",
+        "scored_at_utc": "2026-11-19T17:40:47.151433+00:00",
+        "multiclass_brier_score": 0.8958711734636731,
+        "log_loss": 2.36594941588729,
+        "equal_chance_brier_score": 0.9166666666666666,
+        "equal_chance_log_loss": 2.4849066497880004,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-19/newcastle/racecard/949243/aw-trials-day-lingfield-2nd-jan-2027-nursery",
+          "sha256": "233ce2e36d7ec48c3e54b1a817673f48aca958c7ae0c86fa3d8a7e4703ca45a8",
+          "observed_at_utc": "2026-11-19T17:40:47.151433+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-19T17:40:47.151433+00:00",
+        "cross_source_evidence": {
+          "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
+          "record_sha256": "451b2ac8468870f3392b38494f50f170ff185b88ae7eb3783b1f4cf484fa5b78",
+          "primary_receipt": {
+            "url": "https://www.sportinglife.com/racing/racecards/2026-11-19/newcastle/racecard/949243/aw-trials-day-lingfield-2nd-jan-2027-nursery",
+            "sha256": "233ce2e36d7ec48c3e54b1a817673f48aca958c7ae0c86fa3d8a7e4703ca45a8",
+            "observed_at_utc": "2026-11-19T17:40:47.151433+00:00"
+          },
+          "secondary_receipt": {
+            "url": "https://api.theracingapi.com/v1/results/today/free?region=gb&region=ire&limit=100&skip=0",
+            "sha256": "39d86097d1f46a5d48ed5567e790ed24079222f32ba979ea5ccc8f29feaa1ae0",
+            "observed_at_utc": "2026-11-19T17:00:52.979959+00:00",
+            "rate_limit_retries": 0
+          },
+          "secondary_race_id": "rac_32304839918",
+          "winner_horse_id": "1212887",
+          "publication_gate": "BLOCKED",
+          "challenge_eligible": 0
+        }
       }
     ],
     "cross_source_pending": [
@@ -8027,19 +8098,19 @@
         "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1": {
           "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
           "parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "scored_races": 68,
+          "scored_races": 69,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.005510487396636321,
-          "mean_log_loss_delta_vs_equal_chance": -0.032484839275246105,
+          "mean_brier_delta_vs_equal_chance": -0.0057320092199168605,
+          "mean_log_loss_delta_vs_equal_chance": -0.03373806238576008,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.011205851591924054,
-            "upper": -0.0005779119252212586,
+            "lower": -0.011056160288141825,
+            "upper": -0.00015560961967699832,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.05741742586186156,
-            "upper": -0.00908910865697653,
+            "lower": -0.059287827693357165,
+            "upper": -0.005969220124013439,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -8054,9 +8125,9 @@
             {
               "lower": 0.05,
               "upper": 0.1,
-              "runner_observations": 484,
-              "mean_model_probability": 0.0792295503424705,
-              "observed_win_frequency": 0.07231404958677685
+              "runner_observations": 496,
+              "mean_model_probability": 0.07932883541483009,
+              "observed_win_frequency": 0.07258064516129033
             },
             {
               "lower": 0.1,
@@ -8095,19 +8166,19 @@
         "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1": {
           "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
           "parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "scored_races": 56,
+          "scored_races": 57,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.006215754676054884,
-          "mean_log_loss_delta_vs_equal_chance": -0.03672828782085524,
+          "mean_brier_delta_vs_equal_chance": -0.006471539562492405,
+          "mean_log_loss_delta_vs_equal_chance": -0.038170900909975505,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.012541707655948647,
-            "upper": -2.0172470743516436e-05,
+            "lower": -0.01234214603703735,
+            "upper": -0.0005654299716621507,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.06667592300526601,
-            "upper": -0.007478786063489411,
+            "lower": -0.0666213904348897,
+            "upper": -0.009381786922738077,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -8122,9 +8193,9 @@
             {
               "lower": 0.05,
               "upper": 0.1,
-              "runner_observations": 390,
-              "mean_model_probability": 0.08001976209736987,
-              "observed_win_frequency": 0.07435897435897436
+              "runner_observations": 402,
+              "mean_model_probability": 0.08011867467157772,
+              "observed_win_frequency": 0.07462686567164178
             },
             {
               "lower": 0.1,
@@ -8162,7 +8233,7 @@
   "current_field_checks": {
     "2e11c4d0fa217b230a1a5d1390fe5c368f3a5006d76c60c5b5cd7b4a6139ac20": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-19T17:00:16.710784+00:00",
+      "runner_observed_at_utc": "2026-11-19T17:39:44.347613+00:00",
       "active_runner_ids": [
         "1069484",
         "1112670",
@@ -8180,11 +8251,11 @@
         "1201802"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-19T17:00:53.155796+00:00"
+      "checked_at_utc": "2026-11-19T17:40:47.151433+00:00"
     },
     "3af981636cb95fd1d1aa85a57e3622c192e29d45fa60703dba9d5c05bcd41a66": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-19T17:00:16.724380+00:00",
+      "runner_observed_at_utc": "2026-11-19T17:39:44.529006+00:00",
       "active_runner_ids": [
         "1101390",
         "1119149",
@@ -8202,11 +8273,11 @@
         "1220699"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-19T17:00:53.155796+00:00"
+      "checked_at_utc": "2026-11-19T17:40:47.151433+00:00"
     },
     "76f9a25a0c1dadd06f3cfbe49dfa75c6abbd0984f428ee8e7c095e36f33f8061": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-19T17:00:16.748102+00:00",
+      "runner_observed_at_utc": "2026-11-19T17:39:45.166876+00:00",
       "active_runner_ids": [
         "1181701",
         "1181980",
@@ -8224,11 +8295,11 @@
         "1226856"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-19T17:00:53.155796+00:00"
+      "checked_at_utc": "2026-11-19T17:40:47.151433+00:00"
     },
     "1f089f806918751ce77078f6af338a20673731779ab7f8a74fc605eb63eabe87": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-19T17:00:16.761542+00:00",
+      "runner_observed_at_utc": "2026-11-19T17:39:45.379666+00:00",
       "active_runner_ids": [
         "1053330",
         "1063966",
@@ -8246,10 +8317,100 @@
         "986871"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-19T17:00:53.155796+00:00"
+      "checked_at_utc": "2026-11-19T17:40:47.151433+00:00"
     }
   },
   "settled_forecasts": [
+    {
+      "record_sha256": "451b2ac8468870f3392b38494f50f170ff185b88ae7eb3783b1f4cf484fa5b78",
+      "race_id": "949243",
+      "racecourse": "Newcastle",
+      "race_name": "AW Trials Day - Lingfield 2nd Jan 2027 Nursery",
+      "startUTC": "2026-11-19T16:40:00+00:00",
+      "generated_at_utc": "2026-11-19T00:47:00.204791+00:00",
+      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+      "runners": [
+        {
+          "horse_id": "1212887",
+          "name": "Angelic Melody",
+          "model_probability": 0.09386014573921725,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1219768",
+          "name": "River Jordan",
+          "model_probability": 0.08118278099582993,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1222431",
+          "name": "Crystal Kraken",
+          "model_probability": 0.08380008759079675,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1224049",
+          "name": "Yorkshire Dream",
+          "model_probability": 0.08165547880063907,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1226456",
+          "name": "Halcon",
+          "model_probability": 0.08130399839907222,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1226457",
+          "name": "Ma Fille De Reve",
+          "model_probability": 0.08791192909382117,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1227500",
+          "name": "Turbo Shandy",
+          "model_probability": 0.08468271039293453,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1230695",
+          "name": "Hey Dougie",
+          "model_probability": 0.07596179165550208,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1231794",
+          "name": "Mollisha",
+          "model_probability": 0.07907809387329331,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1235280",
+          "name": "North Coates",
+          "model_probability": 0.08180329746292642,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1236911",
+          "name": "Kumharas",
+          "model_probability": 0.08015022856723478,
+          "equal_chance_reference": 0.08333333333333333
+        },
+        {
+          "horse_id": "1238758",
+          "name": "Espresso Breeze",
+          "model_probability": 0.08860945742873248,
+          "equal_chance_reference": 0.08333333333333333
+        }
+      ],
+      "winner_horse_id": "1212887",
+      "result_verification": "TWO_PUBLISHER_CORROBORATED",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-19T17:40:47.151433+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
     {
       "record_sha256": "863ef111c1dc5f53dc83af45c414c759ab9092b6936689bcfe4e95b2affd2572",
       "race_id": "949240",
@@ -9785,94 +9946,16 @@
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
-    },
-    {
-      "record_sha256": "2c4eac3f79455f4aa1a54d08697988289fa1757be05e48a8b4896b5396b5a6b9",
-      "race_id": "948524",
-      "racecourse": "Dundalk",
-      "race_name": "Now Racing Every Wednesday At Dundalk Handicap",
-      "startUTC": "2026-11-13T20:30:00+00:00",
-      "generated_at_utc": "2026-11-13T15:21:59.012374+00:00",
-      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
-      "runners": [
-        {
-          "horse_id": "1182967",
-          "name": "Glitter And Glory",
-          "model_probability": 0.1036659487660834,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1184009",
-          "name": "Glamazon",
-          "model_probability": 0.10435406632823133,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1189324",
-          "name": "Love Orchid",
-          "model_probability": 0.12230642136708525,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1191214",
-          "name": "Montevetro",
-          "model_probability": 0.08555650973119154,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1192003",
-          "name": "Cherry Hill Girl",
-          "model_probability": 0.09679740841879489,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1208707",
-          "name": "Sarfarcat",
-          "model_probability": 0.09019141977110298,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1224728",
-          "name": "Quinchy Lady",
-          "model_probability": 0.08566087767788268,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1227891",
-          "name": "Phlox",
-          "model_probability": 0.10235534566133797,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1228703",
-          "name": "Chloe's Boy",
-          "model_probability": 0.1197160522878497,
-          "equal_chance_reference": 0.1
-        },
-        {
-          "horse_id": "1233701",
-          "name": "Mothel Abbey",
-          "model_probability": 0.08939594999044025,
-          "equal_chance_reference": 0.1
-        }
-      ],
-      "winner_horse_id": "1182967",
-      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-15T15:54:16.738550+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
     }
   ],
   "settled_history_limit": 20,
   "race_cycle_audit": {
-    "checked_at_utc": "2026-11-19T17:00:53.155796+00:00",
+    "checked_at_utc": "2026-11-19T17:40:47.151433+00:00",
     "race_date_uk": "2026-11-19",
     "collection_scope": "CURRENT_UK_DAY_ONLY",
-    "upcoming_observed_races": 6,
+    "upcoming_observed_races": 4,
     "upcoming_form_forecasts": 4,
-    "next_observed_start_utc": "2026-11-19T17:10:00+00:00",
+    "next_observed_start_utc": "2026-11-19T18:10:00+00:00",
     "status": "UPCOMING_FORECASTS_AVAILABLE"
   },
   "limitations": [
