@@ -16,7 +16,7 @@
      const box=node(stats,'div',undefined,'stat');node(box,'span',name);node(box,'strong',value);
    }
    const errors=Array.isArray(h.source_errors)?h.source_errors.length:0;
-   node(health,'p',(h.complete_horizon_coverage?'Reported source window checked.':'Partial source sample only — remaining dates were not exhaustively checked.')+' Provider request errors: '+errors+'. Free-source event coverage may be incomplete.','notice');
+   node(health,'p',(h.all_dates_checked?'All dates in the window checked; event coverage may still be incomplete.':h.complete_horizon_coverage?'Reported source window checked.':'Partial source sample only — remaining dates were not exhaustively checked.')+' Provider request errors: '+errors+'. Free-source event coverage may be incomplete.','notice');
    const rows=snapshot.upcoming_fixtures.filter(f=>f&&f.code===selected&&f.forecast_eligible===false&&typeof f.kickoff_utc==='string'&&Date.parse(f.kickoff_utc)>Date.now()+300000);
    if(!rows.length){node(fixtures,'p','No source-confirmed future fixtures in the current sampled coverage. This is not evidence that no matches are scheduled.');return}
    for(const f of rows.slice(0,60)){

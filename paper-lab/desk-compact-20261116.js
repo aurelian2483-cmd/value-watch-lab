@@ -677,8 +677,9 @@
       fixtureSnapshots.set(sport, request);
       Promise.allSettled([
         fetchFixtureSource(new URL(fixtureLabs[sport].feed, fixtureBase), 'json'),
-        fetchFixtureSource(new URL(sport + '/', fixtureBase), 'text')
-      ]).then(([feed, official]) => {
+        fetchFixtureSource(new URL(sport + '/', fixtureBase), 'text'),
+        sport === 'darts' ? fetchFixtureSource(new URL('darts/analysis.json', fixtureBase), 'json') : Promise.resolve(null)
+      ]).then(([feed, official, analysis]) => {
         const doc = feed.status === 'fulfilled' ? feed.value : null;
         const officialDoc = official.status === 'fulfilled'
           ? new DOMParser().parseFromString(official.value, 'text/html') : null;
@@ -688,7 +689,7 @@
             competition:row.dataset.deskCompetition,
             code:row.dataset.deskCode,
             sources:[...(row.querySelectorAll('a[href]').length ? row.querySelectorAll('a[href]') : officialDoc.querySelectorAll('#official-snapshot a[href]'))].map(a => a.getAttribute('href'))}));
-        const evidence = ResearchFixtureEvidence.normalize(sport, doc, officialRows);
+        const evidence = ResearchFixtureEvidence.normalize(sport, doc, officialRows, Date.now(), analysis.status === 'fulfilled' ? analysis.value : null);
         if (fixtureSnapshots.get(sport) === request) {
           fixtureSnapshots.set(sport, {...evidence, usable:evidence.current,
             hasOfficial:Boolean(officialDoc?.querySelector('#official-snapshot'))});
@@ -731,6 +732,7 @@
     }
     const fixtures = matchingFixtures(snapshot, state);
     make(heading, 'p', fixtures.length + ' matches in this view · ' + (snapshot.historyCount || 0) + ' historical records in the connected feed');
+    if (snapshot.analysisHistoryCount !== null && snapshot.analysisHistoryCount !== undefined) make(heading, 'p', 'D1 analysis uses ' + snapshot.analysisHistoryCount + ' results from a fully paginated recent 28-day window. Experimental; recent results are delayed.', 'small');
     if (snapshot.observedAt) make(heading, 'p', 'Provider snapshot: ' + dateText(snapshot.observedAt) + (snapshot.usable ? '' : ' · stale or unconfirmed'), 'small');
     if (!snapshot.usable) make(heading, 'p', 'Provider feed unavailable or stale. Any retained calendar records are shown with their source status.', 'small');
     if (!fixtures.length) make(heading, 'p', 'No collected matches match these dates, competition and search. This does not establish that no games are scheduled.');
@@ -739,7 +741,7 @@
       for (const code of ['RU','RL']) {
         const health = snapshot.sourceHealth?.[code];
         make(audit, 'p', (code === 'RU' ? 'Rugby Union' : 'Rugby League') + ': ' + (health
-          ? health.days_succeeded + ' sampled days loaded out of a ' + health.horizon_days + '-day horizon · ' + health.events + ' provider fixtures'
+          ? health.days_succeeded + ' dates checked out of a ' + health.horizon_days + '-day horizon · ' + health.events + ' provider fixtures · free API may omit events'
           : 'No provider collection report available') + '.');
       }
     }

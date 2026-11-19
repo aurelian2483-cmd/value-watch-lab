@@ -11,6 +11,7 @@ on:
       - 'darts/app.js'
       - 'scripts/collect_darts_research.py'
       - 'tests/test_darts_api_adapter.py'
+      - 'tests/test_darts_analysis.py'
       - '.github/workflows/darts-snapshot-refresh.yml'
 permissions:
   contents: read
@@ -29,6 +30,7 @@ jobs:
         with:
           node-version: '22'
       - run: python -m unittest discover -s tests -p 'test_darts_api_adapter.py' -v
+      - run: python -m unittest discover -s tests -p 'test_darts_analysis.py' -v
       - run: node --check darts/app.js
       - run: node tests/test_darts_model.cjs
   publish-limited-feed:
@@ -45,6 +47,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Fetch source-observed bounded sample, never odds
         env:
           DARTS_API_KEY: ${{ secrets.DARTS_API_KEY }}
@@ -62,11 +67,24 @@ jobs:
           assert not set(d).intersection({'odds','expected_value','betting_eligible'})
           print('Safe research sample:',len(d['results']),'results and',len(d['fixtures']),'fixtures')
           PY
+      - name: Analyse paginated recent history without publishing raw results
+        continue-on-error: true
+        env:
+          DARTS_API_KEY: ${{ secrets.DARTS_API_KEY }}
+        run: python scripts/collect_darts_research.py --publish-analysis
+      - name: Verify aggregate-only analysis contract
+        run: |
+          node - <<'JS'
+          const fs=require('fs'),e=require('./paper-lab/fixture-evidence.js');
+          const d=JSON.parse(fs.readFileSync('darts/analysis.json','utf8'));
+          if ('results' in d || d.raw_history_published !== false) throw Error('Raw archive must not be published');
+          if (d.model && !e.validAnalysis(d,Date.parse(d.generated_at_utc))) throw Error('Invalid aggregate model contract');
+          JS
       - name: Publish only bounded display sample
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- darts/feed.json
+          git add -- darts/feed.json darts/analysis.json
           if ! git diff --cached --quiet; then
             git commit -m 'Refresh bounded Darts research sample [unvalidated]'
             git pull --rebase origin main

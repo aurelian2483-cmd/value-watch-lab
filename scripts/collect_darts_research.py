@@ -3,7 +3,7 @@
 Requires DARTS_API_KEY injected as environment secret. Never prints or writes
 the secret; never commits raw provider data or changes the public D1 feed.
 """
-import json, os, sys, urllib.request, urllib.parse, urllib.error, hashlib, time
+import json, os, sys, urllib.request, urllib.parse, urllib.error, hashlib, time, subprocess
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from darts_api_adapter import adapt
@@ -59,15 +59,42 @@ def collect(now, key):
         first=start+timedelta(days=offset)
         last=min(first+timedelta(days=6),end)
         batch,receipts=pages('/v1/results',{'from':first.isoformat(),'to':last.isoformat(),'limit':200},key,20)
+        if any(not isinstance(row,dict) or not isinstance(row.get('played_on'),str) or not first.isoformat()<=row['played_on']<=last.isoformat() for row in batch):
+            raise RuntimeError('Provider returned results outside the requested history window; analysis withheld')
         results.extend(batch)
         recs.extend(receipts)
     fixtures,frecs=pages('/v1/fixtures',{'from':day.isoformat(),'to':(day+timedelta(days=7)).isoformat(),'limit':500},key,10)
     old,future=adapt(results,fixtures,now)
+    future=[row for row in future if day.isoformat()<=row['start_utc'][:10]<=(day+timedelta(days=7)).isoformat()]
+    if len(old)!=len(results):raise RuntimeError('Historical rows failed normalization; incomplete analysis withheld')
     return {'schema_version':1,'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
             'source_verification':'PROVIDER_OBSERVED_UNCORROBORATED','generated_at_utc':now.isoformat().replace('+00:00','Z'),
             'results':old,'fixtures':future,
             'coverage':{'returned_result_rows':len(results),'usable_result_rows':len(old),'returned_fixture_rows':len(fixtures),'confirmed_upcoming_fixtures':len(future),'history_period':[start.isoformat(),end.isoformat()],'pagination_complete':True,'requests_this_run':REQUEST_COUNT,'diagnostic_window':'FOUR_FULL_SEVEN_DAY_WINDOWS'},
             'source_receipts':recs+frecs,'odds':None,'expected_value':None,'betting_eligible':False}
+
+def analysis_snapshot(now, key):
+    """Run the unchanged D1 model on paginated history, publish only aggregates.
+
+    Raw results remain in this process and the model subprocess's stdin. Neither
+    the public repository nor workflow artifacts receive the historical archive.
+    """
+    collected=collect(now,key)
+    fixtures=sorted(collected['fixtures'],key=lambda row:(row['start_utc'],row['id']))[:12]
+    model_path=Path(__file__).resolve().parents[1]/'darts/model.js'
+    script="const fs=require('fs'),m=require(process.argv[1]),d=JSON.parse(fs.readFileSync(0,'utf8'));process.stdout.write(JSON.stringify(m.model(d.results,d.fixtures,d.generated_at_utc)));"
+    process=subprocess.run(['node','-e',script,str(model_path)],
+        input=json.dumps({'results':collected['results'],'fixtures':fixtures,'generated_at_utc':collected['generated_at_utc']}),
+        capture_output=True,text=True,timeout=30,check=False)
+    if process.returncode:raise RuntimeError('D1 analysis input checks failed; publication withheld')
+    report=json.loads(process.stdout)
+    return {**report,'schema_version':1,'source_verification':'PROVIDER_OBSERVED_UNCORROBORATED',
+        'coverage':collected['coverage'],'source_receipts':collected['source_receipts'],
+        'history_latest_date':max((row['played_at'][:10] for row in collected['results']),default=None),
+        'raw_history_published':False,
+        'limitations':['Recent 28-day source window only; not a complete career history.',
+            'Free-tier history is delayed; provider observations are not independently corroborated.',
+            'D1 is experimental and uncalibrated. No bookmaker odds or betting edge.']}
 
 def coverage_probe(now,key):
     """Small source-coverage test, not a partial historical backtest."""
@@ -176,6 +203,15 @@ def main():
     key=os.environ.get('DARTS_API_KEY','')
     if not key:raise SystemExit('DARTS_API_KEY not configured. No network request made, no public feed changed.')
     now=datetime.now(timezone.utc)
+    if len(sys.argv)==2 and sys.argv[1]=='--publish-analysis':
+        report=analysis_snapshot(now,key)
+        out=Path('darts/analysis.json')
+        out.parent.mkdir(parents=True,exist_ok=True)
+        temporary=out.with_suffix('.json.tmp')
+        temporary.write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+        temporary.replace(out)
+        print('Published D1 aggregates:',report['training_matches'],'training matches,',len(report['fixtures']),'fixture analyses; UNVALIDATED / BLOCKED')
+        return
     # Provider diagnostic remains default; publication requires an explicit mode.
     if len(sys.argv)==2 and sys.argv[1]=='--publish-sample':
         report=bounded_public_snapshot(now,key)
