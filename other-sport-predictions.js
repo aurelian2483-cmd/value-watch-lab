@@ -8,7 +8,9 @@ const status=document.createElement('p');status.setAttribute('role','status');st
 const cards=document.createElement('div');cards.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px';panel.append(cards);
 const note=document.createElement('p');note.style.cssText='color:#f3c98b;font-size:.85rem;margin-top:12px';note.textContent='Research only · models UNVALIDATED · no verified betting odds · publication BLOCKED.';panel.append(note);
 main.parentNode.insertBefore(panel,main);
-let data=null,horse=null,lastSuccessfulFetch=0,refreshing=false;
+const snapshots={tennis:null,nfl:null,racing:null};
+const updated={tennis:false,nfl:false,racing:false};
+const pending=new Set();
 function add(parent,tag,value,style){const el=document.createElement(tag);el.textContent=value;if(style)el.style.cssText=style;parent.append(el);return el;}
 function date(v){const t=Date.parse(v);return Number.isFinite(t)?new Date(t).toLocaleString('en-GB',{timeZone:'Europe/London',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})+' UK':'Time unavailable';}
 function fresh(v){const t=Date.parse(v),now=Date.now();return Number.isFinite(t)&&t<=now+300000&&now-t<=36*3600000;}
@@ -30,10 +32,11 @@ function render(){
  const sport=currentSport(),visible=sport==='tennis'||sport==='nfl'||sport==='racing';panel.hidden=!visible;panel.style.display=visible?'':'none';if(!visible)return;
  cards.replaceChildren();title.textContent=sport==='racing'?'Horse racing · upcoming research':sport==='tennis'?'Three tennis predictions':'Three NFL predictions';
  if(sport==='racing'){
+  const horse=snapshots.racing;
   if(!horse){status.textContent='Horse racing data unavailable.';return;}
   const upcoming=Number(horse.race_cycle_audit?.upcoming_observed_races)||0,forecasts=Array.isArray(horse.form_forecasts)?horse.form_forecasts:[];
   status.textContent='Racecard snapshot '+date(horse.generated_at_utc)+' · '+upcoming+' upcoming races at collection · '+forecasts.length+' pre-race form forecasts.';
-  if(!lastSuccessfulFetch)status.textContent+=' · Live refresh unavailable; showing last received data.';
+  if(!updated.racing)status.textContent+=' · Live refresh unavailable; showing last received data.';
   if(!fresh(horse.generated_at_utc)){add(cards,'p','The racing snapshot is outdated. New racecards and predictions must be collected before showing upcoming selections.');return;}
   if(!forecasts.length){add(cards,'p','No eligible pre-race horse forecasts in the current snapshot. The model currently covers qualifying all-weather races and must capture runners before the off. Racecards and historical results remain available below.');return;}
   const now=Date.now();
@@ -53,24 +56,38 @@ function render(){
   if(!eligible.length)add(cards,'p','No current pre-race forecast passes the display checks. Existing racecards are available below.');
   return;
  }
- const section=data?.sports?.[sport],events=Array.isArray(section?.events)?section.events:[];
+ const section=snapshots[sport],events=Array.isArray(section?.events)?section.events:[];
  if(!fresh(section?.generated_at_utc)){status.textContent='Published '+sport.toUpperCase()+' research is outdated or unavailable.';add(cards,'p','No current forecasts displayed. The feed needs refreshing.');return;}
  const now=Date.now();const selected=events.filter(e=>Date.parse(e.startUTC)>now+300000&&e.forecast&&e.forecast.calibrated===false&&e.forecast.odds==null&&Array.isArray(e.forecast.outcomes)).sort((a,b)=>Math.max(...b.forecast.outcomes.map(o=>o.probability))-Math.max(...a.forecast.outcomes.map(o=>o.probability))).slice(0,3);
  status.textContent='Research updated '+date(section.generated_at_utc)+' · '+selected.length+' of 3 upcoming experimental forecasts available.';
+ if(!updated[sport])status.textContent+=' · Live refresh unavailable; showing last received data.';
  selected.forEach((e,i)=>card(e,i,sport));
  if(!selected.length)add(cards,'p','No upcoming forecasts currently pass the research data checks.');
 }
-async function load(){
- if(refreshing)return;refreshing=true;
+async function refreshFeed(path, sports, sections){
+ if(pending.has(path))return;
+ pending.add(path);
  try{
-  const [a,b]=await Promise.all([fetch('./other-sports-data.json?cards='+Date.now(),{cache:'no-store'}),fetch('./horse-model-data.json?cards='+Date.now(),{cache:'no-store'})]);
-  if(!a.ok||!b.ok)throw Error('Research feed unavailable');
-  const nextData=await a.json(),nextHorse=await b.json();
-  if(!nextHorse.generated_at_utc||!Number.isFinite(Date.parse(nextHorse.generated_at_utc)))throw Error('Invalid horse feed timestamp');
-  if(!horse||Date.parse(nextHorse.generated_at_utc)>=Date.parse(horse.generated_at_utc)){data=nextData;horse=nextHorse;}
-  lastSuccessfulFetch=Date.now();
- }catch(e){lastSuccessfulFetch=0;}
- finally{refreshing=false;render();}
+  const response=await fetch(path+'?cards='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw Error('Research feed unavailable');
+  const next=await response.json();
+  const records=sections(next);
+  for(const sport of sports){
+   const record=records?.[sport], current=snapshots[sport];
+   updated[sport]=fresh(record?.generated_at_utc)&&
+    (!current||Date.parse(record.generated_at_utc)>=Date.parse(current.generated_at_utc));
+   if(updated[sport])snapshots[sport]=record;
+  }
+ }catch{
+  for(const sport of sports)updated[sport]=false;
+ }finally{
+  pending.delete(path);
+  render();
+ }
+}
+function load(){
+ refreshFeed('./other-sports-data.json',['tennis','nfl'],next=>next?.sports);
+ refreshFeed('./horse-model-data.json',['racing'],next=>({racing:next}));
 }
 const observer=new MutationObserver(render);observer.observe(strip,{subtree:true,attributes:true,attributeFilter:['class','aria-pressed']});document.addEventListener('click',e=>{if(e.target.closest('.sport-strip [data-sport]'))setTimeout(render,0);});render();load();setInterval(()=>{if(!document.hidden)load();},60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});window.addEventListener('pageshow',()=>load());
 })();
