@@ -669,21 +669,15 @@
     if (!response.ok) throw Error('Source unavailable');
     return response[format]();
   }
-  function renderFixtureLab(root, state) {
-    const sport = state.sport, lab = fixtureLabs[sport];
-    const panel = make(root, 'section', undefined, 'event-empty surface');
-    make(panel, 'h3', lab.name + ' fixtures');
-    const labUrl = new URL(sport + '/', fixtureBase);
-    const link = make(panel, 'a', 'Open ' + lab.name + ' Research Lab');
-    link.href = labUrl.href;
+  function loadFixtureSnapshot(sport) {
     let snapshot = fixtureSnapshots.get(sport);
     if (!snapshot) {
       snapshot = {loading:true};
       const request = snapshot;
       fixtureSnapshots.set(sport, request);
       Promise.allSettled([
-        fetchFixtureSource(new URL(lab.feed, fixtureBase), 'json'),
-        fetchFixtureSource(labUrl, 'text')
+        fetchFixtureSource(new URL(fixtureLabs[sport].feed, fixtureBase), 'json'),
+        fetchFixtureSource(new URL(sport + '/', fixtureBase), 'text')
       ]).then(([feed, official]) => {
         const doc = feed.status === 'fulfilled' ? feed.value : null;
         const officialDoc = official.status === 'fulfilled'
@@ -710,18 +704,47 @@
         }
       }).catch(() => {
         if (fixtureSnapshots.get(sport) === request) fixtureSnapshots.set(sport, {fixtures:[], usable:false, hasOfficial:false});
-      }).finally(() => { if (store.get().sport === sport) safely(renderEvents); });
+      }).finally(() => safely(() => {
+        renderFixtureCounts(store.get());
+        if (store.get().sport === sport) renderEvents();
+      }));
     }
-    if (snapshot.loading) {
-      make(panel, 'p', 'Loading fixture sources…');
-      return 'Checking fixture sources';
-    }
-    const fixtures = snapshot.fixtures.filter(row => {
+    return snapshot;
+  }
+  function matchingFixtures(snapshot, state) {
+    return snapshot.fixtures.filter(row => {
       const past = row.start ? Date.parse(row.start) <= Date.now() : row.date < today();
       return row.date >= state.plan.from && row.date <= state.plan.to &&
         (state.eventView === 'all' || (state.eventView === 'history' ? past : !past)) &&
         (!state.query || row.name.toLocaleLowerCase('en-GB').includes(state.query));
     });
+  }
+  function renderFixtureCounts(state) {
+    for (const sport of Object.keys(fixtureLabs)) {
+      const snapshot = loadFixtureSnapshot(sport);
+      const available = snapshot.usable || snapshot.hasOfficial;
+      const count = snapshot.loading ? '…' : available ? matchingFixtures(snapshot, state).length : '—';
+      const status = snapshot.loading ? 'Loading fixtures' : available ? count + ' fixtures in selected view' : 'Fixture sources unavailable';
+      document.querySelectorAll('[data-count="' + sport + '"]').forEach(badge => {
+        write(badge, count);
+        badge.title = status;
+        badge.setAttribute('aria-label', status);
+      });
+    }
+  }
+  function renderFixtureLab(root, state) {
+    const sport = state.sport, lab = fixtureLabs[sport];
+    const panel = make(root, 'section', undefined, 'event-empty surface');
+    make(panel, 'h3', lab.name + ' fixtures');
+    const labUrl = new URL(sport + '/', fixtureBase);
+    const link = make(panel, 'a', 'Open ' + lab.name + ' Research Lab');
+    link.href = labUrl.href;
+    const snapshot = loadFixtureSnapshot(sport);
+    if (snapshot.loading) {
+      make(panel, 'p', 'Loading fixture sources…');
+      return 'Checking fixture sources';
+    }
+    const fixtures = matchingFixtures(snapshot, state);
     for (const row of fixtures.slice(0,state.limit)) make(panel, 'p',
       row.name + ' · ' + (row.start ? dateText(row.start) : row.date) + ' · ' + row.detail);
     if (fixtures.length > state.limit) button(panel, 'Show more fixtures', () =>
@@ -847,7 +870,10 @@
   function renderNavigation() {
     const state = store.get(); $('sport').value = state.sport;
     document.querySelectorAll('[data-sport]').forEach(element => { const active = element.dataset.sport === state.sport; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
-    document.querySelectorAll('[data-count]').forEach(element => write(element, filtered({ ...state, sport: element.dataset.count }).length));
+    document.querySelectorAll('[data-count]').forEach(element => {
+      if (!fixtureLabs[element.dataset.count]) write(element, filtered({ ...state, sport: element.dataset.count }).length);
+    });
+    renderFixtureCounts(state);
     const competitions = [...new Set(filtered({ ...state, competition: 'all' }).map(event => event.competition))].sort(), signature = JSON.stringify(competitions);
     if (state.competition !== 'all' && !competitions.includes(state.competition)) store.update(current => ({ ...current, competition: 'all', limit: 24 }));
     if ($('competition').dataset.signature !== signature) {
@@ -1588,7 +1614,7 @@
   $('competition').addEventListener('change', event => store.update(state => ({ ...state, competition: event.target.value, limit: 24 })));
   $('event-view').addEventListener('change', event => store.update(state => ({ ...state, eventView: event.target.value, limit: 24 })));
   let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
-  $('refresh').addEventListener('click', () => safely(() => { fixtureSnapshots.clear(); renderEvents(); return refresh(); }));
+  $('refresh').addEventListener('click', () => safely(() => { fixtureSnapshots.clear(); renderFixtureCounts(store.get()); renderEvents(); return refresh(); }));
   $('find-racing')?.addEventListener('click',()=>safely(()=>{racingCandidatesRequested=true;renderRacingCandidates();$('racing-candidates')?.scrollIntoView?.({block:'nearest'});}));
   $('wildcard-build')?.addEventListener('click',()=>safely(createWeeklyWildcard));
   for (const id of ['fresh-daily-slips','fresh-daily-slips-panel'])
