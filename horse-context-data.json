@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-19T19:55:50.477694+00:00",
+  "generated_at_utc": "2026-11-19T20:23:43.571160+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -74403,15 +74403,15 @@
     "skipped_count": 34
   },
   "performance": {
-    "scored_forecasts": 99,
+    "scored_forecasts": 100,
     "independently_verified_results": 0,
     "verification": "SINGLE_SOURCE_PROVISIONAL",
     "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
     "metrics": {
-      "mean_multiclass_brier_score": 0.8711981729450231,
-      "mean_log_loss": 2.1708924525631246,
-      "mean_equal_chance_brier_score": 0.8770195621974278,
-      "mean_equal_chance_log_loss": 2.1994619458476805
+      "mean_multiclass_brier_score": 0.8715549354168313,
+      "mean_log_loss": 2.174080546733082,
+      "mean_equal_chance_brier_score": 0.8775350808611678,
+      "mean_equal_chance_log_loss": 2.203857899685356
     },
     "entries": [
       {
@@ -76789,13 +76789,33 @@
         "publication_gate": "BLOCKED",
         "result_recheck_status": "NOT_RECHECKED",
         "result_last_checked_at_utc": "2026-11-19T19:11:33.374325+00:00"
+      },
+      {
+        "record_sha256": "60289bc5b6255711aa462f5cec15d8a930d7b1c882ab4300701d1a78718c9770",
+        "race_id": "949759",
+        "racecourse": "Newcastle",
+        "startUTC": "2026-11-19T19:40:00+00:00",
+        "model": "CONTEXT_FORM_RESEARCH_V1",
+        "winner_horse_id": "1147350",
+        "scored_at_utc": "2026-11-19T20:23:43.571160+00:00",
+        "multiclass_brier_score": 0.9068744201258412,
+        "log_loss": 2.4897018695588446,
+        "equal_chance_brier_score": 0.9285714285714286,
+        "equal_chance_log_loss": 2.6390573296152584,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-19/newcastle/racecard/949759/midnite-built-for-2026-not-2006-handicap",
+          "sha256": "d8a5761eeb44419410857ca6f1c89f163ec49ae9270c454e16a41cd155465657",
+          "observed_at_utc": "2026-11-19T20:23:43.571160+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-19T20:23:43.571160+00:00"
       }
     ],
     "pending": [
-      {
-        "race_id": "949759",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
       {
         "race_id": "949248",
         "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
@@ -76850,7 +76870,7 @@
     },
     "source_unavailable_rechecks": 0,
     "selection_policy": "Latest archived forecast per race/model, captured at least five minutes before scheduled start.",
-    "cross_source_verified_results": 81,
+    "cross_source_verified_results": 82,
     "cross_source_entries": [
       {
         "record_sha256": "8fc22d193f83089f68df56dd01b7591b575069913a85488eda11e836e2d2f10d",
@@ -80334,6 +80354,49 @@
           "publication_gate": "BLOCKED",
           "challenge_eligible": 0
         }
+      },
+      {
+        "record_sha256": "60289bc5b6255711aa462f5cec15d8a930d7b1c882ab4300701d1a78718c9770",
+        "race_id": "949759",
+        "racecourse": "Newcastle",
+        "startUTC": "2026-11-19T19:40:00+00:00",
+        "model": "CONTEXT_FORM_RESEARCH_V1",
+        "winner_horse_id": "1147350",
+        "scored_at_utc": "2026-11-19T20:23:43.571160+00:00",
+        "multiclass_brier_score": 0.9068744201258412,
+        "log_loss": 2.4897018695588446,
+        "equal_chance_brier_score": 0.9285714285714286,
+        "equal_chance_log_loss": 2.6390573296152584,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-19/newcastle/racecard/949759/midnite-built-for-2026-not-2006-handicap",
+          "sha256": "d8a5761eeb44419410857ca6f1c89f163ec49ae9270c454e16a41cd155465657",
+          "observed_at_utc": "2026-11-19T20:23:43.571160+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-19T20:23:43.571160+00:00",
+        "cross_source_evidence": {
+          "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
+          "record_sha256": "60289bc5b6255711aa462f5cec15d8a930d7b1c882ab4300701d1a78718c9770",
+          "primary_receipt": {
+            "url": "https://www.sportinglife.com/racing/racecards/2026-11-19/newcastle/racecard/949759/midnite-built-for-2026-not-2006-handicap",
+            "sha256": "d8a5761eeb44419410857ca6f1c89f163ec49ae9270c454e16a41cd155465657",
+            "observed_at_utc": "2026-11-19T20:23:43.571160+00:00"
+          },
+          "secondary_receipt": {
+            "url": "https://api.theracingapi.com/v1/results/today/free?region=gb&region=ire&limit=100&skip=0",
+            "sha256": "d486d64f3c70908649dfb44f09d1ed5574386ec27ff5314f492fd1e840dd03d0",
+            "observed_at_utc": "2026-11-19T20:23:35.570063+00:00",
+            "rate_limit_retries": 0
+          },
+          "secondary_race_id": "rac_32304849603",
+          "winner_horse_id": "1147350",
+          "publication_gate": "BLOCKED",
+          "challenge_eligible": 0
+        }
       }
     ],
     "cross_source_pending": [
@@ -80416,19 +80479,19 @@
         "CONTEXT_FORM_RESEARCH_V1": {
           "model": "CONTEXT_FORM_RESEARCH_V1",
           "parameter_sha256": "2e71a27e6834eddbed24907cd9f313ab343636852a7d60b8950814b5662c5661",
-          "scored_races": 99,
+          "scored_races": 100,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.005821389252404696,
-          "mean_log_loss_delta_vs_equal_chance": -0.028569493284555724,
+          "mean_brier_delta_vs_equal_chance": -0.005980145444336523,
+          "mean_log_loss_delta_vs_equal_chance": -0.0297773529522743,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.010907394350191066,
-            "upper": -0.0009423168573091555,
+            "lower": -0.011027395214639408,
+            "upper": -0.001330637006908484,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.0484373661297132,
-            "upper": -0.009158657397674413,
+            "lower": -0.04885872800560429,
+            "upper": -0.010315300475497939,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -80443,9 +80506,9 @@
             {
               "lower": 0.05,
               "upper": 0.1,
-              "runner_observations": 602,
-              "mean_model_probability": 0.078908568703546,
-              "observed_win_frequency": 0.07807308970099668
+              "runner_observations": 616,
+              "mean_model_probability": 0.07873856876547838,
+              "observed_win_frequency": 0.07792207792207792
             },
             {
               "lower": 0.1,
@@ -80491,26 +80554,26 @@
       "research_only": true,
       "publication_gate": "BLOCKED",
       "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-      "matched_races": 56,
+      "matched_races": 57,
       "groups": [
         {
           "discipline": "FLAT",
           "surface": "ALL_WEATHER",
           "context_parameter_sha256": "2e71a27e6834eddbed24907cd9f313ab343636852a7d60b8950814b5662c5661",
           "baseline_parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "paired_races": 56,
+          "paired_races": 57,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_context_minus_baseline": -0.0011205172290037638,
-          "mean_log_loss_delta_context_minus_baseline": -0.005335068654323185,
+          "mean_brier_delta_context_minus_baseline": -0.001159112889960391,
+          "mean_log_loss_delta_context_minus_baseline": -0.005593421997041045,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.0025392297985732093,
-            "upper": 0.0002809255472142752,
+            "lower": -0.0025810076877730253,
+            "upper": 0.00028779563772929144,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.011488902356984807,
-            "upper": 0.0004785676548457859,
+            "lower": -0.011524606900325102,
+            "upper": -6.310237031069057e-05,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           }
@@ -81468,11 +81531,28 @@
           "winner_horse_id": "1145482",
           "brier_delta_context_minus_baseline": 0.000533245944217664,
           "log_loss_delta_context_minus_baseline": 0.004658759359494891
+        },
+        {
+          "race_id": "949759",
+          "racecourse": "Newcastle",
+          "startUTC": "2026-11-19T19:40:00+00:00",
+          "discipline": "FLAT",
+          "surface": "ALL_WEATHER",
+          "context_record_sha256": "60289bc5b6255711aa462f5cec15d8a930d7b1c882ab4300701d1a78718c9770",
+          "baseline_record_sha256": "1f089f806918751ce77078f6af338a20673731779ab7f8a74fc605eb63eabe87",
+          "context_frozen_at_utc": "2026-11-19T00:47:10.072718+00:00",
+          "baseline_frozen_at_utc": "2026-11-19T00:47:00.204791+00:00",
+          "freeze_time_difference_seconds": 9.867927,
+          "context_parameter_sha256": "2e71a27e6834eddbed24907cd9f313ab343636852a7d60b8950814b5662c5661",
+          "baseline_parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
+          "winner_horse_id": "1147350",
+          "brier_delta_context_minus_baseline": -0.00332046990353152,
+          "log_loss_delta_context_minus_baseline": -0.020061209189241147
         }
       ],
       "exclusions": {
         "NO_MATCHING_BASELINE_FORECAST": 48,
-        "LATEST_REVISION_NOT_SCORED": 7
+        "LATEST_REVISION_NOT_SCORED": 6
       },
       "comparison": "Context minus original form baseline on identical frozen fields and observed winners; negative deltas favour context.",
       "limitations": [
@@ -81484,6 +81564,108 @@
     }
   },
   "settled_forecasts": [
+    {
+      "record_sha256": "60289bc5b6255711aa462f5cec15d8a930d7b1c882ab4300701d1a78718c9770",
+      "race_id": "949759",
+      "racecourse": "Newcastle",
+      "race_name": "Midnite: Built For 2026 Not 2006 Handicap",
+      "startUTC": "2026-11-19T19:40:00+00:00",
+      "generated_at_utc": "2026-11-19T00:47:10.072718+00:00",
+      "model": "CONTEXT_FORM_RESEARCH_V1",
+      "runners": [
+        {
+          "horse_id": "1053330",
+          "name": "Paddy's Day",
+          "model_probability": 0.072434020836842,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1063966",
+          "name": "Rock Of England",
+          "model_probability": 0.07844117730986754,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1066463",
+          "name": "Changeofmind",
+          "model_probability": 0.07645004392338414,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1100887",
+          "name": "South Shore",
+          "model_probability": 0.08337633984085269,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1104164",
+          "name": "Duran",
+          "model_probability": 0.07485079124396736,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1106474",
+          "name": "Master Of My Fate",
+          "model_probability": 0.05255316196539543,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1113004",
+          "name": "Curious Rover",
+          "model_probability": 0.06745829984360102,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1138156",
+          "name": "Oriental Prince",
+          "model_probability": 0.07347376269540067,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1143312",
+          "name": "Blinky",
+          "model_probability": 0.06244581159450904,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1147350",
+          "name": "Kinetic Force",
+          "model_probability": 0.08293468824504198,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1153104",
+          "name": "Kirkdale",
+          "model_probability": 0.06728884844043062,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1186914",
+          "name": "Come On Over",
+          "model_probability": 0.08502315179278394,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "962707",
+          "name": "Our Absent Friends",
+          "model_probability": 0.06878596888750915,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "986871",
+          "name": "Tees Spirit",
+          "model_probability": 0.05448393338041447,
+          "equal_chance_reference": 0.07142857142857142
+        }
+      ],
+      "winner_horse_id": "1147350",
+      "result_verification": "TWO_PUBLISHER_CORROBORATED",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-19T20:23:43.571160+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
     {
       "record_sha256": "62e1a012512695f5a25aa66468f163b019574ba13ba0dd97422996482f604685",
       "race_id": "949247",
@@ -83004,90 +83186,6 @@
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
       "result_last_checked_at_utc": "2026-11-19T09:12:53.134752+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
-    },
-    {
-      "record_sha256": "af0b8ed4c25cf529476080c98319a3f022882600c1640cabddc7e77688e1f11f",
-      "race_id": "948710",
-      "racecourse": "Wolverhampton",
-      "race_name": "Make The Move To Midnite Handicap",
-      "startUTC": "2026-11-16T20:30:00+00:00",
-      "generated_at_utc": "2026-11-16T00:15:49.956946+00:00",
-      "model": "CONTEXT_FORM_RESEARCH_V1",
-      "runners": [
-        {
-          "horse_id": "1001616",
-          "name": "It's A Love Thing",
-          "model_probability": 0.09301687922795723,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1097977",
-          "name": "Rogue Sea",
-          "model_probability": 0.07382245318978775,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1151509",
-          "name": "Man Of Desert",
-          "model_probability": 0.0909540020287508,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1157839",
-          "name": "Kathleen Mary",
-          "model_probability": 0.0954670368715324,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1179898",
-          "name": "Havachoc",
-          "model_probability": 0.09350988121003913,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1196697",
-          "name": "Heart Sign",
-          "model_probability": 0.09179049887885031,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1197561",
-          "name": "Hellion",
-          "model_probability": 0.0750506729965326,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1197684",
-          "name": "Saxophonic",
-          "model_probability": 0.11414111589751298,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "980566",
-          "name": "The Bay Warrior",
-          "model_probability": 0.08998175786660119,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "986313",
-          "name": "Sea Of Charm",
-          "model_probability": 0.08556473428545767,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "997883",
-          "name": "Tiger Beetle",
-          "model_probability": 0.09670096754697798,
-          "equal_chance_reference": 0.09090909090909091
-        }
-      ],
-      "winner_horse_id": "1001616",
-      "result_verification": "TWO_PUBLISHER_CORROBORATED",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-18T17:36:02.847870+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
