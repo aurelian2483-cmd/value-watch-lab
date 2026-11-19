@@ -30,7 +30,10 @@
    const card=element($('matches'),'article',undefined,'match');
    element(card,'small',f.competition+' · '+new Date(f.start_utc).toLocaleString('en-GB',{timeZone:'Europe/London',dateStyle:'medium',timeStyle:'short'})+' UK');
    element(card,'h3',f.player_a.name+' vs '+f.player_b.name);
-   if(f.prob_a===null){element(card,'p','PASS · Insufficient source history. Requires at least '+Model.MIN_MATCHES+' historical matches per player.');continue}
+   if(f.prob_a===null){
+    element(card,'p',f.player_a.name+' has '+f.prior_a+' earlier matches and '+f.player_b.name+' has '+f.prior_b+'. D1 requires at least '+Model.MIN_MATCHES+' per player.');
+    continue;
+   }
    element(card,'strong',f.player_a.name+' '+(100*f.prob_a).toFixed(1)+'% · '+f.player_b.name+' '+(100*f.prob_b).toFixed(1)+'%');
    const meter=element(card,'div',undefined,'meter'),fill=element(meter,'div',undefined,'fill');fill.style.width=(100*f.prob_a)+'%';
    element(card,'small','Elo: '+f.rating_a.toFixed(1)+' vs '+f.rating_b.toFixed(1)+' · previous matches '+f.prior_a+'/'+f.prior_b+' · NOT CALIBRATED');
