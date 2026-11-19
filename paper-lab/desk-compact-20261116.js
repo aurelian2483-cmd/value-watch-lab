@@ -4,7 +4,7 @@
   const E = ResearchEngine, S = ResearchStore, I = ResearchInsights, C = ResearchConnections, J = ResearchJournal;
   const $ = id => document.getElementById(id);
   const rootURL = new URL('../', document.currentScript.src);
-  const sports = { all: 'All sports', football: 'Football', racing: 'Horse racing', tennis: 'Tennis', nfl: 'NFL' };
+  const sports = { all: 'All sports', football: 'Football', racing: 'Horse racing', tennis: 'Tennis', nfl: 'NFL', darts: 'Darts', rugby: 'Rugby' };
   const symbols = { football: '⚽', racing: '♞', tennis: '◉', nfl: '◆' };
   const sources = { 'research-dashboard-data.json': ['football', 'Premier League'], 'football-expanded-data.json': ['football', 'Football leagues'], 'international-football-data.json': ['football', 'International football'], 'racing-research-data.json': ['racing', 'Racecards & source prices'], 'racing-future-data.json': ['racing-future', 'Future race schedules'], 'horse-predictions-data.json': ['racing-context', 'Racing model predictions'], 'other-sports-data.json': ['other', 'Tennis & NFL'], 'research-history.json': ['history', 'Historical results'] };
   const specs = Object.entries(sources).map(([file, [kind]]) => ({ kind, path: new URL(file, rootURL).pathname }));
@@ -683,41 +683,28 @@
         const officialDoc = official.status === 'fulfilled'
           ? new DOMParser().parseFromString(official.value, 'text/html') : null;
         const officialRows = [...(officialDoc?.querySelectorAll('#official-snapshot [data-desk-date]') || [])]
-          .map(row => ({date:row.dataset.deskDate, name:row.textContent.trim(), detail:'Official schedule · individual start time not used'}));
-        const age = Date.now() - Date.parse(doc?.generated_at_utc);
-        const usable = doc?.research_only === true && doc.model_validation === 'UNVALIDATED' &&
-          doc.publication_gate === 'BLOCKED' && age >= -300000 && age <= 172800000;
-        const rows = !usable ? [] : sport === 'darts'
-          ? (Array.isArray(doc.fixtures) ? doc.fixtures : []).filter(row => row.status === 'SCHEDULED' && row.player_a?.name && row.player_b?.name && Number.isFinite(Date.parse(row.start_utc)))
-            .map(row => ({date:day(row.start_utc), start:row.start_utc, name:row.player_a.name + ' vs ' + row.player_b.name, detail:'Provider schedule · independently unverified'}))
-          : (Array.isArray(doc.upcoming_fixtures) ? doc.upcoming_fixtures : []).filter(row => row.forecast_eligible === false && row.home && row.away && Number.isFinite(Date.parse(row.kickoff_utc)))
-            .map(row => ({date:day(row.kickoff_utc), start:row.kickoff_utc, name:row.home + ' vs ' + row.away, detail:row.code === 'RU' ? 'Union · provider schedule' : 'League · provider schedule'}));
-        const seen = new Set();
-        const fixtures = [...officialRows, ...rows].filter(row => {
-          const key = row.date + ':' + row.name.split(' · ')[0].split(' vs ').map(name => name.trim().toLowerCase()).sort().join(':');
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        }).sort((a,b) => a.date.localeCompare(b.date));
+          .map(row => ({date:row.dataset.deskDate,
+            participants:row.textContent.trim().split(' · ')[0].split(' vs '),
+            competition:row.dataset.deskCompetition,
+            code:row.dataset.deskCode,
+            sources:[...(row.querySelectorAll('a[href]').length ? row.querySelectorAll('a[href]') : officialDoc.querySelectorAll('#official-snapshot a[href]'))].map(a => a.getAttribute('href'))}));
+        const evidence = ResearchFixtureEvidence.normalize(sport, doc, officialRows);
         if (fixtureSnapshots.get(sport) === request) {
-          fixtureSnapshots.set(sport, {fixtures, usable, hasOfficial:Boolean(officialDoc?.querySelector('#official-snapshot'))});
+          fixtureSnapshots.set(sport, {...evidence, usable:evidence.current,
+            hasOfficial:Boolean(officialDoc?.querySelector('#official-snapshot'))});
         }
       }).catch(() => {
         if (fixtureSnapshots.get(sport) === request) fixtureSnapshots.set(sport, {fixtures:[], usable:false, hasOfficial:false});
       }).finally(() => safely(() => {
         renderFixtureCounts(store.get());
-        if (store.get().sport === sport) renderEvents();
+        renderNavigation();
+        renderEvents();
       }));
     }
     return snapshot;
   }
   function matchingFixtures(snapshot, state) {
-    return snapshot.fixtures.filter(row => {
-      const past = row.start ? Date.parse(row.start) <= Date.now() : row.date < today();
-      return row.date >= state.plan.from && row.date <= state.plan.to &&
-        (state.eventView === 'all' || (state.eventView === 'history' ? past : !past)) &&
-        (!state.query || row.name.toLocaleLowerCase('en-GB').includes(state.query));
-    });
+    return ResearchFixtureEvidence.matching(snapshot, state);
   }
   function renderFixtureCounts(state) {
     for (const sport of Object.keys(fixtureLabs)) {
@@ -732,40 +719,84 @@
       });
     }
   }
-  function renderFixtureLab(root, state) {
-    const sport = state.sport, lab = fixtureLabs[sport];
-    const panel = make(root, 'section', undefined, 'event-empty surface');
-    make(panel, 'h3', lab.name + ' fixtures');
-    const labUrl = new URL(sport + '/', fixtureBase);
-    const link = make(panel, 'a', 'Open ' + lab.name + ' Research Lab');
-    link.href = labUrl.href;
-    const snapshot = loadFixtureSnapshot(sport);
+  function renderFixtureLab(root, state, sport = state.sport) {
+    const lab = fixtureLabs[sport], snapshot = loadFixtureSnapshot(sport);
+    const panel = make(root, 'section', undefined, 'fixture-events');
+    panel.dataset.fixtureSport = sport;
+    const heading = make(panel, 'div', undefined, 'fixture-coverage');
+    make(heading, 'h3', lab.name + ' events');
     if (snapshot.loading) {
-      make(panel, 'p', 'Loading fixture sources…');
-      return 'Checking fixture sources';
+      make(heading, 'p', 'Loading ' + lab.name.toLowerCase() + ' sources…');
+      return 0;
     }
     const fixtures = matchingFixtures(snapshot, state);
-    for (const row of fixtures.slice(0,state.limit)) make(panel, 'p',
-      row.name + ' · ' + (row.start ? dateText(row.start) : row.date) + ' · ' + row.detail);
-    if (fixtures.length > state.limit) button(panel, 'Show more fixtures', () =>
+    make(heading, 'p', fixtures.length + ' matches in this view · ' + (snapshot.historyCount || 0) + ' historical records in the connected feed');
+    if (snapshot.observedAt) make(heading, 'p', 'Provider snapshot: ' + dateText(snapshot.observedAt) + (snapshot.usable ? '' : ' · stale or unconfirmed'), 'small');
+    if (!snapshot.usable) make(heading, 'p', 'Provider feed unavailable or stale. Any retained calendar records are shown with their source status.', 'small');
+    if (!fixtures.length) make(heading, 'p', 'No collected matches match these dates, competition and search. This does not establish that no games are scheduled.');
+    const audit = details(heading, 'Source coverage and missing inputs');
+    if (sport === 'rugby') {
+      for (const code of ['RU','RL']) {
+        const health = snapshot.sourceHealth?.[code];
+        make(audit, 'p', (code === 'RU' ? 'Rugby Union' : 'Rugby League') + ': ' + (health
+          ? health.days_succeeded + ' sampled days loaded out of a ' + health.horizon_days + '-day horizon · ' + health.events + ' provider fixtures'
+          : 'No provider collection report available') + '.');
+      }
+    }
+    make(audit, 'p', 'The connected feeds supply no bookmaker odds. Match cards below show the available model evidence and specific missing inputs.');
+    const labLink = make(audit, 'a', 'Open ' + lab.name + ' Research Lab');
+    labLink.href = new URL(sport + '/', fixtureBase).href;
+    for (const row of fixtures.slice(0,state.limit)) {
+      const card = make(panel, 'article', undefined, 'event-card fixture-event-card');
+      card.dataset.fixtureId = row.id;
+      const header = make(card, 'div', undefined, 'event-card-header');
+      make(header, 'span', row.competition + (row.code === 'RL' ? ' · Rugby League' : row.code === 'RU' ? ' · Rugby Union' : ''), 'event-meta');
+      const time = make(header, 'time', row.start ? dateText(row.start) + ' UK' : row.date + ' · match time unconfirmed', 'event-time');
+      time.dateTime = row.start || row.date;
+      make(card, 'h3', row.name, 'event-title');
+      make(card, 'p', row.sourceStatus, 'event-status');
+      const outcomes = make(card, 'div', undefined, 'fixture-outcomes');
+      row.participants.forEach((participant,index) => {
+        const outcome = make(outcomes, 'div', undefined, 'fixture-outcome');
+        make(outcome, 'strong', participant);
+        make(outcome, 'span', 'Odds not supplied');
+        if (row.model?.prob_a !== null && row.model?.prob_a !== undefined)
+          make(outcome, 'span', 'D1 estimate: ' + pct(index === 0 ? row.model.prob_a : row.model.prob_b) + ' · uncalibrated');
+      });
+      make(card, 'p', row.reason, 'fixture-model-status');
+      make(card, 'p', 'Betting selection unavailable · no verified price or validated edge.', 'small');
+      const evidence = details(card, 'Match evidence and sources', 'compact-evidence-disclosure');
+      if (row.model) make(evidence, 'p', 'D1 prior matches: ' + row.model.prior_a + ' / ' + row.model.prior_b + '. Historical sample is provider-observed, not independently verified.');
+      for (const source of row.sources) link(evidence, 'View source · ' + new URL(source).hostname, source);
+      if (!row.sources.length) make(evidence, 'p', 'Provider observation has no public per-match source URL.');
+      if (row.observedAt) make(evidence, 'p', 'Provider observed: ' + dateText(row.observedAt));
+    }
+    if (fixtures.length > state.limit) button(panel, 'Show more ' + lab.name.toLowerCase() + ' matches', () =>
       store.update(current => ({...current,limit:current.limit + 24})), 'button button-secondary');
-    if (!fixtures.length) make(panel, 'p', 'No fixtures match the selected dates and search.');
-    if (!snapshot.usable) make(panel, 'p', 'The provider feed is unavailable or stale. Official snapshot fixtures can still appear.');
-    if (!snapshot.hasOfficial) make(panel, 'p', 'The official snapshot could not be loaded.');
-    make(panel, 'p', 'Fixture research only. Paper selections and betting prices are unavailable for this view.', 'small');
-    return fixtures.length + ' fixture' + (fixtures.length === 1 ? '' : 's') + ' in the selected view';
+    return fixtures.length;
+  }
+  function renderSportActions(state) {
+    const fixtureView = Boolean(fixtureLabs[state.sport]);
+    if ($('find-racing')) $('find-racing').hidden = !['all','racing'].includes(state.sport);
+    if ($('racing-candidates')) $('racing-candidates').hidden = !['all','racing'].includes(state.sport) || !racingCandidatesRequested;
+    const filteredBuild = fixtureView && $('build-scope').value !== 'all';
+    $('generate').disabled = filteredBuild;
+    $('generate').title = filteredBuild ? 'No qualifying selections: see the missing inputs on each match card.' : '';
+    const audit = $('paper-eligibility-audit');
+    if (audit) audit.hidden = fixtureView;
   }
   function renderEvents() {
     renderRacingCandidates();
     renderPaperEligibilityAudit();
     const state = store.get();
+    renderSportActions(state);
     const normalRows = filtered(state);
     const isReliability = engineView === 'reliability';
     const rows = isReliability
       ? normalRows.filter(event => currentHistoryStatus(event).status === 'FORM_CANDIDATE')
       : normalRows;
     const visible = rows.slice(0, state.limit), root = $('events'); root.setAttribute('aria-busy', 'false');
-    if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more').forEach(element => element.remove());
+    if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more, .fixture-events').forEach(element => element.remove());
     S.reconcile(root, visible.map(event => event.id), cards, createCard, (record, id) => patchCard(record, visible.find(event => event.id === id)));
     if (!visible.length && state.sport === 'racing' && !isReliability) {
       const dates = [...new Set(state.events.filter(event => event.sport === 'racing').map(event => day(event.startUTC)))].sort();
@@ -859,14 +890,19 @@
       },'button button-secondary');
     }
     write($('coverage-summary'), rows.length + ' matching your filters · ' + state.events.length + ' total loaded records across all dates. Coverage is incomplete; zero means no matching records in these feeds.');
-    if (fixtureLabs[state.sport]) {
-      const summary = renderFixtureLab(root, state);
-      write($('event-summary'), summary + ' · ' + state.plan.from + ' → ' + state.plan.to);
-      write($('coverage-summary'), 'Fixture research · source coverage is incomplete.');
-      return;
+    let fixtureCount = 0;
+    if (fixtureLabs[state.sport] || (state.sport === 'all' && !isReliability)) {
+      for (const sport of Object.keys(fixtureLabs).filter(sport => state.sport === 'all' || state.sport === sport))
+        fixtureCount += renderFixtureLab(root, state, sport);
     }
-    write($('event-summary'), rows.length + ' ' + (state.eventView === 'upcoming' ? 'upcoming' : 'recorded') + ' event' + (rows.length === 1 ? '' : 's') + ' · ' + state.plan.from + ' → ' + state.plan.to + ' · UK time');
+    if (fixtureLabs[state.sport]) {
+      write($('event-summary'), fixtureCount + (fixtureCount === 1 ? ' match' : ' matches') + ' in the selected view · ' + state.plan.from + ' → ' + state.plan.to);
+      write($('coverage-summary'), 'Match evidence is shown below. Prices and predictions appear only when supplied and supported.');
+    } else {
+      write($('event-summary'), rows.length + ' research events' + (state.sport === 'all' && !isReliability ? ' + ' + fixtureCount + ' darts/rugby calendar matches' : '') + ' · ' + state.plan.from + ' → ' + state.plan.to + ' · UK time');
+    }
   }
+
   function renderNavigation() {
     const state = store.get(); $('sport').value = state.sport;
     document.querySelectorAll('[data-sport]').forEach(element => { const active = element.dataset.sport === state.sport; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
@@ -874,7 +910,8 @@
       if (!fixtureLabs[element.dataset.count]) write(element, filtered({ ...state, sport: element.dataset.count }).length);
     });
     renderFixtureCounts(state);
-    const competitions = [...new Set(filtered({ ...state, competition: 'all' }).map(event => event.competition))].sort(), signature = JSON.stringify(competitions);
+    const fixtureCompetitions = Object.keys(fixtureLabs).filter(sport => state.sport === 'all' || state.sport === sport).flatMap(sport => matchingFixtures(loadFixtureSnapshot(sport), {...state,competition:'all'}).map(row => row.competition));
+    const competitions = [...new Set([...filtered({ ...state, competition: 'all' }).map(event => event.competition), ...fixtureCompetitions])].filter(Boolean).sort(), signature = JSON.stringify(competitions);
     if (state.competition !== 'all' && !competitions.includes(state.competition)) store.update(current => ({ ...current, competition: 'all', limit: 24 }));
     if ($('competition').dataset.signature !== signature) {
       $('competition').dataset.signature = signature; $('competition').replaceChildren(); const all = make($('competition'), 'option', 'All competitions'); all.value = 'all';
@@ -1590,7 +1627,7 @@
     if(refreshInFlight)return refreshInFlight;
     lastRefresh=Date.now();$('refresh').disabled=true;
     refreshInFlight=(async()=>{
-      try { await Promise.all([refreshCommunity(),refreshTournamentCoverage(),refreshRacingFixtures()]); return await transport.refresh(specs); }
+      try { fixtureSnapshots.clear(); renderFixtureCounts(store.get()); await Promise.all([refreshCommunity(),refreshTournamentCoverage(),refreshRacingFixtures()]); return await transport.refresh(specs); }
       finally { refreshInFlight=null;$('refresh').disabled=false; }
     })();
     return refreshInFlight;
@@ -1619,6 +1656,7 @@
   $('wildcard-build')?.addEventListener('click',()=>safely(createWeeklyWildcard));
   for (const id of ['fresh-daily-slips','fresh-daily-slips-panel'])
     $(id)?.addEventListener('click', () => safely(createFreshDailySlips));
+  $('build-scope').addEventListener('change', () => renderSportActions(store.get()));
   $('generate').addEventListener('click', () => safely(() => { const state = store.get(); const scope = $('build-scope').value; const candidates = scope === 'all' ? state.events.filter(event => day(event.startUTC) >= state.plan.from && day(event.startUTC) <= state.plan.to) : filtered(state); savePlan(E.generateResearch(state.plan, candidates)); notice('Distinct research shortlists created where supported. Non-empty slips are retained. This is an evidence-coverage comparison, not verified value.'); }));
   $('slip-structure').addEventListener('change', event => safely(() => savePlan(E.setStructure(store.get().plan, store.get().slot + 1, event.target.value))));
   $('stake').addEventListener('input', event => { try { savePlan(E.setStake(store.get().plan, store.get().slot + 1, event.target.value || '0')); event.target.removeAttribute('aria-invalid'); } catch { event.target.setAttribute('aria-invalid', 'true'); } });

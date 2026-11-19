@@ -226,3 +226,16 @@
 .slip-selection .leg-state{font-size:10px;margin:4px 0}
 .slip-selection .selection-actions{margin:6px 0}
 .slip-selection .leg-evidence>summary{font-size:10px;cursor:pointer}
+
+/* Source-backed darts and rugby match cards on the main research desk. */
+.fixture-events{display:grid;gap:14px;min-width:0;margin-block:14px}
+.fixture-coverage{padding:16px;border:1px solid #35506d;border-radius:12px;background:#0e1b2d}
+.fixture-coverage h3{margin:0 0 8px}.fixture-coverage p{margin:8px 0;line-height:1.6}
+.fixture-outcomes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.fixture-outcome{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid #35506d;border-radius:9px;background:#13263a;overflow-wrap:anywhere}
+.fixture-outcome strong{font-size:16px}.fixture-outcome span,.fixture-model-status,.fixture-coverage p{font-size:14px;color:#c7d8ec}
+.fixture-event-card .event-meta,.fixture-event-card .event-time{font-size:13px;line-height:1.5}
+.fixture-event-card .compact-evidence-disclosure p,.fixture-event-card .compact-evidence-disclosure a{display:block;margin:10px 13px;font-size:14px;overflow-wrap:anywhere}
+.fixture-model-status{line-height:1.6}.fixture-event-card .small{font-size:13px}
+.fixture-events [hidden],.content-toolbar [hidden]{display:none!important}
+@media(max-width:480px){.fixture-outcomes{grid-template-columns:1fr}.fixture-event-card .event-card-header{align-items:flex-start;flex-direction:column}}
