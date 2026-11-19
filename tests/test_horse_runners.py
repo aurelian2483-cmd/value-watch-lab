@@ -52,6 +52,12 @@ class RunnerTests(unittest.TestCase):
   self.assertEqual(result['going'],'Soft');self.assertIn('going',result['conditions_changed_since_discovery'])
   self.assertEqual(result['run_type'],'HURDLE');self.assertEqual(result['run_type_basis'],'EXPLICIT_RACE_TITLE_TERM')
   hist=result['runners'][0]['previous_results'][0];self.assertEqual(hist['finish_status'],'NON_FINISHER');self.assertEqual(hist['nonfinish_reason'],'Fell')
+ def test_publisher_compact_all_weather_surface_maps_to_flat(self):
+  summary=self.props['race']['race_summary']
+  summary.update(name='Example Novice Stakes (GBB Race)',course_surface={'surface':'ALLWEATHER'})
+  result=parse_card(self.raw(),self.race,self.now)
+  self.assertEqual(result['run_type'],'FLAT')
+  self.assertEqual(result['run_type_basis'],'ALL_WEATHER_SURFACE_ASSUMPTION')
  def test_flat_turf_is_not_assumed_for_unknown_or_mixed_histories(self):
   summary=self.props['race']['race_summary'];summary.update(name='Example Handicap',course_surface={'surface':'TURF'})
   past=self.props['race']['rides'][0]['horse']['previous_results'][0]

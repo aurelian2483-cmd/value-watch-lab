@@ -46,7 +46,7 @@ def classify_run_type(summary,card,runners,surface):
  if re.search(r'\b(?:I?NH Flat|National Hunt Flat|Bumper)(?: Race)?'+suffix,title,re.I):terms.append('NH_FLAT')
  if len(terms)>1:return None,'CONFLICTING_SOURCE_TITLE_TERMS'
  if terms:return terms[0],'EXPLICIT_RACE_TITLE_TERM'
- if str(surface).upper() in ('POLYTRACK','TAPETA','FIBRESAND','AW','ALL WEATHER','ALL_WEATHER'):
+ if str(surface).upper() in ('POLYTRACK','TAPETA','FIBRESAND','AW','ALL WEATHER','ALL_WEATHER','ALLWEATHER'):
   return 'FLAT','ALL_WEATHER_SURFACE_ASSUMPTION'
  active=[h for h in runners if h['active_runner']]
  if active and all(h['previous_results'] and {x.get('run_type') for x in h['previous_results']}=={'FLAT'} for h in active):
