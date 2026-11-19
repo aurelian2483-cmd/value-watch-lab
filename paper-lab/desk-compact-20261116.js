@@ -890,6 +890,9 @@
       root.replaceChildren();
       make(root, 'h3', 'Research suggestions');
       make(root, 'p', 'PASS for betting · UNVALIDATED · Publication blocked');
+      const snapshotLink = {'darts-d1':'./darts/#official-snapshot','rugby-coverage':'./rugby/#official-snapshot'}[engineView];
+      if (snapshotLink) make(root, 'a', 'Official fixture and result snapshot').href = snapshotLink;
+
       const mode = engineView;
       let entry = methodSnapshots.get(mode);
       if (!entry || (!entry.pending && Date.now() - entry.at >= 60000)) {
