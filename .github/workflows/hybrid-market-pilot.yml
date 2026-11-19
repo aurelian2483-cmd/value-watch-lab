@@ -1,0 +1,39 @@
+name: Hybrid 3.1 football market pilot
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/hybrid-market-pilot.yml'
+  schedule:
+    # Time-boxed to the November pilot. The collector also enforces the fixture cutoff.
+    - cron: '7,27,47 20-23 19 11 *'
+    - cron: '7,27,47 0-19 20 11 *'
+permissions:
+  contents: write
+concurrency:
+  group: hybrid-market-pilot
+  cancel-in-progress: false
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Check the engine research gates
+        run: node tests/test_hybrid_engine.cjs
+      - name: Observe matched pre-kickoff market pairs
+        run: python3 scripts/refresh_hybrid_market.py
+      - name: Publish only fresher research evidence
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- paper-lab/hybrid-market-data.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh Hybrid 3.1 research market observations'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

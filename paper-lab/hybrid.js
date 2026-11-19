@@ -87,7 +87,7 @@
       seasonComparison: record.frozen_model.comparison }, evidence, capturedAt);
     if (!replay.checkedBothMarkets) return null;
     return { at:record.snapshot_at_utc, probabilities:replay.probabilities,
-      sources:[{ label:record.benchmark.source_id === 'PINNACLE_VIA_ODDSRUN' ? 'Pinnacle via OddsRun' : 'Market benchmark', url:source(record.benchmark.source).href },
+      sources:[{ label:({PINNACLE_VIA_ODDSRUN:'Pinnacle via OddsRun',PINNACLE_VIA_GOLDEDGE:'Pinnacle via GoldEdge'})[record.benchmark.source_id] || 'Market benchmark', url:source(record.benchmark.source).href },
         { label:'Sky Bet', url:source(record.sky_bet.source).href }],
       hadCandidate:Boolean(replay.selection) };
   }

@@ -6,6 +6,7 @@ the secret; never commits raw provider data or changes the public D1 feed.
 import json, os, sys, urllib.request, urllib.parse, urllib.error, hashlib, time, subprocess
 from collections import Counter
 from datetime import datetime, timedelta, timezone
+from http.client import IncompleteRead
 from pathlib import Path
 from darts_api_adapter import adapt, result_issue
 
@@ -15,19 +16,22 @@ REQUEST_COUNT=0
 LAST_REQUEST=0.0
 def request(path, params, key):
     global REQUEST_COUNT, LAST_REQUEST
-    if REQUEST_COUNT>=REQUEST_LIMIT:raise RuntimeError('Conservative request budget exhausted; partial feed withheld')
-    delay=1.1-(time.monotonic()-LAST_REQUEST)
-    if REQUEST_COUNT and delay>0:time.sleep(delay)
-    REQUEST_COUNT+=1
-    LAST_REQUEST=time.monotonic()
     url=ROOT+path+'?'+urllib.parse.urlencode(params)
     req=urllib.request.Request(url, headers={'Authorization':'Bearer '+key,'User-Agent':'ValueWatch-DartsResearch/1.0','Accept':'application/json'})
-    try:
-        with urllib.request.urlopen(req,timeout=25) as res:
-            raw=res.read(3_000_001)
-    except urllib.error.HTTPError as e:
-        # Never echo response bodies, which might contain token-bearing URLs.
-        raise RuntimeError('Darts API request refused: HTTP '+str(e.code)) from None
+    for attempt in range(2):
+        if REQUEST_COUNT>=REQUEST_LIMIT:raise RuntimeError('Conservative request budget exhausted; partial feed withheld')
+        delay=1.1-(time.monotonic()-LAST_REQUEST)
+        if REQUEST_COUNT and delay>0:time.sleep(delay)
+        REQUEST_COUNT+=1
+        LAST_REQUEST=time.monotonic()
+        try:
+            with urllib.request.urlopen(req,timeout=25) as res:
+                raw=res.read(3_000_001)
+            break
+        except urllib.error.HTTPError as e:
+            raise RuntimeError('Darts API request refused: HTTP '+str(e.code)) from None
+        except (IncompleteRead, TimeoutError, urllib.error.URLError):
+            if attempt:raise RuntimeError('Darts API response interrupted twice; analysis withheld') from None
     if len(raw)>3_000_000:raise RuntimeError('Provider response too large')
     data=json.loads(raw)
     if not isinstance(data,dict) or not isinstance(data.get('data'),list) or not isinstance(data.get('meta'),dict):raise RuntimeError('Invalid provider envelope')
