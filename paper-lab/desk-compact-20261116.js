@@ -48,7 +48,7 @@
     }
   }
   function validateWorkspace(value) {
-    if (!value || value.version !== 4 || !Array.isArray(value.history) || value.history.length > 200 || !Array.isArray(value.claims) || value.claims.length > 100) throw Error('Saved workspace is invalid.');
+    if (!value || value.version !== 4 || (value.autoFill !== undefined && typeof value.autoFill !== 'boolean') || !Array.isArray(value.history) || value.history.length > 200 || !Array.isArray(value.claims) || value.claims.length > 100) throw Error('Saved workspace is invalid.');
     E.restore(JSON.stringify(value.plan));
     for (const record of value.history) { if (!record?.snapshot || record.independentlyAttested !== false) throw Error('Saved history is invalid.'); E.restore(JSON.stringify(record.snapshot)); }
     for (const claim of value.claims) if (!claim || typeof claim.reasoning !== 'string' || claim.reasoning.length > 3000 || typeof claim.createdAt !== 'string' || !Number.isFinite(Date.parse(claim.createdAt)) || (claim.concern !== undefined && (typeof claim.concern !== 'string' || claim.concern.length > 1500)) || (claim.eventId !== undefined && claim.eventId !== null && (typeof claim.eventId !== 'string' || claim.eventId.length > 4000))) throw Error('Saved claim is invalid.');
@@ -63,7 +63,7 @@
   const initial = restored || { version: 4, plan: E.createPlan({ from: today(), to: plusDays(today(), 6) }), history: [], claims: [], journal: [] };
   // Never silently discard a populated expired plan when this browser is reopened.
   // Empty expired plans may start a new default range without erasing research.
-  if(initial.plan && typeof initial.plan.to==='string' && initial.plan.to<today() &&
+  if(initial.autoFill !== false && initial.plan && typeof initial.plan.to==='string' && initial.plan.to<today() &&
      initial.plan.slots.every(slot => !slot.legs.length)){
     initial.plan=E.createPlan({from:today(),to:plusDays(today(),6)});
   }
@@ -84,10 +84,10 @@
   } });
   function savePlan(plan) {
     E.restore(E.serialize(plan)); store.update(state => ({ ...state, plan, replacing: null }));
-    const state = store.get(); if (persistence.write({ version: 4, plan, history: state.history, claims: state.claims, journal: state.journal })) write($('storage'), 'Saved on this device · export a backup');
+    const state = store.get(); if (persistence.write({ version: 4, plan, history: state.history, claims: state.claims, journal: state.journal, autoFill:state.autoFill })) write($('storage'), 'Saved on this device · export a backup');
   }
   function saveEnvelope(changes) {
-    const state = store.get(), next = { version: 4, plan: state.plan, history: state.history, claims: state.claims, journal: state.journal, ...changes };
+    const state = store.get(), next = { version: 4, plan: state.plan, history: state.history, claims: state.claims, journal: state.journal, autoFill:state.autoFill, ...changes };
     if (!persistence.write(next)) throw Error('The change could not be saved. Export your research before continuing.');
     store.update(current => ({ ...current, ...changes }));
   }
@@ -1726,7 +1726,7 @@
   const transport = ResearchTransport.createSnapshotClient({ fetch: window.fetch.bind(window), onStatus(status) { $('refresh').disabled = status.status === 'loading'; $('events').setAttribute('aria-busy', String(status.status === 'loading' && !store.get().events.length)); }, onUpdate(result) { safely(() => { const events = E.normalizeFeeds(result.snapshots).map(event => ({...event,communityTips:matchCommunity(event)})); store.update(state => ({ ...state, events, eventVersion: state.eventVersion + 1, snapshotState: result }));
       // Populate empty research slips automatically from the current published snapshots.
       // Preserve every existing leg, user edit and historical record on refresh.
-      if (events.length && !persistence.failed && !freshDailyBusy && !wildcardBusy) {
+      if (events.length && store.get().autoFill !== false && !persistence.failed && !freshDailyBusy && !wildcardBusy) {
         const current = store.get().plan;
         const eligible = events.filter(event => !event.futureScheduleOnly && day(event.startUTC) >= current.from && day(event.startUTC) <= current.to);
         if (current.slots.some(slot => !slot.legs.length) && eligible.length) {
@@ -1775,6 +1775,53 @@
   $('stake').addEventListener('input', event => { try { savePlan(E.setStake(store.get().plan, store.get().slot + 1, event.target.value || '0')); event.target.removeAttribute('aria-invalid'); } catch { event.target.setAttribute('aria-invalid', 'true'); } });
   $('stake').addEventListener('blur', () => { $('stake').value = store.get().plan.slots[store.get().slot].stakeMinor ? (store.get().plan.slots[store.get().slot].stakeMinor / 100).toFixed(2) : ''; $('stake').removeAttribute('aria-invalid'); });
   $('clear-slip').addEventListener('click', () => safely(() => savePlan(E.clearSlot(store.get().plan, store.get().slot + 1))));
+  let pendingBackup = null, backupRevision = 0;
+  $('backup-file').addEventListener('change', async event => {
+    const revision = ++backupRevision;
+    pendingBackup = null;
+    const confirm = $('restore-confirm');
+    confirm.disabled = true;
+    const file = event.target.files?.[0];
+    if (!file) { write($('backup-status'), 'Choose a Value Watch JSON backup.'); return; }
+    write($('backup-status'), 'Checking backup…');
+    try {
+      if (file.size > 8_000_000) throw Error('This backup exceeds the browser storage limit.');
+      const data = JSON.parse(await file.text());
+      if (data?.recordType !== 'LOCAL_PAPER_RESEARCH' ||
+          !Array.isArray(data.savedHistory) || !Array.isArray(data.privateNotes) || !Array.isArray(data.manualJournal)) {
+        throw Error('Choose a complete backup created with Export JSON.');
+      }
+      const { schemaVersion, id, from, to, createdAt, updatedAt, revision:planRevision, slots,
+        research_only, model_validation, publication_gate } = data;
+      const plan = E.restore(JSON.stringify({ schemaVersion, id, from, to, createdAt, updatedAt,
+        revision:planRevision, slots, research_only, model_validation, publication_gate }));
+      const workspace = validateWorkspace({ version:4, plan, history:data.savedHistory, claims:data.privateNotes, journal:data.manualJournal });
+      if (revision !== backupRevision) return;
+      pendingBackup = workspace;
+      confirm.disabled = false;
+      write($('backup-status'), from + ' to ' + to + ' · ' + workspace.history.length + ' saved snapshots · ' +
+        workspace.claims.length + ' private notes. Restoring replaces the workspace on this device.');
+    } catch (error) {
+      if (revision === backupRevision) write($('backup-status'), 'Backup rejected. ' + error.message);
+    }
+  });
+  $('restore-confirm').addEventListener('click', () => {
+    if (!pendingBackup) return;
+    try {
+      const {plan,history,claims,journal} = pendingBackup;
+      saveEnvelope({plan,history,claims,journal,autoFill:false});
+      store.update(state => ({...state,replacing:null,limit:24}));
+      $('date-from').value = plan.from; $('date-to').value = plan.to;
+      document.querySelectorAll('[data-range]').forEach(element => {
+        element.classList.remove('active'); element.setAttribute('aria-pressed','false');
+      });
+      pendingBackup = null;
+      $('restore-confirm').disabled = true;
+      $('backup-file').value = '';
+      write($('backup-status'), 'Backup restored on this device.');
+      renderNavigation(); renderEvents(); renderSlip(); renderTracker();
+    } catch (error) { write($('backup-status'), error.message); }
+  });
   $('export').addEventListener('click', () => safely(() => { const state = store.get(); exportJSON({ ...E.freeze(state.plan, Date.now(), state.events), savedHistory: state.history, privateNotes: state.claims, manualJournal: state.journal }, 'value-watch-research-' + state.plan.from + '.json'); }));
   let saving = false;
   $('freeze').addEventListener('click', () => safely(async () => { if (saving) return; saving = true; $('freeze').disabled = true; try { const state = store.get(); if (state.history.some(record => record.snapshot.id === state.plan.id && record.snapshot.revision === state.plan.revision)) { notice('This revision is already saved. Find it in Saved research.'); return; } if (state.history.length >= 200) throw Error('Local journal limit reached. Export your research.'); const record = await S.seal(E.freeze(state.plan, Date.now(), state.events)); saveEnvelope({ history: [...store.get().history, record] }); notice('Original research saved. Paper outcomes can be annotated in Saved research.'); } finally { saving = false; $('freeze').disabled = false; } }));

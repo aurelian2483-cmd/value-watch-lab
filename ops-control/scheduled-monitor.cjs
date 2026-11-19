@@ -4,11 +4,13 @@
 const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
+const extraFeeds=require('./extra-feeds.js');
 const SOURCES=[
  {id:'football',filename:'research-dashboard-data.json',owner:'Football Manager',maxAgeHours:24},
  {id:'racing',filename:'racing-research-data.json',owner:'Horse Racing Manager',maxAgeHours:6},
  {id:'other',filename:'other-sports-data.json',owner:'Tennis / NFL Managers',maxAgeHours:24},
- {id:'horse',filename:'horse-model-data.json',owner:'Horse Racing Manager + IT/QA',maxAgeHours:6}
+ {id:'horse',filename:'horse-model-data.json',owner:'Horse Racing Manager + IT/QA',maxAgeHours:6},
+ ...extraFeeds.specs
 ];
 function safeString(s){return String(s??'').replace(/[\r\n\t]/g,' ').slice(0,150)}
 function record(issues,priority,owner,code,description,nextStep){issues.push({priority,owner,code,description,nextStep})}
@@ -29,14 +31,16 @@ function audit(root,now=new Date()){
    record(issues,'P1','IT & QA Manager',spec.id+':FEED_UNAVAILABLE',spec.id+' published source is absent, malformed or unreadable','Investigate the collector and snapshot publication. No unsupported predictions.');
    feeds.push({id:spec.id,state:'UNAVAILABLE',generatedAt:null,ageHours:null,gateOK:false});continue;
   }
-  const ms=typeof doc.generated_at_utc==='string'?Date.parse(doc.generated_at_utc):NaN;
+  const context=extraFeeds.context(spec.id,doc,nowMs);
+  const ms=Date.parse(context.observedAt ?? doc.generated_at_utc);
   const stampOK=Number.isFinite(ms),future=stampOK&&ms>nowMs+300000;
   const age=stampOK?Math.max(0,(nowMs-ms)/3600000):null;
-  const gateOK=doc.research_only===true&&doc.model_validation==='UNVALIDATED'&&doc.publication_gate==='BLOCKED';
+  const gateOK=context.gateOK ?? (doc.research_only===true&&doc.model_validation==='UNVALIDATED'&&doc.publication_gate==='BLOCKED');
   if(!gateOK)record(issues,'P1','Operations Director + IT & QA',spec.id+':GATE_CHANGED',spec.id+' research-only / UNVALIDATED / BLOCKED gates are not all present','Inspect the publication gate; do not approve or publish a bet.');
-  if(!stampOK||future)record(issues,'P1','IT & QA Manager',spec.id+':INVALID_TIMESTAMP',spec.id+' has missing, invalid or future generation timestamp','Check source timestamps, clocks, and publishing process.');
+  if(context.pending)record(issues,'P2',spec.owner,spec.id+':PENDING',context.pending,'Check the latest collection and source coverage.');
+  else if(!stampOK||future)record(issues,'P1','IT & QA Manager',spec.id+':INVALID_TIMESTAMP',spec.id+' has missing, invalid or future generation timestamp','Check source timestamps, clocks, and publishing process.');
   else if(age>spec.maxAgeHours)record(issues,'P2','IT & QA Manager',spec.id+':STALE',spec.id+' published snapshot exceeds '+spec.maxAgeHours+' hours','Check collector scheduling and data freshness.');
-  const state=!gateOK||!stampOK||future?'BLOCKED':age>spec.maxAgeHours?'STALE':'OBSERVED';
+  const state=!gateOK?'BLOCKED':context.pending?'PENDING':!stampOK||future?'BLOCKED':age>spec.maxAgeHours?'STALE':'OBSERVED';
   feeds.push({id:spec.id,state,generatedAt:stampOK?new Date(ms).toISOString():null,ageHours:age===null?null:Number(age.toFixed(2)),gateOK});
   if(spec.id==='football'){
     const count=Array.isArray(doc.upcoming_fixtures)?doc.upcoming_fixtures.length:null;
@@ -55,6 +59,17 @@ function audit(root,now=new Date()){
       if(count===null)record(issues,'P2',key==='nfl'?'NFL Manager':'Tennis Manager',key+':MISSING_EVENTS',key+' observed event array is unavailable','Review the sport collector schema and schedule coverage.');
       if(doc.collection_errors?.[key])record(issues,'P2',key==='nfl'?'NFL Manager':'Tennis Manager',key+':COLLECTOR_ERROR',key+' collector declares an error','Inspect the source receipt and collector logs.');
     }
+  }else if(spec.id==='darts'){
+    sports.push({sport:'darts',observedCount:Array.isArray(doc.fixtures)?doc.fixtures.length:null,status:'RESEARCH ONLY'});
+  }else if(spec.id==='rugby'){
+    for(const [code,sport] of [['RU','rugby union'],['RL','rugby league']]){
+      const events=doc.upcoming_fixtures;
+      sports.push({sport,observedCount:Array.isArray(events)?events.filter(event=>event.code===code).length:null,status:'PROVIDER FIXTURES ONLY'});
+    }
+  }else if(spec.id==='racing-forecasts'){
+    const skipped=Array.isArray(doc.skipped)?doc.skipped:[];
+    const unknown=skipped.filter(item=>item.reason==='UNKNOWN_RACE_DISCIPLINE').length;
+    if(unknown)record(issues,'P2',spec.owner,spec.id+':UNKNOWN_DISCIPLINE',unknown+' races lack a confirmed discipline','Match individual racecards to their published race type.');
   }else if(spec.id==='horse'){
     if(!Array.isArray(doc.form_forecasts))record(issues,'P2','Horse Racing Manager',spec.id+':MODEL_ARRAY_MISSING','Racing model forecast array not present','Review model source compatibility without synthesising picks.');
   }

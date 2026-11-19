@@ -1,16 +1,20 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
+const extraFeeds=window.ValueWatchExtraFeeds;
 const SOURCES=[
   {id:'football',label:'Football research',file:'../research-dashboard-data.json',limitHours:24},
   {id:'racing',label:'Racing racecards',file:'../racing-research-data.json',limitHours:6},
   {id:'sports',label:'Tennis + NFL',file:'../other-sports-data.json',limitHours:24},
-  {id:'horse',label:'Racing model audit',file:'../horse-model-data.json',limitHours:6}
+  {id:'horse',label:'Racing model audit',file:'../horse-model-data.json',limitHours:6},
+  ...extraFeeds.specs.map(spec=>({...spec,file:'../'+spec.filename,limitHours:spec.maxAgeHours}))
 ];
 const sportDefs=[
   {id:'football',label:'Football Manager',icon:'⚽',source:'football'},
   {id:'racing',label:'Horse Racing Manager',icon:'♞',source:'racing'},
   {id:'tennis',label:'Tennis Manager',icon:'🎾',source:'sports'},
-  {id:'nfl',label:'NFL Manager',icon:'🏈',source:'sports'}
+  {id:'nfl',label:'NFL Manager',icon:'🏈',source:'sports'},
+  {id:'darts',label:'Darts Manager',icon:'🎯',source:'darts'},
+  {id:'rugby',label:'Rugby Manager',icon:'🏉',source:'rugby'}
 ];
 let latest=null,busy=false;
 const txt=(id,value)=>{const e=$(id);if(e)e.textContent=String(value)};
@@ -28,11 +32,12 @@ async function fetchSource(spec,now){
   if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();
   if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Invalid data object');
-  const stamp=safeDate(data.generated_at_utc);const age=stamp===null?null:now-stamp;
+  const context=extraFeeds.context(spec.id,data,now);
+  const stamp=safeDate(context.observedAt ?? data.generated_at_utc);const age=stamp===null?null:now-stamp;
   const gate=data.publication_gate,model=data.model_validation;
-  const gateOK=gate==='BLOCKED'&&model==='UNVALIDATED'&&data.research_only===true;
+  const gateOK=context.gateOK ?? (gate==='BLOCKED'&&model==='UNVALIDATED'&&data.research_only===true);
   const stale=age===null||age<0||age>spec.limitHours*3600000;
-  const result={id:spec.id,label:spec.label,file:spec.file,ok:true,data,age,stamp,stale,gateOK,limitHours:spec.limitHours};
+  const result={id:spec.id,label:spec.label,file:spec.file,ok:true,data,age,stamp,stale,gateOK,pending:context.pending,limitHours:spec.limitHours};
   return result;
  }catch(error){return{id:spec.id,label:spec.label,file:spec.file,ok:false,error:error?.name==='AbortError'?'Request timeout':String(error?.message||error),age:null,stamp:null,stale:true,gateOK:false}}
  finally{clearTimeout(timer)}
@@ -51,9 +56,24 @@ function evaluateSport(spec,feeds,messages){
    details.push('Candidate selections: '+niceNumber(ncount(f.candidate_selections)));
    details.push('Qualified selections: '+niceNumber(ncount(f.qualified_selections)));
    details.push('Full external race coverage: '+(f.coverage_verified===true?'Claimed verified':'Not verified'));
+   const forecast=feeds.find(x=>x.id==='racing-forecasts')?.data;
+   if(forecast){
+     details.push('Race forecasts: '+niceNumber(ncount(forecast.forecasts)));
+     const skipped=Array.isArray(forecast.skipped)?forecast.skipped:[];
+     const timing=skipped.filter(item=>item.reason==='NOT_PRE_EVENT_WITH_BUFFER').length;
+     const discipline=skipped.filter(item=>item.reason==='UNKNOWN_RACE_DISCIPLINE').length;
+     if(timing||discipline)details.push('Excluded by timing: '+timing+' · Unknown discipline: '+discipline);
+   }
    const r=feeds.find(x=>x.id==='horse');
    if(!r?.ok)details.push('Separate racing model audit unavailable');
    else details.push('Racing model snapshots: '+niceNumber(ncount(r.data.form_forecasts)));
+ }else if(spec.id==='darts'){
+   count=ncount(f.fixtures);
+   details.push('Tentative fixture records: '+niceNumber(ncount(f.tentative_fixtures)));
+ }else if(spec.id==='rugby'){
+   count=ncount(f.upcoming_fixtures);
+   for(const [code,label] of [['RU','Union'],['RL','League']])
+     details.push(label+' provider fixtures: '+niceNumber(f.upcoming_fixtures?.filter?.(item=>item.code===code).length));
  }else{
    const sport=f.sports?.[spec.id];
    count=ncount(sport?.events);
@@ -122,7 +142,7 @@ function updateHistory(actions,feeds,now){
  let storage=null;try{storage=window.localStorage}catch(_){}
  const loaded=api.load(storage);
  /* Only a complete set of parsed, timestamped research feeds may resolve past incidents. */
- const complete=feeds.every(f=>f.ok&&!f.stale&&f.gateOK&&f.stamp!==null);
+ const complete=feeds.every(f=>f.ok&&!f.stale&&!f.pending&&f.gateOK&&f.stamp!==null);
  const state=api.reconcile(loaded.state,actions,new Date(now).toISOString(),complete);
  const saved=loaded.available&&api.save(storage,state);
  const storageStatus=!loaded.available?loaded.warning:!saved?'Unable to save history in this browser; the current view is temporary.':null;
@@ -171,7 +191,7 @@ function renderSources(feeds){
  const body=$('source-table');body.replaceChildren();
  for(const f of feeds){const tr=add(body,'tr');
    add(tr,'td',f.label);add(tr,'td',f.ok?fmtTime(f.stamp):'—');add(tr,'td',hourAge(f.age));
-   const cell=add(tr,'td');cell.append(cls(!f.ok||!f.gateOK?'blocked':f.stale?'caution':'good',!f.ok?'UNAVAILABLE':!f.gateOK?'GATE NOT VERIFIED':f.stale?'STALE':'RESPONDING'));
+   const cell=add(tr,'td');cell.append(cls(!f.ok||!f.gateOK?'blocked':f.stale?'caution':'good',!f.ok?'UNAVAILABLE':!f.gateOK?'GATE NOT VERIFIED':f.pending?'PENDING':f.stale?'STALE':'RESPONDING'));
  }
 }
 function exportReport(){if(!latest)return;const blob=new Blob([JSON.stringify(latest,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const anchor=document.createElement('a');anchor.href=url;anchor.download='value-watch-operations-'+new Date(latest.checkedAt).toISOString().slice(0,10)+'.json';document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}
@@ -181,7 +201,8 @@ async function audit(){
  try{
    const feeds=await Promise.all(SOURCES.map(spec=>fetchSource(spec,now))),messages=[];
    for(const f of feeds){if(!f.ok)issue(messages,'blocked',f.label+': '+f.error);
-     else {if(f.stale)issue(messages,'caution',f.label+': source age exceeds '+f.limitHours+' hours, or timestamp is invalid');
+     else {if(f.pending)issue(messages,'caution',f.pending);
+     else if(f.stale)issue(messages,'caution',f.label+': source age exceeds '+f.limitHours+' hours, or timestamp is invalid');
        if(!f.gateOK)issue(messages,'blocked',f.label+': expected research-only / UNVALIDATED / BLOCKED gates not established');
      }}
    const sports=sportDefs.map(spec=>evaluateSport(spec,feeds,messages));
@@ -190,7 +211,7 @@ async function audit(){
    const race=feeds.find(f=>f.id==='racing');
    if(race?.ok&&race.data.coverage_verified!==true)issue(messages,'caution','Racing: full external meeting coverage is not verified');
    const actions=planActions(messages);
-   const clean=feeds.every(f=>f.ok&&!f.stale&&f.gateOK);
+   const clean=feeds.every(f=>f.ok&&!f.stale&&!f.pending&&f.gateOK);
    const blocked=feeds.some(f=>!f.ok||!f.gateOK);
    const level=blocked?'bad':messages.length?'warn':'good';
    const decision=blocked?'ESCALATE SOURCE / GATE EXCEPTIONS':messages.length?'REVIEW SOURCE COVERAGE AND FRESHNESS':'DATA CHECKS PASSED — MODELS STILL UNVALIDATED';

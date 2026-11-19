@@ -6,13 +6,19 @@ const code=fs.readFileSync('ops-control/app.js','utf8');
 const ids=['clock','refresh','export','director-badge','decision-title','decision-summary','decision-tag','audit-time','m-feeds','m-sports','m-alerts','m-approved','sports','issues','source-table','it-status','it-summary','action-board','action-summary','history-board','history-summary','history-warning','briefing-title','briefing-date','briefing-risk','b-p1','b-new','b-degraded','b-aged','b-repeated','b-cleared','briefing-notes','briefing-step','briefing-warning'];
 for(const id of ids)assert(html.includes('id="'+id+'"'), 'Missing audited dashboard element: '+id);
 for(const needle of ['../research-dashboard-data.json','../racing-research-data.json','../other-sports-data.json','../horse-model-data.json',"publication_gate","UNVALIDATED","BLOCKED","independentExpertSignoff:false"])assert(code.includes(needle),'Missing expected read-only control: '+needle);
-assert(html.includes('history.js?v=4')&&html.includes('briefing.js?v=4')&&html.includes('app.js?v=4')&&html.includes('style.css?v=4'));
+assert(html.includes('history.js?v=4')&&html.includes('briefing.js?v=4')&&html.includes('app.js?v=5')&&html.includes('style.css?v=4'));
 assert(css.includes('.sport-grid')&&css.includes('@media'));
 function node(tag='div'){
  return {tag,children:[],style:{},disabled:false,className:'',textContent:'',listeners:{},classList:{add(){}},append(...x){this.children.push(...x)},replaceChildren(...x){this.children=x},addEventListener(type,handler){this.listeners[type]=handler},remove(){},click(){},setAttribute(){},getAttribute(){return null}};
 }
 const el=Object.fromEntries(ids.map(id=>[id,node()]));
 const document={getElementById:id=>el[id]||null,createElement:node,body:node(),hidden:false,addEventListener(){}};
+const {specs,context:extraContext}=require('../ops-control/extra-feeds.js');
+const stamp=new Date().toISOString(),start=new Date(Date.now()+86400000).toISOString();
+const extra=Object.fromEntries(specs.map(spec=>['../'+spec.filename,{
+ schema_version:1,generated_at_utc:stamp,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
+ fixtures:[],upcoming_fixtures:[],records:[{start_utc:start,benchmark:{captured_at_utc:stamp,observed_at_utc:stamp},sky_bet:{captured_at_utc:stamp,observed_at_utc:stamp}}]
+}]));
 const schemas={
  football:{generated_at_utc:new Date().toISOString(),research_only:true,publication_gate:'BLOCKED',model_validation:'UNVALIDATED',upcoming_fixtures:[{id:1}],experimental_model_forecasts:[],official_challenge:{completed:0}},
  racing:{generated_at_utc:new Date().toISOString(),research_only:true,publication_gate:'BLOCKED',model_validation:'UNVALIDATED',races:[{id:2}],candidate_selections:[],qualified_selections:[],coverage_verified:false},
@@ -22,12 +28,13 @@ const schemas={
 const uriToKey={'../research-dashboard-data.json':'football','../racing-research-data.json':'racing','../other-sports-data.json':'sports','../horse-model-data.json':'horse'};
 let failHorse=false;
 const fetch=async url=>{
+ if(extra[url])return {ok:true,json:async()=>extra[url]};
  const key=uriToKey[url];if(!key)throw Error('Unexpected fetch '+url);
  if(key==='horse'&&failHorse)throw Error('Simulated provider failure');
  return {ok:true,json:async()=>schemas[key]};
 };
 const saved=new Map();
-const window={localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)}};
+const window={ValueWatchExtraFeeds:{specs,context:extraContext},localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)}};
 const context={window,document,fetch,AbortController,setTimeout,clearTimeout,setInterval:()=>null,console,Date,Intl,URL,Blob};
 vm.runInNewContext(fs.readFileSync('ops-control/history.js','utf8'),context,{filename:'ops-control/history.js',timeout:1500});
 vm.runInNewContext(fs.readFileSync('ops-control/briefing.js','utf8'),context,{filename:'ops-control/briefing.js',timeout:1500});
@@ -35,9 +42,9 @@ vm.runInNewContext(code,context,{filename:'ops-control/app.js',timeout:1500});
 const sleep=()=>new Promise(resolve=>setTimeout(resolve,30));
 (async()=>{
  await sleep();
- assert.equal(el['m-feeds'].textContent,'4 / 4');
+ assert.equal(el['m-feeds'].textContent,'10 / 10');
  assert.equal(el['m-approved'].textContent,'0');
- assert.equal(el.sports.children.length,4);
+ assert.equal(el.sports.children.length,6);
  assert.equal(el.export.disabled,false);
  assert.match(el['history-summary'].textContent,/saved on this device/);
  assert.match(el['briefing-title'].textContent,/OPEN REVIEW ITEMS|NO CURRENT SOURCE EXCEPTIONS|URGENT REVIEW|REVIEW DETERIORATION/);
@@ -47,9 +54,9 @@ const sleep=()=>new Promise(resolve=>setTimeout(resolve,30));
  failHorse=true;
  await el.refresh.listeners.click();
  await sleep();
- assert.equal(el['m-feeds'].textContent,'3 / 4','Unavailable specialist feed must be reported');
+ assert.equal(el['m-feeds'].textContent,'9 / 10','Unavailable specialist feed must be reported');
  assert.match(el['director-badge'].textContent,/ATTENTION/i);
  assert.match(el['history-summary'].textContent,/saved on this device/);
  assert.equal(el['m-approved'].textContent,'0','Missing data must never certify a bet');
- console.log('Operations Control Centre: independent data sources, fail-closed gates, four desks, incident detection and safe exported reporting passed');
+ console.log('Operations Control Centre: independent data sources, fail-closed gates, six desks, incident detection and safe exported reporting passed');
 })().catch(e=>{console.error(e);process.exitCode=1});

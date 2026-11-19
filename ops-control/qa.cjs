@@ -4,7 +4,7 @@ const js=fs.readFileSync(__dirname+'/app.js','utf8'),html=fs.readFileSync(__dirn
 const css=fs.readFileSync(__dirname+'/style.css','utf8');
 const historyJS=fs.readFileSync(__dirname+'/history.js','utf8');
 const briefingJS=fs.readFileSync(__dirname+'/briefing.js','utf8');
-assert(html.includes('./history.js?v=4')&&html.includes('./briefing.js?v=4')&&html.includes('./app.js?v=4')&&html.includes('./style.css?v=4'));
+assert(html.includes('./history.js?v=4')&&html.includes('./briefing.js?v=4')&&html.includes('./app.js?v=5')&&html.includes('./style.css?v=4'));
 for(const id of ['briefing-title','briefing-date','briefing-risk','b-p1','b-new','b-degraded','b-aged','b-repeated','b-cleared','briefing-notes','briefing-step','briefing-warning'])assert(html.includes('id="'+id+'"'), 'Missing daily briefing element: '+id);
 assert(html.includes('id="history-board"')&&html.includes('id="history-summary"')&&html.includes('id="history-warning"'));
 assert(html.includes('READ-ONLY RESEARCH OVERSIGHT'));
@@ -14,8 +14,14 @@ assert(js.includes('planActions(')&&js.includes('actionRegister:actions'));
 assert(!/https?:\/\//.test(js),'No external API calls or remote scripts');
 assert(css.includes('@media(max-width:650px)'),'Responsive narrow layout must exist');
 new vm.Script(js);new vm.Script(historyJS);new vm.Script(briefingJS);
+const {specs,context:extraContext}=require('../ops-control/extra-feeds.js');
+const stamp=new Date().toISOString(),start=new Date(Date.now()+86400000).toISOString();
+const extra=Object.fromEntries(specs.map(spec=>['../'+spec.filename,{
+ schema_version:1,generated_at_utc:stamp,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
+ fixtures:[],upcoming_fixtures:[],records:[{start_utc:start,benchmark:{captured_at_utc:stamp,observed_at_utc:stamp},sky_bet:{captured_at_utc:stamp,observed_at_utc:stamp}}]
+}]));
 const now=new Date().toISOString(),gate={research_only:true,publication_gate:'BLOCKED',model_validation:'UNVALIDATED',generated_at_utc:now};
-const data={
+const data={...extra,
  '../research-dashboard-data.json':{...gate,upcoming_fixtures:[],experimental_model_forecasts:[],official_challenge:{completed:0}},
  '../racing-research-data.json':{...gate,races:[],candidate_selections:[],qualified_selections:[],coverage_verified:true},
  '../other-sports-data.json':{...gate,sports:{tennis:{events:[],collection_status:'OK',schedule_conflicts:[]},nfl:{events:[],collection_status:'OK'}},collection_errors:{}},
@@ -26,16 +32,16 @@ async function run(denied){
  function element(tag){return {tagName:tag,textContent:'',className:'',disabled:false,children:[],append(...xs){this.children.push(...xs)},replaceChildren(){this.children=[]},setAttribute(){},addEventListener(){},remove(){},click(){}}}
  const document={hidden:false,body:element('body'),createElement:element,getElementById(id){if(!nodes.has(id))nodes.set(id,element('div'));return nodes.get(id)},addEventListener(){}};
  const fetch=(url,opts)=>{requests.push({url,opts});return denied&&url.includes('other-sports')?Promise.reject(Error('Synthetic feed failure')):Promise.resolve({ok:true,json:async()=>data[url]})};
- const window={localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)}};
+ const window={ValueWatchExtraFeeds:{specs,context:extraContext},localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)}};
  const scope={window,document,fetch,setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,AbortController:class{constructor(){this.signal={}}abort(){}},Intl,Date,Blob,URL};
  vm.runInNewContext(historyJS,scope,{timeout:5000});
  vm.runInNewContext(briefingJS,scope,{timeout:5000});
  vm.runInNewContext(js,scope,{timeout:5000});
  for(let i=0;i<30;i++)await Promise.resolve();
  const val=id=>nodes.get(id)?.textContent;
- assert.equal(nodes.get('sports').children.length,4,'Four independent sport manager cards required');
+ assert.equal(nodes.get('sports').children.length,6,'Six independent sport manager cards required');
  assert.equal(val('m-approved'),'0','No fabricated betting approval');
- assert.equal(nodes.get('source-table').children.length,4);
+ assert.equal(nodes.get('source-table').children.length,10);
  assert(nodes.get('history-board').children.length>0,'Browser-local incident history rendered');
  assert.match(val('history-summary'),/saved on this device/);
  assert.match(val('briefing-title'),/NO CURRENT SOURCE EXCEPTIONS|URGENT REVIEW/);
@@ -46,9 +52,9 @@ async function run(denied){
  assert.match(val('action-summary'),/recommended action/);
 
  assert.equal(nodes.get('export').disabled,false,'Report export should become available');
- assert(requests.length===4&&requests.every(r=>r.opts.cache==='no-store'),'Only read four configured sources');
+ assert(requests.length===10&&requests.every(r=>r.opts.cache==='no-store'),'Only read the ten configured sources');
  assert(requests.every(r=>r.opts.method===undefined||r.opts.method==='GET'),'No writes');
- if(denied){assert.equal(val('m-feeds'),'3 / 4');assert.match(val('decision-title'),/ESCALATE/);assert(nodes.get('action-board').children.some(n=>n.children.some(h=>h.children?.some(c=>c.textContent==='P1'))),'Feed failure must produce P1 action')}
- else{assert.equal(val('m-feeds'),'4 / 4');assert.match(val('decision-title'),/DATA CHECKS PASSED/);assert.equal(val('m-alerts'),'0')}
+ if(denied){assert.equal(val('m-feeds'),'9 / 10');assert.match(val('decision-title'),/ESCALATE/);assert(nodes.get('action-board').children.some(n=>n.children.some(h=>h.children?.some(c=>c.textContent==='P1'))),'Feed failure must produce P1 action')}
+ else{assert.equal(val('m-feeds'),'10 / 10');assert.match(val('decision-title'),/DATA CHECKS PASSED/);assert.equal(val('m-alerts'),'0')}
 }
-(async()=>{await run(false);await run(true);console.log('PASS: standalone operations dashboard, four desks, read-only requests, gate protection, failure escalation, export controls and responsive markup')})().catch(error=>{console.error(error);process.exitCode=1});
+(async()=>{await run(false);await run(true);console.log('PASS: standalone operations dashboard, six desks, read-only requests, gate protection, failure escalation, export controls and responsive markup')})().catch(error=>{console.error(error);process.exitCode=1});

@@ -51,6 +51,8 @@ function showReview(feed,forecastCount){
  status.textContent=feed.total_predictions_checked+' frozen forecast(s) tracked · 0 automatically certified outcomes';
  const labels={AWAITING_EVENT:'Events not yet complete',AWAITING_PRIMARY_FINAL:'Awaiting first provider final',AWAITING_INDEPENDENT_SOURCE:'Awaiting independent source',SECONDARY_CONFLICT:'Sources disagree',SECONDARY_INVALID:'Secondary evidence invalid',READY_FOR_HUMAN_REVIEW:'Requires human verification',IDENTITY_CONFLICT:'Identity or duplicate conflict',ARCHIVE_INVALID:'Archive contract failure'};
  for(const key of valid){if(!counts[key])continue;const tile=add(box,'div');add(tile,'span',labels[key]);add(tile,'strong',counts[key]);}
+ const tennisReady=feed.items.filter(row=>row.sport==='tennis'&&row.review_state==='READY_FOR_HUMAN_REVIEW').length;
+ if(tennisReady)add(priority,'p',tennisReady+' tennis results have matching second-source evidence and await human verification.');
  for(const row of feed.items){
    if(row.review_state!=='READY_FOR_HUMAN_REVIEW' || row.sport!=='nfl')continue;
    const teams=/^\d{4}_\d{2}_([A-Z]{2,3})_([A-Z]{2,3})$/.exec(row.source_game_id||'');

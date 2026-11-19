@@ -8,13 +8,20 @@ const data={
  football:doc({upcoming_fixtures:[{home:'A',away:'B'}]}),
  racing:doc({races:[{race_id:'R'}],coverage_verified:true}),
  other:doc({sports:{tennis:{events:[{id:'T'}]},nfl:{events:[{id:'N'}]}},collection_errors:{}}),
- horse:doc({form_forecasts:[]})
+ horse:doc({form_forecasts:[]}),
+ 'racing-forecasts':doc({forecasts:[],skipped:[]}),
+ darts:doc({fixtures:[]}),
+ 'darts-analysis':doc({fixtures:[]}),
+ rugby:doc({upcoming_fixtures:[{code:'RU'}]}),
+ 'hybrid-prices':{schema_version:1,records:[{start_utc:'2026-11-13T20:00:00Z',benchmark:{observed_at_utc:now},sky_bet:{observed_at_utc:now}}]},
+ 'fixture-prices':doc({schema_version:1,records:[{start_utc:'2026-11-13T20:00:00Z',benchmark:{captured_at_utc:now},sky_bet:{captured_at_utc:now}}]})
+
 };
-function write(){for(const f of SOURCES)fs.writeFileSync(path.join(base,f.filename),JSON.stringify(data[f.id]));}
+function write(){for(const f of SOURCES){const file=path.join(base,f.filename);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,JSON.stringify(data[f.id]));}}
 try{
  write();
  let report=audit(base,now);
- assert.equal(report.priority,'CLEAR');assert.equal(report.feeds.length,4);assert.equal(report.sports.length,4);
+ assert.equal(report.priority,'CLEAR');assert.equal(report.feeds.length,10);assert.equal(report.sports.length,7);
  assert.equal(report.qualifiedBettingApprovals,0);assert.equal(report.bookmakerPricesVerified,false);
  assert.equal(report.notLiveWebsiteCheck,true);assert.equal(report.changesApplied,false);
  assert.match(markdown(report),/not a verified live-site/);
@@ -32,6 +39,11 @@ try{
  report=audit(base,now);assert.equal(report.priority,'P1');assert(report.issues.some(x=>x.code==='other:FEED_UNAVAILABLE'));assert.equal(report.bookmakerPricesVerified,false);
  fs.rmSync(path.join(base,'horse-model-data.json'));report=audit(base,now);assert(report.issues.some(x=>x.code==='horse:FEED_UNAVAILABLE'));
  fs.writeFileSync(path.join(base,'horse-model-data.json'),'[]');report=audit(base,now);assert(report.issues.some(x=>x.code==='horse:FEED_UNAVAILABLE'));
+ data['darts-analysis']={...data['darts-analysis'],status:'AWAITING_PAGINATED_COLLECTION',generated_at_utc:null};
+ data['hybrid-prices'].records=[];write();
+ report=audit(base,now);
+ assert(report.issues.some(x=>x.code==='darts-analysis:PENDING'));
+ assert(report.issues.some(x=>x.code==='hybrid-prices:PENDING'));
  const issueText=markdown(report);assert.match(issueText,/Manager actions/);assert.match(issueText,/UNVALIDATED \/ BLOCKED/);assert(!issueText.includes('NaN'));
- console.log('PASS: offline source audit, four sports, P1/P2 gates, freshness, missing/malformed/future feeds, deterministic signatures and zero source writes');
+ console.log('PASS: offline source audit, seven sports, P1/P2 gates, freshness, missing/malformed/future feeds, deterministic signatures and zero source writes');
 }finally{fs.rmSync(base,{recursive:true,force:true})}

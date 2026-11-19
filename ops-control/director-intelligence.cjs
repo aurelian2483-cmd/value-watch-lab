@@ -78,7 +78,7 @@ function summary(history,current,delta){
  const lines=['## Director Intelligence V6 — central audit trend',
   '- **Coverage:** '+t.totalRuns+' stored audit(s) across '+t.observedUTCDays+' UTC date(s), not a guarantee of scheduled execution',
   '- **Secondary comparison:** '+t.secondaryMatchRuns+' matched-not-certified; '+t.secondaryUnavailableRuns+' unavailable; '+t.secondaryDiscrepancyRuns+' discrepant; all other statuses excluded from these counts',
-  '- **Research feeds:** '+t.cleanFeedsRuns+'/'+t.totalRuns+' audits with all four sources in OBSERVED state',
+  '- **Research feeds:** '+t.cleanFeedsRuns+'/'+t.totalRuns+' audits with every monitored source in OBSERVED state',
   '- **P1 audits:** '+t.p1Runs+'/'+t.totalRuns,
   '- **Latest state:** '+current.p1+' P1, '+current.p2+' P2; racing secondary '+current.secondary,
   '- **Change detection:** '+delta.changes.join('; '),

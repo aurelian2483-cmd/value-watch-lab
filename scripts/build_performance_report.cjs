@@ -22,7 +22,9 @@ const health=P.SPORTS.map(s=>{
  return {sport:s.id,source:file,sourceStatus:!data?'MISSING':!fresh?'STALE_OR_UNDATED':'RECENT',
   upstreamResearchOnly:data?.research_only===true,modelValidated:false,
   captureSupport:['tennis','nfl'].includes(s.id)?'PROSPECTIVE_CAPTURE_ENABLED':'NO_UNIFIED_PROSPECTIVE_ADAPTER',
-  secondaryResultSupport:s.id==='nfl'?'UNVERIFIED_THESPORTSDB_AND_NFLVERSE':'NOT_ESTABLISHED'};
+  secondaryResultSupport:s.id==='nfl'?'UNVERIFIED_THESPORTSDB_AND_NFLVERSE':
+    s.id==='tennis'&&review?.items?.some(row=>row.sport==='tennis'&&row.review_state==='READY_FOR_HUMAN_REVIEW')
+      ?'TOURNAMENT_RESULTS_REVIEW_ONLY':'NOT_ESTABLISHED'};
 });
 const metrics={};for(const s of P.SPORTS)metrics[s.id]=model.metrics[s.id];
 const inputHash=stable({predictions:ledger.records,results:results.records,review:review?.status_counts,reviewTime:review?.generated_at_utc});
@@ -37,7 +39,7 @@ const report={schema_version:1,kind:'INDEPENDENT_RESEARCH_PERFORMANCE_V1',resear
  'Uniform-probability reference is not a bookmaker baseline, market benchmark or positive expected value proof.',
  'Calibration reliability curves and intervals require sufficient independent observations.',
  'Seven sport divisions are listed for coverage; unified capture currently supports only Tennis and NFL.',
- 'Tennis lacks a confirmed independent second result provider; NFL second-provider claims are review-only.']};
+ 'Tennis tournament results and NFL second-provider observations require human review.']};
 const out=path.join(root,'research','performance-reports','week-'+key+'.json');
 fs.mkdirSync(path.dirname(out),{recursive:true});
 fs.writeFileSync(out,JSON.stringify(report,null,2)+'\n');
