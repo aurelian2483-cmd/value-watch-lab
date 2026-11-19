@@ -2,8 +2,6 @@
 
 const ValueWatchSportMethods = (() => {
   const modes = {
-    'darts-d1': { label: 'Darts D1 · Elo', path: './darts/feed.json' },
-    'rugby-coverage': { label: 'Rugby Union & League · fixture coverage', path: './rugby-research-data.json' },
     'racing-top-four': { label: 'Racing Top Four · V1', path: './horse-predictions-data.json' }
   };
 
@@ -59,29 +57,9 @@ const ValueWatchSportMethods = (() => {
     const age = now - Date.parse(doc.generated_at_utc);
     if (doc.schema_version !== 1 || doc.research_only !== true || doc.model_validation !== 'UNVALIDATED' ||
         doc.publication_gate !== 'BLOCKED' || !Number.isFinite(age) || age < -300000 || age > 172800000) throw Error('Invalid or stale research feed');
-    if (mode === 'racing-top-four') return {
+    return {
       note: 'Experimental sequential finish-order model. Assumes all active runners finish. Place terms and odds are unverified.',
       rows: racing(doc, now)
-    };
-    if (mode === 'rugby-coverage') return {
-      note: ['RU','RL'].map(code => {
-        const h = doc.source_health[code];
-        return (code === 'RU' ? 'Union' : 'League') + ': ' + h.days_succeeded + ' of ' + h.horizon_days + ' days checked';
-      }).join(' · ') + '. Fixtures only. No probability model.',
-      rows: doc.upcoming_fixtures.filter(row => row.forecast_eligible === false && Date.parse(row.kickoff_utc) > now + 300000)
-        .slice(0, 20).map(row => row.home + ' vs ' + row.away + ' · ' + row.competition_name)
-    };
-    if (doc.source_verification === 'NOT_CONFIGURED') return {note: 'Darts source is unconfigured.', rows: []};
-    if (doc.source_verification !== 'PROVIDER_OBSERVED_UNCORROBORATED' || doc.coverage?.sample_only !== true ||
-        doc.source_receipts?.length !== 4 || !doc.source_receipts.every(x => /^(results|fixtures)$/.test(x.endpoint) && /^[a-f0-9]{64}$/.test(x.sha256)) ||
-        doc.results?.length > 80 || doc.fixtures?.length > 12) throw Error('Darts source receipts incomplete');
-    const report = ValueWatchDarts.model(doc.results, doc.fixtures.filter(row => Date.parse(row.start_utc) > now + 300000),
-      new Date(now).toISOString().replace(/\.\d{3}Z$/, 'Z'));
-    return {
-      note: 'Provider-observed sample. Elo estimates require enough historical matches for both players and are uncalibrated.',
-      rows: report.fixtures.map(row => row.player_a.name + ' vs ' + row.player_b.name + ' · ' +
-        (row.prob_a === null ? 'PASS · insufficient history' : row.player_a.name + ' ' + (100 * row.prob_a).toFixed(1) + '% · ' +
-          row.player_b.name + ' ' + (100 * row.prob_b).toFixed(1) + '%'))
     };
   }
 
