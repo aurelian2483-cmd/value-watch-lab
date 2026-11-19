@@ -349,6 +349,26 @@ assert.equal(JSON.stringify(weeklyEvents),oldWeekData,'Wildcard review must not 
 assert.throws(()=>E.weeklyWildcardReview(weeklyEvents,'2026-11-15','2026-11-14',now));
 const emptyWeek=E.weeklyWildcardReview([], '2026-11-08','2026-11-14',now);
 assert.equal(emptyWeek.selectionCount,0,'No forced wildcard selections from missing data');
+const pricedWildcard=E.weeklyWildcardReview([validPrice],'2026-11-08','2026-11-14',now).selections[0];
+assert.equal(pricedWildcard.preEventPrice.decimal,2.5);
+assert.equal(pricedWildcard.priceVerified,false);
+assert.equal(E.weeklyWildcardReview([stalePrice],'2026-11-08','2026-11-14',now).selections[0].preEventPrice,null);
+
+const savedStart='2026-11-07T12:00:00Z', savedAt='2026-11-07T09:00:00Z';
+const savedTennis={sport:'tennis',startUTC:savedStart,market:'Match winner',choiceId:'winner',eventId:JSON.stringify(['tennis','match-1',savedStart])};
+const reported={sport:'tennis',event_id:'match-1',event_start_utc:savedStart,review_state:'READY_FOR_HUMAN_REVIEW',
+  observed_result:'winner',auto_certified:false,betting_eligible:false};
+assert.deepEqual(E.wildcardResult(savedTennis,savedAt,{football:[],reviews:[reported]},now),
+  {label:'Pick matched the reported winner · awaiting verification'});
+assert.equal(E.wildcardResult(savedTennis,savedAt,{football:[],reviews:[{...reported,event_start_utc:'2026-11-07T13:00:00Z'}]},now).label,
+  'Awaiting a verified result');
+assert.equal(E.wildcardResult(savedTennis,savedStart,{football:[],reviews:[reported]},now).label,'Pre-event save time unavailable');
+const savedFootball={sport:'football',startUTC:savedStart,market:'Match result · regulation time',choiceId:'draw',
+  eventId:JSON.stringify(['football',JSON.stringify(['PL','Home','Away']),savedStart])};
+const final={league:'PL',home:'Home',away:'Away',startUTC:savedStart,score_home:1,score_away:1};
+assert.equal(E.wildcardResult(savedFootball,savedAt,{football:[final],reviews:[]},now).correct,true);
+assert.equal(E.wildcardResult({...savedFootball,choiceId:'home'},savedAt,{football:[final],reviews:[]},now).correct,false);
+assert.equal(E.wildcardResult(savedFootball,savedAt,{football:[final,{...final,score_away:2}],reviews:[]},now).correct,undefined);
 for(const path of ['index.html','paper-lab/index.html']) {
  const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
  assert(html.includes('id="weekly-wildcard"'),'Both entrypoints require the Gold Wildcard');

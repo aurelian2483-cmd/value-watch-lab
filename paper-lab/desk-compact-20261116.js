@@ -6,8 +6,8 @@
   const rootURL = new URL('../', document.currentScript.src);
   const sports = { all: 'All sports', football: 'Football', racing: 'Horse racing', tennis: 'Tennis', nfl: 'NFL', darts: 'Darts', rugby: 'Rugby' };
   const symbols = { football: '⚽', racing: '♞', tennis: '◉', nfl: '◆' };
-  const sources = { 'research-dashboard-data.json': ['football', 'Premier League'], 'football-expanded-data.json': ['football', 'Football leagues'], 'international-football-data.json': ['football', 'International football'], 'racing-research-data.json': ['racing', 'Racecards & source prices'], 'racing-future-data.json': ['racing-future', 'Future race schedules'], 'horse-predictions-data.json': ['racing-context', 'Racing model predictions'], 'other-sports-data.json': ['other', 'Tennis & NFL'], 'research-history.json': ['history', 'Historical results'] };
-  const specs = Object.entries(sources).map(([file, [kind]]) => ({ kind, path: new URL(file, rootURL).pathname }));
+  const sources = { 'research-dashboard-data.json': ['football', 'Premier League'], 'football-expanded-data.json': ['football', 'Football leagues'], 'international-football-data.json': ['football', 'International football'], 'racing-research-data.json': ['racing', 'Racecards & source prices'], 'racing-future-data.json': ['racing-future', 'Future race schedules'], 'horse-predictions-data.json': ['racing-context', 'Racing model predictions'], 'other-sports-data.json': ['other', 'Tennis & NFL'], 'research-history.json': ['history', 'Historical results'], 'research/result-review-status.json': ['result-review', 'Tennis & NFL result review'] };
+  const specs = Object.entries(sources).map(([file, [kind, label]]) => ({ kind, label, path: new URL(file, rootURL).pathname }));
   const key = 'value-watch-research-desk-v4';
   const day = E.day, today = () => new Intl.DateTimeFormat('sv-SE', {timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   const plusDays = (date, count) => new Date(Date.parse(date + 'T12:00:00Z') + count * 86400000).toISOString().slice(0, 10);
@@ -1411,13 +1411,53 @@
     }
     make(panel,'p','The review is recalculated from the latest loaded events. The saved weekly snapshot and four paper slips are not overwritten.','wildcard-note');
   }
+  function renderWildcardTracker(target, entries, openWeeks, keepOpen, now) {
+    const records=entries.filter(row=>row?.review?.kind==='WEEKLY_WILDCARD_PAPER_RESEARCH' &&
+      typeof row.week==='string' && Array.isArray(row.review.selections)).sort((a,b)=>b.week.localeCompare(a.week));
+    if(!records.length)return;
+    const tracker=details(target,'Saved picks & results · '+records.length+' week'+(records.length===1?'':'s'),'wildcard-archive wildcard-results-tracker');
+    tracker.open=keepOpen;
+    make(tracker,'p','Saved on this device. One week’s totals count only corroborated results.','wildcard-note');
+    const evidence=E.wildcardResultEvidence(store.get().snapshotState?.snapshots,now);
+    for(const {week,review} of records){
+      const rows=review.selections.filter(Boolean).map(chosen=>({chosen,result:E.wildcardResult(chosen,review.generatedAt,evidence,now)}));
+      const checked=rows.filter(row=>typeof row.result.correct==='boolean');
+      const summary=checked.length
+        ? checked.filter(row=>row.result.correct).length+' correct of '+checked.length+' corroborated'
+        : 'No corroborated results yet';
+      const original=details(tracker,'Week of '+week+' · '+summary,'wildcard-archive wildcard-saved-review');
+      original.dataset.week=week;
+      original.open=openWeeks.has(week) || (!keepOpen && records.length===1);
+      make(original,'p','Saved '+dateText(review.generatedAt)+' · '+(rows.length-checked.length)+' without a corroborated result','wildcard-note');
+      for(const {chosen,result} of rows){
+        const section=make(original,'div',undefined,'wildcard-sport');
+        make(section,'strong',(wildcardSportNames[chosen.sport]||chosen.sport)+' · '+chosen.outcome);
+        make(section,'p',chosen.event+' · '+dateText(chosen.startUTC));
+        make(section,'p',result.label,'small');
+        if(result.sources?.length)provenance(details(section,'Final score sources'),result.sources);
+        make(section,'p','Saved experimental estimate '+pct(chosen.experimentalProbability)+(chosen.model?' · '+chosen.model:''),'small');
+        const quote=chosen.preEventPrice;
+        if(quote?.status==='SOURCE_OBSERVED_UNVERIFIED' && Number.isFinite(quote.decimal) && quote.decimal>1 &&
+          PaperLab.url(quote.source) && Date.parse(quote.observedAt)<=Date.parse(review.generatedAt) &&
+          Date.parse(quote.observedAt)<Date.parse(chosen.startUTC)){
+          const price=make(section,'p','Pre-event price '+quote.decimal.toFixed(2)+' · source observation, unverified · '+dateText(quote.observedAt)+' · ','small');
+          link(price,'Price source',quote.source);
+        }else make(section,'p','Pre-event price unavailable','small');
+      }
+      for(const row of (Array.isArray(review.coverage)?review.coverage:[]).filter(Boolean))
+        if(!rows.some(({chosen})=>chosen.sport===row.sport))
+          make(original,'p',(wildcardSportNames[row.sport]||row.sport)+' · PASS when saved','wildcard-note');
+    }
+  }
+
   function renderWildcard() {
     const target=$('wildcard-result'),control=$('wildcard-build');
     if(!target||!control)return;
     const currentWeek=wildcardWeek(today()),data=wildcardSaved();
-    const saved=data?.entries?.find(row=>row.week===currentWeek);
+    const saved=data?.entries?.find(row=>row?.week===currentWeek);
     const keepResearchOpen=Boolean(target.querySelector('.wildcard-current-audit[open]'));
-    const keepSavedOpen=Boolean(target.querySelector('.wildcard-saved-review[open]'));
+    const keepSavedOpen=Boolean(target.querySelector('.wildcard-results-tracker[open]'));
+    const openWeeks=new Set([...target.querySelectorAll('.wildcard-saved-review[open]')].map(item=>item.dataset.week));
     target.replaceChildren();
     const frozen=saved?.review?.kind==='WEEKLY_WILDCARD_PAPER_RESEARCH'?saved.review:null;
     control.hidden=Boolean(frozen);
@@ -1447,27 +1487,7 @@
       make(box,'strong',pct(chosen.experimentalProbability)+' · experimental estimate','wildcard-shortlist-estimate');
     }
     make(target,'p','Combined slip: verified prices unavailable.','wildcard-compact-warning');
-    if(frozen){
-      const original=details(target,'Saved weekly review · '+frozen.from+' to '+frozen.to,'wildcard-archive wildcard-saved-review');
-      original.open=keepSavedOpen;
-      make(original,'p','Saved '+dateText(frozen.generatedAt)+'. These are the original research selections.','wildcard-note');
-      for(const chosen of frozen.selections||[]){
-        const section=make(original,'div',undefined,'wildcard-sport');
-        make(section,'strong',(wildcardSportNames[chosen.sport]||chosen.sport)+' · '+chosen.outcome);
-        make(section,'p',chosen.event+' · '+dateText(chosen.startUTC));
-        const live=store.get().events.find(event=>event.id===chosen.eventId && event.startUTC===chosen.startUTC);
-        const status=live?E.statusOf(live):null;
-        if(status?.code==='STARTED' && live?.score?.label)make(section,'p','Source score: '+live.score.label,'small');
-        else if(Date.parse(chosen.startUTC)<=Date.now())make(section,'p','Scheduled start passed · result unavailable in this view.','small');
-        else if(status)make(section,'p',status.label,'small');
-        make(section,'p','Saved experimental estimate: '+pct(chosen.experimentalProbability)+
-          ' · Evidence score '+chosen.evidenceScore+' · '+chosen.sourceReceiptCount+' source receipt(s)','small');
-      }
-      for(const row of frozen.coverage||[]){
-        if(!frozen.selections?.some(choice=>choice.sport===row.sport))
-          make(original,'p',(wildcardSportNames[row.sport]||row.sport)+' · PASS when saved','wildcard-note');
-      }
-    }
+    renderWildcardTracker(target,data?.entries||[],openWeeks,keepSavedOpen,Date.now());
     const archive=details(target,'Source audit, limitations and alternatives','wildcard-archive wildcard-current-audit');
     archive.open=keepResearchOpen;
     const list=make(archive,'ul',undefined,'wildcard-review-list');
@@ -1676,7 +1696,7 @@
   }
   function renderSources(result) {
     $('feeds').replaceChildren();
-    for (const spec of specs) { const file = new URL(spec.path, rootURL).pathname.split('/').pop(), snapshot = result.snapshots.find(item => item.path === spec.path), error = result.errors.find(item => item.path === spec.path), row = make($('feeds'), 'div', undefined, 'source-row'); make(row, 'strong', sources[file][1], 'source-name'); make(row, 'span', error ? error.retained ? 'Refresh failed · last good snapshot retained' : 'Unavailable' : 'Snapshot ' + dateText(snapshot?.document.generated_at_utc), 'source-status'); const technical = details(row, 'Technical details', 'source-debug'); make(technical, 'code', file); if (snapshot) make(technical, 'p', snapshot.document.generated_at_utc, 'small'); if (error) make(technical, 'p', error.message, 'warning-line'); }
+    for (const spec of specs) { const file = new URL(spec.path, rootURL).pathname.split('/').pop(), snapshot = result.snapshots.find(item => item.path === spec.path), error = result.errors.find(item => item.path === spec.path), row = make($('feeds'), 'div', undefined, 'source-row'); make(row, 'strong', spec.label, 'source-name'); make(row, 'span', error ? error.retained ? 'Refresh failed · last good snapshot retained' : 'Unavailable' : 'Snapshot ' + dateText(snapshot?.document.generated_at_utc), 'source-status'); const technical = details(row, 'Technical details', 'source-debug'); make(technical, 'code', file); if (snapshot) make(technical, 'p', snapshot.document.generated_at_utc, 'small'); if (error) make(technical, 'p', error.message, 'warning-line'); }
     write($('source-summary'), result.errors.length ? 'Sources · ' + result.errors.length + ' need attention' : 'Sources · ' + result.snapshots.length + ' snapshots');
   }
   // Curated, auditable community observations. The public browser never scrapes third-party sites.
