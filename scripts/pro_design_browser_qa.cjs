@@ -75,6 +75,7 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('#slip-tabs button[data-slot="2"]').getAttribute('aria-pressed'),'true','Pro paper slip must use existing slip state');
    await page.screenshot({path:path.join(out,'pro-home-'+width+'.png'),fullPage:false});
    assert.deepEqual(errors,[],'Home page JS runtime errors');
+   if(width<1020)await page.locator('#paper-close').click();
    for (const sport of ['darts','rugby']) {
      await page.locator('#sport-nav button[data-sport="'+sport+'"]').click();
      await page.waitForFunction(s => {
