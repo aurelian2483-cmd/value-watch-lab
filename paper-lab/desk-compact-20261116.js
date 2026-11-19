@@ -658,6 +658,80 @@
       'Cross-Sport Explorer rotates through sports that actually qualify. Existing saved selections are never overwritten. ' +
       'No odds, expected value or model calibration is verified here.', 'small');
   }
+  const fixtureLabs = {
+    darts: { name:'Darts', feed:'darts/feed.json' },
+    rugby: { name:'Rugby', feed:'rugby-research-data.json' }
+  };
+  const fixtureSnapshots = new Map();
+  const fixtureBase = new URL(location.pathname.endsWith('/paper-lab/') || location.pathname.endsWith('/paper-lab/index.html') ? '../' : './', location.href);
+  async function fetchFixtureSource(url, format) {
+    const response = await fetch(url, {cache:'no-store', signal:AbortSignal.timeout(10000)});
+    if (!response.ok) throw Error('Source unavailable');
+    return response[format]();
+  }
+  function renderFixtureLab(root, state) {
+    const sport = state.sport, lab = fixtureLabs[sport];
+    const panel = make(root, 'section', undefined, 'event-empty surface');
+    make(panel, 'h3', lab.name + ' fixtures');
+    const labUrl = new URL(sport + '/', fixtureBase);
+    const link = make(panel, 'a', 'Open ' + lab.name + ' Research Lab');
+    link.href = labUrl.href;
+    let snapshot = fixtureSnapshots.get(sport);
+    if (!snapshot) {
+      snapshot = {loading:true};
+      const request = snapshot;
+      fixtureSnapshots.set(sport, request);
+      Promise.allSettled([
+        fetchFixtureSource(new URL(lab.feed, fixtureBase), 'json'),
+        fetchFixtureSource(labUrl, 'text')
+      ]).then(([feed, official]) => {
+        const doc = feed.status === 'fulfilled' ? feed.value : null;
+        const officialDoc = official.status === 'fulfilled'
+          ? new DOMParser().parseFromString(official.value, 'text/html') : null;
+        const officialRows = [...(officialDoc?.querySelectorAll('#official-snapshot [data-desk-date]') || [])]
+          .map(row => ({date:row.dataset.deskDate, name:row.textContent.trim(), detail:'Official schedule · individual start time not used'}));
+        const age = Date.now() - Date.parse(doc?.generated_at_utc);
+        const usable = doc?.research_only === true && doc.model_validation === 'UNVALIDATED' &&
+          doc.publication_gate === 'BLOCKED' && age >= -300000 && age <= 172800000;
+        const rows = !usable ? [] : sport === 'darts'
+          ? (Array.isArray(doc.fixtures) ? doc.fixtures : []).filter(row => row.status === 'SCHEDULED' && row.player_a?.name && row.player_b?.name && Number.isFinite(Date.parse(row.start_utc)))
+            .map(row => ({date:day(row.start_utc), start:row.start_utc, name:row.player_a.name + ' vs ' + row.player_b.name, detail:'Provider schedule · independently unverified'}))
+          : (Array.isArray(doc.upcoming_fixtures) ? doc.upcoming_fixtures : []).filter(row => row.forecast_eligible === false && row.home && row.away && Number.isFinite(Date.parse(row.kickoff_utc)))
+            .map(row => ({date:day(row.kickoff_utc), start:row.kickoff_utc, name:row.home + ' vs ' + row.away, detail:row.code === 'RU' ? 'Union · provider schedule' : 'League · provider schedule'}));
+        const seen = new Set();
+        const fixtures = [...officialRows, ...rows].filter(row => {
+          const key = row.date + ':' + row.name.split(' · ')[0].split(' vs ').map(name => name.trim().toLowerCase()).sort().join(':');
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        }).sort((a,b) => a.date.localeCompare(b.date));
+        if (fixtureSnapshots.get(sport) === request) {
+          fixtureSnapshots.set(sport, {fixtures, usable, hasOfficial:Boolean(officialDoc?.querySelector('#official-snapshot'))});
+        }
+      }).catch(() => {
+        if (fixtureSnapshots.get(sport) === request) fixtureSnapshots.set(sport, {fixtures:[], usable:false, hasOfficial:false});
+      }).finally(() => { if (store.get().sport === sport) safely(renderEvents); });
+    }
+    if (snapshot.loading) {
+      make(panel, 'p', 'Loading fixture sources…');
+      return 'Checking fixture sources';
+    }
+    const fixtures = snapshot.fixtures.filter(row => {
+      const past = row.start ? Date.parse(row.start) <= Date.now() : row.date < today();
+      return row.date >= state.plan.from && row.date <= state.plan.to &&
+        (state.eventView === 'all' || (state.eventView === 'history' ? past : !past)) &&
+        (!state.query || row.name.toLocaleLowerCase('en-GB').includes(state.query));
+    });
+    for (const row of fixtures.slice(0,state.limit)) make(panel, 'p',
+      row.name + ' · ' + (row.start ? dateText(row.start) : row.date) + ' · ' + row.detail);
+    if (fixtures.length > state.limit) button(panel, 'Show more fixtures', () =>
+      store.update(current => ({...current,limit:current.limit + 24})), 'button button-secondary');
+    if (!fixtures.length) make(panel, 'p', 'No fixtures match the selected dates and search.');
+    if (!snapshot.usable) make(panel, 'p', 'The provider feed is unavailable or stale. Official snapshot fixtures can still appear.');
+    if (!snapshot.hasOfficial) make(panel, 'p', 'The official snapshot could not be loaded.');
+    make(panel, 'p', 'Fixture research only. Paper selections and betting prices are unavailable for this view.', 'small');
+    return fixtures.length + ' fixture' + (fixtures.length === 1 ? '' : 's') + ' in the selected view';
+  }
   function renderEvents() {
     renderRacingCandidates();
     renderPaperEligibilityAudit();
@@ -676,7 +750,7 @@
       const upcomingMeetings=racingFixtureMeetings.filter(m=>m.date>=state.plan.from&&m.date<=state.plan.to); const box = empty(root, '0 verified racecards · '+upcomingMeetings.length+' scheduled meetings', (upcomingMeetings.length ? 'Meeting dates and courses are available, but race times, runners and odds are not yet verified. See the scheduled meetings below. ' : 'No meeting fixtures are loaded for the selected dates. ') + 'Racecards remain unavailable until verified source data is collected.', { label: 'Show next 14 days', run: () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'upcoming' })); $('search').value = ''; $('event-view').value = 'upcoming'; preset('14'); } }); box.classList.add('event-empty');
       if (latest && latest !== today()) button(box, 'View dated previous cards', () => { store.update(current => ({ ...current, competition: 'all', query: '', eventView: 'all' })); $('search').value = ''; $('event-view').value = 'all'; setRange(latest, latest); }, 'button button-quiet');
     }
-    else if (!visible.length) { const box = empty(root,
+    else if (!visible.length && !fixtureLabs[state.sport]) { const box = empty(root,
       isReliability ? 'No historical form candidates with sufficient evidence' :
       state.snapshotState?.status === 'unavailable' ? 'Research sources unavailable' : 'No events match this view',
       isReliability ? 'Automatic seven-competition screening is active. Existing source records do not establish five earlier results for both teams and the required win pattern in this view. No predictions or odds were invented. Switch engines or widen the date range. Historical archive: '+historicalStatus+'.' :
@@ -762,6 +836,12 @@
       },'button button-secondary');
     }
     write($('coverage-summary'), rows.length + ' matching your filters · ' + state.events.length + ' total loaded records across all dates. Coverage is incomplete; zero means no matching records in these feeds.');
+    if (fixtureLabs[state.sport]) {
+      const summary = renderFixtureLab(root, state);
+      write($('event-summary'), summary + ' · ' + state.plan.from + ' → ' + state.plan.to);
+      write($('coverage-summary'), 'Fixture research · source coverage is incomplete.');
+      return;
+    }
     write($('event-summary'), rows.length + ' ' + (state.eventView === 'upcoming' ? 'upcoming' : 'recorded') + ' event' + (rows.length === 1 ? '' : 's') + ' · ' + state.plan.from + ' → ' + state.plan.to + ' · UK time');
   }
   function renderNavigation() {
@@ -1496,15 +1576,19 @@
   document.addEventListener('keydown', event => { if (!document.body.classList.contains('paper-open')) return; if (event.key === 'Escape') closeSlip(); if (event.key === 'Tab') { const items = [...$('slip-panel').querySelectorAll('button:not([disabled]),input,select,summary,a[href]')].filter(element => element.getClientRects().length); if (event.shiftKey && document.activeElement === items[0]) { event.preventDefault(); items.at(-1)?.focus(); } else if (!event.shiftKey && document.activeElement === items.at(-1)) { event.preventDefault(); items[0]?.focus(); } } });
   $('date-from').value = initial.plan.from; $('date-to').value = initial.plan.to;
   document.querySelectorAll('[data-range]').forEach(element => { element.addEventListener('click', () => safely(() => preset(element.dataset.range))); const active = !restored && element.dataset.range === '7'; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
-  document.querySelectorAll('[data-sport]').forEach(element => element.addEventListener('click', () => store.update(state => ({ ...state, sport: element.dataset.sport, competition: 'all', limit: 24 }))));
+  function chooseSport(sport) {
+    store.update(state => ({ ...state, sport, view: fixtureLabs[sport] ? 'events' : state.view, competition: 'all', limit: 24 }));
+    if (fixtureLabs[sport]) $('events-view').scrollIntoView({block:'start'});
+  }
+  document.querySelectorAll('[data-sport]').forEach(element => element.addEventListener('click', () => chooseSport(element.dataset.sport)));
   document.querySelectorAll('[data-view]').forEach(element => element.addEventListener('click', () => store.update(state => ({ ...state, view: element.dataset.view }))));
   document.querySelectorAll('[data-slot]').forEach(element => element.addEventListener('click', () => store.update(state => ({ ...state, slot: Number(element.dataset.slot) - 1, replacing: null }))));
   for (const id of ['date-from', 'date-to']) $(id).addEventListener('change', () => safely(() => setRange($('date-from').value, $('date-to').value)));
-  $('sport').addEventListener('change', event => store.update(state => ({ ...state, sport: event.target.value, competition: 'all', limit: 24 })));
+  $('sport').addEventListener('change', event => chooseSport(event.target.value));
   $('competition').addEventListener('change', event => store.update(state => ({ ...state, competition: event.target.value, limit: 24 })));
   $('event-view').addEventListener('change', event => store.update(state => ({ ...state, eventView: event.target.value, limit: 24 })));
   let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
-  $('refresh').addEventListener('click', () => safely(refresh));
+  $('refresh').addEventListener('click', () => safely(() => { fixtureSnapshots.clear(); renderEvents(); return refresh(); }));
   $('find-racing')?.addEventListener('click',()=>safely(()=>{racingCandidatesRequested=true;renderRacingCandidates();$('racing-candidates')?.scrollIntoView?.({block:'nearest'});}));
   $('wildcard-build')?.addEventListener('click',()=>safely(createWeeklyWildcard));
   for (const id of ['fresh-daily-slips','fresh-daily-slips-panel'])
