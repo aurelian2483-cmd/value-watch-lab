@@ -24,7 +24,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           h=Path('paper-lab/index.html').read_text()
-          for asset in ('evidence-v3.js','desk.js','engine.js','core.js'):
+          for asset in ('evidence-v3.js','desk-compact-20261116.js','engine.js','core.js'):
               assert f'src="{asset}' in h, f'Missing asset: {asset}'
               assert Path('paper-lab',asset).is_file(), f'Asset not found: {asset}'
           assert 'Paper research' in h

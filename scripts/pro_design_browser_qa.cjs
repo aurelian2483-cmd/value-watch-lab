@@ -102,7 +102,9 @@ const server=http.createServer((req,res)=>{
    await page.goto('http://127.0.0.1:8177/rugby/',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!document.getElementById('refreshed').textContent.includes('Checking research'),{timeout:12000});
    assert((await page.locator('#refreshed').innerText()).includes('Research snapshot available')||(await page.locator('#refreshed').innerText()).includes('STALE SNAPSHOT'));
-   assert((await page.locator('#source-health').innerText()).includes('Partial source sample only'),'Rugby source health must disclose incomplete coverage');
+   const rugbyHealthText=await page.locator('#source-health').innerText();
+   assert(rugbyHealthText.includes('Free-source event coverage may be incomplete.'),'Rugby source health must disclose incomplete event coverage even when every date was checked');
+   assert(rugbyHealthText.includes('All dates in the window checked')||rugbyHealthText.includes('Partial source sample only')||rugbyHealthText.includes('Reported source window checked'),'Rugby source health must describe date coverage separately');
    const rugbyFixtures=await page.locator('#fixtures .fixture').count();
    if(!rugbyFixtures) assert((await page.locator('#fixtures').innerText()).includes('No source-confirmed future fixtures'),'Missing rugby coverage must not invent fixtures');
    else assert((await page.locator('#fixtures').innerText()).includes('No validated model probability'),'Sourced rugby schedule must not imply forecasts');

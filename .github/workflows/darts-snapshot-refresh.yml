@@ -67,7 +67,7 @@ jobs:
           assert not set(d).intersection({'odds','expected_value','betting_eligible'})
           print('Safe research sample:',len(d['results']),'results and',len(d['fixtures']),'fixtures')
           PY
-      - name: Analyse paginated recent history without publishing raw results
+      - name: Analyse paginated daily history without publishing raw results
         continue-on-error: true
         env:
           DARTS_API_KEY: ${{ secrets.DARTS_API_KEY }}

@@ -40,20 +40,23 @@ class Adapter(unittest.TestCase):
  def test_collector_does_not_need_api_for_adapter(self):
   self.assertIsNone(result({},NOW))
 class CollectorPagination(unittest.TestCase):
- def test_week_slices_are_complete_and_disjoint(self):
+ def test_day_slices_are_complete_and_disjoint(self):
   calls=[]
   def fake_pages(endpoint,params,key,maxpages):
    calls.append((endpoint,params,maxpages))
    return [],[]
   with patch.object(collector,'pages',side_effect=fake_pages):
    report=collect(NOW,'test-secret')
-  weeks=[c for c in calls if c[0]=='/v1/results']
-  self.assertEqual(len(weeks),4)
-  self.assertEqual([x[1]['from'] for x in weeks],['2026-10-11','2026-10-18','2026-10-25','2026-11-01'])
-  self.assertEqual([x[1]['to'] for x in weeks],['2026-10-17','2026-10-24','2026-10-31','2026-11-07'])
+  days=[c for c in calls if c[0]=='/v1/results']
+  self.assertEqual(len(days),28)
+  dates=[x[1]['from'] for x in days]
+  self.assertEqual(len(set(dates)),28)
+  self.assertEqual(dates[0],'2026-10-11')
+  self.assertEqual(dates[-1],'2026-11-07')
+  self.assertEqual(dates,[x[1]['to'] for x in days])
   self.assertEqual(report['coverage']['pagination_complete'],True)
-  self.assertEqual(report['coverage']['diagnostic_window'],'FOUR_FULL_SEVEN_DAY_WINDOWS')
- def test_truncated_week_fails_whole_run(self):
+  self.assertEqual(report['coverage']['diagnostic_window'],'TWENTY_EIGHT_FULL_DAY_WINDOWS')
+ def test_truncated_day_fails_whole_run(self):
   def mock_pages(endpoint,params,key,maxpages):
    if endpoint=='/v1/results' and params['from']=='2026-10-18':
     raise RuntimeError('Pagination exceeded safe page cap; partial feed withheld')

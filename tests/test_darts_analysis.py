@@ -25,8 +25,9 @@ class DartsAnalysis(unittest.TestCase):
         if endpoint == '/v1/fixtures':
             rows, cursor = [FIXTURE], None
         else:
-            # Two pages in each of four weeks, two matches per player per week.
+            # Two pages for every date, two matches per player per day.
             day = params['from']
+            self.assertEqual(day,params['to'])
             i = int(day.replace('-','')) * 2 + bool(params.get('cursor'))
             rows = [result(i, day)]
             cursor = None if params.get('cursor') else 'second'
@@ -36,11 +37,11 @@ class DartsAnalysis(unittest.TestCase):
     def test_all_pages_feed_unchanged_d1_without_raw_archive(self, request):
         request.side_effect = self.response
         report = collector.analysis_snapshot(NOW, 'test-key')
-        self.assertEqual(report['training_matches'],8)
-        self.assertEqual(report['fixtures'][0]['prior_a'],8)
+        self.assertEqual(report['training_matches'],56)
+        self.assertEqual(report['fixtures'][0]['prior_a'],56)
         self.assertEqual(report['fixtures'][0]['status'],'EXPERIMENTAL_UNCALIBRATED')
         self.assertEqual(report['coverage']['history_period'],['2026-10-15','2026-11-11'])
-        self.assertEqual(len(report['source_receipts']),9)
+        self.assertEqual(len(report['source_receipts']),57)
         self.assertNotIn('results',report)
         self.assertNotIn('played_at',json.dumps(report))
         self.assertFalse(report['raw_history_published'])

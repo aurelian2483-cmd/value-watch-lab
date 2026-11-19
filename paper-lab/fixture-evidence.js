@@ -19,7 +19,7 @@
     const period = coverage.history_period;
     if (!Array.isArray(period) || period.length !== 2 || !period.every(date) || Date.parse(period[1])-Date.parse(period[0]) !== 27*86400000 || Date.parse(period[1]) >= Date.parse(doc.generated_at_utc.slice(0,10))) return false;
     if (doc.training_matches && (!date(doc.history_latest_date) || doc.history_latest_date < period[0] || doc.history_latest_date > period[1])) return false;
-    if (!Array.isArray(doc.source_receipts) || doc.source_receipts.length < 5 || doc.source_receipts.length > 90 || doc.source_receipts.some(r => !['/v1/results','/v1/fixtures'].includes(r?.endpoint) || !/^[a-f0-9]{64}$/.test(r.sha256))) return false;
+    if (!Array.isArray(doc.source_receipts) || doc.source_receipts.length < 5 || doc.source_receipts.length > 100 || doc.source_receipts.some(r => !['/v1/results','/v1/fixtures'].includes(r?.endpoint) || !/^[a-f0-9]{64}$/.test(r.sha256))) return false;
     if (!Array.isArray(doc.fixtures) || doc.fixtures.length > 12 || new Set(doc.fixtures.map(f=>f?.id)).size !== doc.fixtures.length) return false;
     return doc.fixtures.every(f => {
       if (!f || !iso(f.start_utc) || ![f.prior_a,f.prior_b].every(n=>Number.isInteger(n)&&n>=0&&n<=doc.training_matches)) return false;
