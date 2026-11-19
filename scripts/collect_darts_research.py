@@ -69,14 +69,15 @@ def collect(now, key):
     fixtures,frecs=pages('/v1/fixtures',{'from':day.isoformat(),'to':(day+timedelta(days=7)).isoformat(),'limit':500},key,10)
     old,future=adapt(results,fixtures,now)
     future=[row for row in future if day.isoformat()<=row['start_utc'][:10]<=(day+timedelta(days=7)).isoformat()]
-    if len(old)!=len(results):
-        issues=Counter(issue for row in results if (issue:=result_issue(row,now)))
+    rejected=Counter(issue for row in results if (issue:=result_issue(row,now)))
+    non_final=rejected.pop('NOT_FINAL',0)
+    if rejected:
         raise RuntimeError('Historical rows failed normalization; analysis withheld ('+
-                           ', '.join(f'{reason}={count}' for reason,count in sorted(issues.items()))+')')
+                           ', '.join(f'{reason}={count}' for reason,count in sorted(rejected.items()))+')')
     return {'schema_version':1,'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
             'source_verification':'PROVIDER_OBSERVED_UNCORROBORATED','generated_at_utc':now.isoformat().replace('+00:00','Z'),
             'results':old,'fixtures':future,
-            'coverage':{'returned_result_rows':len(results),'usable_result_rows':len(old),'returned_fixture_rows':len(fixtures),'confirmed_upcoming_fixtures':len(future),'history_period':[start.isoformat(),end.isoformat()],'pagination_complete':True,'requests_this_run':REQUEST_COUNT,'diagnostic_window':'TWENTY_EIGHT_FULL_DAY_WINDOWS'},
+            'coverage':{'returned_result_rows':len(results),'usable_result_rows':len(old),'non_final_result_rows_excluded':non_final,'returned_fixture_rows':len(fixtures),'confirmed_upcoming_fixtures':len(future),'history_period':[start.isoformat(),end.isoformat()],'pagination_complete':True,'requests_this_run':REQUEST_COUNT,'diagnostic_window':'TWENTY_EIGHT_FULL_DAY_WINDOWS'},
             'source_receipts':recs+frecs,'odds':None,'expected_value':None,'betting_eligible':False}
 
 def analysis_snapshot(now, key):
@@ -99,6 +100,7 @@ def analysis_snapshot(now, key):
         'history_latest_date':max((row['played_at'][:10] for row in collected['results']),default=None),
         'raw_history_published':False,
         'limitations':['Recent 28-day source window only; not a complete career history.',
+            'Only provider-final results train D1. The excluded non-final count is recorded in coverage.',
             'Free-tier history is delayed; provider observations are not independently corroborated.',
             'D1 is experimental and uncalibrated. No bookmaker odds or betting edge.']}
 

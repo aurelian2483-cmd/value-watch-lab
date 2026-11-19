@@ -17,7 +17,9 @@ def player(p):
 
 def result_issue(r, now):
     if not isinstance(r,dict):return 'INVALID_ROW'
-    if r.get('result_status')!='final':return 'NOT_FINAL'
+    status=r.get('result_status')
+    if not isinstance(status,str) or not re.fullmatch(r'[a-z][a-z0-9_]{0,31}',status):return 'INVALID_RESULT_STATUS'
+    if status!='final':return 'NOT_FINAL'
     if not isinstance(r.get('match_id'),str) or not MID.fullmatch(r['match_id']):return 'INVALID_MATCH_ID'
     a,b=player(r.get('winner')),player(r.get('loser'))
     if not a or not b:return 'INVALID_PLAYER'

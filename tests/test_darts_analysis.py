@@ -61,6 +61,19 @@ class DartsAnalysis(unittest.TestCase):
             collector.analysis_snapshot(NOW, 'test-key')
 
     @patch.object(collector, 'request')
+    def test_explicit_nonfinal_result_is_excluded_and_counted(self, request):
+        def with_nonfinal(endpoint, params, key):
+            payload, digest = self.response(endpoint, params, key)
+            if endpoint == '/v1/results' and params['from']=='2026-10-15' and not params.get('cursor'):
+                payload['data'][0]['result_status'] = 'provisional'
+            return payload, digest
+        request.side_effect = with_nonfinal
+        report = collector.analysis_snapshot(NOW, 'test-key')
+        self.assertEqual(report['training_matches'],55)
+        self.assertEqual(report['coverage']['returned_result_rows'],56)
+        self.assertEqual(report['coverage']['non_final_result_rows_excluded'],1)
+
+    @patch.object(collector, 'request')
     def test_bad_result_does_not_silently_shrink_training_set(self, request):
         def bad(endpoint, params, key):
             payload, digest = self.response(endpoint,params,key)
