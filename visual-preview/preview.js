@@ -13,6 +13,16 @@
   classic.searchParams.delete('view');
   toggle.href = classic.href;
 
+  const market = document.querySelector('.pro-reference-grid .pro-market');
+  const darts = document.querySelector('.pro-darts-preview');
+  if (market && darts) {
+    const stack = document.createElement('div');
+    stack.className = 'preview-market-stack';
+    market.before(stack);
+    stack.append(market, darts);
+    darts.querySelector('.pro-darts-preview-summary').textContent = 'Historical Elo estimates and fixture coverage. Bookmaker prices unverified.';
+  }
+
   const sports = [
     ['[data-pro-sport="football"]', 'Football', 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 5 4 3-1.5 5h-5L8 10l4-3Zm0 0V2m4 8 5-2m-6.5 7 3 5m-8-5-3 5M8 10 3 8'],
     ['[data-pro-sport="racing"]', 'Horse racing', 'M5 21h14M8 21v-3h9v3M8 18v-4l4-4-1-3-4 4-3-2 6-7 1 3c5 0 8 4 8 8v5H8Z'],
