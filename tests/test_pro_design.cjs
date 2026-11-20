@@ -15,13 +15,12 @@ assert(home.includes('pro-home.js?v=inline-slips')&&home.includes('pro-design.cs
 for(const id of ['pro-featured-rows','pro-featured-status','pro-market-feeds','pro-feature-prev','pro-feature-next','pro-feature-refresh','pro-feature-page'])assert(home.includes('id="'+id+'"'));
 assert(home.includes('pro-darts-preview-summary') && !home.includes('pro-darts-feed-status') && home.includes('href="./darts/"'),'Darts homepage must show compact lab invitation only');
 assert(home.includes('data-pro-count="darts"')&&analyst.includes('<option value="darts">Darts</option>'));
-assert(home.includes('Research Across')&&home.includes('href="./analyst/"'));
+assert(home.includes('Sports Research Desk')&&home.includes('href="./analyst/"'));
 assert(home.includes('pro-sources.js?v=4')&&analyst.includes('../pro-sources.js?v=4'));
 assert(homeJs.includes('Sources.summarize')&&homeJs.includes('Sources.featuredOrder')&&homeJs.includes('No verified bookmaker odds'));
 assert(analystJs.includes('Sources.summarize')&&analystJs.includes('Sources.load'));
 assert(require('fs').readFileSync('pro-sources.js','utf8').includes("publication_gate==='BLOCKED'"));
 assert(!home.includes('ROI +11.6%')&&!home.includes('+12.4%')&&!home.includes('Napoli vs Lazio'),'Reference image samples must not become production content');
-assert(home.includes('pro-hero-arena')&&home.includes('pro-arena-nfl')&&home.includes('Six Sports'),'Reference hero must reflect the six sports shown on the homepage');
 assert(css.includes('@media(max-width:460px)')&&css.includes('prefers-reduced-motion'));
 for(const id of ['calibration-sample','calibration-brier','calibration-logloss','calibration-models','calibration-status'])assert(analyst.includes('id="'+id+'"'),'Missing archival evidence diagnostic: '+id);
 assert(analystJs.includes('DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION')&&analystJs.includes('INSUFFICIENT_SAMPLE'));

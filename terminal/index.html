@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101925">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Research Centre | Value Watch</title>
+  <link rel="stylesheet" href="../terminal.css?v=2">
+  <script defer src="status.js?v=1"></script>
+  <script defer src="../racecards-core.js?v=3.3.1"></script>
+  <script defer src="markets.js?v=2"></script>
+</head>
+<body class="vw-terminal">
+  <nav class="vw-nav" aria-label="Value Watch sections">
+    <a href="./" aria-current="page">Research Centre</a>
+    <a href="../">Events</a>
+    <a href="../validation-centre/">Validation</a>
+    <a href="../track-record/">Track record</a>
+    <a href="../ops-control/">Operations</a>
+    <a href="../sports-watch/">Sports Watch</a>
+  </nav>
+  <main>
+    <h1>Research Centre</h1>
+    <p class="vw-gates">Models UNVALIDATED · Publication BLOCKED</p>
+    <p data-research-status="../research/performance-report-latest.json" role="status">Loading the published validation report…</p>
+
+    <h2>Sports research</h2>
+    <div class="vw-grid">
+      <section class="vw-card"><h3>Football</h3><p>Fixtures, competition models, completed results and same-sample benchmark comparisons.</p><a href="../football-leagues/">Explore football leagues</a></section>
+      <section class="vw-card"><h3>Horse racing</h3><p>Fields and runner form, source-recorded prices, publisher selections and experimental race models.</p><a href="../racing-research/">Open Racing Lab</a> · <a href="../racing-research/analysis.html">Race analysis</a></section>
+      <section class="vw-card"><h3>Tennis</h3><p>Find tournament fixtures and experimental match estimates. The event view shows evidence available for each fixture.</p><a href="../?sport=tennis#events-view">Open tennis fixtures</a></section>
+      <section class="vw-card"><h3>NFL</h3><p>Review fixtures and experimental team matchups, with source and forecast availability visible.</p><a href="../?sport=nfl#events-view">Open NFL fixtures</a></section>
+      <section class="vw-card"><h3>Darts</h3><p>Historical Elo estimates, fixture coverage and source sample limits.</p><a href="../darts/">Open Darts Lab</a></section>
+      <section class="vw-card"><h3>Rugby</h3><p>Union and League schedules, results and available form evidence.</p><a href="../rugby/">Open Rugby Lab</a></section>
+    </div>
+
+    <h2>Models, results and markets</h2>
+    <div class="vw-grid">
+      <section class="vw-card"><h3>Model comparison</h3><p>Choose Compare in the event desk to inspect saved estimates beside experimental methods. The racing lab shows V3 evidence, input gaps and research stages.</p><a href="../#engine-heading">Compare paper models</a> · <a href="../v3-research/">Open V3 Racing Lab</a></section>
+      <section class="vw-card"><h3>Performance and calibration</h3><p>Review eligible prospective pairs, descriptive Brier scores, log loss and calibration where the sample supports them. The track record also exposes provisional and archival results.</p><a href="../validation-centre/">Open Validation Centre</a> · <a href="../track-record/">Open track record</a></section>
+      <section class="vw-card"><h3>Market observations</h3><p>Inspect archived and paper price evidence. Bookmaker favourites, publisher selections and model leaders each have their own evidence.</p><a href="../track-record/#prices">Open price ledger</a> · <a href="../market-intelligence/">Compare football prices</a> · <a href="../racing-research/analysis.html">Inspect racing markets</a></section>
+    </div>
+    <h2>Racing price evidence</h2>
+    <details id="vw-markets" class="vw-card">
+      <summary>Inspect observed win markets</summary>
+      <p id="vw-market-status" role="status">Source observations load when opened.</p>
+      <label for="vw-race">Race</label>
+      <select id="vw-race" disabled></select>
+      <div id="vw-market-output" hidden>
+        <p></p>
+        <a rel="noopener noreferrer" href="">View source racecard</a>
+        <div class="vw-table" tabindex="0" role="region" aria-label="Recorded racing prices">
+          <table>
+            <caption>Win prices and comparable movement</caption>
+            <thead><tr><th scope="col">Runner</th><th scope="col">Decimal</th><th scope="col">Fractional</th><th scope="col">Source favourite</th><th scope="col">Previous observation</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </details>
+  </main>
+</body>
+</html>

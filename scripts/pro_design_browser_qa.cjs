@@ -94,8 +94,45 @@ const server=http.createServer((req,res)=>{
    }
    if(width<1020)await page.locator('#paper-close').click();
 
-   assert.equal(await page.locator('.pro-arena-sport').count(),4,'Homepage hero must present four sports');
-   assert.equal(await page.locator('.pro-hero-arena').isVisible(),true);
+   assert(await page.getByRole('heading', {name:'Independent validation'}).isVisible());
+   const terminalContext=await browser.newContext({viewport:{width,height:900}});
+   const terminal=await terminalContext.newPage();
+   terminal.on('pageerror',error=>errors.push(error.message));
+   await terminal.goto('http://127.0.0.1:8177/terminal/');
+   await terminal.getByRole('heading',{name:'Research Centre',exact:true}).waitFor();
+   assert.equal(await terminal.locator('.vw-grid .vw-card').count(),9);
+   assert(await terminal.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+   const violations=(await new AxeBuilder({page:terminal}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations;
+   assert.deepEqual(violations.filter(v=>['serious','critical'].includes(v.impact)),[]);
+   await terminal.screenshot({path:path.join(out,'research-centre-'+width+'.png'),fullPage:true});
+   const marketSource='https://www.sportinglife.com/racing/racecards/research-fixture';
+   const observationTime=new Date(Date.now()-86400000).toISOString();
+   const race={racecourse:'Research course',name:'QA win market',startUTC:new Date(Date.now()-82800000).toISOString(),
+    runner_data_status:'SINGLE_SOURCE_RUNNERS_OBSERVED',runner_source_sha256:'a'.repeat(64),
+    runner_source:marketSource,active_runner_count:2,
+    runners:[{horse_id:'a',name:'Runner A',active_runner:true,runner_status:'RUNNER'},
+     {horse_id:'b',name:'Runner B',active_runner:true,runner_status:'RUNNER'}],
+    market_observation:{status:'COMPLETE_SOURCE_OBSERVATION',bookmaker:'Sky Bet',executable_verified:false,
+     verification:'SOURCE_OBSERVED_UNVERIFIED',source_sha256:'a'.repeat(64),source:marketSource,
+     bookmaker_market_id:'win',observed_at_utc:observationTime,
+     quotes:[{horse_id:'a',decimal:3,fractional:'2/1'},{horse_id:'b',decimal:2,fractional:'1/1'}]}};
+   await terminal.route('**/racing-research-data.json',route=>route.fulfill({json:{
+    schema_version:1,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',races:[race]
+   }}));
+   await terminal.getByText('Inspect observed win markets').click();
+   await terminal.getByRole('rowheader',{name:'Runner A'}).waitFor();
+   assert.equal(await terminal.getByRole('link',{name:'View source racecard'}).getAttribute('href'),marketSource);
+   assert(await terminal.getByText('Favourite withheld:',{exact:false}).isVisible());
+   assert(await terminal.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+
+   await terminal.route('**/performance-report-latest.json',route=>route.fulfill({json:{publication_gate:'OPEN'}}));
+   await terminal.reload();
+   await terminal.getByText('The published validation report is unavailable.',{exact:false}).waitFor();
+   await terminal.getByRole('link',{name:'Open tennis fixtures'}).click();
+   await terminal.waitForFunction(()=>document.querySelector('#sport-nav [data-sport="tennis"]')?.getAttribute('aria-pressed')==='true');
+   await terminalContext.close();
+
+   assert.match(await page.locator('.vw-gates').innerText(), /UNVALIDATED.*BLOCKED/);
    assert.equal(await page.locator('.pro-topnav a[href="./analyst/"]').count(),1);
    await page.locator('.pro-topnav [data-pro-sport="tennis"]').click();
    await page.waitForTimeout(1000);

@@ -24,3 +24,20 @@ Model calculations, recorded data, storage formats and model approval gates were
 Browser screenshots are generated under `work/browser-qa/`. Local before-and-after homepage captures use the same checkout, browser, viewports and data snapshots, with the original homepage HTML taken from the reviewed `main` commit. Market captures show the recorded prices at desktop and mobile widths. Operations captures show the raw source statuses and recovered counts.
 
 The branch focuses on connecting and improving existing workflows and filling the market and source-diagnostic gaps. A comprehensive visual redesign of each existing sport and research page, renewed upstream data access, and independently substantiated model improvement remain open.
+
+## Integrated draft on current main
+
+This draft carries the journal fix and the workspace integration from the existing development branch onto `main` at `8b58e759`. It adds a Research Centre, shared cross-section navigation, an evidence summary on the homepage, and a lazy-loaded racing price view using the existing racecard rules. The football market workspace and Operations source tables come from the existing development commit. The football collector runs from `research/prospective-100` and uses month-specific Sky fixture paths. The audit preserves that route's 404 responses independently of the primary counts. No collector changes were required to expose those findings.
+
+The racing price view checks the published research gates, matched active field and publisher URL. Its compact table shows observed decimal and fractional prices, the source timestamp, a favourite only while eligible, and movement only across comparable observations. A captured source record is never a currently available offer. All changes are read-only with respect to published evidence and existing research storage.
+
+| Capture | Desktop | Mobile |
+| --- | --- | --- |
+| Homepage before | [Desktop](preview/research-terminal/desktop-before.webp) | [Mobile](preview/research-terminal/mobile-before.webp) |
+| Homepage after | [Desktop](preview/research-terminal/desktop-after.webp) | [Mobile](preview/research-terminal/mobile-after.webp) |
+| Research Centre | [Desktop](preview/research-terminal/research-centre-1440.webp) | [Mobile](preview/research-terminal/research-centre-390.webp) |
+| Football markets | [Desktop](preview/research-terminal/market-intelligence-1440.webp) | [Mobile](preview/research-terminal/market-intelligence-390.webp) |
+
+Local verification includes the 57 Node regression files, 314 Python tests, Playwright research desk and Pro workflows, Darts, Sports Watch and Operations QA. Research Centre coverage includes mobile overflow, axe, invalid report fallback, source provenance and withheld stale favourites. The draft's pull-request checks also exercise its code against current main snapshots.
+
+Open scope includes a complete redesign of each individual sport screen, richer model stage and feature-contribution views where suitable evidence exists, and an independent historical outcome review. Missing provider access, matched outcome evidence and repeated comparable prices constrain the corresponding analysis. An empty or provisional sample supplies no evidence of improved selections.
