@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "011",
-  "new_specifications": 5,
-  "registered_after_batch": 270,
+  "batch": "012",
+  "new_specifications": 4,
+  "registered_after_batch": 274,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -223,6 +223,15 @@
       "mathematical_checks": "Checked three independent shortest-path recurrences, negative-cycle detection, disconnected minimum forests and HITS singular-vector identities on synthetic graphs.",
       "semantic_review": "Dijkstra finalizes nonnegative-cost labels in greedy order. Bellman–Ford relaxes by edge budget and detects reachable negative cycles. Floyd–Warshall runs dense dynamic programming by allowed intermediate vertices. Kruskal minimizes the cost of connecting every component and does not minimize source distances. HITS uses coupled singular vectors, unlike PageRank’s single damped random-walk score. Excluded heap choices and tie-breaking modes as entries.",
       "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
+    },
+    {
+      "batch": "012",
+      "new_specifications": 4,
+      "registered_after_batch": 274,
+      "source_check": "Checked design, statistic conventions and calibration caveats against the SciPy reference and its maintainers’ implementation.",
+      "mathematical_checks": "Compared explicit statistics with SciPy on synthetic untied and tied group examples, including within-block ranks and median-centered scores.",
+      "semantic_review": "Kruskal–Wallis uses ranks across independent groups. Friedman ranks methods within matched blocks. Fligner–Killeen transforms ranks of group-median-centered deviations to normal scores. Ansari–Bradley instead scores extreme-to-central positions in a two-sample pooled ordering. Wilcoxon ranks paired differences. Mann–Whitney was deferred because its statistic is rank-equivalent to the existing empirical AUC under a shared tie rule.",
+      "scope": "Review covers additions against the registered catalogue. Assessment timing applies to an authorized sample only. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
     }
   ]
 }

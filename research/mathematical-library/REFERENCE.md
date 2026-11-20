@@ -3779,3 +3779,59 @@ Assumptions — Nonzero graph; simple largest singular value for uniqueness up t
 Limitations — Disconnected dominant components can tie, and small spectral gaps make scores sensitive.
 
 Source — NetworkX maintainers’ HITS reference and implementation. https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.link_analysis.hits_alg.hits.html
+
+## Kruskal–Wallis independent-group rank test (kruskal-wallis)
+
+> Pool N observations and assign midranks. For group i with size n_i and rank total R_i, H=[12Σ_i(R_i²/n_i)/(N(N+1))−3(N+1)]/C, where C=1−Σ_j(t_j³−t_j)/(N³−N). Compare H to χ² with g−1 degrees of freedom.
+
+g groups, t_j sizes of pooled tie blocks, C tie correction.
+
+Assess whether independent historical forecast-error samples differ across predeclared competitions
+
+Assumptions — Independent samples, exchangeability under the common-distribution null, C>0, and sufficiently large groups for chi-square calibration.
+
+Limitations — A rejection can reflect unequal distribution shapes, and small groups can require permutation calibration.
+
+Source — SciPy maintainers’ reference and implementation, scipy.stats.kruskal. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.kruskal.html
+
+## Friedman complete-block rank test (friedman-rank-test)
+
+> Rank g methods within each of b complete blocks using midranks. With rank totals R_i, Q=[12Σ_i R_i²/(bg(g+1))−3b(g+1)]/C, where C=1−Σ_jΣ_k(t_jk³−t_jk)/(b(g³−g)). Use an approximate χ²_(g−1) tail.
+
+t_jk size of tie block k within observational block j, C tie correction.
+
+Compare predeclared forecasting methods on the same earlier matched assessment blocks
+
+Assumptions — Blocks are independent, all methods appear in each block, and ranks are exchangeable under the null; C>0.
+
+Limitations — The chi-square approximation can be inaccurate with small b or g.
+
+Source — SciPy maintainers’ reference and implementation, scipy.stats.friedmanchisquare. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.friedmanchisquare.html
+
+## Fligner–Killeen scale test (fligner-killeen)
+
+> Center each group at its sample median and pool absolute deviations. Let r_j be the pooled midrank and a_j=Φ⁻¹(1/2+r_j/[2(N+1)]). Form Q=Σ_i n_i(ā_i−ā)²/s_a² with pooled sample variance s_a²; use χ²_(g−1) as a large-sample reference.
+
+N pooled size, n_i group size, ā_i group score mean, ā pooled score mean, Φ normal CDF.
+
+Assess stability of historical margin-error dispersion across independent competition samples
+
+Assumptions — Independent groups, positive score variance, and common distribution shape for a pure scale interpretation.
+
+Limitations — Different shapes can affect the statistic even when a chosen scale summary agrees.
+
+Source — SciPy maintainers’ reference and implementation, scipy.stats.fligner. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fligner.html
+
+## Ansari–Bradley two-sample scale test (ansari-bradley)
+
+> Rank pooled observations from the outermost values toward the center using scores c(r)=min(r,N+1−r) for ordered positions r. Average these scores within any tied block. A=Σ_(observations in sample 1)c is compared to its fixed-group-size exchangeable distribution, or a tie-adjusted large-sample approximation.
+
+N pooled size, r position in sorted sample, c center-weighted score, A observed statistic.
+
+Compare dispersion of archived residuals from two comparable baselines with a common center
+
+Assumptions — Independent samples with equal location under the scale comparison; shared continuous shape for scale interpretation.
+
+Limitations — Location differences affect ranks, and standard no-tie exact calibration fails in tied samples.
+
+Source — SciPy maintainers’ reference and implementation, scipy.stats.ansari. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ansari.html
