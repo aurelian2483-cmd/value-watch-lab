@@ -29,6 +29,20 @@
   if (sportsPanel && competitionPanel && competitionPicker) {
     sportsPanel.classList.add('preview-sports-panel');
     competitionPanel.append(competitionPicker);
+    const tracker = sportsPanel.querySelector('.tracker-rail');
+    const footer = sportsPanel.querySelector('.rail-footer');
+    if (tracker) {
+      const disclosure = document.createElement('details');
+      disclosure.className = 'preview-tracker-dropdown';
+      const label = document.createElement('summary');
+      label.textContent = 'Event Tracker';
+      const content = document.createElement('div');
+      content.className = 'preview-tracker-content';
+      tracker.before(disclosure);
+      disclosure.append(label, content);
+      content.append(tracker);
+      if (footer) content.append(footer);
+    }
     document.querySelector('.pro-steps').before(sportsPanel);
   }
 
