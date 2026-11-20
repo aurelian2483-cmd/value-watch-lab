@@ -3485,3 +3485,59 @@ Assumptions — Known recurrence coefficients and positive measure with at least
 Limitations — Inaccurate recurrence coefficients perturb both nodes and weights.
 
 Source — NIST Digital Library of Mathematical Functions, §3.5(vi). https://dlmf.nist.gov/3.5#6
+
+## Continuous beta law (beta-continuous)
+
+> f(x)=x^(a−1)(1−x)^(b−1)Γ(a+b)/(Γ(a)Γ(b)) for 0<x<1 and zero outside [0,1].
+
+a,b>0 shape parameters; Γ gamma function; x continuous proportion.
+
+Model uncertainty for a latent completion rate before an event
+
+Assumptions — Support endpoints fixed and no point masses at 0 or 1.
+
+Limitations — Exact-zero or exact-one proportions require an observation or boundary-mass model.
+
+Source — SciPy maintainers’ reference, scipy.stats.beta, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.beta.html
+
+## Symmetric generalized normal residual law (generalized-normal)
+
+> For z=(x−μ)/s, f(x)=p exp(−|z|^p)/(2sΓ(1/p)) on ℝ.
+
+μ location, s>0 scale, p>0 shape, Γ gamma function.
+
+Fit symmetric continuous margin errors with shape learned from earlier observations
+
+Assumptions — Residuals are conditionally symmetric with a common shape.
+
+Limitations — The law cannot represent one-sided heavy tails and p<1 gives a nonconvex location loss.
+
+Source — SciPy maintainers’ reference, scipy.stats.gennorm, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gennorm.html
+
+## Skew-normal residual law (skew-normal)
+
+> For z=(x−μ)/s, f(x)=2φ(z)Φ(az)/s on ℝ.
+
+φ and Φ standard normal density and CDF; μ location; s>0 scale; a real skew parameter.
+
+Model asymmetric residuals in a pre-event continuous performance baseline
+
+Assumptions — Residuals are continuous with a stable asymmetric shape.
+
+Limitations — The shape parameter has limited attainable standardized skewness and retains light tails.
+
+Source — SciPy maintainers’ reference, scipy.stats.skewnorm, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.skewnorm.html
+
+## Normal inverse Gaussian residual law (normal-inverse-gaussian)
+
+> For z=(x−μ)/s and r=√(1+z²), f(x)=a K₁(ar) exp(√(a²−b²)+bz)/(πsr) on ℝ.
+
+a>0, |b|<a; μ location; s>0 scale; K₁ modified Bessel function of the second kind of order one.
+
+Fit continuous margin errors with asymmetric exponential tail rates
+
+Assumptions — Residuals are continuous and a shared shape describes the fitting population.
+
+Limitations — Small samples can leave shape weakly identified and the Bessel term needs scaled evaluation in the tails.
+
+Source — SciPy maintainers’ reference, scipy.stats.norminvgauss, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norminvgauss.html

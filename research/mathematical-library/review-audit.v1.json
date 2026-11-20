@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "006",
-  "new_specifications": 5,
-  "registered_after_batch": 249,
+  "batch": "007",
+  "new_specifications": 4,
+  "registered_after_batch": 253,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -177,6 +177,15 @@
       "source_check": "Checked the rule coefficients, extrapolation recurrence, polynomial exactness and Jacobi eigensystem construction against NIST DLMF §§3.5(i)–(iii), (v)–(vi).",
       "mathematical_checks": "Synthetic checks covered linear and cubic exactness, Romberg cancellation on quartics, Legendre moments through degree five, and the integral weights reconstructed from sorted Jacobi eigenvectors.",
       "semantic_review": "Compared with all registered names and mechanisms. Existing Monte Carlo and Latin hypercube methods use samples, while this batch uses deterministic quadrature. Simpson applies fixed fourth-order weights. Romberg recursively extrapolates entire trapezoidal estimates. Gaussian quadrature defines the rule and its moment exactness, while Golub–Welsch constructs its nodes and weights from a spectral problem. Weight-specific Gaussian rules and equivalent formulas for Simpson weights were excluded.",
+      "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
+    },
+    {
+      "batch": "007",
+      "new_specifications": 4,
+      "registered_after_batch": 253,
+      "source_check": "Compared each functional form with its named SciPy Notes section and checked scale-transform Jacobians.",
+      "mathematical_checks": "Synthetic quadrature checked that all four densities integrate to one. Pointwise comparisons used independent SciPy implementation calls at standardized and shifted/scaled points. Laplace and normal limiting cases of the symmetric generalized normal and skew-normal families were checked.",
+      "semantic_review": "Beta is a continuous probability law, while the registered beta–Bernoulli entry maps prior parameters and counts to a posterior and the beta-binomial is discrete. Generalized normal changes the exponent in the log density and contains Laplace at fixed shape, so it links to the preserved narrower law. Skew-normal tilts a normal density by a CDF. Normal inverse Gaussian is a real-valued mixture law distinct from the positive inverse Gaussian duration model. Screened out gamma as scale-equivalent to chi-square with unrestricted degrees of freedom, uniform as a fixed-shape beta, and Gumbel as a GEV special case.",
       "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
     }
   ]
