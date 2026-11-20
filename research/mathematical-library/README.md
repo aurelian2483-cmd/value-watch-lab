@@ -1,20 +1,20 @@
 # Sky Universal Mathematical Research Library
 
-Research catalogue v1 registers **116 specifications** across the six sports, including 100 new entries in batch 001 and supplementary specifications for the 16 original v0 entries. The 1,000-entry milestone remains open with **884 entries outstanding**.
+Research catalogue v1 registers **216 specifications** across the six sports. Batches 001 and 002 add 100 entries each, and the 16 original v0 entries have supplementary specifications. The 1,000-entry milestone remains open with **784 entries outstanding**.
 
 | Classification | Count |
 | --- | ---: |
-| Distinct algorithms | 27 |
-| Distinct models | 20 |
-| Distributions | 7 |
-| Frameworks | 2 |
-| Model variants | 19 |
+| Distinct algorithms | 58 |
+| Distinct models | 29 |
+| Distributions | 15 |
+| Frameworks | 4 |
+| Model variants | 25 |
 | Parameter configurations | 1 |
-| Feature transformations | 11 |
-| Diagnostics | 16 |
-| Calibration methods | 4 |
-| Ensembles | 6 |
-| Decision rules | 3 |
+| Feature transformations | 13 |
+| Diagnostics | 47 |
+| Calibration methods | 7 |
+| Ensembles | 8 |
+| Decision rules | 9 |
 
 A distinct algorithm specifies a computational procedure. A distinct model describes a different probabilistic or regression structure. Ensembles and calibration procedures have their own classifications. A variant must identify a parent and a material change in mechanism, fitting, support or dependence. A configuration must specify a historically meaningful frozen setup. Alternate naming, sport labels and parameter sweeps add no entries.
 

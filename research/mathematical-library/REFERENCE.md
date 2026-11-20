@@ -1623,3 +1623,1403 @@ Assumptions — Finite evaluations around θ and decreasing steps for convergenc
 Limitations — High objective noise or discontinuities obscure gradients.
 
 Source — doi:10.1109/9.119632
+
+## Poisson log-link regression (poisson-regression)
+
+> λ_i=exp(x_iᵀβ+ln e_i); maximize Σ_i[y_i ln λ_i−λ_i]
+
+x features, β coefficients, e positive exposure, y count.
+
+Model goal or try counts at a fixed exposure
+
+Assumptions — Conditional count mean is log-linear and conditional dispersion is Poisson.
+
+Limitations — Unrecorded exposure shifts bias rate estimates.
+
+Source — Cameron and Trivedi, Regression Analysis of Count Data, 2nd ed.
+
+## Attack–defence log-linear goals (poisson-attack-defence)
+
+> ln λ_H=μ+h+a_H−d_A; ln λ_A=μ+a_A−d_H; sum team attacks and defences separately to zero
+
+μ league intercept, h venue increment, a attack, d defence, λ intensities.
+
+Estimate a football scoreline or goal differential
+
+Assumptions — Independent scores given features and connected schedule.
+
+Limitations — Newly promoted teams cannot be estimated without prior matches or shrinkage.
+
+Source — Maher, Modelling Association Football Scores, Statistica Neerlandica, 1982
+
+## Gamma–Poisson conjugate rate update (gamma-poisson-update)
+
+> λ∼Gamma(a,b) rate form, y_i∼Pois(e_iλ); λ∣y∼Gamma(a+Σy_i,b+Σe_i)
+
+a prior shape, b prior rate, e exposures, y prior counts.
+
+Model goal or try counts at a fixed exposure
+
+Assumptions — Common latent rate and conditional independence.
+
+Limitations — Regime shifts make accumulated posterior too confident.
+
+Source — Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 2
+
+## Beta–Bernoulli conjugate update (beta-bernoulli-update)
+
+> p∼Beta(a,b), posterior Beta(a+s,b+n−s), next success chance=(a+s)/(a+b+n)
+
+s prior successes in n trials, a,b prior shapes.
+
+Model tennis service points, darts checkout attempts or comparable bounded event rates
+
+Assumptions — Conditionally independent Bernoulli trials with stable latent propensity.
+
+Limitations — Opponent composition shifts lead to biased pooling.
+
+Source — Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 2
+
+## Dirichlet categorical conjugacy (dirichlet-update)
+
+> p∼Dir(a), p∣x∼Dir(a+x), P(next=j∣x)=(a_j+x_j)/Σ_k(a_k+x_k)
+
+a positive prior concentration vector, x earlier category counts.
+
+Model overdispersion of prior outcome-type frequencies
+
+Assumptions — Exclusive categories and stable group composition.
+
+Limitations — Category definitions change between seasons.
+
+Source — Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 3
+
+## Normal conjugate mean update (normal-normal-update)
+
+> V=(1/v₀+n/σ²)^(-1), m=V(m₀/v₀+Σx_i/σ²); posterior N(m,V)
+
+m₀ prior mean, v₀ prior variance, σ² known observation variance, n prior observations.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Independent Gaussian measurements with known common variance.
+
+Limitations — Covariate-driven heteroskedasticity distorts shrinkage.
+
+Source — Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 2
+
+## Binomial count distribution (binomial-fixed-count)
+
+> P(X=k)=C(n,k)p^k(1−p)^(n−k)
+
+n fixed attempts, k successes, p constant success probability.
+
+Model tennis service points, darts checkout attempts or comparable bounded event rates
+
+Assumptions — Identically distributed independent attempts.
+
+Limitations — Within-session dependence invalidates binomial variance.
+
+Source — Grimmett and Stirzaker, Probability and Random Processes, 3rd ed.
+
+## Poisson-binomial count recursion (poisson-binomial)
+
+> A_i(k)=(1−p_i)A_(i−1)(k)+p_i A_(i−1)(k−1), A_0(k)=1[k=0]
+
+p_i known attempt-specific Bernoulli probabilities, A_i mass after i trials, k successes.
+
+Model tennis service points, darts checkout attempts or comparable bounded event rates
+
+Assumptions — Independent trials with possibly different probabilities.
+
+Limitations — Dependence between attempts gives wrong tail mass.
+
+Source — Grimmett and Stirzaker, Probability and Random Processes, 3rd ed.; recursion follows by conditioning on last attempt
+
+## Hypergeometric distribution (hypergeometric)
+
+> P(X=k)=C(K,k)C(N−K,n−k)/C(N,n)
+
+N finite population, K successes in it, n draws, k observed successes.
+
+Model tennis service points, darts checkout attempts or comparable bounded event rates
+
+Assumptions — Uniform sampling of subsets without replacement.
+
+Limitations — Selected lineups or nonuniform sampling invalidate null.
+
+Source — Johnson, Kemp and Kotz, Univariate Discrete Distributions, 3rd ed.
+
+## Multinomial distribution (multinomial-fixed)
+
+> P(X=x)=n!∏_j p_j^(x_j)/x_j!
+
+n independent trials, x counts summing to n, p fixed category probabilities.
+
+Model overdispersion of prior outcome-type frequencies
+
+Assumptions — Mutually exclusive exhaustive outcomes and common category probabilities.
+
+Limitations — Game clustering creates excess dispersion.
+
+Source — Johnson, Kotz and Balakrishnan, Discrete Multivariate Distributions, 1997
+
+## Finite Markov transition estimation (categorical-markov)
+
+> P̂_ij=N_ij/Σ_k N_ik; h-step conditional law from row i of P̂^h
+
+N prior transition counts, i,j states, h steps.
+
+Model overdispersion of prior outcome-type frequencies
+
+Assumptions — First-order time-homogeneous chain with observed states and nonempty rows.
+
+Limitations — Sparse states produce spurious absorbing transitions.
+
+Source — Norris, Markov Chains, Cambridge University Press, 1997
+
+## Absorbing-chain expected duration (fundamental-matrix)
+
+> t=(I−Q)^(-1)1 with Q transient-to-transient probabilities
+
+Q substochastic transient block, t expected steps to absorption, 1 vector of ones.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Absorption almost surely from stated transient states.
+
+Limitations — Near-unit spectral radius makes duration very uncertain.
+
+Source — Grinstead and Snell, Introduction to Probability, 2nd revised ed., absorption section
+
+## Renewal expected long-run event rate (stationary-renewal)
+
+> N(t)/t→1/E[X] almost surely for iid positive inter-arrivals X
+
+N(t) events by elapsed time t, X positive gap, E finite mean.
+
+Estimate clustering in prior goals, tries or drive outcomes
+
+Assumptions — Reinitialization between comparable intervals and constant gap distribution.
+
+Limitations — Match clock stoppages and dependence alter long-run rates.
+
+Source — Ross, Stochastic Processes, 2nd ed., renewal theory
+
+## Compound Poisson weighted scoring (compound-poisson)
+
+> S=Σ_(i=1)^N Y_i, N∼Pois(λ); E[S]=λE[Y], Var(S)=λE[Y²]
+
+N event count, Y points per event, S weighted total, λ expected count.
+
+Approximate a weighted rugby scoring total by summing simulated counts of marked events.
+
+Assumptions — Independent iid event values and independent event count.
+
+Limitations — Conversion attempts depend on tries rather than forming independently marked event values.
+
+Source — Ross, Introduction to Probability Models, 12th ed., compound Poisson process
+
+## Lognormal duration distribution (lognormal-duration)
+
+> f(t)=exp(−(ln t−μ)²/(2σ²))/(tσ√(2π)) for t>0
+
+t duration, μ log-duration mean, σ positive log-duration SD.
+
+Transform skewed duration predictors for model fitting
+
+Assumptions — Positive measurements and Gaussian logarithms.
+
+Limitations — Hard time limits and right censoring distort naive estimates.
+
+Source — Johnson, Kotz and Balakrishnan, Continuous Univariate Distributions, vol. 1, 2nd ed.
+
+## Exponentially modified Gaussian distribution (ex-gaussian-duration)
+
+> T=G+E where G∼N(μ,σ²), E∼Exp(λ) independent; density f_T(t)=∫_0^∞ λ exp(−λu)f_G(t−u)du
+
+G baseline timing, E random delay, μ,σ normal parameters, λ rate.
+
+Transform skewed duration predictors for model fitting
+
+Assumptions — Use only when implied negative-time mass is negligible or truncate with explicit normalization.
+
+Limitations — Long delays can reflect mixed rules instead of an exponential mechanism.
+
+Source — Ratcliff, Group Reaction Time Distributions and an Analysis of Distribution Statistics, Psychological Bulletin, 1979
+
+## Generalized extreme-value distribution (gev)
+
+> F(x)=exp(−[1+ξ(x−μ)/σ]^(-1/ξ)) on positive bracket; ξ=0 limit exp(−exp(−(x−μ)/σ))
+
+μ location, σ>0 scale, ξ shape, x block maximum.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Comparable, approximately independent blocks; limits outside support by continuity.
+
+Limitations — Too few blocks and changing competition formats.
+
+Source — Coles, An Introduction to Statistical Modeling of Extreme Values, 2001
+
+## Generalized Pareto exceedance (gpd)
+
+> F(y)=1−(1+ξy/σ)^(-1/ξ), y≥0 on positive bracket; ξ=0 gives 1−exp(−y/σ)
+
+y amount above chosen threshold, σ>0 scale, ξ tail shape.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Threshold sufficiently high, dependent exceedances declustered.
+
+Limitations — Tail extrapolation sensitive to threshold.
+
+Source — Coles, An Introduction to Statistical Modeling of Extreme Values, 2001
+
+## Empirical cumulative distribution (ecdf)
+
+> F̂(t)=n^(-1)Σ_i1[x_i≤t]
+
+x_i authorized prior observations, t queried threshold, n history size.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Comparable target units and sufficiently stable distribution.
+
+Limitations — Extreme thresholds beyond observed support get degenerate estimates.
+
+Source — Wasserman, All of Statistics, 2004
+
+## Turnbull interval-censored distribution fit (turnbull)
+
+> On maximal intersections J_j form A_ij=1[J_j inside I_i]; iterate p_j←p_j n^(-1)Σ_i A_ij/(Σ_k A_ik p_k) from positive masses
+
+I_i observed censoring intervals, J_j candidate support intervals, p mass.
+
+Estimate time to a future withdrawal or return in records with defensible risk sets
+
+Assumptions — Noninformative censoring and feasible intervals.
+
+Limitations — Mass may not be uniquely localized inside support intervals.
+
+Source — Turnbull, The Empirical Distribution Function with Arbitrarily Grouped, Censored and Truncated Data, JRSS B, 1976
+
+## Log-rank test (logrank)
+
+> U=Σ_j(d_1j−n_1j d_j/n_j); V=Σ_j n_1j(n_j−n_1j)d_j(n_j−d_j)/(n_j²(n_j−1)); use U²/V
+
+risk counts n, failures d by group and event time j; omit n_j≤1.
+
+Estimate time to a future withdrawal or return in records with defensible risk sets
+
+Assumptions — Independent censoring, independent units, fixed groups and positive V.
+
+Limitations — Crossing hazards can cancel against each other.
+
+Source — Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Data, 2nd ed.
+
+## Greenwood survival variance formula (greenwood)
+
+> Var[Ŝ(t)]≈Ŝ(t)²Σ_(τ_j≤t) d_j/[n_j(n_j−d_j)]
+
+n_j risk set, d_j failures, τ_j time, Ŝ Kaplan–Meier estimate.
+
+Estimate time to a future withdrawal or return in records with defensible risk sets
+
+Assumptions — Independent censoring with n_j>d_j at included times.
+
+Limitations — Unstable at tail of follow-up or all-at-risk failure.
+
+Source — Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Data, 2nd ed.
+
+## Aalen–Johansen transition estimator (aalen-johansen)
+
+> P̂(s,t)=∏_(s<u≤t)[I+ΔÂ(u)], with off-diagonal ΔÂ_ij=dN_ij(u)/Y_i(u), diagonal minus row sum
+
+dN_ij transitions, Y_i at risk in source state, u event time, ordered product.
+
+Estimate time to a future withdrawal or return in records with defensible risk sets
+
+Assumptions — Consistent transition coding and censoring compatible with risk sets.
+
+Limitations — Sparse transitions make matrix estimates unstable.
+
+Source — Aalen et al., Survival and Event History Analysis, 2008
+
+## Restricted mean survival time (restricted-mean-survival-time)
+
+> μ̂(τ)=∫_0^τ Ŝ(t)dt, integrate Kaplan–Meier step function exactly on breakpoints
+
+τ prespecified time horizon, Ŝ survival estimate.
+
+Estimate time to a future withdrawal or return in records with defensible risk sets
+
+Assumptions — Follow-up support covers τ.
+
+Limitations — Choosing τ after looking at relative outcomes biases comparisons.
+
+Source — Royston and Parmar, Restricted Mean Survival Time, BMC Medical Research Methodology, 2013
+
+## Poisson deviance (poisson-deviance)
+
+> D=2Σ_i[y_i ln(y_i/μ_i)−(y_i−μ_i)], term y_i ln expression set to zero when y_i=0
+
+y observed counts, μ positive forecasts.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Forecasts correspond to identical exposure and event set.
+
+Limitations — Interpreting it as chi-square despite dispersion or dependence.
+
+Source — McCullagh and Nelder, Generalized Linear Models, 2nd ed.
+
+## Anderson–Darling goodness of fit (anderson-darling)
+
+> A²=−n−(1/n)Σ_i(2i−1)[ln F(x_(i))+ln(1−F(x_(n+1−i)))]
+
+F fully specified continuous CDF, x_(i) ascending observations.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Independent observations under null and use correct null calibration.
+
+Limitations — Critical values for known parameters fail after fitted parameters are reused.
+
+Source — Anderson and Darling, Asymptotic Theory of Certain Goodness of Fit Criteria, Annals of Mathematical Statistics, 1952
+
+## One-sample Kolmogorov–Smirnov statistic (ks-one-sample)
+
+> D_n=sup_t abs(F̂_n(t)−F_0(t)); compute both sides of empirical jumps
+
+F_0 continuous reference CDF, F̂_n empirical CDF.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — IID under fully specified continuous null for distribution-free calibration.
+
+Limitations — Discrete data and in-sample model fitting change the null law.
+
+Source — Wasserman, All of Statistics, 2004
+
+## Cramér–von Mises goodness of fit (cvm)
+
+> W²=1/(12n)+Σ_i[F_0(x_(i))−(2i−1)/(2n)]²
+
+x_(i) ascending observations, F_0 fully specified CDF, n size.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — IID continuous observations for conventional null.
+
+Limitations — Fitting F_0 on observations changes test distribution.
+
+Source — Anderson, On the Distribution of the Two-Sample Cramér–von Mises Criterion, Annals of Mathematical Statistics, 1962; one-sample quantile expression follows from integrating squared ECDF discrepancy
+
+## Exact paired binary McNemar test (mcnemar)
+
+> p=min(1,2 Pr[Binom(b+c,1/2)≤min(b,c)])
+
+b,c opposite-direction disagreements on aligned prediction correctness.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Independent event pairs and fixed binary correctness rule.
+
+Limitations — Repeated teams induce dependence and correctness discards calibration.
+
+Source — Agresti, Categorical Data Analysis, 3rd ed., matched pairs
+
+## Wilcoxon signed-rank statistic (wilcoxon-signed-rank)
+
+> W⁺=Σ_(d_i>0) rank(abs(d_i)); discard zero differences and average tied ranks
+
+d_i paired loss differences, W⁺ positive rank sum.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Independent symmetric paired differences for usual location null.
+
+Limitations — Asymmetry and temporal dependence invalidate textbook p-values.
+
+Source — Wilcoxon, Individual Comparisons by Ranking Methods, Biometrics Bulletin, 1945
+
+## Spearman rank association (spearman)
+
+> ρ_s=corr(rank(x),rank(y)), using average ranks for ties
+
+x,y two paired feature arrays, corr Pearson correlation.
+
+Summarize correlated form metrics or group similar historical performances
+
+Assumptions — Meaningful ordered measurements and nonconstant ranks.
+
+Limitations — Nonmonotonic associations can cancel.
+
+Source — Spearman, The Proof and Measurement of Association Between Two Things, American Journal of Psychology, 1904
+
+## Kendall tau-b rank association (kendall-tau-b)
+
+> τ_b=(C−D)/√((C+D+T_x)(C+D+T_y))
+
+C,D concordant and discordant pairs, T_x,T_y pairs tied only on each rank variable.
+
+Estimate probabilities of horse finishing orders
+
+Assumptions — Nonzero denominator and consistent matched runners.
+
+Limitations — Consensus across fields of different sizes requires explicit aggregation.
+
+Source — Kendall, A New Measure of Rank Correlation, Biometrika, 1938; tie correction in Kendall, Rank Correlation Methods
+
+## Ljung–Box residual autocorrelation check (ljung-box)
+
+> Q=n(n+2)Σ_(k=1)^m r_k²/(n−k)
+
+r_k sample residual autocorrelation at lag k, n past sample size, m prespecified maximum lag.
+
+Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates
+
+Assumptions — Regular sampling and appropriate degrees-of-freedom adjustment after fitting.
+
+Limitations — Season irregularity and variance shifts distort null.
+
+Source — Ljung and Box, On a Measure of Lack of Fit in Time Series Models, Biometrika, 1978
+
+## Lo–MacKinlay variance ratio (variance-ratio)
+
+> Population VR(q)=Var(Σ_(j=0)^(q−1) r_(t−j))/(q Var(r_t)); diagnostic estimate uses earlier rolling sums
+
+r_t increment, q horizon with q≥2, positive marginal variance.
+
+Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates
+
+Assumptions — Comparable increment intervals; iid uncorrelated increments give ratio one.
+
+Limitations — Heteroskedasticity and overlapping windows change inference.
+
+Source — Lo and MacKinlay, Stock Market Prices Do Not Follow Random Walks, Review of Financial Studies, 1988
+
+## Augmented Dickey–Fuller unit-root regression (adf)
+
+> Fit Δy_t=a+bt+γ y_(t−1)+Σ_(j=1)^p δ_jΔy_(t−j)+ε_t; use t statistic for γ=0 with matching unit-root critical values
+
+y series, p lags, a,b deterministic terms, γ level effect.
+
+Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates
+
+Assumptions — Fixed deterministic specification and adequate innovation lags.
+
+Limitations — Structural breaks mimic unit roots.
+
+Source — Hamilton, Time Series Analysis, 1994, ch. 17
+
+## KPSS stationarity diagnostic (kpss)
+
+> η=Σ_t S_t²/(n²ω̂²), S_t=Σ_(j≤t)e_j from residuals after trend or mean regression
+
+e residual, ω̂² HAC long-run variance, n length.
+
+Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates
+
+Assumptions — Positive consistent long-run variance; use critical values for chosen deterministic terms.
+
+Limitations — Abrupt changes trigger rejection without identifying mechanism.
+
+Source — Kwiatkowski et al., Testing the Null Hypothesis of Stationarity, Journal of Econometrics, 1992
+
+## Newey–West long-run covariance (newey-west)
+
+> Ω̂=Γ̂_0+Σ_(j=1)^L(1−j/(L+1))(Γ̂_j+Γ̂_jᵀ)
+
+Γ̂_j lag covariance of centered ordered score vectors, L bandwidth.
+
+Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates
+
+Assumptions — Weak dependence and compatible bandwidth.
+
+Limitations — Long-memory or irregular timing invalidates approximation.
+
+Source — Newey and West, A Simple, Positive Semi-definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix, Econometrica, 1987
+
+## Durbin–Watson residual statistic (durbin-watson)
+
+> DW=Σ_(t=2)^n(e_t−e_(t−1))²/Σ_(t=1)^n e_t²
+
+e ordered regression residuals, n observations.
+
+Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates
+
+Assumptions — Nonzero residual variance; test applicability depends on regressors.
+
+Limitations — Lagged dependent regressors invalidate standard bounds.
+
+Source — Durbin and Watson, Testing for Serial Correlation in Least Squares Regression I, Biometrika, 1950
+
+## Breusch–Pagan variance diagnostic (breusch-pagan)
+
+> After OLS, regress g_i=e_i²/σ̂²−1 on variance covariates plus intercept; LM=ESS/2
+
+e residuals, σ̂²=Σe²/n, ESS explained sum of squares, n data size.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Classical normal-error null and fixed covariates.
+
+Limitations — Non-normal errors require alternate calibration.
+
+Source — Breusch and Pagan, A Simple Test for Heteroscedasticity and Random Coefficient Variation, Econometrica, 1979
+
+## Cook influence distance (cook-distance)
+
+> D_i=e_i² h_i/[d MSE(1−h_i)²]
+
+e OLS residual, h_i diagonal hat leverage, d parameter count, MSE residual mean square.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Full-rank OLS, n>d and h_i<1.
+
+Limitations — Influential observations can mask one another.
+
+Source — Cook, Detection of Influential Observation in Linear Regression, Technometrics, 1977
+
+## Variance inflation factor (vif)
+
+> VIF_j=1/(1−R_j²), where R_j² regresses x_j on the other centered covariates with intercept
+
+x_j covariate, R_j² multiple correlation.
+
+Summarize correlated form metrics or group similar historical performances
+
+Assumptions — Nonconstant feature, common fit sample.
+
+Limitations — High collinearity need not reduce predictive accuracy.
+
+Source — Montgomery, Peck and Vining, Introduction to Linear Regression Analysis, 5th ed.
+
+## Akaike information criterion (aic)
+
+> AIC=2k−2ln L(θ̂)
+
+k fitted free parameters, L maximized likelihood on same data.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Comparable likelihoods on identical outcomes and regular estimation.
+
+Limitations — Nonidentifiability defeats parameter-count penalty.
+
+Source — Akaike, A New Look at the Statistical Model Identification, IEEE Transactions on Automatic Control, 1974
+
+## Schwarz Bayesian information criterion (bic)
+
+> BIC=k ln n−2ln L(θ̂)
+
+k adjustable parameters, n independent sample units, L maximized likelihood.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Regular parametric models and identical data likelihood.
+
+Limitations — Weak identifiability and clustered sample size distort penalty.
+
+Source — Schwarz, Estimating the Dimension of a Model, Annals of Statistics, 1978
+
+## Holm sequential multiplicity control (holm)
+
+> Order p_(i); reject sequentially while p_(i)≤α/(m−i+1), stop at first failure
+
+m prespecified hypotheses, p marginal valid p-values, α family-wise error bound.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — P-values valid under each tested null, arbitrary dependence allowed.
+
+Limitations — Undeclared exploratory tests undermine family definition.
+
+Source — Holm, A Simple Sequentially Rejective Multiple Test Procedure, Scandinavian Journal of Statistics, 1979
+
+## Benjamini–Hochberg FDR procedure (benjamini-hochberg)
+
+> k=max{i:p_(i)≤iq/m}; reject ranks 1..k, or none if set empty
+
+p ordered valid p-values, q target FDR, m hypotheses.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Independent tests or qualifying positive dependence.
+
+Limitations — Arbitrary dependent comparisons can break nominal bound.
+
+Source — Benjamini and Hochberg, Controlling the False Discovery Rate, JRSS B, 1995
+
+## Diebold–Mariano forecast loss comparison (diebold-mariano)
+
+> DM=√n d̄/√Ω̂ with d_t=L_(1,t)−L_(2,t), Ω̂ HAC long-run variance
+
+d paired loss differences, n ordered paired events.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Weak stationarity of loss difference and positive Ω̂.
+
+Limitations — Nested fitted models and small samples can invalidate asymptotic reference.
+
+Source — Diebold and Mariano, Comparing Predictive Accuracy, Journal of Business and Economic Statistics, 1995
+
+## ROC area via pair ordering (auc-roc)
+
+> AUC=(1/(n₊n₋))Σ_(i positive,j negative)[1(s_i>s_j)+0.5·1(s_i=s_j)]
+
+s archived score, n₊/n₋ positive and negative counts.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Binary target and both classes present.
+
+Limitations — Strong discrimination can coexist with poor probabilities.
+
+Source — Hanley and McNeil, The Meaning and Use of the Area Under a Receiver Operating Characteristic Curve, Radiology, 1982
+
+## Threshold-grouped average precision (average-precision)
+
+> AP=Σ_j(R_j−R_(j−1))P_j, descending distinct score thresholds
+
+P_j precision, R_j recall, R_0=0.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Fixed binary target and positive counts, tied thresholds grouped.
+
+Limitations — Prevalence shifts render AP comparisons misleading.
+
+Source — Davis and Goadrich, The Relationship Between Precision-Recall and ROC Curves, ICML 2006; step-area convention documented in scikit-learn average_precision_score
+
+## Fixed-bin expected calibration error (ece)
+
+> ECE=Σ_b(n_b/n)abs(mean_(i∈b)y_i−mean_(i∈b)p_i)
+
+b fixed binary probability bins, y labels, p predictions, n_b counts.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Bins fixed independently of scored labels.
+
+Limitations — Bin cancellation and small samples obscure miscalibration.
+
+Source — Naeini, Cooper and Hauskrecht, Obtaining Well Calibrated Probabilities Using Bayesian Binning, AAAI 2015
+
+## Calibration-in-the-large offset (calibration-in-large)
+
+> q_i=sigmoid(a+logit(p_i)); choose a such that Σq_i=Σy_i on calibration data
+
+p_i earlier probabilities strictly between zero and one, y_i labels, a intercept.
+
+Combine, calibrate or compare forecasts for the same sporting event target
+
+Assumptions — Only baseline odds shift with slope fixed at one and both classes present.
+
+Limitations — Conditional subgroup bias remains.
+
+Source — Steyerberg, Clinical Prediction Models, 2nd ed., calibration chapter
+
+## Continuous ranked probability score (crps)
+
+> CRPS(F,y)=∫_ℝ[F(z)−1(z≥y)]²dz
+
+F archived CDF, y observed duration or margin, z integration variable.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Forecast distribution has finite first moment.
+
+Limitations — Unbounded integration from poorly specified heavy tails.
+
+Source — Gneiting and Raftery, Strictly Proper Scoring Rules, JASA, 2007
+
+## Pinball quantile forecast loss (pinball)
+
+> L_τ(q,y)=(y−q)(τ−1[y<q])
+
+q forecast τ-quantile, y realized margin or duration, τ∈(0,1).
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Common quantile level and units across forecasts.
+
+Limitations — Comparing different quantile levels changes target.
+
+Source — Gneiting and Raftery, Strictly Proper Scoring Rules, JASA, 2007
+
+## Central prediction interval score (interval-score)
+
+> IS_α(l,u;y)=(u−l)+(2/α)(l−y)1[y<l]+(2/α)(y−u)1[y>u]
+
+l,u lower and upper forecast endpoints, y outcome, 1−α nominal coverage.
+
+Assess calibration or forecast quality in a permitted historical assessment sample
+
+Assumptions — Identical interval level and target units.
+
+Limitations — Apparent tightness without coverage leads to high penalties.
+
+Source — Gneiting and Raftery, Strictly Proper Scoring Rules, JASA, 2007
+
+## Split conformal residual interval (split-conformal)
+
+> Compute calibration scores s_i=abs(y_i−m̂(x_i)); set r to rank ceil((n+1)(1−α)) of n scores plus infinity; return [m̂(x)−r,m̂(x)+r]
+
+m̂ fitted on disjoint earlier data, n calibration rows, α miscoverage.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Exchangeability of calibration/test scores conditional on fitted predictor.
+
+Limitations — Temporal drift breaks finite-sample coverage guarantee.
+
+Source — Lei et al., Distribution-Free Predictive Inference for Regression, JASA, 2018
+
+## Conformalized quantile regression (conformal-quantile)
+
+> Set s_i=max(l̂(x_i)−y_i,y_i−û(x_i)); use split conformal corrected score quantile r and return [l̂(x)−r,û(x)+r]
+
+l̂,û fitted lower and upper quantile models; r corrected rank threshold, s calibration score.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Disjoint fitting and calibration, exchangeable scores.
+
+Limitations — Drift and poor quantile fit degrade coverage or width.
+
+Source — Romano, Patterson and Candès, Conformalized Quantile Regression, NeurIPS 2019
+
+## Vector scaling calibration (vector-scaling)
+
+> q_j=softmax(a⊙z+b)_j; fit class-specific a,b on disjoint earlier calibration logits via cross entropy
+
+z logits, a,b vectors, ⊙ componentwise product, q calibrated probabilities.
+
+Combine, calibrate or compare forecasts for the same sporting event target
+
+Assumptions — Adequate calibration examples in each class, offset identifiable up to common shift.
+
+Limitations — More degrees of freedom overfit rare outcomes.
+
+Source — Guo et al., On Calibration of Modern Neural Networks, ICML 2017
+
+## Dirichlet probability calibration (dirichlet-calibration)
+
+> q=softmax(W ln p+b); fit W,b by regularized multiclass log loss on earlier calibration predictions
+
+p positive simplex input, W coefficient matrix, b offsets, q calibrated simplex.
+
+Combine, calibrate or compare forecasts for the same sporting event target
+
+Assumptions — Stable support and sufficient calibration rows.
+
+Limitations — Rare classes and endpoint clipping make fitted corrections unstable.
+
+Source — Kull et al., Beyond Temperature Scaling: Obtaining Well-Calibrated Multiclass Probabilities with Dirichlet Calibration, NeurIPS 2019
+
+## Exponentially weighted expert forecast updates (online-log-weights)
+
+> w_(t+1,j)=w_tj exp(−ηℓ_tj)/Σ_k w_tk exp(−ηℓ_tk); predict with current weighted pool
+
+η positive learning rate, ℓ_tj expert loss observed after prediction t, w normalized weight.
+
+Combine, calibrate or compare forecasts for the same sporting event target
+
+Assumptions — Loss versions become available before using updated weights.
+
+Limitations — Delayed labels or unbounded shock losses can suppress useful experts.
+
+Source — Cesa-Bianchi and Lugosi, Prediction, Learning, and Games, 2006, expert advice
+
+## Fixed-share adaptive ensemble (fixed-share)
+
+> Let v_j∝w_j exp(−ηℓ_j); set w'_j=(1−α)v_j+α/M
+
+ℓ realized earlier expert loss, η learning rate, M experts, α share in [0,1].
+
+Combine, calibrate or compare forecasts for the same sporting event target
+
+Assumptions — Persistent expert switches plausible and losses synchronized.
+
+Limitations — Large α dilutes a stable dominant expert.
+
+Source — Herbster and Warmuth, Tracking the Best Expert, Machine Learning, 1998
+
+## Posterior expected-loss decision (bayes-regret)
+
+> a*=argmin_(a∈A)Σ_θ L(a,θ)p(θ∣D)
+
+A finite research decisions, θ uncertain state, D prior archived observations, L declared loss.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Specified posterior and meaningful loss scale.
+
+Limitations — Misspecified loss can invert ranking.
+
+Source — Berger, Statistical Decision Theory and Bayesian Analysis, 2nd ed.
+
+## Conditional value at risk functional (cvar)
+
+> CVaR_α(L)=min_z[z+E(max(L−z,0))/(1−α)]
+
+L integrable simulator loss, α∈(0,1), z candidate quantile threshold.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Tail scenarios represent relevant model errors.
+
+Limitations — Scenario shortage gives unstable tail mean.
+
+Source — Rockafellar and Uryasev, Optimization of Conditional Value-at-Risk, Journal of Risk, 2000
+
+## Finite minimax regret selection (minimax-regret)
+
+> Select a*=argmin_a max_s[L(a,s)−min_b L(b,s)]
+
+a,b candidate research choices, s scenario, L common loss.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — All scenarios considered and comparable loss meanings.
+
+Limitations — Scenario omissions hide worst regret.
+
+Source — Savage, The Theory of Statistical Decision, JASA, 1951
+
+## Latin hypercube input generation (latin-hypercube)
+
+> Generate u_ij=(π_j(i)−1+v_ij)/N with independent random permutations π_j and iid uniform v_ij∈(0,1); use inverse marginal CDF for each column
+
+N draws, d dimensions, i row, j dimension.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Independent input marginals for direct inverse-CDF construction.
+
+Limitations — Nonlinear interactions can still have poor coverage.
+
+Source — McKay, Beckman and Conover, A Comparison of Three Methods for Selecting Values of Input Variables in the Analysis of Output from a Computer Code, Technometrics, 1979
+
+## Stratified Monte Carlo estimator (stratified-mc)
+
+> μ̂=Σ_h π_h n_h^(-1)Σ_i f(X_hi), X_hi sampled within stratum h
+
+π_h known stratum probabilities, n_h≥1 replicates, f simulated result.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Disjoint exhaustive strata with correctly known weights.
+
+Limitations — Empty high-impact strata cause bias if omitted.
+
+Source — Robert and Casella, Monte Carlo Statistical Methods, 2nd ed.
+
+## Metropolis–Hastings posterior simulation (mcmc-metropolis)
+
+> Propose y∼q(·∣x), accept with probability min(1,π(y)q(x∣y)/(π(x)q(y∣x))), otherwise retain x
+
+π unnormalized target, q proposal density, x current state.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Irreducible aperiodic chain for convergence, evaluate on support.
+
+Limitations — Separated modes yield poor mixing.
+
+Source — Hastings, Monte Carlo Sampling Methods Using Markov Chains and Their Applications, Biometrika, 1970
+
+## Gibbs posterior sampling (gibbs)
+
+> For each sweep draw θ_j∼p(θ_j∣θ_(-j),D) in order using latest coordinates
+
+θ_j parameter blocks, D earlier observations, θ_(-j) remaining blocks.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Correct conditional samplers and ergodic joint chain.
+
+Limitations — Strong posterior correlation slows mixing.
+
+Source — Gelfand and Smith, Sampling-Based Approaches to Calculating Marginal Densities, JASA, 1990
+
+## Univariate stepping-out slice sampler (slice-sampling)
+
+> Draw height u∼U(0,f(x)); choose randomly offset width-w interval around x, step outward until endpoints have f≤u; propose uniformly within interval and shrink rejected side about x until f(y)≥u
+
+x current scalar, f unnormalized density, w positive step, y proposal.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Proper density and finite stepping for sampled slices.
+
+Limitations — Disconnected regions can mix slowly.
+
+Source — Neal, Slice Sampling, Annals of Statistics, 2003
+
+## First-order Sobol variance fraction (rank-sobol)
+
+> S_j=Var(E[Y∣X_j])/Var(Y)
+
+Y=f(X) simulator output with positive finite variance, X_j independent input factor.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Independent input factors for variance decomposition.
+
+Limitations — Correlated inputs do not have same sensitivity interpretation.
+
+Source — Sobol, Global Sensitivity Indices for Nonlinear Mathematical Models and Their Monte Carlo Estimates, Mathematics and Computers in Simulation, 2001
+
+## Total-effect Sobol variance fraction (sobol-total)
+
+> T_j=E[Var(Y∣X_(-j))]/Var(Y)
+
+Y simulator output, X_(-j) all inputs except factor j.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Independent inputs and positive finite variance.
+
+Limitations — Sampling noise obscures small interaction effects.
+
+Source — Homma and Saltelli, Importance Measures in Global Sensitivity Analysis of Nonlinear Models, Reliability Engineering and System Safety, 1996
+
+## Linear programming model (linear-program)
+
+> Minimize cᵀx subject to Ax≤b and x≥0
+
+x divisible resource allocations, c forecast loss gradient, A resource constraint matrix, b limits.
+
+Compare hypothetical role assignments to study lineup sensitivity
+
+Assumptions — Resource and objective coefficients additive and decision divisible.
+
+Limitations — Indivisible players require integer formulation.
+
+Source — Bertsimas and Tsitsiklis, Introduction to Linear Optimization, 1997
+
+## Binary branch and bound (branch-bound)
+
+> Solve LP relaxation at node N with lower bound L_N; prune if infeasible or L_N≥ incumbent cost, otherwise split a fractional binary coordinate into x_j=0 and x_j=1; update incumbent on integral solutions
+
+x binary choices, j branch index, N subproblem, L_N relaxation objective.
+
+Compare hypothetical role assignments to study lineup sensitivity
+
+Assumptions — Valid bound and feasible finite binary set.
+
+Limitations — Weak relaxations can force enumeration.
+
+Source — Land and Doig, An Automatic Method of Solving Discrete Programming Problems, Econometrica, 1960
+
+## Finite Pareto dominance filter (pareto-front)
+
+> Keep a when no b satisfies f_i(b)≤f_i(a) for every objective i with strict inequality for some i
+
+f_i losses such as error, latency or resource cost; a,b research designs.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — All objectives oriented to minimization and evaluated on common cases.
+
+Limitations — Noise creates spurious nondominated points.
+
+Source — Deb, Multi-Objective Optimization Using Evolutionary Algorithms, Wiley, 2001
+
+## Nelder–Mead direct search (nelder-mead)
+
+> For d+1 simplex points sort by loss, reflect worst x_w around centroid c of others with x_r=2c−x_w; expand at c+2(x_r−c) if best, contract if reflection is no better than second worst, or shrink toward best if contraction fails.
+
+d dimensions, c centroid, x_w worst point, objective scalar; use standard outside/inside contraction 1/2 and shrink 1/2.
+
+Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
+
+Assumptions — Continuous local search with scaled coordinates.
+
+Limitations — Can stagnate at nonstationary points.
+
+Source — Nelder and Mead, A Simplex Method for Function Minimization, Computer Journal, 1965
+
+## Golden-section unimodal minimization (golden-section)
+
+> Set c=b−g(b−a), d=a+g(b−a), g=(√5−1)/2; retain [a,d] if f(c)≤f(d), else [c,b]; repeat to width tolerance
+
+a,b initial bounds, g retained-length fraction, f scalar loss.
+
+Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
+
+Assumptions — Unimodality on bracket and stable evaluations.
+
+Limitations — Noisy loss comparisons may discard optimum.
+
+Source — Nocedal and Wright, Numerical Optimization, 2nd ed.
+
+## Bracketed scalar root bisection (bisection)
+
+> Set m=(a+b)/2; keep half with opposite signs of g at endpoints or return m if g(m)=0; stop at requested interval width
+
+g continuous objective equation, a,b bracket, m midpoint.
+
+Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
+
+Assumptions — Initial strict opposite signs and continuous evaluations.
+
+Limitations — Discontinuities can mimic roots.
+
+Source — Burden and Faires, Numerical Analysis, 9th ed.
+
+## Newton scalar root iteration (newton-root)
+
+> x_(k+1)=x_k−g(x_k)/g′(x_k)
+
+g root function, g′ derivative, x current parameter, k iteration.
+
+Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
+
+Assumptions — Differentiable near simple root with close start.
+
+Limitations — Near-zero derivative or remote start can diverge.
+
+Source — Burden and Faires, Numerical Analysis, 9th ed.
+
+## Linear conjugate gradient (conjugate-gradient)
+
+> Initialize r=b−Ax, p=r; set α=(rᵀr)/(pᵀAp), x←x+αp, r′=r−αAp, β=(r′ᵀr′)/(rᵀr), p←r′+βp, r←r′; stop on small residual
+
+A symmetric system matrix, b right-hand side, x solution, r residual, p direction.
+
+Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
+
+Assumptions — Positive definite A, monitor residual and stop on exact zero.
+
+Limitations — Poor conditioning and roundoff slow convergence.
+
+Source — Hestenes and Stiefel, Methods of Conjugate Gradients for Solving Linear Systems, Journal of Research of the NBS, 1952
+
+## DE/rand/1/bin search (differential-evolution)
+
+> For target i choose distinct other indices a,b,c; mutant v=x_a+F(x_b−x_c); copy each mutant coordinate with chance CR plus one forced mutant coordinate; retain trial if loss no larger
+
+x bounded candidate vector, F scale, CR crossover probability, use clipping to declared bounds.
+
+Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
+
+Assumptions — Continuous objective and population of at least four.
+
+Limitations — Diversity collapse and costly noisy loss evaluations.
+
+Source — Storn and Price, Differential Evolution, Journal of Global Optimization, 1997
+
+## Metropolis simulated annealing (simulated-annealing)
+
+> With symmetric proposal y near x accept with P=min(1,exp(−[f(y)−f(x)]/T_k)), reduce T_k along prespecified schedule
+
+f loss, x incumbent, y proposal, T_k positive temperature.
+
+Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
+
+Assumptions — Proposal supports reachable feasible states; convergence depends on cooling schedule.
+
+Limitations — Fast cooling freezes in local minimum.
+
+Source — Kirkpatrick, Gelatt and Vecchi, Optimization by Simulated Annealing, Science, 1983
+
+## Cross-entropy elite-sample optimizer (cross-entropy-search)
+
+> Sample x_i∼p_θ; take lowest-loss fraction ρ as elite E; update θ←argmax_ϑ Σ_(i∈E) ln p_ϑ(x_i)
+
+θ proposal parameters, ρ preset elite fraction, E elite index set.
+
+Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
+
+Assumptions — Proposal family can cover useful candidate regions with stable elite size.
+
+Limitations — Variance collapse traps at local solutions.
+
+Source — Rubinstein and Kroese, The Cross-Entropy Method, Springer, 2004
+
+## UCB1 exploration index (bandit-ucb)
+
+> After one pull of each arm choose a_t=argmax_j[x̄_j+√(2 ln t/n_j)] using only rewards revealed before step t
+
+x̄_j past mean reward in [0,1], n_j observed arm count, t decision index.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Stationary independent bounded rewards per arm; research simulator only.
+
+Limitations — Delayed feedback and nonstationary model quality distort bonus.
+
+Source — Auer, Cesa-Bianchi and Fischer, Finite-time Analysis of the Multiarmed Bandit Problem, Machine Learning, 2002
+
+## Beta–Bernoulli Thompson selection (bandit-thompson)
+
+> At step t sample p_j∼Beta(a_j+s_j,b_j+f_j) independently and select a_t=argmax_j p_j
+
+a_j,b_j prior shapes, s_j,f_j revealed successes/failures for arm j, p_j posterior draw.
+
+Summarize rule-consistent scoring or rank trajectories
+
+Assumptions — Stationary independent binary reward conditional on arm, research simulator only.
+
+Limitations — Unknown reward lag or drift breaks stationary evidence accumulation.
+
+Source — Thompson, On the Likelihood that One Unknown Probability Exceeds Another, Biometrika, 1933
+
+## Gaussian process regression (gaussian-process)
+
+> For residual vector y−m, predictive mean μ_*=m_*+k_*ᵀ(K+σ²I)^(-1)(y−m), latent variance v_*=k_**−k_*ᵀ(K+σ²I)^(-1)k_*
+
+K train kernel matrix, k_* train-query covariance, k_** query variance, m prior mean, σ² noise.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Positive semidefinite kernel, Gaussian noise, earlier-only hyperparameter fit.
+
+Limitations — Smooth kernel smears abrupt change and dense fits do not scale.
+
+Source — Rasmussen and Williams, Gaussian Processes for Machine Learning, 2006, ch. 2
+
+## Gaussian expected improvement acquisition (expected-improvement)
+
+> EI(x)=(f_best−μ)Φ(z)+σφ(z), z=(f_best−μ)/σ; for σ=0 use max(f_best−μ,0)
+
+μ,σ surrogate mean and SD, f_best known incumbent minimization value, Φ/φ normal CDF/density.
+
+Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
+
+Assumptions — Gaussian predictive law and comparable objective values.
+
+Limitations — Overconfident surrogate neglects promising regions.
+
+Source — Jones, Schonlau and Welch, Efficient Global Optimization of Expensive Black-Box Functions, Journal of Global Optimization, 1998
+
+## Epsilon-insensitive support-vector regression (svr)
+
+> Minimize J(w,b)=0.5 squared_norm(w)+CΣ_i max(0,abs(y_i−wᵀφ(x_i)−b)−ε)
+
+w weights in feature space, φ map, y response, b intercept, ε insensitivity, C positive loss weight.
+
+Predict a continuous sport target like race time or score differential
+
+Assumptions — Common response units and selected kernel positive semidefinite.
+
+Limitations — Kernel and tube tuning can overfit or oversmooth.
+
+Source — Smola and Schölkopf, A Tutorial on Support Vector Regression, Statistics and Computing, 2004
+
+## Gaussian naive Bayes classifier (gaussian-naive-bayes)
+
+> P(Y=c∣x)∝π_c ∏_j N(x_j;μ_cj,σ_cj²), normalize across classes
+
+π_c prior class probabilities, x_j features, μ_cj and σ_cj² class-specific moments.
+
+Estimate or update a binary event such as a tennis service hold or a football clean sheet
+
+Assumptions — Conditional independence of features and positive variance.
+
+Limitations — Correlated rolling features cause overconfidence.
+
+Source — Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §6.6
+
+## Linear discriminant analysis (lda-classifier)
+
+> δ_c(x)=xᵀΣ^(-1)μ_c−μ_cᵀΣ^(-1)μ_c/2+ln π_c; predict softmax(δ)_c
+
+c outcome, μ_c means, Σ common within-class covariance, π_c class priors.
+
+Estimate or update a binary event such as a tennis service hold or a football clean sheet
+
+Assumptions — Shared nonsingular covariance and Gaussian class likelihoods.
+
+Limitations — Different within-class dispersions curl decision boundary.
+
+Source — Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §4.3
+
+## Quadratic discriminant analysis (qda-classifier)
+
+> δ_c(x)=ln π_c−0.5 ln detΣ_c−0.5(x−μ_c)ᵀΣ_c^(-1)(x−μ_c); use softmax across c
+
+class priors π, class means μ, class-specific covariance Σ_c.
+
+Estimate or update a binary event such as a tennis service hold or a football clean sheet
+
+Assumptions — Gaussian classes and nonsingular class covariances.
+
+Limitations — Rare class covariance difficult to estimate.
+
+Source — Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §4.3
+
+## AdaBoost binary reweighting (adaboost)
+
+> For labels and classifier outputs ±1 set ε_m=Σ_i w_i1[y_i≠h_m(x_i)], α_m=0.5 ln((1−ε_m)/ε_m); update w_i∝w_i exp(−α_m y_i h_m(x_i)), aggregate sign(Σ_m α_m h_m)
+
+w sample weights, h base weak learner, α coefficient; stop on zero error or no better than chance.
+
+Estimate or update a binary event such as a tennis service hold or a football clean sheet
+
+Assumptions — Weak learner improves on chance under current weights.
+
+Limitations — Repeated mislabeled rows dominate later stages.
+
+Source — Freund and Schapire, A Decision-Theoretic Generalization of On-Line Learning and an Application to Boosting, JCSS, 1997
+
+## Elastic weight consolidation (elastic-weight-consolidation)
+
+> Minimize J(θ)=L_new(θ)+(λ/2)Σ_i F_i(θ_i−θ_i_old)²
+
+θ network weights, F_i diagonal Fisher estimate from earlier task, λ penalty, L_new new-task loss.
+
+Use sequences of earlier match or session measurements to learn form features for later fixtures.
+
+Assumptions — Old parameters carry useful stable task structure.
+
+Limitations — Unreliable Fisher estimates lock obsolete features.
+
+Source — Kirkpatrick et al., Overcoming Catastrophic Forgetting in Neural Networks, PNAS, 2017
+
+## Long short-term memory recurrent cell (lstm)
+
+> Compute i,f,o=sigmoid(W_g[x_t;h_prev]+b_g) with separate g weights; u=tanh(W_u[x_t;h_prev]+b_u); c_t=f⊙c_prev+i⊙u; h_t=o⊙tanh(c_t)
+
+x observations, h output, c memory, i/f/o gates, u candidate, W,b fit coefficients.
+
+Use sequences of earlier match or session measurements to learn form features for later fixtures.
+
+Assumptions — Chronological input sequences with documented resets and causal training.
+
+Limitations — Sparse teams and regime shifts make capacity hard to regularize.
+
+Source — Gers, Schmidhuber and Cummins, Learning to Forget: Continual Prediction with LSTM, Neural Computation, 2000
+
+## Gated recurrent unit (gru)
+
+> r=σ(W_r x+U_r h), z=σ(W_z x+U_z h), u=tanh(W_u x+U_u(r⊙h)), h_new=(1−z)⊙h+z⊙u
+
+x current historical feature, h prior hidden state, r reset, z update, u candidate, W,U learned matrices.
+
+Use sequences of earlier match or session measurements to learn form features for later fixtures.
+
+Assumptions — Causal sequence and sufficient history for learned gates.
+
+Limitations — Gate saturation and group composition shifts reduce generalization.
+
+Source — Cho et al., Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation, EMNLP 2014
+
+## Causally masked scaled dot-product attention (causal-attention)
+
+> A=softmax_rows(QKᵀ/√d+M)V, M_ij=0 if j≤i and −∞ otherwise
+
+Q/K/V query, key and value matrices, d key width, i query time, j key time.
+
+Use sequences of earlier match or session measurements to learn form features for later fixtures.
+
+Assumptions — Sort by availability and use correct within-timestamp policy.
+
+Limitations — Precomputed future-informed keys leak despite mask.
+
+Source — Vaswani et al., Attention Is All You Need, NeurIPS 2017
+
+## Causal dilated temporal convolution (causal-dilated-conv)
+
+> y_t=Σ_(j=0)^(k−1) W_j x_(t−δj) with zero padding only to left
+
+x earlier sequence, W_j filter weights, k kernel width, δ positive dilation.
+
+Use sequences of earlier match or session measurements to learn form features for later fixtures.
+
+Assumptions — Order and sampling meaningful and no right padding in features.
+
+Limitations — Gridding effects miss events between sampled lags.
+
+Source — Bai, Kolter and Koltun, An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling, arXiv:1803.01271
+
+## Adam stochastic gradient optimizer (adam)
+
+> m_t=β₁m_prev+(1−β₁)g_t, v_t=β₂v_prev+(1−β₂)g_t²; θ←θ−η[m_t/(1−β₁^t)]/[√(v_t/(1−β₂^t))+ε]
+
+g_t stochastic gradient, componentwise squares, θ coefficients, β decays, η learning rate, ε stabilizer, m₀=v₀=0.
+
+Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
+
+Assumptions — Differentiable losses and finite gradients; tune on earlier splits.
+
+Limitations — Optimization convergence can fail under some gradient sequences.
+
+Source — Kingma and Ba, Adam: A Method for Stochastic Optimization, ICLR 2015
+
+## Two-group two-period difference in differences (diff-in-diff)
+
+> τ̂=(Ȳ_1,post−Ȳ_1,pre)−(Ȳ_0,post−Ȳ_0,pre)
+
+group 1 exposed, group 0 comparison, Y outcome and pre/post periods.
+
+Retrospectively estimate or check the effect of a coaching, roster, scheduling or rule change before considering a feature for future forecasts.
+
+Assumptions — Parallel untreated trends, no anticipation, no spillovers and stable groups.
+
+Limitations — Concurrent rule changes confined to treated group confound effect.
+
+Source — Angrist and Pischke, Mostly Harmless Econometrics, 2009
+
+## Synthetic control counterfactual (synthetic-control)
+
+> Fit w=argmin_(w≥0,Σw=1)squared_V_norm(X_1−X_0w) on pre-treatment histories; counterfactual Ŷ_1t=Σ_j w_j Y_jt
+
+X treated/donor predictors, V positive semidefinite metric, w donor weights, Y subsequent outcomes for retrospective analysis.
+
+Retrospectively estimate or check the effect of a coaching, roster, scheduling or rule change before considering a feature for future forecasts.
+
+Assumptions — Unexposed donors and adequate pre-treatment fit.
+
+Limitations — No comparable convex donor combination yields extrapolation bias.
+
+Source — Abadie, Diamond and Hainmueller, Synthetic Control Methods for Comparative Case Studies, JASA, 2010
+
+## Sharp regression discontinuity with local linear limits (rd-local-linear)
+
+> Fit separate weighted lines Y=a_s+b_s(X−c) on each side s of c using nonnegative K((X−c)/h); τ̂=a_right−a_left
+
+X running variable, c assignment cutoff, h bandwidth, K kernel, Y retrospective outcome.
+
+Retrospectively estimate or check the effect of a coaching, roster, scheduling or rule change before considering a feature for future forecasts.
+
+Assumptions — Continuity of potential outcome means and no sorting around cutoff.
+
+Limitations — Other rules changing at c invalidate attribution.
+
+Source — Imbens and Lemieux, Regression Discontinuity Designs: A Guide to Practice, Journal of Econometrics, 2008
+
+## Binary-instrument Wald estimator (wald-iv)
+
+> τ̂=(mean[Y∣Z=1]−mean[Y∣Z=0])/(mean[A∣Z=1]−mean[A∣Z=0])
+
+Z proposed instrument, A treatment, Y historical outcome.
+
+Retrospectively estimate or check the effect of a coaching, roster, scheduling or rule change before considering a feature for future forecasts.
+
+Assumptions — Instrument independence, exclusion, relevance and monotonicity for local effect.
+
+Limitations — Weak or directly outcome-relevant instrument destabilizes estimate.
+
+Source — Angrist, Imbens and Rubin, Identification of Causal Effects Using Instrumental Variables, JASA, 1996
+
+## Matched-pair treatment sensitivity model (rosenbaum-bounds)
+
+> With within-pair treatment odds bounded by Γ, positive signs under sharp null have success chances 1/(1+Γ)≤p_i≤Γ/(1+Γ); bound upper tail for count using corresponding binomial laws
+
+Γ≥1 hidden-bias odds bound, n matched independent pairs, sign of treated-minus-control outcome.
+
+Retrospectively estimate or check the effect of a coaching, roster, scheduling or rule change before considering a feature for future forecasts.
+
+Assumptions — One treated per matched pair and sharp no-effect null.
+
+Limitations — Poor matching and correlated pairs defeat interpretation.
+
+Source — Rosenbaum, Observational Studies, 2nd ed., Springer, 2002

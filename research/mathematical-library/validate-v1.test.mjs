@@ -9,7 +9,8 @@ const profiles = readJson('./sport-profiles.v1.json')
 const { entries } = loadCatalogue()
 
 test('all preserved records and registered specifications pass', () => {
-  assert.equal(entries.length, 116)
+  assert.equal(entries.filter(entry => entry.legacy_id !== null).length, 16)
+  assert.equal(entries.filter(entry => entry.batch === '002').length, 100)
   assert.equal(entries.filter(entry => entry.batch === '001').length, 100)
   validateEntries(entries, legacy, profiles)
 })

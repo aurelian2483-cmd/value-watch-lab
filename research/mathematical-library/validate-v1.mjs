@@ -57,7 +57,7 @@ export function validateEntries(entries, legacy, profiles) {
       'computation', 'application', 'required_inputs', 'data_rights', 'batch'
     ]) assert(nonempty(entry[key]), context + 'missing ' + key)
     assert(classes.has(entry.classification), context + 'invalid classification')
-    assert(/[=~∼←∝≤≥]/u.test(entry.definition) && entry.definition.trim().length >= 5,
+    assert(/[=~∼←→∝≤≥]/u.test(entry.definition) && entry.definition.trim().length >= 5,
       context + 'missing mathematical specification')
     assert(!names.has(slug(entry.name)), context + 'normalized name duplicates another record')
     assert(!equations.has(signature(entry.definition)), context + 'normalized specification duplicates another record')
@@ -92,7 +92,8 @@ export function validateEntries(entries, legacy, profiles) {
       )
     }
     assert.equal(entry.test_evidence, null, context + 'unsupported test claim')
-    assert.equal(entry.input_timing, entry.profile === 'assessment' ? 'assessment-only' : 'as-of-cutoff',
+    assert.equal(entry.input_timing, (entry.profile === 'assessment' || (entry.profile === 'causal' && !['ipw', 'aipw'].includes(entry.id)))
+      ? 'assessment-only' : 'as-of-cutoff',
       context + 'incompatible input timing')
     assert(Array.isArray(entry.relationships) && entry.relationships.length, context + 'missing relationships')
     for (const relationship of entry.relationships) {
