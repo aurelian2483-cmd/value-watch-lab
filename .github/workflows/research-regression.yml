@@ -25,3 +25,9 @@ jobs:
           for script in paper-lab/*.js; do node --check "$script"; done
       - name: Historical, collector and model safeguards
         run: python -m unittest discover -s tests
+      - name: Mathematical library validation
+        run: |
+          node research/mathematical-library/validate.mjs
+          node --test research/mathematical-library/validate-v1.test.mjs
+          node research/mathematical-library/catalogue.mjs summary
+          node research/mathematical-library/catalogue.mjs ledger
