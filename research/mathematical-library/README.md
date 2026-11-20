@@ -32,7 +32,7 @@ node catalogue.mjs reference > /tmp/sky-mathematical-reference.md
 node catalogue.mjs ledger > /tmp/sky-mathematical-evidence.json
 ```
 
-The manifest orders batch files and pins the original catalogue by hash. JSON records are independently searchable. The reference command renders the equations, variable definitions, sport applications, limitations and citations. The index maps IDs to families and sports. The ledger distinguishes literature, documented derivations and repository provenance. [Review and recovery audit](review-audit.v1.json)
+The manifest orders batch files and pins the original catalogue by hash. JSON records are independently searchable. The reference command renders the equations, variable definitions, sport applications, limitations and citations. The index maps IDs to families and sports. The ledger distinguishes literature, documented derivations and repository provenance. [Equation reference](REFERENCE.md) · [Family and sport index](INDEX.md) · [Provenance and evidence ledger](evidence-ledger.v1.json) · [Progress](progress.v1.json) · [Review and recovery audit](review-audit.v1.json)
 
 The checker detects duplicate IDs, normalized names and normalized specifications. Related-method links and the review audit document semantic overlap. Algebraic equivalence, source accuracy and real input availability still require human review. A sport tag identifies a plausible application under its required inputs and assumptions. A citation locates mathematical provenance. No entry carries new empirical test evidence.
 
