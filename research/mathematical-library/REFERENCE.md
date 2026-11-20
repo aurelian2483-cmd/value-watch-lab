@@ -3415,3 +3415,73 @@ Assumptions — Subproblem minimizers exist and the iterates have an accumulatio
 Limitations — Large penalties can make the inner system ill-conditioned and finite-c solutions generally violate equality.
 
 Source — Poczos and Tibshirani, CMU 10-725 Optimization, Lecture 16, Penalty Convergence Theorem. https://www.stat.cmu.edu/~ryantibs/convexopt-F13/scribes/lec16.pdf
+
+## Composite trapezoidal quadrature (composite-trapezoid)
+
+> For x_i=a+ih and h=(b−a)/n, Q=h[(f(a)+f(b))/2+Σ_(i=1)^(n−1) f(x_i)].
+
+n positive panel count, Q approximation to ∫_a^b f(x)dx.
+
+Integrate a fitted margin density across a finite score interval
+
+Assumptions — Equal spacing and finite endpoint values; second-order error for C² integrands.
+
+Limitations — An integrable endpoint singularity can make the rule undefined.
+
+Source — NIST Digital Library of Mathematical Functions, §3.5(i). https://dlmf.nist.gov/3.5#1
+
+## Composite Simpson quadrature (composite-simpson)
+
+> For positive even n and h=(b−a)/n, Q=(h/3)[f(a)+f(b)+4Σ_(i odd) f(a+ih)+2Σ_(i even, 0<i<n) f(a+ih)].
+
+Odd and even indices are interior grid points, Q estimates ∫_a^b f.
+
+Integrate a smooth fitted race-time density over a finishing-time band
+
+Assumptions — Equal spacing and C⁴ integrand for fourth-order error.
+
+Limitations — Reduced smoothness can remove fourth-order convergence.
+
+Source — NIST Digital Library of Mathematical Functions, §3.5(ii). https://dlmf.nist.gov/3.5#2
+
+## Romberg integration (romberg-integration)
+
+> R_(k,0)=T(2^k); R_(k,j)=R_(k,j−1)+(R_(k,j−1)−R_(k−1,j−1))/(4^j−1) for 1≤j≤k. Return R_(k,k).
+
+T(n) composite trapezoidal value on n panels, k grid refinement, j extrapolation level.
+
+Integrate a smooth conditional scoring probability over a bounded latent-strength interval
+
+Assumptions — Trapezoidal error has an even-power expansion to the extrapolated order.
+
+Limitations — Endpoint singularities can invalidate the error expansion.
+
+Source — NIST Digital Library of Mathematical Functions, §3.5(iii). https://dlmf.nist.gov/3.5#3
+
+## Gaussian quadrature (gaussian-quadrature)
+
+> For a positive measure with finite moments through degree 2n, choose n nodes at the roots of its degree-n orthogonal polynomial and weights w_i=∫ℓ_i(x)dμ(x), where ℓ_i are their Lagrange cardinal polynomials. Q=Σ_i w_i f(x_i) is exact for deg f≤2n−1.
+
+μ integration measure, x_i nodes, ℓ_i interpolation basis, n order.
+
+Average a conditional win probability over a fitted latent distribution
+
+Assumptions — Measure has at least n+1 support points; the model specifies the weight before quadrature.
+
+Limitations — Localized peaks between the nodes can be poorly resolved.
+
+Source — NIST Digital Library of Mathematical Functions, §3.5(v). https://dlmf.nist.gov/3.5#5
+
+## Golub–Welsch quadrature construction (golub-welsch)
+
+> For orthonormal polynomials p_j under μ, set J_ij=∫xp_i(x)p_j(x)dμ(x), 0≤i,j<n. For each normalized eigenpair Jv_k=x_kv_k, set w_k=μ(ℝ)(v_k)_0².
+
+J symmetric tridiagonal Jacobi matrix, x_k Gaussian nodes, w_k weights.
+
+Construct nodes and weights once for repeated latent-strength integration
+
+Assumptions — Known recurrence coefficients and positive measure with at least n+1 support points and finite moments through degree 2n.
+
+Limitations — Inaccurate recurrence coefficients perturb both nodes and weights.
+
+Source — NIST Digital Library of Mathematical Functions, §3.5(vi). https://dlmf.nist.gov/3.5#6
