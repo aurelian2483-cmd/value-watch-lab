@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "013",
+  "batch": "014",
   "new_specifications": 4,
-  "registered_after_batch": 278,
+  "registered_after_batch": 282,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -240,6 +240,15 @@
       "source_check": "Checked matrix splittings and Krylov objectives against the Netlib iterative solver reference and the MINRES symmetry and indefiniteness requirements against its SciPy reference.",
       "mathematical_checks": "Synthetic tests checked convergence of the two stationary splittings and compared short Krylov residual minimizers with full solves and SciPy, including a symmetric indefinite system.",
       "semantic_review": "Jacobi reads only prior-sweep values, while Gauss–Seidel performs a triangular solve using updated values. GMRES minimizes the Euclidean residual in a nonsymmetric Krylov problem via Arnoldi, whereas MINRES exploits symmetric Lanczos structure and short recurrences. Conjugate gradient instead relies on positive definite energy geometry. Relaxation factors, ordering policies and GMRES restart settings were excluded as stand-alone entries.",
+      "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
+    },
+    {
+      "batch": "014",
+      "new_specifications": 4,
+      "registered_after_batch": 282,
+      "source_check": "Checked joint intercept rules and the two slope aggregations against SciPy and the consensus and minimum-determinant objectives against scikit-learn’s maintainers’ guides.",
+      "mathematical_checks": "Synthetic tests checked regression slopes and intercepts against SciPy, maximum consensus under gross outliers, and the covariance determinant objective under an affine transformation.",
+      "semantic_review": "Theil–Sen pools all pair slopes in one median, while Siegel takes a median of per-observation medians. RANSAC uses subset-generated fits and a thresholded consensus objective. Huber regression uses a continuous loss over the full sample. Raw MCD minimizes a multivariate covariance volume, unlike univariate MAD or variance-explaining PCA. Intercept parameterizations and post-MCD reweighting choices were excluded as separate records.",
       "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
     }
   ]

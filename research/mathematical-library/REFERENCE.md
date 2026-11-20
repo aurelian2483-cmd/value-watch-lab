@@ -3891,3 +3891,59 @@ Assumptions — A real symmetric, possibly indefinite; stop immediately at β=0 
 Limitations — Symmetry loss invalidates the short recurrence, and residual minimization alone does not guarantee a minimum-norm solution for singular problems.
 
 Source — SciPy maintainers’ minres reference and Barrett et al., Templates, Symmetric Lanczos Methods. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.minres.html
+
+## Univariate Theil–Sen regression (theil-sen-simple)
+
+> For distinct predictor pairs, set β̂=median_((i,j):i<j,x_i≠x_j)[(y_j−y_i)/(x_j−x_i)] and α̂=median_i(y_i−β̂x_i). Predict ŷ=α̂+β̂x.
+
+x continuous predictor, y response, α̂ joint-median intercept, β̂ slope.
+
+Fit the historical relation between rest time and score margin with resistance to vertical outliers
+
+Assumptions — At least two distinct x values and a meaningful single linear trend.
+
+Limitations — Quadratic pair enumeration and weak identification when predictors are tightly clustered.
+
+Source — SciPy maintainers’ reference, scipy.stats.theilslopes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.theilslopes.html
+
+## Siegel repeated-median regression (siegel-repeated-median)
+
+> For each i with an available nonvertical pair, set b_i=median_(j:x_j≠x_i)[(y_j−y_i)/(x_j−x_i)]. Then β̂=median_i b_i and α̂=median_i(y_i−β̂x_i).
+
+x continuous predictor, y response, b_i local slope median, α̂ joint residual median.
+
+Fit a baseline relationship between prior training load and an earlier continuous performance measurement
+
+Assumptions — At least two distinct predictor values; robust simple linear trend is the target.
+
+Limitations — Can be expensive for large tables, and duplicate predictor values reduce usable slopes.
+
+Source — SciPy maintainers’ reference, scipy.stats.siegelslopes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.siegelslopes.html
+
+## RANSAC consensus regression (ransac-consensus-regression)
+
+> For T trials draw a small subset S, fit θ_S, then let I_S={i: ℓ(y_i,f(x_i;θ_S))≤τ}. Select the candidate with maximum |I_S|, break ties by the declared inlier fit criterion, and refit the model on its inliers.
+
+x,y regression data, θ parameters, ℓ point loss, τ threshold, T trial budget, I_S inlier set.
+
+Fit a historical tracking relation under sporadic measurement outliers
+
+Assumptions — At least one nondegenerate all-inlier subset can be sampled with meaningful probability.
+
+Limitations — Poor threshold or competing regimes can select a majority relation unrelated to the target.
+
+Source — Scikit-learn maintainers’ linear models guide, RANSAC. https://scikit-learn.org/stable/modules/linear_model.html#ransac-random-sample-consensus
+
+## Raw minimum covariance determinant estimator (raw-minimum-covariance-determinant)
+
+> For a declared h, find H*=argmin_(H⊆{1,…,n}, |H|=h) det S_H, where S_H=h⁻¹Σ_(i∈H)(x_i−μ_H)(x_i−μ_H)ᵀ and μ_H=h⁻¹Σ_(i∈H)x_i. Return (μ_H*,S_H*) before consistency correction or reweighting.
+
+x_i∈ℝ^d, n sample count, h support count, μ_H subset mean, S_H subset covariance.
+
+Estimate robust feature scatter as a preprocessing input for a prior-fit multivariate model
+
+Assumptions — d+1≤h≤n and data in general position for nonsingular support subsets.
+
+Limitations — Near-singular clouds make determinant comparisons unstable, and a single robust ellipsoid poorly represents multiple clusters.
+
+Source — Scikit-learn maintainers’ covariance guide, Minimum Covariance Determinant. https://scikit-learn.org/stable/modules/covariance.html#minimum-covariance-determinant
