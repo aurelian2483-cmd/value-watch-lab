@@ -10,6 +10,12 @@ Catalogue quality gate: every entry must have unique ID, actual reproducible mat
 
 **Phase progression:** catalogue intake and verification may continue; no broad 500-candidate tournament, holdout evaluation, website Compare integration, deployment or activation simply because the count reaches 1,000. Formal readiness requires the size gate plus schema validation, citation/provenance review, and a breakdown of independently defined methods vs variants and implementation/test coverage. User review is required before unlocking the next phase. Existing isolated QA/debugging may continue to safeguard previously written research, but is not promotion of the new laboratory.
 
+### Clarification — integrated library and laboratory (20 Nov 2026)
+
+The **1,000-entry threshold is for an accessible, documented pool of potentially useful mathematical ideas and configurations**, not for 1,000 pre-tested winners. The *library and laboratory form one research system*. The five specialist research roles discover and retrieve relevant entries for a sport/match/bottleneck, check mathematical appropriateness and required data, adapt compatible ideas from other sports/fields, and propose controlled tests. The **laboratory**, not the catalogue-registration step, empirically evaluates usefulness against the existing baseline. Failed, inapplicable and untested entries remain clearly labelled and searchable; nothing becomes validated merely by being selected or catalogued.
+
+**Operational sequence:** broad, evidence-linked catalogue → sport/match problem and data assessment → five-role research screening → bounded compatible candidate selection → chronological experiment/overfitting checks → evidence-backed status changes → approved research outputs. The five roles are *not yet running independent agents*. The catalogue count is a prerequisite to moving to full-scale lab operation, but preliminary research tooling, quality checks and safely bounded preparation can proceed. The 1,000 target must not be filled with fiction or padded synonyms; genuine documented variants may be indexed distinctly and reported separately from base methods.
+
 ## 1. Goal and design principles
 Create a *universal, expandable* catalogue of mathematical methods and evidence for football, horse racing, tennis, NFL, darts and rugby, with the ability to adapt sound ideas from mathematics, physics, engineering, history, forecasting and other sports.
 
