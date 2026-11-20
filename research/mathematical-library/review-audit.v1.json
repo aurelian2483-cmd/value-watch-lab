@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "010",
-  "new_specifications": 6,
-  "registered_after_batch": 265,
+  "batch": "011",
+  "new_specifications": 5,
+  "registered_after_batch": 270,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -213,6 +213,15 @@
       "source_check": "Checked the Euler recurrences and stability functions against MIT lecture notes, implicit trapezoid against ETH notes, classical RK4 against DLMF, Bogacki–Shampine coefficients against the SciPy RK23 implementation, and velocity Verlet against the authors’ paper. Resolved the five batch 006 section citations to the canonical DLMF section permalinks.",
       "mathematical_checks": "Synthetic tests checked observed convergence orders on scalar decay, stiffness amplification, embedded tableau agreement and local defect, and reversible Verlet stepping with bounded oscillator energy error.",
       "semantic_review": "Fixed-step ODE methods advance a state using a specified differential equation. Gradient descent uses steps to minimize an objective, and the OU record gives an exact stochastic transition for one process. Forward Euler is explicit, while backward Euler and trapezoid solve distinct implicit equations and have different stiff limits. RK4 uses a fixed four-stage tableau, while RK23 supplies a paired local error estimator and stage reuse. Velocity Verlet splits the position and velocity updates and preserves Hamiltonian structure under its premises. Omitted separate records for leapfrog naming and step-size settings.",
+      "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
+    },
+    {
+      "batch": "011",
+      "new_specifications": 5,
+      "registered_after_batch": 270,
+      "source_check": "Checked the named graph routines, supported graph types and weight conditions against the SciPy csgraph and NetworkX maintainer references. Reviewed shortest-path relaxations and the Kruskal and HITS mechanisms against their documented algorithms.",
+      "mathematical_checks": "Checked three independent shortest-path recurrences, negative-cycle detection, disconnected minimum forests and HITS singular-vector identities on synthetic graphs.",
+      "semantic_review": "Dijkstra finalizes nonnegative-cost labels in greedy order. Bellman–Ford relaxes by edge budget and detects reachable negative cycles. Floyd–Warshall runs dense dynamic programming by allowed intermediate vertices. Kruskal minimizes the cost of connecting every component and does not minimize source distances. HITS uses coupled singular vectors, unlike PageRank’s single damped random-walk score. Excluded heap choices and tie-breaking modes as entries.",
       "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
     }
   ]

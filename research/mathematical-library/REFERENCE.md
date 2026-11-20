@@ -3709,3 +3709,73 @@ Assumptions — Smooth position-only force; symplecticity applies to conservativ
 Limitations — Velocity-dependent drag lies outside this recurrence; the harmonic oscillator becomes unstable for hω>2.
 
 Source — Hairer, Lubich and Wanner, Geometric numerical integration illustrated by the Störmer–Verlet method, §1.1. https://www.math.mcgill.ca/gantumur/docs/down/gniverlet.pdf
+
+## Dijkstra shortest paths (dijkstra-shortest-path)
+
+> Initialize d(s)=0 and all other labels =∞. Repeatedly finalize the unsettled vertex u with minimum d(u), then relax each outgoing edge by d(v)←min(d(v),d(u)+w(u,v)). Stop when all remaining distances are infinite.
+
+s source, d tentative distance, w edge cost, u finalized vertex.
+
+Find minimum-cost movement routes across a position graph assembled from earlier tracking data
+
+Assumptions — Finite graph with nonnegative edge costs.
+
+Limitations — A negative edge can invalidate the finalized label.
+
+Source — SciPy maintainers’ csgraph shortest_path reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csgraph.shortest_path.html
+
+## Bellman–Ford shortest paths (bellman-ford-shortest-path)
+
+> Set d₀(s)=0 and d₀(v)=∞ otherwise. For k=1,…,|V|−1, set d_k(v)=min(d_(k−1)(v), min_(u→v)(d_(k−1)(u)+w(u,v))). Further strict improvement at k=|V| detects a reachable negative cycle.
+
+k edge budget, w directed edge cost, s source vertex, V vertex set.
+
+Find a least-cost route in a historical tactical transition graph with signed adjustments
+
+Assumptions — Finite weighted directed graph; shortest distances are finite only for reachable vertices unaffected by reachable negative cycles.
+
+Limitations — A reachable negative cycle requires separate handling before returning affected distances.
+
+Source — SciPy maintainers’ csgraph shortest_path reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csgraph.shortest_path.html
+
+## Floyd–Warshall all-pairs paths (floyd-warshall)
+
+> Start D_ij=min costs of direct i→j edges, with ∞ for missing edges and the empty path of weight 0 on the diagonal. For each k set D_ij←min(D_ij,D_ik+D_kj) for all i,j. A negative D_ii signals a negative cycle.
+
+D distance matrix, i,j endpoints, k newly allowed intermediate vertex.
+
+Precompute minimum transition costs among a small set of tactical zones
+
+Assumptions — Finite graph; no negative cycle for ordinary finite shortest-path interpretation.
+
+Limitations — Dense working memory and cubic runtime are prohibitive on large sparse graphs.
+
+Source — SciPy maintainers’ csgraph shortest_path reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csgraph.shortest_path.html
+
+## Kruskal minimum spanning forest (kruskal-spanning-forest)
+
+> Start F=∅. Process undirected edges in nondecreasing cost order; set F←F∪{e} only when the endpoints of e belong to different components of F.
+
+F set of accepted edges, e weighted undirected edge, components maintained by union–find.
+
+Summarize a graph of distances among historical team playing styles
+
+Assumptions — Finite undirected graph; use a stable tie-break if a reproducible forest is required.
+
+Limitations — Ties can yield several optimal forests and the forest omits redundant edges relevant to robustness.
+
+Source — SciPy maintainers’ minimum_spanning_tree reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csgraph.minimum_spanning_tree.html
+
+## HITS hub and authority scores (hits-hub-authority)
+
+> For nonnegative adjacency A where rows are sources, seek a,h with a∝Aᵀh and h∝Aa and normalize to unit Euclidean norm. Take leading right and left singular vectors for a and h, with paired signs.
+
+A weighted adjacency, a authority vector, h hub vector.
+
+Identify complementary receiving and supplying roles in an earlier passing network
+
+Assumptions — Nonzero graph; simple largest singular value for uniqueness up to joint sign.
+
+Limitations — Disconnected dominant components can tie, and small spectral gaps make scores sensitive.
+
+Source — NetworkX maintainers’ HITS reference and implementation. https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.link_analysis.hits_alg.hits.html
