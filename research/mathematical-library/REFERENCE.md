@@ -3583,3 +3583,45 @@ Assumptions — Locally smooth map, fixed point with g′≠1 and nonzero second
 Limitations — Cancellation can dominate the denominator near a fixed point; a safeguard is needed when it vanishes.
 
 Source — NIST DLMF §3.8(iii), Eq. 3.8.7. https://dlmf.nist.gov/3.8.E7
+
+## Barycentric polynomial interpolation (barycentric-polynomial-interpolation)
+
+> For distinct nodes x_i, set w_i=1/Π_(j≠i)(x_i−x_j), and P(x)=[Σ_i w_i y_i/(x−x_i)]/[Σ_i w_i/(x−x_i)]. Return y_i directly at x=x_i.
+
+x_i input nodes, y_i ordinates, w_i barycentric weights, P degree at most n−1.
+
+Interpolate a small table of model-based expected scoring probabilities across a prior-fit parameter grid
+
+Assumptions — A low-degree polynomial gives a useful interpolant on the given interval.
+
+Limitations — High degree on equispaced nodes can yield oscillations; extreme spacing can also make weights ill-conditioned.
+
+Source — SciPy maintainers’ reference, BarycentricInterpolator, Notes and boundary conditions. https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.BarycentricInterpolator.html
+
+## Natural cubic spline interpolation (natural-cubic-spline)
+
+> Choose piecewise cubic S with S(x_i)=y_i and continuity of S′ and S″ at interior knots. Enforce S″(x_0)=S″(x_(n−1))=0. For two knots this reduces to linear interpolation.
+
+S interpolant, x_i strictly increasing knots, y_i real ordinates.
+
+Interpolate a smooth expected duration curve over a historical exposure grid
+
+Assumptions — At least two knots and natural endpoint conditions appropriate for the intended interpolation.
+
+Limitations — Zero curvature at endpoints may be a poor approximation and does not generally imply linear extrapolation.
+
+Source — SciPy maintainers’ reference, CubicSpline, Notes and boundary conditions. https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html
+
+## Monotonicity-preserving cubic Hermite interpolation (pchip-interpolation)
+
+> Let h_i=x_(i+1)−x_i, d_i=(y_(i+1)−y_i)/h_i. At interior knot i set m_i=0 when d_(i−1)d_i≤0; otherwise set (w₁+w₂)/m_i=w₁/d_(i−1)+w₂/d_i with w₁=2h_i+h_(i−1), w₂=h_i+2h_(i−1). At the left endpoint use r=((2h₀+h₁)d₀−h₀d₁)/(h₀+h₁), returning 0 if sign(r)≠sign(d₀), or 3d₀ if sign(d₀)≠sign(d₁) and |r|>3|d₀|, and r otherwise. Apply the reflected rule on the right. Join values and slopes by cubic Hermite segments. For two knots use the secant at both ends.
+
+x_i increasing knots, y_i sample ordinates, m_i knot derivative, d_i interval secant.
+
+Interpolate an already monotone table of prior-fit cumulative probabilities without overshooting
+
+Assumptions — At least two knots, support restricted to knot span for the shape guarantee.
+
+Limitations — Second derivatives can jump and interpolating noisy knots preserves their noise.
+
+Source — SciPy maintainers’ reference, PchipInterpolator, Notes and boundary conditions. https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.PchipInterpolator.html

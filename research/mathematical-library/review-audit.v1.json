@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "008",
+  "batch": "009",
   "new_specifications": 3,
-  "registered_after_batch": 256,
+  "registered_after_batch": 259,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -195,6 +195,15 @@
       "source_check": "Checked all three recurrences against NIST DLMF equations 3.8.6, 3.8.12 and 3.8.7, respectively.",
       "mathematical_checks": "Exercised the three explicit recurrences on synthetic equations with known roots and compared residuals; checked the fixed-point early exit.",
       "semantic_review": "Secant carries two iterates and approximates the derivative by a divided difference; Halley adds curvature to Newton and has cubic local convergence at simple roots under smoothness assumptions. Steffensen applies Aitken acceleration to two successive images of a fixed-point map from the same iterate. It can be expressed as a secant step on g−I with an internally generated second point, so the entry documents that relationship and uses its one-state accelerated fixed-point interface. Excluded simple changes to Newton initialization and stopping criteria.",
+      "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
+    },
+    {
+      "batch": "009",
+      "new_specifications": 3,
+      "registered_after_batch": 259,
+      "source_check": "Checked barycentric weights and the nodal evaluation formula, natural cubic boundary conditions, and PCHIP interior slope construction against the respective SciPy reference pages. Checked the PCHIP endpoint formula against SciPy’s maintainer implementation.",
+      "mathematical_checks": "Compared the explicit formulas with SciPy on synthetic knots, including exact node recovery, cubic reproduction, natural endpoint curvature, monotone grid evaluation and PCHIP zero endpoint and secant handling.",
+      "semantic_review": "Barycentric interpolation evaluates one global polynomial. Natural splines solve a global second-derivative continuity system. PCHIP estimates knot derivatives locally to preserve interval monotonicity and does not generally have continuous second derivatives. The existing isotonic fit pools violations in noisy data, whereas PCHIP interpolates given knots exactly. Excluded Lagrange evaluation as an equivalent representation of the same interpolating polynomial.",
       "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
     }
   ]
