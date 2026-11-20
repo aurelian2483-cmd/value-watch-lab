@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "007",
-  "new_specifications": 4,
-  "registered_after_batch": 253,
+  "batch": "008",
+  "new_specifications": 3,
+  "registered_after_batch": 256,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -186,6 +186,15 @@
       "source_check": "Compared each functional form with its named SciPy Notes section and checked scale-transform Jacobians.",
       "mathematical_checks": "Synthetic quadrature checked that all four densities integrate to one. Pointwise comparisons used independent SciPy implementation calls at standardized and shifted/scaled points. Laplace and normal limiting cases of the symmetric generalized normal and skew-normal families were checked.",
       "semantic_review": "Beta is a continuous probability law, while the registered beta–Bernoulli entry maps prior parameters and counts to a posterior and the beta-binomial is discrete. Generalized normal changes the exponent in the log density and contains Laplace at fixed shape, so it links to the preserved narrower law. Skew-normal tilts a normal density by a CDF. Normal inverse Gaussian is a real-valued mixture law distinct from the positive inverse Gaussian duration model. Screened out gamma as scale-equivalent to chi-square with unrestricted degrees of freedom, uniform as a fixed-shape beta, and Gumbel as a GEV special case.",
+      "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
+    },
+    {
+      "batch": "008",
+      "new_specifications": 3,
+      "registered_after_batch": 256,
+      "source_check": "Checked all three recurrences against NIST DLMF equations 3.8.6, 3.8.12 and 3.8.7, respectively.",
+      "mathematical_checks": "Exercised the three explicit recurrences on synthetic equations with known roots and compared residuals; checked the fixed-point early exit.",
+      "semantic_review": "Secant carries two iterates and approximates the derivative by a divided difference; Halley adds curvature to Newton and has cubic local convergence at simple roots under smoothness assumptions. Steffensen applies Aitken acceleration to two successive images of a fixed-point map from the same iterate. It can be expressed as a secant step on g−I with an internally generated second point, so the entry documents that relationship and uses its one-state accelerated fixed-point interface. Excluded simple changes to Newton initialization and stopping criteria.",
       "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
     }
   ]

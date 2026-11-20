@@ -3541,3 +3541,45 @@ Assumptions — Residuals are continuous and a shared shape describes the fittin
 Limitations — Small samples can leave shape weakly identified and the Bessel term needs scaled evaluation in the tails.
 
 Source — SciPy maintainers’ reference, scipy.stats.norminvgauss, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norminvgauss.html
+
+## Secant root iteration (secant-root)
+
+> x_(k+1)=x_k−f(x_k)(x_k−x_(k−1))/(f(x_k)−f(x_(k−1))).
+
+f scalar residual; x_k current estimate; x_(k−1) previous estimate.
+
+Invert a monotone calibration map when derivative evaluation is unavailable
+
+Assumptions — Two distinct starting points near a simple root and nonzero divided differences.
+
+Limitations — No bracket is preserved and near-equal residuals destabilize the update.
+
+Source — NIST DLMF §3.8(iii), Eq. 3.8.6 and Secant Method. https://dlmf.nist.gov/3.8.E6
+
+## Halley root iteration (halley-root)
+
+> x_(k+1)=x_k−2f(x_k)f′(x_k)/(2f′(x_k)²−f(x_k)f″(x_k)).
+
+f scalar residual; f′ and f″ its derivatives; x_k current estimate.
+
+Invert a smooth fitted quantile equation when both derivatives are cheap
+
+Assumptions — Smooth f, simple root, nearby initialization and nonzero denominator.
+
+Limitations — A small denominator or poor initialization can produce an arbitrarily large step.
+
+Source — NIST DLMF §3.8(v), Eq. 3.8.12. https://dlmf.nist.gov/3.8.E12
+
+## Steffensen fixed-point acceleration (steffensen-fixed-point)
+
+> u=g(x_k), v=g(u), x_(k+1)=x_k−(u−x_k)²/(v−2u+x_k). Return x_k if u=x_k.
+
+g scalar fixed-point map; u and v successive images of x_k.
+
+Accelerate convergence of an iterated one-dimensional shrinkage equation
+
+Assumptions — Locally smooth map, fixed point with g′≠1 and nonzero second difference away from convergence.
+
+Limitations — Cancellation can dominate the denominator near a fixed point; a safeguard is needed when it vanishes.
+
+Source — NIST DLMF §3.8(iii), Eq. 3.8.7. https://dlmf.nist.gov/3.8.E7
