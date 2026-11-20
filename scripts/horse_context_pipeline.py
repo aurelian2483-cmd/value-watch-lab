@@ -293,6 +293,8 @@ def main():
     performance['cross_source_verified_results']=len(checked)
     performance['cross_source_entries']=checked;performance['cross_source_pending']=pending
     performance['evaluation']=evaluate(archived,performance['entries'])
+    performance['cross_source_evaluation']=evaluate(archived,checked)
+    performance['verification_note']='Two publishers corroborate race identity, full final field and winner. Independent underlying data origin is not established.'
     # The baseline process runs first and exposes amendment-materialized entries.
     # Do not read its immutable original ledger rows as if they were current.
     baseline_feed_path=WORK/'horse-model-data.json'
@@ -300,10 +302,10 @@ def main():
         baseline_feed=json.loads(baseline_feed_path.read_text());check_feed(baseline_feed,now)
         from horse_model_pipeline import validate_record as validate_baseline_record
         baseline_records=[validate_baseline_record(json.loads(p.read_text()),p) for p in sorted((ROOT/'research/horse-form-archive/v1').glob('*.json'))]
-        baseline_entries=baseline_feed.get('performance',{}).get('entries',[])
-        performance['model_comparison']=compare_models(archived,performance['entries'],baseline_records,baseline_entries)
+        baseline_entries=baseline_feed.get('performance',{}).get('cross_source_entries',[])
+        performance['model_comparison']=compare_models(archived,checked,baseline_records,baseline_entries,require_cross_source=True)
     else:
-        performance['model_comparison']=compare_models(archived,performance['entries'],[],[])
+        performance['model_comparison']=compare_models(archived,checked,[],[],require_cross_source=True)
         performance['model_comparison']['baseline_feed_status']='BASELINE_SNAPSHOT_UNAVAILABLE'
     disciplines={kind:sum(r['run_type']==kind for r in current) for kind in sorted(FAMILIES)}
     public={'schema_version':1,'generated_at_utc':now.isoformat(),'research_only':True,'publication_gate':'BLOCKED',

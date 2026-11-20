@@ -97,7 +97,21 @@ def _validated_score(record,entry):
   if type(value) not in (int,float) or not math.isfinite(value) or abs(value-expected)>1e-10:raise ValueError('Score mismatch')
  return set(ids),winner,brier,loss
 
-def compare_models(context_records,context_entries,baseline_records,baseline_entries):
+def _validated_cross_source(record,entry):
+ """Require the exact second-publisher evidence produced by corroborate()."""
+ evidence=entry.get('cross_source_evidence')
+ if not isinstance(evidence,dict) or evidence.get('verification')!='TWO_PUBLISHER_RESULT_CORROBORATED':raise ValueError('Cross-source evidence missing')
+ if evidence.get('record_sha256')!=record['record_sha256'] or str(evidence.get('winner_horse_id'))!=str(entry['winner_horse_id']):raise ValueError('Cross-source identity mismatch')
+ if evidence.get('publication_gate')!='BLOCKED' or evidence.get('challenge_eligible')!=0:raise ValueError('Unsafe cross-source evidence')
+ if evidence.get('primary_receipt')!=entry.get('source_receipt'):raise ValueError('Primary receipt mismatch')
+ receipt=evidence.get('secondary_receipt')
+ if not isinstance(receipt,dict):raise ValueError('Secondary receipt missing')
+ url=urllib.parse.urlsplit(receipt.get('url',''));digest=receipt.get('sha256','')
+ if url.scheme!='https' or url.hostname!='api.theracingapi.com' or url.path!='/v1/results/today/free' or len(digest)!=64 or any(c not in '0123456789abcdef' for c in digest):raise ValueError('Invalid secondary receipt')
+ observed=_instant(receipt.get('observed_at_utc'))
+ if observed<_instant(record['startUTC']):raise ValueError('Secondary outcome observed before start')
+
+def compare_models(context_records,context_entries,baseline_records,baseline_entries,require_cross_source=False):
  """Latest scored revisions, paired on identical event, final field and winner.
 
  Freeze times may differ; this is not a controlled same-information experiment.
@@ -129,6 +143,7 @@ def compare_models(context_records,context_entries,baseline_records,baseline_ent
   if c_entry is None or b_entry is None:exclude('LATEST_REVISION_NOT_SCORED');continue
   try:
    ci,cw,cb,cl=_validated_score(c,c_entry);bi,bw,bb,bl=_validated_score(b,b_entry)
+   if require_cross_source:_validated_cross_source(c,c_entry);_validated_cross_source(b,b_entry)
   except (ValueError,KeyError,TypeError,OverflowError):exclude('INVALID_OR_UNSUPPORTED_RESULT_EVIDENCE');continue
   if ci!=bi:exclude('FROZEN_FIELDS_DIFFER');continue
   if cw!=bw:exclude('RESULT_WINNERS_DISAGREE');continue
@@ -151,10 +166,12 @@ def compare_models(context_records,context_entries,baseline_records,baseline_ent
    'mean_brier_delta_context_minus_baseline':sum(b)/len(b),'mean_log_loss_delta_context_minus_baseline':sum(l)/len(l),
    'brier_delta_bootstrap_95_interval':paired_interval(b),'log_loss_delta_bootstrap_95_interval':paired_interval(l)})
  return {'protocol_version':'CONTEXT_VS_FORM_PAIRED_V1','model_validation':'UNVALIDATED','research_only':True,'publication_gate':'BLOCKED',
+  'result_evidence_scope':'TWO_PUBLISHER_CORROBORATED' if require_cross_source else 'SINGLE_SOURCE_PROVISIONAL',
   'status':'NO_ELIGIBLE_PAIRS' if not pairs else 'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION','matched_races':len(pairs),
   'groups':summaries,'pairs':sorted(pairs,key=lambda r:(r['startUTC'],r['race_id'])),'exclusions':exclusions,
   'comparison':'Context minus original form baseline on identical frozen fields and observed winners; negative deltas favour context.',
   'limitations':['Different capture times and conditions may confound comparisons; freeze times are shown for each pair.',
    'The original baseline covers all-weather flat racing only. No paired turf or jump performance is available from it.',
-   'Single-publisher provisional results may change. This is neither independent validation nor a market/odds/ROI comparison.',
+   ('Two publishers corroborate race identity, full final field and winner, but independence of their underlying data origin is not established.' if require_cross_source else 'Single-publisher provisional results may change.'),
+   'This is neither independent validation nor a market/odds/ROI comparison.',
    'Parameter fingerprints separate configurations. Small samples and selective full-field coverage limit conclusions.']}
