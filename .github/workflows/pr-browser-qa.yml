@@ -1,10 +1,14 @@
 name: PR browser QA (no deployment)
 on:
+  push:
+    branches: [codex/value-watch-development]
   pull_request:
     branches: [copilot/evidence-research-handover, main]
     paths:
       - 'index.html'
       - 'analyst/**'
+      - 'football-match/**'
+      - 'market-intelligence/**'
       - 'pro-design.css'
       - 'pro-home.js'
       - 'paper-lab/**'
@@ -33,6 +37,7 @@ jobs:
           node tests/test_pro_design.cjs
           node scripts/pro_design_browser_qa.cjs
           node scripts/darts_browser_qa.cjs
+          if test -f scripts/football_match_browser_qa.cjs; then node scripts/football_match_browser_qa.cjs; fi
       - name: Save QA report and screenshots
         if: always()
         uses: actions/upload-artifact@v4

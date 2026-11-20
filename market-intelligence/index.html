@@ -6,7 +6,8 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <title>Market Intelligence | Value Watch</title>
   <link rel="stylesheet" href="../terminal.css">
-  <script src="./app.js" defer></script>
+  <script src="../football-match/core.js" defer></script>
+  <script src="./app.js?v=2" defer></script>
 </head>
 <body class="market-terminal">
   <a class="terminal-skip" href="#main">Skip to market evidence</a>
@@ -32,9 +33,11 @@
       <select id="match" disabled></select>
       <p id="market-status" role="status">Loading recorded markets…</p>
       <p id="model-leader"></p>
+      <p id="market-withheld"></p>
+      <a id="event-preview" hidden>Open Match Centre preview</a>
       <div class="terminal-table" tabindex="0" role="region" aria-label="Recorded market comparison">
         <table>
-          <thead><tr><th scope="col">Source</th><th scope="col">Selection</th><th scope="col">Decimal</th><th scope="col">Fractional equivalent</th><th scope="col">Observed (UK)</th><th scope="col">Field</th><th scope="col">Recorded favourite</th></tr></thead>
+          <thead><tr><th scope="col">Source</th><th scope="col">Selection</th><th scope="col">Decimal</th><th scope="col">Fractional equivalent</th><th scope="col">Observed (UK)</th><th scope="col">Captured (UK)</th><th scope="col">Field</th><th scope="col">Recorded favourite</th></tr></thead>
           <tbody id="market-rows"></tbody>
         </table>
       </div>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0b1220">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Football Match Centre | Value Watch</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./core.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#match">Skip to match</a>
+  <header class="masthead">
+    <a href="../">Value Watch</a>
+    <span>Football Match Centre · Preview</span>
+    <a href="../market-intelligence/">Market intelligence</a>
+  </header>
+  <div class="layout">
+    <aside aria-labelledby="fixture-title">
+      <h2 id="fixture-title">Fixtures</h2>
+      <a id="mode" href="?mode=archive">Historical reconstruction</a>
+      <label for="competition">Competition</label>
+      <select id="competition"><option value="">All competitions</option></select>
+      <label for="search">Find a team</label>
+      <input id="search" type="search" maxlength="80" placeholder="Search home or away">
+      <label for="fixture">Select fixture</label>
+      <select id="fixture"></select>
+      <p id="fixture-count"></p>
+      <ul id="fixture-rail" aria-label="Matching fixtures"></ul>
+    </aside>
+    <main id="match" tabindex="-1">
+      <p id="feed-status" role="status">Loading published football evidence…</p>
+      <article id="event" hidden aria-labelledby="event-title">
+        <header class="event-header">
+          <p id="event-competition" class="eyebrow"></p>
+          <h1 id="event-title"></h1>
+          <p id="event-time"></p>
+          <p class="gate">Models UNVALIDATED · Publication BLOCKED</p>
+        </header>
+        <nav class="sections" aria-label="Match evidence">
+          <a href="#overview">Overview</a><a href="#facts">Match facts</a><a href="#models">Models</a><a href="#sources">Sources</a>
+        </nav>
+        <section id="overview"><h2>Overview</h2><div id="overview-content"></div></section>
+        <section id="facts"><h2>Match facts</h2><div id="facts-content"></div></section>
+        <section id="models"><h2>Models</h2><div id="models-content"></div></section>
+        <section id="sources"><h2>Sources</h2><div id="sources-content"></div></section>
+      </article>
+    </main>
+  </div>
+</body>
+</html>
