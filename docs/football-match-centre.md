@@ -6,7 +6,7 @@ The preview is served at `/football-match/` from the `codex/value-watch-developm
 
 ## Branch and research history
 
-- Merged main commits `271c8e84` (future racing), `5ecc4ce1` (racing source observations), and `8b58e759` (Hybrid market). Their four updated JSON files match main byte for byte.
+- Merged main commits `271c8e84` (future racing), `5ecc4ce1` (racing source observations), and `8b58e759` (Hybrid market). Main then advanced with daily racing, future racecards and publisher selection updates. Those commits were reconciled through `1f5dc292` and the market and racing snapshots match that main snapshot byte for byte.
 - The PR #109 journal assertion remains in branch history and both desk entry points retain journal revision 3.
 - Merged the exact draft PR #114 head into development. The catalogue, Sky 81 grid, archived Phase 3 replay and PR head's historical football baseline remain intact. PR #114 retains its own review history.
 
