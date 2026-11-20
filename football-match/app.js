@@ -122,7 +122,9 @@
       event.start > Date.now() ? 'Scheduled' : 'Kickoff elapsed · final status unavailable';
     $('event-time').textContent = format(event.start) + ' · ' + knownStatus;
     node(overview, 'p', row.verification === 'SCHEDULE_CROSS_CHECK' ? 'Schedule cross-check recorded.' : 'Schedule observed. Independent corroboration is unavailable.');
-    node(overview, 'p', estimates.length + ' eligible model estimates · ' + (market?.sources.length ?? 0) + ' complete market observations.');
+    const marketCount = market?.sources.length ?? 0;
+    node(overview, 'p', estimates.length + ' eligible model ' + (estimates.length === 1 ? 'estimate' : 'estimates') +
+      ' · ' + marketCount + ' complete market ' + (marketCount === 1 ? 'observation.' : 'observations.'));
     if (event.kickoffs.length > 1) node(overview, 'p', 'Kickoff revised by the same provider. Other known schedule times: ' +
       event.kickoffs.filter(time => time !== event.start).map(format).join(', ') + '.');
     const h2h = row.head_to_head_research;
@@ -153,7 +155,7 @@
       if (observed <= event.observed) addReceipt(sources, { url:receipt.url, observed, hash:receipt.sha256 }, 'Fixture source receipt');
     }
     for (const observation of market?.sources ?? []) {
-      addReceipt(sources, observation, observation.name + ' · event ' + observation.id + ' · 90-minute 1X2');
+      addReceipt(sources, { ...observation, url:observation.url.href }, observation.name + ' · event ' + observation.id + ' · 90-minute 1X2');
     }
     for (const {row: model, observed} of available) if (Array.isArray(model.source_receipts)) for (const receipt of model.source_receipts) {
       const timestamp = evidence.instant(receipt?.observed_at_utc);

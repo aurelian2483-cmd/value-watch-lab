@@ -46,6 +46,10 @@ const server = http.createServer(async (request,response) => {
       await fixtureReceipt.locator('summary').focus();
       await page.keyboard.press('Enter');
       assert(await fixtureReceipt.evaluate(element => element.open));
+      const marketReceipt = page.locator('#sources details').filter({hasText:'90-minute 1X2'}).first();
+      await marketReceipt.locator('summary').click();
+      assert(await marketReceipt.getByText('Captured ',{exact:false}).isVisible());
+      assert((await marketReceipt.getByRole('link').getAttribute('href')).startsWith('https://'));
       await page.locator('#overview').scrollIntoViewIfNeeded();
       const issues = (await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations;
       assert.deepEqual(issues.map(issue => issue.id),[]);
