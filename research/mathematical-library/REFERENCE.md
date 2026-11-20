@@ -3835,3 +3835,59 @@ Assumptions — Independent samples with equal location under the scale comparis
 Limitations — Location differences affect ranks, and standard no-tie exact calibration fails in tied samples.
 
 Source — SciPy maintainers’ reference and implementation, scipy.stats.ansari. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ansari.html
+
+## Jacobi stationary linear solver (jacobi-linear-solve)
+
+> Split A=D+L+U into diagonal, strict lower, and strict upper parts. Iterate x_(k+1)=D⁻¹[b−(L+U)x_k]. Convergence for every initial vector holds when ρ(−D⁻¹(L+U))<1.
+
+A coefficient matrix, b right-hand side, x iterate, ρ spectral radius.
+
+Fit an earlier high-dimensional linear baseline with sparse and diagonally dominant normal equations
+
+Assumptions — Nonzero diagonal and contraction of the iteration matrix in spectral radius.
+
+Limitations — Convergence can be slow for weak diagonal dominance and can fail even for some positive definite systems.
+
+Source — Barrett et al., Templates for the Solution of Linear Systems, Netlib. https://www.netlib.org/templates/templates.html
+
+## Gauss–Seidel stationary linear solver (gauss-seidel-linear-solve)
+
+> With A=D+L+U, solve (D+L)x_(k+1)=b−Ux_k in increasing component order. Equivalently each update uses the latest already-computed lower-index entries.
+
+A coefficient matrix, D diagonal, L/U strict triangular parts, b right-hand side.
+
+Solve an ordered sparse historical feature system by sequential coordinate updates
+
+Assumptions — Nonzero diagonal; symmetric positive definite or strictly diagonally dominant A suffices for convergence.
+
+Limitations — Ordering changes convergence and the triangular dependency limits naive parallelism.
+
+Source — Barrett et al., Templates for the Solution of Linear Systems, Netlib. https://www.netlib.org/templates/templates.html
+
+## GMRES minimum-residual solver (gmres-linear-solve)
+
+> Set r₀=b−Ax₀ and K_k=span(r₀,Ar₀,…,A^(k−1)r₀). Compute x_k=argmin_(x∈x₀+K_k)‖b−Ax‖₂ using an Arnoldi orthonormal basis and its Hessenberg least-squares problem.
+
+A real square matrix, x₀ initial estimate, b right-hand side, k Krylov dimension.
+
+Fit a coupled sparse linear state system whose coefficient matrix is nonsymmetric
+
+Assumptions — Nonsingular A for the general full-dimensional exact-arithmetic claim; stop immediately if r₀=0.
+
+Limitations — Basis growth increases memory, and restarting can stall.
+
+Source — Barrett et al., Templates for the Solution of Linear Systems, Netlib. https://www.netlib.org/templates/templates.html
+
+## MINRES symmetric minimum-residual solver (minres-linear-solve)
+
+> For r₀=b−Ax₀ and β=‖r₀‖₂, build Lanczos basis V_k and tridiagonal extension T̄_k from A V_k=V_(k+1)T̄_k. Set x_k=x₀+V_k z where z minimizes ‖βe₁−T̄_k z‖₂, using sequential rotations and short recurrences.
+
+A symmetric system, β initial residual norm, e₁ first coordinate, V_k orthonormal, z reduced coefficients.
+
+Solve a symmetric indefinite optimality system for an equality-constrained historical fit
+
+Assumptions — A real symmetric, possibly indefinite; stop immediately at β=0 and handle terminated Lanczos runs in their attained subspaces.
+
+Limitations — Symmetry loss invalidates the short recurrence, and residual minimization alone does not guarantee a minimum-norm solution for singular problems.
+
+Source — SciPy maintainers’ minres reference and Barrett et al., Templates, Symmetric Lanczos Methods. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.minres.html

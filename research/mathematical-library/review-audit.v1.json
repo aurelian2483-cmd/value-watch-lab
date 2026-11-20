@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "012",
+  "batch": "013",
   "new_specifications": 4,
-  "registered_after_batch": 274,
+  "registered_after_batch": 278,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -232,6 +232,15 @@
       "mathematical_checks": "Compared explicit statistics with SciPy on synthetic untied and tied group examples, including within-block ranks and median-centered scores.",
       "semantic_review": "Kruskal–Wallis uses ranks across independent groups. Friedman ranks methods within matched blocks. Fligner–Killeen transforms ranks of group-median-centered deviations to normal scores. Ansari–Bradley instead scores extreme-to-central positions in a two-sample pooled ordering. Wilcoxon ranks paired differences. Mann–Whitney was deferred because its statistic is rank-equivalent to the existing empirical AUC under a shared tie rule.",
       "scope": "Review covers additions against the registered catalogue. Assessment timing applies to an authorized sample only. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
+    },
+    {
+      "batch": "013",
+      "new_specifications": 4,
+      "registered_after_batch": 278,
+      "source_check": "Checked matrix splittings and Krylov objectives against the Netlib iterative solver reference and the MINRES symmetry and indefiniteness requirements against its SciPy reference.",
+      "mathematical_checks": "Synthetic tests checked convergence of the two stationary splittings and compared short Krylov residual minimizers with full solves and SciPy, including a symmetric indefinite system.",
+      "semantic_review": "Jacobi reads only prior-sweep values, while Gauss–Seidel performs a triangular solve using updated values. GMRES minimizes the Euclidean residual in a nonsymmetric Krylov problem via Arnoldi, whereas MINRES exploits symmetric Lanczos structure and short recurrences. Conjugate gradient instead relies on positive definite energy geometry. Relaxation factors, ordering policies and GMRES restart settings were excluded as stand-alone entries.",
+      "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
     }
   ]
 }
