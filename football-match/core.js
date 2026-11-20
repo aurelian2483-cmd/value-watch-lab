@@ -31,23 +31,36 @@
   function exactKey(identity, start) {
     return JSON.stringify([...identity, new Date(start).toISOString()]);
   }
+  function trainingTimestamp(value) {
+    const calendar = typeof value === 'string' &&
+      /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}(?:\.(\d{1,6}))?(?:Z|[+-]\d{2}:\d{2})$/.exec(value);
+    if (!calendar) return null;
+    const time = instant(value);
+    const day = Date.parse(calendar[1]);
+    if (!Number.isFinite(time) || !Number.isFinite(day) ||
+        new Date(day).toISOString().slice(0, 10) !== calendar[1] || Number(value.slice(11, 13)) >= 24) return null;
+    return { time, micros: Number((calendar[2] ?? '').padEnd(6, '0').slice(3)) };
+  }
+
   function modelCutoffReason({ row, observed }, fixture) {
     if (row.cutoff_utc == null || row.cutoff_utc === '') return 'Explicit training cutoff is missing.';
-    const calendar = typeof row.cutoff_utc === 'string' &&
-      /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.exec(row.cutoff_utc);
-    const cutoff = instant(row.cutoff_utc);
-    const day = calendar && Date.parse(calendar[1]);
-    if (!Number.isFinite(cutoff) || !Number.isFinite(day) ||
-        new Date(day).toISOString().slice(0, 10) !== calendar[1] || Number(row.cutoff_utc.slice(11, 13)) >= 24)
-      return 'Explicit training cutoff is invalid.';
-    if (!(cutoff <= fixture.marketCutoff)) return 'Training cutoff is later than the earliest known kickoff.';
+    const timestamp = trainingTimestamp(row.cutoff_utc);
+    if (!timestamp) return 'Explicit training cutoff is invalid.';
+    const { time: cutoff, micros } = timestamp;
+    if (cutoff > fixture.marketCutoff || (cutoff === fixture.marketCutoff && micros)) return 'Training cutoff is later than the earliest known kickoff.';
     if (!(observed < fixture.marketCutoff)) return 'Model was observed at or after the earliest known kickoff.';
-    if (cutoff > observed) return 'Training cutoff is later than the recorded model observation.';
+    if (cutoff > observed || (cutoff === observed && micros)) return 'Training cutoff is later than the recorded model observation.';
     if (!Array.isArray(row.source_receipts) || !row.source_receipts.length)
       return 'Training source receipts are missing.';
-    if (!row.source_receipts.every(receipt => receiptURL(receipt?.url) && hash(receipt.sha256) &&
-        instant(receipt.observed_at_utc) <= observed))
-      return 'Training source receipts are invalid or were observed after the model.';
+    for (const [index, receipt] of row.source_receipts.entries()) {
+      const label = 'Training source receipt ' + (index + 1);
+      if (receipt?.observed_at_utc == null || receipt.observed_at_utc === '') return label + ' is missing its observation timestamp.';
+      const observedAt = trainingTimestamp(receipt.observed_at_utc);
+      if (!observedAt) return label + ' has an invalid observation timestamp.';
+      if (!receiptURL(receipt.url) || !hash(receipt.sha256)) return label + ' has an invalid source URL or hash.';
+      if (observedAt.time > cutoff || (observedAt.time === cutoff && observedAt.micros > micros))
+        return label + ' was observed after the explicit training cutoff.';
+    }
     return null;
   }
 

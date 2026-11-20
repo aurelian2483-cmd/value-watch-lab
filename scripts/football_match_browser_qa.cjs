@@ -90,6 +90,24 @@ const server = http.createServer(async (request,response) => {
       const cutoffIssues = (await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations;
       assert.deepEqual(cutoffIssues.map(issue => issue.id),[]);
       await page.screenshot({path:path.join(output,'football-cutoff-'+width+'.png'),fullPage:true});
+      const dashboard = JSON.parse(await fs.readFile(path.join(root,'research-dashboard-data.json'),'utf8'));
+      const baseline = dashboard.experimental_model_forecasts.find(row => row.model === 'POISSON_BASELINE_2025_26_V1' &&
+        row.home === 'Manchester City' && row.away === 'Fulham');
+      const cutoff = '2026-11-20T15:00:00Z';
+      const receipt = {url:'https://example.org/training.csv',sha256:'a'.repeat(64),observed_at_utc:cutoff};
+      dashboard.experimental_model_forecasts.push(
+        {...baseline,model:'QA receipt at cutoff',cutoff_utc:cutoff,source_receipts:[receipt]},
+        {...baseline,model:'QA receipt after cutoff',cutoff_utc:cutoff,
+          source_receipts:[receipt,{...receipt,observed_at_utc:'2026-11-20T15:00:00.000001Z'}]}
+      );
+      await page.route('**/research-dashboard-data.json',route => route.fulfill({json:dashboard}));
+      await page.reload();
+      await page.getByText(/^1 eligible model estimate ·/).waitFor();
+      assert.deepEqual(await page.getByLabel('Probability model').locator('option').allTextContents(),['QA receipt at cutoff']);
+      assert(await unverified.getByText('QA receipt after cutoff',{exact:true}).isVisible());
+      assert(await unverified.getByText('Training source receipt 2 was observed after the explicit training cutoff.',{exact:true}).isVisible());
+      await page.screenshot({path:path.join(output,'football-receipt-cutoff-'+width+'.png'),fullPage:true});
+      await page.unroute('**/research-dashboard-data.json');
       await page.route('**/football-expanded-data.json',route => route.fulfill({status:503}));
       await page.goto(shared);
       await page.getByRole('status').getByText('This fixture is unavailable or its identity is ambiguous.').waitFor();

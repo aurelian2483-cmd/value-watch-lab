@@ -54,7 +54,7 @@ assert.equal(markets([capture,{...capture,benchmark:{...capture.benchmark,prices
 const another = {...fixture,espn_event_id:'102',kickoff_utc:stamp('22:00')};
 assert.equal(markets([capture,{...capture,event_id:eventID(another),start_utc:another.kickoff_utc}],
   evidence.fixtureIndex([feed([fixture,another])],now)).matches.length,0);
-const inputReceipt = {url:'https://example.org/training.csv',sha256:'b'.repeat(64),observed_at_utc:stamp('16:10')};
+const inputReceipt = {url:'https://example.org/training.csv',sha256:'b'.repeat(64),observed_at_utc:stamp('16:00')};
 const estimate = {...fixture,...gates,model:'QA_POISSON',prob_home:.806,prob_draw:.135,prob_away:.059,
   cutoff_utc:stamp('16:00'),source_receipts:[inputReceipt]};
 const candidates = [
@@ -72,10 +72,26 @@ const classified = evidence.fixtureIndex([modelFeed],now).events[0].models;
 assert.deepEqual(classified.map(model => model.cutoffReason),[
   'Explicit training cutoff is missing.','Explicit training cutoff is invalid.','Explicit training cutoff is invalid.',
   'Training cutoff is later than the earliest known kickoff.','Training cutoff is later than the recorded model observation.',
-  'Training source receipts are missing.','Training source receipts are invalid or were observed after the model.',null
+  'Training source receipts are missing.','Training source receipt 1 was observed after the explicit training cutoff.',null
 ]);
 assert.deepEqual(classified.filter(model => model.cutoffReason === null).map(model => model.row),[estimate]);
 classified.forEach((model,index) => assert.equal(model.row,candidates[index],'Keep original probability and provenance object'));
+for (const [timestamp, expected] of [
+  ['2026-11-20T15:59:59.999999Z',null],
+  ['2026-11-20T17:00:00+01:00',null],
+  ['2026-11-20T16:00:00.000001Z','was observed after the explicit training cutoff.'],
+  [stamp('16:01'),'was observed after the explicit training cutoff.'],
+  [stamp('17:00'),'was observed after the explicit training cutoff.'],
+  [undefined,'is missing its observation timestamp.'],
+  ['','is missing its observation timestamp.'],
+  ['2026-11-20T16:00:00','has an invalid observation timestamp.'],
+  ['2026-02-30T16:00:00Z','has an invalid observation timestamp.']
+]) {
+  const row = {...estimate,source_receipts:[inputReceipt,{...inputReceipt,observed_at_utc:timestamp}]};
+  const [checked] = evidence.fixtureIndex([{...modelFeed,experimental_model_forecasts:[row]}],now).events[0].models;
+  assert.equal(checked.cutoffReason,expected === null ? null : 'Training source receipt 2 ' + expected);
+  assert.equal(checked.row,row);
+}
 const movedEstimate = {...estimate,kickoff_utc:moved.kickoff_utc,cutoff_utc:stamp('20:30')};
 const modelAfterMove = evidence.fixtureIndex([feed([fixture]),{
   ...feed([moved],stamp('18:00')),experimental_model_forecasts:[movedEstimate,{...movedEstimate,cutoff_utc:stamp('16:00')}]
@@ -89,6 +105,9 @@ assert.equal(markets([{...capture,frozen_model:frozen}]).matches[0].model.cutoff
 assert.equal(markets([{...capture,frozen_model:{...frozen,comparison:{...frozen.comparison,source_receipts:null}}}])
   .matches[0].model.cutoffReason,'Training source receipts are missing.');
 
+assert.equal(markets([{...capture,frozen_model:{...frozen,comparison:{...frozen.comparison,
+  source_receipts:[{...inputReceipt,observed_at_utc:stamp('16:01')}]}}}])
+  .matches[0].model.cutoffReason,'Training source receipt 1 was observed after the explicit training cutoff.');
 const archive = require('../research/football-baseline-v1/608-reconstructed-forecasts.json');
 assert.equal(evidence.historicalRows(archive).length,608);
 assert.equal(evidence.historicalRows({...archive,meta:{...archive.meta,validated:true}}).length,0);

@@ -34,8 +34,12 @@ The preview is served at `/football-match/` from the `codex/value-watch-developm
 
 ## Strict model training cutoff
 
-Eligibility requires an explicit timestamp with a time zone, at or before the earliest known kickoff and at or before the recorded model observation. The observation itself must precede the earliest known kickoff. Training receipts must have a safe source URL, SHA-256 and an observation timestamp no later than the model observation. The verifier checks supplied metadata and does not independently audit the training dataset.
+Eligibility requires an explicit timestamp with a time zone, at or before the earliest known kickoff and at or before the recorded model observation. The observation itself must precede the earliest known kickoff. Training receipts must have a safe source URL, SHA-256 and a valid observation timestamp at or before the explicit training cutoff. Every receipt must pass this check. The verifier checks supplied metadata and does not independently audit the training dataset.
 
 The preview preserves gated, matched probability estimates that fail these checks under **UNVERIFIED EXPERIMENTAL ESTIMATES**, with the recorded provenance and a reason. They are excluded from the eligible chart and the market model-leader calculation. The separate retrospective archive retains its own earlier-date cutoff and performance sample.
 
 [Manchester City v Fulham desktop](preview/football-match/cutoff-1440.webp) · [Manchester City v Fulham mobile](preview/football-match/cutoff-390.webp)
+
+The receipt boundary screenshots use synthetic observations in the browser test. An exact-cutoff receipt remains eligible and a receipt one microsecond later is withheld. The original Manchester City v Fulham estimate remains visible with its missing-cutoff reason.
+
+[Receipt boundary desktop](preview/football-match/receipt-cutoff-1440.webp) · [Receipt boundary mobile](preview/football-match/receipt-cutoff-390.webp)
