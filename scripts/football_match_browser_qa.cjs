@@ -59,6 +59,11 @@ const server = http.createServer(async (request,response) => {
       assert.match(page.url(),/competition=D1/);
       await page.goBack();
       assert.equal(await page.locator('#competition').inputValue(),'D1');
+      const search = page.getByRole('searchbox',{name:'Find a team'});
+      await search.pressSequentially(original);
+      assert.equal(new URL(page.url()).searchParams.get('q'),original);
+      assert.equal(await search.inputValue(),original);
+      assert(Number.parseInt(await page.locator('#fixture-count').textContent(),10)>0);
       await page.goto(shared);
       await page.getByRole('heading',{name:original,exact:true}).waitFor();
       assert.equal(await page.evaluate(() => localStorage.getItem('value-watch-research-desk-v4')),'saved-workspace-sentinel');
@@ -67,6 +72,8 @@ const server = http.createServer(async (request,response) => {
       const before = await page.locator('.chart').innerText();
       await page.getByLabel('Probability model').selectOption('1');
       assert.notEqual(await page.locator('.chart').innerText(),before);
+      await page.getByText('Same-sample historical scores',{exact:true}).click();
+      assert(await page.getByText(/608 matches · Brier.*log loss/).first().isVisible());
       await page.route('**/football-expanded-data.json',route => route.fulfill({status:503}));
       await page.goto(shared);
       await page.getByRole('status').getByText('This fixture is unavailable or its identity is ambiguous.').waitFor();

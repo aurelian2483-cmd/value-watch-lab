@@ -16,7 +16,7 @@
   const stateURL = id => {
     const url = new URL(location.href);
     url.hash = '';
-    for (const [key, value] of [['event', id], ['competition', $('competition').value], ['q', $('search').value.trim()]]) {
+    for (const [key, value] of [['event', id], ['competition', $('competition').value], ['q', $('search').value]]) {
       if (value) url.searchParams.set(key, value);
       else url.searchParams.delete(key);
     }
@@ -25,6 +25,7 @@
   let index = new Map();
   let markets = new Map();
   let feedMessage = '';
+  let archiveMetrics = null;
   const archive = new URLSearchParams(location.search).get('mode') === 'archive';
 
   function chart(parent, models) {
@@ -90,6 +91,15 @@
         { name:'Reconstructed Poisson baseline V1', values:row.p_unadjusted, note:'Training cutoff excludes the match date. Earlier league matches: ' + row.prior_league_matches + '.' },
         { name:'Reconstructed recent-form variant', values:row.p_recent_form_alpha_0_025, note:'Same match and earlier-date cutoff. Retrospective approximation with form weight α = 0.025.' }
       ]);
+      if (archiveMetrics) {
+        const comparison = node(models, 'details');
+        node(comparison, 'summary', 'Same-sample historical scores');
+        for (const [name, metrics] of [['Poisson baseline',archiveMetrics.unadjusted],['Recent-form variant',archiveMetrics.form]]) {
+          node(comparison, 'p', name + ' · ' + metrics.n + ' matches · Brier ' +
+            metrics.multiclass_brier.toFixed(3) + ' · log loss ' + metrics.log_loss.toFixed(3) + '.');
+        }
+        node(comparison, 'p', 'These are retrospective reconstruction scores. Prospective calibration and independent validation are unavailable.');
+      }
       const link = node(models, 'a', 'Method and historical comparison documentation');
       link.href = '../research/football-baseline-v1/README.md';
       node(sources, 'p', 'Frozen reconstruction archive. Original forecast, source capture time and independent outcome verification are unavailable.');
@@ -158,7 +168,7 @@
     const league = params.get('competition') ?? '';
     $('competition').value = [...$('competition').options].some(option => option.value === league) ? league : '';
     $('search').value = (params.get('q') ?? '').slice(0,80);
-    const query = $('search').value.toLowerCase();
+    const query = $('search').value.trim().toLowerCase();
     const fixtures = [...index.values()].filter(event => (!$('competition').value || event.identity[0] === $('competition').value) &&
       label(event).toLowerCase().includes(query));
     const event = requested ? index.get(requested) : fixtures[0];
@@ -201,6 +211,10 @@
       $('mode').textContent = 'Published fixture snapshots';
       const document = await read('../research/football-baseline-v1/608-reconstructed-forecasts.json');
       for (const row of evidence.historicalRows(document).reverse()) index.set(row.id, {id:row.id, row, identity:['PL', row.home, row.away]});
+      if (index.size && [document.metrics?.unadjusted, document.metrics?.form].every(metrics =>
+        metrics?.n === index.size && [metrics.multiclass_brier, metrics.log_loss].every(value => Number.isFinite(value) && value >= 0))) {
+        archiveMetrics = document.metrics;
+      }
       if (!index.size) feedMessage = 'Historical reconstruction unavailable.';
     } else {
       const now = Date.now();
