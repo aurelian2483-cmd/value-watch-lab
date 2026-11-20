@@ -5,8 +5,8 @@
   const $ = id => document.getElementById(id);
   const rootURL = new URL('../', document.currentScript.src);
   const sports = { all: 'All sports', football: 'Football', racing: 'Horse racing', tennis: 'Tennis', nfl: 'NFL', darts: 'Darts', rugby: 'Rugby' };
-  const symbols = { football: '⚽', racing: '♞', tennis: '◉', nfl: '◆' };
-  const sources = { 'research-dashboard-data.json': ['football', 'Premier League'], 'football-expanded-data.json': ['football', 'Football leagues'], 'international-football-data.json': ['football', 'International football'], 'racing-research-data.json': ['racing', 'Racecards & source prices'], 'racing-future-data.json': ['racing-future', 'Future race schedules'], 'horse-predictions-data.json': ['racing-context', 'Racing model predictions'], 'other-sports-data.json': ['other', 'Tennis & NFL'], 'research-history.json': ['history', 'Historical results'], 'research/result-review-status.json': ['result-review', 'Tennis & NFL result review'] };
+  const symbols = { football: '⚽', racing: '♞', tennis: '◉', nfl: '◆', rugby: '🏉' };
+  const sources = { 'research-dashboard-data.json': ['football', 'Premier League'], 'football-expanded-data.json': ['football', 'Football leagues'], 'international-football-data.json': ['football', 'International football'], 'racing-research-data.json': ['racing', 'Racecards & source prices'], 'racing-future-data.json': ['racing-future', 'Future race schedules'], 'horse-predictions-data.json': ['racing-context', 'Racing model predictions'], 'other-sports-data.json': ['other', 'Tennis & NFL'], 'rugby-research-data.json': ['rugby', 'Rugby fixtures'], 'rugby/pro-d2-results.json': ['rugby-results', 'Official Pro D2 results'], 'research-history.json': ['history', 'Historical results'], 'research/result-review-status.json': ['result-review', 'Tennis & NFL result review'] };
   const specs = Object.entries(sources).map(([file, [kind, label]]) => ({ kind, label, path: new URL(file, rootURL).pathname }));
   const key = 'value-watch-research-desk-v4';
   const day = E.day, today = () => new Intl.DateTimeFormat('sv-SE', {timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -567,7 +567,8 @@
       record.notesPanel.dataset.signature = noteSignature; record.notesPanel.replaceChildren();
       for (const note of notes) showNote(record.notesPanel, note);
     }
-    record.check.href = C.eventLink(event, 'www.oddschecker.com') || C.oddschecker(event.sport);
+    record.check.hidden = event.sport === 'rugby';
+    if (!record.check.hidden) record.check.href = C.eventLink(event, 'www.oddschecker.com') || C.oddschecker(event.sport);
     record.check.title = 'Opens Oddschecker. Match the event, date, market and Sky Bet column; no price is imported.';
     const modelSignature = JSON.stringify([event.model, review, event.choices.map(choice => [choice.label, choice.probability])]);
     if (record.modelPanel.dataset.signature !== modelSignature) {
@@ -647,7 +648,7 @@
     const rows = E.paperEligibilityAudit(state.plan, state.events);
     const available = rows.reduce((n, row) => n + row.eligible, 0);
     const summary = section.querySelector('summary');
-    if (summary) write(summary, 'Why do slips favour one sport? · ' + available + ' eligible across four sports');
+    if (summary) write(summary, 'Why do slips favour one sport? · ' + available + ' eligible across ' + rows.length + ' sports');
     target.replaceChildren();
     make(target, 'p', 'For ' + state.plan.from + ' to ' + state.plan.to +
       ' · all loaded sports regardless of the event filter. Eligibility is not positive expected value or a recommendation.', 'small');
@@ -790,6 +791,17 @@
       make(card, 'p', row.sourceStatus, 'event-status');
       if (row.venue) make(card, 'p', row.venue, 'small');
       const outcomes = make(card, 'div', undefined, 'fixture-outcomes');
+      const rugbyEvent = row.rugbyModel && state.events.find(event => event.sport === 'rugby' &&
+        event.providerEventId === String(row.provider?.event_id) && event.startUTC === row.start &&
+        event.name === row.name && E.statusOf(event).selectable);
+      const rugbyEstimate = row.rugbyModel?.probabilities;
+      const addRugbyChoice = (outcome, choiceId) => {
+        if (!rugbyEvent) return;
+        const selected = state.plan.slots[state.slot].legs.some(leg => leg.eventId === rugbyEvent.id && leg.choiceId === choiceId);
+        const control = button(outcome, selected ? 'Remove from paper slip' : 'Add to paper slip',
+          () => select(rugbyEvent.id, choiceId));
+        control.setAttribute('aria-pressed', String(selected));
+      };
       row.participants.forEach((participant,index) => {
         const outcome = make(outcomes, 'div', undefined, 'fixture-outcome');
         make(outcome, 'strong', participant);
@@ -799,7 +811,17 @@
         else if (row.form) make(outcome, 'span', 'No matched Pro D2 results for this team.');
         if (row.model?.prob_a !== null && row.model?.prob_a !== undefined)
           make(outcome, 'span', 'D1 estimate: ' + pct(index === 0 ? row.model.prob_a : row.model.prob_b) + ' · uncalibrated');
+        if (rugbyEstimate) {
+          make(outcome, 'span', 'Experimental estimate: ' + pct(rugbyEstimate[index === 0 ? 0 : 2]));
+          addRugbyChoice(outcome, index === 0 ? 'home' : 'away');
+        }
       });
+      if (rugbyEstimate) {
+        const draw = make(outcomes,'div',undefined,'fixture-outcome');
+        make(draw,'strong','Draw');
+        make(draw,'span','Experimental estimate: ' + pct(rugbyEstimate[1]));
+        addRugbyChoice(draw,'draw');
+      }
       make(card, 'p', row.reason, 'fixture-model-status');
       if (!row.marketEvidence) make(card, 'p', 'Bookmaker odds unavailable · Paper research only', 'small');
       else {
@@ -815,6 +837,7 @@
         if (market.directSource) link(prices, 'Check the current Sky Bet listing', market.directSource);
       }
       const evidence = details(card, 'Match evidence and sources', 'compact-evidence-disclosure');
+      if (row.rugbyModel) make(evidence,'p','Pro D2 Elo replays earlier league results in date order with fixed starting ratings, a fixed home advantage, and a smoothed league draw rate. Experimental and uncalibrated.','small');
       if (row.form?.some(matches => matches.length)) make(evidence,'p','W = win · D = draw · L = loss','small');
       if (row.form) row.form.forEach((matches,index) => {
         if (!matches.length) return;
@@ -838,7 +861,7 @@
     const fixtureView = Boolean(fixtureLabs[state.sport]);
     if ($('find-racing')) $('find-racing').hidden = !['all','racing'].includes(state.sport);
     if ($('racing-candidates')) $('racing-candidates').hidden = !['all','racing'].includes(state.sport) || !racingCandidatesRequested;
-    const filteredBuild = fixtureView && $('build-scope').value !== 'all';
+    const filteredBuild = fixtureView && $('build-scope').value !== 'all' && !filtered(state).some(event => event.sport === 'rugby' && E.statusOf(event).selectable);
     $('generate').disabled = filteredBuild;
     $('generate').title = filteredBuild ? 'No qualifying selections: see the missing inputs on each match card.' : '';
     const audit = $('paper-eligibility-audit');
@@ -849,7 +872,7 @@
     renderPaperEligibilityAudit();
     const state = store.get();
     renderSportActions(state);
-    const normalRows = filtered(state);
+    const normalRows = filtered(state).filter(event => event.sport !== 'rugby');
     const isReliability = engineView === 'reliability';
     const rows = isReliability
       ? normalRows.filter(event => currentHistoryStatus(event).status === 'FORM_CANDIDATE')
@@ -1016,7 +1039,7 @@
           make(game, 'p', dateText(event.startUTC), 'small'); make(game, 'strong', event.score?.label ? 'Final · ' + event.score.label : E.statusOf(event).label); make(game, 'p', 'Snapshot ' + dateText(event.observedAt) + ' · published data, not live tracking', 'small'); if (event.score) provenance(game, event.score.sources);
           const sofa = C.eventLink(event, 'www.sofascore.com');
           if (sofa) link(game, 'View sourced Sofascore event ↗', sofa);
-          link(game, 'Check prices on Oddschecker ↗', C.eventLink(event, 'www.oddschecker.com') || C.oddschecker(event.sport));
+          if (event.sport !== 'rugby') link(game, 'Check prices on Oddschecker ↗', C.eventLink(event, 'www.oddschecker.com') || C.oddschecker(event.sport));
         }
       }
     }
@@ -1067,7 +1090,7 @@
     if (state.selectable) {
       const form = make(evidence, 'form', undefined, 'record-price-form');
       const field = (label, type, value) => { const wrap = make(form, 'label', label), input = make(wrap, 'input'); input.type = type; input.value = value; input.required = true; return input; };
-      link(evidence, 'Check prices on Oddschecker ↗', C.oddschecker(leg.sport));
+      if (leg.sport !== 'rugby') link(evidence, 'Check prices on Oddschecker ↗', C.oddschecker(leg.sport));
       const price = field('Observed decimal price', 'number', leg.quote?.decimal || ''); price.min = '1.00000001'; price.max = '100000'; price.step = 'any';
       const bookmaker = field('Bookmaker', 'text', leg.quote?.bookmaker || 'Sky Bet'); bookmaker.maxLength = 100;
       const source = field('Evidence source URL', 'url', leg.quote?.source || '');
@@ -1288,7 +1311,7 @@
     try { storage.setItem(X.preferenceKey, engineView); } catch { write($('engine-status'), $('engine-status').textContent + ' View preference could not be saved on this device.'); }
   }));
   const wildcardStorageKey = 'value-watch-weekly-wildcard-v1';
-  const wildcardSportNames = {football:'Football',racing:'Horse racing',tennis:'Tennis',nfl:'NFL'};
+  const wildcardSportNames = {football:'Football',racing:'Horse racing',tennis:'Tennis',nfl:'NFL',rugby:'Rugby'};
   function wildcardWeek(date) {
     const d=new Date(date+'T12:00:00Z');
     const offset=(d.getUTCDay()+6)%7;
@@ -1495,7 +1518,7 @@
     make(heading,'span','Paper research','wildcard-compact-status');
     make(target,'p',from+' to '+to+' · UK dates. Estimates are experimental.','wildcard-compact-intro');
     const grid=make(target,'div',undefined,'wildcard-shortlist');
-    for(const sport of ['football','racing','tennis','nfl']){
+    for(const sport of review.reviewedSports){
       const cov=review.coverage?.find(row=>row.sport===sport);
       const chosen=review.selections?.find(row=>row.sport===sport);
       const box=make(grid,'article',undefined,'wildcard-shortlist-card'+(chosen?'':' wildcard-shortlist-pass'));

@@ -87,7 +87,8 @@ def collect(season, rounds, now):
     if not results or len({row['source'] for row in results}) != len(results):
         raise ValueError('Missing or duplicate Pro D2 final scores')
     return {'schema_version': 1, 'research_only': True, 'competition_code': 'RU:5172',
-            'season': season, 'observed_at_utc': now.isoformat(), 'source_receipts': [row for row, _ in batches],
+            'model_validation': 'UNVALIDATED', 'publication_gate': 'BLOCKED',
+            'season': season, 'generated_at_utc': now.isoformat(), 'observed_at_utc': now.isoformat(), 'source_receipts': [row for row, _ in batches],
             'results': results}
 
 

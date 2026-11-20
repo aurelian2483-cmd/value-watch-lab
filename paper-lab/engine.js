@@ -1,10 +1,10 @@
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core.js'), require('../research-audit-core.js'), require('../racecards-core.js'));
+    module.exports = factory(require('./core.js'), require('../research-audit-core.js'), require('../racecards-core.js'), () => require('./fixture-evidence.js'));
   } else {
-    root.ResearchEngine = factory(root.PaperLab, root.ResearchAudit, root.RaceCards);
+    root.ResearchEngine = factory(root.PaperLab, root.ResearchAudit, root.RaceCards, () => root.ResearchFixtureEvidence);
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (Core, Audit, Cards) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (Core, Audit, Cards, fixtureEvidence) {
   'use strict';
 
   const GATES = Object.freeze({ research_only: true, model_validation: 'UNVALIDATED', publication_gate: 'BLOCKED' });
@@ -14,7 +14,7 @@
     { id: 'explorer', name: 'Cross-Sport Explorer', description: 'Explore evidence across available sports.', structure: 'accumulator' },
     { id: 'longshot', name: 'Experimental Longshot', description: 'Larger combinations, with dependence and uncertainty unresolved.', structure: 'accumulator' }
   ]);
-  const SPORTS = Object.freeze({ football: 'FOOTBALL', racing: 'HORSE_RACING', tennis: 'TENNIS', nfl: 'NFL' });
+  const SPORTS = Object.freeze({ football: 'FOOTBALL', racing: 'HORSE_RACING', tennis: 'TENNIS', nfl: 'NFL', rugby: 'RUGBY' });
   const STRUCTURES = new Set(['singles', 'doubles', 'trebles', 'accumulator']);
   const MAX_LEGS = 15;
   const MAX_STAKE_MINOR = 100000000;
@@ -299,6 +299,22 @@
     }, now)).filter(Boolean);
   }
 
+  function rugbyResearch(document, path, now, results) {
+    const normalized = fixtureEvidence()?.normalize('rugby', document, [], now, results);
+    return list(normalized?.fixtures).filter(row => row.rugbyModel && row.provider?.event_id).map(row => {
+      const [home, away] = row.participants;
+      const sources = sourceRows(row.provider.source_receipts, document.generated_at_utc, path);
+      if (!sources.some(source => source.kind === 'PROVIDER_RECEIPT')) return null;
+      const choices = ['home','draw','away'].map((id, index) => ({id, label:[home,'Draw',away][index],
+        probability:row.rugbyModel.probabilities[index], uncertainty:null, quote:null, market:'Match result · regulation time'}));
+      return makeEvent({sport:'rugby', identity:String(row.provider.event_id), providerId:row.provider.event_id,
+        competition:row.competition, name:row.name, startUTC:row.start, observedAt:row.observedAt, sources, choices,
+        participants:[{id:'home',name:home},{id:'away',name:away}], stats:{recent:null},
+        model:{name:row.rugbyModel.name, trainingMatches:row.rugbyModel.trainingMatches, validation:'UNVALIDATED',
+          probabilityKind:'EXPERIMENTAL_MODEL_ESTIMATE', observedAt:results.generated_at_utc},
+        extra:{providerStatus:'SCHEDULED', rugbyForm:row.form}}, now);
+    }).filter(Boolean);
+  }
   function statusOf(event, now = Date.now()) {
     const state = (code, label, selectable = false) => ({ code, label, selectable, ageMs: event ? now - instant(event.observedAt) : null });
     if (!event || !Number.isFinite(instant(event.startUTC)) || !Number.isFinite(instant(event.observedAt))) return state('UNAVAILABLE', 'Event information unavailable');
@@ -318,9 +334,11 @@
   }
 
   function normalizeFeeds(documents, now = Date.now()) {
-    const adapters = { football, racing, other: otherSports, history: historical, 'racing-context': () => [],'result-review': () => [],'racing-future':futureRacing };
+    const adapters = { football, racing, other: otherSports, history: historical, 'racing-context': () => [],'result-review': () => [],'racing-future':futureRacing, rugby:rugbyResearch, 'rugby-results': () => [] };
     const contexts = list(documents).filter(item => item?.kind === 'racing-context' && Core.safe(item.document) && instant(item.document.generated_at_utc) <= now);
     const contextFeed = contexts.length === 1 ? contexts[0].document : null;
+    const rugbyHistory = list(documents).filter(item => item?.kind === 'rugby-results' && Core.safe(item.document) && instant(item.document.generated_at_utc) <= now);
+    const rugbyResults = rugbyHistory.length === 1 ? rugbyHistory[0].document : null;
     const index = new Map(), diagnostics = [];
     for (const item of list(documents)) {
       const document = item?.document;
@@ -328,7 +346,7 @@
         diagnostics.push({ path: str(item?.path), reason: 'Unsupported, unsafe or future-dated snapshot' }); continue;
       }
       try {
-        for (const event of adapters[item.kind](document, item.path, now, contextFeed)) {
+        for (const event of adapters[item.kind](document, item.path, now, item.kind === 'rugby' ? rugbyResults : contextFeed)) {
           const previous = index.get(event.id);
           if (previous && instant(previous.observedAt) === instant(event.observedAt) && key(previous.choices.map(c => [c.id, c.label])) !== key(event.choices.map(c => [c.id, c.label]))) { previous.identityConflict = true; previous.status = statusOf(previous, now); continue; }
           if (!previous || instant(event.observedAt) > instant(previous.observedAt) || (instant(event.observedAt) === instant(previous.observedAt) && event.sources.filter(s => s.url).length > previous.sources.filter(s => s.url).length)) index.set(event.id, event);
@@ -395,7 +413,7 @@
     if (event.sport === 'football' && (!event.seasonComparison || !vector([event.seasonComparison.prob_home, event.seasonComparison.prob_draw, event.seasonComparison.prob_away]))) throw Error('Current-season football evidence unavailable; paper selection blocked.');
     const eventDate = Core.day(event.startUTC);
     if (eventDate < plan.from || eventDate > plan.to) throw Error('The event falls outside this research date range.');
-    return { id: key(event.id, choice.id), eventId: event.id, identity: event.identity, choiceId: choice.id, label: choice.label, event: event.name, sport: event.sport, sport_type: event.sport_type, competition: event.competition, startUTC: event.startUTC, market: choice.market, observedAt: event.observedAt, capturedAt: new Date(now).toISOString(), sources: clone(event.sources), probability: event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.id]] : choice.probability, uncertainty: null, model: event.sport === 'football' ? { name:'CURRENT_SEASON_POISSON_COMPARISON_V1', validation:'UNVALIDATED', probabilityKind:'EXPERIMENTAL_CURRENT_SEASON_COMPARISON', observedAt:event.observedAt, trainingMode:'CURRENT_SEASON_ONLY' } : clone(event.model), quote: supportedQuote(choice.quote, event, now) ? clone(choice.quote) : null, evidenceStatus: state.code, ...(event.provisionalEntry ? { provisionalEntry: true, declarationStatus: "NOT_VERIFIED" } : {}), ...GATES };
+    return { id: key(event.id, choice.id), eventId: event.id, identity: event.identity, choiceId: choice.id, label: choice.label, event: event.name, sport: event.sport, sport_type: event.sport_type, competition: event.competition, startUTC: event.startUTC, market: choice.market, observedAt: event.observedAt, capturedAt: new Date(now).toISOString(), sources: clone(event.rugbyForm ? [...event.sources, ...sourceRows([...new Set(event.rugbyForm.flat().map(row => row.source))].map(url => ({url, observedAt:event.model.observedAt})), event.model.observedAt, null)] : event.sources), probability: event.sport === 'football' ? event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.id]] : choice.probability, uncertainty: null, model: event.sport === 'football' ? { name:'CURRENT_SEASON_POISSON_COMPARISON_V1', validation:'UNVALIDATED', probabilityKind:'EXPERIMENTAL_CURRENT_SEASON_COMPARISON', observedAt:event.observedAt, trainingMode:'CURRENT_SEASON_ONLY' } : clone(event.model), quote: supportedQuote(choice.quote, event, now) ? clone(choice.quote) : null, evidenceStatus: state.code, ...(event.provisionalEntry ? { provisionalEntry: true, declarationStatus: "NOT_VERIFIED" } : {}), ...GATES };
   }
 
   function addSelection(plan, slotId, event, choiceId, now = Date.now()) {
@@ -542,7 +560,7 @@
     const rejection = [];
     const accepted = [];
     for (const event of list(events)) {
-      if (!event || !['football', 'racing', 'tennis', 'nfl'].includes(event.sport)) continue;
+      if (!event || !Object.hasOwn(SPORTS, event.sport)) continue;
       let reason = null;
       if (event.provisionalEntry) reason = 'Provisional event / declarations';
       else if (Core.day(event.startUTC) < plan.from || Core.day(event.startUTC) > plan.to) reason = 'Outside selected dates';
@@ -578,6 +596,7 @@
   function paperEligibilityAudit(plan, events, now = Date.now()) {
     const {candidates, rejection} = researchCandidatePool(plan, events, now);
     const sports = ['football','racing','tennis','nfl'];
+    if (events.some(event => event?.sport === 'rugby') || plan.slots.some(slot => slot.legs.some(leg => leg.sport === 'rugby'))) sports.push('rugby');
     return sports.map(sport => {
       const rows = candidates.filter(row => row.event.sport === sport);
       const excluded = rejection.filter(row => row.sport === sport);
@@ -620,6 +639,7 @@
     const dummy = {from,to};
     const {candidates,rejection}=researchCandidatePool(dummy,events,now);
     const sports=['football','racing','tennis','nfl'];
+    if (events.some(event => event?.sport === 'rugby')) sports.push('rugby');
     const selections=[],coverage=[];
     for (const sport of sports) {
       const rows=candidates.filter(row=>row.event.sport===sport &&
@@ -766,6 +786,7 @@
     range(from, to);
     if (!Number.isFinite(now)) throw Error('Invalid wildcard audit time');
     const names = ['football','racing','tennis','nfl'];
+    if (events.some(event => event?.sport === 'rugby')) names.push('rugby');
     const records = Object.fromEntries(names.map(sport => [sport,{sport,observed:0,inWindow:0,qualifying:0,watchlist:[],outsideWindow:0,nextOutside:null,blocked:0}]));
     for (const event of list(events)) {
       if (!event || !records[event.sport] || !Number.isFinite(instant(event.startUTC))) continue;
@@ -819,7 +840,7 @@
       if (current.legs.length || (slotId && current.id !== slotId) || (automatic && current.keepEmpty === true)) continue;
       let rows = evidenceBalancedOrder(candidates);
       if (approach.id === 'explorer') {
-        const groups = new Map(['football','racing','tennis','nfl'].map(sport => [sport, []]));
+        const groups = new Map(Object.keys(SPORTS).map(sport => [sport, []]));
         for (const row of candidates) groups.get(row.event.sport)?.push(row);
         rows = []; let layer = 0;
         while ([...groups.values()].some(group => group.length > layer)) {

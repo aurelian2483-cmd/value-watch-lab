@@ -110,6 +110,39 @@
         });
     });
   }
+  function proD2Model(results, fixture, now) {
+    if (!fixture.form?.every(team => team.length === 5) || !fixture.start ||
+        Date.parse(fixture.start) <= now + 300000) return null;
+    const history = results.filter(row => row.date < fixture.date)
+      .sort((a,b) => a.date.localeCompare(b.date) || a.source.localeCompare(b.source));
+    const latest = history.at(-1)?.date;
+    if (!latest || Date.parse(fixture.date) - Date.parse(latest) > 35 * 86400000) return null;
+
+    const ratings = new Map();
+    const rating = club => ratings.get(club) ?? 1500;
+    const homeShare = (home, away) => 1 / (1 + 10 ** ((away - home - 50) / 400));
+    const dates = new Map();
+    let draws = 0;
+    for (const row of history) {
+      if (!dates.has(row.date)) dates.set(row.date, []);
+      dates.get(row.date).push(row);
+      if (row.home_points === row.away_points) draws++;
+    }
+    for (const matches of dates.values()) {
+      const changes = new Map();
+      for (const row of matches) {
+        const actual = row.home_points > row.away_points ? 1 : row.home_points < row.away_points ? 0 : .5;
+        const adjustment = 20 * (actual - homeShare(rating(row.home), rating(row.away)));
+        changes.set(row.home, (changes.get(row.home) || 0) + adjustment);
+        changes.set(row.away, (changes.get(row.away) || 0) - adjustment);
+      }
+      for (const [club, adjustment] of changes) ratings.set(club, rating(club) + adjustment);
+    }
+    const [home, away] = fixture.participants.map(team => proD2Clubs[team]);
+    const share = homeShare(rating(home), rating(away));
+    const draw = (draws + 1) / (history.length + 2);
+    return { name:'Pro D2 Elo', trainingMatches:history.length, probabilities:[share * (1 - draw), draw, (1 - share) * (1 - draw)] };
+  }
   function normalize(sport, doc, official = [], now = Date.now(), analysis = null, markets = null) {
     const valid = doc?.schema_version === 1 && doc.research_only === true && doc.model_validation === 'UNVALIDATED' && doc.publication_gate === 'BLOCKED' && iso(doc.generated_at_utc);
     const age = now - Date.parse(doc?.generated_at_utc);
@@ -187,9 +220,12 @@
       row.model = null;
       row.form = sport === 'rugby' ? recentProD2Form(rugbyResults, row) : null;
       row.reason = 'D1 needs a confirmed match time and matched player IDs.';
-      if (sport === 'rugby') row.reason = row.form?.some(matches => matches.length)
-        ? 'Recent league form from official Pro D2 scores · descriptive only.'
-        : 'Team form unavailable for this competition. Rugby predictions are not published.';
+      if (sport === 'rugby') {
+        row.rugbyModel = current && !row.timeConflict ? proD2Model(rugbyResults, row, now) : null;
+        row.reason = row.rugbyModel ? 'Pro D2 Elo · experimental estimate from ' + row.rugbyModel.trainingMatches + ' earlier league results.'
+          : row.form?.some(matches => matches.length) ? 'Recent league form from official Pro D2 scores · model estimate withheld.'
+          : 'Team form unavailable for this competition. Rugby predictions are not published.';
+      }
       if (sport === 'darts' && row.provider && current && row.start && Date.parse(row.start) > now + 300000 && !row.timeConflict) {
         try {
           const report = Darts.model(history, [row.provider], new Date(now).toISOString());

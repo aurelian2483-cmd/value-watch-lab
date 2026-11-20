@@ -148,7 +148,7 @@
     const from = filterDate(filters.from), to = filterDate(filters.to);
     if (from && to && from > to) throw Error('Journal date filters must be ordered.');
     const sport = filters.sport && filters.sport !== 'all' ? filters.sport : null;
-    if (sport && !['football', 'racing', 'tennis', 'nfl'].includes(sport)) throw Error('Unsupported sport filter.');
+    if (sport && !['football', 'racing', 'tennis', 'nfl','rugby'].includes(sport)) throw Error('Unsupported sport filter.');
     if (filters.slotId && !SLOT_IDS.has(filters.slotId)) throw Error('Unsupported research approach filter.');
     const snapshots = new Map(), ambiguous = new Set();
     for (const snapshot of history) {
