@@ -53,3 +53,20 @@ Once the original 81 rows are recovered, map each one to one of:
 Do not delete, rename or merge catalogue records during the crosswalk. Report both the 81 original rows and the 286 current entries separately, and show duplicates/equivalences explicitly.
 
 **Current decision:** leave the 81-to-286 crosswalk blocked until the original item-level source is found. The 286-entry catalogue remains preserved; no fabricated reconstruction or formula-count padding is permitted.
+
+## Related horse-racing A/B work recovered — not the 81-item list
+
+The repository does preserve a separate horse-racing A/B research package at `research/horse-ab-phase3-master-20261115/`. Its `PHASE3_PROTOCOL.md` defines:
+
+- **Model A:** distance similarity 1, going 1, class 0.5, course 0.5; 90-day horizon; (K=5); β=2.
+- **Model B:** distance similarity 0, going 1, class 0.5, course 0.5; 45-day horizon; (K=5); β=4. The protocol describes the 45-day recency as (r_{45}=r_{90}^2).
+- The runner score uses weighted similarity (w=r(1+d s_d+g s_g+c s_c+q s_q)), a weighted historical performance average, a reliability shrinkage toward 0.5, and a softmax over runners.
+
+The package's retrospective report evaluates the same **76 previously examined races**, with Model A correct on 13 first choices and Model B on 16; B-minus-A log-loss is -0.0222575 and Brier difference -0.0055535. The report explicitly says this is not a new holdout: **zero prospective scored races, zero independently reviewed new outcomes, no validated future accuracy claim**. This is recoverable A/B model evidence, but it is **not proof of the original 81-formula inventory** and must not be substituted for its 81 item rows.
+
+Sources in this repository:
+- `research/horse-ab-phase3-master-20261115/PHASE3_PROTOCOL.md`
+- `research/horse-ab-phase3-master-20261115/analysis/REPORT.md`
+- `research/horse-ab-phase3-master-20261115/EXECUTIVE_REPORT.md`
+
+This strengthens the cross-project context available for a future comparison, but the 81-formula item-level crosswalk remains blocked.
