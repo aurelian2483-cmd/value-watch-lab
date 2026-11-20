@@ -28,3 +28,9 @@ for(const contradictory of [{...r.runners[0],active_runner:false},{...r.runners[
  assert.equal(C.market(bad,now).favourites.length,0);
 }
 assert.equal(C.market({...r,runners:[...r.runners,{horse_id:'extra',name:'Ignored runner',runner_status:'RUNNER',active_runner:false}]},now).valid,false,'a hidden contradictory runner must invalidate an otherwise complete quoted field');
+
+const contextFeed={research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',generated_at_utc:'2026-11-04T05:55:00Z',forecasts:[],skipped:[]};
+assert.equal(C.contextForecast(r,contextFeed,now).reason,'FORECAST_PENDING');
+assert.equal(C.contextForecast(r,contextFeed,Date.parse(r.startUTC)).reason,'FORECAST_NOT_RECORDED');
+assert.equal(C.contextForecast(r,{...contextFeed,skipped:[{race_id:r.race_id,reason:'INSUFFICIENT_FORM_FOR_FULL_FIELD'}]},now).reason,'INSUFFICIENT_FORM_FOR_FULL_FIELD');
+assert.equal(C.contextForecast({...r,runner_data_status:'RUNNER_FIELD_UNCONFIRMED'},contextFeed,now).reason,'RUNNER_FIELD_UNCONFIRMED');

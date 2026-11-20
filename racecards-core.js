@@ -31,6 +31,8 @@ const contextReasons={
  RUNNER_FIELD_UNCONFIRMED:'Runner status is uncertain; the model is withheld.',
  STALE_RUNNER_DATA:'Runner observations are too old for a current context forecast.',
  NOT_PRE_EVENT_WITH_BUFFER:'The race has started or is inside the five-minute capture buffer.',
+ FORECAST_PENDING:'Forecast pending. The model feed has no decision for this race yet.',
+ FORECAST_NOT_RECORDED:'No model decision was recorded for this race.',
  INSUFFICIENT_FORM_FOR_FULL_FIELD:'At least one runner lacks enough usable dated form; a full-field forecast is withheld.',
  INSUFFICIENT_COMPARABLE_FORM_FOR_FULL_FIELD:'At least one runner lacks enough comparable dated form for this race type.',
  INVALID_ACTIVE_FIELD:'The observed runner count or identities are inconsistent.',
@@ -50,7 +52,11 @@ function contextForecast(r,feed,now=Date.now()){
  const skip=(feed.skipped||[]).find(s=>String(s.race_id)===String(r.race_id));
  const possible=(feed.forecasts||[]).filter(m=>String(m.race_id)===String(r.race_id)&&Date.parse(m.startUTC)===Date.parse(r.startUTC));
  const record=matchingModel(r,possible);
- if(!record)return unavailable(possible.length?'FIELD_CHANGED':skip?.reason||'INSUFFICIENT_FORM_FOR_FULL_FIELD');
+ if(!record){
+  if(possible.length)return unavailable('FIELD_CHANGED');
+  if(skip?.reason)return unavailable(skip.reason);
+  return unavailable(Date.parse(r.startUTC)>now?'FORECAST_PENDING':'FORECAST_NOT_RECORDED');
+ }
  if(record.model!=='CONTEXT_FORM_RESEARCH_V1'||record.research_only!==true||record.model_validation!=='UNVALIDATED'||record.publication_gate!=='BLOCKED'||record.odds!==null||record.expected_value!==null||record.challenge_eligible!==0||!/^[a-f0-9]{64}$/i.test(record.record_sha256||''))return unavailable('INVALID_CONTEXT_FORECAST');
  const check=feed.current_field_checks?.[record.record_sha256],active=(r.runners||[]).filter(h=>h.active_runner===true&&h.runner_status==='RUNNER');
  if(check?.status==='CONTEXT_CHANGED'||check?.status==='RACE_CONDITIONS_CHANGED')return unavailable('RACE_CONDITIONS_CHANGED');

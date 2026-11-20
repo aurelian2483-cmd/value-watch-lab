@@ -18,18 +18,6 @@ git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 python scripts/discover_horse_races.py
 python scripts/enrich_horse_runners.py
 python scripts/archive_horse_markets.py
-cp /tmp/horse-research/racing-research-data.json racing-research-data.json
-git add -- racing-research-data.json
-if [ -d research/horse-market-archive ]; then git add -- research/horse-market-archive; fi
-publish "Refresh racecards and timestamped source-price observations"
-if python scripts/collect_future_racing.py; then
-  git add -- racing-future-data.json
-else
-  echo "::warning::Future source refresh failed; retained existing future snapshot"
-fi
-python scripts/collect_racing_community.py
-git add -- racing-research/source-observations.json
-publish "Refresh future racecards and source-linked published racing selections"
 python scripts/horse_reference_baseline.py
 python scripts/horse_secondary_source.py
 python scripts/horse_model_pipeline.py
@@ -40,4 +28,17 @@ for feed in racing-research-data horse-model-data horse-challenger-data horse-co
 for archive in horse-challenger horse-evidence-receipts horse-context-archive horse-context-results horse-market-archive horse-reference-archive horse-form-archive horse-results horse-secondary-results; do
   if [ -d "research/$archive" ]; then git add -- "research/$archive"; fi
 done
-publish "Refresh experimental racing discovery observations"
+# Publish the daily racecards, model decisions and their evidence in one revision.
+publish "Refresh daily racecards and racing forecasts"
+
+# The future collector writes both the full feed and its coverage summary.
+# Publish them together before the independent community collection.
+if python scripts/collect_future_racing.py; then
+  git add -- racing-future-data.json racing-future-coverage.json
+  publish "Refresh future racecards and coverage"
+else
+  echo "::warning::Future source refresh failed; retained existing future snapshot"
+fi
+python scripts/collect_racing_community.py
+git add -- racing-research/source-observations.json
+publish "Refresh source-linked published racing selections"
