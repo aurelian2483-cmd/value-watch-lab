@@ -1,0 +1,28 @@
+name: Football baseline V1 reproducibility
+on:
+  push:
+    branches: [research/football-reproducible-baseline-20261120]
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run pinned source replay
+        run: node research/football-baseline-v1/replay.mjs /tmp/sky-football-replay.json
+      - name: Compare exact saved predictions
+        run: |
+          node --input-type=module <<'EOF'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const old = JSON.parse(fs.readFileSync('research/football-baseline-v1/608-reconstructed-forecasts.json','utf8'));
+          const fresh = JSON.parse(fs.readFileSync('/tmp/sky-football-replay.json','utf8'));
+          assert.deepStrictEqual(fresh,old,'Replayed rows differ from committed 608 forecast artifact');
+          assert.equal(fresh.rows.length,608);
+          console.log('PASS: all 608 match rows, both probability vectors, model metrics and metadata reproduce exactly.');
+          EOF
