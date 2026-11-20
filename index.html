@@ -7,7 +7,9 @@
   <title>Value Watch Pro | Sports Research Centre</title><link rel="stylesheet" href="./paper-lab/tailwind.css?v=3.3.0"><link rel="stylesheet" href="./paper-lab/style-compact-20261116.css?v=wildcard-tracker"><link rel="stylesheet" href="./pro-design.css?v=7">
 <link rel="stylesheet" href="./paper-lab/horse-v3plus.css?v=1">
 <link rel="stylesheet" href="./visual-preview/preview.css?v=compact-events">
+<link rel="stylesheet" href="./terminal.css?v=2">
 <script defer src="./visual-preview/preview.js?v=compact-desk"></script>
+<script defer src="./terminal/status.js?v=1"></script>
 </head>
 <body class="antialiased min-h-screen">
 <a class="skip-link" href="#main-content">Skip to research desk</a>
@@ -48,21 +50,18 @@
       </ul>
     </div>
   </details>
-  <div id="pro-home" class="pro-hero">
-    <div><span class="pro-eyebrow">VALUE WATCH <b>PRO</b> · SPORTS INTELLIGENCE CENTRE</span><h2>Research Across <em>Six Sports.</em></h2>
-    <p>Football <span>•</span> Horse Racing <span>•</span> Tennis <span>•</span> NFL <span>•</span> Darts <span>•</span> Rugby</p><p class="pro-hero-note">Research · Analysis · Probability · Evidence first · <a href="./darts/">Darts D1 research lab ↗</a></p>
-    <div class="pro-hero-actions"><a href="#events-view" data-open-events>Explore research events</a><a href="./analyst/">Open Analyst Terminal ↗</a></div></div>
-    <div class="pro-hero-arena" aria-hidden="true">
-      <div class="pro-arena-lights"></div>
-      <div class="pro-arena-sports">
-        <span class="pro-arena-sport pro-arena-racing">♞<small>RACING</small></span>
-        <span class="pro-arena-sport pro-arena-football">⚽<small>FOOTBALL</small></span>
-        <span class="pro-arena-sport pro-arena-tennis">🎾<small>TENNIS</small></span>
-        <span class="pro-arena-sport pro-arena-nfl">🏈<small>NFL</small></span>
-      </div>
-      <div class="pro-arena-track"></div>
+  <div id="pro-home" class="pro-hero vw-overview">
+    <div>
+      <h2>Sports Research Desk</h2>
+      <p>Fixtures, market observations and experimental models across football, horse racing, tennis and NFL, with dedicated Darts and Rugby labs.</p>
+      <div class="pro-hero-actions"><a href="#events-view" data-open-events>Explore research events</a><a href="./terminal/">Open Research Centre</a></div>
     </div>
-    <div class="pro-stat" aria-label="Platform modules"><strong>6</strong><span>Sports monitored</span><strong>4</strong><span>Paper research slips</span><strong>1</strong><span>Weekly wildcard</span></div>
+    <section class="vw-status" aria-labelledby="vw-overview-title">
+      <h3 id="vw-overview-title">Independent validation</h3>
+      <p class="vw-gates">Models UNVALIDATED · Publication BLOCKED</p>
+      <p data-research-status="./research/performance-report-latest.json" role="status">Loading the published validation report…</p>
+      <p><a href="./validation-centre/">View validation evidence</a> · <a href="./ops-control/">View source health</a></p>
+    </section>
   </div>
   <div class="pro-slip-grid" aria-label="Four existing paper slip approaches">
     <button type="button" data-pro-slot="1" class="pro-slip-card pro-one"><span>▥</span><strong>Paper Slip 1</strong><small>Conservative research</small><em>View paper selections →</em></button>
@@ -95,7 +94,7 @@
       <div class="pro-market-check"><span>Model validation</span><strong>UNVALIDATED</strong></div>
       <div class="pro-market-check"><span>Bookmaker odds</span><strong>Not verified</strong></div>
       <div class="pro-market-check"><span>Publication gate</span><strong>BLOCKED</strong></div>
-      <a href="./analyst/">View Analyst Terminal ↗</a>
+      <a href="./market-intelligence/">Browse recorded prices ↗</a>
     </section>
   </div>
   <section class="pro-darts-preview" aria-labelledby="pro-darts-title">
@@ -106,9 +105,13 @@
     <p class="pro-darts-preview-summary">Experimental darts research · no verified betting fixtures or bookmaker odds. View fixture coverage, historical records and model limitations in the laboratory.</p>
     <div class="pro-darts-preview-action"><span>UNVALIDATED · BETTING BLOCKED</span><a href="./darts/">Open Darts Research Lab →</a></div>
   </section>
-  <div class="pro-steps" aria-label="How Value Watch research works">
-    <strong>▥ How it works</strong><span>① Inspect source data</span><span>② Review model evidence</span><span>③ Apply grade safeguards</span><span>④ Build paper slips</span>
-  </div>
+  <nav class="pro-steps terminal-links" aria-label="Research workspaces">
+    <a href="./analyst/">Model analysis</a>
+    <a href="./validation-centre/">Matched-sample validation</a>
+    <a href="./track-record/">Historical performance</a>
+    <a href="./market-intelligence/">Market intelligence</a>
+    <a href="./ops-control/">Source operations</a>
+  </nav>
   <p class="pro-disclosure">RESEARCH ONLY · MODEL VALIDATION: UNVALIDATED · BETTING PUBLICATION: BLOCKED · NOT REAL-TIME BOOKMAKER ODDS</p>
 </section>
 <div class="workspace-grid">
@@ -150,6 +153,6 @@
 <noscript><p class="page-status">Enable JavaScript to load research snapshots and edit paper slips. Original saved records remain on this device.</p></noscript>
 <div id="paper-backdrop" class="paper-backdrop" hidden></div>
 <div class="mobile-slip-bar"><div><span class="eyebrow">PAPER RESEARCH</span><strong><span id="mobile-count">0</span> selections <span aria-hidden="true">·</span> Four approaches</strong></div><button id="paper-open" class="button button-primary" type="button" aria-controls="slip-panel" aria-expanded="false">Open slips ↑</button></div>
-<script src="./pro-sources.js?v=4" defer></script><script src="./pro-home.js?v=inline-slips&amp;release=single-slips" defer></script><script src="./paper-lab/bootstrap.js"></script><script src="./research-audit-core.js"></script><script src="./racecards-core.js?v=3.3.1"></script><script src="./paper-lab/core.js"></script><script src="./paper-lab/engine.js?v=3.4.64&amp;release=pro-d2-elo"></script><script src="./paper-lab/store.js"></script><script src="./paper-lab/transport.js"></script><script src="./paper-lab/insights.js"></script><script src="./paper-lab/connections.js"></script><script src="./paper-lab/journal.js?v=3"></script><script src="./paper-lab/evidence-v3.js?v=3.4.58"></script><script src="./paper-lab/experimental.js?v=4"></script><script src="./research/market-benchmark/core.js?v=1"></script><script src="./paper-lab/hybrid.js?v=3"></script><script src="./paper-lab/reliability-core.js?v=2"></script><script src="./paper-lab/community-evidence.js?v=2"></script><script src="./paper-lab/horse-v3plus.js?v=1"></script><script src="./paper-lab/methodology-status.js?v=1"></script><script src="./paper-lab/sport-methods.js?v=2"></script><script src="./darts/model.js?v=1"></script><script src="./paper-lab/fixture-evidence.js?v=pro-d2-elo"></script><script src="./paper-lab/desk-compact-20261116.js?v=pro-d2-elo"></script>
+<script src="./pro-sources.js?v=4" defer></script><script src="./pro-home.js?v=inline-slips&amp;release=research-workspaces" defer></script><script src="./paper-lab/bootstrap.js"></script><script src="./research-audit-core.js"></script><script src="./racecards-core.js?v=3.3.1"></script><script src="./paper-lab/core.js"></script><script src="./paper-lab/engine.js?v=3.4.64&amp;release=pro-d2-elo"></script><script src="./paper-lab/store.js"></script><script src="./paper-lab/transport.js"></script><script src="./paper-lab/insights.js"></script><script src="./paper-lab/connections.js"></script><script src="./paper-lab/journal.js?v=3"></script><script src="./paper-lab/evidence-v3.js?v=3.4.58"></script><script src="./paper-lab/experimental.js?v=4"></script><script src="./research/market-benchmark/core.js?v=1"></script><script src="./paper-lab/hybrid.js?v=3"></script><script src="./paper-lab/reliability-core.js?v=2"></script><script src="./paper-lab/community-evidence.js?v=2"></script><script src="./paper-lab/horse-v3plus.js?v=1"></script><script src="./paper-lab/methodology-status.js?v=1"></script><script src="./paper-lab/sport-methods.js?v=2"></script><script src="./darts/model.js?v=1"></script><script src="./paper-lab/fixture-evidence.js?v=pro-d2-elo"></script><script src="./paper-lab/desk-compact-20261116.js?v=pro-d2-elo"></script>
 </body>
 </html>

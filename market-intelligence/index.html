@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Market Intelligence | Value Watch</title>
+  <link rel="stylesheet" href="../terminal.css?v=2">
+  <script src="./app.js" defer></script>
+</head>
+<body class="market-terminal">
+  <a class="terminal-skip" href="#main">Skip to market evidence</a>
+  <header class="terminal-masthead">
+    <a class="terminal-wordmark" href="../">Value Watch</a>
+    <nav aria-label="Research workspaces" class="terminal-links">
+      <a href="../#events-view">Events</a>
+      <a href="../terminal/">Research Centre</a>
+      <a href="../track-record/">Track record</a>
+      <a href="./" aria-current="page">Markets</a>
+      <a href="../ops-control/">Operations</a>
+    </nav>
+  </header>
+  <main id="main" class="market-main">
+    <div class="market-title">
+      <h1>Market intelligence</h1>
+      <p>Recorded football prices with source receipts and pre-kickoff timestamps. These prices are historical observations.</p>
+      <p class="terminal-gate">Models UNVALIDATED · Publication BLOCKED</p>
+    </div>
+    <section class="terminal-panel" aria-labelledby="football-market">
+      <h2 id="football-market">Football · 90-minute result</h2>
+      <label for="match">Match</label>
+      <select id="match" disabled></select>
+      <p id="market-status" role="status">Loading recorded markets…</p>
+      <p id="model-leader"></p>
+      <div class="terminal-table" tabindex="0" role="region" aria-label="Recorded market comparison">
+        <table>
+          <thead><tr><th scope="col">Source</th><th scope="col">Selection</th><th scope="col">Decimal</th><th scope="col">Fractional equivalent</th><th scope="col">Observed (UK)</th><th scope="col">Field</th><th scope="col">Recorded favourite</th></tr></thead>
+          <tbody id="market-rows"></tbody>
+        </table>
+      </div>
+      <p>Price movement requires repeated observations from the same source and market. This view shows the single capture retained for each match.</p>
+    </section>
+    <section class="terminal-panel">
+      <h2>Racing market evidence</h2>
+      <p>Racecards keep recorded bookmaker favourites, publisher selections, and experimental model leaders alongside declarations and field changes.</p>
+      <a href="../terminal/#vw-markets">Inspect captured racing prices</a> · <a href="../racing-research/analysis.html">Open racing market analysis</a>
+    </section>
+  </main>
+</body>
+</html>

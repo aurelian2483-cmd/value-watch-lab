@@ -1,0 +1,228 @@
+:root {
+  --terminal-bg: #0b1220;
+  --terminal-panel: #121d2e;
+  --terminal-line: #314158;
+  --terminal-text: #edf4fc;
+  --terminal-muted: #aebfd4;
+  --terminal-accent: #75e3d4;
+  --terminal-amber: #f4d399;
+}
+.market-terminal {
+  color-scheme: dark;
+  background: var(--terminal-bg);
+  color: var(--terminal-text);
+  font: 1rem/1.55 system-ui, sans-serif;
+  margin: 0;
+}
+.market-terminal * { box-sizing: border-box; }
+.market-terminal a { color: var(--terminal-accent); }
+.market-terminal :focus-visible, .terminal-links :focus-visible {
+  outline: 2px solid var(--terminal-accent);
+  outline-offset: 3px;
+}
+.terminal-skip {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  padding: .6rem;
+  background: var(--terminal-panel);
+  transform: translateY(-200%);
+}
+.terminal-skip:focus { transform: none; }
+.terminal-masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem;
+  padding: 1rem max(1rem, calc((100vw - 76rem) / 2));
+  border-bottom: 1px solid var(--terminal-line);
+}
+.terminal-wordmark { font-size: 1.2rem; font-weight: 780; text-decoration: none; }
+.terminal-links { display: flex; flex-wrap: wrap; gap: .4rem .85rem; }
+.terminal-links a { display: inline-flex; align-items: center; min-height: 2.75rem; }
+.terminal-links a[aria-current] { font-weight: 750; }
+.market-main { max-width: 78rem; margin-inline: auto; padding: 1.25rem 1rem 3rem; }
+.market-title h1 { font-size: clamp(2rem, 5vw, 3.6rem); letter-spacing: -.035em; margin: .4rem 0; }
+.market-title p, .terminal-panel p { color: var(--terminal-muted); }
+.market-title .terminal-gate { color: var(--terminal-amber); }
+.terminal-panel {
+  margin-block: 1rem;
+  padding: clamp(1rem, 3vw, 1.65rem);
+  background: var(--terminal-panel);
+  border: 1px solid var(--terminal-line);
+  border-radius: .85rem;
+}
+.terminal-panel h2 { margin-top: 0; font-size: 1.22rem; }
+.terminal-panel label { display: block; margin-bottom: .4rem; }
+.terminal-panel select {
+  max-width: 100%;
+  min-height: 2.75rem;
+  padding: .4rem;
+  font: inherit;
+}
+.terminal-table { overflow: auto; }
+.terminal-table table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.terminal-table th, .terminal-table td {
+  min-width: 6rem;
+  padding: .6rem;
+  text-align: left;
+  border-bottom: 1px solid var(--terminal-line);
+}
+.terminal-table th { color: var(--terminal-muted); }
+
+/* Shared links on the research desk. */
+.pro-steps.terminal-links {
+  display: flex;
+  justify-content: flex-start;
+  gap: .35rem .85rem;
+  padding: .55rem .8rem;
+  background: var(--terminal-panel);
+  border: 1px solid var(--terminal-line);
+  border-radius: .75rem;
+}
+.pro-steps.terminal-links a {
+  padding: .25rem .5rem;
+  color: var(--terminal-accent);
+  font-weight: 650;
+  text-underline-offset: .2em;
+}
+.pro-landing .pro-reference-panel {
+  background: var(--terminal-panel);
+  border-color: var(--terminal-line);
+  box-shadow: none;
+}
+.pro-landing .pro-market-check { border-color: var(--terminal-line); }
+.pro-landing .pro-source-summary { color: var(--terminal-muted); }
+
+/* Compact overview leaves the source table in the first desktop viewport. */
+html:not(.visual-preview) .pro-landing .pro-hero {
+  min-height: 0;
+  padding: clamp(1rem, 2vw, 1.55rem);
+  border-color: var(--terminal-line);
+  background: linear-gradient(115deg, var(--terminal-panel), #0b212e);
+}
+html:not(.visual-preview) .pro-hero h2 {
+  font-size: clamp(2rem, 3.3vw, 3.1rem);
+  max-width: 24ch;
+  text-shadow: none;
+}
+html:not(.visual-preview) .pro-hero h2 em { color: var(--terminal-accent); }
+html:not(.visual-preview) .pro-hero-arena {
+  min-height: 9rem;
+  background: radial-gradient(ellipse at 50% 105%, #1d5763, transparent 70%);
+  border-color: var(--terminal-line);
+}
+html:not(.visual-preview) .pro-arena-sport {
+  min-height: 6.5rem;
+  font-size: clamp(1.75rem, 3.2vw, 3rem);
+}
+html:not(.visual-preview) .pro-arena-lights { opacity: .2; }
+html:not(.visual-preview) .pro-slip-grid :is(.pro-slip-card, .pro-wildcard-card) {
+  background: var(--terminal-panel);
+  min-height: 8.25rem;
+  box-shadow: none;
+}
+html:not(.visual-preview) .pro-landing .pro-stat {
+  border-color: var(--terminal-line);
+  background: var(--terminal-panel);
+  box-shadow: none;
+}
+.market-terminal select {
+  color: var(--terminal-text);
+  background: var(--terminal-bg);
+  border: 1px solid var(--terminal-line);
+  border-radius: .4rem;
+}
+
+:root {
+  --vw-base: var(--terminal-bg);
+  --vw-panel: var(--terminal-panel);
+  --vw-border: var(--terminal-line);
+  --vw-ink: var(--terminal-text);
+  --vw-muted: var(--terminal-muted);
+  --vw-accent: var(--terminal-accent);
+  --vw-warning: var(--terminal-amber);
+}
+.vw-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .25rem .55rem;
+  padding: .5rem clamp(.65rem, 2vw, 1.5rem);
+  color: var(--vw-ink);
+  background: var(--vw-base);
+  border-bottom: 1px solid var(--vw-border);
+  font: 600 .875rem/1.4 system-ui, sans-serif;
+}
+.vw-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 .6rem;
+  border-radius: .35rem;
+  color: var(--vw-muted);
+  text-decoration: none;
+}
+.vw-nav a:hover, .vw-nav a[aria-current="page"] {
+  color: var(--vw-accent);
+  background: var(--vw-panel);
+}
+.vw-nav a:focus-visible, .vw-terminal a:focus-visible {
+  outline: 2px solid var(--vw-accent);
+  outline-offset: 2px;
+}
+.pro-hero.vw-overview {
+  grid-template-columns: minmax(0, 1fr) minmax(0, .9fr);
+  background: linear-gradient(120deg, #111d2c, #192b3a);
+  border-color: var(--vw-border);
+  box-shadow: none;
+}
+.vw-overview .vw-status {
+  padding: 1rem;
+  border: 1px solid var(--vw-border);
+  border-radius: .75rem;
+  background: var(--vw-base);
+}
+.vw-overview .vw-status h3 { margin: 0; font-size: 1rem; color: var(--vw-ink); }
+.vw-overview .vw-status p { margin: .5rem 0; color: var(--vw-muted); font-size: .875rem; }
+.vw-overview .vw-status .vw-gates { color: var(--vw-warning); font-weight: 700; }
+.vw-overview .vw-status a { color: var(--vw-accent); }
+.vw-overview .vw-status time { font-variant-numeric: tabular-nums; }
+
+body.vw-terminal { margin: 0; background: var(--vw-base); color: var(--vw-ink); font: 1rem/1.55 system-ui, sans-serif; }
+.vw-terminal main { max-width: 72rem; margin: auto; padding: clamp(1rem, 4vw, 3rem); }
+.vw-terminal h1 { font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -.04em; line-height: 1.1; margin: .45em 0 .25em; }
+.vw-terminal h2 { font-size: 1.3rem; margin: 1.65em 0 .65em; }
+.vw-terminal h3 { font-size: 1rem; margin: 0; }
+.vw-terminal p { color: var(--vw-muted); margin: .45em 0 .8em; }
+.vw-terminal a { color: var(--vw-accent); }
+.vw-terminal .vw-nav a { color: var(--vw-ink); }
+.vw-terminal .vw-gates { color: var(--vw-warning); font-weight: 700; }
+.vw-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
+.vw-card { padding: 1rem; background: var(--vw-panel); border: 1px solid var(--vw-border); border-radius: .75rem; min-width: 0; }
+@media (max-width: 880px) {
+  .vw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 540px) {
+  .vw-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .pro-hero.vw-overview { display: grid; grid-template-columns: minmax(0, 1fr); }
+}
+
+.vw-card summary { cursor: pointer; color: var(--vw-accent); font-weight: 700; }
+.vw-card select {
+  display: block;
+  max-width: 100%;
+  border: 1px solid var(--vw-border);
+  border-radius: .35rem;
+  padding: .5rem;
+  background: var(--vw-base);
+  color: var(--vw-ink);
+  font: inherit;
+}
+.vw-table { margin-top: .75rem; overflow: auto; }
+.vw-table table { border-collapse: collapse; width: 100%; text-align: left; font-variant-numeric: tabular-nums; }
+.vw-table caption { text-align: left; padding: .5rem 0; }
+.vw-table th, .vw-table td { padding: .5rem .65rem; border-bottom: 1px solid var(--vw-border); }
