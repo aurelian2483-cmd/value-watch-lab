@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "003",
-  "new_specifications": 13,
-  "registered_after_batch": 229,
+  "batch": "004",
+  "new_specifications": 10,
+  "registered_after_batch": 239,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -151,6 +151,15 @@
       "mathematical_checks": "Reviewed dimensions, invertibility, orthogonal transformations, pivot blocks, zero tails and forward versus backward error. Synthetic numerical checks exercised the factorization identities, residuals, eigenpairs and backward error.",
       "semantic_review": "Compared mechanisms and outputs with all preceding IDs and equations and linked the closest existing method. QR is an orthogonal triangular decomposition, pivoted QR exposes numerical rank, and complete orthogonal factorization supplies a minimum-norm solution with a right orthogonal factor. The SVD solve extracts a solution from singular values and vectors, while bidiagonal reduction supplies the intermediate matrix. Reduction of a symmetric pencil uses a positive definite metric, while QZ handles regular general pencils. Rejected LQ as a transpose counterpart of QR and grouped blocked implementations and storage formats under their underlying methods.",
       "scope": "Source and semantic findings apply to batch 003 against the registered catalogue. The earlier primary-source audit and unrecovered inventory remain open."
+    },
+    {
+      "batch": "004",
+      "new_specifications": 10,
+      "registered_after_batch": 239,
+      "source_check": "Checked the linked density or standard parameterization for each entry against the SciPy maintainers' distribution documentation. The inverse Gaussian mean/shape parameterization was mapped to SciPy shape μ/λ and scale λ. The CDF and survival representations use the same laws as the cited densities.",
+      "mathematical_checks": "Compared ten specified laws against SciPy on synthetic points. Checked normalization by quadrature for densities, CDF or survival values and the special case of zero circular concentration.",
+      "semantic_review": "Compared the existing distribution, regression, inference and scoring records for overlapping mechanisms. The logistic law describes a continuous residual distribution, while logistic regression predicts a Bernoulli class probability. The central chi-square law supplies a reference distribution for statistics such as Breusch–Pagan. Excluded beta prime because rescaling F recovers it, Lomax because generalized Pareto already covers it, and log-logistic because it is the d=1 Burr XII case. Kept Student t as the residual-law family and omitted its Cauchy special case.",
+      "scope": "Source and semantic findings apply to batch 004 against the registered catalogue. The earlier primary-source audit and unrecovered inventory remain open."
     }
   ]
 }

@@ -3205,3 +3205,143 @@ Assumptions — Unstructured componentwise perturbations and residual measured w
 Limitations — A small backward error can coexist with large forward error for ill-conditioned A.
 
 Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Further Details: Error Bounds for Linear Equation Solving. https://www.netlib.org/lapack/lug/node81.html
+
+## Laplace residual law (laplace)
+
+> f(x)=exp(−abs(x−μ)/b)/(2b) for all real x
+
+μ location, b>0 scale.
+
+Model historical score-margin errors with a sharply peaked center and exponential tails
+
+Assumptions — Additive symmetric residuals with a common scale.
+
+Limitations — Asymmetric margin errors invalidate equal-tail intervals.
+
+Source — SciPy reference, scipy.stats.laplace, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.laplace.html
+
+## Continuous logistic residual law (logistic-residual)
+
+> F(x)=1/(1+exp(−(x−μ)/s)) for all real x
+
+μ location, s>0 scale.
+
+Summarize historical score-margin error quantiles under a continuous residual law
+
+Assumptions — Continuous real-valued residual, with μ and s estimated before the cutoff.
+
+Limitations — Extreme residuals may have heavier tails than the fitted exponential tails.
+
+Source — SciPy reference, scipy.stats.logistic, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.logistic.html
+
+## Student t residual law (student-t-residual)
+
+> For z=(x−μ)/s, f(x)=Γ((ν+1)/2)/(s√(νπ)Γ(ν/2))·(1+z²/ν)^(−(ν+1)/2) on the real line
+
+μ location, s>0 scale, ν>0 degrees of freedom.
+
+Estimate prediction intervals for score-margin errors with occasional large misses
+
+Assumptions — Univariate symmetric errors with polynomial tails.
+
+Limitations — Variance is infinite for 1<ν≤2 and the mean is undefined for ν≤1.
+
+Source — SciPy reference, scipy.stats.t, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.t.html
+
+## Central chi-square reference law (chi-square-law)
+
+> f(x)=x^(ν/2−1) exp(−x/2)/(2^(ν/2)Γ(ν/2)), x>0, and zero for x<0
+
+ν>0 degrees of freedom, Γ gamma function, x test statistic.
+
+Map a historical model diagnostic statistic to a tail probability under its reference distribution
+
+Assumptions — Exact sum-of-squares law for an integer number of independent standard normals.
+
+Limitations — Correlated or nonstandardized quadratic terms need a different reference law.
+
+Source — SciPy reference, scipy.stats.chi2, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2.html
+
+## Central F variance-ratio law (f-reference-law)
+
+> X=(U/d₁)/(V/d₂) with independent U∼χ²(d₁) and V∼χ²(d₂)
+
+d₁,d₂>0 numerator and denominator degrees of freedom, X>0 almost surely.
+
+Calibrate a ratio of independent historical residual variance estimates under a common-variance hypothesis
+
+Assumptions — Exact Gaussian variance-ratio use requires independent sums of squares.
+
+Limitations — Equal coefficients or overlapping samples do not guarantee independent numerator and denominator.
+
+Source — SciPy reference, scipy.stats.f, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f.html
+
+## Triangular bounded scenario law (triangular-law)
+
+> For x∈[0,1] and c∈(0,1), f(x)=2x/c for x≤c and 2(1−x)/(1−c) otherwise. The density is zero outside [0,1].
+
+c modal fraction, x bounded scenario draw; use an affine transform for general finite bounds.
+
+Simulate bounded pre-event pace assumptions with a stated mode for synthetic race scenarios
+
+Assumptions — Known bounds and an interior mode, with linearly changing density on each side.
+
+Limitations — Hard bounds produce zero density for a valid outcome outside the scenario range.
+
+Source — SciPy reference, scipy.stats.triang, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.triang.html
+
+## Inverse Gaussian duration law (inverse-gaussian-duration)
+
+> f(t)=√(λ/(2πt³)) exp(−λ(t−μ)²/(2μ²t)), t>0, and zero for t≤0
+
+μ>0 mean duration, λ>0 shape, t elapsed time.
+
+Represent positive historical split durations under a first-passage approximation
+
+Assumptions — Positive duration with an independent drifting Brownian first-passage interpretation when used mechanistically.
+
+Limitations — A single unimodal passage law misses mixed race regimes or stoppage masses.
+
+Source — SciPy reference, scipy.stats.invgauss, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.invgauss.html
+
+## Burr XII positive duration law (burr-xii-duration)
+
+> S(t)=[1+(t/s)^c]^(−d) for t≥0 and S(t)=1 for t<0
+
+s>0 scale, c,d>0 shapes, t elapsed duration, S survival.
+
+Model long delays before a recorded transition in prior sport event histories
+
+Assumptions — Nonnegative continuous durations with heavy polynomial tails.
+
+Limitations — The kth positive moment diverges for k≥cd.
+
+Source — SciPy reference, scipy.stats.burr12, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.burr12.html
+
+## Von Mises directional law (von-mises-angle)
+
+> f(θ)=exp(κ cos(θ−μ))/(2π I₀(κ)) for θ in any interval of length 2π, with periodic extension
+
+θ event angle, μ mean direction modulo 2π, κ≥0 concentration, I₀ modified Bessel function.
+
+Summarize historical shot or movement headings when angle tracking is available
+
+Assumptions — Circular observations in radians and a single common concentration.
+
+Limitations — Opposing directional modes can look nearly uniform under a single component.
+
+Source — SciPy reference, scipy.stats.vonmises, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.vonmises.html
+
+## Log-gamma residual law (loggamma-residual)
+
+> If G∼Gamma(c, rate 1) and X=log G, f(x)=exp(cx−exp(x))/Γ(c) on the real line
+
+c>0 shape, x log-scale residual, Γ gamma function.
+
+Represent asymmetric log-duration errors after removing historical course and distance effects
+
+Assumptions — Continuous asymmetric log-scale variability.
+
+Limitations — Tail asymmetry can misrepresent data with large right-tail residuals.
+
+Source — SciPy reference, scipy.stats.loggamma, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.loggamma.html
