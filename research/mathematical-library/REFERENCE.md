@@ -3345,3 +3345,73 @@ Assumptions — Continuous asymmetric log-scale variability.
 Limitations — Tail asymmetry can misrepresent data with large right-tail residuals.
 
 Source — SciPy reference, scipy.stats.loggamma, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.loggamma.html
+
+## Fixed-step gradient descent (gradient-descent)
+
+> x_(k+1)=x_k−η∇f(x_k). If f is convex with L-Lipschitz gradient, an attained minimum and 0<η≤1/L, f(x_k)−f(x*)≤‖x₀−x*‖₂²/(2ηk) for k≥1.
+
+f differentiable training loss, x coefficient vector, η step, L gradient Lipschitz constant, x* minimizer.
+
+Fit a differentiable historical calibration or margin loss by full gradient updates
+
+Assumptions — Euclidean gradient evaluated on a fixed smooth convex objective for the stated bound.
+
+Limitations — A step larger than the smoothness bound can oscillate or diverge.
+
+Source — Tibshirani, CMU 10-725 Optimization, Lecture 6, §6.1.1. https://www.stat.cmu.edu/~ryantibs/convexopt-F13/scribes/lec6.pdf
+
+## Iterative shrinkage-thresholding (ista)
+
+> For F(x)=f(x)+λ‖x‖₁, set u=x_k−∇f(x_k)/L and x_(k+1),j=sign(u_j)max(abs(u_j)−λ/L,0).
+
+f smooth convex training loss, λ≥0 penalty, L>0 upper bound on the gradient Lipschitz constant, j feature index.
+
+Fit sparse linear historical performance features without applying the L₁ term as an ordinary derivative
+
+Assumptions — Fixed convex composite objective with a minimizer and valid smoothness bound.
+
+Limitations — Poor curvature can slow progress and arbitrary feature scales change the L₁ fit.
+
+Source — Beck and Teboulle (2009), A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems, §3. https://www.ceremade.dauphine.fr/~carlier/FISTA
+
+## Accelerated iterative shrinkage-thresholding (fista)
+
+> Initialize y₁=x₀ and t₁=1. With soft threshold S_a(u)_j=sign(u_j)max(abs(u_j)−a,0), set x_k=S_(λ/L)(y_k−∇f(y_k)/L), t_(k+1)=(1+√(1+4t_k²))/2, and y_(k+1)=x_k+[(t_k−1)/t_(k+1)](x_k−x_(k−1)).
+
+f smooth convex loss, λ≥0 L₁ penalty, L>0 upper bound on the gradient Lipschitz constant, x fitted iterate, y extrapolated point, t acceleration scalar.
+
+Fit a sparse historical margin model when the unaccelerated method requires many passes
+
+Assumptions — Fixed convex composite objective with a minimizer and a valid smoothness bound.
+
+Limitations — Acceleration can yield nonmonotone objective values at successive fitted iterates.
+
+Source — Beck and Teboulle (2009), A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems, §4. https://www.ceremade.dauphine.fr/~carlier/FISTA
+
+## Frank–Wolfe conditional gradient (frank-wolfe)
+
+> At k≥0 choose s_k∈argmin_(s∈C) ⟨s,∇f(x_k)⟩ and set x_(k+1)=(1−γ_k)x_k+γ_k s_k with γ_k=2/(k+2). The gap ⟨x_k−s_k,∇f(x_k)⟩ bounds suboptimality for convex f.
+
+C compact convex feasible set, x₀∈C, s linear minimization oracle output, γ step, f differentiable loss.
+
+Construct simplex-constrained historical ensemble weights by repeatedly adding an oracle-selected component
+
+Assumptions — A reliable linear oracle and a smooth convex objective for standard rate guarantees.
+
+Limitations — A costly linear oracle or near-face zigzagging can make iterations inefficient.
+
+Source — Jaggi (2013), Revisiting Frank-Wolfe, Algorithm 1 and §2. https://proceedings.mlr.press/v28/jaggi13.pdf
+
+## Quadratic equality-penalty continuation (quadratic-penalty)
+
+> For equality constraints h(x)=0, solve x_c∈argmin_x [f(x)+(c/2)‖h(x)‖₂²] for increasing c→∞. With continuous f and h, feasible original problem and globally minimizing subproblems, finite accumulation points solve the original problem.
+
+f historical fit objective, h equality residual vector, c>0 penalty weight, x_c penalized optimum.
+
+Fit a historical team-rating model subject to a centering equality using a sequence of relaxed objectives
+
+Assumptions — Subproblem minimizers exist and the iterates have an accumulation point for the limit claim.
+
+Limitations — Large penalties can make the inner system ill-conditioned and finite-c solutions generally violate equality.
+
+Source — Poczos and Tibshirani, CMU 10-725 Optimization, Lecture 16, Penalty Convergence Theorem. https://www.stat.cmu.edu/~ryantibs/convexopt-F13/scribes/lec16.pdf

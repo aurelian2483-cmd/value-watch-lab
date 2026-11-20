@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "004",
-  "new_specifications": 10,
-  "registered_after_batch": 239,
+  "batch": "005",
+  "new_specifications": 5,
+  "registered_after_batch": 244,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -160,6 +160,15 @@
       "mathematical_checks": "Compared ten specified laws against SciPy on synthetic points. Checked normalization by quadrature for densities, CDF or survival values and the special case of zero circular concentration.",
       "semantic_review": "Compared the existing distribution, regression, inference and scoring records for overlapping mechanisms. The logistic law describes a continuous residual distribution, while logistic regression predicts a Bernoulli class probability. The central chi-square law supplies a reference distribution for statistics such as Breusch–Pagan. Excluded beta prime because rescaling F recovers it, Lomax because generalized Pareto already covers it, and log-logistic because it is the d=1 Burr XII case. Kept Student t as the residual-law family and omitted its Cauchy special case.",
       "scope": "Source and semantic findings apply to batch 004 against the registered catalogue. The earlier primary-source audit and unrecovered inventory remain open."
+    },
+    {
+      "batch": "005",
+      "new_specifications": 5,
+      "registered_after_batch": 244,
+      "source_check": "Checked fixed-step gradient descent against CMU Optimization lecture 6, the quadratic penalty limit against lecture 16, ISTA and FISTA against sections 3 and 4 of the original Beck–Teboulle paper, and conditional gradient against Algorithm 1 and the gap argument in Jaggi's paper.",
+      "mathematical_checks": "Synthetic quadratic and composite objectives exercised convergence bounds, soft-thresholding, acceleration, simplex feasibility and gap, and convergence of equality-penalty residuals.",
+      "semantic_review": "Fixed-step full gradient descent has no adaptive moments. The existing L1 proximal record is a standalone map. ISTA composes it with iterative gradients, and FISTA evaluates gradients at an extrapolated point with a distinct convergence rate. Frank–Wolfe keeps iterates feasible by convex combinations of linear oracle solutions. Quadratic penalty continuation instead solves a sequence of unconstrained objectives with increasing infeasibility costs. Step-size schedules and restart settings were excluded as stand-alone entries.",
+      "scope": "Source and semantic findings apply to batch 005 against the registered catalogue. The earlier primary-source audit and unrecovered inventory remain open."
     }
   ]
 }
