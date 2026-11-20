@@ -46,7 +46,7 @@ Every sport tag depends on the conditions in its [applicability profile](sport-p
 
 Source checks included the Glicko update and separate game expectation, the run-length recursion and prior reset, Cho’s GRU gate convention, constant-step ISTA and FISTA, the Nelder–Mead acceptance branches, the COM-Poisson geometric boundary and the one-sample Cramér–von Mises statistic. The remaining definitions retain their provenance locators. [Glickman](https://www.glicko.net/glicko/glicko.pdf) · [Adams and MacKay](https://arxiv.org/pdf/0710.3742) · [Cho et al.](https://aclanthology.org/D14-1179.pdf) · [Beck and Teboulle](https://www.ceremade.dauphine.fr/~carlier/FISTA) · [Lagarias et al.](https://www.math.kent.edu/~reichel/courses/optimization/reading.material.2/nelder.mead.pdf) · [COM-Poisson count data](https://link.springer.com/article/10.1186/s40488-017-0077-0) · [SciPy and Csörgő–Faraway](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cramervonmises.html)
 
-**Empirically qualified entries: 0.** The validator tests catalogue integrity, evidence classification, timing rules and selected mathematical identities on invented values. Full primary-source verification, deeper equivalence review, sport data availability and the 81-formula inventory crosswalk remain open.
+**Empirically qualified entries: 0.** The validator tests catalogue integrity, evidence classification, timing rules and selected mathematical identities on invented values. Full primary-source verification, deeper equivalence review, and sport data availability remain open. The [Sky 81-configuration reconstruction](sky81/README.md) tracks the separate grid and archive evidence.
 
 ## Candidate hypotheses for later review
 
@@ -59,6 +59,6 @@ Source checks included the Glicko update and separate game expectation, the run-
 | Scoring rules explain where an aggregate skill rating loses information | Compare rules-based tennis and darts recursions with direct event-rating models on agreed targets | Independently available point and throw histories |
 | Forecast disagreement can inform calibration | Compare fixed linear pooling with a prespecified disagreement gate and separate calibration | Correlated component bias and earlier forecast receipts |
 
-The five review perspectives are recorded in the audit. Next intake needs deeper sources and method coverage for control, physics, deep learning, evolutionary computation, causal inference, numerical analysis, and sport-specific modelling. A recoverable experiment manifest would allow a direct duplicate and provenance crosswalk for the reported 81-formula inventory.
+The five review perspectives are recorded in the audit. Next intake needs deeper sources and method coverage for control, physics, deep learning, evolutionary computation, causal inference, numerical analysis, and sport-specific modelling.
 
 The review gate remains closed for tournaments and promotion. The original 608-match replay, existing predictions, website, production branches and deployment configuration are outside this PR’s diff.
