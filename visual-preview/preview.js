@@ -48,7 +48,19 @@
     if (filters) {
       sportsPanel.after(filters);
       const engine = document.querySelector('.workspace-grid .engine-switch');
-      if (engine) filters.after(engine);
+      if (engine) {
+        filters.after(engine);
+        const heading = document.querySelector('.research-main > .desk-heading');
+        const status = document.querySelector('.research-main > .status-strip');
+        if (heading && status) {
+          const deskHeader = document.createElement('div');
+          deskHeader.className = 'preview-desk-header';
+          engine.after(deskHeader);
+          deskHeader.append(heading, status);
+          const alert = document.getElementById('page-status');
+          if (alert) deskHeader.append(alert);
+        }
+      }
     }
   }
 
