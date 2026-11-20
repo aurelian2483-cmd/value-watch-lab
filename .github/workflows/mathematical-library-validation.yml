@@ -1,0 +1,35 @@
+name: Mathematical library validation
+
+on:
+  push:
+    branches:
+      - research/sky-mathematical-library-20261120
+    paths:
+      - 'research/mathematical-library/**'
+      - '.github/workflows/mathematical-library-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate preserved legacy catalogue
+        run: node research/mathematical-library/validate.mjs
+      - name: Run versioned catalogue tests
+        run: node --test research/mathematical-library/validate-v1.test.mjs
+      - name: Verify generated catalogue summary
+        run: node research/mathematical-library/catalogue.mjs summary
+      - name: Verify generated evidence ledger
+        run: node research/mathematical-library/catalogue.mjs ledger
+      - name: Syntax-check catalogue tools
+        run: |
+          node --check research/mathematical-library/catalogue.mjs
+          node --check research/mathematical-library/validate-v1.mjs
