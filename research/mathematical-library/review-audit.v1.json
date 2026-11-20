@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "002",
-  "new_specifications": 100,
-  "registered_after_batch": 216,
+  "batch": "003",
+  "new_specifications": 13,
+  "registered_after_batch": 229,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -142,6 +142,15 @@
           "finding": "Recorded bibliographic locators for each entry. Full primary-text verification and the 81-formula crosswalk remain open."
         }
       ]
+    },
+    {
+      "batch": "003",
+      "new_specifications": 13,
+      "registered_after_batch": 229,
+      "source_check": "Checked each new specification against its linked section of the LAPACK authors' guide. The links identify the factorization, solve or error definition used in the record. Sports applications are catalogue examples.",
+      "mathematical_checks": "Reviewed dimensions, invertibility, orthogonal transformations, pivot blocks, zero tails and forward versus backward error. Synthetic numerical checks exercised the factorization identities, residuals, eigenpairs and backward error.",
+      "semantic_review": "Compared mechanisms and outputs with all preceding IDs and equations and linked the closest existing method. QR is an orthogonal triangular decomposition, pivoted QR exposes numerical rank, and complete orthogonal factorization supplies a minimum-norm solution with a right orthogonal factor. The SVD solve extracts a solution from singular values and vectors, while bidiagonal reduction supplies the intermediate matrix. Reduction of a symmetric pencil uses a positive definite metric, while QZ handles regular general pencils. Rejected LQ as a transpose counterpart of QR and grouped blocked implementations and storage formats under their underlying methods.",
+      "scope": "Source and semantic findings apply to batch 003 against the registered catalogue. The earlier primary-source audit and unrecovered inventory remain open."
     }
   ]
 }

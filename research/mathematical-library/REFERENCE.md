@@ -3023,3 +3023,185 @@ Assumptions — One treated per matched pair and sharp no-effect null.
 Limitations — Poor matching and correlated pairs defeat interpretation.
 
 Source — Rosenbaum, Observational Studies, 2nd ed., Springer, 2002
+
+## Householder QR factorization (householder-qr)
+
+> For each trailing column x, choose α=−sign₊(x₁)‖x‖₂, v=x−αe₁ and apply H=I−2vvᵀ/(vᵀv) to the trailing block, skipping x=0. Accumulate Q in reflector order so A=QR.
+
+x trailing subvector, e₁ first unit vector, sign₊(0)=1, R upper trapezoidal, Q orthogonal.
+
+Fit a linear score-margin baseline from a historical feature design and inspect its residuals
+
+Assumptions — Real m×n matrix, m≥n for the stated tall-design application.
+
+Limitations — Triangular regression solve requires full column rank.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., QR Factorization. https://www.netlib.org/lapack/lug/node40.html
+
+## Column-pivoted QR for rank diagnosis (pivoted-qr)
+
+> At step k pivot the remaining column with largest trailing 2-norm into position k, then eliminate the trailing entries with a Householder reflector to obtain AP=QR. Estimate rank by thresholding the leading triangular block at a declared scale.
+
+A design, P column permutation, Q orthogonal, R upper trapezoidal, k pivot step.
+
+Flag redundant historical team and venue indicators before fitting
+
+Assumptions — Use a declared numerical rank tolerance and consistent feature units.
+
+Limitations — Greedy pivoting does not guarantee strong rank revelation for every matrix.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., QR Factorization with Column Pivoting. https://www.netlib.org/lapack/lug/node42.html
+
+## Complete orthogonal minimum-norm solve (complete-orthogonal-factorization)
+
+> Given AP=Q[R₁₁ R₁₂;0 0] with rank r, use a right orthogonal factor Z such that [R₁₁ R₁₂]=[T 0]Z. Set x=P Zᵀ[T⁻¹(Qᵀb)₁:r;0], or x=0 at rank zero.
+
+A design, b response, Q and Z orthogonal, T nonsingular r×r upper triangular, P pivot permutation.
+
+Fit a minimum-norm margin baseline when team indicator columns are exactly redundant
+
+Assumptions — Rank known or resolved reliably and dense real design.
+
+Limitations — A noisy near-null direction can change the solution substantially when the declared rank changes.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Complete Orthogonal Factorization. https://www.netlib.org/lapack/lug/node43.html
+
+## Partial-pivoting LU solve (pivoted-lu)
+
+> At each elimination step swap in a remaining row maximizing absolute pivot-column entry, then update the Schur complement using the resulting multipliers. Solve Ly=Pb and Ux=y from PA=LU.
+
+A square system, b right-hand side, P row permutation, L unit lower and U upper triangular.
+
+Solve a nonsymmetric linear system arising from a synthetic sport transition model
+
+Assumptions — Nonsingular real square A and nonzero pivots.
+
+Limitations — Large element growth can amplify roundoff.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Factorizations for Solving Linear Equations. https://www.netlib.org/lapack/lug/node68.html
+
+## Cholesky triangular solve (cholesky-solve)
+
+> Factor A=LLᵀ with L lower triangular and positive diagonal, then solve Ly=b and Lᵀx=y by substitution.
+
+A Gram or precision matrix, L Cholesky factor, b right-hand side.
+
+Reuse a regularized historical feature Gram factor across score-margin target fits
+
+Assumptions — Real symmetric positive definite matrix.
+
+Limitations — Near singularity can defeat the factorization at working precision.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Linear Equations. https://www.netlib.org/lapack/lug/node38.html
+
+## Symmetric-indefinite block LDLᵀ solve (pivoted-ldlt)
+
+> Use symmetric row-and-column pivots with 1×1 or 2×2 pivot blocks to obtain PAPᵀ=LDLᵀ. Solve successively with L, block diagonal D and Lᵀ, and undo permutation P.
+
+A symmetric matrix, L unit lower triangular, D symmetric block diagonal, P permutation.
+
+Solve a saddle-point system for an equality-constrained historical rating fit
+
+Assumptions — A nonsingular symmetric system with invertible selected pivot blocks.
+
+Limitations — An unpivoted scalar scheme can fail even for the invertible matrix [0 1;1 0].
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Linear Equations. https://www.netlib.org/lapack/lug/node38.html
+
+## Rank-truncated SVD least squares (svd-least-squares)
+
+> Factor A=UΣVᵀ and set x_τ=Σ_(σ_i>τ) v_i(u_iᵀb)/σ_i for τ≥0. This is the minimum-norm solution for the truncated design.
+
+A design, b response, σ_i singular values, u_i and v_i singular vectors, τ rank threshold.
+
+Stabilize a historical race-time fit with collinear features
+
+Assumptions — Declare a threshold in design units using training data only.
+
+Limitations — Substantial signal in a discarded direction biases the fitted margin.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Singular Value Decomposition. https://www.netlib.org/lapack/lug/node53.html
+
+## Orthogonal symmetric tridiagonal reduction (symmetric-tridiagonal-reduction)
+
+> For k=1,…,n−2, choose a Householder reflector H fixing the first k coordinates and send the tail of column k to a multiple of its first unit vector. Replace A←HAHᵀ so the accumulated relation is T=QᵀA_original Q.
+
+H embedded reflector, Q ordered product, T tridiagonal.
+
+Prepare a historical covariance matrix for symmetric spectral analysis
+
+Assumptions — Real symmetric input; a zero tail needs no reflector.
+
+Limitations — A nonsymmetric matrix needs a different reduction.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Symmetric Eigenproblems. https://www.netlib.org/lapack/lug/node48.html
+
+## Orthogonal upper Hessenberg reduction (hessenberg-reduction)
+
+> For k=1,…,n−2, use an embedded Householder reflector H_k to eliminate column-k entries below the first subdiagonal by similarity. The result H=QᵀA Q satisfies H_ij=0 for i>j+1.
+
+A real square matrix, Q orthogonal product, H upper Hessenberg.
+
+Prepare a fitted nonsymmetric transition matrix for spectral analysis
+
+Assumptions — Finite real matrix; skip a zero elimination tail.
+
+Limitations — Nonnormal eigenvalues can remain sensitive after the reduction.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Eigenvalues, Eigenvectors and Schur Factorization. https://www.netlib.org/lapack/lug/node50.html
+
+## Two-sided orthogonal bidiagonal reduction (svd-bidiagonal-reduction)
+
+> Alternate left column reflectors and right row reflectors on the trailing block to obtain B=U₁ᵀAV₁ with B upper bidiagonal in its first n rows. Then σ_i(A)=σ_i(B).
+
+A m×n matrix, B reduced matrix, U₁ and V₁ orthogonal factors, σ_i singular values.
+
+Prepare a prior match-by-feature matrix for a singular-spectrum calculation
+
+Assumptions — Real m≥n case with zero tails skipped.
+
+Limitations — Bidiagonal reduction still requires a separate singular-value solver.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Singular Value Decomposition. https://www.netlib.org/lapack/lug/node53.html
+
+## Cholesky reduction for symmetric-definite eigenproblems (symmetric-definite-eigen)
+
+> With B=LLᵀ form C=L⁻¹AL⁻ᵀ via triangular solves. Solve Cy=λy and recover z=L⁻ᵀy so Az=λBz and zᵀBz=yᵀy.
+
+A symmetric objective, B positive definite metric, L Cholesky factor, λ eigenvalue.
+
+Find high between-team variation directions relative to a regularized within-team covariance
+
+Assumptions — Real symmetric A and B with B strictly positive definite.
+
+Limitations — Ill-conditioned B can amplify errors under the coordinate change.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Generalized Symmetric Definite Eigenproblems. https://www.netlib.org/lapack/lug/node54.html
+
+## Generalized Schur decomposition (generalized-schur)
+
+> Compute QᵀAZ=S and QᵀBZ=T with independent orthogonal Q,Z, S upper quasi-triangular and T upper triangular. Extract generalized eigenvalues blockwise from det(S_block−λT_block)=0, using homogeneous coordinates for infinite eigenvalues.
+
+A,B real square pencil, Q,Z orthogonal factors, S,T Schur pair, λ generalized eigenvalue.
+
+Analyze linearized modes of a constrained synthetic race-trajectory model
+
+Assumptions — Regular pencil, so the determinant polynomial is not identically zero.
+
+Limitations — A nearly singular pencil can make finite and infinite eigenvalues numerically hard to distinguish.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Eigenvalues, Eigenvectors and Generalized Schur Decomposition. https://www.netlib.org/lapack/lug/node56.html
+
+## Componentwise linear-solve backward error (linear-solve-backward-error)
+
+> Given residual r=b−Ax̂, compute η=max_i abs(r_i)/(abs(A) abs(x̂)+abs(b))_i using 0/0=0. This is the minimum common componentwise relative perturbation bound on A and b that makes x̂ solve the perturbed system.
+
+A system matrix, b right-hand side, x̂ computed solution, absolute values entrywise.
+
+Check solve accuracy for historical rating normal equations before interpreting coefficients
+
+Assumptions — Unstructured componentwise perturbations and residual measured with sufficient precision.
+
+Limitations — A small backward error can coexist with large forward error for ill-conditioned A.
+
+Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Further Details: Error Bounds for Linear Equation Solving. https://www.netlib.org/lapack/lug/node81.html

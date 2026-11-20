@@ -1,17 +1,17 @@
 # Sky Universal Mathematical Research Library
 
-Research catalogue v1 registers **216 specifications** across the six sports. Batches 001 and 002 add 100 entries each, and the 16 original v0 entries have supplementary specifications. The 1,000-entry milestone remains open with **784 entries outstanding**.
+Research catalogue v1 registers **229 specifications** across six sports, including 16 preserved v0 records and 213 entries added in batches. The 1,000-entry milestone remains open with **771 entries outstanding**.
 
 | Classification | Count |
 | --- | ---: |
-| Distinct algorithms | 58 |
+| Distinct algorithms | 70 |
 | Distinct models | 29 |
 | Distributions | 15 |
 | Frameworks | 4 |
 | Model variants | 25 |
 | Parameter configurations | 1 |
 | Feature transformations | 13 |
-| Diagnostics | 47 |
+| Diagnostics | 48 |
 | Calibration methods | 7 |
 | Ensembles | 8 |
 | Decision rules | 9 |
