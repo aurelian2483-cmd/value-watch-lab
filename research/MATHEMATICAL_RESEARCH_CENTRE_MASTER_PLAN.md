@@ -71,6 +71,20 @@ Specialists are **assigned research responsibilities/workflows**, not verified i
 
 Existing evidence: `research/LEAGUE_COMPARISON_2026-11-14.md`, issue [#111](https://github.com/aurelian2483-cmd/value-watch-lab/issues/111), and isolated research PR [#112](https://github.com/aurelian2483-cmd/value-watch-lab/pull/112). The latter contains replay and preliminary bottleneck code, **not** a validated universal lab. Dedicated baseline CI previously passed, while later broader QA/regression failed; investigate failures separately. No master-plan claim should imply they were fixed.
 
+## Scientific reading and toolbox protocol — approved research direction
+
+Each specialist begins an independently prepared note answering four questions, *before* reviewing another specialist's proposal:
+1. **What am I trying to explain?** Define the sport/event, outcome and suspected bottleneck.
+2. **What evidence do I need?** Specify available historical inputs, timestamps, provenance, uncertainty and licensing.
+3. **What mathematics could help?** Retrieve relevant books, papers, formula entries and executable tools; record full equations, assumptions and alternative methods.
+4. **What would prove the idea wrong?** Predeclare a disconfirming test, baseline, evaluation window and failure criteria.
+
+**Shared research sources to evaluate for authorised access:** OpenAlex (discovery/citations), arXiv (mathematics/physics preprints), Directory of Open Access Books/DOAB (books and metadata), Zenodo (research data/code), Semantic Scholar (related work), Crossref (DOI and provenance). A searchable abstract is *not* automatically a licence to copy or analyse the full text. Record publication identifiers, access and reuse terms, retrieval time and whether only metadata or full text was actually read. Never fabricate a reading or citation.
+
+**Scientific toolbox:** source discovery and deduplication; structured bibliography; permitted text/PDF extraction; symbolic and numerical calculations; statistical simulation and model fitting; sports data harmonisation; plots and diagnostics; reproducible code execution; holdout/data leakage auditing; report and notebook generation. GitHub stores code, metadata, peer challenge and evidence artefact references. Tools and connector access require implementation and verification; names here do not imply that five autonomous agents are already deployed.
+
+**Research notebook fields:** research question and hypothesis, source references/licences, exact inputs/data vintages, model and parameter versions, executable formula, calculations, experiment IDs, outcome metrics and uncertainty, independent critiques, replies and revision history, accepted/rejected status and remaining problems. Five distinct specialist notes are submitted before a joint debate; no consensus vote substitutes for measured evidence.
+
 ## 7. Staged execution and release gates
 1. **Preserve the design** (this document) and audit current branch/tests; keep live systems unchanged.
 2. **Establish the catalogue schema** and populate a real, quality-controlled starter inventory; do not generate fake entries to hit a quota.
