@@ -49,13 +49,18 @@ def quoted_market(rides,observed,source,digest,pre_event,field_confirmed):
   candidates=[q for q in ride.get('bookmakerOdds',[]) if q.get('bookmakerId')==17 and re.sub(r'[^a-z]','',str(q.get('bookmakerName','')).lower()).startswith('skybet') and q.get('outcome')=='Win']
   if len(candidates)!=1:return {**base,'status':'INCOMPLETE_OR_AMBIGUOUS_QUOTES'}
   q=candidates[0];decimal=q.get('decimalOdds');fraction=str(q.get('fractionalOdds',''));fraction='1/1' if fraction.upper() in ('EVS','EVENS','EVEN') else fraction;m=re.fullmatch(r'(\d+(?:\.\d+)?)/(\d+(?:\.\d+)?)',fraction)
-  if type(decimal) not in (int,float) or not math.isfinite(decimal) or not 1<decimal<=10000 or not m or float(m[2])<=0 or abs(decimal-(1+float(m[1])/float(m[2])))>0.00500001:return {**base,'status':'INVALID_QUOTE'}
+  if type(decimal) not in (int,float) or not math.isfinite(decimal) or not 1<decimal<=10000 or not m:return {**base,'status':'INVALID_QUOTE'}
+  numerator,denominator=map(float,m.groups())
+  # Overflow can yield NaN, which bypasses an absolute-difference comparison.
+  if not all(math.isfinite(v) and v>0 for v in (numerator,denominator)):return {**base,'status':'INVALID_QUOTE'}
+  fractional_decimal=1+numerator/denominator
+  if not math.isfinite(fractional_decimal) or not 1<fractional_decimal<=10000 or abs(decimal-fractional_decimal)>0.00500001:return {**base,'status':'INVALID_QUOTE'}
   # Validate raw identities before string conversion: None becomes a truthy 'None'.
   raw_ids=[q.get(k) for k in ('bookmakerRaceid','bookmakerMarketId','selectionId')]
   if any(type(value) not in (str,int) or (isinstance(value,str) and not value.strip()) for value in raw_ids):return {**base,'status':'MISSING_MARKET_ID'}
   market=tuple(str(value) for value in raw_ids[:2])
   markets.add(market)
-  quotes.append({'horse_id':hid,'decimal':1+float(m[1])/float(m[2]),'source_decimal':decimal,'fractional':fraction,'selection_id':str(q['selectionId'])})
+  quotes.append({'horse_id':hid,'decimal':fractional_decimal,'source_decimal':decimal,'fractional':fraction,'selection_id':str(q['selectionId'])})
  if len(markets)!=1 or len({q['selection_id'] for q in quotes})!=len(quotes):return {**base,'status':'MIXED_OR_AMBIGUOUS_MARKETS'}
  low=min(q['decimal'] for q in quotes);race_id,market_id=next(iter(markets))
  return {**base,'status':'COMPLETE_SOURCE_OBSERVATION','bookmaker_race_id':race_id,'bookmaker_market_id':market_id,
