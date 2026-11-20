@@ -26,3 +26,6 @@ jobs:
           assert.equal(fresh.rows.length,608);
           console.log('PASS: all 608 match rows, both probability vectors, model metrics and metadata reproduce exactly.');
           EOF
+
+      - name: Test retrospective bookmaker comparison safeguards
+        run: node tests/test_football_baseline_market.cjs
