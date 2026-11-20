@@ -73,11 +73,49 @@
     return list(calendar.fixtures).filter(row => row?.code === 'RL' && row.competition_code === 'RL:NRL' &&
       row.forecast_eligible === false && iso(row.kickoff_utc) && Date.parse(row.kickoff_utc) > now);
   }
+  const proD2Clubs = {
+    Aurillac:'aurillac', Colomiers:'colomiers', 'Béziers':'beziers', 'US Dax':'dax',
+    'Biarritz Olympique':'biarritz', Narbonne:'narbonne', 'CA Brive':'brive',
+    'Oyonnax Rugby':'oyonnax', 'Valence Romans Drôme Rugby':'valence-romans',
+    Provence:'provence-rugby', 'US Montauban':'montauban', 'FC Grenoble':'grenoble',
+    'SU Agen':'agen', 'USON Nevers':'nevers', 'Stade Niçois':'nice',
+    'Soyaux Angoulême XV Charente':'angouleme'
+  };
+  function proD2Results(document, now) {
+    if (document?.schema_version !== 1 || document.research_only !== true ||
+        document.competition_code !== 'RU:5172' || !iso(document.observed_at_utc) ||
+        Date.parse(document.observed_at_utc) > now || !/^\d{4}-\d{4}$/.test(document.season || '')) return [];
+    const rows = list(document.results);
+    if (rows.length > 300 || new Set(rows.map(row => row?.source)).size !== rows.length) return [];
+    const sourcePrefix = 'https://prod2.lnr.fr/feuille-de-match/' + document.season + '/';
+    return rows.filter(row => row && date(row.date) && row.date < day(now) &&
+      /^[a-z0-9-]+$/.test(row.home || '') && /^[a-z0-9-]+$/.test(row.away || '') && row.home !== row.away &&
+      [row.home_points, row.away_points].every(points => Number.isInteger(points) && points >= 0 && points <= 200) &&
+      typeof row.source === 'string' && row.source.startsWith(sourcePrefix) &&
+      /^j\d+\/\d+-[a-z0-9-]+$/.test(row.source.slice(sourcePrefix.length)));
+  }
+  function recentProD2Form(results, fixture) {
+    if (fixture.code !== 'RU' || fixture.provider?.competition_code !== 'RU:5172') return null;
+    return fixture.participants.map(team => {
+      const club = Object.hasOwn(proD2Clubs,team) ? proD2Clubs[team] : null;
+      return results.filter(row => row.date < fixture.date && (row.home === club || row.away === club))
+        .sort((a,b) => b.date.localeCompare(a.date)).slice(0,5).map(row => {
+          const home = row.home === club;
+          const opponent = home ? row.away : row.home;
+          const scored = home ? row.home_points : row.away_points;
+          const conceded = home ? row.away_points : row.home_points;
+          return {date:row.date, source:row.source,
+            opponent:Object.keys(proD2Clubs).find(key => proD2Clubs[key] === opponent) || opponent,
+            scored, conceded, result:scored > conceded ? 'W' : scored < conceded ? 'L' : 'D'};
+        });
+    });
+  }
   function normalize(sport, doc, official = [], now = Date.now(), analysis = null, markets = null) {
     const valid = doc?.schema_version === 1 && doc.research_only === true && doc.model_validation === 'UNVALIDATED' && doc.publication_gate === 'BLOCKED' && iso(doc.generated_at_utc);
     const age = now - Date.parse(doc?.generated_at_utc);
     const current = valid && age >= 0 && age <= 48 * 3600000;
     const analysisCurrent = sport === 'darts' && validAnalysis(analysis, now);
+    const rugbyResults = sport === 'rugby' ? proD2Results(analysis, now) : [];
     const records = [], history = valid && sport === 'darts' ? list(doc.results) : [];
     const add = row => {
       if (!date(row.date) || row.participants.length !== 2 || row.participants.some(x => !name(x)) || row.participants[0] === row.participants[1]) return;
@@ -147,7 +185,11 @@
       row.observedAt = row.provider && valid ? doc.generated_at_utc : null;
       row.sourceStatus = row.calendar && row.official ? 'Official match listing · GitHub calendar source' : row.official ? (row.start && sport === 'darts' ? 'Official schedule date · provider match time unverified' : 'Official schedule snapshot') : row.calendar ? 'GitHub NRL calendar · schedule only' : current ? 'Provider observation · independently unverified' : 'Provider snapshot stale or unconfirmed';
       row.model = null;
-      row.reason = sport === 'rugby' ? 'No rugby prediction model or team-result history is connected.' : 'D1 needs a confirmed match time and matched player IDs.';
+      row.form = sport === 'rugby' ? recentProD2Form(rugbyResults, row) : null;
+      row.reason = 'D1 needs a confirmed match time and matched player IDs.';
+      if (sport === 'rugby') row.reason = row.form?.some(matches => matches.length)
+        ? 'Recent league form from official Pro D2 scores · descriptive only.'
+        : 'Team form unavailable for this competition. Rugby predictions are not published.';
       if (sport === 'darts' && row.provider && current && row.start && Date.parse(row.start) > now + 300000 && !row.timeConflict) {
         try {
           const report = Darts.model(history, [row.provider], new Date(now).toISOString());
@@ -180,7 +222,7 @@
       }
       row.blockers = [row.reason, row.marketEvidence ? 'Dated market observations only.' : 'No captured bookmaker prices for this match.'];
     }
-    return {fixtures, valid, current, historyCount:history.length, observedAt:valid ? doc.generated_at_utc : null,
+    return {fixtures, valid, current, historyCount:sport === 'rugby' ? rugbyResults.length : history.length, observedAt:valid ? doc.generated_at_utc : null,
       analysisHistoryCount:analysisCurrent ? analysis.training_matches : null,
       sourceHealth:valid ? doc.source_health : null};
   }

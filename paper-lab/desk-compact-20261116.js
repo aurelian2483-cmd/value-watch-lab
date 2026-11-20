@@ -692,7 +692,7 @@
       Promise.allSettled([
         fetchFixtureSource(new URL(fixtureLabs[sport].feed, fixtureBase), 'json'),
         fetchFixtureSource(new URL(sport + '/', fixtureBase), 'text'),
-        sport === 'darts' ? fetchFixtureSource(new URL('darts/analysis.json', fixtureBase), 'json') : Promise.resolve(null),
+        fetchFixtureSource(new URL(sport === 'darts' ? 'darts/analysis.json' : 'rugby/pro-d2-results.json', fixtureBase), 'json'),
         fixtureMarketRequest ||= fetchFixtureSource(new URL('paper-lab/fixture-market-evidence.json', fixtureBase), 'json')
       ]).then(([feed, official, analysis, markets]) => {
         const doc = feed.status === 'fulfilled' ? feed.value : null;
@@ -752,7 +752,8 @@
       return 0;
     }
     const fixtures = matchingFixtures(snapshot, state);
-    make(heading, 'p', fixtures.length + ' matches in this view · ' + (snapshot.historyCount || 0) + ' historical records in the connected feed');
+    const historyLabel = sport === 'rugby' ? ' official Pro D2 final scores loaded' : ' historical records in the connected feed';
+    make(heading, 'p', fixtures.length + ' matches in this view · ' + (snapshot.historyCount || 0) + historyLabel);
     if (snapshot.analysisHistoryCount !== null && snapshot.analysisHistoryCount !== undefined) make(heading, 'p', 'D1 analysis uses ' + snapshot.analysisHistoryCount + ' results from a fully paginated recent 28-day window. Experimental; recent results are delayed.', 'small');
     if (snapshot.observedAt) make(heading, 'p', 'Provider snapshot: ' + dateText(snapshot.observedAt) + (snapshot.usable ? '' : ' · stale or unconfirmed'), 'small');
     if (!snapshot.usable) make(heading, 'p', 'Provider feed unavailable or stale. Any retained calendar records are shown with their source status.', 'small');
@@ -792,6 +793,10 @@
       row.participants.forEach((participant,index) => {
         const outcome = make(outcomes, 'div', undefined, 'fixture-outcome');
         make(outcome, 'strong', participant);
+        const matches = row.form?.[index];
+        if (matches?.length)
+          make(outcome, 'span', 'Recent league form: ' + matches.map(match => match.result).join(' · ') + ' (newest first)');
+        else if (row.form) make(outcome, 'span', 'No matched Pro D2 results for this team.');
         if (row.model?.prob_a !== null && row.model?.prob_a !== undefined)
           make(outcome, 'span', 'D1 estimate: ' + pct(index === 0 ? row.model.prob_a : row.model.prob_b) + ' · uncalibrated');
       });
@@ -810,6 +815,15 @@
         if (market.directSource) link(prices, 'Check the current Sky Bet listing', market.directSource);
       }
       const evidence = details(card, 'Match evidence and sources', 'compact-evidence-disclosure');
+      if (row.form?.some(matches => matches.length)) make(evidence,'p','W = win · D = draw · L = loss','small');
+      if (row.form) row.form.forEach((matches,index) => {
+        if (!matches.length) return;
+        make(evidence,'strong',row.participants[index] + ' · Recent Pro D2 results');
+        for (const match of matches) {
+          const line = make(evidence,'p',match.date + ' · ' + match.result + ' ' + match.scored + '–' + match.conceded + ' vs ' + match.opponent + ' • ', 'small');
+          link(line, 'Official score', match.source);
+        }
+      });
       if (row.providerDateConflict) make(evidence, 'p', 'Provider listed ' + row.providerDateConflict + '. The PDC schedule gives the date shown above.');
       if (row.model) make(evidence, 'p', 'D1 prior matches: ' + row.model.prior_a + ' / ' + row.model.prior_b + '. Historical sample is provider-observed, not independently verified.');
       for (const source of row.sources) link(evidence, 'View source · ' + new URL(source).hostname, source);
