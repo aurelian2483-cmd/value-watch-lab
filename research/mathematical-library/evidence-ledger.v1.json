@@ -8,7 +8,13 @@
     "status": "IMPLEMENTED",
     "legacy_id": "poisson",
     "implementation_ref": "research/football-baseline-v1/replay.mjs",
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
   },
   {
     "id": "dixon-coles",
@@ -19,7 +25,12 @@
     "status": "IDEA",
     "legacy_id": "dixon-coles",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football"
+    ],
+    "applicability_profile": "football"
   },
   {
     "id": "bivariate-poisson",
@@ -30,7 +41,12 @@
     "status": "IDEA",
     "legacy_id": "bivariate-poisson",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football"
+    ],
+    "applicability_profile": "football"
   },
   {
     "id": "negative-binomial",
@@ -41,7 +57,13 @@
     "status": "IDEA",
     "legacy_id": "negative-binomial",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
   },
   {
     "id": "elo",
@@ -52,7 +74,16 @@
     "status": "IDEA",
     "legacy_id": "elo",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
   },
   {
     "id": "glicko",
@@ -63,7 +94,14 @@
     "status": "IDEA",
     "legacy_id": "glicko",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts"
+    ],
+    "applicability_profile": "paired"
   },
   {
     "id": "bradley-terry",
@@ -74,7 +112,15 @@
     "status": "IDEA",
     "legacy_id": "bradley-terry",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts"
+    ],
+    "applicability_profile": "paired",
+    "mechanism_note": "Two-alternative conditional logit with paired identity contrasts; conditioning on two remaining choices reduces Plackett–Luce to this form."
   },
   {
     "id": "ewma",
@@ -85,7 +131,18 @@
     "status": "IDEA",
     "legacy_id": "ewma",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "series",
+    "mechanism_note": "Matches geometric weighting with its recursive initialization; finite renormalized decay treats the boundary differently."
   },
   {
     "id": "cusum",
@@ -96,7 +153,17 @@
     "status": "IDEA",
     "legacy_id": "cusum",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "kalman",
@@ -107,7 +174,17 @@
     "status": "IDEA",
     "legacy_id": "kalman",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "bayesian-hierarchical",
@@ -118,7 +195,17 @@
     "status": "IDEA",
     "legacy_id": "bayesian-hierarchical",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "monte-carlo",
@@ -129,7 +216,17 @@
     "status": "IDEA",
     "legacy_id": "monte-carlo",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "weighted-ensemble",
@@ -140,7 +237,18 @@
     "status": "IDEA",
     "legacy_id": "weighted-ensemble",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Common linear pooling operation used by stacking, BMA and shrinkage; weight construction distinguishes the records."
   },
   {
     "id": "isotonic",
@@ -151,7 +259,17 @@
     "status": "IDEA",
     "legacy_id": "isotonic",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "forecast"
   },
   {
     "id": "logistic",
@@ -162,7 +280,18 @@
     "status": "IDEA",
     "legacy_id": "logistic",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "binary",
+    "mechanism_note": "Binary softmax and two-alternative conditional-logit specialize to this link with the appropriate features. Platt adds score calibration and target smoothing."
   },
   {
     "id": "changepoint",
@@ -173,7 +302,17 @@
     "status": "IDEA",
     "legacy_id": "changepoint",
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "skellam",
@@ -184,7 +323,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football"
+    ],
+    "applicability_profile": "football",
+    "mechanism_note": "Exact marginal of independent Poisson score difference and of a bivariate Poisson score difference with a common additive shock."
   },
   {
     "id": "beta-binomial",
@@ -195,7 +340,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success",
+    "mechanism_note": "Predictive count from beta-Bernoulli mixture; single Bernoulli prediction is beta-bernoulli-update."
   },
   {
     "id": "zip",
@@ -206,7 +361,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
   },
   {
     "id": "hurdle-poisson",
@@ -217,7 +378,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
   },
   {
     "id": "com-poisson",
@@ -228,7 +395,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
   },
   {
     "id": "geometric",
@@ -239,7 +412,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
   },
   {
     "id": "softmax",
@@ -250,7 +432,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing"
+    ],
+    "applicability_profile": "choice",
+    "mechanism_note": "Shared simplex map for conditional-logit, multiclass calibration and choice stages; no fitting objective on its own."
   },
   {
     "id": "plackett-luce",
@@ -261,7 +449,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing"
+    ],
+    "applicability_profile": "rank",
+    "mechanism_note": "Sequential conditional choice likelihood on shrinking sets; first-place-only data give conditional logit."
   },
   {
     "id": "davidson-ties",
@@ -272,7 +466,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
   },
   {
     "id": "thurstone-case-v",
@@ -283,7 +486,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
   },
   {
     "id": "trueskill",
@@ -294,7 +506,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
   },
   {
     "id": "conditional-logit",
@@ -305,7 +526,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing"
+    ],
+    "applicability_profile": "choice",
+    "mechanism_note": "Softmax with learned utility and grouped likelihood. Two alternatives with contrast-coded features reduce to binary logistic."
   },
   {
     "id": "bayes-rule",
@@ -316,7 +543,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
   },
   {
     "id": "exp-time-decay",
@@ -327,7 +564,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series",
+    "mechanism_note": "Close to ewma on a regular grid with α=1−exp(−λΔ); elapsed-time weights and finite normalization matter."
   },
   {
     "id": "z-score",
@@ -338,7 +586,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "mad-score",
@@ -349,7 +607,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "box-cox",
@@ -360,7 +628,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis"
+    ],
+    "applicability_profile": "positive"
   },
   {
     "id": "first-difference",
@@ -371,7 +645,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "rolling-median-shift",
@@ -382,7 +666,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "ew-variance",
@@ -393,7 +687,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "pettitt",
@@ -404,7 +708,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "pelt",
@@ -415,7 +729,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "hmm-forward",
@@ -426,7 +750,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "viterbi",
@@ -437,7 +771,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "particle-bootstrap",
@@ -448,7 +792,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "simple-ar",
@@ -459,7 +813,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "moving-average-model",
@@ -470,7 +834,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "arima",
@@ -481,7 +855,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "arch",
@@ -492,7 +876,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "garch",
@@ -503,7 +897,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "holt-trend",
@@ -514,7 +918,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "haar-wavelet",
@@ -525,7 +939,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "entropy",
@@ -536,7 +960,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
   },
   {
     "id": "kl",
@@ -547,7 +981,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
   },
   {
     "id": "jensen-shannon",
@@ -558,7 +1002,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "KL to the mixture, distinct from the symmetric KL sum used by PSI."
   },
   {
     "id": "brier",
@@ -569,7 +1024,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "log-loss",
@@ -580,7 +1045,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "rps",
@@ -591,7 +1066,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "pit",
@@ -602,7 +1087,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "randomized-pit",
@@ -613,7 +1108,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "log-pool",
@@ -624,7 +1129,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
   },
   {
     "id": "probability-shrinkage",
@@ -635,7 +1150,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Shared two-component linear pool with disagreement-dependent weights."
   },
   {
     "id": "stacking",
@@ -646,7 +1172,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Shared linear pool; out-of-sample log score supplies weights."
   },
   {
     "id": "bma",
@@ -657,7 +1194,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Shared linear pool; posterior model probabilities supply weights."
   },
   {
     "id": "temperature",
@@ -668,7 +1216,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Restriction of vector scaling with common positive multiplier and zero bias."
   },
   {
     "id": "platt",
@@ -679,7 +1238,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
   },
   {
     "id": "beta-calibration",
@@ -690,7 +1259,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
   },
   {
     "id": "kaplan-meier",
@@ -701,7 +1280,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
   },
   {
     "id": "nelson-aalen",
@@ -712,7 +1300,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
   },
   {
     "id": "cox-ph",
@@ -723,7 +1320,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
   },
   {
     "id": "weibull-aft",
@@ -734,7 +1340,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
   },
   {
     "id": "bootstrap-iid",
@@ -745,7 +1360,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "resampling"
   },
   {
     "id": "moving-block-bootstrap",
@@ -756,7 +1381,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "resampling"
   },
   {
     "id": "jackknife",
@@ -767,7 +1402,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "resampling"
   },
   {
     "id": "control-variate",
@@ -778,7 +1423,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "importance-sampling",
@@ -789,7 +1444,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "antithetic",
@@ -800,7 +1465,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "ridge",
@@ -811,7 +1486,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "lasso",
@@ -822,7 +1507,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "elastic-net",
@@ -833,7 +1528,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "huber-regression",
@@ -844,7 +1549,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "quantile-regression",
@@ -855,7 +1570,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous",
+    "mechanism_note": "Pinball loss plus a linear regression fitting problem."
   },
   {
     "id": "knn-regression",
@@ -866,7 +1592,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "nw-regression",
@@ -877,7 +1613,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "cart-regression",
@@ -888,7 +1634,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "random-forest",
@@ -899,7 +1655,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "gradient-boost",
@@ -910,7 +1676,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "pca",
@@ -921,7 +1697,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "kmeans",
@@ -932,7 +1718,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "pagerank",
@@ -943,7 +1739,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "graph"
   },
   {
     "id": "elo-home",
@@ -954,7 +1759,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
   },
   {
     "id": "massey",
@@ -965,7 +1779,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "margin"
   },
   {
     "id": "colley",
@@ -976,7 +1799,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
   },
   {
     "id": "hungarian",
@@ -987,18 +1819,35 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "assignment"
   },
   {
     "id": "ev",
     "source": {
-      "kind": "literature",
+      "kind": "original-derivation",
       "citation": "original derivation: expectation of two possible unit returns as shown"
     },
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "market"
   },
   {
     "id": "kelly",
@@ -1009,7 +1858,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "market"
   },
   {
     "id": "hoeffding",
@@ -1020,7 +1879,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
   },
   {
     "id": "wilson",
@@ -1031,7 +1899,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
   },
   {
     "id": "darts-finish-dp",
@@ -1042,18 +1919,30 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "darts"
+    ],
+    "applicability_profile": "darts",
+    "mechanism_note": "Exact finite-horizon Bellman policy evaluation with checkout and bust absorbing outcomes."
   },
   {
     "id": "tennis-game",
     "source": {
-      "kind": "literature",
+      "kind": "original-derivation",
       "citation": "original derivation: enumerate wins before deuce, then condition on first non-split two-point deuce cycle"
     },
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "tennis"
+    ],
+    "applicability_profile": "tennis",
+    "mechanism_note": "Geometric series appears only in the deuce subproblem. The full result is an absorption calculation; relationship to geometric is overly narrow."
   },
   {
     "id": "bellman-policy",
@@ -1064,7 +1953,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "kalman-ou",
@@ -1075,7 +1974,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series",
+    "mechanism_note": "OU dynamics can be supplied to Kalman; a transition law alone is a separate component."
   },
   {
     "id": "hawkes",
@@ -1086,18 +1996,41 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "timestamps"
   },
   {
     "id": "prox-l1",
     "source": {
       "kind": "literature",
-      "citation": "Parikh and Boyd, Proximal Algorithms, Foundations and Trends in Optimization, 2014"
+      "citation": "Parikh and Boyd, Proximal Algorithms, Foundations and Trends in Optimization, 2014; Beck and Teboulle, §3. https://www.ceremade.dauphine.fr/~carlier/FISTA"
     },
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous",
+    "mechanism_note": "Same soft-thresholded gradient update as ista; exempting the intercept changes the penalty mask.",
+    "equivalence": {
+      "type": "equivalent-to",
+      "target": "ista",
+      "condition": "Same smooth objective, L1 penalty, penalized coordinates and initialization with constant step η=1/L"
+    }
   },
   {
     "id": "project-simplex",
@@ -1108,7 +2041,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
   },
   {
     "id": "minimax-robust",
@@ -1119,7 +2062,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "ipw",
@@ -1130,7 +2083,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
   },
   {
     "id": "aipw",
@@ -1141,7 +2104,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
   },
   {
     "id": "yeo-johnson",
@@ -1152,7 +2125,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "dirichlet-multinomial",
@@ -1163,7 +2146,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "categories",
+    "mechanism_note": "Predictive count law from dirichlet-update with multinomial sampling; two categories give beta-binomial."
   },
   {
     "id": "clr",
@@ -1174,7 +2166,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "composition"
   },
   {
     "id": "damped-holt",
@@ -1185,7 +2187,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "alpha-beta",
@@ -1196,7 +2208,15 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "tracking"
   },
   {
     "id": "gillespie-direct",
@@ -1207,7 +2227,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "poisson-form-025",
@@ -1218,18 +2248,34 @@
     "status": "IMPLEMENTED",
     "legacy_id": null,
     "implementation_ref": "research/football-baseline-v1/replay.mjs",
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football"
+    ],
+    "applicability_profile": "football"
   },
   {
     "id": "population-stability-index",
     "source": {
-      "kind": "literature",
+      "kind": "original-derivation",
       "citation": "original derivation: D(q∥p)+D(p∥q) expands to the stated symmetric expression"
     },
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "composition",
+    "mechanism_note": "Algebraically symmetric KL sum (Jeffreys divergence); retain the binned monitoring application without treating it as an independent divergence."
   },
   {
     "id": "neyman-pearson",
@@ -1240,7 +2286,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
   },
   {
     "id": "death-process",
@@ -1251,7 +2307,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
   },
   {
     "id": "cumulative-incidence",
@@ -1262,7 +2327,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival",
+    "mechanism_note": "Continuous cause-specific hazard functional. Aalen–Johansen estimates its competing-risk analogue from observed transitions."
   },
   {
     "id": "spsa",
@@ -1273,7 +2348,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "poisson-regression",
@@ -1284,7 +2369,14 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count",
+    "mechanism_note": "Intercept-only common exposure yields a common Poisson law. Attack/defence imposes a schedule-linked design and identifiability constraints."
   },
   {
     "id": "poisson-attack-defence",
@@ -1295,7 +2387,12 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football"
+    ],
+    "applicability_profile": "football"
   },
   {
     "id": "gamma-poisson-update",
@@ -1306,7 +2403,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
   },
   {
     "id": "beta-bernoulli-update",
@@ -1317,7 +2420,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
   },
   {
     "id": "dirichlet-update",
@@ -1328,7 +2440,15 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "categories"
   },
   {
     "id": "normal-normal-update",
@@ -1339,7 +2459,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "binomial-fixed-count",
@@ -1350,7 +2480,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
   },
   {
     "id": "poisson-binomial",
@@ -1361,7 +2500,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
   },
   {
     "id": "hypergeometric",
@@ -1372,7 +2520,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
   },
   {
     "id": "multinomial-fixed",
@@ -1383,7 +2540,15 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "categories"
   },
   {
     "id": "categorical-markov",
@@ -1394,7 +2559,15 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "categories"
   },
   {
     "id": "fundamental-matrix",
@@ -1405,7 +2578,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "stationary-renewal",
@@ -1416,7 +2599,14 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "timestamps"
   },
   {
     "id": "compound-poisson",
@@ -1427,7 +2617,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
   },
   {
     "id": "lognormal-duration",
@@ -1438,7 +2634,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis"
+    ],
+    "applicability_profile": "positive"
   },
   {
     "id": "ex-gaussian-duration",
@@ -1449,7 +2651,13 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis"
+    ],
+    "applicability_profile": "positive"
   },
   {
     "id": "gev",
@@ -1460,7 +2668,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "gpd",
@@ -1471,7 +2689,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "ecdf",
@@ -1482,7 +2710,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "turnbull",
@@ -1493,7 +2731,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
   },
   {
     "id": "logrank",
@@ -1504,7 +2751,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
   },
   {
     "id": "greenwood",
@@ -1515,7 +2771,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
   },
   {
     "id": "aalen-johansen",
@@ -1526,7 +2791,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
   },
   {
     "id": "restricted-mean-survival-time",
@@ -1537,7 +2811,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
   },
   {
     "id": "poisson-deviance",
@@ -1548,7 +2831,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "anderson-darling",
@@ -1559,7 +2852,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "ks-one-sample",
@@ -1570,18 +2873,38 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "cvm",
     "source": {
       "kind": "literature",
-      "citation": "Anderson, On the Distribution of the Two-Sample Cramér–von Mises Criterion, Annals of Mathematical Statistics, 1962; one-sample quantile expression follows from integrating squared ECDF discrepancy"
+      "citation": "Csörgő and Faraway, The Exact and Asymptotic Distributions of Cramér–von Mises Statistics, JRSS B, 1996, Eq. 1.1. See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cramervonmises.html"
     },
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "mcnemar",
@@ -1592,7 +2915,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "wilcoxon-signed-rank",
@@ -1603,7 +2936,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "spearman",
@@ -1614,7 +2957,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "kendall-tau-b",
@@ -1625,7 +2978,12 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing"
+    ],
+    "applicability_profile": "rank"
   },
   {
     "id": "ljung-box",
@@ -1636,7 +2994,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "variance-ratio",
@@ -1647,7 +3015,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "adf",
@@ -1658,7 +3036,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "kpss",
@@ -1669,7 +3057,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "newey-west",
@@ -1680,7 +3078,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "durbin-watson",
@@ -1691,7 +3099,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "breusch-pagan",
@@ -1702,7 +3120,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "cook-distance",
@@ -1713,7 +3141,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "vif",
@@ -1724,7 +3162,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "aic",
@@ -1735,7 +3183,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "bic",
@@ -1746,7 +3204,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "holm",
@@ -1757,7 +3225,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "benjamini-hochberg",
@@ -1768,7 +3246,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "diebold-mariano",
@@ -1779,7 +3267,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "auc-roc",
@@ -1790,7 +3288,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "average-precision",
@@ -1801,7 +3309,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "ece",
@@ -1812,7 +3330,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "calibration-in-large",
@@ -1823,7 +3351,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
   },
   {
     "id": "crps",
@@ -1834,7 +3372,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "pinball",
@@ -1845,7 +3393,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment",
+    "mechanism_note": "Quantile regression fits a model by minimizing the same loss; this record scores a supplied quantile."
   },
   {
     "id": "interval-score",
@@ -1856,7 +3415,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "split-conformal",
@@ -1867,7 +3436,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "conformal-quantile",
@@ -1878,7 +3457,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "vector-scaling",
@@ -1889,7 +3478,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Class-specific generalization of temperature; diagonal slope and offsets, unlike full Dirichlet calibration on log probabilities."
   },
   {
     "id": "dirichlet-calibration",
@@ -1900,7 +3500,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
   },
   {
     "id": "online-log-weights",
@@ -1911,7 +3521,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
   },
   {
     "id": "fixed-share",
@@ -1922,7 +3542,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Exponentiated online weights followed by redistribution; α=0 gives online-log-weights."
   },
   {
     "id": "bayes-regret",
@@ -1933,7 +3564,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "cvar",
@@ -1944,7 +3585,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "minimax-regret",
@@ -1955,7 +3606,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "latin-hypercube",
@@ -1966,7 +3627,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "stratified-mc",
@@ -1977,7 +3648,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "mcmc-metropolis",
@@ -1988,7 +3669,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "gibbs",
@@ -1999,7 +3690,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "slice-sampling",
@@ -2010,7 +3711,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "rank-sobol",
@@ -2021,7 +3732,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "sobol-total",
@@ -2032,7 +3753,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "linear-program",
@@ -2043,7 +3774,14 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "assignment"
   },
   {
     "id": "branch-bound",
@@ -2054,7 +3792,14 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "assignment"
   },
   {
     "id": "pareto-front",
@@ -2065,18 +3810,38 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "nelder-mead",
     "source": {
       "kind": "literature",
-      "citation": "Nelder and Mead, A Simplex Method for Function Minimization, Computer Journal, 1965"
+      "citation": "Lagarias et al., Convergence Properties of the Nelder–Mead Simplex Method in Low Dimensions, SIAM Journal on Optimization, 1998, Algorithm NM. https://www.math.kent.edu/~reichel/courses/optimization/reading.material.2/nelder.mead.pdf"
     },
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "golden-section",
@@ -2087,7 +3852,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "bisection",
@@ -2098,7 +3873,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "newton-root",
@@ -2109,7 +3894,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "conjugate-gradient",
@@ -2120,7 +3915,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "differential-evolution",
@@ -2131,7 +3936,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "simulated-annealing",
@@ -2142,7 +3957,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "cross-entropy-search",
@@ -2153,7 +3978,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "bandit-ucb",
@@ -2164,7 +3999,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "bandit-thompson",
@@ -2175,7 +4020,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "gaussian-process",
@@ -2186,7 +4041,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "expected-improvement",
@@ -2197,7 +4062,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
   },
   {
     "id": "svr",
@@ -2208,7 +4083,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "gaussian-naive-bayes",
@@ -2219,7 +4104,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
   },
   {
     "id": "lda-classifier",
@@ -2230,7 +4125,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
   },
   {
     "id": "qda-classifier",
@@ -2241,7 +4146,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
   },
   {
     "id": "adaboost",
@@ -2252,7 +4167,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
   },
   {
     "id": "elastic-weight-consolidation",
@@ -2263,7 +4188,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "lstm",
@@ -2274,7 +4209,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "gru",
@@ -2285,7 +4230,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "causal-attention",
@@ -2296,7 +4251,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "causal-dilated-conv",
@@ -2307,7 +4272,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
   },
   {
     "id": "adam",
@@ -2318,7 +4293,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "diff-in-diff",
@@ -2329,7 +4314,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
   },
   {
     "id": "synthetic-control",
@@ -2340,7 +4335,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
   },
   {
     "id": "rd-local-linear",
@@ -2351,7 +4356,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
   },
   {
     "id": "wald-iv",
@@ -2362,7 +4377,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
   },
   {
     "id": "rosenbaum-bounds",
@@ -2373,7 +4398,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
   },
   {
     "id": "householder-qr",
@@ -2384,7 +4419,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "pivoted-qr",
@@ -2395,7 +4440,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "complete-orthogonal-factorization",
@@ -2406,7 +4461,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Shares the minimum-norm least-squares result with SVD for aligned rank decisions, with different factors."
   },
   {
     "id": "pivoted-lu",
@@ -2417,7 +4483,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "cholesky-solve",
@@ -2428,7 +4504,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "pivoted-ldlt",
@@ -2439,7 +4525,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "svd-least-squares",
@@ -2450,7 +4546,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Shares minimum-norm solution with complete orthogonal factorization under compatible rank decisions; truncation can change the design."
   },
   {
     "id": "symmetric-tridiagonal-reduction",
@@ -2461,7 +4568,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "hessenberg-reduction",
@@ -2472,7 +4589,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "svd-bidiagonal-reduction",
@@ -2483,7 +4610,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "symmetric-definite-eigen",
@@ -2494,7 +4631,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "generalized-schur",
@@ -2505,7 +4652,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "linear-solve-backward-error",
@@ -2516,7 +4673,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "laplace",
@@ -2527,7 +4694,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "logistic-residual",
@@ -2538,7 +4715,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "student-t-residual",
@@ -2549,7 +4736,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "chi-square-law",
@@ -2560,7 +4757,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "f-reference-law",
@@ -2571,7 +4778,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "triangular-law",
@@ -2582,7 +4799,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "inverse-gaussian-duration",
@@ -2593,7 +4820,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "burr-xii-duration",
@@ -2604,7 +4841,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "von-mises-angle",
@@ -2615,7 +4862,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "loggamma-residual",
@@ -2626,7 +4883,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "gradient-descent",
@@ -2637,7 +4904,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "ISTA with λ=0 reduces to gradient descent; smooth objective versus composite step."
   },
   {
     "id": "ista",
@@ -2648,7 +4926,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Same update as prox-l1 at η=1/L with matching penalized coordinates; canonical label ISTA, preserve both IDs."
   },
   {
     "id": "fista",
@@ -2659,7 +4948,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "ISTA acceleration with extrapolation and extra state."
   },
   {
     "id": "frank-wolfe",
@@ -2670,7 +4970,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "quadratic-penalty",
@@ -2681,7 +4991,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "composite-trapezoid",
@@ -2692,7 +5012,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Base rule for Romberg; with an ODE-dependent integrand it gives the implicit trapezoidal step."
   },
   {
     "id": "composite-simpson",
@@ -2703,7 +5034,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "romberg-integration",
@@ -2714,7 +5055,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "gaussian-quadrature",
@@ -2725,7 +5076,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "golub-welsch",
@@ -2736,7 +5097,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Constructs Gaussian quadrature nodes and weights for the same rule; distinct computation, common quadrature output."
   },
   {
     "id": "beta-continuous",
@@ -2747,7 +5119,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "generalized-normal",
@@ -2758,7 +5140,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "skew-normal",
@@ -2769,7 +5161,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "normal-inverse-gaussian",
@@ -2780,7 +5182,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
   },
   {
     "id": "secant-root",
@@ -2791,7 +5203,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "halley-root",
@@ -2802,7 +5224,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "steffensen-fixed-point",
@@ -2813,7 +5245,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "barycentric-polynomial-interpolation",
@@ -2824,7 +5266,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "natural-cubic-spline",
@@ -2835,7 +5287,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "pchip-interpolation",
@@ -2846,7 +5308,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "forward-euler-ode",
@@ -2857,7 +5329,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "backward-euler-ode",
@@ -2868,7 +5350,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "implicit-trapezoidal-ode",
@@ -2879,7 +5371,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "classical-rk4",
@@ -2890,7 +5392,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "bogacki-shampine-rk23",
@@ -2901,7 +5413,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "velocity-verlet",
@@ -2912,7 +5434,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "dijkstra-shortest-path",
@@ -2923,7 +5455,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "bellman-ford-shortest-path",
@@ -2934,7 +5476,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "floyd-warshall",
@@ -2945,7 +5497,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "kruskal-spanning-forest",
@@ -2956,7 +5518,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "hits-hub-authority",
@@ -2967,7 +5539,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "kruskal-wallis",
@@ -2978,7 +5560,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "friedman-rank-test",
@@ -2989,7 +5581,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "fligner-killeen",
@@ -3000,7 +5602,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "ansari-bradley",
@@ -3011,7 +5623,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   },
   {
     "id": "jacobi-linear-solve",
@@ -3022,7 +5644,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "gauss-seidel-linear-solve",
@@ -3033,7 +5665,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "gmres-linear-solve",
@@ -3044,7 +5686,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Residual minimization over a Krylov space. MINRES exploits symmetry via Lanczos and short recurrences."
   },
   {
     "id": "minres-linear-solve",
@@ -3055,7 +5708,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Same Krylov residual objective as unrestarted GMRES under symmetry; distinct basis and computation."
   },
   {
     "id": "theil-sen-simple",
@@ -3066,7 +5730,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "siegel-repeated-median",
@@ -3077,7 +5751,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "ransac-consensus-regression",
@@ -3088,7 +5772,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "raw-minimum-covariance-determinant",
@@ -3099,7 +5793,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "vector-autoregression",
@@ -3110,7 +5814,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "VECM reparameterizes a cointegrated VAR with explicit reduced rank; usual stable VAR and cointegrated levels VAR differ in root structure."
   },
   {
     "id": "vector-error-correction",
@@ -3121,7 +5836,18 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Reduced-rank error-correction reparameterization of a cointegrated VAR; explicit rank restriction changes fitted model class."
   },
   {
     "id": "markov-switching-ar",
@@ -3132,7 +5858,17 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   },
   {
     "id": "dynamic-factor-model",
@@ -3143,6 +5879,16 @@
     "status": "SPECIFIED",
     "legacy_id": null,
     "implementation_ref": null,
-    "test_evidence": null
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
   }
 ]

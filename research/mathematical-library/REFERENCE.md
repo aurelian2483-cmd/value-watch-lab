@@ -44,7 +44,7 @@ Source — doi:10.1111/1467-9884.00366
 
 ## Negative binomial goal/score model (negative-binomial)
 
-> P(X=k)=Γ(k+r)/(Γ(r)k!)·(1−p)^k p^r
+> P(X=k)=Γ(k+r)/(Γ(r)k!)·(1−p)^k p^r. For p=1 set P(X=0)=1 and P(X=k)=0 for k>0
 
 X score count, k nonnegative integer, r>0 size, 0<p≤1 success parameter, Γ gamma function.
 
@@ -72,9 +72,9 @@ Source — Arpad Elo, The Rating of Chessplayers, Past and Present, 1978
 
 ## Glicko rating system (glicko)
 
-> Set q=ln(10)/400 and g(s)=(1+3q²s²/π²)^(-1/2). Inflate own RD to v=min(350,√(RD²+c²t)). For prior period opponents compute E_j=(1+10^(−g(RD_j)(r−r_j)/400))^(-1), I=q²Σg(RD_j)²E_j(1−E_j). Set RD_new=(v^(-2)+I)^(-1/2) and r_new=r+q RD_new²Σg(RD_j)(S_j−E_j)
+> Set q=ln(10)/400 and g(s)=(1+3q²s²/π²)^(-1/2). Inflate own RD to v=min(350,√(RD²+c²t)). For prior period opponents compute E_j=(1+10^(−g(RD_j)(r−r_j)/400))^(-1), I=q²Σg(RD_j)²E_j(1−E_j). Set RD_new=(v^(-2)+I)^(-1/2) and r_new=r+q RD_new²Σg(RD_j)(S_j−E_j). For game expected score use E=1/(1+10^(−g(√(RD_A²+RD_B²))(r_A−r_B)/400)) with both pre-period deviations. The E_j above is the rating-update term
 
-r,r_j ratings, RD standard deviations, c process inflation, t elapsed periods, S_j assigned Elo score, j opponent index.
+r,r_j ratings, RD standard deviations, c process inflation, t elapsed periods, S_j assigned Elo score, j opponent index. RD_j is the opponent deviation after pre-period inflation. RD_A and RD_B are the two pre-period deviations for game expectation.
 
 Track tennis or darts head-to-head strength and rating uncertainty, or football expected score under a declared draw convention.
 
@@ -96,6 +96,8 @@ Assumptions — Connected comparison graph and time-stable strength for fit wind
 
 Limitations — Complete separation yields infinite unpenalised estimates.
 
+Mechanism — Two-alternative conditional logit with paired identity contrasts; conditioning on two remaining choices reduces Plackett–Luce to this form.
+
 Source — doi:10.1093/biomet/39.3-4.324
 
 ## Exponentially weighted moving average (ewma)
@@ -109,6 +111,8 @@ Track changes in prior football chance-creation rates, horse sectionals, tennis 
 Assumptions — Fixed observation-step interpretation of decay.
 
 Limitations — Unequal gaps distort real-time decay.
+
+Mechanism — Matches geometric weighting with its recursive initialization; finite renormalized decay treats the boundary differently.
 
 Source — Hyndman and Athanasopoulos, Forecasting: Principles and Practice, 3rd ed., §8.1
 
@@ -180,6 +184,8 @@ Assumptions — Identical target definitions and support.
 
 Limitations — Correlated component errors provide little diversification.
 
+Mechanism — Common linear pooling operation used by stacking, BMA and shrinkage; weight construction distinguishes the records.
+
 Source — Genest and Zidek, Combining Probability Distributions: A Critique and an Annotated Bibliography, Statistical Science, 1986
 
 ## Isotonic probability calibration (isotonic)
@@ -208,13 +214,15 @@ Assumptions — Linear conditional log odds for specified features.
 
 Limitations — Separation and nonlinear misspecification.
 
+Mechanism — Binary softmax and two-alternative conditional-logit specialize to this link with the appropriate features. Platt adds score calibration and target smoothing.
+
 Source — Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §4.4
 
 ## Bayesian change-point detection (changepoint)
 
-> With J_0(0)=1, update J_t(r+1)=J_(t−1)(r)π_r(x_t)(1−H(r+1)) and J_t(0)=Σ_r J_(t−1)(r)π_r(x_t)H(r+1); normalize J_t over run lengths
+> Initialize J₀(0)=1. Let h(r)=P(D=r+1 ∣ D≥r+1) for positive integer segment duration D and previous run length r. Compute G_r=J_(t−1)(r)π_r(x_t), J_t(r+1)=G_r(1−h(r)), and J_t(0)=Σ_r G_r h(r). Normalize by Σ_s J_t(s)>0 for the run-length posterior. Initialize the reset state at the segment prior and extend growth states with x_t
 
-r run length, J joint with observed data, H hazard using segment length, π_r previous-run predictive density; reset sufficient statistics on r=0 using a fresh prior.
+r previous run length, J joint run-length and observation mass up to a common scale, D segment duration, h(r) duration hazard written on the previous-run index, π_r previous-run predictive density.
 
 Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates
 
@@ -230,11 +238,13 @@ Source — Adams and MacKay, Bayesian Online Changepoint Detection, arXiv:0710.3
 
 D goal difference, k integer, a,b positive Poisson rates, I_m modified Bessel function of first kind.
 
-Estimate a football scoreline or goal differential
+Model regulation-time association-football goal difference. The difference law alone does not identify a joint scoreline
 
-Assumptions — Independent Poisson scores.
+Assumptions — Independent Poisson scores or scores with independent Poisson components X=A+C and Y=B+C, in which case a and b are the rates of A and B.
 
-Limitations — Shared or overdispersed increments.
+Limitations — Overdispersion or dependence beyond an additive common component that cancels in the difference.
+
+Mechanism — Exact marginal of independent Poisson score difference and of a bivariate Poisson score difference with a common additive shock.
 
 Source — doi:10.2307/2981372
 
@@ -249,6 +259,8 @@ Model tennis service points, darts checkout attempts or comparable bounded event
 Assumptions — Trials exchangeable within group.
 
 Limitations — Fatigue breaks exchangeability.
+
+Mechanism — Predictive count from beta-Bernoulli mixture; single Bernoulli prediction is beta-bernoulli-update.
 
 Source — Johnson, Kemp and Kotz, Univariate Discrete Distributions, 3rd ed., 2005
 
@@ -282,13 +294,13 @@ Source — doi:10.1016/0304-4076(86)90002-3
 
 ## Conway–Maxwell–Poisson (com-poisson)
 
-> P(X=k)=λ^k/[(k!)^ν Z], Z=Σ[j≥0] λ^j/(j!)^ν
+> P(X=k)=λ^k/[(k!)^ν Z], Z=Σ[j≥0] λ^j/(j!)^ν. Use λ>0 with ν>0, or 0<λ<1 with ν=0. For λ=0 and ν≥0 use a point mass at zero
 
 X count, k,j nonnegative integers, λ and ν positive parameters.
 
 Model goal or try counts at a fixed exposure
 
-Assumptions — Numerical normalization needs tail control.
+Assumptions — Use a finite normalizer and comparable exposures. The ν=0 case is geometric on nonnegative counts.
 
 Limitations — Naive truncation biases likelihood.
 
@@ -320,6 +332,8 @@ Assumptions — Exhaustive choice set.
 
 Limitations — Omitted runners distort mass.
 
+Mechanism — Shared simplex map for conditional-logit, multiclass calibration and choice stages; no fitting objective on its own.
+
 Source — Goodfellow, Bengio and Courville, Deep Learning, §6.2.2.3
 
 ## Plackett–Luce ranking (plackett-luce)
@@ -333,6 +347,8 @@ Estimate probabilities of horse finishing orders
 Assumptions — Sequential choice and ties excluded.
 
 Limitations — Pace interactions violate independence of irrelevant alternatives.
+
+Mechanism — Sequential conditional choice likelihood on shrinking sets; first-place-only data give conditional logit.
 
 Source — doi:10.2307/2346567
 
@@ -390,6 +406,8 @@ Assumptions — One winner and independence of irrelevant alternatives.
 
 Limitations — Within-field dependence violates independent utility errors.
 
+Mechanism — Softmax with learned utility and grouped likelihood. Two alternatives with contrast-coded features reduce to binary logistic.
+
 Source — McFadden, Conditional Logit Analysis of Qualitative Choice Behavior, 1974
 
 ## Bayes posterior update (bayes-rule)
@@ -400,7 +418,7 @@ H hypothesis and H_j exhaustive exclusive hypotheses, D observed evidence.
 
 Estimate or update a binary event such as a tennis service hold or a football clean sheet
 
-Assumptions — Positive marginal evidence and coherent prior.
+Assumptions — Positive marginal evidence and coherent prior. H is an element of the stated exhaustive disjoint partition. For a union, sum the posterior masses of its elements.
 
 Limitations — Correlated evidence can be counted twice.
 
@@ -417,6 +435,8 @@ Track changes in prior football chance-creation rates, horse sectionals, tennis 
 Assumptions — One decay timescale.
 
 Limitations — Smooth forgetting can hide an abrupt regime switch.
+
+Mechanism — Close to ewma on a regular grid with α=1−exp(−λΔ); elapsed-time weights and finite normalization matter.
 
 Source — Hyndman and Athanasopoulos, Forecasting: Principles and Practice, 3rd ed., §8.1, geometric weights extended to elapsed time
 
@@ -526,7 +546,7 @@ C additive segment cost, m minimum integer segment length, β penalty, s,t,u end
 
 Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates
 
-Assumptions — Use a proven cost inequality.
+Assumptions — Use a proven cost inequality. Use the stated additive-cost split inequality. Keep a pruned candidate eligible until the first endpoint u≥t+m at which the replacement split at t can be used.
 
 Limitations — Wrong K discards optimal splits.
 
@@ -712,11 +732,13 @@ Assumptions — Equal mixture weighting.
 
 Limitations — Aggregate disagreement does not identify superior component.
 
+Mechanism — KL to the mixture, distinct from the symmetric KL sum used by PSI.
+
 Source — doi:10.1109/18.61115
 
 ## Multiclass Brier score (brier)
 
-> BS=N^(-1)Σ_iΣ_j(p_ij−1[y_i=j])²
+> BS=N^(-1)Σ_iΣ_j(p_ij−1[y_i=j])². For two classes this unscaled sum equals twice the scalar binary Brier score
 
 p_ij archived probability, y_i adjudicated result, N forecasts, j class.
 
@@ -764,7 +786,7 @@ F_i archived continuous predictive CDF, y_i final measurement, u_i probability-t
 
 Assess calibration or forecast quality in a permitted historical assessment sample
 
-Assumptions — Correct conditional continuous CDF implies uniform marginal PIT.
+Assumptions — Correct conditional continuous CDF implies uniform marginal PIT. The ordinary PIT is for a continuous conditional CDF. Use randomized PIT for predictive laws with atoms.
 
 Limitations — Uniform PIT alone does not establish sharpness or independence.
 
@@ -772,7 +794,7 @@ Source — Diebold, Gunther and Tay, Evaluating Density Forecasts with Applicati
 
 ## Randomized PIT for discrete observations (randomized-pit)
 
-> u_i=F_i(y_i⁻)+v_i[F_i(y_i)−F_i(y_i⁻)]
+> u_i=F_i(y_i⁻)+v_i[F_i(y_i)−F_i(y_i⁻)]. If F_i is continuous at y_i then the jump is zero and u_i=F_i(y_i)
 
 F_i archived discrete CDF, y_i outcome, v_i independent Uniform(0,1), y_i⁻ left limit argument.
 
@@ -810,6 +832,8 @@ Assumptions — Gate fitted on earlier forecasts and then frozen.
 
 Limitations — Shared bias can produce high agreement and excessive candidate weight.
 
+Mechanism — Shared two-component linear pool with disagreement-dependent weights.
+
 Source — original: use bounded Jensen–Shannon disagreement in the FB-06 convex shrinkage equation; exp(−γD_JS) preserves simplex closure
 
 ## Predictive-density stacking (stacking)
@@ -823,6 +847,8 @@ Combine, calibrate or compare forecasts for the same sporting event target
 Assumptions — Chronological adaptation of predictive stacking with matched target probabilities.
 
 Limitations — Adjacent fold dependence and collinear components destabilize weights.
+
+Mechanism — Shared linear pool; out-of-sample log score supplies weights.
 
 Source — doi:10.1214/17-BA1091
 
@@ -838,6 +864,8 @@ Assumptions — Comparable evidence on same observed data.
 
 Limitations — Diffuse priors distort marginal likelihood.
 
+Mechanism — Shared linear pool; posterior model probabilities supply weights.
+
 Source — doi:10.1214/ss/1009212519
 
 ## Temperature scaling (temperature)
@@ -851,6 +879,8 @@ Combine, calibrate or compare forecasts for the same sporting event target
 Assumptions — Valid logits and common held-out target mapping.
 
 Limitations — Argmax unchanged and class bias remains.
+
+Mechanism — Restriction of vector scaling with common positive multiplier and zero bias.
 
 Source — Guo et al., On Calibration of Modern Neural Networks, ICML 2017
 
@@ -1090,6 +1120,8 @@ Assumptions — Conditional quantile linear at chosen level.
 
 Limitations — Separate quantiles may cross.
 
+Mechanism — Pinball loss plus a linear regression fitting problem.
+
 Source — doi:10.2307/1913643
 
 ## Nearest-neighbour regression (knn-regression)
@@ -1130,7 +1162,7 @@ Predict a continuous sport target like race time or score differential
 
 Assumptions — Pre-fixed regularization and nonempty children.
 
-Limitations — Sparse leaves and repeated splits overfit.
+Limitations — Sparse leaves and repeated splits overfit. This is the greedy least-squares growth stage with size/depth stopping. Classical CART also supports cost-complexity pruning.
 
 Source — Breiman et al., Classification and Regression Trees, 1984
 
@@ -1328,6 +1360,8 @@ Assumptions — Double-out rules and past target/impact data.
 
 Limitations — Attempt response differs by pressure or segment.
 
+Mechanism — Exact finite-horizon Bellman policy evaluation with checkout and bust absorbing outcomes.
+
 Source — original: finite-horizon law of total probability with checkout and bust absorbing outcomes
 
 ## Advantage tennis service-game probability (tennis-game)
@@ -1340,7 +1374,9 @@ Map a service-point propensity to service-game probability
 
 Assumptions — Advantage rules with win by two after 3–3.
 
-Limitations — No-ad or pressure-dependent point strength invalidates recursion.
+Limitations — No-ad or pressure-dependent point strength invalidates recursion. Scope excludes no-ad games, tiebreaks and point probabilities that vary within the game.
+
+Mechanism — Geometric series appears only in the deuce subproblem. The full result is an absorption calculation; relationship to geometric is overly narrow.
 
 Source — original derivation: enumerate wins before deuce, then condition on first non-split two-point deuce cycle
 
@@ -1360,7 +1396,7 @@ Source — Puterman, Markov Decision Processes, 1994
 
 ## Exact sampled Ornstein–Uhlenbeck transition (kalman-ou)
 
-> X_(t+Δ)∣X_t=x~N(μ+exp(−κΔ)(x−μ), σ²(1−exp(−2κΔ))/(2κ))
+> X_(t+Δ)∣X_t=x~N(μ+exp(−κΔ)(x−μ), σ²(1−exp(−2κΔ))/(2κ)). This defines the transition only. A Kalman implementation also needs a linear observation equation, observation noise and the prediction/update recursions of kalman
 
 κ>0 reversion rate, μ level, σ diffusion scale, Δ time gap, X latent continuous state.
 
@@ -1369,6 +1405,8 @@ Track changes in prior football chance-creation rates, horse sectionals, tennis 
 Assumptions — Continuous Gaussian mean reversion with constant coefficients.
 
 Limitations — Permanent shifts misread as transitory.
+
+Mechanism — OU dynamics can be supplied to Kalman; a transition law alone is a separate component.
 
 Source — Uhlenbeck and Ornstein, On the Theory of the Brownian Motion, Physical Review, 1930
 
@@ -1388,7 +1426,7 @@ Source — doi:10.1093/biomet/58.1.83
 
 ## Proximal gradient for L1 regularization (prox-l1)
 
-> b_new=S_(ηλ)(b−η∇f(b)), S_c(z)=sign(z)max(abs(z)−c,0) componentwise; leave intercept unthresholded
+> b_new=S_(ηλ)(b−η∇f(b)), S_c(z)=sign(z)max(abs(z)−c,0) componentwise; leave intercept unthresholded. With η=1/L and the same penalty mask this is the ISTA update. On excluded coordinates use the ordinary gradient step
 
 b coefficients, f smooth convex training objective, λ penalty, η≤1/L step for L-Lipschitz gradient.
 
@@ -1398,7 +1436,9 @@ Assumptions — Convex objective and proper step size.
 
 Limitations — Bad scaling slows convergence.
 
-Source — Parikh and Boyd, Proximal Algorithms, Foundations and Trends in Optimization, 2014
+Mechanism — Same soft-thresholded gradient update as ista; exempting the intercept changes the penalty mask.
+
+Source — Parikh and Boyd, Proximal Algorithms, Foundations and Trends in Optimization, 2014; Beck and Teboulle, §3. https://www.ceremade.dauphine.fr/~carlier/FISTA
 
 ## Euclidean probability-simplex projection (project-simplex)
 
@@ -1434,7 +1474,7 @@ Source — Wald, Statistical Decision Functions, 1950
 
 A binary exposure, Y outcome, X earlier confounders, e propensity, N units, τ average causal effect.
 
-Study a pre-event intervention such as a lineup change or a schedule/rest exposure
+Estimate a historical average treatment effect for a specified sport exposure and eligible population
 
 Assumptions — Conditional exchangeability, positivity and consistency.
 
@@ -1448,7 +1488,7 @@ Source — Hernán and Robins, Causal Inference: What If, 2020
 
 A exposure, Y outcome, X confounders, e propensity, m_a conditional outcome regression for A=a.
 
-Study a pre-event intervention such as a lineup change or a schedule/rest exposure
+Estimate a historical average treatment effect for a specified sport exposure and eligible population
 
 Assumptions — Exchangeability, consistency and positivity; either nuisance model correct for double robustness.
 
@@ -1482,6 +1522,8 @@ Assumptions — Conditional exchangeability of category labels.
 
 Limitations — Restricted covariance structure.
 
+Mechanism — Predictive count law from dirichlet-update with multinomial sampling; two categories give beta-binomial.
+
 Source — doi:10.1093/biomet/49.1-2.65
 
 ## Centered log ratio (clr)
@@ -1494,7 +1536,7 @@ Compare composition of scoring patterns or drift of historical feature bins
 
 Assumptions — Common denominator and strictly positive parts.
 
-Limitations — Zeros and singular output covariance.
+Limitations — Zeros and singular output covariance. CLR coordinates sum to zero, so a full-coordinate unregularized sample covariance cannot be inverted.
 
 Source — Aitchison, The Statistical Analysis of Compositional Data, 1986
 
@@ -1520,7 +1562,7 @@ x position, v velocity, y measured position, Δ fixed positive step, α,β gains
 
 Derive historical pace or speed features from past tracking
 
-Assumptions — Constant velocity approximation over short intervals.
+Assumptions — Constant velocity approximation over short intervals. A steady-state Kalman interpretation requires gains derived for the corresponding dynamics, sampling interval and noise model.
 
 Limitations — Accelerations or variable sampling impair tracking.
 
@@ -1550,13 +1592,13 @@ Estimate a football scoreline or goal differential
 
 Assumptions — Identical eligibility and chronology to pinned replay; venue rates use five prior pseudo-matches, rate floor in ratios 0.01 and clamp [0.15,4] before form.
 
-Limitations — Truncated mass and frozen coefficients may behave poorly at extreme rates.
+Limitations — Truncated mass and frozen coefficients may behave poorly at extreme rates. Treat the finite-grid specification as a pinned parameter configuration. No replay is part of the evidence for this correction.
 
 Source — PR #112 at 1fbd53d94ca152f1d4246e784a3c86bb33146648, research/football-baseline-v1/replay.mjs and README.md
 
 ## Population stability divergence (population-stability-index)
 
-> PSI=Σ_j (q_j−p_j) ln(q_j/p_j)
+> PSI=Σ_j (q_j−p_j) ln(q_j/p_j). This is D(q∥p)+D(p∥q), the Jeffreys divergence on the declared bins
 
 p,q positive bin frequencies for reference and subsequent past window; j fixed bin.
 
@@ -1565,6 +1607,8 @@ Compare composition of scoring patterns or drift of historical feature bins
 Assumptions — Common binning and positive bins.
 
 Limitations — Sparse bins exaggerate drift; magnitude depends on binning.
+
+Mechanism — Algebraically symmetric KL sum (Jeffreys divergence); retain the binned monitoring application without treating it as an independent divergence.
 
 Source — original derivation: D(q∥p)+D(p∥q) expands to the stated symmetric expression
 
@@ -1588,11 +1632,11 @@ Source — doi:10.1098/rsta.1933.0009
 
 T time to terminal event, u elapsed time, h nonnegative hazard, λ constant hazard case.
 
-Estimate time to a future withdrawal or return in records with defensible risk sets
+Model time to one designated terminal event within a defined sport risk period
 
 Assumptions — Nonrecurrent terminal event within defined risk period.
 
-Limitations — Repeated returns require resetting or recurrent-event framework.
+Limitations — This is a single-event survival model. A general pure-death chain requires state-dependent transitions and rates.
 
 Source — Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Data, 2nd ed., 2002
 
@@ -1607,6 +1651,8 @@ Estimate time to a future withdrawal or return in records with defensible risk s
 Assumptions — Mutually exclusive first causes and right censoring compatible with fit.
 
 Limitations — Treating competing exits as independent censoring overstates incidence.
+
+Mechanism — Continuous cause-specific hazard functional. Aalen–Johansen estimates its competing-risk analogue from observed transitions.
 
 Source — Aalen et al., Survival and Event History Analysis, 2008
 
@@ -1635,6 +1681,8 @@ Model goal or try counts at a fixed exposure
 Assumptions — Conditional count mean is log-linear and conditional dispersion is Poisson.
 
 Limitations — Unrecorded exposure shifts bias rate estimates.
+
+Mechanism — Intercept-only common exposure yields a common Poisson law. Attack/defence imposes a schedule-linked design and identifiability constraints.
 
 Source — Cameron and Trivedi, Regression Analysis of Count Data, 2nd ed.
 
@@ -1798,11 +1846,11 @@ Source — Grinstead and Snell, Introduction to Probability, 2nd revised ed., ab
 
 N(t) events by elapsed time t, X positive gap, E finite mean.
 
-Estimate clustering in prior goals, tries or drive outcomes
+Estimate long-run event frequency from comparable prior inter-event gaps
 
 Assumptions — Reinitialization between comparable intervals and constant gap distribution.
 
-Limitations — Match clock stoppages and dependence alter long-run rates.
+Limitations — The limit is the renewal strong law. It neither implies a stationary initial delay nor quantifies clustering.
 
 Source — Ross, Stochastic Processes, 2nd ed., renewal theory
 
@@ -1812,11 +1860,11 @@ Source — Ross, Stochastic Processes, 2nd ed., renewal theory
 
 N event count, Y points per event, S weighted total, λ expected count.
 
-Approximate a weighted rugby scoring total by summing simulated counts of marked events.
+Approximate rugby scoring using marked clusters, for example a try with the conversion points that follow it. Treat football goals as unit marks if using the goal-count special case
 
-Assumptions — Independent iid event values and independent event count.
+Assumptions — Poisson cluster count and independent identically distributed cluster marks independent of that count. Model conversion conditional on the try inside its cluster.
 
-Limitations — Conversion attempts depend on tries rather than forming independently marked event values.
+Limitations — Conversion attempts depend on tries rather than forming independently marked event values. Additional scoring types need an explicitly specified aggregation model. The cluster assumptions are conditional research assumptions.
 
 Source — Ross, Introduction to Probability Models, 12th ed., compound Poisson process
 
@@ -1840,11 +1888,11 @@ Source — Johnson, Kotz and Balakrishnan, Continuous Univariate Distributions, 
 
 G baseline timing, E random delay, μ,σ normal parameters, λ rate.
 
-Transform skewed duration predictors for model fitting
+Model signed timing residuals or approximate comparable race or tennis point durations when negative-time mass is negligible
 
 Assumptions — Use only when implied negative-time mass is negligible or truncate with explicit normalization.
 
-Limitations — Long delays can reflect mixed rules instead of an exponential mechanism.
+Limitations — The untruncated distribution has support on the real line. For strictly positive support use explicit renormalized truncation or a positive-support law.
 
 Source — Ratcliff, Group Reaction Time Distributions and an Analysis of Distribution Statistics, Psychological Bulletin, 1979
 
@@ -1906,7 +1954,7 @@ Source — Turnbull, The Empirical Distribution Function with Arbitrarily Groupe
 
 ## Log-rank test (logrank)
 
-> U=Σ_j(d_1j−n_1j d_j/n_j); V=Σ_j n_1j(n_j−n_1j)d_j(n_j−d_j)/(n_j²(n_j−1)); use U²/V
+> U=Σ_j(d_1j−n_1j d_j/n_j); V=Σ_j n_1j(n_j−n_1j)d_j(n_j−d_j)/(n_j²(n_j−1)); use U²/V. Set the variance contribution to zero when n_j≤1. If V=0, report no test statistic
 
 risk counts n, failures d by group and event time j; omit n_j≤1.
 
@@ -1920,7 +1968,7 @@ Source — Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Da
 
 ## Greenwood survival variance formula (greenwood)
 
-> Var[Ŝ(t)]≈Ŝ(t)²Σ_(τ_j≤t) d_j/[n_j(n_j−d_j)]
+> Var[Ŝ(t)]≈Ŝ(t)²Σ_(τ_j≤t) d_j/[n_j(n_j−d_j)]. Use the expression while all included n_j>d_j. At a terminal event with n_j=d_j, the Kaplan–Meier estimate is zero. Report the factored Greenwood estimate and interval as unavailable at and after that time
 
 n_j risk set, d_j failures, τ_j time, Ŝ Kaplan–Meier estimate.
 
@@ -1928,7 +1976,7 @@ Estimate time to a future withdrawal or return in records with defensible risk s
 
 Assumptions — Independent censoring with n_j>d_j at included times.
 
-Limitations — Unstable at tail of follow-up or all-at-risk failure.
+Limitations — Unstable at tail of follow-up or all-at-risk failure. At complete depletion the factored expression has an indeterminate zero-times-infinity form. Do not treat this boundary as evidence of zero uncertainty.
 
 Source — Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Data, 2nd ed.
 
@@ -1966,7 +2014,7 @@ Source — Royston and Parmar, Restricted Mean Survival Time, BMC Medical Resear
 
 y observed counts, μ positive forecasts.
 
-Assess calibration or forecast quality in a permitted historical assessment sample
+Assess fitted means for a defined event count at aligned exposure
 
 Assumptions — Forecasts correspond to identical exposure and event set.
 
@@ -2010,11 +2058,11 @@ x_(i) ascending observations, F_0 fully specified CDF, n size.
 
 Predict a continuous sport target like race time or score differential
 
-Assumptions — IID continuous observations for conventional null.
+Assumptions — IID continuous observations for conventional null. The usual one-sample null law requires a fully specified continuous F₀. Re-estimating parameters requires a separately justified calibration.
 
 Limitations — Fitting F_0 on observations changes test distribution.
 
-Source — Anderson, On the Distribution of the Two-Sample Cramér–von Mises Criterion, Annals of Mathematical Statistics, 1962; one-sample quantile expression follows from integrating squared ECDF discrepancy
+Source — Csörgő and Faraway, The Exact and Asymptotic Distributions of Cramér–von Mises Statistics, JRSS B, 1996, Eq. 1.1. See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cramervonmises.html
 
 ## Exact paired binary McNemar test (mcnemar)
 
@@ -2284,7 +2332,7 @@ Source — Hanley and McNeil, The Meaning and Use of the Area Under a Receiver O
 
 ## Threshold-grouped average precision (average-precision)
 
-> AP=Σ_j(R_j−R_(j−1))P_j, descending distinct score thresholds
+> AP=Σ_j(R_j−R_(j−1))P_j, descending distinct score thresholds. The sum is a step-weighted average of precision over recall increments. Trapezoidal PR area is a different convention
 
 P_j precision, R_j recall, R_0=0.
 
@@ -2350,6 +2398,8 @@ Assumptions — Common quantile level and units across forecasts.
 
 Limitations — Comparing different quantile levels changes target.
 
+Mechanism — Quantile regression fits a model by minimizing the same loss; this record scores a supplied quantile.
+
 Source — Gneiting and Raftery, Strictly Proper Scoring Rules, JASA, 2007
 
 ## Central prediction interval score (interval-score)
@@ -2376,7 +2426,7 @@ Predict a continuous sport target like race time or score differential
 
 Assumptions — Exchangeability of calibration/test scores conditional on fitted predictor.
 
-Limitations — Temporal drift breaks finite-sample coverage guarantee.
+Limitations — Temporal drift breaks finite-sample coverage guarantee. Chronological splitting prevents training on later data. Marginal finite-sample coverage requires exchangeability or a separately justified guarantee.
 
 Source — Lei et al., Distribution-Free Predictive Inference for Regression, JASA, 2018
 
@@ -2390,7 +2440,7 @@ Predict a continuous sport target like race time or score differential
 
 Assumptions — Disjoint fitting and calibration, exchangeable scores.
 
-Limitations — Drift and poor quantile fit degrade coverage or width.
+Limitations — Drift and poor quantile fit degrade coverage or width. Chronological splitting prevents training on later data. Marginal finite-sample coverage requires exchangeability or a separately justified guarantee.
 
 Source — Romano, Patterson and Candès, Conformalized Quantile Regression, NeurIPS 2019
 
@@ -2405,6 +2455,8 @@ Combine, calibrate or compare forecasts for the same sporting event target
 Assumptions — Adequate calibration examples in each class, offset identifiable up to common shift.
 
 Limitations — More degrees of freedom overfit rare outcomes.
+
+Mechanism — Class-specific generalization of temperature; diagonal slope and offsets, unlike full Dirichlet calibration on log probabilities.
 
 Source — Guo et al., On Calibration of Modern Neural Networks, ICML 2017
 
@@ -2448,11 +2500,13 @@ Assumptions — Persistent expert switches plausible and losses synchronized.
 
 Limitations — Large α dilutes a stable dominant expert.
 
+Mechanism — Exponentiated online weights followed by redistribution; α=0 gives online-log-weights.
+
 Source — Herbster and Warmuth, Tracking the Best Expert, Machine Learning, 1998
 
 ## Posterior expected-loss decision (bayes-regret)
 
-> a*=argmin_(a∈A)Σ_θ L(a,θ)p(θ∣D)
+> a*=argmin_(a∈A)Σ_θ L(a,θ)p(θ∣D). For statewise regret subtract min_b L(b,θ) inside the sum. This action-independent term leaves the same argmin
 
 A finite research decisions, θ uncertain state, D prior archived observations, L declared loss.
 
@@ -2564,7 +2618,7 @@ Source — Neal, Slice Sampling, Annals of Statistics, 2003
 
 ## First-order Sobol variance fraction (rank-sobol)
 
-> S_j=Var(E[Y∣X_j])/Var(Y)
+> S_j=Var(E[Y∣X_j])/Var(Y). The displayed first-order index uses original variables. The retained ID is historical and the formula includes no rank transform
 
 Y=f(X) simulator output with positive finite variance, X_j independent input factor.
 
@@ -2634,9 +2688,9 @@ Source — Deb, Multi-Objective Optimization Using Evolutionary Algorithms, Wile
 
 ## Nelder–Mead direct search (nelder-mead)
 
-> For d+1 simplex points sort by loss, reflect worst x_w around centroid c of others with x_r=2c−x_w; expand at c+2(x_r−c) if best, contract if reflection is no better than second worst, or shrink toward best if contraction fails.
+> Order d+1 points by increasing f with a fixed tie convention. Let b, s and w be the best, second-worst and worst vertices, and c the centroid without w. Reflect r=2c−w. If f(r)<f(b), try e=c+2(r−c) and accept e if f(e)<f(r), otherwise r. If f(b)≤f(r)<f(s), accept r. If f(s)≤f(r)<f(w), try o=c+(r−c)/2 and accept when f(o)≤f(r). If f(r)≥f(w), try i=c+(w−c)/2 and accept when f(i)<f(w). If the applicable contraction fails, shrink each nonbest x to b+(x−b)/2
 
-d dimensions, c centroid, x_w worst point, objective scalar; use standard outside/inside contraction 1/2 and shrink 1/2.
+d dimensions, c centroid, x_w worst point, objective scalar; use standard outside/inside contraction 1/2 and shrink 1/2. b, s and w denote vertices, c centroid, r reflection, e expansion, o outside contraction and i inside contraction.
 
 Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
 
@@ -2644,7 +2698,7 @@ Assumptions — Continuous local search with scaled coordinates.
 
 Limitations — Can stagnate at nonstationary points.
 
-Source — Nelder and Mead, A Simplex Method for Function Minimization, Computer Journal, 1965
+Source — Lagarias et al., Convergence Properties of the Nelder–Mead Simplex Method in Low Dimensions, SIAM Journal on Optimization, 1998, Algorithm NM. https://www.math.kent.edu/~reichel/courses/optimization/reading.material.2/nelder.mead.pdf
 
 ## Golden-section unimodal minimization (golden-section)
 
@@ -2704,9 +2758,9 @@ Source — Hestenes and Stiefel, Methods of Conjugate Gradients for Solving Line
 
 ## DE/rand/1/bin search (differential-evolution)
 
-> For target i choose distinct other indices a,b,c; mutant v=x_a+F(x_b−x_c); copy each mutant coordinate with chance CR plus one forced mutant coordinate; retain trial if loss no larger
+> For target i choose distinct indices a,b,c different from i and form v=x_a+F(x_b−x_c). Choose one coordinate J uniformly and set u_J=v_J. For each j≠J independently set u_j=v_j with probability CR and u_j=x_ij otherwise. Retain u when f(u)≤f(x_i)
 
-x bounded candidate vector, F scale, CR crossover probability, use clipping to declared bounds.
+x bounded candidate vector, F scale, CR crossover probability, use clipping to declared bounds. J forced coordinate and u trial vector. For bounded problems declare the feasibility or repair rule before evaluation.
 
 Fit parameters or solve a calibration objective using authorized training records or a sport simulator.
 
@@ -2858,7 +2912,7 @@ Source — Hastie, Tibshirani and Friedman, The Elements of Statistical Learning
 
 ## AdaBoost binary reweighting (adaboost)
 
-> For labels and classifier outputs ±1 set ε_m=Σ_i w_i1[y_i≠h_m(x_i)], α_m=0.5 ln((1−ε_m)/ε_m); update w_i∝w_i exp(−α_m y_i h_m(x_i)), aggregate sign(Σ_m α_m h_m)
+> For labels and classifier outputs ±1 set ε_m=Σ_i w_i1[y_i≠h_m(x_i)], α_m=0.5 ln((1−ε_m)/ε_m); update w_i∝w_i exp(−α_m y_i h_m(x_i)), aggregate sign(Σ_m α_m h_m). Apply the finite weight formula only for 0<ε_m<1/2. At ε_m=0 stop with the perfect training rule as the infinite-weight limit. For ε_m≥1/2 reject the weak rule and stop this specified procedure
 
 w sample weights, h base weak learner, α coefficient; stop on zero error or no better than chance.
 
@@ -2886,7 +2940,7 @@ Source — Kirkpatrick et al., Overcoming Catastrophic Forgetting in Neural Netw
 
 ## Long short-term memory recurrent cell (lstm)
 
-> Compute i,f,o=sigmoid(W_g[x_t;h_prev]+b_g) with separate g weights; u=tanh(W_u[x_t;h_prev]+b_u); c_t=f⊙c_prev+i⊙u; h_t=o⊙tanh(c_t)
+> Compute i,f,o=sigmoid(W_g[x_t;h_prev]+b_g) with separate g weights; u=tanh(W_u[x_t;h_prev]+b_u); c_t=f⊙c_prev+i⊙u; h_t=o⊙tanh(c_t). This is the forget-gate architecture with no peephole terms. Each gate uses its own affine map of the input and previous hidden state
 
 x observations, h output, c memory, i/f/o gates, u candidate, W,b fit coefficients.
 
@@ -2900,7 +2954,7 @@ Source — Gers, Schmidhuber and Cummins, Learning to Forget: Continual Predicti
 
 ## Gated recurrent unit (gru)
 
-> r=σ(W_r x+U_r h), z=σ(W_z x+U_z h), u=tanh(W_u x+U_u(r⊙h)), h_new=(1−z)⊙h+z⊙u
+> r=σ(W_r x+U_r h), z=σ(W_z x+U_z h), u=tanh(W_u x+U_u(r⊙h)), h_new=(1−z)⊙h+z⊙u. Cho et al. Eq. 7 places its z on the old state. For equal outputs set z_here=1−z_Cho by negating the entire update-gate affine map
 
 x current historical feature, h prior hidden state, r reset, z update, u candidate, W,U learned matrices.
 
@@ -3064,6 +3118,8 @@ Assumptions — Rank known or resolved reliably and dense real design.
 
 Limitations — A noisy near-null direction can change the solution substantially when the declared rank changes.
 
+Mechanism — Shares the minimum-norm least-squares result with SVD for aligned rank decisions, with different factors.
+
 Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Complete Orthogonal Factorization. https://www.netlib.org/lapack/lug/node43.html
 
 ## Partial-pivoting LU solve (pivoted-lu)
@@ -3119,6 +3175,8 @@ Stabilize a historical race-time fit with collinear features
 Assumptions — Declare a threshold in design units using training data only.
 
 Limitations — Substantial signal in a discarded direction biases the fitted margin.
+
+Mechanism — Shares minimum-norm solution with complete orthogonal factorization under compatible rank decisions; truncation can change the design.
 
 Source — Anderson et al., LAPACK Users’ Guide, 3rd ed., Singular Value Decomposition. https://www.netlib.org/lapack/lug/node53.html
 
@@ -3358,11 +3416,13 @@ Assumptions — Euclidean gradient evaluated on a fixed smooth convex objective 
 
 Limitations — A step larger than the smoothness bound can oscillate or diverge.
 
+Mechanism — ISTA with λ=0 reduces to gradient descent; smooth objective versus composite step.
+
 Source — Tibshirani, CMU 10-725 Optimization, Lecture 6, §6.1.1. https://www.stat.cmu.edu/~ryantibs/convexopt-F13/scribes/lec6.pdf
 
 ## Iterative shrinkage-thresholding (ista)
 
-> For F(x)=f(x)+λ‖x‖₁, set u=x_k−∇f(x_k)/L and x_(k+1),j=sign(u_j)max(abs(u_j)−λ/L,0).
+> For F(x)=f(x)+λ‖x‖₁, set u=x_k−∇f(x_k)/L and x_(k+1),j=sign(u_j)max(abs(u_j)−λ/L,0).. For an exempt intercept apply soft thresholding only on penalized coordinates. With the same mask and η=1/L, prox-l1 gives the same step
 
 f smooth convex training loss, λ≥0 penalty, L>0 upper bound on the gradient Lipschitz constant, j feature index.
 
@@ -3371,6 +3431,8 @@ Fit sparse linear historical performance features without applying the L₁ term
 Assumptions — Fixed convex composite objective with a minimizer and valid smoothness bound.
 
 Limitations — Poor curvature can slow progress and arbitrary feature scales change the L₁ fit.
+
+Mechanism — Same update as prox-l1 at η=1/L with matching penalized coordinates; canonical label ISTA, preserve both IDs.
 
 Source — Beck and Teboulle (2009), A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems, §3. https://www.ceremade.dauphine.fr/~carlier/FISTA
 
@@ -3385,6 +3447,8 @@ Fit a sparse historical margin model when the unaccelerated method requires many
 Assumptions — Fixed convex composite objective with a minimizer and a valid smoothness bound.
 
 Limitations — Acceleration can yield nonmonotone objective values at successive fitted iterates.
+
+Mechanism — ISTA acceleration with extrapolation and extra state.
 
 Source — Beck and Teboulle (2009), A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems, §4. https://www.ceremade.dauphine.fr/~carlier/FISTA
 
@@ -3427,6 +3491,8 @@ Integrate a fitted margin density across a finite score interval
 Assumptions — Equal spacing and finite endpoint values; second-order error for C² integrands.
 
 Limitations — An integrable endpoint singularity can make the rule undefined.
+
+Mechanism — Base rule for Romberg; with an ODE-dependent integrand it gives the implicit trapezoidal step.
 
 Source — NIST Digital Library of Mathematical Functions, §3.5(i). https://dlmf.nist.gov/3.5.i
 
@@ -3483,6 +3549,8 @@ Construct nodes and weights once for repeated latent-strength integration
 Assumptions — Known recurrence coefficients and positive measure with at least n+1 support points and finite moments through degree 2n.
 
 Limitations — Inaccurate recurrence coefficients perturb both nodes and weights.
+
+Mechanism — Constructs Gaussian quadrature nodes and weights for the same rule; distinct computation, common quadrature output.
 
 Source — NIST Digital Library of Mathematical Functions, §3.5(vi). https://dlmf.nist.gov/3.5.vi
 
@@ -3876,6 +3944,8 @@ Assumptions — Nonsingular A for the general full-dimensional exact-arithmetic 
 
 Limitations — Basis growth increases memory, and restarting can stall.
 
+Mechanism — Residual minimization over a Krylov space. MINRES exploits symmetry via Lanczos and short recurrences.
+
 Source — Barrett et al., Templates for the Solution of Linear Systems, Netlib. https://www.netlib.org/templates/templates.html
 
 ## MINRES symmetric minimum-residual solver (minres-linear-solve)
@@ -3889,6 +3959,8 @@ Solve a symmetric indefinite optimality system for an equality-constrained histo
 Assumptions — A real symmetric, possibly indefinite; stop immediately at β=0 and handle terminated Lanczos runs in their attained subspaces.
 
 Limitations — Symmetry loss invalidates the short recurrence, and residual minimization alone does not guarantee a minimum-norm solution for singular problems.
+
+Mechanism — Same Krylov residual objective as unrestarted GMRES under symmetry; distinct basis and computation.
 
 Source — SciPy maintainers’ minres reference and Barrett et al., Templates, Symmetric Lanczos Methods. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.minres.html
 
@@ -3960,6 +4032,8 @@ Assumptions — Covariance stationarity requires companion eigenvalues strictly 
 
 Limitations — Unmodeled integration or too many cross-lags can invalidate inference or destabilize estimates.
 
+Mechanism — VECM reparameterizes a cointegrated VAR with explicit reduced rank; usual stable VAR and cointegrated levels VAR differ in root structure.
+
 Source — statsmodels maintainers’ vector autoregressions guide. https://www.statsmodels.org/stable/vector_ar.html
 
 ## Reduced-rank vector error-correction model (vector-error-correction)
@@ -3973,6 +4047,8 @@ Study whether co-moving prior performance indicators correct deviations from a l
 Assumptions — Components are I(1) with stationary βᵀy_t, rank r, no I(2) directions and stable transitory modes; this form omits deterministic terms.
 
 Limitations — Cointegration rank and adjustment estimates can be sensitive to structural breaks and deterministic assumptions.
+
+Mechanism — Reduced-rank error-correction reparameterization of a cointegrated VAR; explicit rank restriction changes fitted model class.
 
 Source — statsmodels maintainers’ API reference, VECM. https://www.statsmodels.org/stable/generated/statsmodels.tsa.vector_ar.vecm.VECM.html
 

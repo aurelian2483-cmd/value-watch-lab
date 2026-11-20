@@ -11,6 +11,7 @@ const classes = new Set([
   'model-variant', 'parameter-configuration', 'feature-transformation',
   'diagnostic', 'calibration', 'ensemble', 'decision'
 ])
+const relationshipTypes = new Set(['variant-of', 'related', 'equivalent-to'])
 const variants = new Set(['model-variant', 'parameter-configuration'])
 const sports = new Set(['football', 'horse-racing', 'tennis', 'rugby', 'nfl', 'darts'])
 const nonempty = value => typeof value === 'string' && value.trim().length > 0
@@ -68,13 +69,16 @@ export function validateEntries(entries, legacy, profiles) {
     }
     assert(['literature', 'original-derivation', 'repository'].includes(entry.source?.kind) &&
       nonempty(entry.source.citation), context + 'invalid source')
+    if (/^original(?: derivation)?:/i.test(entry.source.citation)) {
+      assert.equal(entry.source.kind, 'original-derivation', context + 'derivation source misclassified')
+    }
     if (entry.source.citation.startsWith('doi:')) {
       assert.match(entry.source.citation, /^doi:10\.\d{4,9}\/\S+$/u, context + 'invalid DOI form')
     }
     assert(Array.isArray(entry.sports) && entry.sports.length && entry.sports.every(sport => sports.has(sport)),
       context + 'invalid sports')
     const profile = profiles[entry.profile]
-    assert(profile, context + 'unknown sport/data profile')
+    assert(profile && nonempty(profile.applicability_condition), context + 'unknown sport/data profile or missing applicability condition')
     const original = old.get(entry.id)
     if (original) {
       assert.equal(entry.legacy_id, entry.id, context + 'missing legacy identity')
@@ -92,14 +96,22 @@ export function validateEntries(entries, legacy, profiles) {
       )
     }
     assert.equal(entry.test_evidence, null, context + 'unsupported test claim')
-    assert.equal(entry.input_timing, (entry.profile === 'assessment' || (entry.profile === 'causal' && !['ipw', 'aipw'].includes(entry.id)))
+    assert.equal(entry.input_timing, (entry.profile === 'assessment' || entry.profile === 'causal')
       ? 'assessment-only' : 'as-of-cutoff',
       context + 'incompatible input timing')
     assert(Array.isArray(entry.relationships) && entry.relationships.length, context + 'missing relationships')
     for (const relationship of entry.relationships) {
-      assert(['variant-of', 'related'].includes(relationship.type) && relationship.target !== entry.id &&
+      assert(relationshipTypes.has(relationship.type) && relationship.target !== entry.id &&
         byId.has(relationship.target), context + 'invalid relationship')
+      if (relationship.type === 'equivalent-to') {
+        assert(nonempty(relationship.condition), context + 'missing equivalence condition')
+        const canonical = byId.get(relationship.target)
+        assert(!canonical.relationships.some(link => link.type === 'equivalent-to'),
+          context + 'equivalence must point directly to a canonical record')
+      }
     }
+    assert(entry.relationships.filter(link => link.type === 'equivalent-to').length <= 1,
+      context + 'multiple canonical records')
     assert(entry.compatible_methods.every(id => byId.has(id) && id !== entry.id), context + 'unknown related method')
     assert.equal(entry.relationships.filter(r => r.type === 'variant-of').length, Number(variants.has(entry.classification)),
       context + 'incorrect variant classification or missing parent')

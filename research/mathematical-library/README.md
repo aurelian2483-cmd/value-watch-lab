@@ -38,6 +38,16 @@ The checker detects duplicate IDs, normalized names and normalized specification
 
 For any future forecasting experiment, record a prediction cutoff and verify when each input version first became available. Restrict fit transformations, ratings, hyperparameters, calibration and weights to earlier samples. Real data acquisition and any use of a reserved evaluation set fall outside this catalogue review. Generic input profiles describe requirements and exclusions. Rights to actual feeds must be established separately.
 
+## Audit corrections
+
+The [evidence audit](EVIDENCE-AUDIT-2026-11-20.md) records the original findings. All 286 IDs remain registered. The 105 records classified as distinct algorithms represent 104 after the recorded `prox-l1` → `ista` equivalence. Their iterates agree for the same smooth loss, L₁ penalty, penalty mask and initialization at constant step η=1/L. An exempt intercept receives the ordinary gradient step. FISTA adds extrapolation. This count reflects the recorded equivalence and remains subject to further review. [Beck and Teboulle, §§3–4](https://www.ceremade.dauphine.fr/~carlier/FISTA)
+
+Every sport tag depends on the conditions in its [applicability profile](sport-profiles.v1.json). Assessment and causal methods use authorized development or historical study records with settled outcomes. IPW and AIPW require pre-treatment covariates and settled outcomes for effect estimation. At-cutoff methods use the data version and fitted parameters available at each origin. Locating a historical breakpoint or decoded state using a full prefix gives it the availability time of that calculation.
+
+Source checks included the Glicko update and separate game expectation, the run-length recursion and prior reset, Cho’s GRU gate convention, constant-step ISTA and FISTA, the Nelder–Mead acceptance branches, the COM-Poisson geometric boundary and the one-sample Cramér–von Mises statistic. The remaining definitions retain their provenance locators. [Glickman](https://www.glicko.net/glicko/glicko.pdf) · [Adams and MacKay](https://arxiv.org/pdf/0710.3742) · [Cho et al.](https://aclanthology.org/D14-1179.pdf) · [Beck and Teboulle](https://www.ceremade.dauphine.fr/~carlier/FISTA) · [Lagarias et al.](https://www.math.kent.edu/~reichel/courses/optimization/reading.material.2/nelder.mead.pdf) · [COM-Poisson count data](https://link.springer.com/article/10.1186/s40488-017-0077-0) · [SciPy and Csörgő–Faraway](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cramervonmises.html)
+
+**Empirically qualified entries: 0.** The validator tests catalogue integrity, evidence classification, timing rules and selected mathematical identities on invented values. Full primary-source verification, deeper equivalence review, sport data availability and the 81-formula inventory crosswalk remain open.
+
 ## Candidate hypotheses for later review
 
 | Hypothesis | What would distinguish it in a separately authorized study | Main unresolved condition |

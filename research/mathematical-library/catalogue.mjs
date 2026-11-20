@@ -18,6 +18,10 @@ switch (command) {
       target: 1000,
       registered: entries.length,
       remaining: Math.max(0, 1000 - entries.length),
+      qualified: entries.filter(entry => entry.test_evidence !== null).length,
+      distinctAlgorithmsAfterRecordedEquivalences: entries.filter(entry =>
+        entry.classification === 'distinct-algorithm' &&
+        !entry.relationships.some(link => link.type === 'equivalent-to')).length,
       legacy: entries.filter(entry => entry.legacy_id).length,
       distinctAlgorithms: entries.filter(entry => entry.classification === 'distinct-algorithm').length,
       variantsAndConfigurations: entries.filter(entry =>
@@ -56,12 +60,25 @@ switch (command) {
       console.log(entry.application + '\n')
       console.log('Assumptions — ' + entry.assumptions + '.\n')
       console.log('Limitations — ' + entry.limitations + '.\n')
+      if (entry.mechanism_note) console.log('Mechanism — ' + entry.mechanism_note + '\n')
       console.log('Source — ' + entry.source.citation)
     }
     break
   case 'ledger':
-    console.log(JSON.stringify(entries.map(({ id, source, status, legacy_id, implementation_ref, test_evidence }) => ({
-      id, source, status, legacy_id, implementation_ref, test_evidence
+    console.log(JSON.stringify(entries.map(entry => ({
+      id: entry.id,
+      source: entry.source,
+      status: entry.status,
+      legacy_id: entry.legacy_id,
+      implementation_ref: entry.implementation_ref,
+      test_evidence: entry.test_evidence,
+      input_timing: entry.input_timing,
+      sports: entry.sports,
+      applicability_profile: entry.profile,
+      ...(entry.mechanism_note && { mechanism_note: entry.mechanism_note }),
+      ...(entry.relationships.some(link => link.type === 'equivalent-to') && {
+        equivalence: entry.relationships.find(link => link.type === 'equivalent-to')
+      })
     })), null, 2))
     break
   default:
