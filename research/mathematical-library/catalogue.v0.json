@@ -1,0 +1,328 @@
+{
+  "schema_version": "0.1",
+  "project": "Sky Universal Mathematical Library",
+  "status": "RESEARCH_ONLY",
+  "goal": "Open-ended shared catalogue; entries do not imply validated models",
+  "source": "Curated initial design entries; no automatic source or empirical validation asserted",
+  "methods": [
+    {
+      "id": "poisson",
+      "name": "Poisson goal model",
+      "family": "count-probability",
+      "sports": [
+        "football",
+        "rugby"
+      ],
+      "required_inputs": [
+        "historical_goals"
+      ],
+      "status": "IMPLEMENTED",
+      "note": "independent model",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": "research/football-baseline-v1/replay.mjs",
+      "validation_by_sport": {}
+    },
+    {
+      "id": "dixon-coles",
+      "name": "Dixon-Coles low-score adjustment",
+      "family": "football-goals",
+      "sports": [
+        "football"
+      ],
+      "required_inputs": [
+        "historical_goals",
+        "match_dates"
+      ],
+      "status": "IDEA",
+      "note": "requires point-in-time fit",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "bivariate-poisson",
+      "name": "Bivariate Poisson score model",
+      "family": "dependence",
+      "sports": [
+        "football"
+      ],
+      "required_inputs": [
+        "historical_goals"
+      ],
+      "status": "IDEA",
+      "note": "dependence fit needs more data",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "negative-binomial",
+      "name": "Negative binomial goal/score model",
+      "family": "count-probability",
+      "sports": [
+        "football",
+        "rugby"
+      ],
+      "required_inputs": [
+        "historical_scores"
+      ],
+      "status": "IDEA",
+      "note": "check dispersion and fit",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "elo",
+      "name": "Elo strength rating",
+      "family": "ratings",
+      "sports": [
+        "football",
+        "tennis",
+        "rugby",
+        "nfl",
+        "darts"
+      ],
+      "required_inputs": [
+        "historical_results",
+        "event_order"
+      ],
+      "status": "IDEA",
+      "note": "sport-specific update calibration",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "glicko",
+      "name": "Glicko rating system",
+      "family": "ratings",
+      "sports": [
+        "football",
+        "tennis",
+        "darts"
+      ],
+      "required_inputs": [
+        "historical_results",
+        "event_order"
+      ],
+      "status": "IDEA",
+      "note": "sport-specific adaptations",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "bradley-terry",
+      "name": "Bradley-Terry comparisons",
+      "family": "ratings",
+      "sports": [
+        "football",
+        "tennis",
+        "darts"
+      ],
+      "required_inputs": [
+        "paired_results"
+      ],
+      "status": "IDEA",
+      "note": "draw handling needed for football",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "ewma",
+      "name": "Exponentially weighted moving average",
+      "family": "time-weighting",
+      "sports": [
+        "football",
+        "horse-racing",
+        "tennis",
+        "nfl",
+        "darts",
+        "rugby"
+      ],
+      "required_inputs": [
+        "ordered_measurements"
+      ],
+      "status": "IDEA",
+      "note": "feature transformation not standalone predictor",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "cusum",
+      "name": "CUSUM change detection",
+      "family": "change-detection",
+      "sports": [
+        "football",
+        "horse-racing",
+        "tennis",
+        "nfl",
+        "darts",
+        "rugby"
+      ],
+      "required_inputs": [
+        "ordered_measurements"
+      ],
+      "status": "IDEA",
+      "note": "diagnostic not calibrated 1X2 probabilities",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "kalman",
+      "name": "Kalman filter",
+      "family": "state-estimation",
+      "sports": [
+        "football",
+        "horse-racing",
+        "tennis",
+        "nfl",
+        "darts",
+        "rugby"
+      ],
+      "required_inputs": [
+        "ordered_measurements",
+        "noise_assumptions"
+      ],
+      "status": "IDEA",
+      "note": "model assumptions require testing",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "bayesian-hierarchical",
+      "name": "Hierarchical Bayesian modelling",
+      "family": "inference",
+      "sports": [
+        "football",
+        "horse-racing",
+        "tennis",
+        "nfl",
+        "darts",
+        "rugby"
+      ],
+      "required_inputs": [
+        "observations",
+        "hierarchy"
+      ],
+      "status": "IDEA",
+      "note": "sensitive to priors/data volume",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "monte-carlo",
+      "name": "Monte Carlo simulation",
+      "family": "simulation",
+      "sports": [
+        "football",
+        "horse-racing",
+        "tennis",
+        "nfl",
+        "darts",
+        "rugby"
+      ],
+      "required_inputs": [
+        "calibrated_process_model"
+      ],
+      "status": "IDEA",
+      "note": "sampling method not independent probability source",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "weighted-ensemble",
+      "name": "Weighted probability ensemble",
+      "family": "combination",
+      "sports": [
+        "football",
+        "horse-racing",
+        "tennis",
+        "nfl",
+        "darts",
+        "rugby"
+      ],
+      "required_inputs": [
+        "matched_probabilities",
+        "historical_labels"
+      ],
+      "status": "IDEA",
+      "note": "weights must be fitted chronologically",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "isotonic",
+      "name": "Isotonic probability calibration",
+      "family": "calibration",
+      "sports": [
+        "football",
+        "horse-racing",
+        "tennis",
+        "nfl",
+        "darts",
+        "rugby"
+      ],
+      "required_inputs": [
+        "historical_probabilities",
+        "historical_labels"
+      ],
+      "status": "IDEA",
+      "note": "high overfit risk with small samples",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "logistic",
+      "name": "Logistic regression",
+      "family": "classification",
+      "sports": [
+        "football",
+        "horse-racing",
+        "tennis",
+        "nfl",
+        "darts",
+        "rugby"
+      ],
+      "required_inputs": [
+        "pre_event_features",
+        "historical_labels"
+      ],
+      "status": "IDEA",
+      "note": "regularisation and target definition needed",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    },
+    {
+      "id": "changepoint",
+      "name": "Bayesian change-point detection",
+      "family": "change-detection",
+      "sports": [
+        "football",
+        "horse-racing",
+        "tennis",
+        "nfl",
+        "darts",
+        "rugby"
+      ],
+      "required_inputs": [
+        "ordered_measurements"
+      ],
+      "status": "IDEA",
+      "note": "diagnostic; not direct prediction",
+      "reference_status": "NEEDS_CITATION",
+      "implementation_ref": null,
+      "validation_by_sport": {}
+    }
+  ]
+}
