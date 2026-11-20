@@ -31,3 +31,11 @@ The preview is served at `/football-match/` from the `codex/value-watch-developm
 ## Verification
 
 `node tests/test_football_match.cjs` covers reschedules, missing and conflicting providers, incomplete markets, stale and post-cutoff captures, research archive gates and the journal revision. `node scripts/football_match_browser_qa.cjs` exercises both widths against a local server, including the market handoff, keyboard access, filtering, Back, shared links, storage preservation, reconstruction and source failure. GitHub branch-push checks run full research regression and no-deployment browser QA.
+
+## Strict model training cutoff
+
+Eligibility requires an explicit timestamp with a time zone, at or before the earliest known kickoff and at or before the recorded model observation. The observation itself must precede the earliest known kickoff. Training receipts must have a safe source URL, SHA-256 and an observation timestamp no later than the model observation. The verifier checks supplied metadata and does not independently audit the training dataset.
+
+The preview preserves gated, matched probability estimates that fail these checks under **UNVERIFIED EXPERIMENTAL ESTIMATES**, with the recorded provenance and a reason. They are excluded from the eligible chart and the market model-leader calculation. The separate retrospective archive retains its own earlier-date cutoff and performance sample.
+
+[Manchester City v Fulham desktop](preview/football-match/cutoff-1440.webp) · [Manchester City v Fulham mobile](preview/football-match/cutoff-390.webp)

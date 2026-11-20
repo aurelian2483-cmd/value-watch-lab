@@ -108,15 +108,17 @@
     const row = event.row;
     const market = markets.get(event.id);
     const available = [...event.models, ...(market?.model ? [market.model] : [])];
-    const estimates = available.flatMap(({row: model, observed}) => {
+    const entries = available.flatMap(({row: model, observed, cutoffReason}) => {
       const values = evidence.probabilities(evidence.outcomes.map(side => model['prob_' + side]));
       if (!values || typeof model.model !== 'string') return [];
       const cutoff = evidence.instant(model.cutoff_utc);
-      return [{ name:model.model, values, note:'Experimental estimate · observed ' + format(observed) +
-        (Number.isFinite(cutoff) ? ' · model cutoff ' + format(cutoff) : ' · explicit model cutoff unavailable') +
+      return [{ name:model.model, values, cutoffReason, note:'Experimental estimate · observed ' + format(observed) +
+        (Number.isFinite(cutoff) ? ' · recorded cutoff ' + format(cutoff) : ' · explicit model cutoff unavailable') +
         (Number.isInteger(model.training_matches) ? ' · ' + model.training_matches + ' training matches' : '') +
         (model.small_sample === true ? ' · small sample' : '') + '.' }];
     });
+    const estimates = entries.filter(entry => entry.cutoffReason === null);
+    const unverified = entries.filter(entry => entry.cutoffReason !== null);
     const status = row.status || row.provider_status;
     const knownStatus = typeof status === 'string' && /^[A-Z_]{2,32}$/.test(status) ? status.replaceAll('_', ' ') :
       event.start > Date.now() ? 'Scheduled' : 'Kickoff elapsed · final status unavailable';
@@ -139,11 +141,24 @@
         ' draws · ' + h2h.away_team_wins + ' away wins. Most recent ' + h2h.most_recent_match_date + '.');
       node(facts, 'p', 'Descriptive historical sample. Coverage may be incomplete.');
     } else node(facts, 'p', 'Cutoff-eligible head-to-head evidence is unavailable.');
-    const comparison = available.find(item => Number.isSafeInteger(item.row.home_venue_matches) && Number.isSafeInteger(item.row.away_venue_matches));
+    const comparison = available.find(item => item.cutoffReason === null && Number.isSafeInteger(item.row.home_venue_matches) && Number.isSafeInteger(item.row.away_venue_matches));
     if (comparison) node(facts, 'p', 'Team performance inputs: ' + comparison.row.home_venue_matches + ' home venue matches and ' +
       comparison.row.away_venue_matches + ' away venue matches in the model sample.');
     node(facts, 'p', 'Player statistics, verified lineups and match timeline are unavailable from these snapshots.');
     chart(models, estimates);
+    if (unverified.length) {
+      const disclosures = node(models, 'section');
+      const heading = node(disclosures, 'h3', 'UNVERIFIED EXPERIMENTAL ESTIMATES');
+      heading.id = 'unverified-estimates-title';
+      disclosures.setAttribute('aria-labelledby', heading.id);
+      node(disclosures, 'p', 'These recorded estimates are excluded from eligible comparisons, market-value calculations and performance measurements.');
+      for (const entry of unverified) {
+        node(disclosures, 'h4', entry.name);
+        node(disclosures, 'p', entry.values.map((value, i) => ['Home', 'Draw', 'Away'][i] + ' ' + (value * 100).toFixed(1) + '%').join(' · '));
+        node(disclosures, 'p', entry.note);
+        node(disclosures, 'p', entry.cutoffReason);
+      }
+    }
     node(models, 'p', 'Probabilities are uncalibrated research estimates. Confidence intervals are unavailable for this fixture.');
     const history = node(models, 'a', 'Browse the separate historical reconstruction');
     history.href = '?mode=archive';

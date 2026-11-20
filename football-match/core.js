@@ -31,6 +31,26 @@
   function exactKey(identity, start) {
     return JSON.stringify([...identity, new Date(start).toISOString()]);
   }
+  function modelCutoffReason({ row, observed }, fixture) {
+    if (row.cutoff_utc == null || row.cutoff_utc === '') return 'Explicit training cutoff is missing.';
+    const calendar = typeof row.cutoff_utc === 'string' &&
+      /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.exec(row.cutoff_utc);
+    const cutoff = instant(row.cutoff_utc);
+    const day = calendar && Date.parse(calendar[1]);
+    if (!Number.isFinite(cutoff) || !Number.isFinite(day) ||
+        new Date(day).toISOString().slice(0, 10) !== calendar[1] || Number(row.cutoff_utc.slice(11, 13)) >= 24)
+      return 'Explicit training cutoff is invalid.';
+    if (!(cutoff <= fixture.marketCutoff)) return 'Training cutoff is later than the earliest known kickoff.';
+    if (!(observed < fixture.marketCutoff)) return 'Model was observed at or after the earliest known kickoff.';
+    if (cutoff > observed) return 'Training cutoff is later than the recorded model observation.';
+    if (!Array.isArray(row.source_receipts) || !row.source_receipts.length)
+      return 'Training source receipts are missing.';
+    if (!row.source_receipts.every(receipt => receiptURL(receipt?.url) && hash(receipt.sha256) &&
+        instant(receipt.observed_at_utc) <= observed))
+      return 'Training source receipts are invalid or were observed after the model.';
+    return null;
+  }
+
   function fixtureIndex(feeds, asOf = Date.now()) {
     const groups = new Map();
     const models = new Map();
@@ -56,8 +76,7 @@
       for (const row of Array.isArray(feed.experimental_model_forecasts) ? feed.experimental_model_forecasts : []) {
         const identity = tuple(row);
         const start = instant(row?.kickoff_utc);
-        if (!gated(row) || !identity || !Number.isFinite(start) || observed >= start ||
-            (row.cutoff_utc != null && !(instant(row.cutoff_utc) <= start))) continue;
+        if (!gated(row) || !identity || !Number.isFinite(start)) continue;
         const exact = exactKey(identity, start);
         if (!models.has(exact)) models.set(exact, []);
         models.get(exact).push({ row, observed });
@@ -83,8 +102,8 @@
       event.kickoffs = [...new Set(rows.map(row => row.start))].sort((a, b) => a - b);
       event.marketCutoff = event.kickoffs[0];
       event.models = (models.get(event.exact) ?? []).filter(model =>
-        model.observed < event.marketCutoff &&
-        (model.row.espn_event_id == null || model.row.espn_event_id === event.providerId));
+        model.row.espn_event_id == null || model.row.espn_event_id === event.providerId
+      ).map(model => ({ ...model, cutoffReason: modelCutoffReason(model, event) }));
       events.push(event);
       byExact.set(event.exact, event);
       if (event.providerId) espn.set(event.providerId, id);
@@ -147,12 +166,12 @@
     const observed = instant(record.frozen_model?.observed_at_utc);
     if (model?.method !== 'CURRENT_SEASON_POISSON_COMPARISON_V1' || model.unvalidated !== true ||
         model.research_only !== true || model.publication_gate !== 'BLOCKED' ||
-        (model.model_validation != null && model.model_validation !== 'UNVALIDATED') || instant(model.cutoff_utc) !== fixture.start ||
-        !(observed <= snapshot && observed < fixture.marketCutoff) || !hash(model.training_sha256) ||
-        !Array.isArray(model.source_receipts) || !model.source_receipts.length ||
-        !model.source_receipts.every(receipt => receiptURL(receipt?.url) && hash(receipt.sha256) && instant(receipt.observed_at_utc) <= observed) ||
+        (model.model_validation != null && model.model_validation !== 'UNVALIDATED') ||
+        !(observed <= snapshot) ||
         !probabilities(outcomes.map(side => model['prob_' + side]))) return null;
-    return { row: { ...model, model: model.method }, observed };
+    const estimate = { row: { ...model, model: model.method }, observed };
+    return { ...estimate, cutoffReason: modelCutoffReason(estimate, fixture) ??
+      (hash(model.training_sha256) ? null : 'Training fingerprint is missing or invalid.') };
   }
 
   function verifyMarkets(document, index, asOf = Date.now()) {
@@ -168,7 +187,11 @@
       const match = matches.get(fixture.id);
       if (snapshot <= asOf && snapshot < fixture.marketCutoff - 5 * minute) {
         const model = frozenModel(record, fixture, snapshot);
-        if (model && (!match.model || model.observed > match.model.observed)) match.model = model;
+        if (model && (!match.model ||
+            (model.cutoffReason === null && match.model.cutoffReason !== null) ||
+            ((model.cutoffReason === null) === (match.model.cutoffReason === null) && model.observed > match.model.observed))) {
+          match.model = model;
+        }
       }
       for (const key of ['benchmark', 'sky_bet']) {
         if (record[key] == null) continue;

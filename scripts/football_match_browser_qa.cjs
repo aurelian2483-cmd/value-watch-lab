@@ -78,6 +78,18 @@ const server = http.createServer(async (request,response) => {
       assert.notEqual(await page.locator('.chart').innerText(),before);
       await page.getByText('Same-sample historical scores',{exact:true}).click();
       assert(await page.getByText(/608 matches · Brier.*log loss/).first().isVisible());
+      await page.goto(base+'/football-match/?q=Manchester+City+v+Fulham');
+      await page.getByRole('heading',{name:'Manchester City v Fulham',exact:true}).waitFor();
+      const unverified = page.getByRole('region',{name:'UNVERIFIED EXPERIMENTAL ESTIMATES'});
+      assert(await unverified.getByText('POISSON_BASELINE_2025_26_V1',{exact:true}).isVisible());
+      assert(await unverified.getByText('Home 80.6% · Draw 13.5% · Away 5.9%',{exact:true}).isVisible());
+      assert(await unverified.getByText('Explicit training cutoff is missing.',{exact:true}).isVisible());
+      assert(await page.getByText(/^0 eligible model estimates/).isVisible());
+      assert.equal(await page.getByLabel('Probability model').count(),0);
+      assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      const cutoffIssues = (await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations;
+      assert.deepEqual(cutoffIssues.map(issue => issue.id),[]);
+      await page.screenshot({path:path.join(output,'football-cutoff-'+width+'.png'),fullPage:true});
       await page.route('**/football-expanded-data.json',route => route.fulfill({status:503}));
       await page.goto(shared);
       await page.getByRole('status').getByText('This fixture is unavailable or its identity is ambiguous.').waitFor();

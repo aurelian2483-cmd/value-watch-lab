@@ -28,7 +28,7 @@ function render(match) {
   if (!match) return;
   const [, home, away] = match.fixture.identity;
   const labels = [home, 'Draw', away];
-  const model = (match.model ?? match.fixture.models[0])?.row;
+  const model = [match.model, ...match.fixture.models].find(estimate => estimate?.cutoffReason === null)?.row;
   const probabilities = evidence.probabilities(outcomes.map(side => model?.['prob_' + side]));
   document.getElementById('event-preview').href = '../football-match/?event=' + encodeURIComponent(match.fixture.id);
   status.textContent = `Kickoff ${timeInLondon.format(match.fixture.start)} UK · historical source observations`;
