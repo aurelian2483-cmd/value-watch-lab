@@ -1,0 +1,332 @@
+{
+  "football": {
+    "family": "count-probability",
+    "sports": [
+      "football"
+    ],
+    "inputs": "Prior home and away goals, fixture dates, identities, and venue",
+    "application": "Estimate a football scoreline or goal differential",
+    "incompatible": "Raw rugby/NFL points or any current fixture outcome"
+  },
+  "count": {
+    "family": "count-probability",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "inputs": "Historical football goals or rugby tries, exposure and fixture identifiers",
+    "application": "Model goal or try counts at a fixed exposure",
+    "incompatible": "Raw rugby points as unweighted event counts"
+  },
+  "paired": {
+    "family": "ratings",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Prior contest outcomes, participants, rules, dates and venue when specified",
+    "application": "Estimate relative strength from comparable opponent results",
+    "incompatible": "Unresolved draws passed to binary likelihood or unknown future lineups"
+  },
+  "series": {
+    "family": "time-series",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "incompatible": "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+  },
+  "simulation": {
+    "family": "stochastic-computation",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "incompatible": "Simulators calibrated with target results or invented missing transition data"
+  },
+  "forecast": {
+    "family": "probability-forecasting",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Archived forecasts on aligned events and targets; older labels only when fitting",
+    "application": "Combine, calibrate or compare forecasts for the same sporting event target",
+    "incompatible": "Mismatched horizons or labels from the event being predicted"
+  },
+  "binary": {
+    "family": "statistical-inference",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Historically available features and older binary outcomes or prespecified likelihoods",
+    "application": "Estimate or update a binary event such as a tennis service hold or a football clean sheet",
+    "incompatible": "Multiclass results passed as binary without a stated recoding"
+  },
+  "success": {
+    "family": "discrete-probability",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "inputs": "Ordered observable attempts with success labels and exposure counts from earlier events",
+    "application": "Model tennis service points, darts checkout attempts or comparable bounded event rates",
+    "incompatible": "Current-event attempts in a pre-match specification"
+  },
+  "choice": {
+    "family": "discrete-choice",
+    "sports": [
+      "horse-racing"
+    ],
+    "inputs": "Declared field available at cutoff, entrant scores or covariates, earlier winner labels if fitting",
+    "application": "Assign a mutually exclusive winner probability across a race field",
+    "incompatible": "Later scratches and dead heats without explicit target rules"
+  },
+  "rank": {
+    "family": "rank-models",
+    "sports": [
+      "horse-racing"
+    ],
+    "inputs": "Event-time declared fields and historical finishing orders including tie and withdrawal policy",
+    "application": "Estimate probabilities of horse finishing orders",
+    "incompatible": "Excluded runners or ties treated as arbitrary ordered finishers"
+  },
+  "positive": {
+    "family": "statistical-transforms",
+    "sports": [
+      "horse-racing",
+      "tennis"
+    ],
+    "inputs": "Positive comparable historical race or point durations",
+    "application": "Transform skewed duration predictors for model fitting",
+    "incompatible": "Zeros and negative values"
+  },
+  "assessment": {
+    "family": "forecast-verification",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Authorized archived forecasts and independently resolved labels with matched event identifiers",
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "incompatible": "Same-event outcome as a feature or any reserved evaluation data"
+  },
+  "survival": {
+    "family": "survival-and-reliability",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "inputs": "Time origin, historical at-risk durations, availability-as-of indicators, censoring and causes when specified",
+    "application": "Estimate time to a future withdrawal or return in records with defensible risk sets",
+    "incompatible": "Backfilled event states or treating censored records as failures"
+  },
+  "resampling": {
+    "family": "statistical-uncertainty",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Authorized earlier event-level units, chronology and dependence-group identifiers",
+    "application": "Estimate uncertainty of a statistic such as average football scoring error",
+    "incompatible": "Reusing reserved holdout rows or ignoring repeated-player dependence"
+  },
+  "continuous": {
+    "family": "regression",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "application": "Predict a continuous sport target like race time or score differential",
+    "incompatible": "Outcome-derived predictors or a continuous output used directly as a class probability"
+  },
+  "multifeature": {
+    "family": "multivariate-statistics",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Comparable numeric features from timestamped prior performances",
+    "application": "Summarize correlated form metrics or group similar historical performances",
+    "incompatible": "Whole-season fit or features computed from target-event observations"
+  },
+  "graph": {
+    "family": "network-science",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Dated opponent graph edges, weights and explicit direction convention",
+    "application": "Calculate schedule-aware opponent centrality",
+    "incompatible": "Edges from fixtures played after the forecast cutoff"
+  },
+  "margin": {
+    "family": "ratings",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Prior competitor IDs and score differentials in comparable units",
+    "application": "Fit margin-based strengths as inputs to a separate forecast model",
+    "incompatible": "Combining raw margins from incompatible rulesets"
+  },
+  "assignment": {
+    "family": "operations-research",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "inputs": "Pre-event eligible roster, historical role features and allowed assignments",
+    "application": "Compare hypothetical role assignments to study lineup sensitivity",
+    "incompatible": "Using actual later lineups as if known beforehand"
+  },
+  "market": {
+    "family": "decision-theory",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Synthetic hypothetical probability and decimal payout, or licensed and timestamped archival inputs only",
+    "application": "Compare abstract decision-theoretic quantities under fixed hypothetical quotes",
+    "incompatible": "Live quotes, real wagering instructions, or unlicensed price histories"
+  },
+  "darts": {
+    "family": "sport-scoring",
+    "sports": [
+      "darts"
+    ],
+    "inputs": "Double-out rules, known simulated visit state and earlier target/impact records",
+    "application": "Estimate probability of finishing a visit at a given remainder",
+    "incompatible": "Future actual throw locations or a different checkout rule"
+  },
+  "tennis": {
+    "family": "sport-scoring",
+    "sports": [
+      "tennis"
+    ],
+    "inputs": "Earlier server point-win estimates and event scoring rules",
+    "application": "Map a service-point propensity to service-game probability",
+    "incompatible": "Target match point outcomes or no-ad rules"
+  },
+  "timestamps": {
+    "family": "point-processes",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "inputs": "Historical event timestamps, clock intervals, exposure definitions and source release times",
+    "application": "Estimate clustering in prior goals, tries or drive outcomes",
+    "incompatible": "Later goals or clock events used in pre-match intensity"
+  },
+  "causal": {
+    "family": "causal-inference",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Historical exposures, outcomes, and measured confounders known before treatment",
+    "application": "Study a pre-event intervention such as a lineup change or a schedule/rest exposure",
+    "incompatible": "Post-treatment covariates as confounders or unmeasured assignment assumed random"
+  },
+  "categories": {
+    "family": "count-probability",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Historical grouped outcome counts with exclusive categories",
+    "application": "Model overdispersion of prior outcome-type frequencies",
+    "incompatible": "Overlapping categories or unknown exposure"
+  },
+  "composition": {
+    "family": "multivariate-statistics",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "inputs": "Earlier strictly positive shares or prespecified bin frequencies from available sport measurements",
+    "application": "Compare composition of scoring patterns or drift of historical feature bins",
+    "incompatible": "Zeros without explicit handling or inconsistent category denominators"
+  },
+  "tracking": {
+    "family": "signal-processing",
+    "sports": [
+      "horse-racing",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "inputs": "Licensed earlier timestamped position observations at fixed sampling intervals",
+    "application": "Derive historical pace or speed features from past tracking",
+    "incompatible": "Live or future tracking of a target event in a pre-event predictor"
+  }
+}

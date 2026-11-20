@@ -16,3 +16,8 @@ for(const m of doc.methods){
  if(m.status==='VALIDATED'&&!Object.keys(m.validation_by_sport||{}).length)throw Error('False claim of validation: '+m.id);
 }
 console.log('PASS: '+ids.size+' unique indexed research entries; statuses and sport tags checked. No empirical validity inferred.');
+
+// PR #112 continues to use the original v0 checks above.
+const { loadCatalogue } = await import('./validate-v1.mjs');
+const { entries } = loadCatalogue();
+console.log('PASS: ' + entries.length + ' total v1 catalogue specifications.');
