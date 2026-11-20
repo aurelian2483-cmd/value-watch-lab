@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "009",
-  "new_specifications": 3,
-  "registered_after_batch": 259,
+  "batch": "010",
+  "new_specifications": 6,
+  "registered_after_batch": 265,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -204,6 +204,15 @@
       "source_check": "Checked barycentric weights and the nodal evaluation formula, natural cubic boundary conditions, and PCHIP interior slope construction against the respective SciPy reference pages. Checked the PCHIP endpoint formula against SciPy’s maintainer implementation.",
       "mathematical_checks": "Compared the explicit formulas with SciPy on synthetic knots, including exact node recovery, cubic reproduction, natural endpoint curvature, monotone grid evaluation and PCHIP zero endpoint and secant handling.",
       "semantic_review": "Barycentric interpolation evaluates one global polynomial. Natural splines solve a global second-derivative continuity system. PCHIP estimates knot derivatives locally to preserve interval monotonicity and does not generally have continuous second derivatives. The existing isotonic fit pools violations in noisy data, whereas PCHIP interpolates given knots exactly. Excluded Lagrange evaluation as an equivalent representation of the same interpolating polynomial.",
+      "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
+    },
+    {
+      "batch": "010",
+      "new_specifications": 6,
+      "registered_after_batch": 265,
+      "source_check": "Checked the Euler recurrences and stability functions against MIT lecture notes, implicit trapezoid against ETH notes, classical RK4 against DLMF, Bogacki–Shampine coefficients against the SciPy RK23 implementation, and velocity Verlet against the authors’ paper. Resolved the five batch 006 section citations to the canonical DLMF section permalinks.",
+      "mathematical_checks": "Synthetic tests checked observed convergence orders on scalar decay, stiffness amplification, embedded tableau agreement and local defect, and reversible Verlet stepping with bounded oscillator energy error.",
+      "semantic_review": "Fixed-step ODE methods advance a state using a specified differential equation. Gradient descent uses steps to minimize an objective, and the OU record gives an exact stochastic transition for one process. Forward Euler is explicit, while backward Euler and trapezoid solve distinct implicit equations and have different stiff limits. RK4 uses a fixed four-stage tableau, while RK23 supplies a paired local error estimator and stage reuse. Velocity Verlet splits the position and velocity updates and preserves Hamiltonian structure under its premises. Omitted separate records for leapfrog naming and step-size settings.",
       "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
     }
   ]

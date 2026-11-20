@@ -3428,7 +3428,7 @@ Assumptions — Equal spacing and finite endpoint values; second-order error for
 
 Limitations — An integrable endpoint singularity can make the rule undefined.
 
-Source — NIST Digital Library of Mathematical Functions, §3.5(i). https://dlmf.nist.gov/3.5#1
+Source — NIST Digital Library of Mathematical Functions, §3.5(i). https://dlmf.nist.gov/3.5.i
 
 ## Composite Simpson quadrature (composite-simpson)
 
@@ -3442,7 +3442,7 @@ Assumptions — Equal spacing and C⁴ integrand for fourth-order error.
 
 Limitations — Reduced smoothness can remove fourth-order convergence.
 
-Source — NIST Digital Library of Mathematical Functions, §3.5(ii). https://dlmf.nist.gov/3.5#2
+Source — NIST Digital Library of Mathematical Functions, §3.5(ii). https://dlmf.nist.gov/3.5.ii
 
 ## Romberg integration (romberg-integration)
 
@@ -3456,7 +3456,7 @@ Assumptions — Trapezoidal error has an even-power expansion to the extrapolate
 
 Limitations — Endpoint singularities can invalidate the error expansion.
 
-Source — NIST Digital Library of Mathematical Functions, §3.5(iii). https://dlmf.nist.gov/3.5#3
+Source — NIST Digital Library of Mathematical Functions, §3.5(iii). https://dlmf.nist.gov/3.5.iii
 
 ## Gaussian quadrature (gaussian-quadrature)
 
@@ -3470,7 +3470,7 @@ Assumptions — Measure has at least n+1 support points; the model specifies the
 
 Limitations — Localized peaks between the nodes can be poorly resolved.
 
-Source — NIST Digital Library of Mathematical Functions, §3.5(v). https://dlmf.nist.gov/3.5#5
+Source — NIST Digital Library of Mathematical Functions, §3.5(v). https://dlmf.nist.gov/3.5.v
 
 ## Golub–Welsch quadrature construction (golub-welsch)
 
@@ -3484,7 +3484,7 @@ Assumptions — Known recurrence coefficients and positive measure with at least
 
 Limitations — Inaccurate recurrence coefficients perturb both nodes and weights.
 
-Source — NIST Digital Library of Mathematical Functions, §3.5(vi). https://dlmf.nist.gov/3.5#6
+Source — NIST Digital Library of Mathematical Functions, §3.5(vi). https://dlmf.nist.gov/3.5.vi
 
 ## Continuous beta law (beta-continuous)
 
@@ -3625,3 +3625,87 @@ Assumptions — At least two knots, support restricted to knot span for the shap
 Limitations — Second derivatives can jump and interpolating noisy knots preserves their noise.
 
 Source — SciPy maintainers’ reference, PchipInterpolator, Notes and boundary conditions. https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.PchipInterpolator.html
+
+## Forward Euler integration (forward-euler-ode)
+
+> For y′=f(t,y), set y_(n+1)=y_n+h f(t_n,y_n) and t_(n+1)=t_n+h. On y′=λy the amplification is R(z)=1+z with z=hλ.
+
+h>0 step, t_n time, y_n state, f drift, λ scalar test rate.
+
+Simulate a short-horizon deterministic latent fatigue trajectory with weak mean reversion
+
+Assumptions — Smooth nonstiff trajectory and sufficiently small h for first-order global accuracy.
+
+Limitations — A decaying scalar mode grows numerically when |1+hλ|>1.
+
+Source — MIT 18.330 numerical methods lecture notes, chapter 5, Methods for Ordinary Differential Equations. https://math.mit.edu/icg/resources/teaching/18.330/18.330-Mar21.pdf
+
+## Backward Euler integration (backward-euler-ode)
+
+> Solve y_(n+1)=y_n+h f(t_n+h,y_(n+1)). On y′=λy its amplification is R(z)=1/(1−z) with z=hλ.
+
+h>0 step, t_n time, y_n state, f drift, λ scalar test rate.
+
+Advance a stiff latent recovery model with fast decay and slower forcing
+
+Assumptions — A consistent implicit solution is found at each step; smooth trajectory for first-order global accuracy.
+
+Limitations — The nonlinear solve may fail, and large steps can erase transient behavior.
+
+Source — MIT 18.330 numerical methods lecture notes, chapter 5, Methods for Ordinary Differential Equations. https://math.mit.edu/icg/resources/teaching/18.330/18.330-Mar21.pdf
+
+## Implicit trapezoidal ODE integration (implicit-trapezoidal-ode)
+
+> Solve y_(n+1)=y_n+(h/2)[f(t_n,y_n)+f(t_n+h,y_(n+1))]. On y′=λy, R(z)=(1+z/2)/(1−z/2) for z=hλ.
+
+h>0 step, t_n time, y_n state, f drift, λ scalar test rate.
+
+Propagate a smooth latent tempo state between event timestamps
+
+Assumptions — Smooth drift and consistent solution of the implicit equation for second-order global accuracy.
+
+Limitations — Very stiff modes can oscillate with amplification near −1.
+
+Source — ETH Zürich Numerical Analysis II lecture notes, equation 4.38. https://people.math.ethz.ch/~grsam/SS26/NAII/resources/lecture_notes_2026.pdf
+
+## Classical four-stage Runge–Kutta method (classical-rk4)
+
+> Let k₁=f(t,y), k₂=f(t+h/2,y+hk₁/2), k₃=f(t+h/2,y+hk₂/2), k₄=f(t+h,y+hk₃). Set y_new=y+(h/6)(k₁+2k₂+2k₃+k₄).
+
+h>0 step, t time, y state, k_i staged drifts.
+
+Simulate a smooth coupled pace and stamina model at a declared time resolution
+
+Assumptions — Sufficiently smooth nonstiff vector field for fourth-order global accuracy.
+
+Limitations — No local error estimate from the four stages alone and stability limits the step on stiff systems.
+
+Source — NIST DLMF §3.7(v), Eqs. 3.7.18–19. https://dlmf.nist.gov/3.7.E18
+
+## Bogacki–Shampine embedded Runge–Kutta pair (bogacki-shampine-rk23)
+
+> Set k₁=f(t,y), k₂=f(t+h/2,y+hk₁/2), k₃=f(t+3h/4,y+3hk₂/4), Y₃=y+h(2k₁/9+k₂/3+4k₃/9), k₄=f(t+h,Y₃), and Y₂=y+h(7k₁/24+k₂/4+k₃/3+k₄/8). Use Y₃ for advancement and Y₂−Y₃ for a local error estimate.
+
+h>0 proposed step, f drift, k_i stages, Y₂ and Y₃ second- and third-order trial states.
+
+Adapt resolution during simulation of a fitted change in movement intensity
+
+Assumptions — Smooth nonstiff dynamics; declare an error norm and tolerance before adapting steps.
+
+Limitations — The embedded difference can underestimate actual error near a discontinuity.
+
+Source — SciPy maintainers’ RK23 reference and implementation. https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.RK23.html
+
+## Velocity Verlet integration (velocity-verlet)
+
+> For q″=a(q), set v_(n+1/2)=v_n+(h/2)a(q_n), q_(n+1)=q_n+h v_(n+1/2), v_(n+1)=v_(n+1/2)+(h/2)a(q_(n+1)).
+
+q position, v velocity, a position-only acceleration, h>0 fixed step.
+
+Simulate a synthetic conservative trajectory as a baseline for tracking error analysis
+
+Assumptions — Smooth position-only force; symplecticity applies to conservative forces in canonical variables with constant mass.
+
+Limitations — Velocity-dependent drag lies outside this recurrence; the harmonic oscillator becomes unstable for hω>2.
+
+Source — Hairer, Lubich and Wanner, Geometric numerical integration illustrated by the Störmer–Verlet method, §1.1. https://www.math.mcgill.ca/gantumur/docs/down/gniverlet.pdf
