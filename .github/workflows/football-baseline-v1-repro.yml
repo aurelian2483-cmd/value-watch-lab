@@ -31,3 +31,5 @@ jobs:
         run: node tests/test_football_baseline_market.cjs
       - name: Score pre-registered bottleneck challenger on chronological holdout
         run: node research/football-baseline-v1/bottleneck-v0.mjs | tee /tmp/football-bottleneck-v0.json
+      - name: Validate universal mathematical research catalogue
+        run: node research/mathematical-library/validate.mjs
