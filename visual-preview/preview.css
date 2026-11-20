@@ -448,3 +448,9 @@
   .preview-sports-panel .competition-rail,
   .preview-tracker-dropdown { flex: 1 1 auto; }
 }
+
+
+.preview-inline-slips .workspace-grid > #slip-panel { display: none; }
+.visual-preview.preview-inline-slips .pro-landing:has(> .preview-sports-panel) + .workspace-grid {
+  grid-template-columns: minmax(0, 1fr);
+}

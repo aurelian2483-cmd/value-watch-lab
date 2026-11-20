@@ -20,11 +20,15 @@ function ready(){
  };
  const dropdown=document.getElementById('preview-slip-dropdown');
  const panel=document.getElementById('slip-panel');
+ const mobileOpen=document.getElementById('paper-open');
  const inline=dropdown && panel && document.documentElement.classList.contains('visual-preview');
  const cards=Array.from(root.querySelectorAll('[data-pro-slot], .pro-slip-grid .pro-wildcard-card'));
  let expanded=null;
  const originalPosition=document.createComment('Paper slips');
- if(inline)panel.before(originalPosition);
+ if(inline){
+  document.documentElement.classList.add('preview-inline-slips');
+  panel.before(originalPosition);
+ }
  function closeInline(restoreFocus=false){
   if(!expanded)return;
   const trigger=expanded;
@@ -33,11 +37,35 @@ function ready(){
   dropdown.hidden=true;
   delete dropdown.dataset.mode;
   trigger.setAttribute('aria-expanded','false');
+  mobileOpen?.setAttribute('aria-expanded','false');
   if(restoreFocus)trigger.focus({preventScroll:true});
+ }
+ function openInline(card){
+  expanded?.setAttribute('aria-expanded','false');
+  expanded=card;
+  card.setAttribute('aria-expanded','true');
+  const slot=card.dataset.proSlot;
+  mobileOpen?.setAttribute('aria-expanded',String(Boolean(slot)));
+  dropdown.dataset.mode=slot?'slip':'gold';
+  dropdown.append(panel);
+  dropdown.hidden=false;
+  if(slot)panel.querySelector('#slip-tabs button[data-slot="'+slot+'"]')?.click();
+ }
+ function openFromShortcut(){
+  const selected=panel.querySelector('#slip-tabs [aria-pressed="true"]')?.dataset.slot;
+  const card=cards.find(item=>item.dataset.proSlot && item.dataset.proSlot===selected) || cards[0];
+  if(!card)return;
+  openInline(card);
+  dropdown.scrollIntoView({block:'start'});
+  dropdown.querySelector('.preview-close-slip').focus({preventScroll:true});
  }
  if(inline){
   dropdown.querySelector('.preview-close-slip').addEventListener('click',()=>closeInline(true));
-  document.getElementById('paper-open')?.addEventListener('click',()=>closeInline(),true);
+  mobileOpen?.addEventListener('click',event=>{
+   event.stopImmediatePropagation();
+   if(expanded?.dataset.proSlot){closeInline();mobileOpen.focus({preventScroll:true});return}
+   openFromShortcut();
+  },true);
   dropdown.addEventListener('keydown',event=>{
    if(event.key==='Escape'&&!event.defaultPrevented){event.preventDefault();closeInline(true)}
   });
@@ -53,18 +81,15 @@ function ready(){
    if(inline){
     event.preventDefault();
     if(expanded===card){closeInline(true);return}
-    expanded?.setAttribute('aria-expanded','false');
-    expanded=card;
-    card.setAttribute('aria-expanded','true');
-    dropdown.dataset.mode=slot?'slip':'gold';
-    dropdown.append(panel);
-    dropdown.hidden=false;
-   }else if(!slot)return;
-   if(slot)document.querySelector('#slip-tabs button[data-slot="'+slot+'"]')?.click();
-   if(!inline)showSlips();
+    openInline(card);
+    return;
+   }
+   if(!slot)return;
+   panel.querySelector('#slip-tabs button[data-slot="'+slot+'"]')?.click();
+   showSlips();
   });
  }
- root.querySelector('[data-open-paper]')?.addEventListener('click',event=>{event.preventDefault();closeInline();showSlips()});
+ root.querySelector('[data-open-paper]')?.addEventListener('click',event=>{event.preventDefault();if(inline)openFromShortcut();else showSlips()});
  root.querySelectorAll('[data-open-events]').forEach(link=>link.addEventListener('click',event=>{
   event.preventDefault();
   document.querySelector('#app-tabs [data-view="events"]')?.click();
