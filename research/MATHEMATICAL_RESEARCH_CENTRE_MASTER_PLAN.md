@@ -2,6 +2,14 @@
 **Master design record — agreed discussion, 20 November 2026**  
 **Status:** DESIGN APPROVED IN PRINCIPLE; IMPLEMENTATION PARTIAL; RESEARCH ONLY. This document is not a deployment approval.
 
+## 0. Mandatory catalogue completion gate — user decision 20 Nov 2026
+
+**Do not progress to the next Mathematical Research Centre development phase until the shared library contains at least 1,000 properly registered catalogue entries.** Current audited baseline when this decision was made: **16** entries in isolated research PR #112 (one implemented research baseline and fifteen IDEA records), hence **984 additional qualified entries required**. This is a blocking **catalogue-readiness** milestone, NOT a claim of 1,000 implemented, independently validated or sport-effective models.
+
+Catalogue quality gate: every entry must have unique ID, actual reproducible mathematical definition or algorithm specification, classification (distinct method vs parameter variant/ensemble/diagnostic), stated purpose, sport suitability, required inputs, assumptions/limits, provenance/source or clearly declared original proposal, validation status and duplicate/family linkage. Formula variants count toward total registered *entries* but must be reported separately from distinct algorithms. Reject fake padding, synonyms and undocumented names.
+
+**Phase progression:** catalogue intake and verification may continue; no broad 500-candidate tournament, holdout evaluation, website Compare integration, deployment or activation simply because the count reaches 1,000. Formal readiness requires the size gate plus schema validation, citation/provenance review, and a breakdown of independently defined methods vs variants and implementation/test coverage. User review is required before unlocking the next phase. Existing isolated QA/debugging may continue to safeguard previously written research, but is not promotion of the new laboratory.
+
 ## 1. Goal and design principles
 Create a *universal, expandable* catalogue of mathematical methods and evidence for football, horse racing, tennis, NFL, darts and rugby, with the ability to adapt sound ideas from mathematics, physics, engineering, history, forecasting and other sports.
 
