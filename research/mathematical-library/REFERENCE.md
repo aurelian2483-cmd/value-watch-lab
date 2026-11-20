@@ -3947,3 +3947,59 @@ Assumptions — d+1≤h≤n and data in general position for nonsingular support
 Limitations — Near-singular clouds make determinant comparisons unstable, and a single robust ellipsoid poorly represents multiple clusters.
 
 Source — Scikit-learn maintainers’ covariance guide, Minimum Covariance Determinant. https://scikit-learn.org/stable/modules/covariance.html#minimum-covariance-determinant
+
+## Vector autoregression (vector-autoregression)
+
+> Set y_t=c+Σ_(j=1)^p A_j y_(t−j)+ε_t. Under serially uncorrelated zero-mean innovations and stable companion matrix, the conditional one-step mean is c+Σ_j A_j y_(t−j).
+
+y_t∈ℝ^d, c intercept, A_j d×d lag matrices, ε_t innovations, p lag order.
+
+Forecast earlier aligned scoring rate and possession indicators jointly
+
+Assumptions — Covariance stationarity requires companion eigenvalues strictly inside the unit disk with finite innovation covariance; unrestricted fitting requires full-rank lag design.
+
+Limitations — Unmodeled integration or too many cross-lags can invalidate inference or destabilize estimates.
+
+Source — statsmodels maintainers’ vector autoregressions guide. https://www.statsmodels.org/stable/vector_ar.html
+
+## Reduced-rank vector error-correction model (vector-error-correction)
+
+> Set Δy_t=αβᵀy_(t−1)+Σ_(j=1)^(p−1) Γ_j Δy_(t−j)+ε_t. Impose rank(αβᵀ)=r with 0<r<d for the stated cointegrated specification.
+
+Δ first difference, y_t∈ℝ^d, α and β full-column-rank d×r matrices, Γ_j short-run coefficients, p order in levels.
+
+Study whether co-moving prior performance indicators correct deviations from a long-run relation when integration assumptions are plausible
+
+Assumptions — Components are I(1) with stationary βᵀy_t, rank r, no I(2) directions and stable transitory modes; this form omits deterministic terms.
+
+Limitations — Cointegration rank and adjustment estimates can be sensitive to structural breaks and deterministic assumptions.
+
+Source — statsmodels maintainers’ API reference, VECM. https://www.statsmodels.org/stable/generated/statsmodels.tsa.vector_ar.vecm.VECM.html
+
+## Markov-switching autoregression (markov-switching-ar)
+
+> Let S_t be a hidden first-order Markov chain with transition P. Set y_t−μ_(S_t)=Σ_(j=1)^p φ_(j,S_t)[y_(t−j)−μ_(S_(t−j))]+ε_t with ε_t conditionally independent N(0,σ²_(S_t)) given the state path.
+
+S_t∈{1,…,K}, μ_s regime mean, φ_(j,s) lag effects, σ_s>0 regime noise, P transition law.
+
+Model persistence and switching in an earlier timestamped series of performance residuals
+
+Assumptions — Conditional distribution specified for initial observations and regimes; forecast uses filtered state probabilities.
+
+Limitations — Regime labels are interchangeable, and augmented filtering grows rapidly with lag order.
+
+Source — statsmodels maintainers’ API reference, MarkovAutoregression. https://www.statsmodels.org/stable/generated/statsmodels.tsa.regime_switching.markov_autoregression.MarkovAutoregression.html
+
+## Linear Gaussian dynamic factor model (dynamic-factor-model)
+
+> Set y_t=Λf_t+e_t, f_t=Σ_(j=1)^p A_j f_(t−j)+u_t, with independent centered Gaussian e_t∼N(0,R) and u_t∼N(0,I_r), also independent across time. Use a companion state to filter and forecast f_t.
+
+y_t∈ℝ^d, f_t∈ℝ^r with r<d, Λ loading matrix, R observation noise covariance, A_j factor lag matrices.
+
+Extract a shared prior-history performance factor from several noisy team indicators
+
+Assumptions — Aligned series share latent factors; choose loading identification constraints if interpreting individual factors.
+
+Limitations — Rotations preserve observational likelihood absent identifying constraints, and omitted correlated noise can mimic a factor.
+
+Source — statsmodels maintainers’ API reference, DynamicFactor. https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.dynamic_factor.DynamicFactor.html

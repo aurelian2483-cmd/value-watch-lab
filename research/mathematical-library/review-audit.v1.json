@@ -35,9 +35,9 @@
       }
     }
   ],
-  "batch": "014",
+  "batch": "015",
   "new_specifications": 4,
-  "registered_after_batch": 282,
+  "registered_after_batch": 286,
   "holdout_accessed": false,
   "empirical_tests_run": false,
   "review": [
@@ -249,6 +249,15 @@
       "source_check": "Checked joint intercept rules and the two slope aggregations against SciPy and the consensus and minimum-determinant objectives against scikit-learn’s maintainers’ guides.",
       "mathematical_checks": "Synthetic tests checked regression slopes and intercepts against SciPy, maximum consensus under gross outliers, and the covariance determinant objective under an affine transformation.",
       "semantic_review": "Theil–Sen pools all pair slopes in one median, while Siegel takes a median of per-observation medians. RANSAC uses subset-generated fits and a thresholded consensus objective. Huber regression uses a continuous loss over the full sample. Raw MCD minimizes a multivariate covariance volume, unlike univariate MAD or variance-explaining PCA. Intercept parameterizations and post-MCD reweighting choices were excluded as separate records.",
+      "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
+    },
+    {
+      "batch": "015",
+      "new_specifications": 4,
+      "registered_after_batch": 286,
+      "source_check": "Checked the vector lag system, reduced-rank error correction, centered regime-dependent lags and dynamic factor state equations against the Statsmodels maintainers’ guide and API specifications.",
+      "mathematical_checks": "Synthetic tests exercised a stable companion forecast, a VAR-to-VECM identity with a unit root, Markov-switching forward likelihood against state-path enumeration, and dynamic factor rotation invariance.",
+      "semantic_review": "Vector autoregression adds cross-series lags. Error correction imposes a reduced-rank long-run structure, beyond an unrestricted change of notation. The Markov-switching AR observation law depends on lagged responses and regime history, while the existing HMM record supplies an inference procedure. Dynamic factor modeling specifies low-rank measurement dependence and latent recursions, while Kalman is a general inference algorithm and PCA has no state transition.",
       "scope": "Review covers additions against the registered catalogue. The earlier catalogue-wide primary-source review and 81-formula inventory remain open."
     }
   ]
