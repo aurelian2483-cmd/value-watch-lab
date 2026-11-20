@@ -45,7 +45,11 @@
     }
     document.querySelector('.pro-steps').before(sportsPanel);
     const filters = document.querySelector('.workspace-grid .filter-panel');
-    if (filters) sportsPanel.after(filters);
+    if (filters) {
+      sportsPanel.after(filters);
+      const engine = document.querySelector('.workspace-grid .engine-switch');
+      if (engine) filters.after(engine);
+    }
   }
 
   const sports = [
