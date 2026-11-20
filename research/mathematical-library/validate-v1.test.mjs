@@ -1,4 +1,6 @@
 import { readFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
@@ -97,18 +99,24 @@ reject('rejects circular equivalences', copy => {
   })
 }, /equivalence must point directly to a canonical record/)
 
-test('ledger preserves the ISTA equivalence and outcome timing restrictions', () => {
-  const ledger = readJson('./evidence-ledger.v1.json')
-  assert.deepEqual(ledger.map(row => row.id), entries.map(entry => entry.id))
-  for (const [i, row] of ledger.entries()) {
-    assert.deepEqual(row.source, entries[i].source)
-    assert.equal(row.input_timing, entries[i].input_timing)
-    assert.deepEqual(row.sports, entries[i].sports)
-    assert.equal(row.applicability_profile, entries[i].profile)
-    assert.equal(row.test_evidence, null)
+test('generated ledger and progress match their committed snapshots', () => {
+  const cli = fileURLToPath(new URL('./catalogue.mjs', import.meta.url))
+  for (const [command, snapshot] of [
+    ['ledger', './evidence-ledger.v1.json'],
+    ['summary', './progress.v1.json']
+  ]) {
+    const generated = execFileSync(process.execPath, [cli, command], { encoding: 'utf8' })
+    assert.deepEqual(JSON.parse(generated), readJson(snapshot))
   }
+})
+
+test('recorded equivalence and qualification totals stay distinct from registry totals', () => {
+  const ledger = readJson('./evidence-ledger.v1.json')
   assert.equal(ledger.find(row => row.id === 'prox-l1').equivalence.target, 'ista')
   assert.equal(ledger.find(row => row.id === 'ista').equivalence, undefined)
+  assert.equal(ledger.find(row => row.id === 'fista').equivalence, undefined)
+  assert.equal(ledger.filter(row => row.test_evidence !== null).length, 0)
+  assert.equal(readJson('./progress.v1.json').distinctAlgorithmsAfterRecordedEquivalences, 104)
 })
 
 test('prox-l1 and constant-step ISTA agree with the same penalty mask', () => {

@@ -1840,19 +1840,19 @@ Limitations — Near-unit spectral radius makes duration very uncertain.
 
 Source — Grinstead and Snell, Introduction to Probability, 2nd revised ed., absorption section
 
-## Renewal expected long-run event rate (stationary-renewal)
+## Renewal strong law (stationary-renewal)
 
-> N(t)/t→1/E[X] almost surely for iid positive inter-arrivals X
+> N(t)/t→1/E[X] almost surely as t→∞ for iid positive inter-arrivals X with E[X]<∞
 
-N(t) events by elapsed time t, X positive gap, E finite mean.
+N(t) events by elapsed time t, X inter-arrival time, E[X] mean inter-arrival time.
 
 Estimate long-run event frequency from comparable prior inter-event gaps
 
-Assumptions — Reinitialization between comparable intervals and constant gap distribution.
+Assumptions — Independent gaps with a common distribution and finite positive mean. Align sport clocks and specify resets across competition intervals.
 
 Limitations — The limit is the renewal strong law. It neither implies a stationary initial delay nor quantifies clustering.
 
-Source — Ross, Stochastic Processes, 2nd ed., renewal theory
+Source — Ross, Stochastic Processes, 2nd ed., renewal theory; Gallager, Discrete Stochastic Processes, Theorem 4.3.1. https://ocw.mit.edu/courses/6-262-discrete-stochastic-processes-spring-2011/931ffa0940899c27f34b71ad64fd2bb0_MIT6_262S11_chap04.pdf
 
 ## Compound Poisson weighted scoring (compound-poisson)
 
