@@ -1,0 +1,43 @@
+name: Mathematical library and Sky 81 validation
+
+on:
+  push:
+    branches:
+      - research/sky-mathematical-library-20261120
+    paths:
+      - 'research/mathematical-library/**'
+      - 'research/horse-ab-phase3-master-20261115/**'
+      - '.github/workflows/mathematical-library-validation.yml'
+  pull_request:
+    branches:
+      - research/football-reproducible-baseline-20261120
+    paths:
+      - 'research/mathematical-library/**'
+      - 'research/horse-ab-phase3-master-20261115/**'
+      - '.github/workflows/mathematical-library-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate preserved legacy catalogue
+        run: node research/mathematical-library/validate.mjs
+      - name: Run catalogue and Sky 81 tests
+        run: node --test research/mathematical-library/validate-v1.test.mjs research/mathematical-library/sky81/experiment.test.mjs
+      - name: Verify generated catalogue summary and evidence ledger
+        run: |
+          node research/mathematical-library/catalogue.mjs summary
+          node research/mathematical-library/catalogue.mjs ledger
+      - name: Verify exact 81-configuration grid
+        run: node research/mathematical-library/sky81/experiment.mjs
+      - name: Reproduce archived Phase 3 A/B forecasts
+        run: node research/mathematical-library/sky81/reproduce-phase3.mjs research/horse-ab-phase3-master-20261115

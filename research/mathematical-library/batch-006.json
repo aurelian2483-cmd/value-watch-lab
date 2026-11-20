@@ -1,0 +1,244 @@
+[
+  {
+    "id": "composite-trapezoid",
+    "name": "Composite trapezoidal quadrature",
+    "family": "numerical-quadrature",
+    "classification": "distinct-algorithm",
+    "profile": "multifeature",
+    "definition": "For x_i=a+ih and h=(b−a)/n, Q=h[(f(a)+f(b))/2+Σ_(i=1)^(n−1) f(x_i)].",
+    "variables": "n positive panel count, Q approximation to ∫_a^b f(x)dx",
+    "assumptions": "Equal spacing and finite endpoint values; second-order error for C² integrands",
+    "limitations": "An integrable endpoint singularity can make the rule undefined",
+    "failure_conditions": [
+      "An integrable endpoint singularity can make the rule undefined"
+    ],
+    "computation": "n+1 function evaluations",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions, §3.5(i). https://dlmf.nist.gov/3.5.i"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Integrate a fitted margin density across a finite score interval",
+    "required_inputs": "An integrand derived from an as-of-cutoff model or an explicitly specified synthetic integrand, with its domain and weight.",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence before acquisition.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "monte-carlo"
+    ],
+    "incompatible_methods": [
+      "Inputs first available after the forecast cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "monte-carlo",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "006",
+    "mechanism_note": "Base rule for Romberg; with an ODE-dependent integrand it gives the implicit trapezoidal step."
+  },
+  {
+    "id": "composite-simpson",
+    "name": "Composite Simpson quadrature",
+    "family": "numerical-quadrature",
+    "classification": "distinct-algorithm",
+    "profile": "multifeature",
+    "definition": "For positive even n and h=(b−a)/n, Q=(h/3)[f(a)+f(b)+4Σ_(i odd) f(a+ih)+2Σ_(i even, 0<i<n) f(a+ih)].",
+    "variables": "Odd and even indices are interior grid points, Q estimates ∫_a^b f",
+    "assumptions": "Equal spacing and C⁴ integrand for fourth-order error",
+    "limitations": "Reduced smoothness can remove fourth-order convergence",
+    "failure_conditions": [
+      "Reduced smoothness can remove fourth-order convergence"
+    ],
+    "computation": "n+1 function evaluations",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions, §3.5(ii). https://dlmf.nist.gov/3.5.ii"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Integrate a smooth fitted race-time density over a finishing-time band",
+    "required_inputs": "An integrand derived from an as-of-cutoff model or an explicitly specified synthetic integrand, with its domain and weight.",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence before acquisition.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "composite-trapezoid"
+    ],
+    "incompatible_methods": [
+      "Inputs first available after the forecast cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "composite-trapezoid",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "006"
+  },
+  {
+    "id": "romberg-integration",
+    "name": "Romberg integration",
+    "family": "numerical-quadrature",
+    "classification": "distinct-algorithm",
+    "profile": "multifeature",
+    "definition": "R_(k,0)=T(2^k); R_(k,j)=R_(k,j−1)+(R_(k,j−1)−R_(k−1,j−1))/(4^j−1) for 1≤j≤k. Return R_(k,k).",
+    "variables": "T(n) composite trapezoidal value on n panels, k grid refinement, j extrapolation level",
+    "assumptions": "Trapezoidal error has an even-power expansion to the extrapolated order",
+    "limitations": "Endpoint singularities can invalidate the error expansion",
+    "failure_conditions": [
+      "Endpoint singularities can invalidate the error expansion"
+    ],
+    "computation": "2^k+1 distinct function evaluations with grid reuse and O(k²) extrapolation arithmetic",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions, §3.5(iii). https://dlmf.nist.gov/3.5.iii"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Integrate a smooth conditional scoring probability over a bounded latent-strength interval",
+    "required_inputs": "An integrand derived from an as-of-cutoff model or an explicitly specified synthetic integrand, with its domain and weight.",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence before acquisition.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "composite-trapezoid"
+    ],
+    "incompatible_methods": [
+      "Inputs first available after the forecast cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "composite-trapezoid",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "006"
+  },
+  {
+    "id": "gaussian-quadrature",
+    "name": "Gaussian quadrature",
+    "family": "numerical-quadrature",
+    "classification": "distinct-algorithm",
+    "profile": "multifeature",
+    "definition": "For a positive measure with finite moments through degree 2n, choose n nodes at the roots of its degree-n orthogonal polynomial and weights w_i=∫ℓ_i(x)dμ(x), where ℓ_i are their Lagrange cardinal polynomials. Q=Σ_i w_i f(x_i) is exact for deg f≤2n−1.",
+    "variables": "μ integration measure, x_i nodes, ℓ_i interpolation basis, n order",
+    "assumptions": "Measure has at least n+1 support points; the model specifies the weight before quadrature",
+    "limitations": "Localized peaks between the nodes can be poorly resolved",
+    "failure_conditions": [
+      "Localized peaks between the nodes can be poorly resolved"
+    ],
+    "computation": "n integrand evaluations after constructing the nodes and weights",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions, §3.5(v). https://dlmf.nist.gov/3.5.v"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Average a conditional win probability over a fitted latent distribution",
+    "required_inputs": "An integrand derived from an as-of-cutoff model or an explicitly specified synthetic integrand, with its domain and weight.",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence before acquisition.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "monte-carlo"
+    ],
+    "incompatible_methods": [
+      "Inputs first available after the forecast cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "monte-carlo",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "006"
+  },
+  {
+    "id": "golub-welsch",
+    "name": "Golub–Welsch quadrature construction",
+    "family": "numerical-quadrature",
+    "classification": "distinct-algorithm",
+    "profile": "multifeature",
+    "definition": "For orthonormal polynomials p_j under μ, set J_ij=∫xp_i(x)p_j(x)dμ(x), 0≤i,j<n. For each normalized eigenpair Jv_k=x_kv_k, set w_k=μ(ℝ)(v_k)_0².",
+    "variables": "J symmetric tridiagonal Jacobi matrix, x_k Gaussian nodes, w_k weights",
+    "assumptions": "Known recurrence coefficients and positive measure with at least n+1 support points and finite moments through degree 2n",
+    "limitations": "Inaccurate recurrence coefficients perturb both nodes and weights",
+    "failure_conditions": [
+      "Inaccurate recurrence coefficients perturb both nodes and weights"
+    ],
+    "computation": "One symmetric tridiagonal eigendecomposition",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions, §3.5(vi). https://dlmf.nist.gov/3.5.vi"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Construct nodes and weights once for repeated latent-strength integration",
+    "required_inputs": "An integrand derived from an as-of-cutoff model or an explicitly specified synthetic integrand, with its domain and weight.",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence before acquisition.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "gaussian-quadrature"
+    ],
+    "incompatible_methods": [
+      "Inputs first available after the forecast cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "gaussian-quadrature",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "006",
+    "mechanism_note": "Constructs Gaussian quadrature nodes and weights for the same rule; distinct computation, common quadrature output."
+  }
+]

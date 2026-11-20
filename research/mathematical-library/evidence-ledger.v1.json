@@ -1,0 +1,5894 @@
+[
+  {
+    "id": "poisson",
+    "source": {
+      "kind": "literature",
+      "citation": "Cameron and Trivedi, Regression Analysis of Count Data, 2nd ed., 2013"
+    },
+    "status": "IMPLEMENTED",
+    "legacy_id": "poisson",
+    "implementation_ref": "research/football-baseline-v1/replay.mjs",
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
+  },
+  {
+    "id": "dixon-coles",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1111/1467-9876.00065"
+    },
+    "status": "IDEA",
+    "legacy_id": "dixon-coles",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football"
+    ],
+    "applicability_profile": "football"
+  },
+  {
+    "id": "bivariate-poisson",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1111/1467-9884.00366"
+    },
+    "status": "IDEA",
+    "legacy_id": "bivariate-poisson",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football"
+    ],
+    "applicability_profile": "football"
+  },
+  {
+    "id": "negative-binomial",
+    "source": {
+      "kind": "literature",
+      "citation": "Cameron and Trivedi, Regression Analysis of Count Data, 2nd ed., 2013"
+    },
+    "status": "IDEA",
+    "legacy_id": "negative-binomial",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
+  },
+  {
+    "id": "elo",
+    "source": {
+      "kind": "literature",
+      "citation": "Arpad Elo, The Rating of Chessplayers, Past and Present, 1978"
+    },
+    "status": "IDEA",
+    "legacy_id": "elo",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
+  },
+  {
+    "id": "glicko",
+    "source": {
+      "kind": "literature",
+      "citation": "Mark Glickman, The Glicko System, glicko.net/glicko/glicko.pdf"
+    },
+    "status": "IDEA",
+    "legacy_id": "glicko",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts"
+    ],
+    "applicability_profile": "paired"
+  },
+  {
+    "id": "bradley-terry",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1093/biomet/39.3-4.324"
+    },
+    "status": "IDEA",
+    "legacy_id": "bradley-terry",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts"
+    ],
+    "applicability_profile": "paired",
+    "mechanism_note": "Two-alternative conditional logit with paired identity contrasts; conditioning on two remaining choices reduces Plackett–Luce to this form."
+  },
+  {
+    "id": "ewma",
+    "source": {
+      "kind": "literature",
+      "citation": "Hyndman and Athanasopoulos, Forecasting: Principles and Practice, 3rd ed., §8.1"
+    },
+    "status": "IDEA",
+    "legacy_id": "ewma",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "series",
+    "mechanism_note": "Matches geometric weighting with its recursive initialization; finite renormalized decay treats the boundary differently."
+  },
+  {
+    "id": "cusum",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1093/biomet/41.1-2.100"
+    },
+    "status": "IDEA",
+    "legacy_id": "cusum",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "kalman",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1115/1.3662552"
+    },
+    "status": "IDEA",
+    "legacy_id": "kalman",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "bayesian-hierarchical",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 5"
+    },
+    "status": "IDEA",
+    "legacy_id": "bayesian-hierarchical",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "monte-carlo",
+    "source": {
+      "kind": "literature",
+      "citation": "Robert and Casella, Monte Carlo Statistical Methods, 2nd ed., 2004"
+    },
+    "status": "IDEA",
+    "legacy_id": "monte-carlo",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "weighted-ensemble",
+    "source": {
+      "kind": "literature",
+      "citation": "Genest and Zidek, Combining Probability Distributions: A Critique and an Annotated Bibliography, Statistical Science, 1986"
+    },
+    "status": "IDEA",
+    "legacy_id": "weighted-ensemble",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Common linear pooling operation used by stacking, BMA and shrinkage; weight construction distinguishes the records."
+  },
+  {
+    "id": "isotonic",
+    "source": {
+      "kind": "literature",
+      "citation": "Barlow et al., Statistical Inference Under Order Restrictions, 1972"
+    },
+    "status": "IDEA",
+    "legacy_id": "isotonic",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "forecast"
+  },
+  {
+    "id": "logistic",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §4.4"
+    },
+    "status": "IDEA",
+    "legacy_id": "logistic",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "binary",
+    "mechanism_note": "Binary softmax and two-alternative conditional-logit specialize to this link with the appropriate features. Platt adds score calibration and target smoothing."
+  },
+  {
+    "id": "changepoint",
+    "source": {
+      "kind": "literature",
+      "citation": "Adams and MacKay, Bayesian Online Changepoint Detection, arXiv:0710.3742"
+    },
+    "status": "IDEA",
+    "legacy_id": "changepoint",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "skellam",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.2307/2981372"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football"
+    ],
+    "applicability_profile": "football",
+    "mechanism_note": "Exact marginal of independent Poisson score difference and of a bivariate Poisson score difference with a common additive shock."
+  },
+  {
+    "id": "beta-binomial",
+    "source": {
+      "kind": "literature",
+      "citation": "Johnson, Kemp and Kotz, Univariate Discrete Distributions, 3rd ed., 2005"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success",
+    "mechanism_note": "Predictive count from beta-Bernoulli mixture; single Bernoulli prediction is beta-bernoulli-update."
+  },
+  {
+    "id": "zip",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1080/00401706.1992.10485228"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
+  },
+  {
+    "id": "hurdle-poisson",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1016/0304-4076(86)90002-3"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
+  },
+  {
+    "id": "com-poisson",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1111/j.1467-9876.2005.00474.x"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
+  },
+  {
+    "id": "geometric",
+    "source": {
+      "kind": "literature",
+      "citation": "Grimmett and Stirzaker, Probability and Random Processes, 3rd ed., 2001"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
+  },
+  {
+    "id": "softmax",
+    "source": {
+      "kind": "literature",
+      "citation": "Goodfellow, Bengio and Courville, Deep Learning, §6.2.2.3"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing"
+    ],
+    "applicability_profile": "choice",
+    "mechanism_note": "Shared simplex map for conditional-logit, multiclass calibration and choice stages; no fitting objective on its own."
+  },
+  {
+    "id": "plackett-luce",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.2307/2346567"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing"
+    ],
+    "applicability_profile": "rank",
+    "mechanism_note": "Sequential conditional choice likelihood on shrinking sets; first-place-only data give conditional logit."
+  },
+  {
+    "id": "davidson-ties",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1080/01621459.1970.10481082"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
+  },
+  {
+    "id": "thurstone-case-v",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1037/h0070288"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
+  },
+  {
+    "id": "trueskill",
+    "source": {
+      "kind": "literature",
+      "citation": "Herbrich, Minka and Graepel, TrueSkill: A Bayesian Skill Rating System, NeurIPS 2006"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
+  },
+  {
+    "id": "conditional-logit",
+    "source": {
+      "kind": "literature",
+      "citation": "McFadden, Conditional Logit Analysis of Qualitative Choice Behavior, 1974"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing"
+    ],
+    "applicability_profile": "choice",
+    "mechanism_note": "Softmax with learned utility and grouped likelihood. Two alternatives with contrast-coded features reduce to binary logistic."
+  },
+  {
+    "id": "bayes-rule",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 1"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
+  },
+  {
+    "id": "exp-time-decay",
+    "source": {
+      "kind": "literature",
+      "citation": "Hyndman and Athanasopoulos, Forecasting: Principles and Practice, 3rd ed., §8.1, geometric weights extended to elapsed time"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series",
+    "mechanism_note": "Close to ewma on a regular grid with α=1−exp(−λΔ); elapsed-time weights and finite normalization matter."
+  },
+  {
+    "id": "z-score",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST/SEMATECH e-Handbook of Statistical Methods, Measures of Scale"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "mad-score",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1080/01621459.1993.10476408"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "box-cox",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1111/j.2517-6161.1964.tb00553.x"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis"
+    ],
+    "applicability_profile": "positive"
+  },
+  {
+    "id": "first-difference",
+    "source": {
+      "kind": "literature",
+      "citation": "Hyndman and Athanasopoulos, Forecasting: Principles and Practice, 3rd ed., §9.1"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "rolling-median-shift",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "original: difference of two explicitly disjoint trailing medians"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "ew-variance",
+    "source": {
+      "kind": "literature",
+      "citation": "J.P. Morgan and Reuters, RiskMetrics Technical Document, 4th ed., 1996"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "pettitt",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.2307/2346729"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "pelt",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1080/01621459.2012.737745"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "hmm-forward",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1109/5.18626"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "viterbi",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1109/TIT.1967.1054010"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "particle-bootstrap",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1049/ip-f-2.1993.0015"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "simple-ar",
+    "source": {
+      "kind": "literature",
+      "citation": "Box et al., Time Series Analysis: Forecasting and Control, 5th ed., 2015"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "moving-average-model",
+    "source": {
+      "kind": "literature",
+      "citation": "Box et al., Time Series Analysis: Forecasting and Control, 5th ed., 2015"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "arima",
+    "source": {
+      "kind": "literature",
+      "citation": "Box et al., Time Series Analysis: Forecasting and Control, 5th ed., 2015"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "arch",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.2307/1912773"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "garch",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1016/0304-4076(86)90063-1"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "holt-trend",
+    "source": {
+      "kind": "literature",
+      "citation": "Hyndman and Athanasopoulos, Forecasting: Principles and Practice, 3rd ed., §8.2"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "haar-wavelet",
+    "source": {
+      "kind": "literature",
+      "citation": "Mallat, A Wavelet Tour of Signal Processing, 3rd ed., 2008"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "entropy",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1002/j.1538-7305.1948.tb01338.x"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
+  },
+  {
+    "id": "kl",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1214/aoms/1177729694"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
+  },
+  {
+    "id": "jensen-shannon",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1109/18.61115"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "KL to the mixture, distinct from the symmetric KL sum used by PSI."
+  },
+  {
+    "id": "brier",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1175/1520-0493(1950)078%3C0001:VOFEIT%3E2.0.CO;2"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "log-loss",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1198/016214506000001437"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "rps",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1175/1520-0450(1969)008%3C0985:ASSFPF%3E2.0.CO;2"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "pit",
+    "source": {
+      "kind": "literature",
+      "citation": "Diebold, Gunther and Tay, Evaluating Density Forecasts with Applications to Financial Risk Management, International Economic Review, 1998"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "randomized-pit",
+    "source": {
+      "kind": "literature",
+      "citation": "Dunn and Smyth, Randomized Quantile Residuals, Journal of Computational and Graphical Statistics, 1996"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "log-pool",
+    "source": {
+      "kind": "literature",
+      "citation": "Genest and Zidek, Combining Probability Distributions, Statistical Science, 1986"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
+  },
+  {
+    "id": "probability-shrinkage",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "original: use bounded Jensen–Shannon disagreement in the FB-06 convex shrinkage equation; exp(−γD_JS) preserves simplex closure"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Shared two-component linear pool with disagreement-dependent weights."
+  },
+  {
+    "id": "stacking",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1214/17-BA1091"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Shared linear pool; out-of-sample log score supplies weights."
+  },
+  {
+    "id": "bma",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1214/ss/1009212519"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Shared linear pool; posterior model probabilities supply weights."
+  },
+  {
+    "id": "temperature",
+    "source": {
+      "kind": "literature",
+      "citation": "Guo et al., On Calibration of Modern Neural Networks, ICML 2017"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Restriction of vector scaling with common positive multiplier and zero bias."
+  },
+  {
+    "id": "platt",
+    "source": {
+      "kind": "literature",
+      "citation": "Platt, Probabilistic Outputs for Support Vector Machines and Comparisons to Regularized Likelihood Methods, 1999"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
+  },
+  {
+    "id": "beta-calibration",
+    "source": {
+      "kind": "literature",
+      "citation": "Kull, Silva Filho and Flach, Beta Calibration, AISTATS 2017"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
+  },
+  {
+    "id": "kaplan-meier",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1080/01621459.1958.10501452"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
+  },
+  {
+    "id": "nelson-aalen",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1214/aos/1176344247"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
+  },
+  {
+    "id": "cox-ph",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1111/j.2517-6161.1972.tb00899.x"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
+  },
+  {
+    "id": "weibull-aft",
+    "source": {
+      "kind": "literature",
+      "citation": "Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Data, 2nd ed., 2002"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
+  },
+  {
+    "id": "bootstrap-iid",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1214/aos/1176344552"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "resampling"
+  },
+  {
+    "id": "moving-block-bootstrap",
+    "source": {
+      "kind": "literature",
+      "citation": "Künsch, The Jackknife and the Bootstrap for General Stationary Observations, Annals of Statistics, 1989"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "resampling"
+  },
+  {
+    "id": "jackknife",
+    "source": {
+      "kind": "literature",
+      "citation": "Efron and Tibshirani, An Introduction to the Bootstrap, 1993"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "resampling"
+  },
+  {
+    "id": "control-variate",
+    "source": {
+      "kind": "literature",
+      "citation": "Robert and Casella, Monte Carlo Statistical Methods, 2nd ed., 2004"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "importance-sampling",
+    "source": {
+      "kind": "literature",
+      "citation": "Robert and Casella, Monte Carlo Statistical Methods, 2nd ed., 2004"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "antithetic",
+    "source": {
+      "kind": "literature",
+      "citation": "Robert and Casella, Monte Carlo Statistical Methods, 2nd ed., 2004"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "ridge",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1080/00401706.1970.10488634"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "lasso",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1111/j.2517-6161.1996.tb02080.x"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "elastic-net",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1111/j.1467-9868.2005.00503.x"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "huber-regression",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1214/aoms/1177703732"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "quantile-regression",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.2307/1913643"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous",
+    "mechanism_note": "Pinball loss plus a linear regression fitting problem."
+  },
+  {
+    "id": "knn-regression",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §2.3"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "nw-regression",
+    "source": {
+      "kind": "literature",
+      "citation": "Nadaraya, On Estimating Regression, Theory of Probability and Its Applications, 1964"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "cart-regression",
+    "source": {
+      "kind": "literature",
+      "citation": "Breiman et al., Classification and Regression Trees, 1984"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "random-forest",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1023/A:1010933404324"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "gradient-boost",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1214/aos/1013203451"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "pca",
+    "source": {
+      "kind": "literature",
+      "citation": "Jolliffe, Principal Component Analysis, 2nd ed., 2002"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "kmeans",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1109/TIT.1982.1056489"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "pagerank",
+    "source": {
+      "kind": "literature",
+      "citation": "Page et al., The PageRank Citation Ranking: Bringing Order to the Web, Stanford InfoLab, 1999"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "graph"
+  },
+  {
+    "id": "elo-home",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "original: add a pre-event home offset to Elo rating difference; h=0 recovers Elo"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
+  },
+  {
+    "id": "massey",
+    "source": {
+      "kind": "literature",
+      "citation": "Langville and Meyer, Who’s #1? The Science of Rating and Ranking, 2012"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "margin"
+  },
+  {
+    "id": "colley",
+    "source": {
+      "kind": "literature",
+      "citation": "Colley, Colley’s Bias Free College Football Ranking Method, 2002"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "paired"
+  },
+  {
+    "id": "hungarian",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1002/nav.3800020109"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "assignment"
+  },
+  {
+    "id": "ev",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "original derivation: expectation of two possible unit returns as shown"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "market"
+  },
+  {
+    "id": "kelly",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1002/j.1538-7305.1956.tb03809.x"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "market"
+  },
+  {
+    "id": "hoeffding",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1080/01621459.1963.10500830"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
+  },
+  {
+    "id": "wilson",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1080/01621459.1927.10502953"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
+  },
+  {
+    "id": "darts-finish-dp",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "original: finite-horizon law of total probability with checkout and bust absorbing outcomes"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "darts"
+    ],
+    "applicability_profile": "darts",
+    "mechanism_note": "Exact finite-horizon Bellman policy evaluation with checkout and bust absorbing outcomes."
+  },
+  {
+    "id": "tennis-game",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "original derivation: enumerate wins before deuce, then condition on first non-split two-point deuce cycle"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "tennis"
+    ],
+    "applicability_profile": "tennis",
+    "mechanism_note": "Geometric series appears only in the deuce subproblem. The full result is an absorption calculation; relationship to geometric is overly narrow."
+  },
+  {
+    "id": "bellman-policy",
+    "source": {
+      "kind": "literature",
+      "citation": "Puterman, Markov Decision Processes, 1994"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "kalman-ou",
+    "source": {
+      "kind": "literature",
+      "citation": "Uhlenbeck and Ornstein, On the Theory of the Brownian Motion, Physical Review, 1930"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series",
+    "mechanism_note": "OU dynamics can be supplied to Kalman; a transition law alone is a separate component."
+  },
+  {
+    "id": "hawkes",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1093/biomet/58.1.83"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "timestamps"
+  },
+  {
+    "id": "prox-l1",
+    "source": {
+      "kind": "literature",
+      "citation": "Parikh and Boyd, Proximal Algorithms, Foundations and Trends in Optimization, 2014; Beck and Teboulle, §3. https://www.ceremade.dauphine.fr/~carlier/FISTA"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous",
+    "mechanism_note": "Same soft-thresholded gradient update as ista; exempting the intercept changes the penalty mask.",
+    "equivalence": {
+      "type": "equivalent-to",
+      "target": "ista",
+      "condition": "Same smooth objective, L1 penalty, penalized coordinates and initialization with constant step η=1/L"
+    }
+  },
+  {
+    "id": "project-simplex",
+    "source": {
+      "kind": "literature",
+      "citation": "Wang and Carreira-Perpiñán, Projection onto the Probability Simplex, arXiv:1309.1541"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
+  },
+  {
+    "id": "minimax-robust",
+    "source": {
+      "kind": "literature",
+      "citation": "Wald, Statistical Decision Functions, 1950"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "ipw",
+    "source": {
+      "kind": "literature",
+      "citation": "Hernán and Robins, Causal Inference: What If, 2020"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
+  },
+  {
+    "id": "aipw",
+    "source": {
+      "kind": "literature",
+      "citation": "Bang and Robins, Doubly Robust Estimation in Missing Data and Causal Inference Models, Biometrics, 2005"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
+  },
+  {
+    "id": "yeo-johnson",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1093/biomet/87.4.954"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "dirichlet-multinomial",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1093/biomet/49.1-2.65"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "categories",
+    "mechanism_note": "Predictive count law from dirichlet-update with multinomial sampling; two categories give beta-binomial."
+  },
+  {
+    "id": "clr",
+    "source": {
+      "kind": "literature",
+      "citation": "Aitchison, The Statistical Analysis of Compositional Data, 1986"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "composition"
+  },
+  {
+    "id": "damped-holt",
+    "source": {
+      "kind": "literature",
+      "citation": "Hyndman and Athanasopoulos, Forecasting: Principles and Practice, 3rd ed., §8.2"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "alpha-beta",
+    "source": {
+      "kind": "literature",
+      "citation": "Bar-Shalom, Li and Kirubarajan, Estimation with Applications to Tracking and Navigation, 2001"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "tracking"
+  },
+  {
+    "id": "gillespie-direct",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1021/j100540a008"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "poisson-form-025",
+    "source": {
+      "kind": "repository",
+      "citation": "PR #112 at 1fbd53d94ca152f1d4246e784a3c86bb33146648, research/football-baseline-v1/replay.mjs and README.md"
+    },
+    "status": "IMPLEMENTED",
+    "legacy_id": null,
+    "implementation_ref": "research/football-baseline-v1/replay.mjs",
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football"
+    ],
+    "applicability_profile": "football"
+  },
+  {
+    "id": "population-stability-index",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "original derivation: D(q∥p)+D(p∥q) expands to the stated symmetric expression"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "composition",
+    "mechanism_note": "Algebraically symmetric KL sum (Jeffreys divergence); retain the binned monitoring application without treating it as an independent divergence."
+  },
+  {
+    "id": "neyman-pearson",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1098/rsta.1933.0009"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
+  },
+  {
+    "id": "death-process",
+    "source": {
+      "kind": "literature",
+      "citation": "Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Data, 2nd ed., 2002"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
+  },
+  {
+    "id": "cumulative-incidence",
+    "source": {
+      "kind": "literature",
+      "citation": "Aalen et al., Survival and Event History Analysis, 2008"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival",
+    "mechanism_note": "Continuous cause-specific hazard functional. Aalen–Johansen estimates its competing-risk analogue from observed transitions."
+  },
+  {
+    "id": "spsa",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1109/9.119632"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "poisson-regression",
+    "source": {
+      "kind": "literature",
+      "citation": "Cameron and Trivedi, Regression Analysis of Count Data, 2nd ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count",
+    "mechanism_note": "Intercept-only common exposure yields a common Poisson law. Attack/defence imposes a schedule-linked design and identifiability constraints."
+  },
+  {
+    "id": "poisson-attack-defence",
+    "source": {
+      "kind": "literature",
+      "citation": "Maher, Modelling Association Football Scores, Statistica Neerlandica, 1982"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football"
+    ],
+    "applicability_profile": "football"
+  },
+  {
+    "id": "gamma-poisson-update",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 2"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
+  },
+  {
+    "id": "beta-bernoulli-update",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 2"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
+  },
+  {
+    "id": "dirichlet-update",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 3"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "categories"
+  },
+  {
+    "id": "normal-normal-update",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 2"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "binomial-fixed-count",
+    "source": {
+      "kind": "literature",
+      "citation": "Grimmett and Stirzaker, Probability and Random Processes, 3rd ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
+  },
+  {
+    "id": "poisson-binomial",
+    "source": {
+      "kind": "literature",
+      "citation": "Grimmett and Stirzaker, Probability and Random Processes, 3rd ed.; recursion follows by conditioning on last attempt"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
+  },
+  {
+    "id": "hypergeometric",
+    "source": {
+      "kind": "literature",
+      "citation": "Johnson, Kemp and Kotz, Univariate Discrete Distributions, 3rd ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "applicability_profile": "success"
+  },
+  {
+    "id": "multinomial-fixed",
+    "source": {
+      "kind": "literature",
+      "citation": "Johnson, Kotz and Balakrishnan, Discrete Multivariate Distributions, 1997"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "categories"
+  },
+  {
+    "id": "categorical-markov",
+    "source": {
+      "kind": "literature",
+      "citation": "Norris, Markov Chains, Cambridge University Press, 1997"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "categories"
+  },
+  {
+    "id": "fundamental-matrix",
+    "source": {
+      "kind": "literature",
+      "citation": "Grinstead and Snell, Introduction to Probability, 2nd revised ed., absorption section"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "stationary-renewal",
+    "source": {
+      "kind": "literature",
+      "citation": "Ross, Stochastic Processes, 2nd ed., renewal theory; Gallager, Discrete Stochastic Processes, Theorem 4.3.1. https://ocw.mit.edu/courses/6-262-discrete-stochastic-processes-spring-2011/931ffa0940899c27f34b71ad64fd2bb0_MIT6_262S11_chap04.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "timestamps"
+  },
+  {
+    "id": "compound-poisson",
+    "source": {
+      "kind": "literature",
+      "citation": "Ross, Introduction to Probability Models, 12th ed., compound Poisson process"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "applicability_profile": "count"
+  },
+  {
+    "id": "lognormal-duration",
+    "source": {
+      "kind": "literature",
+      "citation": "Johnson, Kotz and Balakrishnan, Continuous Univariate Distributions, vol. 1, 2nd ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis"
+    ],
+    "applicability_profile": "positive"
+  },
+  {
+    "id": "ex-gaussian-duration",
+    "source": {
+      "kind": "literature",
+      "citation": "Ratcliff, Group Reaction Time Distributions and an Analysis of Distribution Statistics, Psychological Bulletin, 1979"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis"
+    ],
+    "applicability_profile": "positive"
+  },
+  {
+    "id": "gev",
+    "source": {
+      "kind": "literature",
+      "citation": "Coles, An Introduction to Statistical Modeling of Extreme Values, 2001"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "gpd",
+    "source": {
+      "kind": "literature",
+      "citation": "Coles, An Introduction to Statistical Modeling of Extreme Values, 2001"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "ecdf",
+    "source": {
+      "kind": "literature",
+      "citation": "Wasserman, All of Statistics, 2004"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "turnbull",
+    "source": {
+      "kind": "literature",
+      "citation": "Turnbull, The Empirical Distribution Function with Arbitrarily Grouped, Censored and Truncated Data, JRSS B, 1976"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
+  },
+  {
+    "id": "logrank",
+    "source": {
+      "kind": "literature",
+      "citation": "Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Data, 2nd ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
+  },
+  {
+    "id": "greenwood",
+    "source": {
+      "kind": "literature",
+      "citation": "Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Data, 2nd ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
+  },
+  {
+    "id": "aalen-johansen",
+    "source": {
+      "kind": "literature",
+      "citation": "Aalen et al., Survival and Event History Analysis, 2008"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
+  },
+  {
+    "id": "restricted-mean-survival-time",
+    "source": {
+      "kind": "literature",
+      "citation": "Royston and Parmar, Restricted Mean Survival Time, BMC Medical Research Methodology, 2013"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "survival"
+  },
+  {
+    "id": "poisson-deviance",
+    "source": {
+      "kind": "literature",
+      "citation": "McCullagh and Nelder, Generalized Linear Models, 2nd ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "anderson-darling",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson and Darling, Asymptotic Theory of Certain Goodness of Fit Criteria, Annals of Mathematical Statistics, 1952"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "ks-one-sample",
+    "source": {
+      "kind": "literature",
+      "citation": "Wasserman, All of Statistics, 2004"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "cvm",
+    "source": {
+      "kind": "literature",
+      "citation": "Csörgő and Faraway, The Exact and Asymptotic Distributions of Cramér–von Mises Statistics, JRSS B, 1996, Eq. 1.1. See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cramervonmises.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "mcnemar",
+    "source": {
+      "kind": "literature",
+      "citation": "Agresti, Categorical Data Analysis, 3rd ed., matched pairs"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "wilcoxon-signed-rank",
+    "source": {
+      "kind": "literature",
+      "citation": "Wilcoxon, Individual Comparisons by Ranking Methods, Biometrics Bulletin, 1945"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "spearman",
+    "source": {
+      "kind": "literature",
+      "citation": "Spearman, The Proof and Measurement of Association Between Two Things, American Journal of Psychology, 1904"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "kendall-tau-b",
+    "source": {
+      "kind": "literature",
+      "citation": "Kendall, A New Measure of Rank Correlation, Biometrika, 1938; tie correction in Kendall, Rank Correlation Methods"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "horse-racing"
+    ],
+    "applicability_profile": "rank"
+  },
+  {
+    "id": "ljung-box",
+    "source": {
+      "kind": "literature",
+      "citation": "Ljung and Box, On a Measure of Lack of Fit in Time Series Models, Biometrika, 1978"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "variance-ratio",
+    "source": {
+      "kind": "literature",
+      "citation": "Lo and MacKinlay, Stock Market Prices Do Not Follow Random Walks, Review of Financial Studies, 1988"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "adf",
+    "source": {
+      "kind": "literature",
+      "citation": "Hamilton, Time Series Analysis, 1994, ch. 17"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "kpss",
+    "source": {
+      "kind": "literature",
+      "citation": "Kwiatkowski et al., Testing the Null Hypothesis of Stationarity, Journal of Econometrics, 1992"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "newey-west",
+    "source": {
+      "kind": "literature",
+      "citation": "Newey and West, A Simple, Positive Semi-definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix, Econometrica, 1987"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "durbin-watson",
+    "source": {
+      "kind": "literature",
+      "citation": "Durbin and Watson, Testing for Serial Correlation in Least Squares Regression I, Biometrika, 1950"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "breusch-pagan",
+    "source": {
+      "kind": "literature",
+      "citation": "Breusch and Pagan, A Simple Test for Heteroscedasticity and Random Coefficient Variation, Econometrica, 1979"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "cook-distance",
+    "source": {
+      "kind": "literature",
+      "citation": "Cook, Detection of Influential Observation in Linear Regression, Technometrics, 1977"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "vif",
+    "source": {
+      "kind": "literature",
+      "citation": "Montgomery, Peck and Vining, Introduction to Linear Regression Analysis, 5th ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "aic",
+    "source": {
+      "kind": "literature",
+      "citation": "Akaike, A New Look at the Statistical Model Identification, IEEE Transactions on Automatic Control, 1974"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "bic",
+    "source": {
+      "kind": "literature",
+      "citation": "Schwarz, Estimating the Dimension of a Model, Annals of Statistics, 1978"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "holm",
+    "source": {
+      "kind": "literature",
+      "citation": "Holm, A Simple Sequentially Rejective Multiple Test Procedure, Scandinavian Journal of Statistics, 1979"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "benjamini-hochberg",
+    "source": {
+      "kind": "literature",
+      "citation": "Benjamini and Hochberg, Controlling the False Discovery Rate, JRSS B, 1995"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "diebold-mariano",
+    "source": {
+      "kind": "literature",
+      "citation": "Diebold and Mariano, Comparing Predictive Accuracy, Journal of Business and Economic Statistics, 1995"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "auc-roc",
+    "source": {
+      "kind": "literature",
+      "citation": "Hanley and McNeil, The Meaning and Use of the Area Under a Receiver Operating Characteristic Curve, Radiology, 1982"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "average-precision",
+    "source": {
+      "kind": "literature",
+      "citation": "Davis and Goadrich, The Relationship Between Precision-Recall and ROC Curves, ICML 2006; step-area convention documented in scikit-learn average_precision_score"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "ece",
+    "source": {
+      "kind": "literature",
+      "citation": "Naeini, Cooper and Hauskrecht, Obtaining Well Calibrated Probabilities Using Bayesian Binning, AAAI 2015"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "calibration-in-large",
+    "source": {
+      "kind": "literature",
+      "citation": "Steyerberg, Clinical Prediction Models, 2nd ed., calibration chapter"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
+  },
+  {
+    "id": "crps",
+    "source": {
+      "kind": "literature",
+      "citation": "Gneiting and Raftery, Strictly Proper Scoring Rules, JASA, 2007"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "pinball",
+    "source": {
+      "kind": "literature",
+      "citation": "Gneiting and Raftery, Strictly Proper Scoring Rules, JASA, 2007"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment",
+    "mechanism_note": "Quantile regression fits a model by minimizing the same loss; this record scores a supplied quantile."
+  },
+  {
+    "id": "interval-score",
+    "source": {
+      "kind": "literature",
+      "citation": "Gneiting and Raftery, Strictly Proper Scoring Rules, JASA, 2007"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "split-conformal",
+    "source": {
+      "kind": "literature",
+      "citation": "Lei et al., Distribution-Free Predictive Inference for Regression, JASA, 2018"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "conformal-quantile",
+    "source": {
+      "kind": "literature",
+      "citation": "Romano, Patterson and Candès, Conformalized Quantile Regression, NeurIPS 2019"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "vector-scaling",
+    "source": {
+      "kind": "literature",
+      "citation": "Guo et al., On Calibration of Modern Neural Networks, ICML 2017"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Class-specific generalization of temperature; diagonal slope and offsets, unlike full Dirichlet calibration on log probabilities."
+  },
+  {
+    "id": "dirichlet-calibration",
+    "source": {
+      "kind": "literature",
+      "citation": "Kull et al., Beyond Temperature Scaling: Obtaining Well-Calibrated Multiclass Probabilities with Dirichlet Calibration, NeurIPS 2019"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
+  },
+  {
+    "id": "online-log-weights",
+    "source": {
+      "kind": "literature",
+      "citation": "Cesa-Bianchi and Lugosi, Prediction, Learning, and Games, 2006, expert advice"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast"
+  },
+  {
+    "id": "fixed-share",
+    "source": {
+      "kind": "literature",
+      "citation": "Herbster and Warmuth, Tracking the Best Expert, Machine Learning, 1998"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "forecast",
+    "mechanism_note": "Exponentiated online weights followed by redistribution; α=0 gives online-log-weights."
+  },
+  {
+    "id": "bayes-regret",
+    "source": {
+      "kind": "literature",
+      "citation": "Berger, Statistical Decision Theory and Bayesian Analysis, 2nd ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "cvar",
+    "source": {
+      "kind": "literature",
+      "citation": "Rockafellar and Uryasev, Optimization of Conditional Value-at-Risk, Journal of Risk, 2000"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "minimax-regret",
+    "source": {
+      "kind": "literature",
+      "citation": "Savage, The Theory of Statistical Decision, JASA, 1951"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "latin-hypercube",
+    "source": {
+      "kind": "literature",
+      "citation": "McKay, Beckman and Conover, A Comparison of Three Methods for Selecting Values of Input Variables in the Analysis of Output from a Computer Code, Technometrics, 1979"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "stratified-mc",
+    "source": {
+      "kind": "literature",
+      "citation": "Robert and Casella, Monte Carlo Statistical Methods, 2nd ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "mcmc-metropolis",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastings, Monte Carlo Sampling Methods Using Markov Chains and Their Applications, Biometrika, 1970"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "gibbs",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelfand and Smith, Sampling-Based Approaches to Calculating Marginal Densities, JASA, 1990"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "slice-sampling",
+    "source": {
+      "kind": "literature",
+      "citation": "Neal, Slice Sampling, Annals of Statistics, 2003"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "rank-sobol",
+    "source": {
+      "kind": "literature",
+      "citation": "Sobol, Global Sensitivity Indices for Nonlinear Mathematical Models and Their Monte Carlo Estimates, Mathematics and Computers in Simulation, 2001"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "sobol-total",
+    "source": {
+      "kind": "literature",
+      "citation": "Homma and Saltelli, Importance Measures in Global Sensitivity Analysis of Nonlinear Models, Reliability Engineering and System Safety, 1996"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "linear-program",
+    "source": {
+      "kind": "literature",
+      "citation": "Bertsimas and Tsitsiklis, Introduction to Linear Optimization, 1997"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "assignment"
+  },
+  {
+    "id": "branch-bound",
+    "source": {
+      "kind": "literature",
+      "citation": "Land and Doig, An Automatic Method of Solving Discrete Programming Problems, Econometrica, 1960"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "applicability_profile": "assignment"
+  },
+  {
+    "id": "pareto-front",
+    "source": {
+      "kind": "literature",
+      "citation": "Deb, Multi-Objective Optimization Using Evolutionary Algorithms, Wiley, 2001"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "nelder-mead",
+    "source": {
+      "kind": "literature",
+      "citation": "Lagarias et al., Convergence Properties of the Nelder–Mead Simplex Method in Low Dimensions, SIAM Journal on Optimization, 1998, Algorithm NM. https://www.math.kent.edu/~reichel/courses/optimization/reading.material.2/nelder.mead.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "golden-section",
+    "source": {
+      "kind": "literature",
+      "citation": "Nocedal and Wright, Numerical Optimization, 2nd ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "bisection",
+    "source": {
+      "kind": "literature",
+      "citation": "Burden and Faires, Numerical Analysis, 9th ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "newton-root",
+    "source": {
+      "kind": "literature",
+      "citation": "Burden and Faires, Numerical Analysis, 9th ed."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "conjugate-gradient",
+    "source": {
+      "kind": "literature",
+      "citation": "Hestenes and Stiefel, Methods of Conjugate Gradients for Solving Linear Systems, Journal of Research of the NBS, 1952"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "differential-evolution",
+    "source": {
+      "kind": "literature",
+      "citation": "Storn and Price, Differential Evolution, Journal of Global Optimization, 1997"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "simulated-annealing",
+    "source": {
+      "kind": "literature",
+      "citation": "Kirkpatrick, Gelatt and Vecchi, Optimization by Simulated Annealing, Science, 1983"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "cross-entropy-search",
+    "source": {
+      "kind": "literature",
+      "citation": "Rubinstein and Kroese, The Cross-Entropy Method, Springer, 2004"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "bandit-ucb",
+    "source": {
+      "kind": "literature",
+      "citation": "Auer, Cesa-Bianchi and Fischer, Finite-time Analysis of the Multiarmed Bandit Problem, Machine Learning, 2002"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "bandit-thompson",
+    "source": {
+      "kind": "literature",
+      "citation": "Thompson, On the Likelihood that One Unknown Probability Exceeds Another, Biometrika, 1933"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "gaussian-process",
+    "source": {
+      "kind": "literature",
+      "citation": "Rasmussen and Williams, Gaussian Processes for Machine Learning, 2006, ch. 2"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "expected-improvement",
+    "source": {
+      "kind": "literature",
+      "citation": "Jones, Schonlau and Welch, Efficient Global Optimization of Expensive Black-Box Functions, Journal of Global Optimization, 1998"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "simulation"
+  },
+  {
+    "id": "svr",
+    "source": {
+      "kind": "literature",
+      "citation": "Smola and Schölkopf, A Tutorial on Support Vector Regression, Statistics and Computing, 2004"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "gaussian-naive-bayes",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §6.6"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
+  },
+  {
+    "id": "lda-classifier",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §4.3"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
+  },
+  {
+    "id": "qda-classifier",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §4.3"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
+  },
+  {
+    "id": "adaboost",
+    "source": {
+      "kind": "literature",
+      "citation": "Freund and Schapire, A Decision-Theoretic Generalization of On-Line Learning and an Application to Boosting, JCSS, 1997"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "binary"
+  },
+  {
+    "id": "elastic-weight-consolidation",
+    "source": {
+      "kind": "literature",
+      "citation": "Kirkpatrick et al., Overcoming Catastrophic Forgetting in Neural Networks, PNAS, 2017"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "lstm",
+    "source": {
+      "kind": "literature",
+      "citation": "Gers, Schmidhuber and Cummins, Learning to Forget: Continual Prediction with LSTM, Neural Computation, 2000"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "gru",
+    "source": {
+      "kind": "literature",
+      "citation": "Cho et al., Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation, EMNLP 2014"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "causal-attention",
+    "source": {
+      "kind": "literature",
+      "citation": "Vaswani et al., Attention Is All You Need, NeurIPS 2017"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "causal-dilated-conv",
+    "source": {
+      "kind": "literature",
+      "citation": "Bai, Kolter and Koltun, An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling, arXiv:1803.01271"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "series"
+  },
+  {
+    "id": "adam",
+    "source": {
+      "kind": "literature",
+      "citation": "Kingma and Ba, Adam: A Method for Stochastic Optimization, ICLR 2015"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "diff-in-diff",
+    "source": {
+      "kind": "literature",
+      "citation": "Angrist and Pischke, Mostly Harmless Econometrics, 2009"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
+  },
+  {
+    "id": "synthetic-control",
+    "source": {
+      "kind": "literature",
+      "citation": "Abadie, Diamond and Hainmueller, Synthetic Control Methods for Comparative Case Studies, JASA, 2010"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
+  },
+  {
+    "id": "rd-local-linear",
+    "source": {
+      "kind": "literature",
+      "citation": "Imbens and Lemieux, Regression Discontinuity Designs: A Guide to Practice, Journal of Econometrics, 2008"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
+  },
+  {
+    "id": "wald-iv",
+    "source": {
+      "kind": "literature",
+      "citation": "Angrist, Imbens and Rubin, Identification of Causal Effects Using Instrumental Variables, JASA, 1996"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
+  },
+  {
+    "id": "rosenbaum-bounds",
+    "source": {
+      "kind": "literature",
+      "citation": "Rosenbaum, Observational Studies, 2nd ed., Springer, 2002"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "causal"
+  },
+  {
+    "id": "householder-qr",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., QR Factorization. https://www.netlib.org/lapack/lug/node40.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "pivoted-qr",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., QR Factorization with Column Pivoting. https://www.netlib.org/lapack/lug/node42.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "complete-orthogonal-factorization",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Complete Orthogonal Factorization. https://www.netlib.org/lapack/lug/node43.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Shares the minimum-norm least-squares result with SVD for aligned rank decisions, with different factors."
+  },
+  {
+    "id": "pivoted-lu",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Factorizations for Solving Linear Equations. https://www.netlib.org/lapack/lug/node68.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "cholesky-solve",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Linear Equations. https://www.netlib.org/lapack/lug/node38.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "pivoted-ldlt",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Linear Equations. https://www.netlib.org/lapack/lug/node38.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "svd-least-squares",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Singular Value Decomposition. https://www.netlib.org/lapack/lug/node53.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Shares minimum-norm solution with complete orthogonal factorization under compatible rank decisions; truncation can change the design."
+  },
+  {
+    "id": "symmetric-tridiagonal-reduction",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Symmetric Eigenproblems. https://www.netlib.org/lapack/lug/node48.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "hessenberg-reduction",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Eigenvalues, Eigenvectors and Schur Factorization. https://www.netlib.org/lapack/lug/node50.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "svd-bidiagonal-reduction",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Singular Value Decomposition. https://www.netlib.org/lapack/lug/node53.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "symmetric-definite-eigen",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Generalized Symmetric Definite Eigenproblems. https://www.netlib.org/lapack/lug/node54.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "generalized-schur",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Eigenvalues, Eigenvectors and Generalized Schur Decomposition. https://www.netlib.org/lapack/lug/node56.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "linear-solve-backward-error",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson et al., LAPACK Users’ Guide, 3rd ed., Further Details: Error Bounds for Linear Equation Solving. https://www.netlib.org/lapack/lug/node81.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "laplace",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy reference, scipy.stats.laplace, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.laplace.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "logistic-residual",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy reference, scipy.stats.logistic, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.logistic.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "student-t-residual",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy reference, scipy.stats.t, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.t.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "chi-square-law",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy reference, scipy.stats.chi2, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "f-reference-law",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy reference, scipy.stats.f, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "triangular-law",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy reference, scipy.stats.triang, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.triang.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "inverse-gaussian-duration",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy reference, scipy.stats.invgauss, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.invgauss.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "burr-xii-duration",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy reference, scipy.stats.burr12, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.burr12.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "von-mises-angle",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy reference, scipy.stats.vonmises, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.vonmises.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "loggamma-residual",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy reference, scipy.stats.loggamma, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.loggamma.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "gradient-descent",
+    "source": {
+      "kind": "literature",
+      "citation": "Tibshirani, CMU 10-725 Optimization, Lecture 6, §6.1.1. https://www.stat.cmu.edu/~ryantibs/convexopt-F13/scribes/lec6.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "ISTA with λ=0 reduces to gradient descent; smooth objective versus composite step."
+  },
+  {
+    "id": "ista",
+    "source": {
+      "kind": "literature",
+      "citation": "Beck and Teboulle (2009), A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems, §3. https://www.ceremade.dauphine.fr/~carlier/FISTA"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Same update as prox-l1 at η=1/L with matching penalized coordinates; canonical label ISTA, preserve both IDs."
+  },
+  {
+    "id": "fista",
+    "source": {
+      "kind": "literature",
+      "citation": "Beck and Teboulle (2009), A Fast Iterative Shrinkage-Thresholding Algorithm for Linear Inverse Problems, §4. https://www.ceremade.dauphine.fr/~carlier/FISTA"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "ISTA acceleration with extrapolation and extra state."
+  },
+  {
+    "id": "frank-wolfe",
+    "source": {
+      "kind": "literature",
+      "citation": "Jaggi (2013), Revisiting Frank-Wolfe, Algorithm 1 and §2. https://proceedings.mlr.press/v28/jaggi13.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "quadratic-penalty",
+    "source": {
+      "kind": "literature",
+      "citation": "Poczos and Tibshirani, CMU 10-725 Optimization, Lecture 16, Penalty Convergence Theorem. https://www.stat.cmu.edu/~ryantibs/convexopt-F13/scribes/lec16.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "composite-trapezoid",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions, §3.5(i). https://dlmf.nist.gov/3.5.i"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Base rule for Romberg; with an ODE-dependent integrand it gives the implicit trapezoidal step."
+  },
+  {
+    "id": "composite-simpson",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions, §3.5(ii). https://dlmf.nist.gov/3.5.ii"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "romberg-integration",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions, §3.5(iii). https://dlmf.nist.gov/3.5.iii"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "gaussian-quadrature",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions, §3.5(v). https://dlmf.nist.gov/3.5.v"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "golub-welsch",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions, §3.5(vi). https://dlmf.nist.gov/3.5.vi"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Constructs Gaussian quadrature nodes and weights for the same rule; distinct computation, common quadrature output."
+  },
+  {
+    "id": "beta-continuous",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference, scipy.stats.beta, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.beta.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "generalized-normal",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference, scipy.stats.gennorm, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gennorm.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "skew-normal",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference, scipy.stats.skewnorm, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.skewnorm.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "normal-inverse-gaussian",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference, scipy.stats.norminvgauss, Notes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.norminvgauss.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "continuous"
+  },
+  {
+    "id": "secant-root",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST DLMF §3.8(iii), Eq. 3.8.6 and Secant Method. https://dlmf.nist.gov/3.8.E6"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "halley-root",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST DLMF §3.8(v), Eq. 3.8.12. https://dlmf.nist.gov/3.8.E12"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "steffensen-fixed-point",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST DLMF §3.8(iii), Eq. 3.8.7. https://dlmf.nist.gov/3.8.E7"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "barycentric-polynomial-interpolation",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference, BarycentricInterpolator, Notes and boundary conditions. https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.BarycentricInterpolator.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "natural-cubic-spline",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference, CubicSpline, Notes and boundary conditions. https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "pchip-interpolation",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference, PchipInterpolator, Notes and boundary conditions. https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.PchipInterpolator.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "forward-euler-ode",
+    "source": {
+      "kind": "literature",
+      "citation": "MIT 18.330 numerical methods lecture notes, chapter 5, Methods for Ordinary Differential Equations. https://math.mit.edu/icg/resources/teaching/18.330/18.330-Mar21.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "backward-euler-ode",
+    "source": {
+      "kind": "literature",
+      "citation": "MIT 18.330 numerical methods lecture notes, chapter 5, Methods for Ordinary Differential Equations. https://math.mit.edu/icg/resources/teaching/18.330/18.330-Mar21.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "implicit-trapezoidal-ode",
+    "source": {
+      "kind": "literature",
+      "citation": "ETH Zürich Numerical Analysis II lecture notes, equation 4.38. https://people.math.ethz.ch/~grsam/SS26/NAII/resources/lecture_notes_2026.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "classical-rk4",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST DLMF §3.7(v), Eqs. 3.7.18–19. https://dlmf.nist.gov/3.7.E18"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "bogacki-shampine-rk23",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ RK23 reference and implementation. https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.RK23.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "velocity-verlet",
+    "source": {
+      "kind": "literature",
+      "citation": "Hairer, Lubich and Wanner, Geometric numerical integration illustrated by the Störmer–Verlet method, §1.1. https://www.math.mcgill.ca/gantumur/docs/down/gniverlet.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "dijkstra-shortest-path",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ csgraph shortest_path reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csgraph.shortest_path.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "bellman-ford-shortest-path",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ csgraph shortest_path reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csgraph.shortest_path.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "floyd-warshall",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ csgraph shortest_path reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csgraph.shortest_path.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "kruskal-spanning-forest",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ minimum_spanning_tree reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csgraph.minimum_spanning_tree.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "hits-hub-authority",
+    "source": {
+      "kind": "literature",
+      "citation": "NetworkX maintainers’ HITS reference and implementation. https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.link_analysis.hits_alg.hits.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "kruskal-wallis",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference and implementation, scipy.stats.kruskal. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.kruskal.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "friedman-rank-test",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference and implementation, scipy.stats.friedmanchisquare. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.friedmanchisquare.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "fligner-killeen",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference and implementation, scipy.stats.fligner. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fligner.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "ansari-bradley",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference and implementation, scipy.stats.ansari. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ansari.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "jacobi-linear-solve",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, Netlib. https://www.netlib.org/templates/templates.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "gauss-seidel-linear-solve",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, Netlib. https://www.netlib.org/templates/templates.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "gmres-linear-solve",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, Netlib. https://www.netlib.org/templates/templates.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Residual minimization over a Krylov space. MINRES exploits symmetry via Lanczos and short recurrences."
+  },
+  {
+    "id": "minres-linear-solve",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ minres reference and Barrett et al., Templates, Symmetric Lanczos Methods. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.minres.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Same Krylov residual objective as unrestarted GMRES under symmetry; distinct basis and computation."
+  },
+  {
+    "id": "theil-sen-simple",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference, scipy.stats.theilslopes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.theilslopes.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "siegel-repeated-median",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ reference, scipy.stats.siegelslopes. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.siegelslopes.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "ransac-consensus-regression",
+    "source": {
+      "kind": "literature",
+      "citation": "Scikit-learn maintainers’ linear models guide, RANSAC. https://scikit-learn.org/stable/modules/linear_model.html#ransac-random-sample-consensus"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "raw-minimum-covariance-determinant",
+    "source": {
+      "kind": "literature",
+      "citation": "Scikit-learn maintainers’ covariance guide, Minimum Covariance Determinant. https://scikit-learn.org/stable/modules/covariance.html#minimum-covariance-determinant"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "vector-autoregression",
+    "source": {
+      "kind": "literature",
+      "citation": "statsmodels maintainers’ vector autoregressions guide. https://www.statsmodels.org/stable/vector_ar.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "VECM reparameterizes a cointegrated VAR with explicit reduced rank; usual stable VAR and cointegrated levels VAR differ in root structure."
+  },
+  {
+    "id": "vector-error-correction",
+    "source": {
+      "kind": "literature",
+      "citation": "statsmodels maintainers’ API reference, VECM. https://www.statsmodels.org/stable/generated/statsmodels.tsa.vector_ar.vecm.VECM.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Reduced-rank error-correction reparameterization of a cointegrated VAR; explicit rank restriction changes fitted model class."
+  },
+  {
+    "id": "markov-switching-ar",
+    "source": {
+      "kind": "literature",
+      "citation": "statsmodels maintainers’ API reference, MarkovAutoregression. https://www.statsmodels.org/stable/generated/statsmodels.tsa.regime_switching.markov_autoregression.MarkovAutoregression.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  },
+  {
+    "id": "dynamic-factor-model",
+    "source": {
+      "kind": "literature",
+      "citation": "statsmodels maintainers’ API reference, DynamicFactor. https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.dynamic_factor.DynamicFactor.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature"
+  }
+]
