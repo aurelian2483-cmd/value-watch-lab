@@ -44,6 +44,8 @@
       if (footer) content.append(footer);
     }
     document.querySelector('.pro-steps').before(sportsPanel);
+    const filters = document.querySelector('.workspace-grid .filter-panel');
+    if (filters) sportsPanel.after(filters);
   }
 
   const sports = [
