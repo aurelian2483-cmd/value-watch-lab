@@ -72,11 +72,28 @@ def bridge_batch(rows, kind):
     for row in rows:
         item = bridge(row, kind)
         value = item['fields']
-        identity, match_id = value['legacy_prediction_id'], value.get('legacy_match_id')
-        require(identity not in ids and (match_id is None or match_id not in match_ids),
+        identity = value['legacy_prediction_id']
+        match_id = (value['legacy_match_id'] if kind == 'forecast'
+                    else urlsplit(value['source_url']).path.rsplit('/', 1)[1])
+        require(identity not in ids and match_id not in match_ids,
                 'duplicate legacy prediction or fixture identity')
         ids.add(identity)
-        if match_id is not None:
-            match_ids.add(match_id)
+        match_ids.add(match_id)
         mapped.append(item)
     return mapped
+
+
+def review_pair(forecast_row, result_row):
+    """Check only the exact relationship the old verifier could represent."""
+    forecast = bridge(forecast_row, 'forecast')['fields']
+    result = bridge(result_row, 'result')['fields']
+    require(forecast['legacy_prediction_id'] == result['legacy_prediction_id'] and
+            str(forecast['legacy_match_id']) == urlsplit(result['source_url']).path.rsplit('/', 1)[1],
+            'conflicting legacy prediction and provider identities')
+    require(contract.instant(result['legacy_observed_at']) > contract.instant(forecast['starts_at']),
+            'legacy result observation is at or before kickoff')
+    score = result['legacy_full_time_score']
+    winner = 'HOME' if score['home'] > score['away'] else 'AWAY' if score['away'] > score['home'] else 'DRAW'
+    settlement = 'WIN' if forecast['legacy_selection'] == winner else 'LOSS'
+    require(settlement == result['selection_settlement'], 'legacy settlement contradicts selection and score')
+    return 'legacy_pair_consistent_diagnostic_only'

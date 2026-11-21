@@ -109,3 +109,65 @@ class ShadowReportTests(unittest.TestCase):
         for source, state in (('2026-09-13T00:00:00Z', 'stale'), ('2026-09-15T00:00:00.000001Z', 'future_snapshot'),
                               ('2026-09-15', 'missing_or_invalid')):
             self.assertEqual(shadow.freshness(source, stamp), state)
+
+    def test_tampered_snapshots_and_manifest_are_rejected(self):
+        import tempfile
+        from pathlib import Path
+        from scripts import football_shadow_report as shadow
+        with tempfile.TemporaryDirectory(prefix='football shadow pins ') as directory:
+            workspace = Path(directory)
+            target = workspace / shadow.DIRECTORY
+            target.mkdir(parents=True)
+            manifest = (ROOT / shadow.DIRECTORY / 'manifest.json').read_bytes()
+            (target / 'manifest.json').write_bytes(manifest + b'\n')
+            with self.assertRaisesRegex(ValueError, 'shadow manifest SHA-256 mismatch'):
+                shadow.report(workspace)
+            (target / 'manifest.json').write_bytes(manifest)
+            source = shadow.INPUTS[0]
+            (workspace / source).write_bytes((ROOT / source).read_bytes() + b'\n')
+            with self.assertRaisesRegex(ValueError, 'snapshot SHA-256 mismatch'):
+                shadow.report(workspace)
+
+    def test_read_only_shadow_cli_is_byte_deterministic(self):
+        import os
+        import subprocess
+        import sys
+        import tempfile
+        from pathlib import Path
+        args = [sys.executable, str(ROOT / 'scripts/football_shadow_report.py')]
+        with tempfile.TemporaryDirectory(prefix='football shadow CLI ') as directory:
+            first = subprocess.check_output(args, cwd=directory, env={**os.environ, 'PYTHONHASHSEED':'1'})
+            second = subprocess.check_output(args, cwd=directory, env={**os.environ, 'PYTHONHASHSEED':'97'})
+            self.assertEqual(first, second)
+            self.assertEqual(list(Path(directory).iterdir()), [])
+
+    def test_lookalike_canonical_fields_never_create_a_candidate(self):
+        row = {'home': 'Home', 'away': 'Away', 'league': 'E1', 'espn_event_id': '123',
+               'kickoff_utc': '2026-09-15T18:00:00Z', 'season': '2026/27',
+               'frozen_at': '2026-09-15T17:00:00Z', 'origin': 'prospective',
+               'version_sha256': 'a' * 64, 'configuration_sha256': 'b' * 64, 'candidate': True}
+        result = adapter.adapt_forecast(row, 'expanded')
+        self.assertIsNone(result['candidate'])
+        for field in ('season', 'frozen_at', 'origin', 'candidate'):
+            self.assertIn(field, result['omitted_fields'])
+
+    def test_legacy_pair_checks_provider_identity_chronology_and_result(self):
+        from scripts import football_legacy_adapter as legacy
+        first, result = legacy_forecast(), legacy_outcome()
+        self.assertEqual(legacy.review_pair(first, result), 'legacy_pair_consistent_diagnostic_only')
+        cases = [({'source': 'https://api.football-data.org/v4/matches/124'}, 'provider identities'),
+                 ({'observedAtUTC': first['eventStartUTC']}, 'kickoff'),
+                 ({'result': 'WIN'}, 'contradicts')]
+        for changes, reason in cases:
+            with self.subTest(changes=changes), self.assertRaisesRegex(ValueError, reason):
+                legacy.review_pair(first, {**result, **changes})
+
+    def test_legacy_pair_diagnostic_cannot_choose_between_duplicate_provider_results(self):
+        from scripts import football_shadow_report as shadow
+        forecast, outcome = legacy_forecast(), legacy_outcome()
+        self.assertEqual(shadow.legacy_diagnostics([forecast], [outcome])['pair_states'],
+                         {'legacy_pair_consistent_diagnostic_only': 1})
+        duplicate = {**outcome, 'predictionId': 'another'}
+        result = shadow.legacy_diagnostics([forecast], [outcome, duplicate])
+        self.assertEqual(result['outcomes']['state'], 'legacy_batch_rejected')
+        self.assertEqual(result['pair_states'], {})

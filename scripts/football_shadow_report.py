@@ -25,6 +25,7 @@ EXAMPLES = Path('tests/fixtures/football-prospective')
 INPUTS = ('research-dashboard-data.json', 'football-expanded-data.json', 'prediction-ledger.json',
           'results-feed.json', 'paper-lab/hybrid-market-data.json', 'research-history.json',
           'historical-reliability-data.json', 'research/football-baseline-v1/608-reconstructed-forecasts.json')
+MANIFEST_SHA256 = 'ccd290a88e6e2ca66e1e9764ca0a04e65c302d3163bf865a638a924ca2f68a39'
 SOURCES = ('premier-league', 'paper-archive-projection', 'expanded')
 
 
@@ -62,6 +63,24 @@ def classify_legacy(items, kind):
         return {'records': [], 'state': 'legacy_batch_rejected', 'error': str(error)}
 
 
+def legacy_diagnostics(forecasts, outcomes):
+    before = classify_legacy(forecasts, 'forecast')
+    after = classify_legacy(outcomes, 'result')
+    states = Counter()
+    if before['state'] == after['state'] == 'diagnostic_projection_only':
+        linked = {row['id']: row for row in forecasts}
+        for receipt in outcomes:
+            original = linked.get(receipt['predictionId'])
+            if original is None:
+                states['missing_legacy_forecast'] += 1
+                continue
+            try:
+                states[legacy.review_pair(original, receipt)] += 1
+            except ValueError:
+                states['legacy_pair_conflict'] += 1
+    return {'forecasts': before, 'outcomes': after, 'pair_states': dict(states)}
+
+
 def example(root, kind, forecasts=None, outcomes=None):
     folder = root / EXAMPLES / kind
     return evaluation.evaluate(
@@ -71,7 +90,9 @@ def example(root, kind, forecasts=None, outcomes=None):
 
 
 def report(root=ROOT):
-    manifest = evidence.load(root / DIRECTORY / 'manifest.json')
+    manifest_bytes = (root / DIRECTORY / 'manifest.json').read_bytes()
+    contract.require(evidence.digest(manifest_bytes) == MANIFEST_SHA256, 'shadow manifest SHA-256 mismatch')
+    manifest = evidence.decode(manifest_bytes)
     contract.fields(manifest, ('schema_version', 'as_of', 'input_sha256'), 'shadow manifest')
     contract.require(type(manifest['schema_version']) is int and manifest['schema_version'] == 1,
                      'unsupported shadow manifest schema')
@@ -111,13 +132,14 @@ def report(root=ROOT):
                 'legacy_archive': len(rows(history, 'entries')), 'retrospective': len(rows(retro, 'rows')),
                 'single_source_unverified': len(rows(single, 'results'))},
             'ineligible_repository_forecasts': len(diagnostics) + len(football),
-            'forecast_reasons': dict(Counter(reason for item in diagnostics for reason in item['reasons'])),
+            'forecast_reasons_by_source': {
+                name: dict(Counter(reason for item in diagnostics if item['source'] == name
+                                   for reason in item['reasons'])) for name in SOURCES},
             'chronology_states': dict(Counter(item['chronology'] for item in diagnostics)),
             'identity_states': dict(Counter(item['identity'] for item in diagnostics)),
             'outcome_states': {'canonical_receipts': 0, 'adjudicated_outcomes': evaluated['eligible_real_adjudicated_outcomes'],
                                'legacy_or_unsupported': len(outcome_rows)},
-            'legacy_diagnostics': {'forecasts': classify_legacy(football, 'forecast'),
-                                   'outcomes': classify_legacy(outcome_rows, 'result')},
+            'legacy_diagnostics': legacy_diagnostics(football, outcome_rows),
             'forecast_diagnostics': diagnostics,
             'eligible_real_forecasts': evaluated['eligible_real_forecasts'],
             'eligible_real_outcomes': evaluated['eligible_real_adjudicated_outcomes'],
