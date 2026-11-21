@@ -54,3 +54,7 @@ The [research regression](../.github/workflows/research-regression.yml) specifie
 2. Complete input snapshots and independent regulation or sport-specific finalization. Football, racing, tennis and NFL require receipt-linked settlement. Rugby League and Darts need stronger exact fixture evidence before modelling or paper intake. Manual each-way/retirement/void settlement needs sport-specific contracts and reviewed outcomes.
 3. Whole-slate coverage and outcome denominators. Tennis draws and NFL regular-season coverage are incomplete. Pro D2 does not establish Rugby Union-wide coverage. A weekly target cannot substitute for schedule coverage.
 4. Provider integration decisions for basketball, cricket and golf. Establish access rights, durable event IDs, timestamp semantics and results coverage before adding markets, models or paper legs.
+
+## Phase 65 follow-up
+
+The [source coverage ledger](phase65-data-coverage.md) records the as-of evidence and rights decisions for all nine sports. The offline racing audit now indexes exact archived price pairs for descriptive research. It produces no current verified-price, forecast or settlement coverage.

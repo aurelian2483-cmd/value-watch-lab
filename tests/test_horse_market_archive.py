@@ -37,6 +37,20 @@ class MarketArchiveTests(unittest.TestCase):
    later=self.race('2026-11-04T07:00:00Z',(2.,6.));later['startUTC']=r['startUTC']
    M.update({'races':[later]},archive)
    self.assertEqual(later['market_observation']['history_status'],'COMPARABLE_SOURCE_OBSERVATIONS')
+ def test_equal_instant_capture_conflicts_withhold_movement(self):
+  with tempfile.TemporaryDirectory() as folder:
+   archive=Path(folder)
+   first=self.race()
+   conflicting=self.race('2026-11-04T07:00:00+01:00',(2.,6.))
+   later=self.race('2026-11-04T07:30:00Z',(2.,6.))
+   M.update({'races':[first]},archive)
+   M.update({'races':[conflicting]},archive)
+   M.update({'races':[later]},archive)
+   for row in (conflicting,later):
+    self.assertEqual(row['market_observation']['history_status'],'OBSERVATION_CONFLICT')
+    self.assertEqual(row['market_observation']['movements'],[])
+   self.assertEqual(len(list(archive.rglob('*.json'))),3)
+
  def test_tampering_blocks_history(self):
   with tempfile.TemporaryDirectory()as folder:
    archive=Path(folder);M.update({'races':[self.race()]},archive);p=next(archive.rglob('*.json'));body=json.loads(p.read_text());body['quotes'][0]['decimal']=9;p.write_text(json.dumps(body))
