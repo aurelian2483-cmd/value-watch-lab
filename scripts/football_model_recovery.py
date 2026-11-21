@@ -42,12 +42,18 @@ def validate_registry(registry):
     for item in registry['components']:
         evidence.fields(item, ('id', 'status', 'commit', 'path', 'configuration', 'inputs', 'outputs', 'tests',
                                'source_sha256', 'git_commit_date', 'audit_configuration_sha256',
-                               'empirical_validation', 'prospective_eligibility'), 'component')
+                               'empirical_validation', 'empirical_evidence', 'prospective_eligibility'), 'component')
         key = item['id']
         require(key not in seen, 'duplicate recovery component')
         seen.add(key)
         require(item['empirical_validation'] == 'unvalidated' and item['prospective_eligibility'] == 'not_admitted',
                 'unsupported registry eligibility or validation')
+        empirical = item['empirical_evidence']
+        evidence.fields(empirical, ('status', 'report'), 'empirical evidence')
+        require((empirical['status'] == 'historical_report_preserved' and
+                 isinstance(empirical['report'], str) and empirical['report'].startswith('research/')) or
+                (empirical['status'] == 'not_established_by_this_audit' and empirical['report'] is None),
+                'unsupported empirical evidence claim')
         fingerprint = evidence.digest(evidence.canonical({key: item[key] for key in COMPOSITION}))
         require(fingerprint == item['audit_configuration_sha256'], 'configuration fingerprint changed')
     require(seen, 'no recovery components')

@@ -25,3 +25,24 @@ class RecoveryRegistryTests(unittest.TestCase):
                                (recovery.ARCHIVE, 'data/holdout.csv')):
             with self.subTest(path=path), self.assertRaisesRegex(ValueError, 'invalid pinned source'):
                 recovery.git_source(revision, path, '0' * 64)
+
+    def test_byte_pin_rejects_changed_archive_and_working_implementation(self):
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        relative = 'paper-lab/synthetic.js'
+        source = b"'use strict';\n"
+        digest = recovery.evidence.digest(source)
+        with TemporaryDirectory(prefix='immutable football source ') as workspace:
+            root = Path(workspace)
+            file = root / relative
+            file.parent.mkdir()
+            file.write_bytes(source.replace(b'\n', b'\r\n'))
+            with patch.object(recovery.subprocess, 'run', return_value=SimpleNamespace(returncode=0, stdout=source)):
+                self.assertEqual(recovery.git_source(recovery.BASE, relative, digest, root), source)
+                with self.assertRaisesRegex(ValueError, 'pinned source SHA-256 mismatch'):
+                    recovery.git_source(recovery.BASE, relative, '0' * 64, root)
+                file.write_bytes(source + b'module.exports = {};')
+                with self.assertRaisesRegex(ValueError, 'working implementation differs'):
+                    recovery.git_source(recovery.BASE, relative, digest, root)
