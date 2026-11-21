@@ -238,6 +238,20 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(result['model_metrics'], [])
         self.assertNotIn('candidate_scores', result['records'][0])
 
+    def test_same_payload_cannot_be_a_prematch_input_and_evaluation_outcome(self):
+        item = forecast()
+        first = outcome(origin='prospective')
+        second = outcome(2, origin='prospective')
+        # Keep self-consistent content hashes and a trusted synthetic review.
+        # Reusing an exact result digest as a training input contradicts the
+        # offered timestamp metadata even though both independently parse.
+        item['origin'] = 'prospective'
+        item['input_receipts'][0]['provenance'] = first['provenance']
+        bundle = synthetic_bundle(seal(item), receipts=[first, second])
+        report = self.evaluate(*bundle, trusted=True)
+        self.assertEqual(report['coverage'], {'evaluation_outcome_payload_reused_as_prematch_input': 1})
+        self.assertEqual(report['model_metrics'], [])
+
     def test_late_or_missing_freeze_attestation_excludes(self):
         inputs = synthetic_bundle(forecast())
         inputs[2]['freeze_attestations'][0]['observed_at'] = '2026-09-15T18:00:00Z'
