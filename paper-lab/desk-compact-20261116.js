@@ -9,6 +9,8 @@
   Object.assign(sports, discoveryOnly);
   const symbols = { football: '⚽', racing: '♞', tennis: '◉', nfl: '◆', rugby: '🏉' };
   const sources = { 'research-dashboard-data.json': ['football', 'Premier League'], 'football-expanded-data.json': ['football', 'Football leagues'], 'international-football-data.json': ['football', 'International football'], 'racing-research-data.json': ['racing', 'Racecards & source prices'], 'racing-future-data.json': ['racing-future', 'Future race schedules'], 'horse-predictions-data.json': ['racing-context', 'Racing model predictions'], 'other-sports-data.json': ['other', 'Tennis & NFL'], 'rugby-research-data.json': ['rugby', 'Rugby fixtures'], 'rugby/pro-d2-results.json': ['rugby-results', 'Official Pro D2 results'], 'research-history.json': ['history', 'Historical results'], 'research/result-review-status.json': ['result-review', 'Tennis & NFL result review'] };
+  const sportFeedKinds = {football:['football'], racing:['racing','racing-future'],
+    tennis:['other'], nfl:['other'], rugby:['rugby','rugby-results']};
   const specs = Object.entries(sources).map(([file, [kind, label]]) => ({ kind, label, path: new URL(file, rootURL).pathname }));
   const key = 'value-watch-research-desk-v4';
   const day = E.day, today = () => new Intl.DateTimeFormat('sv-SE', {timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -505,7 +507,8 @@
       const row = make(record.choiceInformation, 'div', undefined, 'compact-choice-info-row');
       make(row, 'strong', choice.label);
       make(row, 'p', Number.isFinite(choice.quote?.decimal) ? 'Source-observed odds: ' + choice.quote.decimal.toFixed(2) + ' · unverified' : Number.isFinite(choice.forecastPrice?.decimal) ? 'Publisher forecast: ' + choice.forecastPrice.decimal.toFixed(2) + ' · not bookmaker odds' : 'No source-observed bookmaker odds', 'small');
-      make(row, 'p', E.candidateAssessment(event, choice.id).label, 'small');
+      const assessment = E.candidateAssessment(event, choice.id);
+      make(row, 'p', assessment.label + ' · ' + assessment.blockers[0], 'small');
       make(row, 'p', event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' : 'Method unavailable · ' + (event.unavailableReason || 'no supported estimate'), 'small');
     }
     const comparison = event.sport === 'football' ? event.seasonComparison : null;
@@ -879,16 +882,17 @@
     const now = Date.now();
     const eligibility = selected.filter(event => E.statusOf(event, now).selectable).length;
     const stale = selected.filter(event => E.statusOf(event, now).code === 'STALE').length;
-    const feedKinds = {football:['football'], racing:['racing','racing-future'],
-      tennis:['other'], nfl:['other'], rugby:['rugby','rugby-results']};
     const snapshot = state.snapshotState;
-    const files = (snapshot?.snapshots || []).filter(row => feedKinds[sport]?.includes(row.kind));
-    const failures = (snapshot?.errors || []).filter(row => feedKinds[sport]?.includes(row.kind));
+    const files = (snapshot?.snapshots || []).filter(row => sportFeedKinds[sport]?.includes(row.kind));
+    const failures = (snapshot?.errors || []).filter(row => sportFeedKinds[sport]?.includes(row.kind));
+    const hasSportBucket = !['tennis','nfl'].includes(sport) ||
+      files.some(file => Array.isArray(file.document.sports?.[sport]?.events));
     const schedule = Object.hasOwn(discoveryOnly, sport)
       ? sport === 'golf' ? 'Official coverage links only.' : 'Provider fixture discovery is available in Sports Watch when its source responds.'
       : fixtureLabs[sport] ? 'See the calendar below for provider and official schedule evidence.'
       : !snapshot ? 'Loading schedule snapshots…'
       : !files.length ? 'Schedule sources unavailable.'
+      : !hasSportBucket ? 'The schedule snapshot has no usable ' + sports[sport] + ' event section.'
       : !selected.length ? 'No schedule records match the current dates and filters.'
       : selected.length + ' matching events · ' + eligibility + ' available for paper research' +
         (stale ? ' · ' + stale + ' stale' : '') + '.';
