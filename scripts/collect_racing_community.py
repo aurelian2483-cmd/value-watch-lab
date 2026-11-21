@@ -61,6 +61,31 @@ def parse_date(value):
 def norm(value):
     return re.sub(r"[^a-z0-9]+", " ", str(value).casefold()).strip()
 
+def supersede_schedule_revisions(entries, races, observed_at):
+    """Retain, but deactivate, source selections tied to an old race time.
+
+    Race identifiers can survive small upstream schedule corrections.  A fresh
+    selection is captured against the corrected start, so leaving the earlier
+    receipt labelled PUBLIC_SELECTION_OBSERVED makes it look like active
+    evidence for the current race.  Preserve that receipt for auditability and
+    mark the schedule relationship explicitly instead of deleting it.
+    """
+    current_starts = {str(r.get("race_id")): r.get("startUTC") for r in races
+                      if r.get("race_id") is not None and r.get("startUTC")}
+    changed = 0
+    for entry in entries:
+        if entry.get("verification") != "PUBLIC_SELECTION_OBSERVED":
+            continue
+        current_start = current_starts.get(str(entry.get("race_id")))
+        if not current_start or entry.get("startUTC") == current_start:
+            continue
+        entry["original_verification"] = entry["verification"]
+        entry["verification"] = "SUPERSEDED_SCHEDULE_OBSERVATION"
+        entry["superseded_at_utc"] = observed_at.isoformat()
+        entry["superseded_by_startUTC"] = current_start
+        changed += 1
+    return changed
+
 def mentions(text, value):
     value=re.sub(r'\s*\((?:GB|IRE|FR|USA|GER|AUS|NZ)\)\s*$','',value,flags=re.I)
     return bool(re.search(r"(?<![a-z0-9])" + re.escape(norm(value)) + r"(?![a-z0-9])", norm(text)))
@@ -293,6 +318,7 @@ def main():
             # times or pretending that an old receipt is a new observation.
             original=next(e for e in entries if e.get('id')==record['id'])
             original['source_identity']=record['source_identity']
+    schedule_revisions_superseded = supersede_schedule_revisions(entries, races, current_time())
     # Recheck bounded upcoming forum candidates, including earlier RSS captures.
     upcoming={str(r['race_id']):r for r in future_races}
     candidates=[e for e in entries if e.get('group') in ('forum','social_forum') and e.get('verification')!='PRIMARY_POST_CAPTURED' and str(e.get('race_id')) in upcoming]
@@ -313,6 +339,7 @@ def main():
         'upcoming_forum_candidates':sum(e.get('group') in ('forum','social_forum') and str(e.get('race_id')) in upcoming for e in entries),
         'checked_primary_posts':len(active_posts),'distinct_checked_authors':len({e['author'].casefold() for e in active_posts}),
         'limitation':'Racing blue is an experimental dated source selection; yellow is a unique source leader matching the price/forecast favourite. Neither proves verified consensus.'}
+    feed['community_pipeline']['schedule_revisions_superseded'] = schedule_revisions_superseded
     feed["entries"] = entries
     feed["last_collector_run_utc"] = NOW.isoformat()
     feed["collector_added"] = added
