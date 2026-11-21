@@ -18,6 +18,13 @@ def decode_text(text, label):
     return evidence.decode(text.encode('utf-8'))
 
 
+def synthetic_provenance(provenance):
+    contract.provenance(provenance)
+    source = provenance['source']
+    require(source['kind'] == 'permitted_receipt_reference' and source['reference'].startswith('synthetic-'),
+            'paper rehearsal requires a synthetic receipt reference')
+
+
 def premier_season(event):
     day = instant(event['starts_at']).date()
     start = day.year if day.month >= 7 else day.year - 1
@@ -41,6 +48,7 @@ def history(text, target, cutoff):
         fields(item, ('event', 'observed_at', 'score', 'provenance'), 'input result')
         event = item['event']
         contract.event(event)
+        require(event['namespace'] == 'synthetic', 'input event is outside the synthetic namespace')
         day = premier_season(event).isoformat()
         observed, starts = instant(item['observed_at']), instant(event['starts_at'])
         require(event['competition'] == target['competition'] and event['season'] == target['season']
@@ -49,7 +57,7 @@ def history(text, target, cutoff):
         key = contract.event_key(event)
         require(key not in ids and key != contract.event_key(target), 'duplicate or target event in input')
         ids.add(key)
-        contract.provenance(item['provenance'])
+        synthetic_provenance(item['provenance'])
         sha = item['provenance']['sha256']
         require(sha not in payloads, 'duplicate input receipt payload')
         payloads.add(sha)
@@ -82,7 +90,7 @@ def capture(body, schedule, recorded, registry, runtime):
     proof = body['freeze']
     fields(proof, ('status', 'observed_at', 'packet_sha256', 'provenance'), 'packet freeze proof')
     require(proof['status'] == 'synthetic_test_attestation', 'independent freeze authority unavailable')
-    contract.provenance(proof['provenance'])
+    synthetic_provenance(proof['provenance'])
     require(proof['packet_sha256'] == evidence.digest(body['packet_utf8'].encode('utf-8')),
             'exact packet freeze digest mismatch')
     cutoff, observed, attested = map(instant, (packet['input_cutoff'], packet['observed_at'], proof['observed_at']))
@@ -121,12 +129,17 @@ def attach(body, item, recorded):
     receipts = contract.records(body['receipts'], evaluator.OUTCOME_KIND, contract.outcome)
     require(all(row['origin'] == 'synthetic' and instant(row['retrieved_at']) <= recorded for row in receipts),
             'outcome receipt is nonsynthetic or not yet retrieved')
+    for row in receipts:
+        require(row['event']['namespace'].startswith('synthetic-') and row['provider'].startswith('synthetic-')
+                and row['acquisition_lineage'].startswith('synthetic-'), 'outcome source is outside the synthetic namespace')
+        synthetic_provenance(row['provenance'])
     fixture = contract.fixture_collision_key(body['event'])
     require(all(contract.fixture_collision_key(row['event']) == fixture for row in receipts),
             'outcome receipt is unrelated to scheduled fixture')
     review = body['review']
     if review is not None:
         contract.review(review)
+        synthetic_provenance(review['provenance'])
         require(contract.same_event(review['event'], body['event']), 'review changed event identity')
         require(instant(review['reviewed_at']) <= recorded, 'outcome review not yet observed')
     previous = item['outcomes']
@@ -159,7 +172,8 @@ class Lifecycle:
             fields(body, ('event', 'origin', 'observed_at', 'provenance'), 'schedule')
             require(body['origin'] == 'synthetic', 'real capture is NOT READY')
             contract.event(body['event'])
-            contract.provenance(body['provenance'])
+            require(body['event']['namespace'] == 'synthetic', 'schedule is outside the synthetic namespace')
+            synthetic_provenance(body['provenance'])
             premier_season(body['event'])
             require(instant(body['observed_at']) <= recorded < instant(body['event']['starts_at']),
                     'late or future schedule evidence')
@@ -229,7 +243,7 @@ def report(state, as_of, head):
                 reason, settled = 'evaluation_outcome_payload_reused_as_prematch_input', None
             phase = 'adjudicated' if settled is not None else 'unresolved'
         counts[phase] += 1
-        events.append({'event_key': list(key), 'state': phase, 'reason': reason})
+        events.append({'event_key': list(key), 'starts_at': event['starts_at'], 'state': phase, 'reason': reason})
     return {'schema_version': 1, 'label': LABEL, 'paper_only': True, **evidence.SAFETY,
             'status': 'insufficient_data', 'journal_head_sha256': head,
             'candidate_readiness': {k: v['status'] for k, v in state.registry.items()},

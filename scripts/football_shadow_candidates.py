@@ -8,7 +8,7 @@ else:
     import football_chronological_replay as replay
 
 DIRECTORY = replay.ROOT / 'research/football-shadow-capture'
-PIN = '38d374ee887851b60de72b78b8f57d0110438ff188c1263346dec7c7f19a9c9a'
+PIN = 'b1f17b6fbb445e9d212008e6b101cb9e18b28b44c8c41c738b8b543436548d3f'
 TRACE_PIN = '12195640e76433008f839df2d56060c1eb66e46ccceaeee15399cffce55f5eba'
 PATHS = ('standalone_baseline', 'standalone_form_alpha_0_025', 'expanded_current_formula')
 

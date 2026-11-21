@@ -26,6 +26,7 @@ def journal_path(value):
 
 
 def load(path, state, expected_head=None):
+    path = journal_path(path)
     head = None
     children = sorted(p for p in path.iterdir() if p.name != '.writer') if path.exists() else []
     for index, entry in enumerate(children, 1):
@@ -46,6 +47,7 @@ def load(path, state, expected_head=None):
 
 
 def append(path, state, operation_bytes, expected_head=None):
+    path = journal_path(path)
     operation = evidence.decode(operation_bytes)
     path.mkdir(exist_ok=True)
     lock = path / '.writer'
