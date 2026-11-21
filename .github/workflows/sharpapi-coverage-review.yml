@@ -1,0 +1,31 @@
+name: SharpAPI live coverage check
+on:
+  pull_request:
+    types: [labeled]
+permissions:
+  contents: read
+concurrency:
+  group: sharpapi-coverage-review
+  cancel-in-progress: false
+jobs:
+  coverage:
+    if: >-
+      github.repository == 'aurelian2483-cmd/value-watch-lab' &&
+      github.event.pull_request.number == 141 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'codex/fixture-research-evidence' &&
+      github.event.label.name == 'sharpapi-coverage-review'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: \${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check current free-tier sports and complete moneyline coverage
+        env:
+          THE_SHARP_API_KEY: \${{ secrets.THE_SHARP_API_KEY }}
+        run: python scripts/check_sharpapi_coverage.py
