@@ -336,7 +336,13 @@
         missingSources, withheldReasons:match.reasons
       };
     }).filter(match => match.sources.length || match.withheldReasons.length);
-    return { withheld:withheld + conflicts.size, withheldReasons, matches:output };
+    const collectionStatus = document?.collection_status ?? null;
+    return {
+      withheld:withheld + conflicts.size,
+      withheldReasons,
+      collectionStatus,
+      matches:output.map(match => ({...match, collectionStatus}))
+    };
   }
 
   function probabilities(values) {
