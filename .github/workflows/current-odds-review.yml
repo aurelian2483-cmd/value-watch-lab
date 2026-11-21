@@ -1,0 +1,40 @@
+name: Sky Bet current odds review
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [labeled]
+permissions:
+  contents: read
+concurrency:
+  group: sky-bet-free-quota
+  cancel-in-progress: false
+jobs:
+  review:
+    if: >-
+      github.repository == 'aurelian2483-cmd/value-watch-lab' &&
+      (github.event_name == 'workflow_dispatch' ||
+        (github.event.pull_request.number == 141 &&
+         github.event.pull_request.head.repo.full_name == github.repository &&
+         github.event.pull_request.head.ref == 'codex/fixture-research-evidence' &&
+         github.event.label.name == 'odds-live-review'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Fetch bounded Sky Bet snapshot
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+        run: python scripts/collect_current_odds.py
+      - name: Check exact fixture joins and render matches on the runner
+        run: node scripts/current_odds_browser_qa.cjs --live

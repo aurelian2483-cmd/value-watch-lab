@@ -174,6 +174,75 @@
   }
   return out;
  }
+ const footballKeys={PL:'soccer_epl',E1:'soccer_efl_champ',UCL:'soccer_uefa_champs_league',
+  UEL:'soccer_uefa_europa_league',SP1:'soccer_spain_la_liga',I1:'soccer_italy_serie_a',
+  D1:'soccer_germany_bundesliga',F1:'soccer_france_ligue_one'};
+ const tennisKeys={'ATP · Nitto ATP Finals':'tennis_atp_finals','WTA · WTA Finals':'tennis_wta_finals'};
+ const oddsSources=new Set([...Object.values(footballKeys),...Object.values(tennisKeys),'americanfootball_nfl']);
+ const oddsOrigin='https://api.the-odds-api.com/v4/sports/';
+ const oddsOptions='/odds?bookmakers=skybet&markets=h2h&oddsFormat=decimal&dateFormat=iso';
+ const normalizeName=name=>safeName(name)?.normalize('NFC').replace(/\s+/g,' ').toLowerCase();
+ function oddsIdentity(sport,home,away,start){
+  const a=normalizeName(home),b=normalizeName(away);
+  return oddsSources.has(sport)&&a&&b&&a!==b&&Number.isFinite(start)?JSON.stringify([sport,a,b,start]):null;
+ }
+ function currentOdds(document,now){
+  const index=new Map(),seen=new Set(),duplicates=new Set();
+  const generated=stamp(document?.generated_at_utc);
+  if(!gate(document)||document.schema_version!==1||document.provider!=='THE_ODDS_API'||
+     generated===null||generated>now||now-generated>30*60000||!Array.isArray(document.records)||document.records.length>1100)
+   return index;
+  for(const record of document.records){
+   if(record&&typeof record.event_id==='string'){
+    if(seen.has(record.event_id))duplicates.add(record.event_id);
+    seen.add(record.event_id);
+   }
+   const start=stamp(record?.start_utc),observed=stamp(record?.observed_at_utc),checked=stamp(record?.checked_at_utc);
+   const key=record&&oddsIdentity(record.sport_key,record.home,record.away,start);
+   if(!key||!(start>now)||observed===null||checked===null||observed>checked||checked>generated||now-observed>30*60000||
+      record.market!=='h2h'||record.bookmaker!=='skybet'||!/^[a-z0-9]{16,64}$/.test(record.event_id||'')||
+      !/^[a-f0-9]{64}$/i.test(record.receipt_sha256||'')||record.source_url!==oddsOrigin+record.sport_key+oddsOptions)continue;
+   const sides=record.sport_key.startsWith('soccer_')?['home','draw','away']:['home','away'];
+   if(Object.keys(record.prices??{}).length!==sides.length||
+      !sides.every(side=>Number.isFinite(record.prices[side])&&record.prices[side]>1&&record.prices[side]<=10000))continue;
+   const prices=Object.fromEntries(sides.map(side=>[side,record.prices[side]]));
+   const implied=Object.fromEntries(sides.map(side=>[side,1/prices[side]]));
+   const total=Object.values(implied).reduce((n,p)=>n+p,0);
+   const proportionalNoVig=Object.fromEntries(sides.map(side=>[side,implied[side]/total]));
+   if(!index.has(key))index.set(key,[]);
+   index.get(key).push({
+    name:'Sky Bet via The Odds API',sourceId:'THE_ODDS_API_SKY_BET',id:record.event_id,observed,captured:checked,
+    hash:record.receipt_sha256,sourceEndpoint:record.source_url,url:new URL('https://the-odds-api.com/'),
+    prices,metrics:{implied,proportionalNoVig},marketLabel:sides.length===3?'Soccer 1X2 (h2h)':'Two-outcome head-to-head',
+    comparisons:[],comparisonReason:record.sport_key==='americanfootball_nfl'
+     ?'EV unavailable: two-outcome moneyline cannot be compared with the model’s three-outcome NFL market.'
+     :'EV unavailable: this feed does not attest the exact bookmaker settlement rules required for model comparison.'
+   });
+  }
+  for(const [key,quotes] of index)if(quotes.length!==1||duplicates.has(quotes[0].id))index.delete(key);
+  return index;
+ }
+ function providerPrices(index,records,football,now){
+  const matches=new Map(),candidates=new Map();
+  for(const record of records){
+   if(record.startMs<=now)continue;
+   let key;
+   if(record.sport==='football'){
+    const fixture=football?.events.get(record.fixtureKey);
+    if(!fixture||unavailable(fixture.row)||fixture.row.result!=null||fixture.marketCutoff<=now)continue;
+    const [league,home,away]=fixture.identity;
+    key=oddsIdentity(footballKeys[league],home,away,record.startMs);
+   }else if(record.detail?.participants){
+    const [home,away]=record.detail.participants;
+    key=oddsIdentity(record.sport==='nfl'?'americanfootball_nfl':tennisKeys[record.detail.competition],home[1],away[1],record.startMs);
+   }
+   if(!index.has(key))continue;
+   if(!candidates.has(key))candidates.set(key,[]);
+   candidates.get(key).push(record);
+  }
+  for(const [key,records] of candidates)if(records.length===1)matches.set(records[0],index.get(key));
+  return matches;
+ }
  function racingEvidence(records,cardFeed,modelFeed,now){
   const forecasts=new Map();
   if(!gate(modelFeed)||!Array.isArray(modelFeed.form_forecasts)||!cardFeed?.fresh)return forecasts;
@@ -259,5 +328,5 @@
    return inspect(id,await response.json(),now);
   }catch(err){return {id,state:'UNAVAILABLE',fresh:false,generatedAt:null,records:[],data:null,error:String(err?.message||err).slice(0,120)}}
  }
- return Object.freeze({SOURCES,sports,stamp,gate,inspect,summarize,featuredOrder,load,detailKey,findDetail,footballEvidence,racingEvidence,cardEvidence});
+ return Object.freeze({SOURCES,sports,stamp,gate,inspect,summarize,featuredOrder,load,detailKey,findDetail,footballEvidence,racingEvidence,cardEvidence,currentOdds,providerPrices});
 });

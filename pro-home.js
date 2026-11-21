@@ -108,7 +108,7 @@ const FEATURE_PAGE_SIZE=6;
 const feedLabels={football:'Football',racing:'Horse racing',other:'Tennis/NFL',darts:'Darts',rugby:'Rugby'};
 const stateLabels={UNAVAILABLE:'unavailable',STALE_OR_UNDATED:'stale or undated',PARTIAL_RECORDS:'partial coverage',
  GATE_UNVERIFIED:'safeguards unverified',SCHEMA_UNVERIFIED:'format unverified'};
-let featured=[],page=0,loading=false,football,racing;
+let featured=[],page=0,loading=false,football,racing,providerPrices,quoteExpiry;
 let featureClock=Date.now();
 const ukDay=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/London',dateStyle:'short'});
 function visibleFeatured(){
@@ -136,11 +136,19 @@ function manualPrice(panel,item,line){
   group.append(field);form.append(group);return field;
  }
  const bookmaker=input('Bookmaker','text',80,'Sky Bet');
- const market=input('Market and line','text',100,item.sport==='football'?'Regulation-time 1X2':'');
- const outcome=input('Outcome','text',100);
+ const isRace=item.sport==='racing';
+ const market=input(isRace?'Market (Win, Place or Each-way)':'Market and line','text',100,
+  isRace?'Win':item.sport==='football'?'Regulation-time 1X2':'');
+ const outcome=input(isRace?'Runner':'Outcome','text',100);
  const price=input('Decimal price','number',20);
  price.min='1.01';price.step='any';
  const source=input('HTTPS source URL','url',600);
+ const raceFields=isRace?[
+  input('Places paid (when applicable)','number',3),
+  input('Field size (when applicable)','number',3),
+  input('Each-way fraction (for example 1/5)','text',9)
+ ]:[];
+ for(const field of raceFields)field.required=false;
  const save=document.createElement('button'),status=document.createElement('p');
  save.textContent='Save observation now';status.role='status';
  form.append(save,status);
@@ -152,7 +160,9 @@ function manualPrice(panel,item,line){
  function showSaved(){
   try{
    const last=read().find(row=>row.identity===identity&&row.sport===item.sport);
-   if(last)status.textContent='Latest unverified observation: '+last.bookmaker+' · '+last.market+' · '+last.outcome+' · '+last.price+' · '+last.observedAt;
+   if(last)status.textContent='Latest unverified observation: '+last.bookmaker+' · '+last.market+' · '+last.outcome+' · '+last.price+' · '+last.observedAt+
+    (last.racingTerms?.places?' · '+last.racingTerms.places+' places / '+last.racingTerms.fieldSize+' runners':'')+
+    (last.racingTerms?.eachWayFraction?' · '+last.racingTerms.eachWayFraction+' each-way (quoted win leg)':'');
   }catch{status.textContent='Private storage is unavailable.';}
  }
  showSaved();
@@ -165,21 +175,38 @@ function manualPrice(panel,item,line){
      !Number.isFinite(decimal)||decimal<=1||![bookmaker,market,outcome].every(field=>field.value.trim())){
    status.textContent='Use an upcoming fixture, an HTTPS receipt, market, outcome and decimal price above 1.';return;
   }
+  let racingTerms;
+  if(isRace){
+   const type=market.value.trim().toLowerCase(),[places,fieldSize,fraction]=raceFields.map(field=>field.value.trim());
+   const skyBet=bookmaker.value.trim().toLowerCase()==='sky bet'&&/(?:^|\.)skybet\.com$/.test(url.hostname);
+   const placeTerms=Number.isInteger(Number(places))&&Number(places)>0&&Number.isInteger(Number(fieldSize))&&Number(fieldSize)>Number(places);
+   const eachWay=/^[1-9]\d?\/[1-9]\d?$/.test(fraction)&&Number(fraction.split('/')[0])<Number(fraction.split('/')[1]);
+   if(!skyBet||!['win','place','each-way'].includes(type)||
+      (type!=='win'&&!placeTerms)||(type==='each-way'&&!eachWay)||(type!=='each-way'&&fraction)){
+    status.textContent='Use a Sky Bet receipt. Place and each-way observations need the published places and field size. Each-way also needs the published fraction.';return;
+   }
+   racingTerms={market:type,places:type==='win'?null:Number(places),fieldSize:type==='win'?null:Number(fieldSize),
+    eachWayFraction:type==='each-way'?fraction:null,priceBasis:type==='each-way'?'QUOTED_WIN_LEG':'QUOTED_MARKET'};
+  }
   try{
    const row={sport:item.sport,identity,event:item.name,startUTC:item.startUTC,bookmaker:bookmaker.value.trim(),
     market:market.value.trim(),outcome:outcome.value.trim(),price:decimal,source:url.href,
-    observedAt:new Date(now).toISOString(),verification:'USER_RECORDED_UNVERIFIED'};
+    observedAt:new Date(now).toISOString(),verification:'USER_RECORDED_UNVERIFIED',...(racingTerms?{racingTerms}:{})};
    localStorage.setItem(key,JSON.stringify([row,...read()].slice(0,100)));
    showSaved();
   }catch{status.textContent='Could not save this observation in private browser storage.';}
  });
- line(wrapper,'Saved in this browser. Manual observations cannot enter EV or qualification.');
+ line(wrapper,isRace?'For each-way, enter the quoted win-leg price. Record a separately quoted place price as a Place observation.':'Saved in this browser. Manual observations cannot enter EV or qualification.');
+ if(isRace)line(wrapper,'Saved in this browser. Manual racing observations cannot enter EV or qualification.');
 }
 function evidenceCell(tr,item,index){
  const cell=document.createElement('td');
  tr.append(cell);
  const core=window.FootballMatchEvidence;
- const evidence=Sources.cardEvidence(item,football,core,Date.now(),racing);
+ const now=Date.now();
+ const evidence=Sources.cardEvidence(item,football,core,now,racing);
+ const current=providerPrices?.get(item)??[];
+ evidence.quotes.push(...current.filter(quote=>item.startMs>now&&now>=quote.captured&&now-quote.observed<=30*60000));
  const line=(parent,text)=>{
   const p=document.createElement('p');p.textContent=text;parent.append(p);
  };
@@ -198,6 +225,7 @@ function evidenceCell(tr,item,index){
  toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls',detailRow.id);
  toggle.textContent=evidence.models.length?'Experimental model · '+(item.sport==='racing'?evidence.models[0].outcomes.length+' runners':evidence.models[0].outcomes.map(o=>pct(o.probability)).join(' / ')):
   evidence.quotes.length?'Recorded market prices':evidence.unverified.length?'Unverified experimental estimate':'Evidence unavailable';
+ if(current.length&&evidence.models.length)toggle.textContent+=' · Sky Bet prices';
  toggle.addEventListener('click',()=>{
   detailRow.hidden=!detailRow.hidden;
   toggle.setAttribute('aria-expanded',String(!detailRow.hidden));
@@ -217,9 +245,12 @@ function evidenceCell(tr,item,index){
  manualPrice(panel,item,line);
  for(const quote of evidence.quotes){
   const receipt=document.createElement('a');receipt.href=quote.url.href;
-  receipt.textContent=quote.name+' · regulation-time 1X2 · observed '+new Date(quote.observed).toISOString();
+  receipt.textContent=quote.name+' · '+(quote.marketLabel||'Regulation-time 1X2')+' · observed '+new Date(quote.observed).toISOString();
   panel.append(receipt);
-  for(const side of ['home','draw','away']){
+  if(quote.captured)line(panel,'Checked '+new Date(quote.captured).toISOString());
+  if(quote.sourceEndpoint)line(panel,'Receipt SHA-256 '+quote.hash);
+  if(quote.comparisonReason)line(panel,quote.comparisonReason);
+  for(const side of ['home','draw','away'].filter(side=>Object.hasOwn(quote.prices,side))){
    const price=quote.prices[side];
    line(panel,side+' '+price.toFixed(2)+' · implied '+pct(quote.metrics.implied[side])+
     ' · proportional no-vig '+pct(quote.metrics.proportionalNoVig[side]));
@@ -228,6 +259,20 @@ function evidenceCell(tr,item,index){
   }
  }
  return detailRow;
+}
+function schedulePriceExpiry(){
+ clearTimeout(quoteExpiry);
+ const now=Date.now(),deadlines=[];
+ for(const [item,quotes] of providerPrices??[]){
+  for(const quote of quotes){
+   const until=Math.min(item.startMs,quote.observed+30*60000+1);
+   if(until>now)deadlines.push(until);
+  }
+ }
+ if(deadlines.length)quoteExpiry=setTimeout(()=>{
+  renderFeatured();
+  schedulePriceExpiry();
+ },Math.min(...deadlines)-now);
 }
 async function optionalEvidence(path){
  try{
@@ -278,14 +323,16 @@ async function showFeatured(){
  const now=Date.now();featureClock=now;
  const ids=Sources.SOURCES.filter(source=>source.id!=='history').map(source=>source.id);
  try{
-  const [feeds,expanded,prices,horseModels]=await Promise.all([
+  const [feeds,expanded,prices,horseModels,odds]=await Promise.all([
    Promise.all(ids.map(id=>Sources.load(id,'./',window.fetch.bind(window),now))),
-   optionalEvidence('./football-expanded-data.json'),optionalEvidence('./paper-lab/hybrid-market-data.json'),optionalEvidence('./horse-model-data.json')
+   optionalEvidence('./football-expanded-data.json'),optionalEvidence('./paper-lab/hybrid-market-data.json'),optionalEvidence('./horse-model-data.json'),optionalEvidence('./work/current-odds.json')
   ]);
   const core=window.FootballMatchEvidence;
   football=core?Sources.footballEvidence([feeds.find(feed=>feed.id==='football')?.data,expanded],prices,core,now):null;
   const summary=Sources.summarize(feeds,now),invalid=feeds.filter(x=>x.state!=='OBSERVED');
   for(const sport of Sources.sports)document.querySelectorAll('[data-pro-count="'+sport+'"]').forEach(el=>{el.textContent=summary.counts[sport]===null?'—':String(summary.counts[sport])});
+  providerPrices=Sources.providerPrices(Sources.currentOdds(odds,now),summary.upcoming,football,now);
+  schedulePriceExpiry();
   racing=Sources.racingEvidence(summary.upcoming,feeds.find(feed=>feed.id==='racing'),horseModels,now);
   const all=document.querySelector('[data-pro-count="all"]');if(all)all.textContent=summary.available.length?String(summary.totalAvailable):'—';
   featured=Sources.featuredOrder(summary.upcoming);page=0;

@@ -41,6 +41,7 @@ jobs:
       - name: Verify research browser interactions (desktop/mobile/racing/paper)
         run: |
           npm run test:browser
+          if test -f scripts/current_odds_browser_qa.cjs; then node scripts/current_odds_browser_qa.cjs; fi
           node tests/test_pro_design.cjs
           node scripts/pro_design_browser_qa.cjs
           node scripts/darts_browser_qa.cjs
@@ -133,6 +134,7 @@ jobs:
       - name: Test real-main snapshots and synthetic browser workflows
         run: |
           npm run test:browser
+          if test -f scripts/current_odds_browser_qa.cjs; then node scripts/current_odds_browser_qa.cjs; fi
           node scripts/football_match_browser_qa.cjs
           if test -f scripts/all_sports_browser_qa.cjs; then node scripts/all_sports_browser_qa.cjs; fi
       - name: Retain integration QA evidence
