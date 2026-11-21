@@ -33,6 +33,19 @@ const server = http.createServer(async (request,response) => {
       const errors = [];
       page.on('pageerror',error => errors.push(error.message));
       await page.goto(base+'/market-intelligence/');
+      await page.locator('#market-rows tr').first().waitFor();
+      const bayernOption = await page.locator('#match option').evaluateAll(options =>
+        options.find(option => option.textContent.includes('Bayern Munich'))?.value);
+      assert.notEqual(bayernOption,undefined);
+      await page.locator('#match').selectOption(bayernOption);
+      assert.equal(await page.locator('#market-rows tr').count(),6);
+      assert((await page.locator('#market-rows').innerText()).includes('Pinnacle via GoldEdge'));
+      assert((await page.locator('#market-rows').innerText()).includes('Sky Bet'));
+      assert((await page.locator('#market-rows').innerText()).includes('movement unavailable'));
+      assert.equal(await page.locator('#market-source-details details').count(),2);
+      const marketProvenance = page.locator('#market-source-details details').first();
+      await marketProvenance.locator('summary').click();
+      assert(await marketProvenance.getByText(/Opening price is not explicitly recorded/).isVisible());
       const launch = page.getByRole('link',{name:'Open Match Centre preview'});
       await launch.waitFor();
       await page.evaluate(() => localStorage.setItem('value-watch-research-desk-v4','saved-workspace-sentinel'));
@@ -41,6 +54,14 @@ const server = http.createServer(async (request,response) => {
       const shared = page.url();
       const original = await page.locator('#event-title').textContent();
       assert(shared.includes('event=espn%3A'));
+      await page.getByRole('link',{name:'Markets',exact:true}).click();
+      await page.locator('#markets .market-matrix').waitFor();
+      assert.equal(await page.locator('#markets .market-matrix tbody tr').count(),2);
+      assert(await page.locator('#markets').getByText(/No model passes the explicit training-cutoff/).isVisible());
+      assert(await page.locator('#markets').getByText(/Opening price is not supplied/).isVisible());
+      const fixtureMarketDetails = page.locator('#markets details').first();
+      await fixtureMarketDetails.locator('summary').click();
+      assert(await fixtureMarketDetails.getByText(/Only one comparable capture exists/).isVisible());
       await page.getByRole('link',{name:'Sources',exact:true}).click();
       const fixtureReceipt = page.locator('#sources details').first();
       await fixtureReceipt.locator('summary').focus();
