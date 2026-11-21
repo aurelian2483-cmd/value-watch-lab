@@ -93,3 +93,20 @@ mismatched records. It displays schedule provenance only. No result,
 price, model or publication gate changed. **UNVALIDATED / BLOCKED.**
 Use the browser QA artefacts for desktop, emulated touch tablet and
 phone screenshots. Physical Windows-tablet checks remain outstanding.
+
+### Cumulative release review
+
+PR #138 targets `main`, PR #139 targets #138's branch, and PR #140 targets
+#139's branch. The redesigned desk remains the default and
+`?view=visual-preview` keeps the approved compact view. The compact overview
+directs readers to the sport lanes.
+
+When the browser restores a cached page through history, the overview
+refreshes its source state and direct fixture views check identity again.
+Started, changed or expired evidence stays unavailable. Browser QA checks
+controlled exact-link and expiry cases separately from the repository
+snapshots. The real-snapshot checks require the visible links to match
+current eligible schedule evidence, including a valid zero-link state.
+
+Physical Windows tablet sign-off is pending. See the [preview and test
+checklist](reference-release-review.md).

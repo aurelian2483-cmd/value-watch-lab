@@ -16,21 +16,31 @@
     $('research').href = '../racing-research/';
     $('research').hidden = false;
   }
-  const feed = await sources.load(source[sport], '../', window.fetch.bind(window));
-  const exact = sources.findDetail(feed, params.get('event'));
-  if (!exact || exact.sport !== sport) {
-    $('status').textContent = unavailable;
-    return;
+  async function verifyFixture() {
+    $('fixture-name').textContent = 'Fixture evidence';
+    $('status').textContent = 'Checking published fixture identity…';
+    $('evidence').hidden = true;
+    const feed = await sources.load(source[sport], '../', window.fetch.bind(window));
+    const exact = sources.findDetail(feed, params.get('event'));
+    if (!exact || exact.sport !== sport) {
+      $('status').textContent = unavailable;
+      return;
+    }
+    const format = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London', dateStyle: 'medium', timeStyle: 'short'
+    });
+    $('fixture-name').textContent = exact.name;
+    $('competition').textContent = exact.detail.competition;
+    $('kickoff').textContent = format.format(exact.startMs);
+    $('identifier').textContent = exact.detail.id;
+    $('snapshot').textContent = format.format(exact.detail.observedAt ?? feed.generatedAt);
+    $('status').textContent = (sport === 'racing' ? 'Sporting Life racecard observation' : 'ESPN schedule observation') +
+      ' · Exact match in the published snapshot. Independent verification is unavailable here.';
+    $('evidence').hidden = false;
   }
-  const format = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Europe/London', dateStyle: 'medium', timeStyle: 'short'
+
+  addEventListener('pageshow', event => {
+    if (event.persisted) void verifyFixture();
   });
-  $('fixture-name').textContent = exact.name;
-  $('competition').textContent = exact.detail.competition;
-  $('kickoff').textContent = format.format(exact.startMs);
-  $('identifier').textContent = exact.detail.id;
-  $('snapshot').textContent = format.format(exact.detail.observedAt ?? feed.generatedAt);
-  $('status').textContent = (sport === 'racing' ? 'Sporting Life racecard observation' : 'ESPN schedule observation') +
-    ' · Exact match in the published snapshot. Independent verification is unavailable here.';
-  $('evidence').hidden = false;
+  await verifyFixture();
 })();

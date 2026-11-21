@@ -179,6 +179,9 @@ async function showFeatured(){
  }finally{loading=false;if(refresh)refresh.disabled=false;renderFeatured()}
 }
 function wireFeatured(){
+ const compact=document.documentElement.classList.contains('visual-preview');
+ const guide=document.getElementById('pro-feature-link-guide');
+ if(compact&&guide)guide.textContent='Use the sport lanes to explore schedule and source coverage.';
  document.getElementById('pro-feature-prev')?.addEventListener('click',()=>{if(page>0){page--;renderFeatured()}});
  document.getElementById('pro-feature-next')?.addEventListener('click',()=>{if((page+1)*FEATURE_PAGE_SIZE<visibleFeatured().length){page++;renderFeatured()}});
  document.getElementById('pro-feature-refresh')?.addEventListener('click',showFeatured);
@@ -212,7 +215,7 @@ function wireFeatured(){
  restoreFilters();
  if(!document.documentElement.classList.contains('visual-preview')){
   window.addEventListener('popstate',()=>{restoreFilters();redraw(false)});
-  window.addEventListener('pageshow',event=>{if(event.persisted){restoreFilters();redraw(false)}});
+  window.addEventListener('pageshow',event=>{if(event.persisted){restoreFilters();void showFeatured()}});
  }
  document.getElementById('pro-feature-sport')?.addEventListener('change',redraw);
  document.getElementById('pro-feature-query')?.addEventListener('input',redraw);

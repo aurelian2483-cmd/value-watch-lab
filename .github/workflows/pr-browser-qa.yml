@@ -102,11 +102,13 @@ jobs:
             international-analysis-data.json
             international-football-data.json
             other-sports-data.json
+            racing-future-coverage.json
             racing-future-data.json
             racing-research-data.json
             racing-research/source-observations.json
             research-dashboard-data.json
             research-history.json
+            rugby-research-data.json
           )
           for path in "${files[@]}"; do
             git cat-file -e "FETCH_HEAD:$path"

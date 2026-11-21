@@ -591,6 +591,13 @@
   }
   addEventListener('hashchange',markSection);
   addEventListener('popstate',markSection);
+  addEventListener('pageshow', event => {
+    if (event.persisted && new URLSearchParams(location.search).get('overview') === '1') {
+      $('event').hidden = true;
+      $('feed-status').textContent = 'Checking published fixture identity…';
+      location.reload();
+    }
+  });
   markSection();
   load().catch(() => { $('feed-status').textContent = 'Published football evidence is unavailable.'; });
 })();
