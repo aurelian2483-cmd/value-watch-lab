@@ -95,12 +95,6 @@ const marketIdConflict = markets([skyRecord,skyLater]);
 assert.equal(marketIdConflict.matches.flatMap(match => match.sources).filter(source => source.sourceId === 'SKY_BET').length,0);
 assert(marketIdConflict.withheldReasons.some(item => item.reason.includes('market identity changed')));
 
-const eligibleFrozen = {...frozen,observed_at_utc:stamp('17:40'),comparison:{
-  ...estimate,method:'CURRENT_SEASON_POISSON_COMPARISON_V1',unvalidated:true,
-  training_sha256:'c'.repeat(64),cutoff_utc:stamp('16:00'),source_receipts:[inputReceipt]
-}};
-const eligibleMarket = markets([{...capture,frozen_model:eligibleFrozen}]).matches[0];
-assert.equal(eligibleMarket.model.cutoffReason,null);
 const another = {...fixture,espn_event_id:'102',kickoff_utc:stamp('22:00')};
 assert.equal(markets([capture,{...capture,event_id:eventID(another),start_utc:another.kickoff_utc}],
   evidence.fixtureIndex([feed([fixture,another])],now)).matches.length,0);
@@ -151,6 +145,12 @@ assert.deepEqual(modelAfterMove.models.map(model => model.cutoffReason),[
 ]);
 const frozen = {observed_at_utc:stamp('17:40'),comparison:{...estimate,
   method:'CURRENT_SEASON_POISSON_COMPARISON_V1',unvalidated:true,training_sha256:'c'.repeat(64)}};
+const eligibleFrozen = {...frozen,observed_at_utc:stamp('17:40'),comparison:{
+  ...estimate,method:'CURRENT_SEASON_POISSON_COMPARISON_V1',unvalidated:true,
+  training_sha256:'c'.repeat(64),cutoff_utc:stamp('16:00'),source_receipts:[inputReceipt]
+}};
+const eligibleMarket = markets([{...capture,frozen_model:eligibleFrozen}]).matches[0];
+assert.equal(eligibleMarket.model.cutoffReason,null);
 assert.equal(markets([{...capture,frozen_model:frozen}]).matches[0].model.cutoffReason,null);
 assert.equal(markets([{...capture,frozen_model:{...frozen,comparison:{...frozen.comparison,source_receipts:null}}}])
   .matches[0].model.cutoffReason,'Training source receipts are missing.');
