@@ -18,7 +18,7 @@
  function stamp(s){if(typeof s!=='string'||!/(?:Z|[+-]\d{2}:\d{2})$/.test(s))return null;const n=Date.parse(s);return Number.isFinite(n)?n:null}
  function safeName(v){return typeof v==='string'&&v.trim()?v.trim().slice(0,220):null}
  function gate(d){return !!(d&&typeof d==='object'&&!Array.isArray(d)&&d.research_only===true&&d.model_validation==='UNVALIDATED'&&d.publication_gate==='BLOCKED')}
- function inspect(id,data,now=Date.now()){
+ function inspect(id,data,now=Date.now(),footballEvidence=globalThis.FootballMatchEvidence){
   const def=SOURCES.find(x=>x.id===id);
   if(!def)throw Error('Unknown source');
   if(!gate(data))return {id,state:'GATE_UNVERIFIED',fresh:false,generatedAt:null,records:[],data:null};
@@ -28,15 +28,16 @@
   if(id==='history')return {id,state:'OBSERVED',fresh:true,generatedAt:ts,records:[],data};
   const seen=new Map(),conflicts=new Set(),invalid=[];
   const result=()=>[...seen].filter(([id])=>!conflicts.has(id)).map(([,record])=>record);
-  function add(sport,name,time,key,hasModel){
+  function add(sport,name,time,key,hasModel,fixtureKey){
    const n=safeName(name),t=stamp(time);
    // Reject unknown time, malformed identity, and duplicates; never make a synthetic event.
    if(!n||t===null||!Number.isFinite(t)||!safeName(key)){invalid.push('INVALID_RECORD');return}
    const identity=sport+'|'+String(key);
    const record={sport,name:n,startUTC:new Date(t).toISOString(),startMs:t,hasModel:hasModel===true,source:id};
+   if(fixtureKey)record.fixtureKey=fixtureKey;
    const previous=seen.get(identity);
    if(previous){
-    if(previous.name!==record.name||previous.startMs!==record.startMs||previous.hasModel!==record.hasModel){
+    if(previous.name!==record.name||previous.startMs!==record.startMs||previous.hasModel!==record.hasModel||previous.fixtureKey!==record.fixtureKey){
      conflicts.add(identity);
      invalid.push('CONFLICTING_RECORD');
     }else invalid.push('DUPLICATE_RECORD');
@@ -49,7 +50,8 @@
    for(const e of data.upcoming_fixtures.slice(0,300)){
     if(!e||!safeName(e.home)||!safeName(e.away))continue;
     const name=e.home+' vs '+e.away,key=e.fixture_id||String(e.home)+'|'+String(e.away)+'|'+String(e.kickoff_utc);
-    add('football',name,e.kickoff_utc,key,e.has_experimental_model_forecast===true);
+    add('football',name,e.kickoff_utc,key,e.has_experimental_model_forecast===true,
+      data.schema_version===1 && footballEvidence?.fixtureKey(e));
    }
   }else if(id==='racing'){
    if(!Array.isArray(data.races))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};

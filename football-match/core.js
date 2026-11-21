@@ -31,6 +31,11 @@
   function exactKey(identity, start) {
     return JSON.stringify([...identity, new Date(start).toISOString()]);
   }
+  function fixtureKey(row) {
+    const identity = tuple(row);
+    const start = instant(row?.kickoff_utc);
+    return identity && Number.isFinite(start) ? exactKey(identity, start) : null;
+  }
   function trainingTimestamp(value) {
     const calendar = typeof value === 'string' &&
       /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}(?:\.(\d{1,6}))?(?:Z|[+-]\d{2}:\d{2})$/.exec(value);
@@ -365,5 +370,5 @@
     return [...rows.values()].filter(Boolean);
   }
 
-  return { fixtureIndex, verifyMarkets, probabilities, historicalRows, receiptURL, hash, instant, outcomes };
+  return { fixtureKey, fixtureIndex, verifyMarkets, probabilities, historicalRows, receiptURL, hash, instant, outcomes };
 });

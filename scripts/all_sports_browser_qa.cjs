@@ -224,15 +224,40 @@ async function referenceNavigation(browser, base) {
   await page.route(url => url.origin !== base, route => route.abort());
   await page.route('**/research-dashboard-data.json', route => route.fulfill({json:{
     research_only:true, model_validation:'UNVALIDATED', publication_gate:'BLOCKED',
-    generated_at_utc:'2026-06-15T22:00:00Z',
+    schema_version:1, generated_at_utc:'2026-06-15T22:00:00Z',
     upcoming_fixtures:[
-      {fixture_id:'synthetic-today',home:'Synthetic Today',away:'Visitors',kickoff_utc:'2026-06-15T22:30:00Z'},
+      {fixture_id:'synthetic-today',espn_event_id:'1234',home:'Synthetic Today',away:'Visitors',kickoff_utc:'2026-06-15T22:30:00Z'},
       {fixture_id:'synthetic-tomorrow',home:'Synthetic Tomorrow',away:'Visitors',kickoff_utc:'2026-06-15T23:30:00Z'}
     ]
   }}));
   await page.goto(base + '/');
   const table = page.locator('#pro-featured-rows');
   const range = page.getByLabel('Fixture date (UK)');
+  await table.getByText(/Synthetic Today/).waitFor();
+  const sport = page.getByRole('group',{name:'Upcoming fixture filters'}).getByLabel('Sport',{exact:true});
+  const query = page.getByLabel('Find a fixture');
+  await sport.selectOption('racing');
+  assert.equal(await table.getByText(/Synthetic Today/).count(),0);
+  await sport.selectOption('football');
+  await query.fill('  TOMORROW  ');
+  await table.getByText(/Synthetic Tomorrow/).waitFor();
+  assert.equal(await table.getByText(/Synthetic Today/).count(),0);
+  await page.locator('#pro-feature-refresh').click();
+  await page.waitForFunction(() => !document.getElementById('pro-feature-refresh').disabled);
+  assert.equal(await sport.inputValue(),'football');
+  assert.equal(await query.inputValue(),'  TOMORROW  ');
+  await query.fill('');
+  await table.getByRole('link',{name:'Synthetic Today vs Visitors'}).tap();
+  await page.getByRole('heading',{name:'Synthetic Today v Visitors',exact:true}).waitFor();
+  assert.equal(await page.locator('#fixture').inputValue(),'espn:1234');
+  const stale = new URL(page.url());
+  const exact = JSON.parse(stale.searchParams.get('event').slice('fixture:'.length));
+  exact[3] = '2026-06-15T22:31:00.000Z';
+  stale.searchParams.set('event','fixture:'+JSON.stringify(exact));
+  await page.goto(stale.href);
+  await page.getByText('This fixture is unavailable or its identity is ambiguous.').waitFor();
+  assert.equal(await page.locator('#event').isVisible(),false);
+  await page.goto(base + '/');
   await table.getByText(/Synthetic Today/).waitFor();
   await range.selectOption('tomorrow');
   await table.getByText(/Synthetic Tomorrow/).waitFor();
@@ -260,7 +285,7 @@ async function referenceNavigation(browser, base) {
   await nav.getByRole('link',{name:'Compact preview'}).click();
   await page.locator('html.visual-preview').waitFor({state:'attached'});
   assert.equal(await range.isVisible(),false);
-  report.syntheticChecks.push('UK summer-time fixture date cutoff, refresh retention, keyboard focus, shared route navigation and compact fallback');
+  report.syntheticChecks.push('UK date, sport and name filters, exact touch fixture handoff, changed kickoff withheld, refresh retention, keyboard focus and compact fallback');
   await page.close();
 }
 
@@ -315,7 +340,7 @@ async function referenceNavigation(browser, base) {
       const axe = await new AxeBuilder({page}).include('#sport-evidence').analyze();
       assert.deepEqual(axe.violations.map(v => v.id), []);
       report.accessibility.push('Sport evidence panel at ' + width + 'px: no axe violations');
-      if (!compact && width !== 820) {
+      if (!compact) {
         for (const route of routes) {
           const response = await page.goto(base + '/' + route + '/');
           assert.equal(response.status(),200);
@@ -324,7 +349,7 @@ async function referenceNavigation(browser, base) {
           if (route === 'ops-control') {
             assert(await page.locator('.brandmark').evaluate(mark => mark.scrollHeight <= mark.clientHeight + 1));
           }
-          if (route === 'validation-centre') {
+          if (route === 'validation-centre' && width !== 820) {
             await resultReceiptFlow(page,width);
             await providerReadinessFlow(page,width);
           }

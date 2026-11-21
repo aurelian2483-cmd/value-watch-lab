@@ -30,6 +30,7 @@
     return url;
   };
   let index = new Map();
+  let exactFixtures = new Map();
   let markets = new Map();
   let feedMessage = '';
   let archiveMetrics = null;
@@ -466,7 +467,8 @@
       (!$('match-status').value || statusOf(event) === $('match-status').value) &&
       (!$('favourites-only').checked || favourites.has(event.identity[0])) &&
       label(event).toLowerCase().includes(query));
-    const event = requested ? index.get(requested) : fixtures[0];
+    const exact = !archive && requested?.startsWith('fixture:') ? requested.slice('fixture:'.length) : null;
+    const event = requested ? (exact === null ? index.get(requested) : exactFixtures.get(exact)) : fixtures[0];
     const outside = Boolean(event && !fixtures.includes(event));
     $('feed-status').textContent = requested && !event ? 'This fixture is unavailable or its identity is ambiguous.' : feedMessage;
     $('fixture-count').textContent = fixtures.length + ' matching fixture' + (fixtures.length === 1 ? '' : 's');
@@ -547,6 +549,7 @@
       finals = new Map(recordedFinals.map(final => [final.exact,final]));
       records = [...historical.archiveMatches(reconstructed.value),...recordedFinals];
       const snapshot = evidence.fixtureIndex(feeds, now);
+      exactFixtures = snapshot.byExact;
       markets = new Map(evidence.verifyMarkets(market.value, snapshot, now).matches.map(match => [match.fixture.id, match]));
       snapshot.events.sort((a,b) => (a.start < now) - (b.start < now) || a.start - b.start);
       index = new Map(snapshot.events.map(event => [event.id, event]));
