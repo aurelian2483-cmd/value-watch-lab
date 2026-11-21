@@ -14,14 +14,17 @@
     return 'other';
   }
   function normalizeMatch(value,sport,mode){
-    if (!value || typeof value!=='object' || Array.isArray(value)) return null;
+    if (!SPORTS.includes(sport) || !value || typeof value!=='object' || Array.isArray(value)) return null;
+    const declared = value.sport?.slug ?? value.sport?.name ?? value.sport;
+    if (declared != null && (typeof declared !== 'string' || declared.trim().toLowerCase() !== sport)) return null;
     const home=String(value.home ?? value.home_team ?? '').trim().slice(0,100);
     const away=String(value.away ?? value.away_team ?? '').trim().slice(0,100);
-    if (!home || !away) return null;
+    if (!home || !away || home.toLowerCase() === away.toLowerCase()) return null;
+    if ([value.status,value.status_text].some(status => /cancel|postpon|suspend|abandon|finish|^ft$/i.test(String(status)))) return null;
     const status=safeStatus(value.status) !== 'other' ? safeStatus(value.status) : safeStatus(value.status_text);
     if (status!==mode) return null;
     const time=String(value.time ?? value.start_time ?? value.kickoff_utc ?? '').trim();
-    const iso=Date.parse(time);
+    const iso=/(?:Z|[+-]\d{2}:\d{2})$/i.test(time) ? Date.parse(time) : NaN;
     const competition=typeof value.competition==='string'?value.competition.trim().slice(0,80):'';
     const score=(value.home_score!=null && value.away_score!=null)?String(value.home_score).slice(0,6)+' – '+String(value.away_score).slice(0,6):'';
     return {home,away,sport,status,time:Number.isFinite(iso)?new Date(iso).toISOString():null,competition,score};
@@ -115,7 +118,7 @@
     const unique=new Set();
     let shown=0;
     for(const match of items){
-      const key=[match.sport,match.home,match.away,match.time].join('|');
+      const key=[match.sport,match.competition,match.home,match.away,match.time].join('|');
       if(unique.has(key))continue;
       unique.add(key);
       const item=doc.createElement('button');
@@ -125,7 +128,7 @@
       const title=doc.createElement('strong');
       title.textContent=match.home+' vs '+match.away;
       const meta=doc.createElement('span');
-      meta.textContent=match.sport.toUpperCase()+' · '+(match.competition||'Competition unspecified')+' · '+(mode==='live'?'LIVE':'UPCOMING');
+      meta.textContent=match.sport.toUpperCase()+' · '+(match.competition||'Competition unspecified')+' · '+(mode==='live'?'PROVIDER REPORTS IN PLAY':'UPCOMING');
       const foot=doc.createElement('small');
       foot.textContent=(match.score?match.score+' · ':'')+fmtTime(match.time)+' · Select this match';
       item.append(title,meta,foot);
@@ -143,7 +146,7 @@
       shown++;
       if(shown>=80)break;
     }
-    setStatus(shown+' '+(mode==='live'?'live':'upcoming')+' fixture(s) shown · source SportScore · timestamps displayed in UK time · refreshed '+new Date().toLocaleTimeString('en-GB')+'.');
+    setStatus(shown+' '+(mode==='live'?'provider-reported in-play':'upcoming')+' fixture(s) shown · source SportScore · timestamps displayed in UK time · refreshed '+new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/London'})+'.');
   }
   async function loadFixtures(){
     if(mode==='manual')return;
@@ -194,5 +197,13 @@
   });
   sportEl.addEventListener('change',loadFixtures);
   refresh.addEventListener('click',()=>{cache.clear();loadFixtures();});
+  const requestedSport = new URLSearchParams(root.location.search).get('sport');
+  if (SPORTS.includes(requestedSport)) {
+    mode = 'upcoming';
+    sportEl.value = requestedSport;
+  } else if (requestedSport && el('coverage-sport') &&
+      [...el('coverage-sport').options].some(option => option.value === requestedSport)) {
+    mode = 'manual';
+  }
   showMode();
 })(typeof globalThis!=='undefined'?globalThis:this);

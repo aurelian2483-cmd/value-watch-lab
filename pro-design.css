@@ -113,3 +113,11 @@ body{background-color:#030b17!important}
 .pro-darts-preview-summary{font-size:12px;color:#d0e1ef;line-height:1.5;max-width:390px;margin:0}
 @media(max-width:1100px){.pro-darts-preview{grid-template-columns:1fr!important}.pro-darts-preview-summary{max-width:none}.pro-darts-preview-action{align-items:stretch;text-align:center}}
 @media(max-width:760px){.pro-darts-preview{padding:17px!important;gap:10px!important}.pro-darts-preview-intro{gap:10px}.pro-darts-icon{font-size:35px!important}.pro-darts-preview-summary{font-size:11px}}
+
+@media (max-width: 520px) {
+  .pro-featured .pro-featured-scroll table { min-width: 0; table-layout: fixed; }
+  .pro-featured-scroll th, .pro-featured-scroll td { padding: 8px 5px; overflow-wrap: anywhere; }
+  .pro-featured .pro-featured-scroll :is(th, td):is(:first-child, :nth-child(2)) { min-width: 0; }
+  .pro-featured-scroll th:nth-child(2) { width: 36%; }
+}
+#sport-evidence:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }

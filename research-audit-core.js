@@ -9,9 +9,12 @@ function freshness(timestamp,maxAgeMs,now=Date.now()){
  const ageMs=now-Date.parse(timestamp),valid=utc(timestamp)&&Number.isFinite(now)&&Number.isFinite(maxAgeMs)&&maxAgeMs>=0&&ageMs>=-300000;
  return {valid,fresh:valid&&ageMs<=maxAgeMs,ageMs:valid?ageMs:null};
 }
-function validateOtherEvent(e,sport,snapshot,now=Date.now()){
+function validateOtherIdentity(e,sport){
  const u=url(e?.source),path=sport==='tennis'?/^\/apis\/site\/v2\/sports\/tennis\/(atp|wta)\/scoreboard$/:/^\/apis\/site\/v2\/sports\/football\/nfl\/scoreboard$/;
- return ['tennis','nfl'].includes(sport)&&text(e?.id)&&text(e?.name)&&text(e?.competition)&&u?.hostname==='site.api.espn.com'&&path.test(u.pathname)&&utc(e?.startUTC)&&Date.parse(e.startUTC)>now+300000&&freshness(snapshot,36*3600000,now).fresh&&Date.parse(snapshot)<Date.parse(e.startUTC)-300000;
+ return ['tennis','nfl'].includes(sport)&&text(e?.id)&&text(e?.name)&&text(e?.competition)&&u?.hostname==='site.api.espn.com'&&path.test(u.pathname)&&utc(e?.startUTC);
+}
+function validateOtherEvent(e,sport,snapshot,now=Date.now()){
+ return validateOtherIdentity(e,sport)&&Date.parse(e.startUTC)>now+300000&&freshness(snapshot,36*3600000,now).fresh&&Date.parse(snapshot)<Date.parse(e.startUTC)-300000;
 }
 function validateOtherForecast(e,sport,snapshot,now=Date.now()){
  if(!validateOtherEvent(e,sport,snapshot,now))return false;
@@ -50,5 +53,5 @@ function normalizeFootballHistory(document,now=Date.now()){
  // Legacy aliases/models are not additional matches; retain the established PL baseline lane only.
  return normalizeRows(document.entries.filter(r=>r.model==='POISSON_BASELINE_2025_26_V1'&&r.publication_gate==='BLOCKED'&&r.challenge_eligible===0).map(r=>({...r,league:'PL',verification:'TWO_SOURCE_REGULATION_TIME_FINAL'})),now);
 }
-return {freshness,validateOtherEvent,validateOtherForecast,normalizeFootballResults,normalizeFootballHistory};
+return {freshness,validateOtherIdentity,validateOtherEvent,validateOtherForecast,normalizeFootballResults,normalizeFootballHistory};
 });

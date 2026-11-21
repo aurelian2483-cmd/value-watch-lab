@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Market Intelligence | Value Watch</title>
+  <link rel="stylesheet" href="../terminal.css?v=phase5-matrix-3">
+  <script src="../football-match/core.js?v=phase5-matrix-3" defer></script>
+  <script src="./app.js?v=phase5-matrix-3" defer></script>
+</head>
+<body class="market-terminal">
+  <a class="terminal-skip" href="#main">Skip to market evidence</a>
+  <header class="terminal-masthead">
+    <a class="terminal-wordmark" href="../">Value Watch</a>
+    <nav aria-label="Research workspaces" class="terminal-links">
+      <a href="../#events-view">Events</a>
+      <a href="../analyst/">Models</a>
+      <a href="../track-record/">Track record</a>
+      <a href="./" aria-current="page">Markets</a>
+      <a href="../ops-control/">Operations</a>
+    </nav>
+  </header>
+  <main id="main" class="market-main">
+    <div class="market-title">
+      <h1>Market intelligence</h1>
+      <p>Recorded football prices with source receipts and pre-kickoff timestamps. These prices are historical observations.</p>
+      <p class="terminal-gate">Models UNVALIDATED · Publication BLOCKED</p>
+    </div>
+    <section class="terminal-panel" aria-labelledby="football-market">
+      <h2 id="football-market">Football · 90-minute result</h2>
+      <label for="match">Match</label>
+      <select id="match" disabled></select>
+      <label for="source-filter">Source</label>
+      <select id="source-filter" disabled><option value="">All verified sources</option></select>
+      <p id="market-status" role="status">Loading recorded markets…</p>
+      <p id="market-collection-status"></p>
+      <p id="model-leader"></p>
+      <p id="market-withheld"></p>
+      <a id="event-preview" hidden>Open Match Centre preview</a>
+      <div class="terminal-table" tabindex="0" role="region" aria-label="Recorded market comparison">
+        <table>
+          <thead><tr><th scope="col">Source</th><th scope="col">Selection</th><th scope="col">Decimal</th><th scope="col">Fractional</th><th scope="col">Raw implied</th><th scope="col">Proportional no-vig</th><th scope="col">Overround</th><th scope="col">Model difference</th><th scope="col">Observed (UK)</th><th scope="col">Captured (UK)</th><th scope="col">Snapshot age</th><th scope="col">Comparable history</th></tr></thead>
+          <tbody id="market-rows"></tbody>
+        </table>
+      </div>
+      <div id="market-source-details" class="market-source-details"></div>
+      <p>Opening prices are not assumed. Movement is calculated only from repeated, comparable observations for the same fixture, source, market, period, outcome set and provider market ID.</p>
+    </section>
+    <section class="terminal-panel">
+      <h2>Racing market evidence</h2>
+      <p>Racecards keep recorded bookmaker favourites, publisher selections, and experimental model leaders alongside declarations and field changes.</p>
+      <a href="../racing-research/analysis.html">Open racing market analysis</a>
+    </section>
+  </main>
+</body>
+</html>

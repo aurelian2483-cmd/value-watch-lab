@@ -1,0 +1,4888 @@
+[
+  {
+    "id": "poisson-regression",
+    "name": "Poisson log-link regression",
+    "family": "count-probability",
+    "classification": "distinct-model",
+    "profile": "count",
+    "definition": "λ_i=exp(x_iᵀβ+ln e_i); maximize Σ_i[y_i ln λ_i−λ_i]",
+    "variables": "x features, β coefficients, e positive exposure, y count",
+    "assumptions": "Conditional count mean is log-linear and conditional dispersion is Poisson",
+    "limitations": "Unrecorded exposure shifts bias rate estimates",
+    "failure_conditions": [
+      "Unrecorded exposure shifts bias rate estimates"
+    ],
+    "computation": "O(nd) gradient pass",
+    "source": {
+      "kind": "literature",
+      "citation": "Cameron and Trivedi, Regression Analysis of Count Data, 2nd ed."
+    },
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "application": "Model goal or try counts at a fixed exposure",
+    "required_inputs": "Historical football goals or rugby tries, exposure and fixture identifiers",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "poisson"
+    ],
+    "incompatible_methods": [
+      "Raw rugby points as unweighted event counts"
+    ],
+    "relationships": [
+      {
+        "target": "poisson",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002",
+    "mechanism_note": "Intercept-only common exposure yields a common Poisson law. Attack/defence imposes a schedule-linked design and identifiability constraints."
+  },
+  {
+    "id": "poisson-attack-defence",
+    "name": "Attack–defence log-linear goals",
+    "family": "count-probability",
+    "classification": "model-variant",
+    "profile": "football",
+    "definition": "ln λ_H=μ+h+a_H−d_A; ln λ_A=μ+a_A−d_H; sum team attacks and defences separately to zero",
+    "variables": "μ league intercept, h venue increment, a attack, d defence, λ intensities",
+    "assumptions": "Independent scores given features and connected schedule",
+    "limitations": "Newly promoted teams cannot be estimated without prior matches or shrinkage",
+    "failure_conditions": [
+      "Newly promoted teams cannot be estimated without prior matches or shrinkage"
+    ],
+    "computation": "Two means per fixture; sparse likelihood O(n)",
+    "source": {
+      "kind": "literature",
+      "citation": "Maher, Modelling Association Football Scores, Statistica Neerlandica, 1982"
+    },
+    "sports": [
+      "football"
+    ],
+    "application": "Estimate a football scoreline or goal differential",
+    "required_inputs": "Prior home and away goals, fixture dates, identities, and venue",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "poisson-regression"
+    ],
+    "incompatible_methods": [
+      "Raw rugby/NFL points or any current fixture outcome"
+    ],
+    "relationships": [
+      {
+        "target": "poisson-regression",
+        "type": "variant-of"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "gamma-poisson-update",
+    "name": "Gamma–Poisson conjugate rate update",
+    "family": "count-probability",
+    "classification": "distinct-algorithm",
+    "profile": "count",
+    "definition": "λ∼Gamma(a,b) rate form, y_i∼Pois(e_iλ); λ∣y∼Gamma(a+Σy_i,b+Σe_i)",
+    "variables": "a prior shape, b prior rate, e exposures, y prior counts",
+    "assumptions": "Common latent rate and conditional independence",
+    "limitations": "Regime shifts make accumulated posterior too confident",
+    "failure_conditions": [
+      "Regime shifts make accumulated posterior too confident"
+    ],
+    "computation": "O(1) sufficient-statistic update",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 2"
+    },
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "application": "Model goal or try counts at a fixed exposure",
+    "required_inputs": "Historical football goals or rugby tries, exposure and fixture identifiers",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "poisson",
+      "bayes-rule"
+    ],
+    "incompatible_methods": [
+      "Raw rugby points as unweighted event counts"
+    ],
+    "relationships": [
+      {
+        "target": "poisson",
+        "type": "related"
+      },
+      {
+        "target": "bayes-rule",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "beta-bernoulli-update",
+    "name": "Beta–Bernoulli conjugate update",
+    "family": "discrete-probability",
+    "classification": "distinct-algorithm",
+    "profile": "success",
+    "definition": "p∼Beta(a,b), posterior Beta(a+s,b+n−s), next success chance=(a+s)/(a+b+n)",
+    "variables": "s prior successes in n trials, a,b prior shapes",
+    "assumptions": "Conditionally independent Bernoulli trials with stable latent propensity",
+    "limitations": "Opponent composition shifts lead to biased pooling",
+    "failure_conditions": [
+      "Opponent composition shifts lead to biased pooling"
+    ],
+    "computation": "O(1) update",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 2"
+    },
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "application": "Model tennis service points, darts checkout attempts or comparable bounded event rates",
+    "required_inputs": "Ordered observable attempts with success labels and exposure counts from earlier events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "beta-binomial",
+      "bayes-rule"
+    ],
+    "incompatible_methods": [
+      "Current-event attempts in a pre-match specification"
+    ],
+    "relationships": [
+      {
+        "target": "beta-binomial",
+        "type": "related"
+      },
+      {
+        "target": "bayes-rule",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "dirichlet-update",
+    "name": "Dirichlet categorical conjugacy",
+    "family": "count-probability",
+    "classification": "distinct-algorithm",
+    "profile": "categories",
+    "definition": "p∼Dir(a), p∣x∼Dir(a+x), P(next=j∣x)=(a_j+x_j)/Σ_k(a_k+x_k)",
+    "variables": "a positive prior concentration vector, x earlier category counts",
+    "assumptions": "Exclusive categories and stable group composition",
+    "limitations": "Category definitions change between seasons",
+    "failure_conditions": [
+      "Category definitions change between seasons"
+    ],
+    "computation": "O(K) normalized prediction",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 3"
+    },
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Model overdispersion of prior outcome-type frequencies",
+    "required_inputs": "Historical grouped outcome counts with exclusive categories",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "dirichlet-multinomial",
+      "bayes-rule"
+    ],
+    "incompatible_methods": [
+      "Overlapping categories or unknown exposure"
+    ],
+    "relationships": [
+      {
+        "target": "dirichlet-multinomial",
+        "type": "related"
+      },
+      {
+        "target": "bayes-rule",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "normal-normal-update",
+    "name": "Normal conjugate mean update",
+    "family": "regression",
+    "classification": "distinct-algorithm",
+    "profile": "continuous",
+    "definition": "V=(1/v₀+n/σ²)^(-1), m=V(m₀/v₀+Σx_i/σ²); posterior N(m,V)",
+    "variables": "m₀ prior mean, v₀ prior variance, σ² known observation variance, n prior observations",
+    "assumptions": "Independent Gaussian measurements with known common variance",
+    "limitations": "Covariate-driven heteroskedasticity distorts shrinkage",
+    "failure_conditions": [
+      "Covariate-driven heteroskedasticity distorts shrinkage"
+    ],
+    "computation": "O(1) accumulated statistics",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 2"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "bayes-rule"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "bayes-rule",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "binomial-fixed-count",
+    "name": "Binomial count distribution",
+    "family": "discrete-probability",
+    "classification": "distribution",
+    "profile": "success",
+    "definition": "P(X=k)=C(n,k)p^k(1−p)^(n−k)",
+    "variables": "n fixed attempts, k successes, p constant success probability",
+    "assumptions": "Identically distributed independent attempts",
+    "limitations": "Within-session dependence invalidates binomial variance",
+    "failure_conditions": [
+      "Within-session dependence invalidates binomial variance"
+    ],
+    "computation": "O(1) log mass",
+    "source": {
+      "kind": "literature",
+      "citation": "Grimmett and Stirzaker, Probability and Random Processes, 3rd ed."
+    },
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "application": "Model tennis service points, darts checkout attempts or comparable bounded event rates",
+    "required_inputs": "Ordered observable attempts with success labels and exposure counts from earlier events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "beta-binomial"
+    ],
+    "incompatible_methods": [
+      "Current-event attempts in a pre-match specification"
+    ],
+    "relationships": [
+      {
+        "target": "beta-binomial",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "poisson-binomial",
+    "name": "Poisson-binomial count recursion",
+    "family": "discrete-probability",
+    "classification": "distribution",
+    "profile": "success",
+    "definition": "A_i(k)=(1−p_i)A_(i−1)(k)+p_i A_(i−1)(k−1), A_0(k)=1[k=0]",
+    "variables": "p_i known attempt-specific Bernoulli probabilities, A_i mass after i trials, k successes",
+    "assumptions": "Independent trials with possibly different probabilities",
+    "limitations": "Dependence between attempts gives wrong tail mass",
+    "failure_conditions": [
+      "Dependence between attempts gives wrong tail mass"
+    ],
+    "computation": "O(n²) for full mass",
+    "source": {
+      "kind": "literature",
+      "citation": "Grimmett and Stirzaker, Probability and Random Processes, 3rd ed.; recursion follows by conditioning on last attempt"
+    },
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "application": "Model tennis service points, darts checkout attempts or comparable bounded event rates",
+    "required_inputs": "Ordered observable attempts with success labels and exposure counts from earlier events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "binomial-fixed-count"
+    ],
+    "incompatible_methods": [
+      "Current-event attempts in a pre-match specification"
+    ],
+    "relationships": [
+      {
+        "target": "binomial-fixed-count",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "hypergeometric",
+    "name": "Hypergeometric distribution",
+    "family": "discrete-probability",
+    "classification": "distribution",
+    "profile": "success",
+    "definition": "P(X=k)=C(K,k)C(N−K,n−k)/C(N,n)",
+    "variables": "N finite population, K successes in it, n draws, k observed successes",
+    "assumptions": "Uniform sampling of subsets without replacement",
+    "limitations": "Selected lineups or nonuniform sampling invalidate null",
+    "failure_conditions": [
+      "Selected lineups or nonuniform sampling invalidate null"
+    ],
+    "computation": "O(1) log mass",
+    "source": {
+      "kind": "literature",
+      "citation": "Johnson, Kemp and Kotz, Univariate Discrete Distributions, 3rd ed."
+    },
+    "sports": [
+      "football",
+      "tennis",
+      "darts",
+      "nfl",
+      "rugby"
+    ],
+    "application": "Model tennis service points, darts checkout attempts or comparable bounded event rates",
+    "required_inputs": "Ordered observable attempts with success labels and exposure counts from earlier events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "binomial-fixed-count"
+    ],
+    "incompatible_methods": [
+      "Current-event attempts in a pre-match specification"
+    ],
+    "relationships": [
+      {
+        "target": "binomial-fixed-count",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "multinomial-fixed",
+    "name": "Multinomial distribution",
+    "family": "count-probability",
+    "classification": "distribution",
+    "profile": "categories",
+    "definition": "P(X=x)=n!∏_j p_j^(x_j)/x_j!",
+    "variables": "n independent trials, x counts summing to n, p fixed category probabilities",
+    "assumptions": "Mutually exclusive exhaustive outcomes and common category probabilities",
+    "limitations": "Game clustering creates excess dispersion",
+    "failure_conditions": [
+      "Game clustering creates excess dispersion"
+    ],
+    "computation": "O(K) log mass",
+    "source": {
+      "kind": "literature",
+      "citation": "Johnson, Kotz and Balakrishnan, Discrete Multivariate Distributions, 1997"
+    },
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Model overdispersion of prior outcome-type frequencies",
+    "required_inputs": "Historical grouped outcome counts with exclusive categories",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "dirichlet-multinomial"
+    ],
+    "incompatible_methods": [
+      "Overlapping categories or unknown exposure"
+    ],
+    "relationships": [
+      {
+        "target": "dirichlet-multinomial",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "categorical-markov",
+    "name": "Finite Markov transition estimation",
+    "family": "count-probability",
+    "classification": "distinct-model",
+    "profile": "categories",
+    "definition": "P̂_ij=N_ij/Σ_k N_ik; h-step conditional law from row i of P̂^h",
+    "variables": "N prior transition counts, i,j states, h steps",
+    "assumptions": "First-order time-homogeneous chain with observed states and nonempty rows",
+    "limitations": "Sparse states produce spurious absorbing transitions",
+    "failure_conditions": [
+      "Sparse states produce spurious absorbing transitions"
+    ],
+    "computation": "O(K²) storage, O(hK²) vector propagation",
+    "source": {
+      "kind": "literature",
+      "citation": "Norris, Markov Chains, Cambridge University Press, 1997"
+    },
+    "sports": [
+      "football",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Model overdispersion of prior outcome-type frequencies",
+    "required_inputs": "Historical grouped outcome counts with exclusive categories",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "hmm-forward",
+      "bellman-policy"
+    ],
+    "incompatible_methods": [
+      "Overlapping categories or unknown exposure"
+    ],
+    "relationships": [
+      {
+        "target": "hmm-forward",
+        "type": "related"
+      },
+      {
+        "target": "bellman-policy",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "fundamental-matrix",
+    "name": "Absorbing-chain expected duration",
+    "family": "stochastic-computation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "t=(I−Q)^(-1)1 with Q transient-to-transient probabilities",
+    "variables": "Q substochastic transient block, t expected steps to absorption, 1 vector of ones",
+    "assumptions": "Absorption almost surely from stated transient states",
+    "limitations": "Near-unit spectral radius makes duration very uncertain",
+    "failure_conditions": [
+      "Near-unit spectral radius makes duration very uncertain"
+    ],
+    "computation": "O(S³) dense linear solve",
+    "source": {
+      "kind": "literature",
+      "citation": "Grinstead and Snell, Introduction to Probability, 2nd revised ed., absorption section"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "categorical-markov"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "categorical-markov",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "stationary-renewal",
+    "name": "Renewal strong law",
+    "family": "point-processes",
+    "classification": "framework",
+    "profile": "timestamps",
+    "definition": "N(t)/t→1/E[X] almost surely as t→∞ for iid positive inter-arrivals X with E[X]<∞",
+    "variables": "N(t) events by elapsed time t, X inter-arrival time, E[X] mean inter-arrival time",
+    "assumptions": "Independent gaps with a common distribution and finite positive mean. Align sport clocks and specify resets across competition intervals",
+    "limitations": "The limit is the renewal strong law. It neither implies a stationary initial delay nor quantifies clustering",
+    "failure_conditions": [
+      "Match clock stoppages and dependence alter long-run rates"
+    ],
+    "computation": "O(n) sample mean",
+    "source": {
+      "kind": "literature",
+      "citation": "Ross, Stochastic Processes, 2nd ed., renewal theory; Gallager, Discrete Stochastic Processes, Theorem 4.3.1. https://ocw.mit.edu/courses/6-262-discrete-stochastic-processes-spring-2011/931ffa0940899c27f34b71ad64fd2bb0_MIT6_262S11_chap04.pdf"
+    },
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "application": "Estimate long-run event frequency from comparable prior inter-event gaps",
+    "required_inputs": "Historical event timestamps, clock intervals, exposure definitions and source release times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "hawkes"
+    ],
+    "incompatible_methods": [
+      "Later goals or clock events used in pre-match intensity"
+    ],
+    "relationships": [
+      {
+        "target": "hawkes",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "compound-poisson",
+    "name": "Compound Poisson weighted scoring",
+    "family": "count-probability",
+    "classification": "distinct-model",
+    "profile": "count",
+    "definition": "S=Σ_(i=1)^N Y_i, N∼Pois(λ); E[S]=λE[Y], Var(S)=λE[Y²]",
+    "variables": "N event count, Y points per event, S weighted total, λ expected count",
+    "assumptions": "Poisson cluster count and independent identically distributed cluster marks independent of that count. Model conversion conditional on the try inside its cluster",
+    "limitations": "Conversion attempts depend on tries rather than forming independently marked event values. Additional scoring types need an explicitly specified aggregation model. The cluster assumptions are conditional research assumptions",
+    "failure_conditions": [
+      "Conversion attempts depend on tries rather than forming independently marked event values"
+    ],
+    "computation": "O(1) moments after estimating mark moments",
+    "source": {
+      "kind": "literature",
+      "citation": "Ross, Introduction to Probability Models, 12th ed., compound Poisson process"
+    },
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "application": "Approximate rugby scoring using marked clusters, for example a try with the conversion points that follow it. Treat football goals as unit marks if using the goal-count special case",
+    "required_inputs": "Timestamped event counts and exposure. For rugby require linked try and conversion outcomes and explicit rules for other scoring types",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "poisson"
+    ],
+    "incompatible_methods": [
+      "Raw rugby points as unweighted event counts"
+    ],
+    "relationships": [
+      {
+        "target": "poisson",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "lognormal-duration",
+    "name": "Lognormal duration distribution",
+    "family": "statistical-transforms",
+    "classification": "distribution",
+    "profile": "positive",
+    "definition": "f(t)=exp(−(ln t−μ)²/(2σ²))/(tσ√(2π)) for t>0",
+    "variables": "t duration, μ log-duration mean, σ positive log-duration SD",
+    "assumptions": "Positive measurements and Gaussian logarithms",
+    "limitations": "Hard time limits and right censoring distort naive estimates",
+    "failure_conditions": [
+      "Hard time limits and right censoring distort naive estimates"
+    ],
+    "computation": "O(n) uncensored fitting",
+    "source": {
+      "kind": "literature",
+      "citation": "Johnson, Kotz and Balakrishnan, Continuous Univariate Distributions, vol. 1, 2nd ed."
+    },
+    "sports": [
+      "horse-racing",
+      "tennis"
+    ],
+    "application": "Transform skewed duration predictors for model fitting",
+    "required_inputs": "Positive comparable historical race or point durations",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "box-cox"
+    ],
+    "incompatible_methods": [
+      "Zeros and negative values"
+    ],
+    "relationships": [
+      {
+        "target": "box-cox",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "ex-gaussian-duration",
+    "name": "Exponentially modified Gaussian distribution",
+    "family": "statistical-transforms",
+    "classification": "distribution",
+    "profile": "positive",
+    "definition": "T=G+E where G∼N(μ,σ²), E∼Exp(λ) independent; density f_T(t)=∫_0^∞ λ exp(−λu)f_G(t−u)du",
+    "variables": "G baseline timing, E random delay, μ,σ normal parameters, λ rate",
+    "assumptions": "Use only when implied negative-time mass is negligible or truncate with explicit normalization",
+    "limitations": "The untruncated distribution has support on the real line. For strictly positive support use explicit renormalized truncation or a positive-support law",
+    "failure_conditions": [
+      "Long delays can reflect mixed rules instead of an exponential mechanism"
+    ],
+    "computation": "One quadrature per density or special-function evaluation",
+    "source": {
+      "kind": "literature",
+      "citation": "Ratcliff, Group Reaction Time Distributions and an Analysis of Distribution Statistics, Psychological Bulletin, 1979"
+    },
+    "sports": [
+      "horse-racing",
+      "tennis"
+    ],
+    "application": "Model signed timing residuals or approximate comparable race or tennis point durations when negative-time mass is negligible",
+    "required_inputs": "Positive comparable historical race or point durations",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "lognormal-duration"
+    ],
+    "incompatible_methods": [
+      "Zeros and negative values"
+    ],
+    "relationships": [
+      {
+        "target": "lognormal-duration",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "gev",
+    "name": "Generalized extreme-value distribution",
+    "family": "regression",
+    "classification": "distribution",
+    "profile": "continuous",
+    "definition": "F(x)=exp(−[1+ξ(x−μ)/σ]^(-1/ξ)) on positive bracket; ξ=0 limit exp(−exp(−(x−μ)/σ))",
+    "variables": "μ location, σ>0 scale, ξ shape, x block maximum",
+    "assumptions": "Comparable, approximately independent blocks; limits outside support by continuity",
+    "limitations": "Too few blocks and changing competition formats",
+    "failure_conditions": [
+      "Too few blocks and changing competition formats"
+    ],
+    "computation": "O(n) log likelihood per pass",
+    "source": {
+      "kind": "literature",
+      "citation": "Coles, An Introduction to Statistical Modeling of Extreme Values, 2001"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "lognormal-duration"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "lognormal-duration",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "gpd",
+    "name": "Generalized Pareto exceedance",
+    "family": "regression",
+    "classification": "distribution",
+    "profile": "continuous",
+    "definition": "F(y)=1−(1+ξy/σ)^(-1/ξ), y≥0 on positive bracket; ξ=0 gives 1−exp(−y/σ)",
+    "variables": "y amount above chosen threshold, σ>0 scale, ξ tail shape",
+    "assumptions": "Threshold sufficiently high, dependent exceedances declustered",
+    "limitations": "Tail extrapolation sensitive to threshold",
+    "failure_conditions": [
+      "Tail extrapolation sensitive to threshold"
+    ],
+    "computation": "O(n) log likelihood on exceedances",
+    "source": {
+      "kind": "literature",
+      "citation": "Coles, An Introduction to Statistical Modeling of Extreme Values, 2001"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "gev"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "gev",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "ecdf",
+    "name": "Empirical cumulative distribution",
+    "family": "regression",
+    "classification": "distinct-algorithm",
+    "profile": "continuous",
+    "definition": "F̂(t)=n^(-1)Σ_i1[x_i≤t]",
+    "variables": "x_i authorized prior observations, t queried threshold, n history size",
+    "assumptions": "Comparable target units and sufficiently stable distribution",
+    "limitations": "Extreme thresholds beyond observed support get degenerate estimates",
+    "failure_conditions": [
+      "Extreme thresholds beyond observed support get degenerate estimates"
+    ],
+    "computation": "O(n log n) sorted preprocessing; O(log n) query",
+    "source": {
+      "kind": "literature",
+      "citation": "Wasserman, All of Statistics, 2004"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "lognormal-duration"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "lognormal-duration",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "turnbull",
+    "name": "Turnbull interval-censored distribution fit",
+    "family": "survival-and-reliability",
+    "classification": "distinct-algorithm",
+    "profile": "survival",
+    "definition": "On maximal intersections J_j form A_ij=1[J_j inside I_i]; iterate p_j←p_j n^(-1)Σ_i A_ij/(Σ_k A_ik p_k) from positive masses",
+    "variables": "I_i observed censoring intervals, J_j candidate support intervals, p mass",
+    "assumptions": "Noninformative censoring and feasible intervals",
+    "limitations": "Mass may not be uniquely localized inside support intervals",
+    "failure_conditions": [
+      "Mass may not be uniquely localized inside support intervals"
+    ],
+    "computation": "O(nK) dense iteration",
+    "source": {
+      "kind": "literature",
+      "citation": "Turnbull, The Empirical Distribution Function with Arbitrarily Grouped, Censored and Truncated Data, JRSS B, 1976"
+    },
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "application": "Estimate time to a future withdrawal or return in records with defensible risk sets",
+    "required_inputs": "Time origin, historical at-risk durations, availability-as-of indicators, censoring and causes when specified",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "kaplan-meier"
+    ],
+    "incompatible_methods": [
+      "Backfilled event states or treating censored records as failures"
+    ],
+    "relationships": [
+      {
+        "target": "kaplan-meier",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "logrank",
+    "name": "Log-rank test",
+    "family": "survival-and-reliability",
+    "classification": "diagnostic",
+    "profile": "survival",
+    "definition": "U=Σ_j(d_1j−n_1j d_j/n_j); V=Σ_j n_1j(n_j−n_1j)d_j(n_j−d_j)/(n_j²(n_j−1)); use U²/V. Set the variance contribution to zero when n_j≤1. If V=0, report no test statistic",
+    "variables": "risk counts n, failures d by group and event time j; omit n_j≤1",
+    "assumptions": "Independent censoring, independent units, fixed groups and positive V",
+    "limitations": "Crossing hazards can cancel against each other",
+    "failure_conditions": [
+      "Crossing hazards can cancel against each other"
+    ],
+    "computation": "O(n log n) for time ordering",
+    "source": {
+      "kind": "literature",
+      "citation": "Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Data, 2nd ed."
+    },
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "application": "Estimate time to a future withdrawal or return in records with defensible risk sets",
+    "required_inputs": "Time origin, historical at-risk durations, availability-as-of indicators, censoring and causes when specified",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "kaplan-meier",
+      "cox-ph"
+    ],
+    "incompatible_methods": [
+      "Backfilled event states or treating censored records as failures"
+    ],
+    "relationships": [
+      {
+        "target": "kaplan-meier",
+        "type": "related"
+      },
+      {
+        "target": "cox-ph",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "greenwood",
+    "name": "Greenwood survival variance formula",
+    "family": "survival-and-reliability",
+    "classification": "diagnostic",
+    "profile": "survival",
+    "definition": "Var[Ŝ(t)]≈Ŝ(t)²Σ_(τ_j≤t) d_j/[n_j(n_j−d_j)]. Use the expression while all included n_j>d_j. At a terminal event with n_j=d_j, the Kaplan–Meier estimate is zero. Report the factored Greenwood estimate and interval as unavailable at and after that time",
+    "variables": "n_j risk set, d_j failures, τ_j time, Ŝ Kaplan–Meier estimate",
+    "assumptions": "Independent censoring with n_j>d_j at included times",
+    "limitations": "Unstable at tail of follow-up or all-at-risk failure. At complete depletion the factored expression has an indeterminate zero-times-infinity form. Do not treat this boundary as evidence of zero uncertainty",
+    "failure_conditions": [
+      "Unstable at tail of follow-up or all-at-risk failure"
+    ],
+    "computation": "O(n log n) with sorting",
+    "source": {
+      "kind": "literature",
+      "citation": "Kalbfleisch and Prentice, The Statistical Analysis of Failure Time Data, 2nd ed."
+    },
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "application": "Estimate time to a future withdrawal or return in records with defensible risk sets",
+    "required_inputs": "Time origin, historical at-risk durations, availability-as-of indicators, censoring and causes when specified",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "kaplan-meier"
+    ],
+    "incompatible_methods": [
+      "Backfilled event states or treating censored records as failures"
+    ],
+    "relationships": [
+      {
+        "target": "kaplan-meier",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "aalen-johansen",
+    "name": "Aalen–Johansen transition estimator",
+    "family": "survival-and-reliability",
+    "classification": "distinct-algorithm",
+    "profile": "survival",
+    "definition": "P̂(s,t)=∏_(s<u≤t)[I+ΔÂ(u)], with off-diagonal ΔÂ_ij=dN_ij(u)/Y_i(u), diagonal minus row sum",
+    "variables": "dN_ij transitions, Y_i at risk in source state, u event time, ordered product",
+    "assumptions": "Consistent transition coding and censoring compatible with risk sets",
+    "limitations": "Sparse transitions make matrix estimates unstable",
+    "failure_conditions": [
+      "Sparse transitions make matrix estimates unstable"
+    ],
+    "computation": "O(TK³) dense products over T times and K states",
+    "source": {
+      "kind": "literature",
+      "citation": "Aalen et al., Survival and Event History Analysis, 2008"
+    },
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "application": "Estimate time to a future withdrawal or return in records with defensible risk sets",
+    "required_inputs": "Time origin, historical at-risk durations, availability-as-of indicators, censoring and causes when specified",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "cumulative-incidence",
+      "nelson-aalen"
+    ],
+    "incompatible_methods": [
+      "Backfilled event states or treating censored records as failures"
+    ],
+    "relationships": [
+      {
+        "target": "cumulative-incidence",
+        "type": "related"
+      },
+      {
+        "target": "nelson-aalen",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "restricted-mean-survival-time",
+    "name": "Restricted mean survival time",
+    "family": "survival-and-reliability",
+    "classification": "diagnostic",
+    "profile": "survival",
+    "definition": "μ̂(τ)=∫_0^τ Ŝ(t)dt, integrate Kaplan–Meier step function exactly on breakpoints",
+    "variables": "τ prespecified time horizon, Ŝ survival estimate",
+    "assumptions": "Follow-up support covers τ",
+    "limitations": "Choosing τ after looking at relative outcomes biases comparisons",
+    "failure_conditions": [
+      "Choosing τ after looking at relative outcomes biases comparisons"
+    ],
+    "computation": "O(n log n) including survival sorting",
+    "source": {
+      "kind": "literature",
+      "citation": "Royston and Parmar, Restricted Mean Survival Time, BMC Medical Research Methodology, 2013"
+    },
+    "sports": [
+      "horse-racing",
+      "tennis",
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "application": "Estimate time to a future withdrawal or return in records with defensible risk sets",
+    "required_inputs": "Time origin, historical at-risk durations, availability-as-of indicators, censoring and causes when specified",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "kaplan-meier"
+    ],
+    "incompatible_methods": [
+      "Backfilled event states or treating censored records as failures"
+    ],
+    "relationships": [
+      {
+        "target": "kaplan-meier",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "poisson-deviance",
+    "name": "Poisson deviance",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "D=2Σ_i[y_i ln(y_i/μ_i)−(y_i−μ_i)], term y_i ln expression set to zero when y_i=0",
+    "variables": "y observed counts, μ positive forecasts",
+    "assumptions": "Forecasts correspond to identical exposure and event set",
+    "limitations": "Interpreting it as chi-square despite dispersion or dependence",
+    "failure_conditions": [
+      "Interpreting it as chi-square despite dispersion or dependence"
+    ],
+    "computation": "O(n)",
+    "source": {
+      "kind": "literature",
+      "citation": "McCullagh and Nelder, Generalized Linear Models, 2nd ed."
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess fitted means for a defined event count at aligned exposure",
+    "required_inputs": "Authorized settled nonnegative integer counts and aligned positive archived fitted means at the same exposure",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "poisson-regression"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data",
+      "Raw weighted rugby or NFL scoring totals without a justified count observation model"
+    ],
+    "relationships": [
+      {
+        "target": "poisson-regression",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "anderson-darling",
+    "name": "Anderson–Darling goodness of fit",
+    "family": "regression",
+    "classification": "diagnostic",
+    "profile": "continuous",
+    "definition": "A²=−n−(1/n)Σ_i(2i−1)[ln F(x_(i))+ln(1−F(x_(n+1−i)))]",
+    "variables": "F fully specified continuous CDF, x_(i) ascending observations",
+    "assumptions": "Independent observations under null and use correct null calibration",
+    "limitations": "Critical values for known parameters fail after fitted parameters are reused",
+    "failure_conditions": [
+      "Critical values for known parameters fail after fitted parameters are reused"
+    ],
+    "computation": "O(n log n)",
+    "source": {
+      "kind": "literature",
+      "citation": "Anderson and Darling, Asymptotic Theory of Certain Goodness of Fit Criteria, Annals of Mathematical Statistics, 1952"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ecdf"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "ecdf",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "ks-one-sample",
+    "name": "One-sample Kolmogorov–Smirnov statistic",
+    "family": "regression",
+    "classification": "diagnostic",
+    "profile": "continuous",
+    "definition": "D_n=sup_t abs(F̂_n(t)−F_0(t)); compute both sides of empirical jumps",
+    "variables": "F_0 continuous reference CDF, F̂_n empirical CDF",
+    "assumptions": "IID under fully specified continuous null for distribution-free calibration",
+    "limitations": "Discrete data and in-sample model fitting change the null law",
+    "failure_conditions": [
+      "Discrete data and in-sample model fitting change the null law"
+    ],
+    "computation": "O(n log n)",
+    "source": {
+      "kind": "literature",
+      "citation": "Wasserman, All of Statistics, 2004"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ecdf"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "ecdf",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "cvm",
+    "name": "Cramér–von Mises goodness of fit",
+    "family": "regression",
+    "classification": "diagnostic",
+    "profile": "continuous",
+    "definition": "W²=1/(12n)+Σ_i[F_0(x_(i))−(2i−1)/(2n)]²",
+    "variables": "x_(i) ascending observations, F_0 fully specified CDF, n size",
+    "assumptions": "IID continuous observations for conventional null. The usual one-sample null law requires a fully specified continuous F₀. Re-estimating parameters requires a separately justified calibration",
+    "limitations": "Fitting F_0 on observations changes test distribution",
+    "failure_conditions": [
+      "Fitting F_0 on observations changes test distribution"
+    ],
+    "computation": "O(n log n)",
+    "source": {
+      "kind": "literature",
+      "citation": "Csörgő and Faraway, The Exact and Asymptotic Distributions of Cramér–von Mises Statistics, JRSS B, 1996, Eq. 1.1. See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cramervonmises.html"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ks-one-sample"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "ks-one-sample",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "mcnemar",
+    "name": "Exact paired binary McNemar test",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "p=min(1,2 Pr[Binom(b+c,1/2)≤min(b,c)])",
+    "variables": "b,c opposite-direction disagreements on aligned prediction correctness",
+    "assumptions": "Independent event pairs and fixed binary correctness rule",
+    "limitations": "Repeated teams induce dependence and correctness discards calibration",
+    "failure_conditions": [
+      "Repeated teams induce dependence and correctness discards calibration"
+    ],
+    "computation": "O(n) to tally and binomial tail evaluation",
+    "source": {
+      "kind": "literature",
+      "citation": "Agresti, Categorical Data Analysis, 3rd ed., matched pairs"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. b,c opposite-direction disagreements on aligned prediction correctness",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "binomial-fixed-count"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "binomial-fixed-count",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "wilcoxon-signed-rank",
+    "name": "Wilcoxon signed-rank statistic",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "W⁺=Σ_(d_i>0) rank(abs(d_i)); discard zero differences and average tied ranks",
+    "variables": "d_i paired loss differences, W⁺ positive rank sum",
+    "assumptions": "Independent symmetric paired differences for usual location null",
+    "limitations": "Asymmetry and temporal dependence invalidate textbook p-values",
+    "failure_conditions": [
+      "Asymmetry and temporal dependence invalidate textbook p-values"
+    ],
+    "computation": "O(n log n)",
+    "source": {
+      "kind": "literature",
+      "citation": "Wilcoxon, Individual Comparisons by Ranking Methods, Biometrics Bulletin, 1945"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. d_i paired loss differences, W⁺ positive rank sum",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "mcnemar"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "mcnemar",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "spearman",
+    "name": "Spearman rank association",
+    "family": "multivariate-statistics",
+    "classification": "diagnostic",
+    "profile": "multifeature",
+    "definition": "ρ_s=corr(rank(x),rank(y)), using average ranks for ties",
+    "variables": "x,y two paired feature arrays, corr Pearson correlation",
+    "assumptions": "Meaningful ordered measurements and nonconstant ranks",
+    "limitations": "Nonmonotonic associations can cancel",
+    "failure_conditions": [
+      "Nonmonotonic associations can cancel"
+    ],
+    "computation": "O(n log n)",
+    "source": {
+      "kind": "literature",
+      "citation": "Spearman, The Proof and Measurement of Association Between Two Things, American Journal of Psychology, 1904"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize correlated form metrics or group similar historical performances",
+    "required_inputs": "Comparable numeric features from timestamped prior performances",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "pca"
+    ],
+    "incompatible_methods": [
+      "Whole-season fit or features computed from target-event observations"
+    ],
+    "relationships": [
+      {
+        "target": "pca",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "kendall-tau-b",
+    "name": "Kendall tau-b rank association",
+    "family": "rank-models",
+    "classification": "diagnostic",
+    "profile": "rank",
+    "definition": "τ_b=(C−D)/√((C+D+T_x)(C+D+T_y))",
+    "variables": "C,D concordant and discordant pairs, T_x,T_y pairs tied only on each rank variable",
+    "assumptions": "Nonzero denominator and consistent matched runners",
+    "limitations": "Consensus across fields of different sizes requires explicit aggregation",
+    "failure_conditions": [
+      "Consensus across fields of different sizes requires explicit aggregation"
+    ],
+    "computation": "O(n²) pair count",
+    "source": {
+      "kind": "literature",
+      "citation": "Kendall, A New Measure of Rank Correlation, Biometrika, 1938; tie correction in Kendall, Rank Correlation Methods"
+    },
+    "sports": [
+      "horse-racing"
+    ],
+    "application": "Estimate probabilities of horse finishing orders",
+    "required_inputs": "Event-time declared fields and historical finishing orders including tie and withdrawal policy",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "spearman"
+    ],
+    "incompatible_methods": [
+      "Excluded runners or ties treated as arbitrary ordered finishers"
+    ],
+    "relationships": [
+      {
+        "target": "spearman",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "ljung-box",
+    "name": "Ljung–Box residual autocorrelation check",
+    "family": "time-series",
+    "classification": "diagnostic",
+    "profile": "series",
+    "definition": "Q=n(n+2)Σ_(k=1)^m r_k²/(n−k)",
+    "variables": "r_k sample residual autocorrelation at lag k, n past sample size, m prespecified maximum lag",
+    "assumptions": "Regular sampling and appropriate degrees-of-freedom adjustment after fitting",
+    "limitations": "Season irregularity and variance shifts distort null",
+    "failure_conditions": [
+      "Season irregularity and variance shifts distort null"
+    ],
+    "computation": "O(nm) direct autocorrelations",
+    "source": {
+      "kind": "literature",
+      "citation": "Ljung and Box, On a Measure of Lack of Fit in Time Series Models, Biometrika, 1978"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "simple-ar"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "simple-ar",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "variance-ratio",
+    "name": "Lo–MacKinlay variance ratio",
+    "family": "time-series",
+    "classification": "diagnostic",
+    "profile": "series",
+    "definition": "Population VR(q)=Var(Σ_(j=0)^(q−1) r_(t−j))/(q Var(r_t)); diagnostic estimate uses earlier rolling sums",
+    "variables": "r_t increment, q horizon with q≥2, positive marginal variance",
+    "assumptions": "Comparable increment intervals; iid uncorrelated increments give ratio one",
+    "limitations": "Heteroskedasticity and overlapping windows change inference",
+    "failure_conditions": [
+      "Heteroskedasticity and overlapping windows change inference"
+    ],
+    "computation": "O(n) for fixed q rolling sums",
+    "source": {
+      "kind": "literature",
+      "citation": "Lo and MacKinlay, Stock Market Prices Do Not Follow Random Walks, Review of Financial Studies, 1988"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "first-difference"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "first-difference",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "adf",
+    "name": "Augmented Dickey–Fuller unit-root regression",
+    "family": "time-series",
+    "classification": "diagnostic",
+    "profile": "series",
+    "definition": "Fit Δy_t=a+bt+γ y_(t−1)+Σ_(j=1)^p δ_jΔy_(t−j)+ε_t; use t statistic for γ=0 with matching unit-root critical values",
+    "variables": "y series, p lags, a,b deterministic terms, γ level effect",
+    "assumptions": "Fixed deterministic specification and adequate innovation lags",
+    "limitations": "Structural breaks mimic unit roots",
+    "failure_conditions": [
+      "Structural breaks mimic unit roots"
+    ],
+    "computation": "O(np²) dense least squares",
+    "source": {
+      "kind": "literature",
+      "citation": "Hamilton, Time Series Analysis, 1994, ch. 17"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "simple-ar",
+      "first-difference"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "simple-ar",
+        "type": "related"
+      },
+      {
+        "target": "first-difference",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "kpss",
+    "name": "KPSS stationarity diagnostic",
+    "family": "time-series",
+    "classification": "diagnostic",
+    "profile": "series",
+    "definition": "η=Σ_t S_t²/(n²ω̂²), S_t=Σ_(j≤t)e_j from residuals after trend or mean regression",
+    "variables": "e residual, ω̂² HAC long-run variance, n length",
+    "assumptions": "Positive consistent long-run variance; use critical values for chosen deterministic terms",
+    "limitations": "Abrupt changes trigger rejection without identifying mechanism",
+    "failure_conditions": [
+      "Abrupt changes trigger rejection without identifying mechanism"
+    ],
+    "computation": "O(nL) with L HAC bandwidth",
+    "source": {
+      "kind": "literature",
+      "citation": "Kwiatkowski et al., Testing the Null Hypothesis of Stationarity, Journal of Econometrics, 1992"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "adf"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "adf",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "newey-west",
+    "name": "Newey–West long-run covariance",
+    "family": "time-series",
+    "classification": "distinct-algorithm",
+    "profile": "series",
+    "definition": "Ω̂=Γ̂_0+Σ_(j=1)^L(1−j/(L+1))(Γ̂_j+Γ̂_jᵀ)",
+    "variables": "Γ̂_j lag covariance of centered ordered score vectors, L bandwidth",
+    "assumptions": "Weak dependence and compatible bandwidth",
+    "limitations": "Long-memory or irregular timing invalidates approximation",
+    "failure_conditions": [
+      "Long-memory or irregular timing invalidates approximation"
+    ],
+    "computation": "O(nLd²) for d-dimensional scores",
+    "source": {
+      "kind": "literature",
+      "citation": "Newey and West, A Simple, Positive Semi-definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix, Econometrica, 1987"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "kpss"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "kpss",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "durbin-watson",
+    "name": "Durbin–Watson residual statistic",
+    "family": "time-series",
+    "classification": "diagnostic",
+    "profile": "series",
+    "definition": "DW=Σ_(t=2)^n(e_t−e_(t−1))²/Σ_(t=1)^n e_t²",
+    "variables": "e ordered regression residuals, n observations",
+    "assumptions": "Nonzero residual variance; test applicability depends on regressors",
+    "limitations": "Lagged dependent regressors invalidate standard bounds",
+    "failure_conditions": [
+      "Lagged dependent regressors invalidate standard bounds"
+    ],
+    "computation": "O(n)",
+    "source": {
+      "kind": "literature",
+      "citation": "Durbin and Watson, Testing for Serial Correlation in Least Squares Regression I, Biometrika, 1950"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ljung-box"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "ljung-box",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "breusch-pagan",
+    "name": "Breusch–Pagan variance diagnostic",
+    "family": "regression",
+    "classification": "diagnostic",
+    "profile": "continuous",
+    "definition": "After OLS, regress g_i=e_i²/σ̂²−1 on variance covariates plus intercept; LM=ESS/2",
+    "variables": "e residuals, σ̂²=Σe²/n, ESS explained sum of squares, n data size",
+    "assumptions": "Classical normal-error null and fixed covariates",
+    "limitations": "Non-normal errors require alternate calibration",
+    "failure_conditions": [
+      "Non-normal errors require alternate calibration"
+    ],
+    "computation": "Two least-squares fits",
+    "source": {
+      "kind": "literature",
+      "citation": "Breusch and Pagan, A Simple Test for Heteroscedasticity and Random Coefficient Variation, Econometrica, 1979"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ridge"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "ridge",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "cook-distance",
+    "name": "Cook influence distance",
+    "family": "regression",
+    "classification": "diagnostic",
+    "profile": "continuous",
+    "definition": "D_i=e_i² h_i/[d MSE(1−h_i)²]",
+    "variables": "e OLS residual, h_i diagonal hat leverage, d parameter count, MSE residual mean square",
+    "assumptions": "Full-rank OLS, n>d and h_i<1",
+    "limitations": "Influential observations can mask one another",
+    "failure_conditions": [
+      "Influential observations can mask one another"
+    ],
+    "computation": "One QR fit and O(nd) leverage calculation",
+    "source": {
+      "kind": "literature",
+      "citation": "Cook, Detection of Influential Observation in Linear Regression, Technometrics, 1977"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ridge"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "ridge",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "vif",
+    "name": "Variance inflation factor",
+    "family": "multivariate-statistics",
+    "classification": "diagnostic",
+    "profile": "multifeature",
+    "definition": "VIF_j=1/(1−R_j²), where R_j² regresses x_j on the other centered covariates with intercept",
+    "variables": "x_j covariate, R_j² multiple correlation",
+    "assumptions": "Nonconstant feature, common fit sample",
+    "limitations": "High collinearity need not reduce predictive accuracy",
+    "failure_conditions": [
+      "High collinearity need not reduce predictive accuracy"
+    ],
+    "computation": "O(nd²+d³) via a full-rank Gram factorization",
+    "source": {
+      "kind": "literature",
+      "citation": "Montgomery, Peck and Vining, Introduction to Linear Regression Analysis, 5th ed."
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize correlated form metrics or group similar historical performances",
+    "required_inputs": "Comparable numeric features from timestamped prior performances",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "pca"
+    ],
+    "incompatible_methods": [
+      "Whole-season fit or features computed from target-event observations"
+    ],
+    "relationships": [
+      {
+        "target": "pca",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "aic",
+    "name": "Akaike information criterion",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "AIC=2k−2ln L(θ̂)",
+    "variables": "k fitted free parameters, L maximized likelihood on same data",
+    "assumptions": "Comparable likelihoods on identical outcomes and regular estimation",
+    "limitations": "Nonidentifiability defeats parameter-count penalty",
+    "failure_conditions": [
+      "Nonidentifiability defeats parameter-count penalty"
+    ],
+    "computation": "O(1) after likelihood fitting",
+    "source": {
+      "kind": "literature",
+      "citation": "Akaike, A New Look at the Statistical Model Identification, IEEE Transactions on Automatic Control, 1974"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. k fitted free parameters, L maximized likelihood on same data",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "log-loss"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "log-loss",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "bic",
+    "name": "Schwarz Bayesian information criterion",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "BIC=k ln n−2ln L(θ̂)",
+    "variables": "k adjustable parameters, n independent sample units, L maximized likelihood",
+    "assumptions": "Regular parametric models and identical data likelihood",
+    "limitations": "Weak identifiability and clustered sample size distort penalty",
+    "failure_conditions": [
+      "Weak identifiability and clustered sample size distort penalty"
+    ],
+    "computation": "O(1) after model fitting",
+    "source": {
+      "kind": "literature",
+      "citation": "Schwarz, Estimating the Dimension of a Model, Annals of Statistics, 1978"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. k adjustable parameters, n independent sample units, L maximized likelihood",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "aic"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "aic",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "holm",
+    "name": "Holm sequential multiplicity control",
+    "family": "forecast-verification",
+    "classification": "distinct-algorithm",
+    "profile": "assessment",
+    "definition": "Order p_(i); reject sequentially while p_(i)≤α/(m−i+1), stop at first failure",
+    "variables": "m prespecified hypotheses, p marginal valid p-values, α family-wise error bound",
+    "assumptions": "P-values valid under each tested null, arbitrary dependence allowed",
+    "limitations": "Undeclared exploratory tests undermine family definition",
+    "failure_conditions": [
+      "Undeclared exploratory tests undermine family definition"
+    ],
+    "computation": "O(m log m)",
+    "source": {
+      "kind": "literature",
+      "citation": "Holm, A Simple Sequentially Rejective Multiple Test Procedure, Scandinavian Journal of Statistics, 1979"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. m prespecified hypotheses, p marginal valid p-values, α family-wise error bound",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "mcnemar"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "mcnemar",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "benjamini-hochberg",
+    "name": "Benjamini–Hochberg FDR procedure",
+    "family": "forecast-verification",
+    "classification": "distinct-algorithm",
+    "profile": "assessment",
+    "definition": "k=max{i:p_(i)≤iq/m}; reject ranks 1..k, or none if set empty",
+    "variables": "p ordered valid p-values, q target FDR, m hypotheses",
+    "assumptions": "Independent tests or qualifying positive dependence",
+    "limitations": "Arbitrary dependent comparisons can break nominal bound",
+    "failure_conditions": [
+      "Arbitrary dependent comparisons can break nominal bound"
+    ],
+    "computation": "O(m log m)",
+    "source": {
+      "kind": "literature",
+      "citation": "Benjamini and Hochberg, Controlling the False Discovery Rate, JRSS B, 1995"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. p ordered valid p-values, q target FDR, m hypotheses",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "holm"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "holm",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "diebold-mariano",
+    "name": "Diebold–Mariano forecast loss comparison",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "DM=√n d̄/√Ω̂ with d_t=L_(1,t)−L_(2,t), Ω̂ HAC long-run variance",
+    "variables": "d paired loss differences, n ordered paired events",
+    "assumptions": "Weak stationarity of loss difference and positive Ω̂",
+    "limitations": "Nested fitted models and small samples can invalidate asymptotic reference",
+    "failure_conditions": [
+      "Nested fitted models and small samples can invalidate asymptotic reference"
+    ],
+    "computation": "O(nL) for HAC lag bandwidth L",
+    "source": {
+      "kind": "literature",
+      "citation": "Diebold and Mariano, Comparing Predictive Accuracy, Journal of Business and Economic Statistics, 1995"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. d paired loss differences, n ordered paired events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "newey-west",
+      "log-loss"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "newey-west",
+        "type": "related"
+      },
+      {
+        "target": "log-loss",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "auc-roc",
+    "name": "ROC area via pair ordering",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "AUC=(1/(n₊n₋))Σ_(i positive,j negative)[1(s_i>s_j)+0.5·1(s_i=s_j)]",
+    "variables": "s archived score, n₊/n₋ positive and negative counts",
+    "assumptions": "Binary target and both classes present",
+    "limitations": "Strong discrimination can coexist with poor probabilities",
+    "failure_conditions": [
+      "Strong discrimination can coexist with poor probabilities"
+    ],
+    "computation": "O(n log n) rank tally",
+    "source": {
+      "kind": "literature",
+      "citation": "Hanley and McNeil, The Meaning and Use of the Area Under a Receiver Operating Characteristic Curve, Radiology, 1982"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. s archived score, n₊/n₋ positive and negative counts",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "log-loss"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "log-loss",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "average-precision",
+    "name": "Threshold-grouped average precision",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "AP=Σ_j(R_j−R_(j−1))P_j, descending distinct score thresholds. The sum is a step-weighted average of precision over recall increments. Trapezoidal PR area is a different convention",
+    "variables": "P_j precision, R_j recall, R_0=0",
+    "assumptions": "Fixed binary target and positive counts, tied thresholds grouped",
+    "limitations": "Prevalence shifts render AP comparisons misleading",
+    "failure_conditions": [
+      "Prevalence shifts render AP comparisons misleading"
+    ],
+    "computation": "O(n log n)",
+    "source": {
+      "kind": "literature",
+      "citation": "Davis and Goadrich, The Relationship Between Precision-Recall and ROC Curves, ICML 2006; step-area convention documented in scikit-learn average_precision_score"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. P_j precision, R_j recall, R_0=0",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "auc-roc"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "auc-roc",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "ece",
+    "name": "Fixed-bin expected calibration error",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "ECE=Σ_b(n_b/n)abs(mean_(i∈b)y_i−mean_(i∈b)p_i)",
+    "variables": "b fixed binary probability bins, y labels, p predictions, n_b counts",
+    "assumptions": "Bins fixed independently of scored labels",
+    "limitations": "Bin cancellation and small samples obscure miscalibration",
+    "failure_conditions": [
+      "Bin cancellation and small samples obscure miscalibration"
+    ],
+    "computation": "O(n+B) for B equal-width bins",
+    "source": {
+      "kind": "literature",
+      "citation": "Naeini, Cooper and Hauskrecht, Obtaining Well Calibrated Probabilities Using Bayesian Binning, AAAI 2015"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. b fixed binary probability bins, y labels, p predictions, n_b counts",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "brier",
+      "isotonic"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "brier",
+        "type": "related"
+      },
+      {
+        "target": "isotonic",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "calibration-in-large",
+    "name": "Calibration-in-the-large offset",
+    "family": "probability-forecasting",
+    "classification": "calibration",
+    "profile": "forecast",
+    "definition": "q_i=sigmoid(a+logit(p_i)); choose a such that Σq_i=Σy_i on calibration data",
+    "variables": "p_i earlier probabilities strictly between zero and one, y_i labels, a intercept",
+    "assumptions": "Only baseline odds shift with slope fixed at one and both classes present",
+    "limitations": "Conditional subgroup bias remains",
+    "failure_conditions": [
+      "Conditional subgroup bias remains"
+    ],
+    "computation": "O(n) per root iteration",
+    "source": {
+      "kind": "literature",
+      "citation": "Steyerberg, Clinical Prediction Models, 2nd ed., calibration chapter"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Combine, calibrate or compare forecasts for the same sporting event target",
+    "required_inputs": "Archived forecasts on aligned events and targets; older labels only when fitting",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "platt"
+    ],
+    "incompatible_methods": [
+      "Mismatched horizons or labels from the event being predicted"
+    ],
+    "relationships": [
+      {
+        "target": "platt",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "crps",
+    "name": "Continuous ranked probability score",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "CRPS(F,y)=∫_ℝ[F(z)−1(z≥y)]²dz",
+    "variables": "F archived CDF, y observed duration or margin, z integration variable",
+    "assumptions": "Forecast distribution has finite first moment",
+    "limitations": "Unbounded integration from poorly specified heavy tails",
+    "failure_conditions": [
+      "Unbounded integration from poorly specified heavy tails"
+    ],
+    "computation": "One-dimensional quadrature or closed form by family",
+    "source": {
+      "kind": "literature",
+      "citation": "Gneiting and Raftery, Strictly Proper Scoring Rules, JASA, 2007"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. F archived CDF, y observed duration or margin, z integration variable",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "rps",
+      "pit"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "rps",
+        "type": "related"
+      },
+      {
+        "target": "pit",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "pinball",
+    "name": "Pinball quantile forecast loss",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "L_τ(q,y)=(y−q)(τ−1[y<q])",
+    "variables": "q forecast τ-quantile, y realized margin or duration, τ∈(0,1)",
+    "assumptions": "Common quantile level and units across forecasts",
+    "limitations": "Comparing different quantile levels changes target",
+    "failure_conditions": [
+      "Comparing different quantile levels changes target"
+    ],
+    "computation": "O(1) per row",
+    "source": {
+      "kind": "literature",
+      "citation": "Gneiting and Raftery, Strictly Proper Scoring Rules, JASA, 2007"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. q forecast τ-quantile, y realized margin or duration, τ∈(0,1)",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "quantile-regression",
+      "crps"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "quantile-regression",
+        "type": "related"
+      },
+      {
+        "target": "crps",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002",
+    "mechanism_note": "Quantile regression fits a model by minimizing the same loss; this record scores a supplied quantile."
+  },
+  {
+    "id": "interval-score",
+    "name": "Central prediction interval score",
+    "family": "forecast-verification",
+    "classification": "diagnostic",
+    "profile": "assessment",
+    "definition": "IS_α(l,u;y)=(u−l)+(2/α)(l−y)1[y<l]+(2/α)(y−u)1[y>u]",
+    "variables": "l,u lower and upper forecast endpoints, y outcome, 1−α nominal coverage",
+    "assumptions": "Identical interval level and target units",
+    "limitations": "Apparent tightness without coverage leads to high penalties",
+    "failure_conditions": [
+      "Apparent tightness without coverage leads to high penalties"
+    ],
+    "computation": "O(1)",
+    "source": {
+      "kind": "literature",
+      "citation": "Gneiting and Raftery, Strictly Proper Scoring Rules, JASA, 2007"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Assess calibration or forecast quality in a permitted historical assessment sample",
+    "required_inputs": "Authorized development records and, where required, archived as-issued predictions paired with settled labels. l,u lower and upper forecast endpoints, y outcome, 1−α nominal coverage",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "pinball"
+    ],
+    "incompatible_methods": [
+      "Same-event outcome as a feature or any reserved evaluation data"
+    ],
+    "relationships": [
+      {
+        "target": "pinball",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "split-conformal",
+    "name": "Split conformal residual interval",
+    "family": "regression",
+    "classification": "distinct-algorithm",
+    "profile": "continuous",
+    "definition": "Compute calibration scores s_i=abs(y_i−m̂(x_i)); set r to rank ceil((n+1)(1−α)) of n scores plus infinity; return [m̂(x)−r,m̂(x)+r]",
+    "variables": "m̂ fitted on disjoint earlier data, n calibration rows, α miscoverage",
+    "assumptions": "Exchangeability of calibration/test scores conditional on fitted predictor",
+    "limitations": "Temporal drift breaks finite-sample coverage guarantee. Chronological splitting prevents training on later data. Marginal finite-sample coverage requires exchangeability or a separately justified guarantee",
+    "failure_conditions": [
+      "Temporal drift breaks finite-sample coverage guarantee"
+    ],
+    "computation": "O(n log n) sorting after fitting predictor",
+    "source": {
+      "kind": "literature",
+      "citation": "Lei et al., Distribution-Free Predictive Inference for Regression, JASA, 2018"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "interval-score"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "interval-score",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "conformal-quantile",
+    "name": "Conformalized quantile regression",
+    "family": "regression",
+    "classification": "model-variant",
+    "profile": "continuous",
+    "definition": "Set s_i=max(l̂(x_i)−y_i,y_i−û(x_i)); use split conformal corrected score quantile r and return [l̂(x)−r,û(x)+r]",
+    "variables": "l̂,û fitted lower and upper quantile models; r corrected rank threshold, s calibration score",
+    "assumptions": "Disjoint fitting and calibration, exchangeable scores",
+    "limitations": "Drift and poor quantile fit degrade coverage or width. Chronological splitting prevents training on later data. Marginal finite-sample coverage requires exchangeability or a separately justified guarantee",
+    "failure_conditions": [
+      "Drift and poor quantile fit degrade coverage or width"
+    ],
+    "computation": "Two fitted quantile models plus calibration sorting. Use ordered base bounds, with any deterministic rearrangement applied identically at calibration and inference. If the calibrated lower endpoint exceeds the upper endpoint, represent the result as the empty set",
+    "source": {
+      "kind": "literature",
+      "citation": "Romano, Patterson and Candès, Conformalized Quantile Regression, NeurIPS 2019"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "split-conformal",
+      "quantile-regression"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "split-conformal",
+        "type": "variant-of"
+      },
+      {
+        "target": "quantile-regression",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "vector-scaling",
+    "name": "Vector scaling calibration",
+    "family": "probability-forecasting",
+    "classification": "calibration",
+    "profile": "forecast",
+    "definition": "q_j=softmax(a⊙z+b)_j; fit class-specific a,b on disjoint earlier calibration logits via cross entropy",
+    "variables": "z logits, a,b vectors, ⊙ componentwise product, q calibrated probabilities",
+    "assumptions": "Adequate calibration examples in each class, offset identifiable up to common shift",
+    "limitations": "More degrees of freedom overfit rare outcomes",
+    "failure_conditions": [
+      "More degrees of freedom overfit rare outcomes"
+    ],
+    "computation": "O(nK) per gradient pass",
+    "source": {
+      "kind": "literature",
+      "citation": "Guo et al., On Calibration of Modern Neural Networks, ICML 2017"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Combine, calibrate or compare forecasts for the same sporting event target",
+    "required_inputs": "Archived forecasts on aligned events and targets; older labels only when fitting",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "temperature"
+    ],
+    "incompatible_methods": [
+      "Mismatched horizons or labels from the event being predicted"
+    ],
+    "relationships": [
+      {
+        "target": "temperature",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002",
+    "mechanism_note": "Class-specific generalization of temperature; diagonal slope and offsets, unlike full Dirichlet calibration on log probabilities."
+  },
+  {
+    "id": "dirichlet-calibration",
+    "name": "Dirichlet probability calibration",
+    "family": "probability-forecasting",
+    "classification": "calibration",
+    "profile": "forecast",
+    "definition": "q=softmax(W ln p+b); fit W,b by regularized multiclass log loss on earlier calibration predictions",
+    "variables": "p positive simplex input, W coefficient matrix, b offsets, q calibrated simplex",
+    "assumptions": "Stable support and sufficient calibration rows",
+    "limitations": "Rare classes and endpoint clipping make fitted corrections unstable",
+    "failure_conditions": [
+      "Rare classes and endpoint clipping make fitted corrections unstable"
+    ],
+    "computation": "O(nK²) dense gradient pass",
+    "source": {
+      "kind": "literature",
+      "citation": "Kull et al., Beyond Temperature Scaling: Obtaining Well-Calibrated Multiclass Probabilities with Dirichlet Calibration, NeurIPS 2019"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Combine, calibrate or compare forecasts for the same sporting event target",
+    "required_inputs": "Archived forecasts on aligned events and targets; older labels only when fitting",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "vector-scaling",
+      "softmax"
+    ],
+    "incompatible_methods": [
+      "Mismatched horizons or labels from the event being predicted"
+    ],
+    "relationships": [
+      {
+        "target": "vector-scaling",
+        "type": "related"
+      },
+      {
+        "target": "softmax",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "online-log-weights",
+    "name": "Exponentially weighted expert forecast updates",
+    "family": "probability-forecasting",
+    "classification": "ensemble",
+    "profile": "forecast",
+    "definition": "w_(t+1,j)=w_tj exp(−ηℓ_tj)/Σ_k w_tk exp(−ηℓ_tk); predict with current weighted pool",
+    "variables": "η positive learning rate, ℓ_tj expert loss observed after prediction t, w normalized weight",
+    "assumptions": "Loss versions become available before using updated weights",
+    "limitations": "Delayed labels or unbounded shock losses can suppress useful experts",
+    "failure_conditions": [
+      "Delayed labels or unbounded shock losses can suppress useful experts"
+    ],
+    "computation": "O(M) update per released result",
+    "source": {
+      "kind": "literature",
+      "citation": "Cesa-Bianchi and Lugosi, Prediction, Learning, and Games, 2006, expert advice"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Combine, calibrate or compare forecasts for the same sporting event target",
+    "required_inputs": "Archived forecasts on aligned events and targets; older labels only when fitting",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "weighted-ensemble"
+    ],
+    "incompatible_methods": [
+      "Mismatched horizons or labels from the event being predicted"
+    ],
+    "relationships": [
+      {
+        "target": "weighted-ensemble",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "fixed-share",
+    "name": "Fixed-share adaptive ensemble",
+    "family": "probability-forecasting",
+    "classification": "model-variant",
+    "profile": "forecast",
+    "definition": "Let v_j∝w_j exp(−ηℓ_j); set w'_j=(1−α)v_j+α/M",
+    "variables": "ℓ realized earlier expert loss, η learning rate, M experts, α share in [0,1]",
+    "assumptions": "Persistent expert switches plausible and losses synchronized",
+    "limitations": "Large α dilutes a stable dominant expert",
+    "failure_conditions": [
+      "Large α dilutes a stable dominant expert"
+    ],
+    "computation": "O(M) update",
+    "source": {
+      "kind": "literature",
+      "citation": "Herbster and Warmuth, Tracking the Best Expert, Machine Learning, 1998"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Combine, calibrate or compare forecasts for the same sporting event target",
+    "required_inputs": "Archived forecasts on aligned events and targets; older labels only when fitting",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "online-log-weights"
+    ],
+    "incompatible_methods": [
+      "Mismatched horizons or labels from the event being predicted"
+    ],
+    "relationships": [
+      {
+        "target": "online-log-weights",
+        "type": "variant-of"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002",
+    "mechanism_note": "Exponentiated online weights followed by redistribution; α=0 gives online-log-weights."
+  },
+  {
+    "id": "bayes-regret",
+    "name": "Posterior expected-loss decision",
+    "family": "stochastic-computation",
+    "classification": "decision",
+    "profile": "simulation",
+    "definition": "a*=argmin_(a∈A)Σ_θ L(a,θ)p(θ∣D). For statewise regret subtract min_b L(b,θ) inside the sum. This action-independent term leaves the same argmin",
+    "variables": "A finite research decisions, θ uncertain state, D prior archived observations, L declared loss",
+    "assumptions": "Specified posterior and meaningful loss scale",
+    "limitations": "Misspecified loss can invert ranking",
+    "failure_conditions": [
+      "Misspecified loss can invert ranking"
+    ],
+    "computation": "O(abs(A)·abs(Θ)) discrete",
+    "source": {
+      "kind": "literature",
+      "citation": "Berger, Statistical Decision Theory and Bayesian Analysis, 2nd ed."
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "bayes-rule",
+      "minimax-robust"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "bayes-rule",
+        "type": "related"
+      },
+      {
+        "target": "minimax-robust",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "cvar",
+    "name": "Conditional value at risk functional",
+    "family": "stochastic-computation",
+    "classification": "decision",
+    "profile": "simulation",
+    "definition": "CVaR_α(L)=min_z[z+E(max(L−z,0))/(1−α)]",
+    "variables": "L integrable simulator loss, α∈(0,1), z candidate quantile threshold",
+    "assumptions": "Tail scenarios represent relevant model errors",
+    "limitations": "Scenario shortage gives unstable tail mean",
+    "failure_conditions": [
+      "Scenario shortage gives unstable tail mean"
+    ],
+    "computation": "O(n log n) empirical sort",
+    "source": {
+      "kind": "literature",
+      "citation": "Rockafellar and Uryasev, Optimization of Conditional Value-at-Risk, Journal of Risk, 2000"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "bayes-regret"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "bayes-regret",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "minimax-regret",
+    "name": "Finite minimax regret selection",
+    "family": "stochastic-computation",
+    "classification": "decision",
+    "profile": "simulation",
+    "definition": "Select a*=argmin_a max_s[L(a,s)−min_b L(b,s)]",
+    "variables": "a,b candidate research choices, s scenario, L common loss",
+    "assumptions": "All scenarios considered and comparable loss meanings",
+    "limitations": "Scenario omissions hide worst regret",
+    "failure_conditions": [
+      "Scenario omissions hide worst regret"
+    ],
+    "computation": "O(abs(A)·abs(S)) using per-scenario minima",
+    "source": {
+      "kind": "literature",
+      "citation": "Savage, The Theory of Statistical Decision, JASA, 1951"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "bayes-regret",
+      "minimax-robust"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "bayes-regret",
+        "type": "related"
+      },
+      {
+        "target": "minimax-robust",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "latin-hypercube",
+    "name": "Latin hypercube input generation",
+    "family": "stochastic-computation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "Generate u_ij=(π_j(i)−1+v_ij)/N with independent random permutations π_j and iid uniform v_ij∈(0,1); use inverse marginal CDF for each column",
+    "variables": "N draws, d dimensions, i row, j dimension",
+    "assumptions": "Independent input marginals for direct inverse-CDF construction",
+    "limitations": "Nonlinear interactions can still have poor coverage",
+    "failure_conditions": [
+      "Nonlinear interactions can still have poor coverage"
+    ],
+    "computation": "O(Nd) sampling",
+    "source": {
+      "kind": "literature",
+      "citation": "McKay, Beckman and Conover, A Comparison of Three Methods for Selecting Values of Input Variables in the Analysis of Output from a Computer Code, Technometrics, 1979"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "monte-carlo"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "monte-carlo",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "stratified-mc",
+    "name": "Stratified Monte Carlo estimator",
+    "family": "stochastic-computation",
+    "classification": "model-variant",
+    "profile": "simulation",
+    "definition": "μ̂=Σ_h π_h n_h^(-1)Σ_i f(X_hi), X_hi sampled within stratum h",
+    "variables": "π_h known stratum probabilities, n_h≥1 replicates, f simulated result",
+    "assumptions": "Disjoint exhaustive strata with correctly known weights",
+    "limitations": "Empty high-impact strata cause bias if omitted",
+    "failure_conditions": [
+      "Empty high-impact strata cause bias if omitted"
+    ],
+    "computation": "O(N) evaluations after sampling",
+    "source": {
+      "kind": "literature",
+      "citation": "Robert and Casella, Monte Carlo Statistical Methods, 2nd ed."
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "monte-carlo"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "monte-carlo",
+        "type": "variant-of"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "mcmc-metropolis",
+    "name": "Metropolis–Hastings posterior simulation",
+    "family": "stochastic-computation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "Propose y∼q(·∣x), accept with probability min(1,π(y)q(x∣y)/(π(x)q(y∣x))), otherwise retain x",
+    "variables": "π unnormalized target, q proposal density, x current state",
+    "assumptions": "Irreducible aperiodic chain for convergence, evaluate on support",
+    "limitations": "Separated modes yield poor mixing",
+    "failure_conditions": [
+      "Separated modes yield poor mixing"
+    ],
+    "computation": "Two proposal density terms and one new log target per step",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastings, Monte Carlo Sampling Methods Using Markov Chains and Their Applications, Biometrika, 1970"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "monte-carlo",
+      "bayes-rule"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "monte-carlo",
+        "type": "related"
+      },
+      {
+        "target": "bayes-rule",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "gibbs",
+    "name": "Gibbs posterior sampling",
+    "family": "stochastic-computation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "For each sweep draw θ_j∼p(θ_j∣θ_(-j),D) in order using latest coordinates",
+    "variables": "θ_j parameter blocks, D earlier observations, θ_(-j) remaining blocks",
+    "assumptions": "Correct conditional samplers and ergodic joint chain",
+    "limitations": "Strong posterior correlation slows mixing",
+    "failure_conditions": [
+      "Strong posterior correlation slows mixing"
+    ],
+    "computation": "One full-conditional draw per block per sweep",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelfand and Smith, Sampling-Based Approaches to Calculating Marginal Densities, JASA, 1990"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "mcmc-metropolis",
+      "bayesian-hierarchical"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "mcmc-metropolis",
+        "type": "related"
+      },
+      {
+        "target": "bayesian-hierarchical",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "slice-sampling",
+    "name": "Univariate stepping-out slice sampler",
+    "family": "stochastic-computation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "Draw height u∼U(0,f(x)); choose randomly offset width-w interval around x, step outward until endpoints have f≤u; propose uniformly within interval and shrink rejected side about x until f(y)≥u",
+    "variables": "x current scalar, f unnormalized density, w positive step, y proposal",
+    "assumptions": "Proper density and finite stepping for sampled slices",
+    "limitations": "Disconnected regions can mix slowly",
+    "failure_conditions": [
+      "Disconnected regions can mix slowly"
+    ],
+    "computation": "Variable log-density calls per step",
+    "source": {
+      "kind": "literature",
+      "citation": "Neal, Slice Sampling, Annals of Statistics, 2003"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "mcmc-metropolis"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "mcmc-metropolis",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "rank-sobol",
+    "name": "First-order Sobol variance fraction",
+    "family": "stochastic-computation",
+    "classification": "diagnostic",
+    "profile": "simulation",
+    "definition": "S_j=Var(E[Y∣X_j])/Var(Y). The displayed first-order index uses original variables. The retained ID is historical and the formula includes no rank transform",
+    "variables": "Y=f(X) simulator output with positive finite variance, X_j independent input factor",
+    "assumptions": "Independent input factors for variance decomposition",
+    "limitations": "Correlated inputs do not have same sensitivity interpretation",
+    "failure_conditions": [
+      "Correlated inputs do not have same sensitivity interpretation"
+    ],
+    "computation": "Nested conditional sampling or pick-freeze estimator cost",
+    "source": {
+      "kind": "literature",
+      "citation": "Sobol, Global Sensitivity Indices for Nonlinear Mathematical Models and Their Monte Carlo Estimates, Mathematics and Computers in Simulation, 2001"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "monte-carlo"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "monte-carlo",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "sobol-total",
+    "name": "Total-effect Sobol variance fraction",
+    "family": "stochastic-computation",
+    "classification": "diagnostic",
+    "profile": "simulation",
+    "definition": "T_j=E[Var(Y∣X_(-j))]/Var(Y)",
+    "variables": "Y simulator output, X_(-j) all inputs except factor j",
+    "assumptions": "Independent inputs and positive finite variance",
+    "limitations": "Sampling noise obscures small interaction effects",
+    "failure_conditions": [
+      "Sampling noise obscures small interaction effects"
+    ],
+    "computation": "Nested simulation or paired evaluations",
+    "source": {
+      "kind": "literature",
+      "citation": "Homma and Saltelli, Importance Measures in Global Sensitivity Analysis of Nonlinear Models, Reliability Engineering and System Safety, 1996"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "rank-sobol"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "rank-sobol",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "linear-program",
+    "name": "Linear programming model",
+    "family": "operations-research",
+    "classification": "framework",
+    "profile": "assignment",
+    "definition": "Minimize cᵀx subject to Ax≤b and x≥0",
+    "variables": "x divisible resource allocations, c forecast loss gradient, A resource constraint matrix, b limits",
+    "assumptions": "Resource and objective coefficients additive and decision divisible",
+    "limitations": "Indivisible players require integer formulation",
+    "failure_conditions": [
+      "Indivisible players require integer formulation"
+    ],
+    "computation": "Polynomial for rational input with interior-point solver",
+    "source": {
+      "kind": "literature",
+      "citation": "Bertsimas and Tsitsiklis, Introduction to Linear Optimization, 1997"
+    },
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "application": "Compare hypothetical role assignments to study lineup sensitivity",
+    "required_inputs": "Pre-event eligible roster, historical role features and allowed assignments",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "hungarian"
+    ],
+    "incompatible_methods": [
+      "Using actual later lineups as if known beforehand"
+    ],
+    "relationships": [
+      {
+        "target": "hungarian",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "branch-bound",
+    "name": "Binary branch and bound",
+    "family": "operations-research",
+    "classification": "distinct-algorithm",
+    "profile": "assignment",
+    "definition": "Solve LP relaxation at node N with lower bound L_N; prune if infeasible or L_N≥ incumbent cost, otherwise split a fractional binary coordinate into x_j=0 and x_j=1; update incumbent on integral solutions",
+    "variables": "x binary choices, j branch index, N subproblem, L_N relaxation objective",
+    "assumptions": "Valid bound and feasible finite binary set",
+    "limitations": "Weak relaxations can force enumeration",
+    "failure_conditions": [
+      "Weak relaxations can force enumeration"
+    ],
+    "computation": "O(2^d) nodes worst case plus relaxation solves",
+    "source": {
+      "kind": "literature",
+      "citation": "Land and Doig, An Automatic Method of Solving Discrete Programming Problems, Econometrica, 1960"
+    },
+    "sports": [
+      "football",
+      "rugby",
+      "nfl"
+    ],
+    "application": "Compare hypothetical role assignments to study lineup sensitivity",
+    "required_inputs": "Pre-event eligible roster, historical role features and allowed assignments",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "linear-program"
+    ],
+    "incompatible_methods": [
+      "Using actual later lineups as if known beforehand"
+    ],
+    "relationships": [
+      {
+        "target": "linear-program",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "pareto-front",
+    "name": "Finite Pareto dominance filter",
+    "family": "stochastic-computation",
+    "classification": "decision",
+    "profile": "simulation",
+    "definition": "Keep a when no b satisfies f_i(b)≤f_i(a) for every objective i with strict inequality for some i",
+    "variables": "f_i losses such as error, latency or resource cost; a,b research designs",
+    "assumptions": "All objectives oriented to minimization and evaluated on common cases",
+    "limitations": "Noise creates spurious nondominated points",
+    "failure_conditions": [
+      "Noise creates spurious nondominated points"
+    ],
+    "computation": "O(KM²) direct for M designs and K objectives",
+    "source": {
+      "kind": "literature",
+      "citation": "Deb, Multi-Objective Optimization Using Evolutionary Algorithms, Wiley, 2001"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "bayes-regret"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "bayes-regret",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "nelder-mead",
+    "name": "Nelder–Mead direct search",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "Order d+1 points by increasing f with a fixed tie convention. Let b, s and w be the best, second-worst and worst vertices, and c the centroid without w. Reflect r=2c−w. If f(r)<f(b), try e=c+2(r−c) and accept e if f(e)<f(r), otherwise r. If f(b)≤f(r)<f(s), accept r. If f(s)≤f(r)<f(w), try o=c+(r−c)/2 and accept when f(o)≤f(r). If f(r)≥f(w), try i=c+(w−c)/2 and accept when f(i)<f(w). If the applicable contraction fails, shrink each nonbest x to b+(x−b)/2",
+    "variables": "d dimensions, c centroid, x_w worst point, objective scalar; use standard outside/inside contraction 1/2 and shrink 1/2. b, s and w denote vertices, c centroid, r reflection, e expansion, o outside contraction and i inside contraction",
+    "assumptions": "Continuous local search with scaled coordinates",
+    "limitations": "Can stagnate at nonstationary points",
+    "failure_conditions": [
+      "Can stagnate at nonstationary points"
+    ],
+    "computation": "O(d²) simplex storage and up to d evaluations per iteration",
+    "source": {
+      "kind": "literature",
+      "citation": "Lagarias et al., Convergence Properties of the Nelder–Mead Simplex Method in Low Dimensions, SIAM Journal on Optimization, 1998, Algorithm NM. https://www.math.kent.edu/~reichel/courses/optimization/reading.material.2/nelder.mead.pdf"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit parameters or solve a calibration objective using authorized training records or a sport simulator.",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "spsa"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "spsa",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "golden-section",
+    "name": "Golden-section unimodal minimization",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "Set c=b−g(b−a), d=a+g(b−a), g=(√5−1)/2; retain [a,d] if f(c)≤f(d), else [c,b]; repeat to width tolerance",
+    "variables": "a,b initial bounds, g retained-length fraction, f scalar loss",
+    "assumptions": "Unimodality on bracket and stable evaluations",
+    "limitations": "Noisy loss comparisons may discard optimum",
+    "failure_conditions": [
+      "Noisy loss comparisons may discard optimum"
+    ],
+    "computation": "O(log((b−a)/ε)) evaluations to width ε",
+    "source": {
+      "kind": "literature",
+      "citation": "Nocedal and Wright, Numerical Optimization, 2nd ed."
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit parameters or solve a calibration objective using authorized training records or a sport simulator.",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "nelder-mead"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "nelder-mead",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "bisection",
+    "name": "Bracketed scalar root bisection",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "profile": "continuous",
+    "definition": "Set m=(a+b)/2; keep half with opposite signs of g at endpoints or return m if g(m)=0; stop at requested interval width",
+    "variables": "g continuous objective equation, a,b bracket, m midpoint",
+    "assumptions": "Initial strict opposite signs and continuous evaluations",
+    "limitations": "Discontinuities can mimic roots",
+    "failure_conditions": [
+      "Discontinuities can mimic roots"
+    ],
+    "computation": "O(log((b−a)/ε)) evaluation count",
+    "source": {
+      "kind": "literature",
+      "citation": "Burden and Faires, Numerical Analysis, 9th ed."
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit parameters or solve a calibration objective using authorized training records or a sport simulator.",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "calibration-in-large"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "calibration-in-large",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "newton-root",
+    "name": "Newton scalar root iteration",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "profile": "continuous",
+    "definition": "x_(k+1)=x_k−g(x_k)/g′(x_k)",
+    "variables": "g root function, g′ derivative, x current parameter, k iteration",
+    "assumptions": "Differentiable near simple root with close start",
+    "limitations": "Near-zero derivative or remote start can diverge",
+    "failure_conditions": [
+      "Near-zero derivative or remote start can diverge"
+    ],
+    "computation": "One derivative and function evaluation per iteration",
+    "source": {
+      "kind": "literature",
+      "citation": "Burden and Faires, Numerical Analysis, 9th ed."
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit parameters or solve a calibration objective using authorized training records or a sport simulator.",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "bisection"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "bisection",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "conjugate-gradient",
+    "name": "Linear conjugate gradient",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "profile": "continuous",
+    "definition": "Initialize r=b−Ax, p=r; set α=(rᵀr)/(pᵀAp), x←x+αp, r′=r−αAp, β=(r′ᵀr′)/(rᵀr), p←r′+βp, r←r′; stop on small residual",
+    "variables": "A symmetric system matrix, b right-hand side, x solution, r residual, p direction",
+    "assumptions": "Positive definite A, monitor residual and stop on exact zero",
+    "limitations": "Poor conditioning and roundoff slow convergence",
+    "failure_conditions": [
+      "Poor conditioning and roundoff slow convergence"
+    ],
+    "computation": "One matrix-vector product and O(d) vector work per step",
+    "source": {
+      "kind": "literature",
+      "citation": "Hestenes and Stiefel, Methods of Conjugate Gradients for Solving Linear Systems, Journal of Research of the NBS, 1952"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit parameters or solve a calibration objective using authorized training records or a sport simulator.",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ridge"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "ridge",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "differential-evolution",
+    "name": "DE/rand/1/bin search",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "For target i choose distinct indices a,b,c different from i and form v=x_a+F(x_b−x_c). Choose one coordinate J uniformly and set u_J=v_J. For each j≠J independently set u_j=v_j with probability CR and u_j=x_ij otherwise. Retain u when f(u)≤f(x_i)",
+    "variables": "x bounded candidate vector, F scale, CR crossover probability, use clipping to declared bounds. J forced coordinate and u trial vector. For bounded problems declare the feasibility or repair rule before evaluation",
+    "assumptions": "Continuous objective and population of at least four",
+    "limitations": "Diversity collapse and costly noisy loss evaluations",
+    "failure_conditions": [
+      "Diversity collapse and costly noisy loss evaluations"
+    ],
+    "computation": "O(Nd) vector work plus N losses per generation",
+    "source": {
+      "kind": "literature",
+      "citation": "Storn and Price, Differential Evolution, Journal of Global Optimization, 1997"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit parameters or solve a calibration objective using authorized training records or a sport simulator.",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "pareto-front"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "pareto-front",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "simulated-annealing",
+    "name": "Metropolis simulated annealing",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "With symmetric proposal y near x accept with P=min(1,exp(−[f(y)−f(x)]/T_k)), reduce T_k along prespecified schedule",
+    "variables": "f loss, x incumbent, y proposal, T_k positive temperature",
+    "assumptions": "Proposal supports reachable feasible states; convergence depends on cooling schedule",
+    "limitations": "Fast cooling freezes in local minimum",
+    "failure_conditions": [
+      "Fast cooling freezes in local minimum"
+    ],
+    "computation": "One proposal and one objective evaluation per step",
+    "source": {
+      "kind": "literature",
+      "citation": "Kirkpatrick, Gelatt and Vecchi, Optimization by Simulated Annealing, Science, 1983"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit parameters or solve a calibration objective using authorized training records or a sport simulator.",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "mcmc-metropolis"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "mcmc-metropolis",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "cross-entropy-search",
+    "name": "Cross-entropy elite-sample optimizer",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "Sample x_i∼p_θ; take lowest-loss fraction ρ as elite E; update θ←argmax_ϑ Σ_(i∈E) ln p_ϑ(x_i)",
+    "variables": "θ proposal parameters, ρ preset elite fraction, E elite index set",
+    "assumptions": "Proposal family can cover useful candidate regions with stable elite size",
+    "limitations": "Variance collapse traps at local solutions",
+    "failure_conditions": [
+      "Variance collapse traps at local solutions"
+    ],
+    "computation": "N losses plus one weighted distribution fit per round",
+    "source": {
+      "kind": "literature",
+      "citation": "Rubinstein and Kroese, The Cross-Entropy Method, Springer, 2004"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit parameters or solve a calibration objective using authorized training records or a sport simulator.",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "latin-hypercube"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "latin-hypercube",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "bandit-ucb",
+    "name": "UCB1 exploration index",
+    "family": "stochastic-computation",
+    "classification": "decision",
+    "profile": "simulation",
+    "definition": "After one pull of each arm choose a_t=argmax_j[x̄_j+√(2 ln t/n_j)] using only rewards revealed before step t",
+    "variables": "x̄_j past mean reward in [0,1], n_j observed arm count, t decision index",
+    "assumptions": "Stationary independent bounded rewards per arm; research simulator only",
+    "limitations": "Delayed feedback and nonstationary model quality distort bonus",
+    "failure_conditions": [
+      "Delayed feedback and nonstationary model quality distort bonus"
+    ],
+    "computation": "O(K) for K arms",
+    "source": {
+      "kind": "literature",
+      "citation": "Auer, Cesa-Bianchi and Fischer, Finite-time Analysis of the Multiarmed Bandit Problem, Machine Learning, 2002"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "hoeffding"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "hoeffding",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "bandit-thompson",
+    "name": "Beta–Bernoulli Thompson selection",
+    "family": "stochastic-computation",
+    "classification": "decision",
+    "profile": "simulation",
+    "definition": "At step t sample p_j∼Beta(a_j+s_j,b_j+f_j) independently and select a_t=argmax_j p_j",
+    "variables": "a_j,b_j prior shapes, s_j,f_j revealed successes/failures for arm j, p_j posterior draw",
+    "assumptions": "Stationary independent binary reward conditional on arm, research simulator only",
+    "limitations": "Unknown reward lag or drift breaks stationary evidence accumulation",
+    "failure_conditions": [
+      "Unknown reward lag or drift breaks stationary evidence accumulation"
+    ],
+    "computation": "K beta draws per step",
+    "source": {
+      "kind": "literature",
+      "citation": "Thompson, On the Likelihood that One Unknown Probability Exceeds Another, Biometrika, 1933"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "beta-bernoulli-update",
+      "bandit-ucb"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "beta-bernoulli-update",
+        "type": "related"
+      },
+      {
+        "target": "bandit-ucb",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "gaussian-process",
+    "name": "Gaussian process regression",
+    "family": "regression",
+    "classification": "distinct-model",
+    "profile": "continuous",
+    "definition": "For residual vector y−m, predictive mean μ_*=m_*+k_*ᵀ(K+σ²I)^(-1)(y−m), latent variance v_*=k_**−k_*ᵀ(K+σ²I)^(-1)k_*",
+    "variables": "K train kernel matrix, k_* train-query covariance, k_** query variance, m prior mean, σ² noise",
+    "assumptions": "Positive semidefinite kernel, Gaussian noise, earlier-only hyperparameter fit",
+    "limitations": "Smooth kernel smears abrupt change and dense fits do not scale",
+    "failure_conditions": [
+      "Smooth kernel smears abrupt change and dense fits do not scale"
+    ],
+    "computation": "O(n³) dense training, O(n²) variance query",
+    "source": {
+      "kind": "literature",
+      "citation": "Rasmussen and Williams, Gaussian Processes for Machine Learning, 2006, ch. 2"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ridge",
+      "kalman"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "ridge",
+        "type": "related"
+      },
+      {
+        "target": "kalman",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "expected-improvement",
+    "name": "Gaussian expected improvement acquisition",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "EI(x)=(f_best−μ)Φ(z)+σφ(z), z=(f_best−μ)/σ; for σ=0 use max(f_best−μ,0)",
+    "variables": "μ,σ surrogate mean and SD, f_best known incumbent minimization value, Φ/φ normal CDF/density",
+    "assumptions": "Gaussian predictive law and comparable objective values",
+    "limitations": "Overconfident surrogate neglects promising regions",
+    "failure_conditions": [
+      "Overconfident surrogate neglects promising regions"
+    ],
+    "computation": "One surrogate prediction plus O(1) per candidate",
+    "source": {
+      "kind": "literature",
+      "citation": "Jones, Schonlau and Welch, Efficient Global Optimization of Expensive Black-Box Functions, Journal of Global Optimization, 1998"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit parameters or solve a calibration objective using authorized training records or a sport simulator.",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "gaussian-process",
+      "nelder-mead"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "gaussian-process",
+        "type": "related"
+      },
+      {
+        "target": "nelder-mead",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "svr",
+    "name": "Epsilon-insensitive support-vector regression",
+    "family": "regression",
+    "classification": "distinct-model",
+    "profile": "continuous",
+    "definition": "Minimize J(w,b)=0.5 squared_norm(w)+CΣ_i max(0,abs(y_i−wᵀφ(x_i)−b)−ε)",
+    "variables": "w weights in feature space, φ map, y response, b intercept, ε insensitivity, C positive loss weight",
+    "assumptions": "Common response units and selected kernel positive semidefinite",
+    "limitations": "Kernel and tube tuning can overfit or oversmooth",
+    "failure_conditions": [
+      "Kernel and tube tuning can overfit or oversmooth"
+    ],
+    "computation": "Kernel version stores up to O(n²) Gram entries",
+    "source": {
+      "kind": "literature",
+      "citation": "Smola and Schölkopf, A Tutorial on Support Vector Regression, Statistics and Computing, 2004"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Predict a continuous sport target like race time or score differential",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ridge",
+      "huber-regression"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "ridge",
+        "type": "related"
+      },
+      {
+        "target": "huber-regression",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "gaussian-naive-bayes",
+    "name": "Gaussian naive Bayes classifier",
+    "family": "statistical-inference",
+    "classification": "distinct-model",
+    "profile": "binary",
+    "definition": "P(Y=c∣x)∝π_c ∏_j N(x_j;μ_cj,σ_cj²), normalize across classes",
+    "variables": "π_c prior class probabilities, x_j features, μ_cj and σ_cj² class-specific moments",
+    "assumptions": "Conditional independence of features and positive variance",
+    "limitations": "Correlated rolling features cause overconfidence",
+    "failure_conditions": [
+      "Correlated rolling features cause overconfidence"
+    ],
+    "computation": "O(nd) fitting and O(d) binary prediction",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §6.6"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Estimate or update a binary event such as a tennis service hold or a football clean sheet",
+    "required_inputs": "Historically available features and older binary outcomes or prespecified likelihoods",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "bayes-rule",
+      "logistic"
+    ],
+    "incompatible_methods": [
+      "Multiclass results passed as binary without a stated recoding"
+    ],
+    "relationships": [
+      {
+        "target": "bayes-rule",
+        "type": "related"
+      },
+      {
+        "target": "logistic",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "lda-classifier",
+    "name": "Linear discriminant analysis",
+    "family": "statistical-inference",
+    "classification": "distinct-model",
+    "profile": "binary",
+    "definition": "δ_c(x)=xᵀΣ^(-1)μ_c−μ_cᵀΣ^(-1)μ_c/2+ln π_c; predict softmax(δ)_c",
+    "variables": "c outcome, μ_c means, Σ common within-class covariance, π_c class priors",
+    "assumptions": "Shared nonsingular covariance and Gaussian class likelihoods",
+    "limitations": "Different within-class dispersions curl decision boundary",
+    "failure_conditions": [
+      "Different within-class dispersions curl decision boundary"
+    ],
+    "computation": "O(nd²+d³) dense training",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §4.3"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Estimate or update a binary event such as a tennis service hold or a football clean sheet",
+    "required_inputs": "Historically available features and older binary outcomes or prespecified likelihoods",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "gaussian-naive-bayes",
+      "softmax"
+    ],
+    "incompatible_methods": [
+      "Multiclass results passed as binary without a stated recoding"
+    ],
+    "relationships": [
+      {
+        "target": "gaussian-naive-bayes",
+        "type": "related"
+      },
+      {
+        "target": "softmax",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "qda-classifier",
+    "name": "Quadratic discriminant analysis",
+    "family": "statistical-inference",
+    "classification": "model-variant",
+    "profile": "binary",
+    "definition": "δ_c(x)=ln π_c−0.5 ln detΣ_c−0.5(x−μ_c)ᵀΣ_c^(-1)(x−μ_c); use softmax across c",
+    "variables": "class priors π, class means μ, class-specific covariance Σ_c",
+    "assumptions": "Gaussian classes and nonsingular class covariances",
+    "limitations": "Rare class covariance difficult to estimate",
+    "failure_conditions": [
+      "Rare class covariance difficult to estimate"
+    ],
+    "computation": "O(Kd³) covariance factorizations for K classes",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §4.3"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Estimate or update a binary event such as a tennis service hold or a football clean sheet",
+    "required_inputs": "Historically available features and older binary outcomes or prespecified likelihoods",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "lda-classifier"
+    ],
+    "incompatible_methods": [
+      "Multiclass results passed as binary without a stated recoding"
+    ],
+    "relationships": [
+      {
+        "target": "lda-classifier",
+        "type": "variant-of"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "adaboost",
+    "name": "AdaBoost binary reweighting",
+    "family": "statistical-inference",
+    "classification": "ensemble",
+    "profile": "binary",
+    "definition": "For labels and classifier outputs ±1 set ε_m=Σ_i w_i1[y_i≠h_m(x_i)], α_m=0.5 ln((1−ε_m)/ε_m); update w_i∝w_i exp(−α_m y_i h_m(x_i)), aggregate sign(Σ_m α_m h_m). Apply the finite weight formula only for 0<ε_m<1/2. At ε_m=0 stop with the perfect training rule as the infinite-weight limit. For ε_m≥1/2 reject the weak rule and stop this specified procedure",
+    "variables": "w sample weights, h base weak learner, α coefficient; stop on zero error or no better than chance",
+    "assumptions": "Weak learner improves on chance under current weights",
+    "limitations": "Repeated mislabeled rows dominate later stages",
+    "failure_conditions": [
+      "Repeated mislabeled rows dominate later stages"
+    ],
+    "computation": "M weak fits and O(Mn) reweighting",
+    "source": {
+      "kind": "literature",
+      "citation": "Freund and Schapire, A Decision-Theoretic Generalization of On-Line Learning and an Application to Boosting, JCSS, 1997"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Estimate or update a binary event such as a tennis service hold or a football clean sheet",
+    "required_inputs": "Historically available features and older binary outcomes or prespecified likelihoods",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "gradient-boost"
+    ],
+    "incompatible_methods": [
+      "Multiclass results passed as binary without a stated recoding"
+    ],
+    "relationships": [
+      {
+        "target": "gradient-boost",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "elastic-weight-consolidation",
+    "name": "Elastic weight consolidation",
+    "family": "deep-learning",
+    "classification": "model-variant",
+    "profile": "continuous",
+    "definition": "Minimize J(θ)=L_new(θ)+(λ/2)Σ_i F_i(θ_i−θ_i_old)²",
+    "variables": "θ network weights, F_i diagonal Fisher estimate from earlier task, λ penalty, L_new new-task loss",
+    "assumptions": "Old parameters carry useful stable task structure",
+    "limitations": "Unreliable Fisher estimates lock obsolete features",
+    "failure_conditions": [
+      "Unreliable Fisher estimates lock obsolete features"
+    ],
+    "computation": "O(d) storage and penalty per step",
+    "source": {
+      "kind": "literature",
+      "citation": "Kirkpatrick et al., Overcoming Catastrophic Forgetting in Neural Networks, PNAS, 2017"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Use sequences of earlier match or session measurements to learn form features for later fixtures.",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ridge"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "ridge",
+        "type": "variant-of"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "lstm",
+    "name": "Long short-term memory recurrent cell",
+    "family": "deep-learning",
+    "classification": "distinct-model",
+    "profile": "series",
+    "definition": "Compute i,f,o=sigmoid(W_g[x_t;h_prev]+b_g) with separate g weights; u=tanh(W_u[x_t;h_prev]+b_u); c_t=f⊙c_prev+i⊙u; h_t=o⊙tanh(c_t). This is the forget-gate architecture with no peephole terms. Each gate uses its own affine map of the input and previous hidden state",
+    "variables": "x observations, h output, c memory, i/f/o gates, u candidate, W,b fit coefficients",
+    "assumptions": "Chronological input sequences with documented resets and causal training",
+    "limitations": "Sparse teams and regime shifts make capacity hard to regularize",
+    "failure_conditions": [
+      "Sparse teams and regime shifts make capacity hard to regularize"
+    ],
+    "computation": "O(H(H+D)) per step for hidden H and input D",
+    "source": {
+      "kind": "literature",
+      "citation": "Gers, Schmidhuber and Cummins, Learning to Forget: Continual Prediction with LSTM, Neural Computation, 2000"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Use sequences of earlier match or session measurements to learn form features for later fixtures.",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "simple-ar",
+      "kalman"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "simple-ar",
+        "type": "related"
+      },
+      {
+        "target": "kalman",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "gru",
+    "name": "Gated recurrent unit",
+    "family": "deep-learning",
+    "classification": "distinct-model",
+    "profile": "series",
+    "definition": "r=σ(W_r x+U_r h), z=σ(W_z x+U_z h), u=tanh(W_u x+U_u(r⊙h)), h_new=(1−z)⊙h+z⊙u. Cho et al. Eq. 7 places its z on the old state. For equal outputs set z_here=1−z_Cho by negating the entire update-gate affine map",
+    "variables": "x current historical feature, h prior hidden state, r reset, z update, u candidate, W,U learned matrices",
+    "assumptions": "Causal sequence and sufficient history for learned gates",
+    "limitations": "Gate saturation and group composition shifts reduce generalization",
+    "failure_conditions": [
+      "Gate saturation and group composition shifts reduce generalization"
+    ],
+    "computation": "O(H(H+D)) per step for hidden H and input D",
+    "source": {
+      "kind": "literature",
+      "citation": "Cho et al., Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation, EMNLP 2014"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Use sequences of earlier match or session measurements to learn form features for later fixtures.",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "lstm"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "lstm",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "causal-attention",
+    "name": "Causally masked scaled dot-product attention",
+    "family": "deep-learning",
+    "classification": "feature-transformation",
+    "profile": "series",
+    "definition": "A=softmax_rows(QKᵀ/√d+M)V, M_ij=0 if j≤i and −∞ otherwise",
+    "variables": "Q/K/V query, key and value matrices, d key width, i query time, j key time",
+    "assumptions": "Sort by availability and use correct within-timestamp policy",
+    "limitations": "Precomputed future-informed keys leak despite mask",
+    "failure_conditions": [
+      "Precomputed future-informed keys leak despite mask"
+    ],
+    "computation": "O(T²d) dense for T sequence positions",
+    "source": {
+      "kind": "literature",
+      "citation": "Vaswani et al., Attention Is All You Need, NeurIPS 2017"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Use sequences of earlier match or session measurements to learn form features for later fixtures.",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "softmax",
+      "lstm"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "softmax",
+        "type": "related"
+      },
+      {
+        "target": "lstm",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "causal-dilated-conv",
+    "name": "Causal dilated temporal convolution",
+    "family": "deep-learning",
+    "classification": "feature-transformation",
+    "profile": "series",
+    "definition": "y_t=Σ_(j=0)^(k−1) W_j x_(t−δj) with zero padding only to left",
+    "variables": "x earlier sequence, W_j filter weights, k kernel width, δ positive dilation",
+    "assumptions": "Order and sampling meaningful and no right padding in features",
+    "limitations": "Gridding effects miss events between sampled lags",
+    "failure_conditions": [
+      "Gridding effects miss events between sampled lags"
+    ],
+    "computation": "O(Tk C_in C_out) for T times and channel counts",
+    "source": {
+      "kind": "literature",
+      "citation": "Bai, Kolter and Koltun, An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling, arXiv:1803.01271"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Use sequences of earlier match or session measurements to learn form features for later fixtures.",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "haar-wavelet"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "haar-wavelet",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "adam",
+    "name": "Adam stochastic gradient optimizer",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "profile": "continuous",
+    "definition": "m_t=β₁m_prev+(1−β₁)g_t, v_t=β₂v_prev+(1−β₂)g_t²; θ←θ−η[m_t/(1−β₁^t)]/[√(v_t/(1−β₂^t))+ε]",
+    "variables": "g_t stochastic gradient, componentwise squares, θ coefficients, β decays, η learning rate, ε stabilizer, m₀=v₀=0",
+    "assumptions": "Differentiable losses and finite gradients; tune on earlier splits",
+    "limitations": "Optimization convergence can fail under some gradient sequences",
+    "failure_conditions": [
+      "Optimization convergence can fail under some gradient sequences"
+    ],
+    "computation": "O(d) auxiliary memory and vector updates",
+    "source": {
+      "kind": "literature",
+      "citation": "Kingma and Ba, Adam: A Method for Stochastic Optimization, ICLR 2015"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit parameters or solve a calibration objective using authorized training records or a sport simulator.",
+    "required_inputs": "Earlier features and continuous measurements such as duration, margin or rates defined on completed training events",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "spsa"
+    ],
+    "incompatible_methods": [
+      "Outcome-derived predictors or a continuous output used directly as a class probability"
+    ],
+    "relationships": [
+      {
+        "target": "spsa",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "diff-in-diff",
+    "name": "Two-group two-period difference in differences",
+    "family": "causal-inference",
+    "classification": "distinct-algorithm",
+    "profile": "causal",
+    "definition": "τ̂=(Ȳ_1,post−Ȳ_1,pre)−(Ȳ_0,post−Ȳ_0,pre)",
+    "variables": "group 1 exposed, group 0 comparison, Y outcome and pre/post periods",
+    "assumptions": "Parallel untreated trends, no anticipation, no spillovers and stable groups",
+    "limitations": "Concurrent rule changes confined to treated group confound effect",
+    "failure_conditions": [
+      "Concurrent rule changes confined to treated group confound effect"
+    ],
+    "computation": "O(n) group means",
+    "source": {
+      "kind": "literature",
+      "citation": "Angrist and Pischke, Mostly Harmless Econometrics, 2009"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Retrospectively estimate or check the effect of a coaching, roster, scheduling or rule change before considering a feature for future forecasts.",
+    "required_inputs": "Historical exposures, outcomes, and measured confounders known before treatment",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "ipw"
+    ],
+    "incompatible_methods": [
+      "Post-treatment covariates as confounders or unmeasured assignment assumed random"
+    ],
+    "relationships": [
+      {
+        "target": "ipw",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "synthetic-control",
+    "name": "Synthetic control counterfactual",
+    "family": "causal-inference",
+    "classification": "distinct-algorithm",
+    "profile": "causal",
+    "definition": "Fit w=argmin_(w≥0,Σw=1)squared_V_norm(X_1−X_0w) on pre-treatment histories; counterfactual Ŷ_1t=Σ_j w_j Y_jt",
+    "variables": "X treated/donor predictors, V positive semidefinite metric, w donor weights, Y subsequent outcomes for retrospective analysis",
+    "assumptions": "Unexposed donors and adequate pre-treatment fit",
+    "limitations": "No comparable convex donor combination yields extrapolation bias",
+    "failure_conditions": [
+      "No comparable convex donor combination yields extrapolation bias"
+    ],
+    "computation": "Constrained quadratic solve plus O(J) per donor period",
+    "source": {
+      "kind": "literature",
+      "citation": "Abadie, Diamond and Hainmueller, Synthetic Control Methods for Comparative Case Studies, JASA, 2010"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Retrospectively estimate or check the effect of a coaching, roster, scheduling or rule change before considering a feature for future forecasts.",
+    "required_inputs": "Historical exposures, outcomes, and measured confounders known before treatment",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "diff-in-diff",
+      "project-simplex"
+    ],
+    "incompatible_methods": [
+      "Post-treatment covariates as confounders or unmeasured assignment assumed random"
+    ],
+    "relationships": [
+      {
+        "target": "diff-in-diff",
+        "type": "related"
+      },
+      {
+        "target": "project-simplex",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "rd-local-linear",
+    "name": "Sharp regression discontinuity with local linear limits",
+    "family": "causal-inference",
+    "classification": "distinct-algorithm",
+    "profile": "causal",
+    "definition": "Fit separate weighted lines Y=a_s+b_s(X−c) on each side s of c using nonnegative K((X−c)/h); τ̂=a_right−a_left",
+    "variables": "X running variable, c assignment cutoff, h bandwidth, K kernel, Y retrospective outcome",
+    "assumptions": "Continuity of potential outcome means and no sorting around cutoff",
+    "limitations": "Other rules changing at c invalidate attribution",
+    "failure_conditions": [
+      "Other rules changing at c invalidate attribution"
+    ],
+    "computation": "O(n) small weighted regression per bandwidth",
+    "source": {
+      "kind": "literature",
+      "citation": "Imbens and Lemieux, Regression Discontinuity Designs: A Guide to Practice, Journal of Econometrics, 2008"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Retrospectively estimate or check the effect of a coaching, roster, scheduling or rule change before considering a feature for future forecasts.",
+    "required_inputs": "Historical exposures, outcomes, and measured confounders known before treatment",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "nw-regression"
+    ],
+    "incompatible_methods": [
+      "Post-treatment covariates as confounders or unmeasured assignment assumed random"
+    ],
+    "relationships": [
+      {
+        "target": "nw-regression",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "wald-iv",
+    "name": "Binary-instrument Wald estimator",
+    "family": "causal-inference",
+    "classification": "distinct-algorithm",
+    "profile": "causal",
+    "definition": "τ̂=(mean[Y∣Z=1]−mean[Y∣Z=0])/(mean[A∣Z=1]−mean[A∣Z=0])",
+    "variables": "Z proposed instrument, A treatment, Y historical outcome",
+    "assumptions": "Instrument independence, exclusion, relevance and monotonicity for local effect",
+    "limitations": "Weak or directly outcome-relevant instrument destabilizes estimate",
+    "failure_conditions": [
+      "Weak or directly outcome-relevant instrument destabilizes estimate"
+    ],
+    "computation": "O(n) group summaries",
+    "source": {
+      "kind": "literature",
+      "citation": "Angrist, Imbens and Rubin, Identification of Causal Effects Using Instrumental Variables, JASA, 1996"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Retrospectively estimate or check the effect of a coaching, roster, scheduling or rule change before considering a feature for future forecasts.",
+    "required_inputs": "Historical exposures, outcomes, and measured confounders known before treatment",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "ipw"
+    ],
+    "incompatible_methods": [
+      "Post-treatment covariates as confounders or unmeasured assignment assumed random"
+    ],
+    "relationships": [
+      {
+        "target": "ipw",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  },
+  {
+    "id": "rosenbaum-bounds",
+    "name": "Matched-pair treatment sensitivity model",
+    "family": "causal-inference",
+    "classification": "diagnostic",
+    "profile": "causal",
+    "definition": "With within-pair treatment odds bounded by Γ, positive signs under sharp null have success chances 1/(1+Γ)≤p_i≤Γ/(1+Γ); bound upper tail for count using corresponding binomial laws",
+    "variables": "Γ≥1 hidden-bias odds bound, n matched independent pairs, sign of treated-minus-control outcome",
+    "assumptions": "One treated per matched pair and sharp no-effect null",
+    "limitations": "Poor matching and correlated pairs defeat interpretation",
+    "failure_conditions": [
+      "Poor matching and correlated pairs defeat interpretation"
+    ],
+    "computation": "O(n) matched sign tally and binomial tails",
+    "source": {
+      "kind": "literature",
+      "citation": "Rosenbaum, Observational Studies, 2nd ed., Springer, 2002"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Retrospectively estimate or check the effect of a coaching, roster, scheduling or rule change before considering a feature for future forecasts.",
+    "required_inputs": "Historical exposures, outcomes, and measured confounders known before treatment",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "assessment-only",
+    "compatible_methods": [
+      "wilcoxon-signed-rank",
+      "ipw"
+    ],
+    "incompatible_methods": [
+      "Post-treatment covariates as confounders or unmeasured assignment assumed random"
+    ],
+    "relationships": [
+      {
+        "target": "wilcoxon-signed-rank",
+        "type": "related"
+      },
+      {
+        "target": "ipw",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "002"
+  }
+]

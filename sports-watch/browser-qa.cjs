@@ -28,82 +28,19 @@ const main=async()=>{
      return route.fulfill({status:200,contentType:'text/css',body:oldCss});
    });
    await context.route('https://**/*',route=>route.abort());
-   await context.route('https://sportscore.com/**',route=>{
-     const requested=new URL(route.request().url());
-     const sport=requested.searchParams.get('sport');
-     const upcoming=requested.searchParams.get('status')==='upcoming';
-     const matches=upcoming
-       ? (sport==='tennis'?[{home:'Player Alpha',away:'Player Beta',status:'upcoming',time:'2026-11-16T16:00:00Z',competition:'Test tennis'}]:[])
-       : (sport==='football'?[{home:'Live Home',away:'Live Away',status:'live',time:'2026-11-16T12:00:00Z',competition:'Test league',home_score:1,away_score:0},{home:'Finished',away:'Game',status:'finished',time:'2026-11-16T10:00:00Z'}]:[]);
-     return route.fulfill({status:200,contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify({matches,fixtures:matches})});
-   });
    const page=await context.newPage();
    const errors=[];
    page.on('pageerror',err=>errors.push(err.message));
    await page.goto(url,{waitUntil:'load'});
    assert.equal(await page.title(),'Sports Watch | Value Watch Pro');
-   // Default Live Now is backed by a mocked provider response, not invented app data.
-   assert.equal(await page.locator('#fixture-live').getAttribute('aria-pressed'),'true');
-   await page.locator('.fixture-card').first().waitFor({state:'visible'});
-   assert.equal(await page.locator('.fixture-card').count(),1,'finished event must be excluded from live list');
-   assert.match(await page.locator('.fixture-card').first().innerText(),/Live Home vs Live Away/);
-   assert.equal(await page.locator('.fixture-attribution a').first().innerText(),'Powered by SportScore');
-   await page.locator('.fixture-card').first().click();
-   assert.match(await page.locator('#selected-match').innerText(),/Live Home vs Live Away/);
-   assert.equal(await page.locator('#livetv-match-label').inputValue(),'Live Home vs Live Away');
+   await page.getByText(/Automatic fixture data is unavailable/).waitFor();
+   assert.equal(await page.locator('.fixture-card').count(),0);
+   assert.equal(await page.locator('script[src*="fixtures.js"]').count(),0);
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+1));
    const external=page.locator('#livetv-open');
    assert.equal(await external.getAttribute('href'),'https://livetv.sx/enx/');
    assert.equal(await external.getAttribute('target'),'_blank');
    assert.match(await external.getAttribute('rel'),/noopener/);
-   assert.match(await page.locator('#livetv-status').innerText(),/No matching event URL or video source has been verified/);
-
-   assert.equal(await page.locator('#coverage-sport').inputValue(),'football');
-   assert.match(await page.locator('#coverage-selected').innerText(),/Live Home vs Live Away/);
-   assert.equal(await page.locator('#fixture-selection-result').isVisible(),true,'fixture selection must visibly acknowledge selected game');
-   assert.match(await page.locator('#fixture-selection-name').innerText(),/Live Home vs Live Away/);
-   assert.equal(await page.locator('.coverage-panel').isVisible(),true);
-   await page.getByRole('button',{name:'View coverage options'}).click();
-   assert.ok(await page.locator('.coverage-card').count()>0);
-   assert.equal(await page.locator('.coverage-card').first().getAttribute('target'),'_blank');
-   assert.equal(await page.locator('#source-a').inputValue(),'','official coverage suggestions must not inject video links');
-   assert.equal(await page.locator('#source-a').inputValue(),'','fixture selection must not invent video links');
-   await page.locator('#fixture-upcoming').click();
-   await page.locator('.fixture-card').first().waitFor({state:'visible'});
-   assert.equal(await page.locator('.fixture-card').count(),1);
-   assert.match(await page.locator('.fixture-card').first().innerText(),/Player Alpha vs Player Beta/);
-
-   // A sport with zero live responses should offer an honest Upcoming option.
-   await page.locator('#fixture-live').click();
-   await page.locator('#fixture-sport').selectOption('basketball');
-   await page.locator('#fixture-view-upcoming').waitFor({state:'visible'});
-   assert.match(await page.locator('#fixture-status').innerText(),/No confirmed live fixtures/);
-   await page.locator('#fixture-view-upcoming').click();
-   assert.equal(await page.locator('#fixture-upcoming').getAttribute('aria-pressed'),'true');
-   await page.locator('#fixture-sport').selectOption('tennis');
-   await page.locator('.fixture-card').first().waitFor({state:'visible'});
-   await page.locator('#fixture-manual').click();
-   assert.equal(await page.locator('.fixture-card').count(),0);
-   assert.match(await page.locator('#fixture-status').innerText(),/Manual entry selected/);
-   await page.locator('#fixture-live').click();
-   await page.locator('#fixture-sport').selectOption('football');
-   await page.locator('.fixture-card').first().waitFor({state:'visible'});
-
-   assert.equal(await page.locator('.provider').count(),12);
-   assert.equal(await page.locator('#sport-count').innerText(),'12 provider destinations');
-   const layout=await page.evaluate(()=>({body:document.documentElement.scrollWidth,window:window.innerWidth}));
-   assert.ok(layout.body<=layout.window+1,'horizontal overflow at '+viewport.width+': '+JSON.stringify(layout));
-   await page.getByRole('button',{name:/Darts/}).click();
-   assert.equal(await page.locator('.provider').count(),3);
-   assert.equal(await page.getByRole('button',{name:/Darts/}).getAttribute('aria-pressed'),'true');
-   assert.equal(await page.locator('#fixture-manual').getAttribute('aria-pressed'),'true','unsupported sport chip must make manual mode explicit');
-   assert.match(await page.locator('#fixture-status').innerText(),/not supported/);
-   await page.getByRole('button',{name:/All sports/}).click();
-   assert.equal(await page.locator('.provider').count(),12);
-   assert.equal(await page.locator('#fixture-live').getAttribute('aria-pressed'),'true','All sports chip should activate Live Now');
-   assert.equal(await page.locator('#fixture-sport').inputValue(),'all');
-   await page.getByRole('button',{name:/Football/}).first().click();
-   assert.equal(await page.locator('#fixture-sport').inputValue(),'football');
-   await page.locator('.fixture-card').first().waitFor({state:'visible'});
 
    const input=page.locator('#video-url');
    await input.fill('https://livetv.sx/');

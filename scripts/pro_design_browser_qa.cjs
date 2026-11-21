@@ -1,5 +1,6 @@
 'use strict';
 const {chromium}=require('playwright');
+const AxeBuilder=require('@axe-core/playwright').default;
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const root=path.resolve(__dirname,'..'),out=path.join(root,'work/browser-qa');fs.mkdirSync(out,{recursive:true});
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8'};
@@ -14,8 +15,35 @@ const server=http.createServer((req,res)=>{
  const browser=await chromium.launch({headless:true});
  try{
   for(const width of [1440,390]){
-   const page=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'});
+   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
+   const page=await context.newPage();
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
+   for (const sport of ['football','racing','tennis','nfl']) {
+     await page.goto('http://127.0.0.1:8177/?sport='+sport+'#events-view');
+     assert.equal(await page.locator('#sport').inputValue(),sport,'Deep link applies the original sport filter');
+     assert.equal(await page.locator('#sport-nav [data-sport="'+sport+'"]').getAttribute('aria-pressed'),'true');
+   }
+   await page.goto('http://127.0.0.1:8177/market-intelligence/');
+   await page.waitForFunction(() => !document.querySelector('#market-status').textContent.startsWith('Loading'));
+   assert((await page.locator('.terminal-gate').innerText()).includes('UNVALIDATED · Publication BLOCKED'));
+   const markets = page.locator('#match option');
+   if (await markets.count()) {
+     assert(await page.locator('#market-rows tr').count() >= 3);
+     assert((await page.locator('#market-status').innerText()).includes('recorded historical observations'));
+     assert((await page.locator('#market-rows a').first().getAttribute('href')).startsWith('https://'));
+     if (await markets.count() > 1) await page.locator('#match').selectOption('1');
+   } else {
+     assert((await page.locator('#market-status').innerText()).includes('No source-backed'));
+   }
+   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+   const marketAudit = await new AxeBuilder({page}).analyze();
+   assert.deepEqual(marketAudit.violations.map(violation => violation.id), []);
+   await page.screenshot({path:path.join(out,'market-intelligence-'+width+'.png')});
+   await page.route('**/hybrid-market-data.json', route => route.fulfill({status:503}));
+   await page.reload();
+   await page.getByText('The recorded market feed is unavailable.', {exact:true}).waitFor();
+   assert.equal(await page.locator('#market-rows tr').count(), 0);
+   await page.unroute('**/hybrid-market-data.json');
    await page.goto('http://127.0.0.1:8177/',{waitUntil:'domcontentloaded'});
    await page.locator('.pro-landing').waitFor();
    await page.waitForFunction(()=>!document.getElementById('pro-featured-status').textContent.includes('Checking published'),{timeout:12000});
@@ -29,7 +57,9 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('#pro-darts-feed-status').count(),0,'Detailed coverage must not clutter homepage');
    assert((await page.locator('.pro-darts-preview-summary').innerText()).includes('no verified betting fixtures'),'Homepage must retain research warning');
    assert.equal(await page.locator('.pro-darts-preview a[href="./darts/"]').count(),1,'Darts CTA must open laboratory');
-   assert.equal(await page.locator('[data-pro-count="darts"]').count(),0,'Research-only darts must not be counted as an existing validated sport filter');
+   const dartsFilter = page.locator('.pro-quick-filters [data-pro-sport="darts"]');
+   assert.equal(await dartsFilter.count(),1,'Darts fixtures should be available in the source-backed event filter');
+   assert.match(await dartsFilter.locator('[data-pro-count="darts"]').innerText(), /^(?:\d+|—)$/);
    await page.goto('http://127.0.0.1:8177/darts/',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>!document.getElementById('coverage-verification').textContent.includes('Checking published'),{timeout:12000});
    assert.equal(await page.locator('#coverage-confirmed').count(),1);
@@ -39,8 +69,8 @@ const server=http.createServer((req,res)=>{
    await page.goto('http://127.0.0.1:8177/',{waitUntil:'domcontentloaded'});
    assert.equal(await page.locator('[data-pro-slot]').count(),4);
    if(width<1020)await page.locator('#paper-open').click();
-   await page.locator('.wildcard-archive > summary').first().click();
-    await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
+   await page.locator('.wildcard-current-audit > summary').click();
+   await page.locator('.wildcard-risk-studio').waitFor();
    assert.equal(await page.locator('.wildcard-review-lenses .wildcard-lens').count(),3,'All three independent method lenses must be visible');
    assert.equal(await page.locator('.wildcard-risk-mode').count(),4,'Wildcard needs four risk options');
    assert((await page.locator('.wildcard-risk-studio').innerText()).includes('FIFTH EXPERIMENTAL PAPER SLIP'));
@@ -57,8 +87,8 @@ const server=http.createServer((req,res)=>{
      assert((await page.locator('.wildcard-calculation').innerText()).includes('£6.00'),'Scenario arithmetic is 1 × 2 × 3');
      await page.reload({waitUntil:'domcontentloaded'});
      if(width<1020)await page.locator('#paper-open').click();
-     await page.locator('.wildcard-archive > summary').first().click();
-    await page.locator('.wildcard-risk-studio').waitFor({timeout:15000});
+     await page.locator('.wildcard-current-audit > summary').click();
+     await page.locator('.wildcard-risk-studio').waitFor();
      assert((await page.locator('.wildcard-fifth-slip input').first().inputValue())==='2.00','Fifth draft should persist on the same browser');
      assert.equal(await page.locator('#slip-tabs button').count(),4,'Original four slip slots must remain intact');
    }
@@ -85,18 +115,22 @@ const server=http.createServer((req,res)=>{
      assert.equal(await page.locator('#sport').inputValue(),sport,'Sport stays on the main desk');
      assert.equal(await page.locator('.fixture-events').count(),1,'One selected-sport panel');
      assert.equal(await page.locator('#find-racing').isVisible(),false,'Racing-only action hidden');
-     assert.equal(await page.locator('#generate').isEnabled(),false,'No unsupported filtered slip building');
+     const filteredCanBuild = await page.locator('#generate').isEnabled();
+     if (sport === 'darts') assert.equal(filteredCanBuild,false,'Darts remains fixture-only for filtered paper slips');
      assert(!(await page.locator('#events').innerText()).includes('Paper selections and betting prices are unavailable for this view'),'Old blanket fixture-only fallback removed');
      const matchCards=page.locator('.fixture-event-card');
      if(await matchCards.count()) {
-       assert.equal(await matchCards.first().locator('.fixture-outcome').count(),2,'Each match shows both participants');
-       assert((await matchCards.first().innerText()).includes('Bookmaker odds unavailable'),'Missing quotes stay explicit');
-       assert((await matchCards.first().locator('.fixture-model-status').innerText()).length>10,'Model availability is explained per match');
+       const card = matchCards.first();
+       const draw = card.locator('.fixture-outcome strong').filter({hasText:/^Draw$/});
+       assert.equal(await card.locator('.fixture-outcome').count(), 2 + await draw.count(), 'Each match shows both participants and any modelled draw');
+       const captured = await card.getByText('Captured prices · paper research', {exact:true}).count();
+       if (!captured) assert((await card.innerText()).includes('Bookmaker odds unavailable'),'Missing quotes stay explicit');
+       assert((await card.locator('.fixture-model-status').innerText()).length>10,'Model availability is explained per match');
      }
      await page.locator('#build-scope').selectOption('all');
      assert.equal(await page.locator('#generate').isEnabled(),true,'All-sports research remains available');
      await page.locator('#build-scope').selectOption('filters');
-     assert.equal(await page.locator('#generate').isEnabled(),false);
+     assert.equal(await page.locator('#generate').isEnabled(),filteredCanBuild,'Returning to the sport filter restores its build eligibility');
      assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Match cards fit desktop and mobile');
    }
    await page.goto('http://127.0.0.1:8177/rugby/',{waitUntil:'domcontentloaded'});
@@ -224,7 +258,7 @@ const server=http.createServer((req,res)=>{
    await page.screenshot({path:path.join(out,'gold-council-'+width+'.png'),fullPage:false});
    assert.deepEqual(errors,[],'Gold Council runtime errors');
 
-   await page.close();
+   await context.close();
   }
   console.log('PASS: reference Pro homepage and Analyst Terminal on desktop/mobile, original sport/slip delegation, real snapshots and no verified odds claims');
  }finally{await browser.close()}

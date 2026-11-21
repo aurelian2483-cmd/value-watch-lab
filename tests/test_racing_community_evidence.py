@@ -24,6 +24,43 @@ class CommunityEvidenceTests(unittest.TestCase):
                 self.assertIn(entry['horse'].casefold(),[h['name'].casefold() for h in race['runners']])
                 self.assertEqual(urlsplit(entry['url']).scheme,'https')
                 self.assertLess(datetime.fromisoformat(entry['observed_at_utc']),datetime.fromisoformat(race['startUTC']))
+    def test_audited_schedule_reconciliation(self):
+        import copy
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('reconcile_schedule',
+            ROOT/'scripts/reconcile_racing_schedule_observation.py')
+        module=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        url='https://www.sportinglife.com/racing/racecards/2026-11-21/newcastle/racecard/950179/test'
+        gates={'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED'}
+        def selection(identifier,start,observed,digest):
+            receipt={'race_id':'950179','horse_id':'93135','horse':'Mr Moonshine','startUTC':start,
+                     'observed_at_utc':observed,'url':url,'sha256':digest,'rank':1,
+                     'status':'EXPLICIT_FIRST_CHOICE_OBSERVED'}
+            return {'id':identifier,'race_id':'950179','horse':'Mr Moonshine','startUTC':start,
+                    'observed_at_utc':observed,'url':url,'verification':module.PUBLIC,
+                    'extraction_method':module.METHOD,'source_identity':'publisher:timeform',
+                    'selection_receipt':receipt}
+        old=selection(module.OLD_ID,module.OLD_START,'2026-11-20T07:47:34+00:00',module.OLD_HASH)
+        successor=selection(module.NEW_ID,module.NEW_START,'2026-11-21T00:13:56+00:00','1'*64)
+        feed={**gates,'entries':[old,successor]}
+        original=copy.deepcopy(old)
+        successor_original=copy.deepcopy(successor)
+        race={'race_id':'950179','startUTC':module.NEW_START,'runner_source':url,
+              'runner_source_sha256':'1'*64,'publisher_verdict':successor['selection_receipt']}
+        cards={**gates,'races':[race]}
+        valid_cards=copy.deepcopy(cards)
+        race['runner_source_sha256']='0'*64
+        self.assertFalse(module.reconcile(feed,cards))
+        self.assertEqual(old,original)
+        self.assertTrue(module.reconcile(feed,valid_cards))
+        self.assertEqual(old['verification'],'HISTORICAL_SCHEDULE_SUPERSEDED')
+        self.assertEqual(old['schedule_reconciliation']['successor_id'],module.NEW_ID)
+        self.assertEqual({key:old[key] for key in original if key!='verification'},
+                         {key:value for key,value in original.items() if key!='verification'})
+        self.assertEqual(successor,successor_original)
+        self.assertFalse(module.reconcile(feed,valid_cards))
+
     def test_no_collector_candidate_promoted(self):
         for e in self.feed['entries']:
             if e.get('id','').startswith('rss-'):

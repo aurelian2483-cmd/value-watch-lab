@@ -1,0 +1,64 @@
+# Sky Universal Mathematical Research Library
+
+Research catalogue v1 registers **286 specifications** across six sports, including 16 preserved v0 records and 270 entries added in batches. The 1,000-entry milestone remains open with **714 entries outstanding**.
+
+| Classification | Count |
+| --- | ---: |
+| Distinct algorithms | 105 |
+| Distinct models | 33 |
+| Distributions | 29 |
+| Frameworks | 4 |
+| Model variants | 25 |
+| Parameter configurations | 1 |
+| Feature transformations | 13 |
+| Diagnostics | 52 |
+| Calibration methods | 7 |
+| Ensembles | 8 |
+| Decision rules | 9 |
+
+A distinct algorithm specifies a computational procedure. A distinct model describes a different probabilistic or regression structure. Ensembles and calibration procedures have their own classifications. A variant must identify a parent and a material change in mechanism, fitting, support or dependence. A configuration must specify a historically meaningful frozen setup. Alternate naming, sport labels and parameter sweeps add no entries.
+
+## Read and check
+
+From this directory, use Node.js 18 or later.
+
+```sh
+node validate.mjs
+node --test validate-v1.test.mjs
+node catalogue.mjs summary
+node catalogue.mjs search "tennis calibration"
+node catalogue.mjs index > /tmp/sky-mathematical-index.md
+node catalogue.mjs reference > /tmp/sky-mathematical-reference.md
+node catalogue.mjs ledger > /tmp/sky-mathematical-evidence.json
+```
+
+The manifest orders batch files and pins the original catalogue by hash. JSON records are independently searchable. The reference command renders the equations, variable definitions, sport applications, limitations and citations. The index maps IDs to families and sports. The ledger distinguishes literature, documented derivations and repository provenance. [Equation reference](REFERENCE.md) · [Family and sport index](INDEX.md) · [Provenance and evidence ledger](evidence-ledger.v1.json) · [Progress](progress.v1.json) · [Review and recovery audit](review-audit.v1.json)
+
+The checker detects duplicate IDs, normalized names and normalized specifications. Related-method links and the review audit document semantic overlap. Algebraic equivalence, source accuracy and real input availability still require human review. A sport tag identifies a plausible application under its required inputs and assumptions. A citation locates mathematical provenance. No entry carries new empirical test evidence.
+
+For any future forecasting experiment, record a prediction cutoff and verify when each input version first became available. Restrict fit transformations, ratings, hyperparameters, calibration and weights to earlier samples. Real data acquisition and any use of a reserved evaluation set fall outside this catalogue review. Generic input profiles describe requirements and exclusions. Rights to actual feeds must be established separately.
+
+## Audit corrections
+
+The [evidence audit](EVIDENCE-AUDIT-2026-11-20.md) records the original findings. All 286 IDs remain registered. The 105 records classified as distinct algorithms represent 104 after the recorded `prox-l1` → `ista` equivalence. Their iterates agree for the same smooth loss, L₁ penalty, penalty mask and initialization at constant step η=1/L. An exempt intercept receives the ordinary gradient step. FISTA adds extrapolation. This count reflects the recorded equivalence and remains subject to further review. [Beck and Teboulle, §§3–4](https://www.ceremade.dauphine.fr/~carlier/FISTA)
+
+Every sport tag depends on the conditions in its [applicability profile](sport-profiles.v1.json). Assessment and causal methods use authorized development or historical study records with settled outcomes. IPW and AIPW require pre-treatment covariates and settled outcomes for effect estimation. At-cutoff methods use the data version and fitted parameters available at each origin. Locating a historical breakpoint or decoded state using a full prefix gives it the availability time of that calculation.
+
+Source checks included the Glicko update and separate game expectation, the run-length recursion and prior reset, Cho’s GRU gate convention, constant-step ISTA and FISTA, the Nelder–Mead acceptance branches, the COM-Poisson geometric boundary and the one-sample Cramér–von Mises statistic. The remaining definitions retain their provenance locators. [Glickman](https://www.glicko.net/glicko/glicko.pdf) · [Adams and MacKay](https://arxiv.org/pdf/0710.3742) · [Cho et al.](https://aclanthology.org/D14-1179.pdf) · [Beck and Teboulle](https://www.ceremade.dauphine.fr/~carlier/FISTA) · [Lagarias et al.](https://www.math.kent.edu/~reichel/courses/optimization/reading.material.2/nelder.mead.pdf) · [COM-Poisson count data](https://link.springer.com/article/10.1186/s40488-017-0077-0) · [SciPy and Csörgő–Faraway](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cramervonmises.html)
+
+**Empirically qualified entries: 0.** The validator tests catalogue integrity, evidence classification, timing rules and selected mathematical identities on invented values. Full primary-source verification, deeper equivalence review, and sport data availability remain open. The [Sky 81-configuration reconstruction](sky81/README.md) tracks the separate grid and archive evidence.
+
+## Candidate hypotheses for later review
+
+| Hypothesis | What would distinguish it in a separately authorized study | Main unresolved condition |
+| --- | --- | --- |
+| A filtered change signal helps identify recent performance shifts | Compare prior-history CUSUM and Bayesian online change detection on residuals from a frozen score model | Schedule adjustment and sparse false-alarm calibration |
+| Duration and exposure improve cross-sport state tracking | Compare fixed-step smoothing with elapsed-time OU transitions for horse sectionals and tennis serve aggregates | Reliable timestamped histories and legal access |
+| Explicit count dependence improves football scoreline reliability | Compare low-score correction and shared-component Poisson with a common independent baseline | Negative dependence and sparse score cells |
+| Role-aware hierarchical priors help with cold starts | Compare partial pooling across stable role or competition groups | Exchangeability and pre-event roster availability |
+| Scoring rules explain where an aggregate skill rating loses information | Compare rules-based tennis and darts recursions with direct event-rating models on agreed targets | Independently available point and throw histories |
+| Forecast disagreement can inform calibration | Compare fixed linear pooling with a prespecified disagreement gate and separate calibration | Correlated component bias and earlier forecast receipts |
+
+The five review perspectives are recorded in the audit. Next intake needs deeper sources and method coverage for control, physics, deep learning, evolutionary computation, causal inference, numerical analysis, and sport-specific modelling.
+
+The review gate remains closed for tournaments and promotion. The original 608-match replay, existing predictions, website, production branches and deployment configuration are outside this PR’s diff.

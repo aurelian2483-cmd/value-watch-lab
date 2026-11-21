@@ -70,20 +70,15 @@
      results.append(link);
    }
  }
- matchForm.addEventListener('submit',()=>{
-   match=matchInput.value.trim().slice(0,100);
-   // A manual match never inherits an earlier fixture's sport.
+ function selectDirectorySport(){
    const selectedSport=doc.querySelector('#sports button[data-sport][aria-pressed="true"]');
    sport.value=selectedSport&&SPORTS.includes(selectedSport.dataset.sport)?selectedSport.dataset.sport:'all';
+ }
+ selectDirectorySport();
+ matchForm.addEventListener('submit',()=>{
+   match=matchInput.value.trim().slice(0,100);
+   selectDirectorySport();
    render();
- });
- doc.addEventListener('sports-watch:fixture-selected',event=>{
-   const detail=event.detail||{};
-   if(typeof detail.sport==='string'&&SPORTS.includes(detail.sport)){
-     match=matchInput.value.trim().slice(0,100);
-     sport.value=detail.sport;
-     render();
-   }
  });
  sport.addEventListener('change',render);
  render();

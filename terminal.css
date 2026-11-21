@@ -1,0 +1,154 @@
+:root {
+  --terminal-bg: #0b1220;
+  --terminal-panel: #121d2e;
+  --terminal-line: #314158;
+  --terminal-text: #edf4fc;
+  --terminal-muted: #aebfd4;
+  --terminal-accent: #75e3d4;
+  --terminal-amber: #f4d399;
+}
+.market-terminal {
+  color-scheme: dark;
+  background: var(--terminal-bg);
+  color: var(--terminal-text);
+  font: 1rem/1.55 system-ui, sans-serif;
+  margin: 0;
+}
+.market-terminal * { box-sizing: border-box; }
+.market-terminal a { color: var(--terminal-accent); }
+.market-terminal :focus-visible, .terminal-links :focus-visible {
+  outline: 2px solid var(--terminal-accent);
+  outline-offset: 3px;
+}
+.terminal-skip {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  padding: .6rem;
+  background: var(--terminal-panel);
+  transform: translateY(-200%);
+}
+.terminal-skip:focus { transform: none; }
+.terminal-masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem;
+  padding: 1rem max(1rem, calc((100vw - 76rem) / 2));
+  border-bottom: 1px solid var(--terminal-line);
+}
+.terminal-wordmark { font-size: 1.2rem; font-weight: 780; text-decoration: none; }
+.terminal-links { display: flex; flex-wrap: wrap; gap: .4rem .85rem; }
+.terminal-links a { display: inline-flex; align-items: center; min-height: 2.75rem; }
+.terminal-links a[aria-current] { font-weight: 750; }
+.market-main { max-width: 78rem; margin-inline: auto; padding: 1.25rem 1rem 3rem; }
+.market-title h1 { font-size: clamp(2rem, 5vw, 3.6rem); letter-spacing: -.035em; margin: .4rem 0; }
+.market-title p, .terminal-panel p { color: var(--terminal-muted); }
+.market-title .terminal-gate { color: var(--terminal-amber); }
+.terminal-panel {
+  margin-block: 1rem;
+  padding: clamp(1rem, 3vw, 1.65rem);
+  background: var(--terminal-panel);
+  border: 1px solid var(--terminal-line);
+  border-radius: .85rem;
+}
+.terminal-panel h2 { margin-top: 0; font-size: 1.22rem; }
+.terminal-panel label { display: block; margin-bottom: .4rem; }
+.terminal-panel select {
+  max-width: 100%;
+  min-height: 2.75rem;
+  padding: .4rem;
+  font: inherit;
+}
+.terminal-table { overflow: auto; }
+.terminal-table table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.terminal-table th, .terminal-table td {
+  min-width: 6rem;
+  padding: .6rem;
+  text-align: left;
+  border-bottom: 1px solid var(--terminal-line);
+}
+.terminal-table th { color: var(--terminal-muted); }
+
+/* Shared links on the research desk. */
+.pro-steps.terminal-links {
+  display: flex;
+  justify-content: flex-start;
+  gap: .35rem .85rem;
+  padding: .55rem .8rem;
+  background: var(--terminal-panel);
+  border: 1px solid var(--terminal-line);
+  border-radius: .75rem;
+}
+.pro-steps.terminal-links a {
+  padding: .25rem .5rem;
+  color: var(--terminal-accent);
+  font-weight: 650;
+  text-underline-offset: .2em;
+}
+.pro-landing .pro-reference-panel {
+  background: var(--terminal-panel);
+  border-color: var(--terminal-line);
+  box-shadow: none;
+}
+.pro-landing .pro-market-check { border-color: var(--terminal-line); }
+.pro-landing .pro-source-summary { color: var(--terminal-muted); }
+
+/* Compact overview leaves the source table in the first desktop viewport. */
+html:not(.visual-preview) .pro-landing .pro-hero {
+  min-height: 0;
+  padding: clamp(1rem, 2vw, 1.55rem);
+  border-color: var(--terminal-line);
+  background: linear-gradient(115deg, var(--terminal-panel), #0b212e);
+}
+html:not(.visual-preview) .pro-hero h2 {
+  font-size: clamp(2rem, 3.3vw, 3.1rem);
+  max-width: 24ch;
+  text-shadow: none;
+}
+html:not(.visual-preview) .pro-hero h2 em { color: var(--terminal-accent); }
+html:not(.visual-preview) .pro-hero-arena {
+  min-height: 9rem;
+  background: radial-gradient(ellipse at 50% 105%, #1d5763, transparent 70%);
+  border-color: var(--terminal-line);
+}
+html:not(.visual-preview) .pro-arena-sport {
+  min-height: 6.5rem;
+  font-size: clamp(1.75rem, 3.2vw, 3rem);
+}
+html:not(.visual-preview) .pro-arena-lights { opacity: .2; }
+html:not(.visual-preview) .pro-slip-grid :is(.pro-slip-card, .pro-wildcard-card) {
+  background: var(--terminal-panel);
+  min-height: 8.25rem;
+  box-shadow: none;
+}
+html:not(.visual-preview) .pro-landing .pro-stat {
+  border-color: var(--terminal-line);
+  background: var(--terminal-panel);
+  box-shadow: none;
+}
+.market-terminal select {
+  color: var(--terminal-text);
+  background: var(--terminal-bg);
+  border: 1px solid var(--terminal-line);
+  border-radius: .4rem;
+}
+
+.market-terminal .market-main { max-width: min(96vw, 1500px); }
+.market-terminal .terminal-panel { min-width:0; }
+.market-terminal .terminal-panel label { display:block; margin:.7rem 0 .25rem; color:var(--terminal-muted); font-size:.82rem; }
+.market-terminal .terminal-panel select { width:100%; min-height:2.6rem; padding:.5rem .7rem; border:1px solid var(--terminal-line); border-radius:.4rem; background:var(--terminal-panel); color:var(--terminal-text); font:inherit; }
+.market-terminal .terminal-table { max-width:100%; overflow:auto; border:1px solid var(--terminal-line); border-radius:.5rem; }
+.market-terminal .terminal-table table { width:100%; min-width:1220px; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+.market-terminal .terminal-table th,.market-terminal .terminal-table td { padding:.65rem .7rem; text-align:left; vertical-align:top; border-bottom:1px solid var(--terminal-line); }
+.market-terminal .terminal-table th { position:sticky; top:0; z-index:1; background:#172438; color:var(--terminal-accent); font-size:.75rem; white-space:nowrap; }
+.market-terminal .terminal-table td { color:var(--terminal-text); font-size:.82rem; }
+.market-terminal .market-source-details { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,25rem),1fr)); gap:.6rem; margin-top:.8rem; }
+.market-terminal .market-source-details details { min-width:0; border:1px solid var(--terminal-line); border-radius:.5rem; padding:.7rem .8rem; background:var(--terminal-bg); overflow-wrap:anywhere; }
+.market-terminal .market-source-details summary { color:var(--terminal-accent); cursor:pointer; min-height:1.7rem; }
+.market-terminal .market-source-details p { font-size:.82rem; }
+.market-terminal .terminal-panel a:focus-visible,.market-terminal .terminal-panel select:focus-visible { outline:2px solid var(--terminal-accent); outline-offset:3px; }
+@media(max-width:760px) {
+  .market-terminal .terminal-table table { min-width:1180px; }
+}
