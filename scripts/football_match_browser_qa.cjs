@@ -62,7 +62,7 @@ const server = http.createServer(async (request,response) => {
       await page.locator('#markets .market-matrix').waitFor();
       assert.equal(await page.locator('#markets .market-matrix tbody tr').count(),1);
       assert(await page.locator('#markets').getByText(/No model passes the explicit training-cutoff/).isVisible());
-      assert(await page.locator('#markets').getByText(/Opening price is not supplied/).isVisible());
+      assert(await page.locator('#markets').getByText(/opening price is not supplied/i).isVisible());
       const fixtureMarketDetails = page.locator('#markets details').first();
       await fixtureMarketDetails.locator('summary').click();
       assert(await fixtureMarketDetails.getByText(/Only one comparable capture exists/).isVisible());
