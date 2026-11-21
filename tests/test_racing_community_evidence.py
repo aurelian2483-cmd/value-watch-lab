@@ -47,4 +47,23 @@ class CommunityEvidenceTests(unittest.TestCase):
         for headline in ('Preview: The Mourne Rambler is running','Tips for Naas including The Mourne Rambler','NAP: Another Horse'):
             with self.subTest(headline=headline):
                 self.assertFalse(module.explicit_headline_pick(headline,'The Mourne Rambler'))
+    def test_schedule_revision_preserves_but_deactivates_old_source_receipt(self):
+        import datetime as dt
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('racing_collector_schedule',ROOT/'scripts/collect_racing_community.py')
+        module=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        observed=dt.datetime(2026,11,21,8,tzinfo=dt.timezone.utc)
+        old={'id':'old','race_id':'12','startUTC':'2026-11-21T14:48:00+00:00','verification':'PUBLIC_SELECTION_OBSERVED'}
+        current={'id':'current','race_id':'12','startUTC':'2026-11-21T14:49:00+00:00','verification':'PUBLIC_SELECTION_OBSERVED'}
+        archived={'id':'archive','race_id':'11','startUTC':'2026-11-20T14:48:00+00:00','verification':'PUBLIC_SELECTION_OBSERVED'}
+        entries=[old,current,archived]
+        races=[{'race_id':'12','startUTC':'2026-11-21T14:49:00+00:00'}]
+        self.assertEqual(module.supersede_schedule_revisions(entries,races,observed),1)
+        self.assertEqual(old['verification'],'SUPERSEDED_SCHEDULE_OBSERVATION')
+        self.assertEqual(old['original_verification'],'PUBLIC_SELECTION_OBSERVED')
+        self.assertEqual(old['superseded_by_startUTC'],races[0]['startUTC'])
+        self.assertEqual(current['verification'],'PUBLIC_SELECTION_OBSERVED')
+        self.assertEqual(archived['verification'],'PUBLIC_SELECTION_OBSERVED')
+        self.assertEqual(module.supersede_schedule_revisions(entries,races,observed+dt.timedelta(minutes=1)),0)
 if __name__=='__main__':unittest.main()
