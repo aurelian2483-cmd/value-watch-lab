@@ -166,7 +166,11 @@ def evaluate(forecast_doc, outcome_doc, manifest_raw, trusted_sha256=None):
     manifest_hash, pinned, as_of, split, freezes, reviews = manifest(manifest_raw, trusted_sha256)
     outcomes = OutcomeIndex(receipts)
     conflicts = forecast_conflicts(forecasts)
-    entries, by_model = [], defaultdict(list)
+    evaluation_keys = {key for key, item in split[1].items() if item['partition'] == 'evaluation'}
+    received_keys = {contract.event_key(row['event']) for row in forecasts}
+    missing_keys = evaluation_keys - received_keys
+    missing_frozen = freezes.keys() - {row['record_id'] for row in forecasts}
+    entries, eligible_records = [], []
     for row in sorted(forecasts, key=lambda item: item['record_id']):
         key = contract.event_key(row['event'])
         reason, settled = eligibility(row, as_of, split, pinned, freezes.get(row['record_id']), reviews.get(key),
@@ -175,11 +179,18 @@ def evaluate(forecast_doc, outcome_doc, manifest_raw, trusted_sha256=None):
         if settled is not None and row['origin'] == 'synthetic':
             entry['reason'] = 'synthetic_test_fixture_only'
         if settled is not None and row['origin'] == 'prospective':
-            model = evidence.canonical(row['model'])
-            entry.update(outcome=settled, candidate_scores=scores(row['probabilities'], settled),
-                         baseline_scores=baseline_scores(settled))
-            by_model[model].append(entry)
+            eligible_records.append((row, entry, settled))
         entries.append(entry)
+    complete = not missing_keys and not missing_frozen and len(eligible_records) == len(forecasts)
+    by_model = defaultdict(list)
+    for row, entry, settled in eligible_records:
+        if not complete:
+            entry['reason'] = 'cohort_incomplete'
+            continue
+        model = evidence.canonical(row['model'])
+        entry.update(outcome=settled, candidate_scores=scores(row['probabilities'], settled),
+                     baseline_scores=baseline_scores(settled))
+        by_model[model].append(entry)
     reports = []
     for model, group in sorted(by_model.items()):
         reports.append({'model': evidence.decode(model), 'n': len(group),
@@ -190,6 +201,9 @@ def evaluate(forecast_doc, outcome_doc, manifest_raw, trusted_sha256=None):
     return {'schema_version': 1, **evidence.SAFETY, 'status': 'descriptive_research_only' if eligible else 'insufficient_data',
             'manifest_sha256': manifest_hash, 'trusted_manifest_pin_supplied': pinned,
             'forecast_rows': len(forecasts), 'outcome_receipt_rows': len(receipts),
+            'evaluation_roster_fixtures': len(evaluation_keys),
+            'evaluation_roster_without_forecast': len(missing_keys),
+            'attested_forecasts_missing_from_input': len(missing_frozen),
             'eligible_real_forecasts': eligible, 'eligible_real_adjudicated_outcomes': eligible,
             'outcome_denominator': 'unique matched fixtures, not individual provider receipts',
             'intervals': {'state': 'unavailable', 'reason': 'Independent sampling is not established.'},

@@ -215,6 +215,22 @@ class EvaluationTests(unittest.TestCase):
         inputs[0]['records'][0] = seal({**item, 'probabilities': [0.7, 0.1, 0.2]})
         self.assertEqual(self.evaluate(*inputs, trusted=True)['coverage'], {'frozen_content_hash_mismatch': 1})
 
+    def test_missing_roster_rows_withhold_scores_for_partial_cohort(self):
+        item = seal({**forecast(), 'origin': 'prospective'})
+        bundle = synthetic_bundle(item, receipts=[outcome(origin='prospective'), outcome(2, origin='prospective')])
+        missing = forecast(fixture(identifier='absent', starts='2026-09-16T19:00:00Z'))
+        bundle[2]['split']['fixtures'].append({'partition': 'evaluation', 'event': missing['event']})
+        bundle[2]['freeze_attestations'].append({
+            'record_id': missing['record_id'], 'forecast_sha256': missing['content_sha256'],
+            'observed_at': missing['frozen_at'], 'provenance': provenance('e')})
+        result = self.evaluate(*bundle, trusted=True)
+        self.assertEqual(result['status'], 'insufficient_data')
+        self.assertEqual(result['evaluation_roster_without_forecast'], 1)
+        self.assertEqual(result['attested_forecasts_missing_from_input'], 1)
+        self.assertEqual(result['coverage'], {'cohort_incomplete': 1})
+        self.assertEqual(result['model_metrics'], [])
+        self.assertNotIn('candidate_scores', result['records'][0])
+
     def test_late_or_missing_freeze_attestation_excludes(self):
         inputs = synthetic_bundle(forecast())
         inputs[2]['freeze_attestations'][0]['observed_at'] = '2026-09-15T18:00:00Z'

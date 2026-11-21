@@ -46,7 +46,9 @@ must be verified by a reviewer before a manifest is trusted.
   either baseline. At most one candidate record per fixture may enter a run.
 - The report shows input row counts, per-forecast reason codes, count of
   excluded rows by reason and the scoring denominator per model. Two receipts
-  for one adjudicated fixture count as one outcome. Intervals are withheld
+  for one adjudicated fixture count as one outcome. A partial prospective cohort
+  suppresses scores for the whole run. Missing roster fixtures, absent attested
+  records and per-record exclusion reasons remain visible. Intervals are withheld
   because no independent sampling design is established, even if a future
   packet contains many fixtures.
 - Historical quotes are optional reference metadata with a conservative
