@@ -100,3 +100,30 @@ assert.equal(keyed.fixtureKey,JSON.stringify(['PL','City','Forest',keyed.startUT
 assert.equal(matchEvidence.fixtureIndex([eligible],now).byExact.get(keyed.fixtureKey).identity[1],'City');
 assert.equal(S.inspect('football',f,now,matchEvidence).records[0].fixtureKey,undefined);
 assert.equal(matchEvidence.fixtureKey({...f.upcoming_fixtures[0],home:'Forest'}),null);
+
+const raceRow={...racing.races[0],race_id:'12345',name:'Handicap',schedule_cross_checked:true,capture_phase:'PRE_EVENT',race_stage:'DORMANT',runner_observed_at_utc:base.generated_at_utc,
+ runner_source:'https://www.sportinglife.com/racing/racecard/12345/handicap',runner_source_sha256:'a'.repeat(64)};
+const receipt={...racing,races:[raceRow]};
+const loadedRace=S.inspect('racing',receipt,now);
+const raceKey=S.detailKey(loadedRace.records[0]);
+assert.equal(S.findDetail(loadedRace,raceKey,now).detail.id,'12345');
+assert.equal(S.findDetail(loadedRace,raceKey,now+1800000),null,'started race must not resolve');
+assert.equal(S.findDetail(S.inspect('racing',{...receipt,generated_at_utc:'2026-11-10T00:00:00Z'},now),raceKey,now),null);
+assert.equal(S.findDetail(S.inspect('racing',{...receipt,races:[{...raceRow,runner_source_sha256:'missing'}]},now),raceKey,now),null);
+assert.equal(S.findDetail(S.inspect('racing',{...receipt,races:[raceRow,{...raceRow,racecourse:'York'}]},now),raceKey,now),null);
+assert.equal(S.findDetail(S.inspect('racing',{...receipt,races:[{...raceRow,startUTC:new Date(now+1900000).toISOString()}]},now),raceKey,now),null);
+for (const [sport,id] of [['tennis','atp-1'],['nfl','nfl-1']]) {
+ const event={...other.sports[sport].events[0],id,name:'A vs B',participants:[{id:'10',name:'A'},{id:'20',name:'B'}]};
+ const fixture=events=>S.inspect('other',{...other,sports:{...other.sports,[sport]:{events}}},now);
+ const current=fixture([event]);
+ const key=S.detailKey(current.records.find(row=>row.sport===sport));
+ assert.equal(S.findDetail(current,key,now).detail.id,id);
+ const reversed={...event,participants:[...event.participants].reverse()};
+ assert.equal(S.findDetail(fixture([reversed]),key,now),null);
+ assert.equal(S.findDetail(fixture([event,reversed]),key,now),null);
+}
+assert.equal(S.detailKey(dartsFeed.records[0]),null);
+assert.equal(S.detailKey(rugbyFeed.records[0]),null);
+assert.equal(S.findDetail(S.inspect('racing',{...receipt,races:[{
+ ...raceRow,runner_observed_at_utc:new Date(now-31*60000).toISOString()
+}]},now),raceKey,now),null,'racecard receipt TTL is stricter than the overview feed TTL');
