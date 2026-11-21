@@ -150,6 +150,24 @@ async function resultReceiptFlow(page, width) {
   report.syntheticChecks.push('Result receipts on '+width+'px: repository evidence, missing feed and recovery');
 }
 
+async function providerReadinessFlow(page,width) {
+  await page.getByText('Proposed provider readiness',{exact:true}).click();
+  const panel=page.locator('#provider-readiness');
+  assert.equal(await panel.locator('tbody tr').count(),9);
+  assert(await panel.getByText(/NEEDS RIGHTS REVIEW/).count()===9);
+  await screenshot(page,'provider-readiness-'+width,'#provider-readiness-status');
+  const fail=route=>route.fulfill({status:503});
+  await page.route('**/research/provider-readiness.json',fail);
+  await page.locator('#retry').click();
+  await page.getByText('Provider registry unavailable or invalid.',{exact:true}).waitFor();
+  assert.equal(await panel.locator('tbody tr').count(),0);
+  assert(await page.getByText(/frozen forecast.*tracked/).count());
+  await page.unroute('**/research/provider-readiness.json',fail);
+  await page.locator('#retry').click();
+  await panel.getByRole('rowheader',{name:'Golf'}).waitFor();
+  report.syntheticChecks.push('Provider readiness on '+width+'px: nine sports and isolated failure/recovery');
+}
+
 async function discoveryFlow(browser, base) {
   const page = await browser.newPage({viewport:{width:390,height:920}});
   for (const sport of ['basketball','cricket']) {
@@ -235,7 +253,10 @@ async function discoveryFlow(browser, base) {
           assert.equal(response.status(),200);
           await page.waitForLoadState('networkidle');
           await screenshot(page,route + '-workspace-' + width);
-          if (route === 'validation-centre') await resultReceiptFlow(page,width);
+          if (route === 'validation-centre') {
+            await resultReceiptFlow(page,width);
+            await providerReadinessFlow(page,width);
+          }
         }
       }
       if (compact && !baseline) {
