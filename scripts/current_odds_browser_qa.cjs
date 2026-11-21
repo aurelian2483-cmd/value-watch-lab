@@ -140,10 +140,11 @@ async function main(){
     }
     if(sport==='football'){
      checkpoint='open the football research cards';
-     await page.locator('[data-open-events]').first().click();
-     checkpoint='football outcome card';
-     const card=page.locator('.event-card').filter({hasText:item.name}).first();
-     checkpoint='football card visible';
+     await page.locator('#app-tabs [data-view="events"]').click();
+     checkpoint='wait for any research card';
+     await page.locator('#events .event-card').first().waitFor({state:'visible',timeout:15000});
+     checkpoint='find exact football card';
+     const card=page.locator('#events .event-card').filter({hasText:item.name}).first();
      await card.waitFor({state:'visible',timeout:15000});
      checkpoint='football outcome prices';
      assert(football.events.get(item.fixtureKey)?.identity,'Exact football identity is required for card verification.');
