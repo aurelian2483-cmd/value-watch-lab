@@ -601,3 +601,26 @@
   .visual-preview #events-view > .content-toolbar > .button,
   .visual-preview #paper-eligibility-audit > summary { min-height: 44px; }
 }
+
+.visual-preview .preview-sports-panel .sport-count {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.visual-preview #events-view .build-scope { margin-inline-start: 0; }
+@media (max-width: 680px) {
+  .visual-preview #events-view > .content-toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+  }
+  .visual-preview #events-view > .content-toolbar > div:first-child {
+    grid-column: 1 / -1;
+  }
+  .visual-preview #events-view .build-scope { display: grid; }
+  .visual-preview #events-view .build-scope select { width: 100%; }
+  .visual-preview #events-view > .content-toolbar > .button {
+    justify-content: center;
+    white-space: normal;
+  }
+}
+.visual-preview .pro-feature-controls #pro-feature-page { color: #243d55; }
