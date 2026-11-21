@@ -8,7 +8,8 @@ const {chromium} = require('playwright');
 const AxeBuilder = require('@axe-core/playwright').default;
 
 const root = path.resolve(__dirname, '..');
-const output = path.join(root, 'work/browser-qa/all-sports');
+const polishOnly = process.argv.includes('--polish-only');
+const output = path.join(root, 'work/browser-qa', polishOnly ? 'phase66-polish' : 'all-sports');
 const mime = {'.html':'text/html', '.css':'text/css', '.js':'text/javascript', '.json':'application/json'};
 const server = http.createServer(async (req, res) => {
   try {
@@ -31,6 +32,34 @@ const blocked = ['golf','basketball','cricket'];
 
 async function viewportCheck(page, label) {
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), label + ' overflows');
+}
+
+async function visualPolish(page, route) {
+  if (route === 'racing') {
+    const scope = await page.locator('#build-scope').boundingBox();
+    const build = await page.locator('#generate').boundingBox();
+    assert(scope.height >= 44 && build.height >= 44, 'Scope and build controls remain easy to tap');
+    assert(scope.x + scope.width < build.x && Math.abs(scope.y + scope.height - build.y - build.height) <= 1,
+      'Build is immediately to the right of its scope and aligned with it');
+  }
+  if (route === 'paper-lab') {
+    const lines = await page.locator('#sport-nav [data-count="racing"]').evaluate(badge => {
+      const range = document.createRange();
+      range.selectNodeContents(badge);
+      return range.getClientRects().length;
+    });
+    assert.equal(lines, 1, 'Keep a displayed fixture count on one line');
+  }
+  if (route === 'ops-control') {
+    const markFits = await page.locator('.brandmark').evaluate(mark => {
+      const range = document.createRange();
+      range.selectNodeContents(mark);
+      const box = range.getBoundingClientRect();
+      return box.height < mark.clientHeight && box.width <= mark.clientWidth;
+    });
+    assert(markFits, 'Keep the complete Operations wordmark inside its tile');
+    assert.match(await page.locator('#m-feeds + small').innerText(), /configured feeds/i);
+  }
 }
 
 async function screenshot(page, label, selector) {
@@ -171,16 +200,19 @@ async function discoveryFlow(browser, base) {
   const base = 'http://127.0.0.1:' + server.address().port;
   const browser = await chromium.launch({headless:true});
   try {
-    await researchFlow(browser,base);
-    await calendarRecovery(browser,base);
-    await discoveryFlow(browser,base);
+    if (!polishOnly) {
+      await researchFlow(browser,base);
+      await calendarRecovery(browser,base);
+      await discoveryFlow(browser,base);
+    }
     for (const width of [1440,820,390]) {
       const context = await browser.newContext({viewport:{width,height:920},reducedMotion:'reduce'});
       const page = await context.newPage();
+      if (polishOnly) await page.clock.setFixedTime(new Date('2026-11-21T10:30:00Z'));
       await page.route(url => url.origin !== base, route => route.abort());
       const errors = [];
       page.on('pageerror', err => errors.push(err.message));
-      for (const sport of sports) {
+      for (const sport of polishOnly ? ['racing'] : sports) {
         await page.goto(base + '/?sport=' + sport + '#sport-evidence');
         const panel = page.locator('#sport-evidence');
         await panel.getByText(/PASS · No qualifying opportunity/).waitFor();
@@ -190,18 +222,18 @@ async function discoveryFlow(browser, base) {
           assert.equal(await page.locator('#events .event-card').count(),0);
           assert.equal(await page.locator('#generate').isDisabled(),true);
         }
+        if (!polishOnly && sport === 'racing') await visualPolish(page,sport);
         await screenshot(page, sport + '-' + width, '#sport-evidence');
       }
       const axe = await new AxeBuilder({page}).include('#sport-evidence').analyze();
       assert.deepEqual(axe.violations.map(v => v.id), []);
       report.accessibility.push('Sport evidence panel at ' + width + 'px: no axe violations');
-      if (width !== 820) {
-        for (const route of routes) {
-          const response = await page.goto(base + '/' + route + '/');
-          assert.equal(response.status(),200);
-          await page.waitForLoadState('networkidle');
-          await screenshot(page,route + '-workspace-' + width);
-        }
+      for (const route of polishOnly ? ['ops-control','paper-lab'] : routes) {
+        const response = await page.goto(base + '/' + route + '/');
+        assert.equal(response.status(),200);
+        await page.waitForLoadState('networkidle');
+        if (!polishOnly) await visualPolish(page,route);
+        await screenshot(page,route + '-workspace-' + width);
       }
       assert.deepEqual(errors, []);
       await context.close();

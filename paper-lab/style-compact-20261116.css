@@ -277,3 +277,57 @@
 .sport-evidence nav a {display: inline-flex; min-height: 32px; align-items: center}
 .sport-evidence nav a:focus-visible {outline: 2px solid currentColor; outline-offset: 3px}
 .event-reference {overflow-wrap: anywhere}
+
+/* Keep the sport name readable and each snapshot count intact in the rail. */
+.sport-navigation .sport-count {flex: 0 0 auto; white-space: nowrap}
+.sport-navigation button {overflow-wrap: normal}
+@media (max-width: 420px) {
+  .sport-navigation button .sport-symbol {display: none}
+  .sport-navigation button[data-sport="all"] .sport-symbol {display: inline}
+  .sport-navigation .sport-count {font-size: 10px}
+}
+
+/* Keep the scope beside its action, with sport-specific tools following it. */
+#events-view > .content-toolbar {
+  justify-content: flex-start;
+  align-items: end;
+  gap: .5rem .75rem;
+}
+#events-view > .content-toolbar > .button {
+  min-height: 44px;
+  max-width: none;
+  white-space: normal;
+  line-height: 1.25;
+}
+#events-view > .content-toolbar .build-scope select {min-height: 44px}
+@media (min-width: 681px) and (max-width: 1000px) {
+  #events-view > .content-toolbar > div:first-child {flex-basis: 100%}
+}
+@media (max-width: 680px) {
+  #events-view > .content-toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #events-view > .content-toolbar > div:first-child {grid-column: 1 / -1}
+  #events-view > .content-toolbar .build-scope {
+    display: grid;
+    min-width: 0;
+  }
+  #events-view > .content-toolbar .build-scope select {
+    width: 100%;
+    max-width: none;
+  }
+  #events-view > .content-toolbar > .button {
+    justify-content: center;
+    font-size: .75rem;
+    padding: .5rem;
+  }
+}
+@media (min-width: 681px) {
+  #events-view > .content-toolbar:has(#find-racing:not([hidden])) > div:first-child {
+    flex-basis: 100%;
+  }
+  #events-view > .content-toolbar:has(#find-racing:not([hidden])) .build-scope {
+    margin-inline-start: 0;
+  }
+}
