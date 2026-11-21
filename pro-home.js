@@ -236,7 +236,7 @@ function evidenceCell(tr,item,index){
   const heading=document.createElement('strong');heading.textContent='Sky Bet · 1X2';summary.append(heading);
   const outcomes=document.createElement('div');outcomes.className='pro-current-price-outcomes';
   for(const entry of current.markup.querySelectorAll('li')){
-   const match=entry.textContent.trim().match(/^(Home|Draw|Away)\\s+([0-9]+(?:\\.[0-9]+)?)$/);
+   const match=entry.textContent.trim().match(/^(Home|Draw|Away)[ ]+([0-9]+([.][0-9]+)?)$/);
    if(match){const value=document.createElement('span');value.textContent=match[1]+' '+Number(match[2]).toFixed(2);outcomes.append(value);}
   }
   if(outcomes.children.length===3){summary.append(outcomes);const times=[...current.markup.querySelectorAll('time')];
