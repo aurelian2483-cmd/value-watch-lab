@@ -197,13 +197,67 @@ async function discoveryFlow(browser, base) {
   await page.close();
 }
 
+async function publishedFixtureEvidence(browser,base){
+  const read=async file=>JSON.parse(await fs.readFile(path.join(root,file),'utf8'));
+  const [dashboard,expanded,racecards,horses,other,markets]=await Promise.all([
+    'research-dashboard-data.json','football-expanded-data.json','racing-research-data.json',
+    'horse-model-data.json','other-sports-data.json','paper-lab/hybrid-market-data.json'
+  ].map(read));
+  const now=Math.max(...[dashboard,expanded,racecards,horses,other].map(feed=>Date.parse(feed.generated_at_utc)))+60000;
+  const sources=require('../pro-sources'),core=require('../football-match/core');
+  const feeds=[sources.inspect('football',dashboard,now,core),sources.inspect('racing',racecards,now),sources.inspect('other',other,now)];
+  const fixtures=sources.summarize(feeds,now).upcoming;
+  const football=sources.footballEvidence([dashboard,expanded],markets,core,now);
+  const racing=sources.racingEvidence(fixtures,feeds[1],horses,now);
+  const page=await browser.newPage({viewport:{width:820,height:920},hasTouch:true});
+  await page.route(url=>url.origin!==base,route=>route.abort());
+  await page.clock.setFixedTime(new Date(now));
+  const reportCounts={};
+  for(const sport of ['football','racing','tennis','nfl']){
+    const rows=fixtures.filter(row=>row.sport===sport);
+    const joined=rows.map(row=>({row,...sources.cardEvidence(row,football,core,now,racing)}));
+    reportCounts[sport]={fixtures:rows.length,estimates:joined.filter(row=>row.models.length).length,
+      unverified:joined.filter(row=>row.unverified.length).length,currentPrices:joined.filter(row=>row.quotes.length).length};
+    const sample=joined.find(item=>item.models.length)||joined.find(item=>item.unverified.length);
+    if(!sample)continue;
+    await page.goto(base+'/?'+new URLSearchParams({fsport:sport,fq:sample.row.name.slice(0,65)}));
+    const card=page.locator('#pro-featured-rows tr').filter({hasText:sample.row.name});
+    await card.locator('details > summary').first().tap();
+    const model=sample.models[0]||sample.unverified[0];
+    await card.getByText(model.name,{exact:false}).first().waitFor();
+    assert.equal(await card.getByText(/fair odds/).count()>0,Boolean(sample.models.length));
+    if(!sample.quotes.length)assert.equal(await card.getByText(/research EV/).count(),0);
+    if(sport==='nfl'){
+      await card.getByText('Record an unverified price privately').tap();
+      await card.getByLabel('Market and line').fill('Result including overtime');
+      await card.getByLabel('Outcome').fill(model.outcomes[0].name);
+      await card.getByLabel('Decimal price').fill('2.5');
+      await card.getByLabel('HTTPS source URL').fill('https://example.org/manual-qa');
+      await card.getByRole('button',{name:'Save observation now'}).tap();
+      await card.getByText(/Latest unverified observation/).waitFor();
+      await page.reload();
+      const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-private-price-observations-v1')));
+      assert.equal(saved[0].verification,'USER_RECORDED_UNVERIFIED');
+      assert.equal(saved[0].price,2.5);
+      assert.equal(await card.getByText(/research EV/).count(),0);
+    }
+  }
+  report.fixtureEvidence=reportCounts;
+  await page.close();
+}
+
 async function overviewStates(page) {
+  const dashboard=JSON.parse(await fs.readFile(path.join(root,'research-dashboard-data.json'),'utf8'));
+  const observedAt=Date.parse(dashboard.generated_at_utc);
+  assert(Number.isFinite(observedAt));
+  await page.clock.setFixedTime(new Date(observedAt+60000));
+  const staleAt=new Date(observedAt-48*3600000).toISOString();
   let state = 'missing';
   const handler = route => state === 'missing'
     ? route.fulfill({status:503})
     : state === 'stale'
       ? route.fulfill({json:{research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
-          generated_at_utc:'2026-10-01T00:00:00Z',upcoming_fixtures:[]}})
+          generated_at_utc:staleAt,upcoming_fixtures:[]}})
       : route.continue();
   await page.route('**/research-dashboard-data.json',handler);
   await page.reload();
@@ -422,6 +476,7 @@ async function repositoryFixtureLinks(page,base,width) {
   const browser = await chromium.launch({headless:true});
   try {
     if (!compact) {
+      await publishedFixtureEvidence(browser,base);
       await researchFlow(browser,base);
       await calendarRecovery(browser,base);
       await discoveryFlow(browser,base);

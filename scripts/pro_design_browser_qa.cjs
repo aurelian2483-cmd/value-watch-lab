@@ -51,7 +51,7 @@ const server=http.createServer((req,res)=>{
     const displayed=await page.locator('[data-pro-count="'+sport+'"]').innerText();
     assert(/^\d+$/.test(displayed)||displayed==='—','Unavailable sport counts must not masquerade as zero');
    }
-   assert((await page.locator('#pro-featured-status').innerText()).includes('No verified bookmaker odds, EV or qualifying bets.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'),'Homepage must clearly deny verified betting value when source feeds are absent or unverified');
+   assert((await page.locator('#pro-featured-status').innerText()).includes('No qualifying bets.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'),'Homepage must clearly deny verified betting value when source feeds are absent or unverified');
 
    assert.equal(await page.locator('.pro-darts-preview').count(),1,'Homepage must have one darts preview');
    assert.equal(await page.locator('#pro-darts-feed-status').count(),0,'Detailed coverage must not clutter homepage');

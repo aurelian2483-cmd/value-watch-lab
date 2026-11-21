@@ -108,7 +108,7 @@ const FEATURE_PAGE_SIZE=6;
 const feedLabels={football:'Football',racing:'Horse racing',other:'Tennis/NFL',darts:'Darts',rugby:'Rugby'};
 const stateLabels={UNAVAILABLE:'unavailable',STALE_OR_UNDATED:'stale or undated',PARTIAL_RECORDS:'partial coverage',
  GATE_UNVERIFIED:'safeguards unverified',SCHEMA_UNVERIFIED:'format unverified'};
-let featured=[],page=0,loading=false;
+let featured=[],page=0,loading=false,football,racing;
 let featureClock=Date.now();
 const ukDay=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/London',dateStyle:'short'});
 function visibleFeatured(){
@@ -121,6 +121,107 @@ function visibleFeatured(){
  return featured.filter(event=>(sport==='all'||event.sport===sport)
   && (!day||ukDay.format(event.startMs)===day)
   && (!query||event.name.toLocaleLowerCase('en-GB').includes(query)));
+}
+function manualPrice(panel,item,line){
+ const identity=item.fixtureKey||Sources.detailKey(item);
+ if(!identity||item.startMs<=Date.now()||document.documentElement.classList.contains('visual-preview'))return;
+ const wrapper=document.createElement('details'), summary=document.createElement('summary');
+ summary.textContent='Record an unverified price privately';
+ wrapper.append(summary);panel.append(wrapper);
+ const form=document.createElement('form');
+ wrapper.append(form);
+ function input(label,type,max,value=''){
+  const group=document.createElement('label'),field=document.createElement('input');
+  group.textContent=label;field.type=type;field.maxLength=max;field.value=value;field.required=true;
+  group.append(field);form.append(group);return field;
+ }
+ const bookmaker=input('Bookmaker','text',80,'Sky Bet');
+ const market=input('Market and line','text',100,item.sport==='football'?'Regulation-time 1X2':'');
+ const outcome=input('Outcome','text',100);
+ const price=input('Decimal price','number',20);
+ price.min='1.01';price.step='any';
+ const source=input('HTTPS source URL','url',600);
+ const save=document.createElement('button'),status=document.createElement('p');
+ save.textContent='Save observation now';status.role='status';
+ form.append(save,status);
+ const key='value-watch-private-price-observations-v1';
+ const read=()=>{
+  const rows=JSON.parse(localStorage.getItem(key)||'[]');
+  return Array.isArray(rows)?rows:[];
+ };
+ function showSaved(){
+  try{
+   const last=read().find(row=>row.identity===identity&&row.sport===item.sport);
+   if(last)status.textContent='Latest unverified observation: '+last.bookmaker+' · '+last.market+' · '+last.outcome+' · '+last.price+' · '+last.observedAt;
+  }catch{status.textContent='Private storage is unavailable.';}
+ }
+ showSaved();
+ form.addEventListener('submit',event=>{
+  event.preventDefault();
+  const now=Date.now(),decimal=Number(price.value);
+  let url;
+  try{url=new URL(source.value);}catch{}
+  if(now>=item.startMs||!url||url.protocol!=='https:'||url.username||url.password||
+     !Number.isFinite(decimal)||decimal<=1||![bookmaker,market,outcome].every(field=>field.value.trim())){
+   status.textContent='Use an upcoming fixture, an HTTPS receipt, market, outcome and decimal price above 1.';return;
+  }
+  try{
+   const row={sport:item.sport,identity,event:item.name,startUTC:item.startUTC,bookmaker:bookmaker.value.trim(),
+    market:market.value.trim(),outcome:outcome.value.trim(),price:decimal,source:url.href,
+    observedAt:new Date(now).toISOString(),verification:'USER_RECORDED_UNVERIFIED'};
+   localStorage.setItem(key,JSON.stringify([row,...read()].slice(0,100)));
+   showSaved();
+  }catch{status.textContent='Could not save this observation in private browser storage.';}
+ });
+ line(wrapper,'Saved in this browser. Manual observations cannot enter EV or qualification.');
+}
+function evidenceCell(tr,item){
+ const cell=document.createElement('td');
+ tr.append(cell);
+ const core=window.FootballMatchEvidence;
+ const evidence=Sources.cardEvidence(item,football,core,Date.now(),racing);
+ const line=(parent,text)=>{
+  const p=document.createElement('p');p.textContent=text;parent.append(p);
+ };
+ const pct=p=>(p*100).toFixed(1)+'%';
+ if(!evidence.models.length&&!evidence.unverified.length&&!evidence.quotes.length){
+  line(cell,evidence.reason);
+  manualPrice(cell,item,line);return;
+ }
+ const panel=document.createElement('details'), summary=document.createElement('summary');
+ summary.textContent=evidence.models.length?'Experimental model · '+(item.sport==='racing'?evidence.models[0].outcomes.length+' runners':evidence.models[0].outcomes.map(o=>pct(o.probability)).join(' / ')):
+  evidence.quotes.length?'Recorded market prices':'Unverified experimental estimate';
+ panel.append(summary);cell.append(panel);
+ line(panel,'Models UNVALIDATED · Publication BLOCKED · Fixture cutoff '+item.startUTC);
+ for(const model of [...evidence.models,...evidence.unverified]){
+  line(panel,model.name+' · '+model.market+' · observed '+model.observed);
+  line(panel,model.reason||('Training cutoff '+model.training+(model.sample?' · '+model.sample+' training matches':'')));
+  if(model.hash)line(panel,(model.hashLabel||'Training SHA-256')+' '+model.hash);
+  if(model.limitation)line(panel,model.limitation);
+  for(const outcome of model.outcomes)
+   line(panel,outcome.name+' '+pct(outcome.probability)+(model.reason||outcome.probability===0?'':' · fair odds '+(1/outcome.probability).toFixed(2)));
+ }
+ if(!evidence.quotes.length)line(panel,evidence.priceReason);
+ manualPrice(panel,item,line);
+ for(const quote of evidence.quotes){
+  const receipt=document.createElement('a');receipt.href=quote.url.href;
+  receipt.textContent=quote.name+' · regulation-time 1X2 · observed '+new Date(quote.observed).toISOString();
+  panel.append(receipt);
+  for(const side of ['home','draw','away']){
+   const price=quote.prices[side];
+   line(panel,side+' '+price.toFixed(2)+' · implied '+pct(quote.metrics.implied[side])+
+    ' · proportional no-vig '+pct(quote.metrics.proportionalNoVig[side]));
+   for(const comparison of quote.comparisons)
+    line(panel,comparison.model+' · research EV '+pct(comparison.values[side]));
+  }
+ }
+}
+async function optionalEvidence(path){
+ try{
+  const response=await fetch(path,{cache:'no-store',signal:AbortSignal.timeout(8000)});
+  if(response.ok)return await response.json();
+ }catch{}
+ return null;
 }
 function renderFeatured(){
  const body=document.getElementById('pro-featured-rows'),counter=document.getElementById('pro-feature-page');
@@ -147,7 +248,7 @@ function renderFeatured(){
   }else fixture.textContent=item.name;
   tr.append(fixture);
   cell(tr,when);
-  cell(tr,item.hasModel?'Experimental model record':'No model record');
+  evidenceCell(tr,item);
   body.append(tr);
  }
  if(!visible.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=4;td.textContent=featured.length?'No timed events match these filters.':'No future events from the currently usable source feeds.';tr.append(td);body.append(tr)}
@@ -163,15 +264,21 @@ async function showFeatured(){
  const now=Date.now();featureClock=now;
  const ids=Sources.SOURCES.filter(source=>source.id!=='history').map(source=>source.id);
  try{
-  const feeds=await Promise.all(ids.map(id=>Sources.load(id,'./',window.fetch.bind(window),now)));
+  const [feeds,expanded,prices,horseModels]=await Promise.all([
+   Promise.all(ids.map(id=>Sources.load(id,'./',window.fetch.bind(window),now))),
+   optionalEvidence('./football-expanded-data.json'),optionalEvidence('./paper-lab/hybrid-market-data.json'),optionalEvidence('./horse-model-data.json')
+  ]);
+  const core=window.FootballMatchEvidence;
+  football=core?Sources.footballEvidence([feeds.find(feed=>feed.id==='football')?.data,expanded],prices,core,now):null;
   const summary=Sources.summarize(feeds,now),invalid=feeds.filter(x=>x.state!=='OBSERVED');
   for(const sport of Sources.sports)document.querySelectorAll('[data-pro-count="'+sport+'"]').forEach(el=>{el.textContent=summary.counts[sport]===null?'—':String(summary.counts[sport])});
+  racing=Sources.racingEvidence(summary.upcoming,feeds.find(feed=>feed.id==='racing'),horseModels,now);
   const all=document.querySelector('[data-pro-count="all"]');if(all)all.textContent=summary.available.length?String(summary.totalAvailable):'—';
   featured=Sources.featuredOrder(summary.upcoming);page=0;
   health.textContent=feeds.filter(x=>x.state==='OBSERVED').length+'/'+feeds.length+' current source groups'+(invalid.length?' · review needed':'');
   const stamps=feeds.filter(x=>x.fresh&&Number.isFinite(x.generatedAt)).map(x=>x.generatedAt);
   const updated=stamps.length?new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(Math.min(...stamps))):'unavailable';
-  status.textContent=summary.upcoming.length+' upcoming events with start times · '+summary.available.length+'/'+Sources.sports.length+' timed-feed sports with usable data · oldest usable source snapshot '+(updated==='unavailable'?updated:updated+' UK')+(invalid.length?' · '+invalid.map(x=>feedLabels[x.id]+' '+stateLabels[x.state]).join(', '):'')+'. No verified bookmaker odds, EV or qualifying bets.';
+  status.textContent=summary.upcoming.length+' upcoming events with start times · '+summary.available.length+'/'+Sources.sports.length+' timed-feed sports with usable data · oldest usable source snapshot '+(updated==='unavailable'?updated:updated+' UK')+(invalid.length?' · '+invalid.map(x=>feedLabels[x.id]+' '+stateLabels[x.state]).join(', '):'')+'. No verified bookmaker odds are assumed. Recorded prices and research EV require matched evidence. No qualifying bets.';
  }catch{
   featured=[];page=0;
   for(const count of document.querySelectorAll('[data-pro-count]'))count.textContent='—';

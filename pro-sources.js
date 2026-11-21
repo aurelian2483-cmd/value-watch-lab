@@ -15,6 +15,7 @@
   {id:'history',filename:'research-history.json',maxAgeHours:168}
  ];
  const sports=['football','racing','tennis','nfl','darts','rugby'];
+ function unavailable(row){return /cancel|postpon|suspend|final|finish|running|withdraw|abandon|retir|walkover|in.progress|complete/i.test([row.status,row.event_status,row.result?.status].join(' '))}
  function stamp(s){if(typeof s!=='string'||!/(?:Z|[+-]\d{2}:\d{2})$/.test(s))return null;const n=Date.parse(s);return Number.isFinite(n)?n:null}
  function safeName(v){return typeof v==='string'&&v.trim()?v.trim().slice(0,220):null}
  function gate(d){return !!(d&&typeof d==='object'&&!Array.isArray(d)&&d.research_only===true&&d.model_validation==='UNVALIDATED'&&d.publication_gate==='BLOCKED')}
@@ -65,7 +66,7 @@
   if(id==='history')return {id,state:'OBSERVED',fresh:true,generatedAt:ts,records:[],data};
   const seen=new Map(),conflicts=new Set(),invalid=[];
   const result=()=>[...seen].filter(([id])=>!conflicts.has(id)).map(([,record])=>record);
-  function add(sport,name,time,key,hasModel,fixtureKey,detail){
+  function add(sport,name,time,key,hasModel,fixtureKey,detail,forecast,reason){
    const n=safeName(name),t=stamp(time);
    // Reject unknown time, malformed identity, and duplicates; never make a synthetic event.
    if(!n||t===null||!Number.isFinite(t)||!safeName(key)){invalid.push('INVALID_RECORD');return}
@@ -73,9 +74,11 @@
    const record={sport,name:n,startUTC:new Date(t).toISOString(),startMs:t,hasModel:hasModel===true,source:id};
    if(fixtureKey)record.fixtureKey=fixtureKey;
    if(detail)record.detail=detail;
+   if(forecast)record.forecast=forecast;
+   if(reason)record.reason=reason;
    const previous=seen.get(identity);
    if(previous){
-    if(previous.name!==record.name||previous.startMs!==record.startMs||previous.hasModel!==record.hasModel||previous.fixtureKey!==record.fixtureKey||detailKey(previous)!==detailKey(record)){
+    if(previous.name!==record.name||previous.startMs!==record.startMs||previous.hasModel!==record.hasModel||previous.fixtureKey!==record.fixtureKey||detailKey(previous)!==detailKey(record)||JSON.stringify(previous.forecast)!==JSON.stringify(record.forecast)){
      conflicts.add(identity);
      invalid.push('CONFLICTING_RECORD');
     }else invalid.push('DUPLICATE_RECORD');
@@ -86,7 +89,7 @@
   if(id==='football'){
    if(!Array.isArray(data.upcoming_fixtures))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
    for(const e of data.upcoming_fixtures.slice(0,300)){
-    if(!e||!safeName(e.home)||!safeName(e.away))continue;
+    if(!e||!safeName(e.home)||!safeName(e.away)||unavailable(e))continue;
     const name=e.home+' vs '+e.away,key=e.fixture_id||String(e.home)+'|'+String(e.away)+'|'+String(e.kickoff_utc);
     add('football',name,e.kickoff_utc,key,e.has_experimental_model_forecast===true,
       data.schema_version===1 && footballEvidence?.fixtureKey(e));
@@ -95,7 +98,8 @@
    if(!Array.isArray(data.races))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
    for(const e of data.races.slice(0,300)){
     if(!e||!safeName(e.racecourse)||!safeName(e.race_id))continue;
-    add('racing',e.racecourse+' · '+(safeName(e.name)||'Race '+e.race_id),e.startUTC,String(e.race_id),e.forecast_eligible===true&&e.prediction!=null,null,ts<=now&&ts<stamp(e.startUTC)?raceIdentity(e,ts,now):null);
+    add('racing',e.racecourse+' · '+(safeName(e.name)||'Race '+e.race_id),e.startUTC,String(e.race_id),e.forecast_eligible===true&&e.prediction!=null,null,ts<=now&&ts<stamp(e.startUTC)?raceIdentity(e,ts,now):null,null,
+      'No eligible runner probability vector in the racecard snapshot'+(safeName(e.forecast_status)?' ('+e.forecast_status+')':'')+'.');
    }
   }else if(id==='other'){
    if(!data.sports||!['tennis','nfl'].some(k=>Array.isArray(data.sports[k]?.events)))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
@@ -112,10 +116,18 @@
      const observed=stamp(e?.source_collected_at_utc??seenAt);
      if(!Audit.validateOtherIdentity(e,sport)||(e.sport!=null&&e.sport!==sport)||
         observed===null||observed>stamp(seenAt)||now-observed>def.maxAgeHours*3600000||
-        /cancel|postpon|suspend|final|finish|running/i.test(e.status||e.event_status||'')){
+        unavailable(e)){
       invalid.push('INVALID_OR_UNAVAILABLE_EVENT');continue;
      }
-     add(sport,e.name,e.startUTC,e.id,Audit.validateOtherForecast(e,sport,seenAt,now),null,observed<=now&&observed<stamp(e.startUTC)?withObservation(otherIdentity(e,sport),observed):null);
+     const identity=observed<=now&&observed<stamp(e.startUTC)?withObservation(otherIdentity(e,sport),observed):null;
+     const valid=Audit.validateOtherForecast(e,sport,seenAt,now);
+     const forecast=valid&&identity?{
+      name:e.forecast.model,market:e.forecast.market,observed:e.forecast.generated_at_utc||seenAt,
+      training:e.forecast.training_latest_start_utc,hash:e.forecast.training_sha256,
+      sample:e.forecast.training_matches,outcomes:e.forecast.outcomes.map(({id,name,probability})=>({id,name,probability}))
+     }:null;
+     add(sport,e.name,e.startUTC,e.id,valid,null,identity,forecast,
+      e.forecast?'Published model did not pass identity, chronology or forecast checks.':'No model forecast was published for this event.');
     }
    }
    return {id,state:invalid.length?'PARTIAL_RECORDS':'OBSERVED',fresh:usableSports.length>0,
@@ -162,6 +174,83 @@
   }
   return out;
  }
+ function racingEvidence(records,cardFeed,modelFeed,now){
+  const forecasts=new Map();
+  if(!gate(modelFeed)||!Array.isArray(modelFeed.form_forecasts)||!cardFeed?.fresh)return forecasts;
+  const published=stamp(modelFeed.generated_at_utc);
+  if(published===null||published>now)return forecasts;
+  const cards=new Map(cardFeed.data.races.filter(card=>card&&typeof card==='object').map(card=>[card.race_id,card]));
+  for(const record of records.filter(row=>row.sport==='racing'&&row.detail&&row.startMs>now)){
+   const card=cards.get(record.detail.id);
+   if(!card||card.runner_count_changed_since_discovery||card.conditions_changed_since_discovery?.length)continue;
+   const field=(Array.isArray(card.runners)?card.runners:[]).filter(runner=>runner?.active_runner===true);
+   if(!field||field.length<2||field.length!==card.active_runner_count||
+      card.runners.some(runner=>runner?.runner_status==='DOUBTFUL'))continue;
+   const matching=modelFeed.form_forecasts.filter(row=>row.race_id===record.detail.id&&stamp(row.startUTC)===record.startMs);
+   if(matching.length!==1)continue;
+   const row=matching[0],observed=stamp(row.generated_at_utc),receipt=stamp(row.runner_observed_at_utc);
+   const vector=row.runners;
+   if(!gate(row)||row.model!=='FORM_PERCENTILE_SOFTMAX_RESEARCH_V1'||row.reference_only!==false||
+      row.odds!==null||row.expected_value!==null||row.schedule_cross_checked!==true||
+      row.source!==record.detail.source||row.racecourse!==record.detail.competition||row.race_name!==record.detail.name||
+      receipt===null||observed===null||receipt>observed||observed-receipt>30*60000||
+      observed>published||observed>=record.startMs-5*60000||record.detail.observedAt<receipt||
+      !/^[a-f0-9]{64}$/i.test(row.runner_source_sha256||'')||
+      !Array.isArray(vector)||vector.length!==field.length||row.active_runner_count!==field.length||
+      new Set(vector.map(runner=>runner?.horse_id)).size!==field.length||
+      !vector.every(runner=>runner&&field.some(active=>active.horse_id===runner.horse_id&&active.name===runner.name)&&
+       Number.isFinite(runner.model_probability)&&runner.model_probability>0&&runner.model_probability<1)||
+      Math.abs(vector.reduce((sum,runner)=>sum+runner.model_probability,0)-1)>1e-8)continue;
+   forecasts.set(record.detail.id,{name:row.model,market:'Race winner',observed:row.generated_at_utc,
+    training:'Form history before race-day capture',hash:row.runner_source_sha256,hashLabel:'Runner receipt SHA-256',
+    limitation:row.limitation,outcomes:vector.map(runner=>({id:runner.horse_id,name:runner.name,probability:runner.model_probability}))});
+  }
+  return forecasts;
+ }
+ function footballEvidence(feeds,market,core,now){
+  const index=core.fixtureIndex(feeds.filter(feed=>{
+   if(!gate(feed))return false;
+   const observed=stamp(feed.generated_at_utc);
+   return observed!==null&&observed<=now&&now-observed<=24*3600000;
+  }),now);
+  const quotes=new Map(core.verifyMarkets(market,index,now).matches.map(match=>[match.fixture.exact,match.sources]));
+  return {events:index.byExact,quotes};
+ }
+ function cardEvidence(record,football,core,now,racing){
+  const empty={models:[],unverified:[],quotes:[],reason:record.reason||'No accepted fixture-level model is available.',priceReason:'No matched source-backed price is available.'};
+  if(!(record.startMs>now))return {...empty,reason:'The event has started.'};
+  if(record.sport!=='football'){
+   const forecast=record.forecast||(record.sport==='racing'&&record.detail&&racing?.get(record.detail.id));
+   return {...empty,models:forecast?[forecast]:[],
+    reason:record.sport==='racing'&&record.detail?'No race model matches the fresh exact runner field.':empty.reason,
+    priceReason:'No verified bookmaker receipt matches this event and market.'};
+  }
+  const fixture=football?.events.get(record.fixtureKey);
+  if(!fixture||unavailable(fixture.row)||fixture.row.result!=null||fixture.marketCutoff<=now)
+   return {...empty,reason:'Exact upcoming fixture identity could not be confirmed.'};
+  const sides=['home','draw','away'];
+  const models=[],unverified=[];
+  for(const entry of fixture.models){
+   const row=entry.row;
+   if(!safeName(row.model)||!core.probabilities(sides.map(side=>row['prob_'+side])))continue;
+   const model={name:row.model,market:'Regulation-time 1X2',observed:new Date(entry.observed).toISOString(),training:row.cutoff_utc,
+    hash:row.training_sha256,sample:row.training_matches,outcomes:sides.map(id=>({id,name:id,probability:row['prob_'+id]}))};
+   if(entry.cutoffReason!==null)unverified.push({...model,reason:entry.cutoffReason});
+   else models.push(model);
+  }
+  const recorded=football.quotes.get(record.fixtureKey)||[];
+  const counts=new Map();
+  for(const model of models)counts.set(model.name,(counts.get(model.name)||0)+1);
+  const accepted=models.filter(model=>counts.get(model.name)===1);
+  for(const model of models.filter(model=>counts.get(model.name)>1))
+   unverified.push({...model,reason:'Multiple accepted records for the same model version. Comparison withheld.'});
+  const quotes=recorded.filter(q=>now-q.observed<=30*60000).sort((a,b)=>
+    (a.sourceId!=='SKY_BET')-(b.sourceId!=='SKY_BET')).map(quote=>({...quote,
+     comparisons:accepted.map(model=>({model:model.name,values:Object.fromEntries(model.outcomes.map(outcome=>
+      [outcome.id,outcome.probability*quote.prices[outcome.id]-1]))}))}));
+  return {models:accepted,unverified,quotes,reason:unverified.length?'The exact estimate lacks verified training evidence.':'No valid probability vector was published for this fixture.',
+   priceReason:recorded.length?'Recorded prices are older than 30 minutes. See Market evidence for the archive.':'No verified regulation-time 1X2 receipt matches this fixture.'};
+ }
  async function load(id,base='',fetcher=fetch,now=Date.now()){
   const source=SOURCES.find(x=>x.id===id);if(!source)throw Error('Unknown source');
   try{
@@ -170,5 +259,5 @@
    return inspect(id,await response.json(),now);
   }catch(err){return {id,state:'UNAVAILABLE',fresh:false,generatedAt:null,records:[],data:null,error:String(err?.message||err).slice(0,120)}}
  }
- return Object.freeze({SOURCES,sports,stamp,gate,inspect,summarize,featuredOrder,load,detailKey,findDetail});
+ return Object.freeze({SOURCES,sports,stamp,gate,inspect,summarize,featuredOrder,load,detailKey,findDetail,footballEvidence,racingEvidence,cardEvidence});
 });

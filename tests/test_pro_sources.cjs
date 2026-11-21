@@ -127,3 +127,24 @@ assert.equal(S.detailKey(rugbyFeed.records[0]),null);
 assert.equal(S.findDetail(S.inspect('racing',{...receipt,races:[{
  ...raceRow,runner_observed_at_utc:new Date(now-31*60000).toISOString()
 }]},now),raceKey,now),null,'racecard receipt TTL is stricter than the overview feed TTL');
+
+// An exact current active field is required to join a separate racing vector.
+{
+ const field=[{horse_id:'1',name:'First',active_runner:true},{horse_id:'2',name:'Second',active_runner:true}];
+ const vector=field.map(({horse_id,name})=>({horse_id,name,model_probability:.5}));
+ const form={...base,model:'FORM_PERCENTILE_SOFTMAX_RESEARCH_V1',race_id:raceRow.race_id,racecourse:raceRow.racecourse,
+  race_name:raceRow.name,startUTC:raceRow.startUTC,source:raceRow.runner_source,runner_observed_at_utc:base.generated_at_utc,
+  runner_source_sha256:raceRow.runner_source_sha256,reference_only:false,schedule_cross_checked:true,
+  odds:null,expected_value:null,active_runner_count:2,runners:vector};
+ const card={...raceRow,runners:field,active_runner_count:2};
+ const joined=(rows,race=card)=>{
+  const cards=S.inspect('racing',{...base,races:[race]},now);
+  return S.racingEvidence(cards.records,cards,{...base,form_forecasts:rows},now);
+ };
+ assert.equal(joined([form]).get('12345').outcomes.length,2);
+ assert.equal(joined([form],{...card,runner_count_changed_since_discovery:true}).size,0);
+ assert.equal(joined([form],{...card,runners:[...field,{runner_status:'DOUBTFUL'}]}).size,0);
+ assert.equal(joined([form,form]).size,0);
+ assert.equal(joined([{...form,runners:[null,vector[1]]}]).size,0);
+ assert.equal(joined([{...form,runners:[{...vector[0],model_probability:1},vector[1]]}]).size,0);
+}
