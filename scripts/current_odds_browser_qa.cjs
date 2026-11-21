@@ -145,6 +145,11 @@ async function main(){
      await page.locator('#events .event-card').first().waitFor({state:'visible',timeout:15000});
      checkpoint='find exact football card';
      const card=page.locator('#events .event-card').filter({hasText:item.name}).first();
+     for(let pageNumber=0;pageNumber<20&&await card.count()===0;pageNumber++){
+      const more=page.locator('#events .load-more');
+      if(await more.count()===0)break;
+      await more.click();
+     }
      await card.waitFor({state:'visible',timeout:15000});
      checkpoint='football outcome prices';
      assert(football.events.get(item.fixtureKey)?.identity,'Exact football identity is required for card verification.');
