@@ -132,6 +132,24 @@ async function calendarRecovery(browser, base) {
   await context.close();
 }
 
+async function resultReceiptFlow(page, width) {
+  const matchList = page.locator('#result-review-matches');
+  await matchList.getByText(/Inspect NFL source evidence/).waitFor();
+  await matchList.getByText(/Inspect NFL source evidence/).click();
+  await matchList.getByText(/including overtime/).first().waitFor();
+  assert(await matchList.getByRole('link',{name:'Schedule CSV receipt'}).count() >= 1);
+  await screenshot(page,'result-receipts-'+width,'#result-review-heading');
+  const fail = route => route.fulfill({status:503});
+  await page.route('**/research/secondary-result-evidence.json',fail);
+  await page.locator('#retry').click();
+  await matchList.getByText(/A source receipt archive is missing/).waitFor();
+  assert.equal(await matchList.getByRole('link').count(),0);
+  await page.unroute('**/research/secondary-result-evidence.json',fail);
+  await page.locator('#retry').click();
+  await matchList.getByText(/Inspect tennis source evidence/).waitFor();
+  report.syntheticChecks.push('Result receipts on '+width+'px: repository evidence, missing feed and recovery');
+}
+
 async function discoveryFlow(browser, base) {
   const page = await browser.newPage({viewport:{width:390,height:920}});
   for (const sport of ['basketball','cricket']) {
@@ -217,6 +235,7 @@ async function discoveryFlow(browser, base) {
           assert.equal(response.status(),200);
           await page.waitForLoadState('networkidle');
           await screenshot(page,route + '-workspace-' + width);
+          if (route === 'validation-centre') await resultReceiptFlow(page,width);
         }
       }
       if (compact && !baseline) {
