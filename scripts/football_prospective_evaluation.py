@@ -84,11 +84,6 @@ def manifest(raw, trusted_sha256):
     return digest, pinned, as_of, split_manifest(data['split'], as_of), freezes, reviews
 
 
-def fixture_collision_key(event):
-    competition, season, home, away, start = contract.fixture_signature(event)
-    return competition, season, *sorted((home.casefold(), away.casefold())), start
-
-
 def split_manifest(data, as_of):
     fields(data, (*PERIODS, 'fixtures'), 'chronological split')
     periods = {}
@@ -108,7 +103,7 @@ def split_manifest(data, as_of):
         name, event = row['partition'], row['event']
         require(isinstance(name, str) and name in periods, 'unknown fixture partition')
         contract.event(event)
-        key, collision = contract.event_key(event), fixture_collision_key(event)
+        key, collision = contract.event_key(event), contract.fixture_collision_key(event)
         require(key not in ids and collision not in observed, 'duplicate or conflicting fixture across split roster')
         require(in_period(contract.instant(event['starts_at']), periods[name]), 'fixture falls outside its declared split')
         ids[key] = row
@@ -140,7 +135,7 @@ def forecast_conflicts(rows):
     for row in rows:
         event = row['event']
         by_id[contract.event_key(event)].append(row['record_id'])
-        by_fixture[fixture_collision_key(event)].append(row['record_id'])
+        by_fixture[contract.fixture_collision_key(event)].append(row['record_id'])
     return {identifier for group in (*by_id.values(), *by_fixture.values()) if len(group) > 1 for identifier in group}
 
 

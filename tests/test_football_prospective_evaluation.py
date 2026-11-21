@@ -221,3 +221,59 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(self.evaluate(*inputs)['coverage'], {'freeze_attestation_chronology_invalid': 1})
         inputs[2]['freeze_attestations'].clear()
         self.assertEqual(self.evaluate(*inputs)['coverage'], {'missing_freeze_attestation': 1})
+
+    def test_split_manifest_fails_on_overlaps_duplicates_and_ambiguity(self):
+        for field, expected in (('start', 'overlapping'), ('timezone', 'UTC offset'), ('duplicate', 'duplicate')):
+            bundle = synthetic_bundle(forecast())
+            split = bundle[2]['split']
+            if field == 'start':
+                split['evaluation']['start'] = '2026-08-30T00:00:00Z'
+            elif field == 'timezone':
+                split['evaluation']['start'] = '2026-09-01T00:00:00'
+            else:
+                roster = split['fixtures']
+                clone = {'partition': 'training',
+                         'event': {**roster[0]['event'], 'starts_at': '2026-08-09T18:00:00Z'}}
+                roster.insert(0, clone)
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, expected):
+                self.evaluate(*bundle)
+
+    def test_training_cutoff_and_declared_window_are_both_required(self):
+        base = forecast()
+        cutoff = seal({**base, 'input_cutoff': '2026-09-02T00:00:00Z'})
+        self.assertEqual(self.evaluate(*synthetic_bundle(cutoff))['coverage'],
+                         {'input_cutoff_enters_evaluation_period': 1})
+        receipt = {**base['input_receipts'][0], 'observed_at': '2026-08-15T00:00:00Z'}
+        misallocated = seal({**base, 'input_receipts': [receipt]})
+        self.assertEqual(self.evaluate(*synthetic_bundle(misallocated))['coverage'],
+                         {'input_observation_outside_declared_split': 1})
+        receipt['period'] = 'calibration'
+        self.assertEqual(self.evaluate(*synthetic_bundle(seal(misallocated)))['coverage'],
+                         {'synthetic_test_fixture_only': 1})
+
+    def test_duplicate_fixture_and_alias_namespaces_do_not_create_more_rows(self):
+        base = forecast()
+        second = forecast(fixture('another-source', 'alias'))
+        bundle = synthetic_bundle(base, second)
+        bundle[2]['split']['fixtures'].pop()
+        self.assertEqual(self.evaluate(*bundle)['coverage'], {'duplicate_forecast_fixture': 2})
+        changed = synthetic_bundle(base)
+        changed[2]['split']['fixtures'][0]['event'] = {**base['event'], 'starts_at': '2026-09-15T18:01:00Z'}
+        self.assertEqual(self.evaluate(*changed)['coverage'], {'outside_exact_evaluation_roster': 1})
+
+    def test_partial_or_mixed_receipts_never_score(self):
+        item = forecast()
+        first, second = outcome(), outcome(2)
+        self.assertEqual(self.evaluate(*synthetic_bundle(item, receipts=[]))['coverage'], {'missing_exact_outcome': 1})
+        self.assertEqual(self.evaluate(*synthetic_bundle(item, receipts=[first]))['coverage'],
+                         {'missing_reviewed_fixture_link': 1})
+        foreign = outcome(2, origin='prospective')
+        self.assertEqual(self.evaluate(*synthetic_bundle(item, receipts=[first, foreign]))['coverage'],
+                         {'outcome_origin_conflict': 1})
+        duplicate_event = outcome(2, event=first['event'])
+        self.assertEqual(self.evaluate(*synthetic_bundle(item, receipts=[first, duplicate_event]))['coverage'],
+                         {'duplicate_provider_event_reference': 1})
+        reversed_order = {'home': item['event']['away'], 'away': item['event']['home']}
+        reversed_receipt = outcome(3, event={**fixture('provider-3', 'fixture-3'), **reversed_order})
+        result = self.evaluate(*synthetic_bundle(item, receipts=[first, second, reversed_receipt]))
+        self.assertEqual(result['coverage'], {'outcome_participant_order_conflict': 1})

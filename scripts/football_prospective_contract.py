@@ -47,6 +47,11 @@ def fixture_signature(row):
     return (row['competition'], row['season'], row['home'], row['away'], instant(row['starts_at']))
 
 
+def fixture_collision_key(row):
+    competition, season, home, away, start = fixture_signature(row)
+    return competition, season, *sorted((home.casefold(), away.casefold())), start
+
+
 def same_event(first, second):
     return event_key(first) == event_key(second) and fixture_signature(first) == fixture_signature(second)
 

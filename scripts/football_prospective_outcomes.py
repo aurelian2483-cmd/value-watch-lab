@@ -11,10 +11,12 @@ class OutcomeIndex:
     def __init__(self, receipts):
         self.groups = defaultdict(list)
         event_signatures = defaultdict(set)
+        self.ordered_signatures = defaultdict(set)
         self.receipt_ids = Counter()
         for row in receipts:
             signature = contract.fixture_signature(row['event'])
             self.groups[signature].append(row)
+            self.ordered_signatures[contract.fixture_collision_key(row['event'])].add(signature)
             event_signatures[contract.event_key(row['event'])].add(signature)
             self.receipt_ids[row['receipt_id']] += 1
         self.collisions = {key for key, signatures in event_signatures.items() if len(signatures) > 1}
@@ -28,6 +30,9 @@ class OutcomeIndex:
         if key in self.collisions or (key in self.identity_signatures and
                                      signature not in self.identity_signatures[key]):
             return 'outcome_event_identity_conflict', None
+        alternate_orders = self.ordered_signatures.get(contract.fixture_collision_key(event), set())
+        if alternate_orders - {signature}:
+            return 'outcome_participant_order_conflict', None
         if not receipts:
             return 'missing_exact_outcome', None
         if any(contract.event_key(row['event']) in self.collisions for row in receipts):
@@ -62,6 +67,8 @@ class OutcomeIndex:
         reviewed = contract.instant(review['reviewed_at'])
         if not all(contract.instant(row['retrieved_at']) <= reviewed <= as_of for row in receipts):
             return 'outcome_review_chronology_invalid', None
+        if len({contract.event_key(row['event']) for row in receipts}) != len(receipts):
+            return 'duplicate_provider_event_reference', None
         for source in ('provider', 'acquisition_lineage'):
             if len({row[source] for row in receipts}) != len(receipts):
                 return 'duplicate_or_shared_outcome_source', None
