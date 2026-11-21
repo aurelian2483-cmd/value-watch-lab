@@ -144,7 +144,8 @@ async function main(){
      checkpoint='wait for any research card';
      await page.locator('#events .event-card').first().waitFor({state:'visible',timeout:15000});
      checkpoint='find exact football card';
-     const card=page.locator('#events .event-card').filter({hasText:item.name}).first();
+     const [,homeTeam,awayTeam]=football.events.get(item.fixtureKey).identity;
+     const card=page.locator('#events .event-card').filter({hasText:homeTeam}).filter({hasText:awayTeam}).first();
      for(let pageNumber=0;pageNumber<20&&await card.count()===0;pageNumber++){
       const more=page.locator('#events .load-more');
       if(await more.count()===0)break;
