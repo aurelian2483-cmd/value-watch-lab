@@ -88,6 +88,8 @@ jobs:
           echo "Overlay verified: ${#files[@]} current-main data snapshots"
           git diff --name-only
           # Files are overlaid in ephemeral checkout only. Nothing is committed.
+      - name: Apply audited racing schedule classification to the runner snapshot
+        run: python scripts/reconcile_racing_schedule_observation.py
       - name: Install pinned QA tools
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Run JS and Python regression against overlaid snapshots
