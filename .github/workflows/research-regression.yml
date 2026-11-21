@@ -33,6 +33,12 @@ jobs:
         run: |
           python scripts/audit_football_provenance.py --check
           python scripts/football_evidence_ledger.py check
+          python scripts/football_evidence_intake.py research/football-result-provenance/intake.empty.json
+      - name: Repeat ledger regeneration with a different hash seed
+        if: github.head_ref == 'codex/phase11-evidence-operations' || github.ref_name == 'codex/phase11-evidence-operations'
+        env:
+          PYTHONHASHSEED: '97'
+        run: python scripts/football_evidence_ledger.py check
       - name: Mathematical library and Sky 81 validation
         run: |
           set -euo pipefail
@@ -89,3 +95,5 @@ jobs:
         run: python scripts/audit_football_provenance.py --check
       - name: Rebuild evidence ledger and compare offline
         run: python scripts/football_evidence_ledger.py check
+      - name: Validate empty fixture receipt intake offline
+        run: python scripts/football_evidence_intake.py research/football-result-provenance/intake.empty.json
