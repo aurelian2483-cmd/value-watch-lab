@@ -20,10 +20,11 @@ SAFE = {'research_only': True, 'model_validation': 'UNVALIDATED', 'publication_g
 
 
 def parse_capture(row, path, as_of):
-    if any(row.get(key) != value for key, value in SAFE.items()) or row.get('kind') != 'HORSE_SOURCE_MARKET_CAPTURE' or (
-        row.get('schema_version') != 1 or row.get('executable_verified') is not False or row.get('challenge_eligible') != 0
-        or row.get('origin') not in (None, 'source_observed')
-    ):
+    if (row.get('research_only') is not True or row.get('model_validation') != SAFE['model_validation']
+        or row.get('publication_gate') != SAFE['publication_gate'] or row.get('kind') != 'HORSE_SOURCE_MARKET_CAPTURE'
+        or type(row.get('schema_version')) is not int or row['schema_version'] != 1
+        or row.get('executable_verified') is not False or type(row.get('challenge_eligible')) is not int
+        or row['challenge_eligible'] != 0 or row.get('origin') not in (None, 'source_observed')):
         return 'unsupported_evidence_tier', None
     body = {key: value for key, value in row.items() if key != 'record_sha256'}
     if path.stem != row.get('record_sha256') or path.stem != digest(body):

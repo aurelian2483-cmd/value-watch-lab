@@ -59,6 +59,7 @@ class RacingCoverageTests(unittest.TestCase):
     def test_malformed_failed_synthetic_and_cross_sport_inputs(self):
         for path, reason in [
             (self.capture(origin='synthetic'), 'unsupported_evidence_tier'),
+            (self.capture(research_only=1), 'unsupported_evidence_tier'),
             (self.capture(kind='FOOTBALL_MARKET_CAPTURE'), 'unsupported_evidence_tier'),
             (self.capture('2026-11-21T08:50:00'), 'unreadable_or_invalid_record'),
             (self.capture('2026-11-21T10:00:01Z'), 'invalid_chronology'),
