@@ -89,8 +89,10 @@ function render(match) {
       ' · settlement ' + history.settlementPeriod + (history.marketId ? ' · market ID ' + history.marketId : '') + '.');
     paragraph('Earliest recorded observation: ' + timeInLondon.format(history.earliest.observed) +
       '. Latest recorded observation: ' + timeInLondon.format(latest.observed) + '.');
+    paragraph('Latest capture: ' + timeInLondon.format(latest.captured) + ' · source snapshot: ' +
+      timeInLondon.format(latest.snapshot) + ' · HTTP Date: ' + timeInLondon.format(latest.httpDate) + '.');
     paragraph('Opening price is not explicitly recorded. The earliest captured observation is not assumed to be the market opening.');
-    paragraph('Latest source SHA-256: ' + latest.hash);
+    paragraph('Latest source SHA-256: ' + latest.hash + '. This hash is provenance metadata; the browser does not independently fetch or re-hash the provider payload.');
     const sourceLink = document.createElement('a');
     sourceLink.href = latest.url.href;
     sourceLink.rel = 'noopener noreferrer';
