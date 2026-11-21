@@ -40,8 +40,8 @@
         evidence.instant(receipt.observed_at_utc) > kickoff && evidence.instant(receipt.observed_at_utc) <= published);
       if (new Set(receipts.map(receipt => new URL(receipt.url).hostname)).size < 2) continue;
       const day = new Date(kickoff).toISOString().slice(0,10);
-      const key = JSON.stringify([row.league,row.home,row.away,kickoff]);
-      const candidate = {league:row.league,day,home:row.home,away:row.away,goals:[row.score_home,row.score_away]};
+      const key = JSON.stringify([row.league,row.home,row.away,new Date(kickoff).toISOString()]);
+      const candidate = {exact:key,league:row.league,day,home:row.home,away:row.away,goals:[row.score_home,row.score_away]};
       const previous = matches.get(key);
       if (!matches.has(key)) matches.set(key,candidate);
       else if (!previous || previous.goals.some((goal,index) => goal !== candidate.goals[index])) matches.set(key,null);

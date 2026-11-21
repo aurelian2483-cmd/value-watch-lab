@@ -55,3 +55,13 @@ The Models view offers side-by-side eligible estimates and the largest outcome d
 The archive and expanded snapshots do not supply verified lineups, player or injury data, complete league histories, or in-match timelines. A useful next step is a versioned results feed with stable team IDs and full season coverage, followed by documented lineup and event feeds and prospective matched-sample calibration.
 
 [Desktop match](preview/football-match/phase3-1440.webp) · [Tablet match](preview/football-match/phase3-820.webp) · [Mobile match](preview/football-match/phase3-390.webp) · [Historical model comparison](preview/football-match/phase3-models-1440.webp)
+
+## Phase 4 fixture discovery
+
+The desktop rail and native fixture picker group their results by Europe/London calendar date. Date, competition, search, status and favourites-only filters combine in the URL. Previous and Next follow the order of the filtered date groups, and browser Back restores the prior fixture and filters. An explicitly selected fixture remains open outside the filters with a clear notice. Filter changes retain the current fixture's open evidence and chart controls.
+
+Favouriting a competition adds a pinned shortcut. Favourites use a new browser-local key, `value-watch-football-discovery-favourites-v1`. Existing paper selections and journals keep their existing storage contracts. Favourites are local to a browser, so the favourites-only filter in a shared URL uses the recipient's preferences. If storage is blocked, favourites remain available for the current page session.
+
+A scheduled match is a future kickoff in the snapshot. Elapsed kickoffs remain separate from finals. A source-backed final requires an exact competition, ordered participants and kickoff match against the existing two-source regulation-time evidence. The archive remains a separate historical reconstruction. The snapshots provide no live or independently verified in-play status.
+
+[Desktop](preview/football-match/phase4-1440.webp) · [Tablet](preview/football-match/phase4-820.webp) · [Mobile](preview/football-match/phase4-390.webp)

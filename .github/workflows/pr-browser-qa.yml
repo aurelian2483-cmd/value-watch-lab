@@ -102,7 +102,9 @@ jobs:
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
       - name: Test real-main snapshots and synthetic browser workflows
-        run: npm run test:browser
+        run: |
+          npm run test:browser
+          node scripts/football_match_browser_qa.cjs
       - name: Retain integration QA evidence
         if: always()
         uses: actions/upload-artifact@v4

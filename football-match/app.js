@@ -3,6 +3,12 @@
 (() => {
   const evidence = FootballMatchEvidence;
   const historical = FootballMatchHistory;
+  const discovery = FootballFixtureDiscovery;
+  const favourites = discovery.readFavourites();
+  const dayLabel = new Intl.DateTimeFormat('en-GB', {dateStyle:'full', timeZone:'Europe/London'});
+  const timeLabel = new Intl.DateTimeFormat('en-GB', {timeStyle:'short', timeZone:'Europe/London'});
+  const displayDay = day => dayLabel.format(new Date(day + 'T12:00:00Z'));
+  const statusOf = event => discovery.status(event, Date.now(), finals, archive);
   const $ = id => document.getElementById(id);
   const date = new Intl.DateTimeFormat('en-GB', { dateStyle:'medium', timeStyle:'short', timeZone:'Europe/London' });
   const format = value => date.format(value) + ' UK';
@@ -16,7 +22,8 @@
   const label = event => event.identity.slice(1).join(' v ');
   const stateURL = id => {
     const url = new URL(location.href);
-    for (const [key, value] of [['event', id], ['competition', $('competition').value], ['q', $('search').value]]) {
+    for (const [key, value] of [['event', id], ['competition', $('competition').value], ['q', $('search').value],
+      ['date', $('fixture-day').value], ['status', $('match-status').value], ['favourites', $('favourites-only').checked ? '1' : '']]) {
       if (value) url.searchParams.set(key, value);
       else url.searchParams.delete(key);
     }
@@ -27,6 +34,10 @@
   let feedMessage = '';
   let archiveMetrics = null;
   let records = [];
+  let finals = new Map();
+  let leagues = new Map();
+  let renderedEvent;
+  let renderedStatus;
   const archive = new URLSearchParams(location.search).get('mode') === 'archive';
 
   function meterRow(parent, label, value, maximum, display) {
@@ -215,10 +226,9 @@
     });
     const estimates = entries.filter(entry => entry.cutoffReason === null);
     const unverified = entries.filter(entry => entry.cutoffReason !== null);
-    const status = row.status || row.provider_status;
-    const knownStatus = typeof status === 'string' && /^[A-Z_]{2,32}$/.test(status) ? status.replaceAll('_', ' ') :
-      event.start > Date.now() ? 'Scheduled' : 'Kickoff elapsed · final status unavailable';
-    $('event-time').textContent = format(event.start) + ' · ' + knownStatus;
+    const final = statusOf(event) === 'final' ? finals.get(event.exact) : null;
+    $('event-time').textContent = format(event.start) + ' · ' + discovery.statusLabels[statusOf(event)] +
+      (final ? ' · ' + final.goals.join('–') : '');
     node(overview, 'p', row.verification === 'SCHEDULE_CROSS_CHECK' ? 'Schedule cross-check recorded.' : 'Schedule observed. Independent corroboration is unavailable.');
     const marketCount = market?.sources.length ?? 0;
     node(overview, 'p', estimates.length + ' eligible model ' + (estimates.length === 1 ? 'estimate' : 'estimates') +
@@ -284,36 +294,109 @@
     if (!sources.querySelector('details')) node(sources, 'p', 'No matching detailed receipt is available for this fixture.');
   }
 
+  function browseLink(link, event) {
+    link.href = stateURL(event.id).href;
+    link.onclick = click => {
+      if (click.button || click.ctrlKey || click.shiftKey || click.altKey || click.metaKey) return;
+      click.preventDefault();
+      navigate(event.id);
+      (document.getElementById(location.hash.slice(1)) ?? $('match')).focus();
+    };
+  }
+
+  function renderPins(event) {
+    const active = $('competition').value;
+    const target = active || event?.identity[0];
+    const button = $('toggle-favourite');
+    const selected = favourites.has(target);
+    button.disabled = !target;
+    button.setAttribute('aria-pressed',String(selected));
+    button.textContent = target ? (selected ? 'Remove ' : 'Favourite ') + leagues.get(target) : 'Select a competition to favourite';
+    button.onclick = () => {
+      if (selected) favourites.delete(target);
+      else favourites.add(target);
+      const saved = discovery.saveFavourites(favourites);
+      $('favourite-feedback').textContent = saved ? '' : 'Storage unavailable. Favourites apply for this session.';
+      render();
+    };
+    const list = $('pinned-list');
+    list.replaceChildren();
+    for (const [code,name] of leagues) {
+      if (!favourites.has(code)) continue;
+      const pin = node(node(list,'li'),'button',name);
+      pin.type = 'button';
+      pin.setAttribute('aria-pressed',String(active === code));
+      pin.onclick = () => {
+        $('competition').value = active === code ? '' : code;
+        navigate(new URLSearchParams(location.search).get('event'));
+        $('competition').focus();
+      };
+    }
+    $('pinned-competitions').hidden = !list.children.length;
+  }
+
   function render() {
     const params = new URLSearchParams(location.search);
     const requested = params.get('event');
-    const league = params.get('competition') ?? '';
-    $('competition').value = [...$('competition').options].some(option => option.value === league) ? league : '';
+    for (const [id,key] of [['competition','competition'],['fixture-day','date'],['match-status','status']]) {
+      const control = $(id);
+      control.value = params.get(key) ?? '';
+      if (control.selectedIndex < 0) control.value = '';
+    }
+    $('favourites-only').checked = params.get('favourites') === '1';
     $('search').value = (params.get('q') ?? '').slice(0,80);
     const query = $('search').value.trim().toLowerCase();
-    const fixtures = [...index.values()].filter(event => (!$('competition').value || event.identity[0] === $('competition').value) &&
+    const fixtures = [...index.values()].filter(event =>
+      (!$('competition').value || event.identity[0] === $('competition').value) &&
+      (!$('fixture-day').value || discovery.day(event,archive) === $('fixture-day').value) &&
+      (!$('match-status').value || statusOf(event) === $('match-status').value) &&
+      (!$('favourites-only').checked || favourites.has(event.identity[0])) &&
       label(event).toLowerCase().includes(query));
     const event = requested ? index.get(requested) : fixtures[0];
+    const outside = Boolean(event && !fixtures.includes(event));
     $('feed-status').textContent = requested && !event ? 'This fixture is unavailable or its identity is ambiguous.' : feedMessage;
-    $('fixture-count').textContent = fixtures.length + ' matching fixtures';
+    $('fixture-count').textContent = fixtures.length + ' matching fixture' + (fixtures.length === 1 ? '' : 's');
+    $('fixture-empty').hidden = fixtures.length > 0 && !outside;
+    $('fixture-empty').textContent = outside ? 'Selected fixture is outside these filters.' : 'No fixtures match these filters.';
     $('fixture').replaceChildren(new Option('Choose a fixture', ''));
-    const visibleOptions = event && !fixtures.includes(event) ? [event, ...fixtures] : fixtures;
-    for (const fixture of visibleOptions) $('fixture').add(new Option(label(fixture) + ' · ' + (archive ? fixture.row.date : format(fixture.start)), fixture.id));
-    $('fixture').value = event?.id ?? '';
+    if (outside) $('fixture').add(new Option(label(event) + ' · outside filters',event.id));
     $('fixture-rail').replaceChildren();
-    for (const fixture of fixtures) {
-      const link = node(node($('fixture-rail'), 'li'), 'a', label(fixture));
-      link.href = stateURL(fixture.id).href;
-      if (fixture === event) link.setAttribute('aria-current', 'page');
-      node(link, 'small', competition(fixture) + ' · ' + (archive ? fixture.row.date : format(fixture.start)));
-      link.addEventListener('click', click => {
-        if (click.button || click.ctrlKey || click.shiftKey || click.altKey || click.metaKey) return;
-        click.preventDefault();
-        navigate(fixture.id);
-        (document.getElementById(location.hash.slice(1)) ?? $('match')).focus();
-      });
+    const groups = discovery.groupFixtures(fixtures,archive);
+    for (const [day, matches] of groups) {
+      const options = node($('fixture'),'optgroup');
+      options.label = displayDay(day);
+      const section = node($('fixture-rail'),'li');
+      node(section,'h3',displayDay(day)).className = 'fixture-date-heading';
+      const list = node(section,'ul');
+      for (const fixture of matches) {
+        const state = discovery.statusLabels[statusOf(fixture)];
+        options.append(new Option(label(fixture) + ' · ' + (archive ? state : timeLabel.format(fixture.start) + ' · ' + state), fixture.id));
+        const link = node(node(list,'li'),'a',label(fixture));
+        browseLink(link,fixture);
+        if (fixture === event) link.setAttribute('aria-current','page');
+        node(link,'small',competition(fixture) + ' · ' + (archive ? state : timeLabel.format(fixture.start) + ' · ' + state));
+      }
     }
-    renderEvent(event);
+    $('fixture').value = event?.id ?? '';
+    renderPins(event);
+    const ordered = [...groups.values()].flat();
+    const current = ordered.indexOf(event);
+    const stepper = $('fixture-position').parentElement;
+    stepper.hidden = current < 0 || fixtures.length < 2;
+    $('fixture-position').textContent = current + 1 + ' of ' + fixtures.length;
+    for (const [id, index] of [['previous-fixture',current - 1],['next-fixture',current + 1]]) {
+      const link = $(id);
+      const neighbour = current >= 0 && ordered[index];
+      link.hidden = !neighbour;
+      if (neighbour) browseLink(link,neighbour);
+      else link.removeAttribute('href');
+    }
+    const currentStatus = event ? statusOf(event) : null;
+    if (renderedEvent !== event || renderedStatus !== currentStatus) {
+      renderEvent(event);
+      renderedEvent = event;
+      renderedStatus = currentStatus;
+    }
   }
 
   function navigate(id, replace = false) {
@@ -346,7 +429,9 @@
         read('../research-dashboard-data.json'), read('../football-expanded-data.json'), read('../paper-lab/hybrid-market-data.json'), read(archivePath)
       ]);
       const feeds = [dashboard, expanded].filter(item => item.status === 'fulfilled').map(item => item.value);
-      records = [...historical.archiveMatches(reconstructed.value),...historical.competitionMatches(expanded.value)];
+      const recordedFinals = historical.competitionMatches(expanded.value);
+      finals = new Map(recordedFinals.map(final => [final.exact,final]));
+      records = [...historical.archiveMatches(reconstructed.value),...recordedFinals];
       const snapshot = evidence.fixtureIndex(feeds, now);
       markets = new Map(evidence.verifyMarkets(market.value, snapshot, now).matches.map(match => [match.fixture.id, match]));
       snapshot.events.sort((a,b) => (a.start < now) - (b.start < now) || a.start - b.start);
@@ -355,10 +440,15 @@
       else if (feeds.length < 2 || market.status !== 'fulfilled' || snapshot.conflicts.size)
         feedMessage = 'Some source evidence is unavailable or conflicting. Review the sources for this fixture.';
     }
-    const leagues = new Map([...index.values()].map(event => [event.identity[0], competition(event)]));
+    leagues = new Map([...index.values()].map(event => [event.identity[0], competition(event)]));
     [...leagues].sort((a,b) => a[1].localeCompare(b[1])).forEach(([code, name]) => $('competition').add(new Option(name, code)));
     $('fixture').addEventListener('change', () => navigate($('fixture').value));
-    $('competition').addEventListener('change', () => navigate(new URLSearchParams(location.search).get('event')));
+    const days = [...new Set([...index.values()].map(event => discovery.day(event,archive)))].sort();
+    for (const day of (archive ? days.reverse() : days)) $('fixture-day').add(new Option(displayDay(day),day));
+    for (const key of (archive ? ['archived'] : ['scheduled','elapsed','final']))
+      $('match-status').add(new Option(discovery.statusLabels[key],key));
+    for (const filter of ['competition','fixture-day','match-status','favourites-only'])
+      $(filter).addEventListener('change', () => navigate(new URLSearchParams(location.search).get('event')));
     $('search').addEventListener('input', () => {
       const caret = $('search').selectionStart;
       navigate(new URLSearchParams(location.search).get('event'), true);

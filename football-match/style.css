@@ -82,3 +82,23 @@ meter::-webkit-meter-optimum-value { background:var(--accent); }
   html { scroll-behavior:smooth; }
   .sections a,#fixture-rail a { transition:color .16s, background-color .16s, border-color .16s; }
 }
+
+.fixture-filters { display:grid; grid-template-columns:minmax(0,1fr); gap:.25rem .65rem; }
+.favourite-controls { display:flex; flex-wrap:wrap; align-items:center; gap:.45rem .75rem; margin-top:.65rem; }
+.favourite-controls button, #pinned-list button { border:1px solid var(--line); border-radius:.35rem; background:var(--field); color:var(--text); font:inherit; font-size:.8rem; padding:.35rem .5rem; min-height:2.25rem; cursor:pointer; overflow-wrap:anywhere; }
+.favourite-controls button:disabled { color:var(--muted); cursor:default; }
+.favourite-controls button[aria-pressed="true"], #pinned-list button[aria-pressed="true"] { border-color:var(--accent); color:var(--accent); }
+.favourites-only { display:flex; align-items:center; gap:.35rem; margin:0; }
+.favourites-only input { width:1rem; height:1rem; min-height:0; accent-color:var(--accent); }
+#favourite-feedback, #fixture-empty { color:var(--muted); font-size:.8rem; margin:.3rem 0 0; }
+#favourite-feedback:empty { display:none; }
+#pinned-competitions h3 { font-size:.85rem; }
+#pinned-list { display:flex; flex-wrap:wrap; gap:.4rem; list-style:none; padding:0; margin:0; }
+#fixture-rail { max-height:min(38vh,26rem); }
+#fixture-rail ul { list-style:none; padding:0; margin:0; }
+#fixture-rail .fixture-date-heading { position:sticky; top:0; background:var(--bg); color:var(--accent); padding:.4rem .5rem; margin:0; font-size:.8rem; border-bottom:1px solid var(--line); }
+.fixture-stepper { display:flex; align-items:center; justify-content:space-between; gap:.55rem; flex-wrap:wrap; padding:.45rem clamp(.75rem,3vw,2rem); color:var(--muted); border-bottom:1px solid var(--line); font-size:.82rem; }
+.fixture-stepper a { padding:.35rem 0; }
+.fixture-stepper span { margin-inline:auto; }
+@media(min-width:761px) { aside { max-height:100vh; overflow:auto; padding-left:.2rem; } }
+@media(max-width:760px) { .fixture-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } .favourite-controls,#favourite-feedback { grid-column:1/-1; } }
