@@ -156,7 +156,9 @@ def validate(ledger, pinned=False):
         validate_row(row, references)
         require(row['key'] not in seen, f"duplicate source row key: {row['key']}")
         seen.add(row['key'])
-        used.update(pair['reference'] for pair in row['candidates'])
+        attached = {pair['reference'] for pair in row['candidates']}
+        require(not (used & attached), 'candidate reference attached to multiple source rows')
+        used.update(attached)
     require(used == references.keys(), 'unreferenced evidence in reference index')
     require(canonical(summaries(rows)) == canonical(ledger['counts']), 'inconsistent disposition counts')
     if pinned:
@@ -201,6 +203,9 @@ def validate_row(row, references):
             primary.append(key)
             require(pair['disposition'] == state, 'candidate and row dispositions disagree')
     require(len(primary) == bool(candidates), 'candidate must have exactly one primary reference')
+    if len(candidates) > 1:
+        require(references[primary[0]]['tier'] == REFERENCE_TIERS['legacy'],
+                'repeated pairings require a legacy primary reference')
     if state == 'linked_identity_insufficient':
         require(len(primary) == 1 and references[primary[0]]['tier'] == REFERENCE_TIERS['expanded'],
                 'linked rows require an expanded reference')
