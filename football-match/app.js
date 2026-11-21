@@ -176,6 +176,110 @@
     node(details, 'p', 'Source receipt recorded. Independent verification is unavailable.');
   }
 
+  function renderMarketMatrix(parent, market, estimates) {
+    node(parent,'p','Recorded historical 90-minute Home/Draw/Away prices. These are not live quotes.');
+    node(parent,'p','An opening price is not supplied by this archive. The earliest recorded observation must not be treated as the market opening.');
+    if (!market?.sourceHistories?.length) {
+      node(parent,'p','No complete source-verified 90-minute 1X2 observation is available for this fixture.');
+      if (market?.withheldReasons?.length) {
+        const rejected = node(parent,'details');
+        node(rejected,'summary','Withheld market evidence (' + market.withheldReasons.length + ')');
+        for (const item of market.withheldReasons)
+          node(rejected,'p',(item.source || 'Source') + ': ' + item.reason);
+      }
+      return;
+    }
+    const wrap = node(parent,'div');
+    wrap.className = 'market-matrix-wrap';
+    wrap.setAttribute('role','region');
+    wrap.setAttribute('aria-label','Verified fixture market matrix');
+    wrap.tabIndex = 0;
+    const table = node(wrap,'table');
+    table.className = 'market-matrix';
+    const head = node(table,'thead');
+    const header = node(head,'tr');
+    for (const label of ['Source','Home','Draw','Away','Overround','Observed (UK)','Captured (UK)','History']) {
+      const cell = node(header,'th',label);
+      cell.scope = 'col';
+    }
+    const body = node(table,'tbody');
+    for (const history of market.sourceHistories) {
+      const latest = history.latest;
+      const row = node(body,'tr');
+      const sourceCell = node(row,'td');
+      const sourceLink = node(sourceCell,'a',history.name);
+      sourceLink.href = latest.url.href;
+      sourceLink.rel = 'noopener noreferrer';
+      node(sourceCell,'small',history.marketId ? 'Market ' + history.marketId : '90-minute 1X2');
+      for (const side of evidence.outcomes) {
+        const cell = node(row,'td');
+        const price = node(cell,'strong',latest.prices[side].toFixed(3));
+        price.className = 'market-decimal';
+        const implied = latest.metrics.implied[side] * 100;
+        const noVig = latest.metrics.proportionalNoVig[side] * 100;
+        node(cell,'small',implied.toFixed(1) + '% implied · ' + noVig.toFixed(1) + '% proportional no-vig');
+      }
+      node(row,'td',(latest.metrics.overround * 100 >= 0 ? '+' : '') +
+        (latest.metrics.overround * 100).toFixed(2) + '%');
+      node(row,'td',format(latest.observed));
+      node(row,'td',format(latest.captured));
+      node(row,'td',history.observationCount + (history.observationCount === 1 ? ' capture' : ' captures'));
+      const details = node(parent,'details');
+      node(details,'summary',history.name + ' · provenance and price history');
+      node(details,'p','Provider event ID ' + latest.id + ' · ' + history.market + ' · ' + history.settlementPeriod + '.');
+      node(details,'p','Latest recorded observation ' + format(latest.observed) + ' · captured ' + format(latest.captured) + '.');
+      node(details,'p','Source snapshot ' + format(latest.snapshot) + ' · HTTP Date ' + format(latest.httpDate) + '.');
+      const link = node(details,'a',latest.url.hostname + ' · open source receipt');
+      link.href = latest.url.href;
+      link.rel = 'noopener noreferrer';
+      node(details,'p','SHA-256 ' + latest.hash);
+      if (history.movementAvailable) {
+        node(details,'p','Comparable repeated captures: ' + history.observationCount +
+          '. Earliest recorded observation ' + format(history.earliest.observed) +
+          '; latest recorded observation ' + format(latest.observed) + '.');
+        for (const side of evidence.outcomes) {
+          const change = history.movement[side];
+          node(details,'p',side[0].toUpperCase() + side.slice(1) + ': ' +
+            history.earliest.prices[side].toFixed(3) + ' → ' + latest.prices[side].toFixed(3) +
+            ' · change ' + (change.decimal >= 0 ? '+' : '') + change.decimal.toFixed(3) +
+            ' (' + (change.percentage >= 0 ? '+' : '') + change.percentage.toFixed(2) + '%).');
+        }
+      } else {
+        node(details,'p','Only one comparable capture exists. Price movement and opening-to-latest comparison are unavailable.');
+      }
+      node(details,'p','Recorded source hash is provenance metadata; the browser does not independently retrieve or re-hash the provider payload.');
+    }
+    node(parent,'p','Overround is the sum of the three raw implied probabilities minus 100%. Proportional no-vig values are a simple normalization for comparison, not validated true probabilities.');
+    if (market.missingSources?.length)
+      node(parent,'p','No recorded quote in this fixture snapshot for: ' + market.missingSources.join(', ') + '.');
+    if (market.withheldReasons?.length) {
+      const rejected = node(parent,'details');
+      node(rejected,'summary','Withheld observations (' + market.withheldReasons.length + ')');
+      for (const item of market.withheldReasons)
+        node(rejected,'p',(item.source || 'Source') + ': ' + item.reason);
+    }
+    const eligible = estimates.find(entry => entry.cutoffReason === null);
+    const comparison = node(parent,'section');
+    node(comparison,'h3','Model versus market reference');
+    if (!eligible) {
+      node(comparison,'p','No model passes the explicit training-cutoff and source-receipt rules for this fixture. Model-to-market comparison is withheld.');
+    } else {
+      node(comparison,'p','Research-only probability differences against the latest proportional no-vig market reference. This is not expected value, a betting recommendation or a validated edge.');
+      for (const history of market.sourceHistories) {
+        const reference = history.latest.metrics.proportionalNoVig;
+        const block = node(comparison,'details');
+        node(block,'summary',history.name + ' · model minus market (percentage points)');
+        for (const side of evidence.outcomes) {
+          const difference = (eligible.values[evidence.outcomes.indexOf(side)] - reference[side]) * 100;
+          node(block,'p',side[0].toUpperCase() + side.slice(1) + ': model ' +
+            (eligible.values[evidence.outcomes.indexOf(side)] * 100).toFixed(2) + '% · market reference ' +
+            (reference[side] * 100).toFixed(2) + '% · difference ' +
+            (difference >= 0 ? '+' : '') + difference.toFixed(2) + ' pp.');
+        }
+      }
+    }
+  }
+
   function renderEvent(event) {
     $('event').hidden = !event;
     if (!event) return;
@@ -183,8 +287,8 @@
     $('event-title').replaceChildren(document.createTextNode(event.identity[1] + ' '));
     node($('event-title'), 'span', 'v').className = 'match-versus';
     $('event-title').append(' ' + event.identity[2]);
-    const [overview, facts, models, sources] = ['overview', 'facts', 'models', 'sources'].map(name => $(name + '-content'));
-    [overview, facts, models, sources].forEach(section => section.replaceChildren());
+    const [overview, facts, models, marketsPanel, sources] = ['overview', 'facts', 'models', 'markets', 'sources'].map(name => $(name + '-content'));
+    [overview, facts, models, marketsPanel, sources].forEach(section => section.replaceChildren());
     if (archive) {
       const row = event.row;
       $('event-time').textContent = row.date + ' · Historical reconstruction';
@@ -210,6 +314,7 @@
       const link = node(models, 'a', 'Method and historical comparison documentation');
       link.href = '../research/football-baseline-v1/README.md';
       node(sources, 'p', 'Frozen reconstruction archive. Original forecast, source capture time and independent outcome verification are unavailable.');
+      node(marketsPanel,'p','The retrospective archive does not contain contemporaneous, fixture-matched bookmaker market observations.');
       return;
     }
     const row = event.row;
@@ -256,6 +361,7 @@
     renderHistory(facts, event);
     node(facts, 'p', 'Player statistics, verified lineups and match timeline are unavailable from these snapshots.');
     chart(models, estimates);
+    renderMarketMatrix(marketsPanel, market, estimates);
     if (unverified.length) {
       const disclosures = node(models, 'section');
       const heading = node(disclosures, 'h3', 'UNVERIFIED EXPERIMENTAL ESTIMATES');
@@ -282,8 +388,9 @@
       const observed = evidence.instant(receipt?.observed_at_utc);
       if (observed <= event.observed) addReceipt(sources, { url:receipt.url, observed, hash:receipt.sha256 }, 'Fixture source receipt');
     }
-    for (const observation of market?.sources ?? []) {
-      addReceipt(sources, { ...observation, url:observation.url.href }, observation.name + ' · event ' + observation.id + ' · 90-minute 1X2');
+    for (const history of market?.sourceHistories ?? []) for (const observation of history.observations) {
+      addReceipt(sources, { ...observation, url:observation.url.href }, history.name + ' · event ' + observation.id +
+        ' · ' + format(observation.observed) + ' · 90-minute 1X2');
     }
     for (const {row: model, observed} of available) if (Array.isArray(model.source_receipts)) for (const receipt of model.source_receipts) {
       const timestamp = evidence.instant(receipt?.observed_at_utc);
@@ -458,7 +565,7 @@
     render();
   }
   function markSection() {
-    const active = ['#overview','#facts','#models','#sources'].includes(location.hash) ? location.hash : '#overview';
+    const active = ['#overview','#facts','#models','#markets','#sources'].includes(location.hash) ? location.hash : '#overview';
     for (const link of document.querySelectorAll('.sections a')) {
       if (link.hash === active) link.setAttribute('aria-current','location');
       else link.removeAttribute('aria-current');
