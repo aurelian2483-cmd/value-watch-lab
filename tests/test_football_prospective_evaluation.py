@@ -252,6 +252,23 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(report['coverage'], {'evaluation_outcome_payload_reused_as_prematch_input': 1})
         self.assertEqual(report['model_metrics'], [])
 
+    def test_resealed_market_evidence_and_model_configuration_cannot_bypass_admission(self):
+        item = forecast()
+        item['origin'] = 'prospective'
+        first, second = outcome(origin='prospective'), outcome(2, origin='prospective')
+        quote = {'event': item['event'], 'market': contract.MARKET, 'market_id': 'synthetic-market',
+                 'settlement_scope': 'regulation_time', 'bookmaker': 'synthetic-bookmaker',
+                 'observed_at': '2026-09-14T16:00:00Z', 'completeness': 'complete',
+                 'quotes': {'home': 2, 'draw': 3, 'away': 4}, 'provenance': second['provenance']}
+        item['market_observation'] = known(quote)
+        bundle = synthetic_bundle(seal(item), receipts=[first, second])
+        self.assertEqual(self.evaluate(*bundle, trusted=True)['coverage'],
+                         {'evaluation_outcome_payload_reused_as_prematch_input': 1})
+        item['model']['configuration_sha256'] = 'c' * 64
+        item['record_id'] = contract.forecast_id(item)
+        bundle = synthetic_bundle(seal(item), receipts=[first, second])
+        self.assertEqual(self.evaluate(*bundle, trusted=True)['coverage'], {'unregistered_model': 1})
+
     def test_late_or_missing_freeze_attestation_excludes(self):
         inputs = synthetic_bundle(forecast())
         inputs[2]['freeze_attestations'][0]['observed_at'] = '2026-09-15T18:00:00Z'

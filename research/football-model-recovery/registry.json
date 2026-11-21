@@ -359,14 +359,25 @@
       "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
       "path": "research/match-intelligence/stage10-player-residuals.cjs",
       "configuration": {
-        "configuration_status": "exact grid and decision logic pinned in source"
+        "alphas": [
+          0,
+          0.15,
+          0.3,
+          0.6,
+          1
+        ],
+        "reliability_k": 20,
+        "effect_range": [
+          -0.35,
+          0.35
+        ]
       },
       "inputs": "Earlier lineup/residual history.",
       "outputs": "Separate lagged player signal challenger.",
       "tests": "Pinned test_match_intelligence_stage10.cjs.",
       "source_sha256": "94658d1d3c185bd9680063d6389a8dfbf80575c5eca42820db9b068429bee898",
       "git_commit_date": "2026-11-14",
-      "audit_configuration_sha256": "ae394078bede583b688fa481ad51e636edcb96f899719ce46da707f10ff6b362",
+      "audit_configuration_sha256": "0a8340a562a2b8c88f14174470afcb70d8aa9f31a4387a4751604021d5ca3305",
       "empirical_validation": "unvalidated",
       "prospective_eligibility": "not_admitted"
     },
@@ -376,6 +387,7 @@
       "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
       "path": "research/match-intelligence/stage11-replacement-proxy.cjs",
       "configuration": {
+        "ridge_penalty": 12,
         "ridge_min_history": 12,
         "alphas": [
           -0.6,
@@ -390,7 +402,7 @@
       "tests": "Pinned test_match_intelligence_stage11.cjs.",
       "source_sha256": "b7d769a3c85148d045859e495537d44a59eb8a342b74c3526401ebbb2210cc21",
       "git_commit_date": "2026-11-14",
-      "audit_configuration_sha256": "13ff902b2c2cf9382f61a39e8663c622363db32226bb3fa87131540e1b99b192",
+      "audit_configuration_sha256": "3b99f9169db46f57d4a9f6b361d807f212ca746fb8f532bf5b2de0dcb0c2b4a6",
       "empirical_validation": "unvalidated",
       "prospective_eligibility": "not_admitted"
     },
@@ -400,14 +412,17 @@
       "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
       "path": "research/match-intelligence/stage12-market-calibration.cjs",
       "configuration": {
-        "configuration_status": "exact market and bootstrap logic pinned in source"
+        "form_alpha": 0.025,
+        "bootstrap_draws": 2000,
+        "bootstrap_seed": 20261114,
+        "minimum_estimated_ev": 0.05
       },
       "inputs": "Complete three-way historical odds and earlier-date estimates.",
       "outputs": "De-vig, paired score and calibration research.",
       "tests": "Pinned test_match_intelligence_stage12.cjs.",
       "source_sha256": "232b933cfbdd2ddec936fb2d96e8579b70f9501fbb717bc4ac71e262f372c32c",
       "git_commit_date": "2026-11-14",
-      "audit_configuration_sha256": "d15dac278046aa9ba79eb7244d6e02cc93b78a6b949a13bbc69fe80843e8eefb",
+      "audit_configuration_sha256": "4631f14e92ae4e78729155e503d918d080a5422917f812f69257c63f666d9df3",
       "empirical_validation": "unvalidated",
       "prospective_eligibility": "not_admitted"
     },
@@ -417,14 +432,21 @@
       "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
       "path": "research/match-intelligence/stage13-market-blend.cjs",
       "configuration": {
-        "configuration_status": "exact prespecified weight grid pinned in source"
+        "model_weights": [
+          0,
+          0.1,
+          0.25,
+          0.5,
+          0.75,
+          1
+        ]
       },
       "inputs": "Matched closing market and model vectors.",
       "outputs": "Isolated blend and prospective quote audit.",
       "tests": "Pinned test_match_intelligence_stage13.cjs.",
       "source_sha256": "2039a30423b6997bd7bf0add56c3da1fbd72dfa95a96a7c5b12c84d01778e7c3",
       "git_commit_date": "2026-11-14",
-      "audit_configuration_sha256": "0287cab2216583d308ab69a2d0a323d322cde3c85fd84fc963ef34ff3d76fdaa",
+      "audit_configuration_sha256": "1ff1c8068ec64392caaa067f619e138c7dfb1828551191b97b25b61812452f54",
       "empirical_validation": "unvalidated",
       "prospective_eligibility": "not_admitted"
     },
@@ -434,14 +456,27 @@
       "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
       "path": "research/match-intelligence/stage14-market-anchored-ev.cjs",
       "configuration": {
-        "configuration_status": "exact caps and anchor grid pinned in source"
+        "model_shares": [
+          1,
+          0.75,
+          0.5,
+          0.25,
+          0.1,
+          0
+        ],
+        "odds_caps": [
+          null,
+          10,
+          5,
+          3
+        ]
       },
       "inputs": "Model, market and price bands.",
       "outputs": "Isolated research candidate comparisons.",
       "tests": "Pinned test_match_intelligence_stage14.cjs.",
       "source_sha256": "0afeba9f7aaf4a3ee3902df38ec509a1312b537e0bfbb241b3f63444587b14fa",
       "git_commit_date": "2026-11-14",
-      "audit_configuration_sha256": "06a00df6b785c82c04d044a38c659b661e9e54ea3e1c0da35e7b67d9e779782b",
+      "audit_configuration_sha256": "e49038d0449d20a8b82253b49ddaccc343b1fcde1d3248c93617c5853e1d7a62",
       "empirical_validation": "unvalidated",
       "prospective_eligibility": "not_admitted"
     },
@@ -451,14 +486,43 @@
       "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
       "path": "research/match-intelligence/stage15-outcome-odds-calibration.cjs",
       "configuration": {
-        "configuration_status": "exact bounds and variants pinned in source"
+        "probability_bounds": [
+          0,
+          0.2,
+          0.4,
+          0.6,
+          0.8,
+          1.0000001
+        ],
+        "odds_bounds": [
+          1,
+          2,
+          3,
+          5,
+          10,
+          "unbounded"
+        ],
+        "variants": {
+          "recent_form_uncapped": [
+            1,
+            null
+          ],
+          "recent_form_cap5": [
+            1,
+            5
+          ],
+          "half_market_cap5": [
+            0.5,
+            5
+          ]
+        }
       },
       "inputs": "Matched model and outcome/odds groups.",
       "outputs": "Outcome and price-band diagnostics.",
       "tests": "Pinned test_match_intelligence_stage15.cjs.",
       "source_sha256": "8000487158739a2ce20186f161c8b23909cb8e902c126b93dbcdf9186f79e767",
       "git_commit_date": "2026-11-14",
-      "audit_configuration_sha256": "070c3b1e6a7d0c2ec8351f6638ac79b6cc13d7a8c0d25b9a4b0b890333a87e3a",
+      "audit_configuration_sha256": "f1e57146b9fcee382a6667b170066ebedf7dc9abe503eec83c5f7791ed7e1731",
       "empirical_validation": "unvalidated",
       "prospective_eligibility": "not_admitted"
     },
@@ -486,6 +550,88 @@
       "audit_configuration_sha256": "81f6fa22dfbf5faf026c5cdcf53607fdf31c438f4bf93c308ec3b3b54a8f0e6d",
       "empirical_validation": "unvalidated",
       "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "lagged-lineup-continuity",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/lagged-xi-diagnostic.js",
+      "configuration": {
+        "alphas": [
+          -0.2,
+          -0.1,
+          -0.05,
+          0,
+          0.05,
+          0.1,
+          0.2
+        ],
+        "lineup_size": 11
+      },
+      "inputs": "Two preceding lineups per team, earlier-date baseline.",
+      "outputs": "Continuity share delta and separated research replay.",
+      "tests": "test_match_intelligence_lagged_xi.cjs",
+      "source_sha256": "8399476f999b5d37157876adfabc0a4d46fe36f23f403a32db5ad009402ae0d3",
+      "git_commit_date": "2026-11-14",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted",
+      "audit_configuration_sha256": "e2e042d48203d487320f120ad20bbb8015ea2c605ce0449a194612b64170d416"
+    },
+    {
+      "id": "player-relevance-evidence",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/player-relevance-gate.js",
+      "configuration": {
+        "minimum_matches": 15,
+        "maximum_interval_width": 0.4
+      },
+      "inputs": "Dated, ordered player evidence and signed intervals.",
+      "outputs": "Relevance gate and withheld missing evidence, no new probability.",
+      "tests": "test_match_intelligence_player_relevance.cjs",
+      "source_sha256": "f0d2317138e9930f71bc1a80f6799f2f7873c8027a95f135272a7fd6c0203a49",
+      "git_commit_date": "2026-11-14",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted",
+      "audit_configuration_sha256": "0657d81ea3c6cd033b7e1c0f8eda0b63acc2088486610e8c8ba4152274566eb7"
+    },
+    {
+      "id": "fixture-market-filter-study",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/fixture-winnings-audit.cjs",
+      "configuration": {
+        "minimum_estimated_ev": 0.05,
+        "bootstrap_draws": 4000
+      },
+      "inputs": "Prespecified model vectors, matched odds and outcomes.",
+      "outputs": "Isolated historical diagnostics with no production path.",
+      "tests": "test_fixture_winnings_audit.cjs",
+      "source_sha256": "b5fda654cbd452f5bc5692b6280b66f1c22a5bfd5e38e289cdfb5c7469861ca7",
+      "git_commit_date": "2026-11-14",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted",
+      "audit_configuration_sha256": "46b8ccbadcef8540c0a4eae4ec3d3175999db6790464b813235702b6f42e9a0c"
+    },
+    {
+      "id": "signed-player-fit-simulation",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/player-impact-falsification.js",
+      "configuration": {
+        "default_ridge": 20,
+        "default_step": 0.02,
+        "default_iterations": 250,
+        "default_features": 2
+      },
+      "inputs": "Synthetic generated covariates with pre-event availability flags.",
+      "outputs": "Standalone numerical simulation fitter/evaluator.",
+      "tests": "Source reviewed; fitter and optimization excluded from this milestone.",
+      "source_sha256": "f7726ee54ab629f5d168e7ffefe44d65ca8a2eb93dee4df92956027f0cddb167",
+      "git_commit_date": "2026-11-14",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted",
+      "audit_configuration_sha256": "10032bb8fcb2df87db8bbe89ae7fe8ad70ddab8c3390cc5a954c807cec8cf591"
     }
   ]
 }

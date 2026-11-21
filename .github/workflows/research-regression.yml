@@ -28,6 +28,9 @@ jobs:
       - name: Provision pinned Value Watch archive
         if: startsWith(github.head_ref, 'codex/phase') || startsWith(github.ref_name, 'codex/phase') || github.event_name == 'workflow_dispatch'
         run: git fetch --no-tags --depth=1 origin 0ab96a96fd66608d931c4109392ee29fe2ba3650
+      - name: Provision exact football implementation sources
+        if: hashFiles('scripts/football_model_recovery.py') != '' && (startsWith(github.head_ref, 'codex/phase') || startsWith(github.ref_name, 'codex/phase') || github.event_name == 'workflow_dispatch')
+        run: git fetch --no-tags --depth=1 origin 9898e7e7773878ec32a0bfd3c38197fddb566893 a29079994013f159f8a67861d029c6b12f5061e5
       - name: Regenerate pinned provenance and ledger offline
         if: startsWith(github.head_ref, 'codex/phase') || startsWith(github.ref_name, 'codex/phase') || github.event_name == 'workflow_dispatch'
         run: |
@@ -42,6 +45,12 @@ jobs:
         env:
           PYTHONHASHSEED: '97'
         run: python scripts/football_evidence_ledger.py check
+      - name: Check football model registry and run isolated synthetic formulas
+        if: hashFiles('scripts/football_model_recovery.py') != '' && (startsWith(github.head_ref, 'codex/phase') || startsWith(github.ref_name, 'codex/phase') || github.event_name == 'workflow_dispatch')
+        run: python scripts/football_model_recovery.py smoke
+      - name: Run recovered football research tests on synthetic fixtures
+        if: hashFiles('scripts/football_model_recovery.py') != '' && (startsWith(github.head_ref, 'codex/phase') || startsWith(github.ref_name, 'codex/phase') || github.event_name == 'workflow_dispatch')
+        run: python scripts/football_model_recovery.py archived-tests
       - name: Mathematical library and Sky 81 validation
         run: |
           set -euo pipefail
@@ -90,6 +99,13 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Provision pinned Value Watch archive
         run: git fetch --no-tags --depth=1 origin 0ab96a96fd66608d931c4109392ee29fe2ba3650
+      - uses: actions/setup-node@v4
+        if: hashFiles('scripts/football_model_recovery.py') != ''
+        with:
+          node-version: '22'
+      - name: Provision exact football implementation sources
+        if: hashFiles('scripts/football_model_recovery.py') != ''
+        run: git fetch --no-tags --depth=1 origin 9898e7e7773878ec32a0bfd3c38197fddb566893 a29079994013f159f8a67861d029c6b12f5061e5
       - name: Football provenance, evaluation and adapter tests
         run: python -m unittest discover -s tests -p "test_football*.py"
       - name: Verified-results pilot tests
@@ -100,3 +116,9 @@ jobs:
         run: python scripts/football_evidence_ledger.py check
       - name: Validate empty fixture receipt intake offline
         run: python scripts/football_evidence_intake.py research/football-result-provenance/intake.empty.json
+      - name: Check football model registry and run isolated synthetic formulas
+        if: hashFiles('scripts/football_model_recovery.py') != ''
+        run: python scripts/football_model_recovery.py smoke
+      - name: Run recovered football research tests on synthetic fixtures
+        if: hashFiles('scripts/football_model_recovery.py') != ''
+        run: python scripts/football_model_recovery.py archived-tests
