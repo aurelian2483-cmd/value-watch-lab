@@ -65,3 +65,20 @@ Favouriting a competition adds a pinned shortcut. Favourites use a new browser-l
 A scheduled match is a future kickoff in the snapshot. Elapsed kickoffs remain separate from finals. A source-backed final requires an exact competition, ordered participants and kickoff match against the existing two-source regulation-time evidence. The archive remains a separate historical reconstruction. The snapshots provide no live or independently verified in-play status.
 
 [Desktop](preview/football-match/phase4-1440.webp) · [Tablet](preview/football-match/phase4-820.webp) · [Mobile](preview/football-match/phase4-390.webp)
+## Phase 5 — fixture-local market and evidence matrix
+
+The Match Centre now includes a dedicated **Markets** section. It uses only the existing paper-lab/hybrid-market-data.json observations after the exact fixture, regulation-time 1X2, source URL, provider event ID, participants, complete Home/Draw/Away price set, source hash, and timestamp chronology pass the existing verifier.
+
+The fixture matrix shows source, all three decimal prices, raw implied probabilities, proportional no-vig reference probabilities, overround, observation/capture times, and a disclosure containing provider identifiers, market ID, source URL, source hash, snapshot and HTTP date. Rejected source observations retain fixture-specific reasons where the fixture can be identified. The separate Market Intelligence page adds a source filter and the same provenance/history treatment.
+
+**Movement and opening-price limits:** the currently committed football market snapshot contains five fixture records and six source observations (five Pinnacle-via-GoldEdge and one Sky Bet). It contains no repeated capture for the same fixture and source. Therefore all current source histories have one observation; opening prices and price movement are unavailable. The UI labels the earliest recorded capture as an observation, never as the market opening. A movement is calculated only when two or more observations share the same fixture, source event, source, market, settlement period, source market ID and outcome set. Same-time conflicting quotes or changed provider market identity are withheld.
+
+Overround is calculated as the sum of the three raw implied probabilities minus one. The proportional no-vig reference divides each raw implied probability by their sum. This is a transparent normalization, not a validated true probability or expected-value calculation.
+
+Model-to-market comparison is shown only when the model passes the explicit training cutoff, model-observation and every training-receipt timestamp/hash/URL check. The current five frozen comparison records have training cutoffs at their fixture kickoffs but model observations earlier than those cutoffs; they therefore fail the strict cutoff rule. No eligible model-to-market comparison is currently shown. Unverified estimates remain separate, and the matrix does not calculate EV, publish selections or recommend bets.
+
+The current main snapshot records the GoldEdge collection as **RATE_LIMITED**. These are historical captured observations, not live prices. No copied-site code, unauthorised endpoint or new provider feed was used. The current dataset does not support reliable opening-to-latest movement, live market depth, exchange liquidity or complete bookmaker coverage.
+
+### Phase 5 verification
+
+The football regression now covers repeated comparable observations, deduplication, overround arithmetic, source-market ID changes, reused provider IDs, conflicting same-time quotes, and model eligibility. Browser QA checks the fixture Markets section and the dedicated market source filter at desktop, tablet and mobile widths. Existing cutoff, market completeness, exact fixture identity, journal/storage, model status and production safeguards remain in force.
