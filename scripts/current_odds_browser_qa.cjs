@@ -117,7 +117,9 @@ async function main(){
    for(const sport of ['football','tennis','nfl']){
     const item=[...matched.keys()].find(row=>row.sport===sport);
     if(!item)continue;
-    await page.goto(base+'/?'+new URLSearchParams({fsport:sport,fq:item.name.slice(0,65)}));
+    const params=new URLSearchParams({fsport:sport,fq:item.name.slice(0,65)});
+    if(sport==='football'){params.set('sport','football');params.set('desk-query',item.name);}
+    await page.goto(base+'/?'+params);
     const row=page.locator('.pro-feature-event').filter({hasText:item.name});
     const trigger=row.locator('.pro-fixture-evidence-toggle');
     await trigger.click();
