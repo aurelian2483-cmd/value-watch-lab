@@ -21,7 +21,7 @@
   function publishedOddsForEvent(event){
     const rows=window.ValueWatchCurrentOddsForCards;
     if(!Array.isArray(rows)||event?.sport!=='football')return null;
-    const start=Date.parse(event.start),now=Date.now();
+    const start=Date.parse(event.startUTC),now=Date.now();
     const matches=rows.filter(row=>row&&row.sport==='football'&&row.name===event.name&&row.startMs===start&&row.expires>now);
     if(matches.length!==1)return null;
     const quote=matches[0],prices=quote.prices;
