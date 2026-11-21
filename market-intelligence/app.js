@@ -14,6 +14,7 @@ const rows = document.getElementById('market-rows');
 const modelStatus = document.getElementById('model-leader');
 const withheld = document.getElementById('market-withheld');
 const details = document.getElementById('market-source-details');
+let globalWithheldMessage = '';
 
 function fractional(decimal) {
   const digits = String(decimal).split('.')[1]?.length || 0;
@@ -106,7 +107,7 @@ function render(match) {
     details.append(disclosure);
   }
   if (!histories.length) status.textContent = 'No verified source observations match this filter for the selected fixture.';
-  const messages = [];
+  const messages = globalWithheldMessage ? [globalWithheldMessage] : [];
   for (const source of match.missingSources ?? []) messages.push('No recorded quote for ' + source + '.');
   for (const item of match.withheldReasons ?? []) messages.push((item.source || 'Source') + ': ' + item.reason);
   withheld.textContent = messages.join(' ');
@@ -130,8 +131,8 @@ async function load() {
     const index = evidence.fixtureIndex(feeds);
     const result = evidence.verifyMarkets(snapshot.value, index);
     const matches = result.matches.sort((a, b) => b.fixture.start - a.fixture.start);
-    withheld.textContent = result.withheld ?
-      result.withheld + ' observation(s) were withheld. Review fixture-specific reasons where available.' : '';
+    globalWithheldMessage = result.withheld ?
+      result.withheld + ' observation(s) were withheld because fixture, source or receipt evidence did not match. Fixture-specific reasons are shown when available.' : '';
     if (!matches.length) {
       status.textContent = 'No source-backed pre-kickoff captures are available.';
       return;
