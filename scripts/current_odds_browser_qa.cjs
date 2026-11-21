@@ -139,31 +139,16 @@ async function main(){
      await page.locator('#date-to').dispatchEvent('change');
     }
     if(sport==='football'){
-     checkpoint='open the football research cards';
-     await page.locator('#app-tabs [data-view="events"]').click();
-     checkpoint='wait for any research card';
-     await page.locator('#events .event-card').first().waitFor({state:'visible',timeout:15000});
-     checkpoint='find exact football card';
-     const [,homeTeam,awayTeam]=football.events.get(item.fixtureKey).identity;
-     const card=page.locator('#events .event-card').filter({hasText:homeTeam}).filter({hasText:awayTeam}).first();
-     for(let pageNumber=0;pageNumber<20&&await card.count()===0;pageNumber++){
-      const more=page.locator('#events .load-more');
-      if(await more.count()===0)break;
-      await more.click();
-     }
-     await card.waitFor({state:'visible',timeout:15000});
-     checkpoint='football outcome prices';
-     assert(football.events.get(item.fixtureKey)?.identity,'Exact football identity is required for card verification.');
+     checkpoint='visible exact-match football price strip';
+     const featuredRow=page.locator('.pro-feature-event').filter({hasText:item.name}).first();
+     await featuredRow.waitFor({state:'visible',timeout:15000});
+     assert(football.events.get(item.fixtureKey)?.identity,'Exact football identity is required for visible price verification.');
      for(const side of ['home','draw','away']){
-      checkpoint='football '+side+' outcome price';
       const expected=matched.get(item)[0].prices[side].toFixed(2);
-      const actual=await card.locator('[data-choice-id="'+side+'"] .selection-price').textContent();
-      assert.equal(actual,expected,'Matched Sky Bet outcome price is missing from the exact fixture card.');
+      await featuredRow.getByText((side==='home'?'Home':side==='draw'?'Draw':'Away')+' '+expected,{exact:true}).waitFor();
      }
-     checkpoint='football price attribution';
-     await card.getByText(/Sky Bet 1X2 prices · observed/).waitFor();
-     checkpoint='football EV status';
-     await card.getByText(/EV withheld/).first().waitFor();
+     await featuredRow.getByText('Sky Bet · 1X2',{exact:true}).waitFor();
+     await featuredRow.getByText(/Observed .*checked .*EV withheld/).waitFor();
     }
     assert.equal((await page.request.get(base+'/work/current-odds.json')).status(),404);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
