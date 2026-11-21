@@ -163,6 +163,11 @@ def eligibility(row, as_of, split, pinned, freeze_receipt, review, outcomes, con
     attested = contract.instant(freeze_receipt['observed_at'])
     if not (frozen <= attested < contract.instant(row['event']['starts_at']) and attested <= as_of):
         return 'freeze_attestation_chronology_invalid', None
+    inputs = {receipt['provenance']['sha256'] for receipt in row['input_receipts']}
+    if row['market_observation']['state'] == 'known':
+        inputs.add(row['market_observation']['value']['provenance']['sha256'])
+    if not inputs.isdisjoint(outcomes.payload_hashes):
+        return 'evaluation_outcome_payload_reused_as_prematch_input', None
     return outcomes.resolve(row, review, as_of)
 
 

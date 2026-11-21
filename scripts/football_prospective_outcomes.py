@@ -10,6 +10,7 @@ else:
 class OutcomeIndex:
     def __init__(self, receipts):
         self.groups = defaultdict(list)
+        self.payload_hashes = {row['provenance']['sha256'] for row in receipts}
         event_signatures = defaultdict(set)
         self.ordered_signatures = defaultdict(set)
         self.receipt_ids = Counter()
