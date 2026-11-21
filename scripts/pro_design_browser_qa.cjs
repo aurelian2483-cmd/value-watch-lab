@@ -95,9 +95,9 @@ const server=http.createServer((req,res)=>{
    if(width<1020)await page.locator('#paper-close').click();
 
    assert.equal(await page.locator('.pro-arena-sport').count(),4,'Homepage hero must present four sports');
-   assert.equal(await page.locator('.pro-hero-arena').isVisible(),true);
-   assert.equal(await page.locator('.pro-topnav a[href="./analyst/"]').count(),1);
-   await page.locator('.pro-topnav [data-pro-sport="tennis"]').click();
+   assert.equal(await page.locator('.pro-hero-arena').isVisible(),false);
+   assert.equal(await page.locator('.vw-workspaces a[href="./analyst/"]').count(),1);
+   await page.locator('.pro-quick-filters [data-pro-sport="tennis"]').click();
    await page.waitForTimeout(1000);
    assert.equal(await page.locator('#sport-nav button[data-sport="tennis"]').getAttribute('aria-pressed'),'true','Pro sport nav must use existing desk filter');
    await page.locator('[data-pro-slot="2"]').click();

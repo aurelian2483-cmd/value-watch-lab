@@ -218,6 +218,52 @@ async function overviewStates(page) {
   report.syntheticChecks.push('Overview distinguishes unavailable and stale football snapshots and recovers to actual snapshot');
 }
 
+async function referenceNavigation(browser, base) {
+  const page = await browser.newPage({viewport:{width:820,height:920},hasTouch:true});
+  await page.clock.setFixedTime(new Date('2026-06-15T22:15:00Z'));
+  await page.route(url => url.origin !== base, route => route.abort());
+  await page.route('**/research-dashboard-data.json', route => route.fulfill({json:{
+    research_only:true, model_validation:'UNVALIDATED', publication_gate:'BLOCKED',
+    generated_at_utc:'2026-06-15T22:00:00Z',
+    upcoming_fixtures:[
+      {fixture_id:'synthetic-today',home:'Synthetic Today',away:'Visitors',kickoff_utc:'2026-06-15T22:30:00Z'},
+      {fixture_id:'synthetic-tomorrow',home:'Synthetic Tomorrow',away:'Visitors',kickoff_utc:'2026-06-15T23:30:00Z'}
+    ]
+  }}));
+  await page.goto(base + '/');
+  const table = page.locator('#pro-featured-rows');
+  const range = page.getByLabel('Fixture date (UK)');
+  await table.getByText(/Synthetic Today/).waitFor();
+  await range.selectOption('tomorrow');
+  await table.getByText(/Synthetic Tomorrow/).waitFor();
+  assert.equal(await table.getByText(/Synthetic Today/).count(),0);
+  await page.locator('#pro-feature-refresh').click();
+  await table.getByText(/Synthetic Tomorrow/).waitFor();
+  assert.equal(await range.inputValue(),'tomorrow');
+  await range.selectOption('today');
+  await table.getByText(/Synthetic Today/).waitFor();
+  assert.equal(await table.getByText(/Synthetic Tomorrow/).count(),0);
+  await page.getByRole('link',{name:/Explore selected date/}).click();
+  assert.equal(await page.locator('#date-from').inputValue(),'2026-06-15');
+  assert.equal(await page.locator('#date-to').inputValue(),'2026-06-15');
+  await page.locator('.pro-quick-filters [data-pro-sport="football"]').focus();
+  await page.keyboard.press('Enter');
+  await page.getByRole('heading',{name:'Football evidence and workflow'}).waitFor();
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'sport-evidence');
+  const nav = page.getByRole('navigation',{name:'Value Watch workspaces'});
+  await nav.getByRole('link',{name:'Market evidence'}).click();
+  assert.equal(await nav.getByRole('link',{name:'Market evidence'}).getAttribute('aria-current'),'page');
+  await nav.getByRole('link',{name:'Validation'}).click();
+  assert.equal(await nav.getByRole('link',{name:'Validation'}).getAttribute('aria-current'),'page');
+  await nav.getByRole('link',{name:'Research desk'}).click();
+  await nav.getByText('More',{exact:true}).click();
+  await nav.getByRole('link',{name:'Compact preview'}).click();
+  await page.locator('html.visual-preview').waitFor({state:'attached'});
+  assert.equal(await range.isVisible(),false);
+  report.syntheticChecks.push('UK summer-time fixture date cutoff, refresh retention, keyboard focus, shared route navigation and compact fallback');
+  await page.close();
+}
+
 (async () => {
   await fs.mkdir(output, {recursive:true});
   await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
@@ -228,6 +274,7 @@ async function overviewStates(page) {
       await researchFlow(browser,base);
       await calendarRecovery(browser,base);
       await discoveryFlow(browser,base);
+      await referenceNavigation(browser,base);
     }
     for (const width of [1440,820,390]) {
       const context = await browser.newContext({viewport:{width,height:920},reducedMotion:'reduce'});

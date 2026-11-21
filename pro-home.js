@@ -95,6 +95,8 @@ function ready(){
  root.querySelectorAll('[data-open-events]').forEach(link=>link.addEventListener('click',event=>{
   event.preventDefault();
   document.querySelector('#app-tabs [data-view="events"]')?.click();
+  const range=link.closest('.pro-featured') && document.getElementById('pro-feature-range')?.value;
+  if(range==='today'||range==='tomorrow')document.querySelector('#range-presets [data-range="'+range+'"]')?.click();
   queueMicrotask(()=>{
    document.getElementById('events-view')?.scrollIntoView({block:'start'});
    document.getElementById('main-content')?.focus({preventScroll:true});
@@ -107,22 +109,31 @@ const feedLabels={football:'Football',racing:'Horse racing',other:'Tennis/NFL',d
 const stateLabels={UNAVAILABLE:'unavailable',STALE_OR_UNDATED:'stale or undated',PARTIAL_RECORDS:'partial coverage',
  GATE_UNVERIFIED:'safeguards unverified',SCHEMA_UNVERIFIED:'format unverified'};
 let featured=[],page=0,loading=false;
+let featureClock=Date.now();
+const ukDay=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/London',dateStyle:'short'});
+function visibleFeatured(){
+ const range=document.getElementById('pro-feature-range')?.value;
+ if(range!=='today'&&range!=='tomorrow')return featured;
+ const today=ukDay.format(featureClock);
+ const day=range==='today'?today:new Date(Date.parse(today+'T12:00:00Z')+86400000).toISOString().slice(0,10);
+ return featured.filter(event=>ukDay.format(event.startMs)===day);
+}
 function renderFeatured(){
  const body=document.getElementById('pro-featured-rows'),counter=document.getElementById('pro-feature-page');
  const prev=document.getElementById('pro-feature-prev'),next=document.getElementById('pro-feature-next');
  if(!body)return;
- const pages=Math.ceil(featured.length/FEATURE_PAGE_SIZE);
+ const visible=visibleFeatured(),pages=Math.ceil(visible.length/FEATURE_PAGE_SIZE);
  page=Math.max(0,Math.min(page,Math.max(0,pages-1)));
  body.replaceChildren();
- for(const item of featured.slice(page*FEATURE_PAGE_SIZE,(page+1)*FEATURE_PAGE_SIZE)){
+ for(const item of visible.slice(page*FEATURE_PAGE_SIZE,(page+1)*FEATURE_PAGE_SIZE)){
   const tr=document.createElement('tr');tr.className='pro-feature-event';
   const label={football:'⚽ Football',racing:'♞ Horse racing',tennis:'🎾 Tennis',nfl:'🏈 NFL',darts:'🎯 Darts',rugby:'🏉 Rugby'}[item.sport]||item.sport;
   const when=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(item.startMs));
   for(const value of [label,item.name,when,item.hasModel?'Experimental model record':'No model record'])cell(tr,value);
   body.append(tr);
  }
- if(!featured.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=4;td.textContent='No future events from the currently usable source feeds.';tr.append(td);body.append(tr)}
- if(counter)counter.textContent=pages?'Page '+(page+1)+' of '+pages+' · '+featured.length+' events':'No events';
+ if(!visible.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=4;td.textContent=featured.length?'No timed events for the selected date.':'No future events from the currently usable source feeds.';tr.append(td);body.append(tr)}
+ if(counter)counter.textContent=pages?'Page '+(page+1)+' of '+pages+' · '+visible.length+' events':'No events';
  if(prev)prev.disabled=loading||page===0;
  if(next)next.disabled=loading||page>=pages-1;
 }
@@ -131,7 +142,8 @@ async function showFeatured(){
  if(!Sources||!status||!health||loading)return;
  loading=true;if(refresh)refresh.disabled=true;
  status.textContent='Checking published research sources…';
- const now=Date.now(),ids=Sources.SOURCES.filter(source=>source.id!=='history').map(source=>source.id);
+ const now=Date.now();featureClock=now;
+ const ids=Sources.SOURCES.filter(source=>source.id!=='history').map(source=>source.id);
  try{
   const feeds=await Promise.all(ids.map(id=>Sources.load(id,'./',window.fetch.bind(window),now)));
   const summary=Sources.summarize(feeds,now),invalid=feeds.filter(x=>x.state!=='OBSERVED');
@@ -150,8 +162,14 @@ async function showFeatured(){
 }
 function wireFeatured(){
  document.getElementById('pro-feature-prev')?.addEventListener('click',()=>{if(page>0){page--;renderFeatured()}});
- document.getElementById('pro-feature-next')?.addEventListener('click',()=>{if((page+1)*FEATURE_PAGE_SIZE<featured.length){page++;renderFeatured()}});
+ document.getElementById('pro-feature-next')?.addEventListener('click',()=>{if((page+1)*FEATURE_PAGE_SIZE<visibleFeatured().length){page++;renderFeatured()}});
  document.getElementById('pro-feature-refresh')?.addEventListener('click',showFeatured);
+ document.getElementById('pro-feature-range')?.addEventListener('change',event=>{
+  const link=document.querySelector('.pro-featured [data-open-events]');
+  if(link)link.textContent=event.target.value==='all'?'Explore all ↗':'Explore selected date ↗';
+  page=0;
+  renderFeatured();
+ });
 }
 function init(){ready();wireFeatured();showFeatured()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

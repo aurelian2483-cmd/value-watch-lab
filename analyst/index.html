@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#03101e">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
-<title>Value Watch Pro | Analyst Terminal</title><link rel="stylesheet" href="./style.css?v=all-sports"></head>
+<title>Value Watch Pro | Analyst Terminal</title><link rel="stylesheet" href="./style.css?v=all-sports"><link rel="stylesheet" href="../reference-workspace.css?v=1"></head>
 <body><a href="#analyst-main" class="skip">Skip to analysis</a>
 <div class="terminal">
 <header class="terminal-header"><a class="terminal-brand" href="../" aria-label="Value Watch Pro home"><span class="brand-chart">▥</span><span>VALUE WATCH <b>PRO</b><small>SPORTS INTELLIGENCE CENTRE</small></span></a>
 <div class="terminal-heading"><span>▥</span><div><h1>Analyst Terminal</h1><p>Models · Data · Evidence · Performance</p></div></div>
 <div class="terminal-state"><span id="analyst-state">Loading sources</span><button type="button" id="reload">↻ Refresh</button></div></header>
-<nav class="terminal-nav" aria-label="Value Watch navigation"><a href="../">⌂ Home</a><a href="../?sport=football#events-view">⚽ Football</a><a href="../?sport=racing#events-view">♞ Horse Racing</a><a href="../?sport=tennis#events-view">◉ Tennis</a><a href="../?sport=nfl#events-view">◆ NFL</a><a href="../#slip-panel">▣ Paper Slips</a><a href="../wildcard/">★ Gold Council</a><a href="../validation-centre/">◈ Independent Validation</a><a href="./" aria-current="page">▥ Analysis</a><a href="../market-intelligence/">Market intelligence</a><a href="../ops-control/">Source operations</a><a href="../research-overview/">ⓘ About</a></nav>
+<nav class="vw-workspaces" aria-label="Value Watch workspaces"><a href="../">Research desk</a><a href="../football-match/">Match centre</a><a href="../market-intelligence/">Market evidence</a><a href="../analyst/" aria-current="page">Analysis</a><a href="../validation-centre/">Validation</a><a href="../ops-control/">Operations</a><details><summary>More</summary><div><a href="../track-record/">Evidence archive</a><a href="../wildcard/">Gold Council</a><a href="../research-overview/">Methodology</a></div></details></nav>
 <p class="terminal-warning">RESEARCH ONLY · All models UNVALIDATED · Betting publication BLOCKED · No executable Sky Bet prices, independently calibrated edge or real profit performance implied</p>
 <main id="analyst-main">
 <section class="metrics"><div class="metric-title"><span>◎</span><div><strong>Model performance</strong><small>Evidence availability</small></div></div>
@@ -15,7 +15,7 @@
 <div class="analyst-columns">
 <aside class="analyst-sidebar">
 <section class="panel filters"><h2>☷ Analysis controls</h2><label>Sport<select id="filter-sport"><option value="all">All sports</option><option value="football">Football</option><option value="racing">Horse Racing</option><option value="tennis">Tennis</option><option value="nfl">NFL</option><option value="darts">Darts</option><option value="rugby">Rugby</option></select></label><label>Event range<select id="filter-range"><option value="all">All observed events</option><option value="upcoming">Upcoming only</option><option value="past">Past events</option></select></label><label>Evidence status<select id="filter-evidence"><option value="all">All available research</option><option value="model">Experimental model present</option><option value="no-model">No model evidence</option></select></label><button id="filter-apply" type="button">Apply filters</button><p>Filtering changes this research view only. It does not build, settle or modify paper slips.</p></section>
-<section class="panel overview"><h2>▥ Four-sport overview</h2><div id="sport-overview"><p class="muted">Loading sport data…</p></div></section>
+<section class="panel overview"><h2>▥ Source-backed sport overview</h2><div id="sport-overview"><p class="muted">Loading sport data…</p></div></section>
 </aside>
 <div class="analysis-core">
 <section class="panel insight"><h2>↗ Model insight &amp; evidence</h2><div class="insight-grid"><div class="evidence-gauge"><strong id="gauge-value">—</strong><span>verified model confidence</span><small>Requires independent calibration</small></div><div class="insight-criteria"><p>✓ Source-observed fixture identities</p><p>! Experimental probabilities are not calibrated</p><p>! No current executable bookmaker prices verified</p><p>! No independently established positive EV</p></div><div class="insight-chart"><h3>Observed event distribution</h3><div id="sport-bars" aria-label="Source-backed event counts by sport"><p class="muted">Loading…</p></div></div></div></section>
