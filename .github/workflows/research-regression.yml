@@ -25,6 +25,11 @@ jobs:
           for script in paper-lab/*.js; do node --check "$script"; done
       - name: Historical, collector and model safeguards
         run: python -m unittest discover -s tests
+      - name: Regenerate pinned Phase 10 provenance report
+        if: github.head_ref == 'codex/phase10-provenance-system'
+        run: |
+          git fetch --no-tags --depth=1 origin 0ab96a96fd66608d931c4109392ee29fe2ba3650
+          python scripts/audit_football_provenance.py --check
       - name: Mathematical library and Sky 81 validation
         run: |
           set -euo pipefail
