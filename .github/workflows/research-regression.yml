@@ -60,6 +60,9 @@ jobs:
       - name: Rehearse offline prospective paper capture and adjudication
         if: hashFiles('tests/football_shadow_capture_rehearsal.py') != '' && (startsWith(github.head_ref, 'codex/phase') || startsWith(github.ref_name, 'codex/phase') || github.event_name == 'workflow_dispatch')
         run: python -B tests/football_shadow_capture_rehearsal.py
+      - name: Report offline real-intake readiness
+        if: hashFiles('scripts/football_intake_readiness.py') != ''
+        run: python scripts/football_intake_readiness.py
       - name: Mathematical library and Sky 81 validation
         run: |
           set -euo pipefail
@@ -140,3 +143,6 @@ jobs:
       - name: Rehearse offline prospective paper capture and adjudication
         if: hashFiles('tests/football_shadow_capture_rehearsal.py') != ''
         run: python -B tests/football_shadow_capture_rehearsal.py
+      - name: Report offline real-intake readiness
+        if: hashFiles('scripts/football_intake_readiness.py') != ''
+        run: python scripts/football_intake_readiness.py
