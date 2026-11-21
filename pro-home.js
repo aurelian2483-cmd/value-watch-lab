@@ -293,6 +293,26 @@ function readPublishedPrices(fixtures,now){
  }
  return matches;
 }
+function publishCardPrices(now){
+ const rows=[];
+ for(const [item,entry] of publishedPrices??[]){
+  if(item.sport!=='football'||entry.expires<=now||item.startMs<=now)continue;
+  const prices={};
+  for(const line of entry.markup.querySelectorAll('li')){
+   const match=line.textContent.trim().match(/^(Home|Draw|Away)\s+([0-9]+(?:\.[0-9]+)?)$/);
+   if(match)prices[match[1].toLowerCase()]=Number(match[2]);
+  }
+  const sides=['home','draw','away'];
+  const stamps=[...entry.markup.querySelectorAll('time')].map(node=>Date.parse(node.dateTime));
+  if(Object.keys(prices).length!==sides.length||!sides.every(side=>Number.isFinite(prices[side])&&prices[side]>1)||
+     stamps.length<2||!stamps.slice(0,2).every(Number.isFinite)||stamps[0]>stamps[1]||stamps[1]>now||now-stamps[0]>30*60000)continue;
+  rows.push({sport:item.sport,name:item.name,startMs:item.startMs,expires:entry.expires,
+   observed:stamps[0],checked:stamps[1],market:entry.markup.querySelector('p')?.textContent||'1X2',
+   prices,bookmaker:'Sky Bet'});
+ }
+ window.ValueWatchCurrentOddsForCards=rows;
+ window.dispatchEvent(new Event('valuewatch:published-card-odds'));
+}
 async function optionalEvidence(path){
  try{
   const response=await fetch(path,{cache:'no-store',signal:AbortSignal.timeout(8000)});
