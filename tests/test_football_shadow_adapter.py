@@ -1,5 +1,4 @@
 import copy
-from pathlib import Path
 import unittest
 
 from scripts import football_producer_adapter as adapter
@@ -85,3 +84,28 @@ class LegacyBridgeTests(unittest.TestCase):
             legacy.bridge_batch([legacy_outcome(), legacy_outcome()], 'result')
         with self.assertRaisesRegex(ValueError, 'unsupported legacy source'):
             legacy.bridge({**legacy_outcome(), 'source': 'https://api.football-data.org/v4/matches/0123'}, 'result')
+
+
+class ShadowReportTests(unittest.TestCase):
+    def test_pinned_snapshot_inventory_and_separate_synthetic_counts(self):
+        from scripts import football_shadow_report as shadow
+        manifest = shadow.evidence.load(ROOT / shadow.DIRECTORY / 'manifest.json')
+        before = {path: (ROOT / path).read_bytes() for path in manifest['input_sha256']}
+        report = shadow.report(ROOT)
+        self.assertEqual(report, shadow.report(ROOT))
+        self.assertEqual(report['status'], 'insufficient_data')
+        self.assertEqual(report['ineligible_repository_forecasts'], 47)
+        self.assertEqual(report['eligible_real_forecasts'], 0)
+        self.assertEqual(report['eligible_real_outcomes'], 0)
+        self.assertEqual(report['synthetic_example_only']['eligibility_diagnostics'], {'synthetic_test_fixture_only': 1})
+        self.assertEqual(report['synthetic_example_only']['scored_records'], 0)
+        self.assertEqual(report['separate_evidence_tiers'], {'expanded_finals':66, 'legacy_archive':18,
+                                                           'retrospective':608, 'single_source_unverified':734})
+        self.assertEqual({path: (ROOT / path).read_bytes() for path in before}, before)
+
+    def test_stale_and_future_snapshots_use_explicit_review_clock(self):
+        from scripts import football_shadow_report as shadow
+        stamp = shadow.contract.instant('2026-09-15T00:00:00Z')
+        for source, state in (('2026-09-13T00:00:00Z', 'stale'), ('2026-09-15T00:00:00.000001Z', 'future_snapshot'),
+                              ('2026-09-15', 'missing_or_invalid')):
+            self.assertEqual(shadow.freshness(source, stamp), state)

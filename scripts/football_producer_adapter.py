@@ -9,7 +9,7 @@ else:
 
 evidence = contract.evidence
 PROBABILITY_FIELDS = ('prob_home', 'prob_draw', 'prob_away')
-RESEARCH_SOURCES = ('premier-league', 'expanded')
+RESEARCH_SOURCES = ('premier-league', 'expanded', 'paper-archive-projection')
 
 
 def producer_digest(row):
@@ -53,7 +53,7 @@ def adapt_forecast(row, source):
         consumed.add('espn_event_id')
     else:
         reasons.add('missing_or_invalid_provider_event_id')
-    if source == 'expanded' and contract.intake.text(row.get('league')):
+    if source != 'premier-league' and contract.intake.text(row.get('league')):
         event['competition'] = row['league']
         normalization['league'] = 'event.competition; original league code retained'
         consumed.add('league')
@@ -83,9 +83,11 @@ def adapt_forecast(row, source):
     else:
         chronology = 'source_generation_pre_kickoff_unattested'
     reasons.add(chronology)
-    if 'record_sha256' in row and (not evidence.valid_hash(row['record_sha256']) or
+    if source == 'expanded' and 'record_sha256' in row and (not evidence.valid_hash(row['record_sha256']) or
                                     producer_digest(row) != row['record_sha256']):
         reasons.add('producer_record_digest_mismatch')
+    if source == 'paper-archive-projection':
+        reasons.add('archive_digest_is_pointer_only')
     return {'source': source, 'source_row_sha256': contract.sha(row), 'original': deepcopy(row),
             'known_canonical_fields': projection, 'normalization': normalization,
             'omitted_fields': sorted(set(row) - consumed), 'chronology': chronology,
