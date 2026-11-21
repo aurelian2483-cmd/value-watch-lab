@@ -12,6 +12,13 @@ is 30 minutes. An older snapshot can legitimately show a calendar or an
 unavailable state without an exact link. Publication is **BLOCKED** and
 models remain **UNVALIDATED**.
 
+The main-snapshot check overlays current research data into an ephemeral
+runner checkout. It tests actual source availability and replays the
+captured Manchester City v Fulham model for cutoff regression, even
+after that fixture has rolled out of the upcoming feed. Calendar
+recovery tests use each snapshot's own capture time. Neither test changes
+published evidence or the validation rules.
+
 ## Windows tablet preview
 
 This candidate has no hosted preview deployment. On the tablet, download

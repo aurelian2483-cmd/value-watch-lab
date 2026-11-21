@@ -114,7 +114,10 @@ async function calendarRecovery(browser, base) {
   await context.route(url => url.origin !== base, route => route.abort());
   for (const [sport, feed] of [['darts','darts/feed.json'],['rugby','rugby-research-data.json']]) {
     const page = await context.newPage();
-    await page.clock.install({time:new Date('2026-11-21T08:00:00Z')});
+    const snapshot = JSON.parse(await fs.readFile(path.join(root,feed),'utf8'));
+    const observedAt = Date.parse(snapshot.generated_at_utc);
+    assert(Number.isFinite(observedAt),sport+' recovery snapshot must have a capture time');
+    await page.clock.setFixedTime(new Date(observedAt+60000));
     const fail = route => route.fulfill({status:503});
     await page.route('**/' + feed,fail);
     await page.goto(base + '/?sport=' + sport);
