@@ -69,6 +69,8 @@ function render(match) {
       } else row.insertCell().textContent = 'Withheld';
       row.insertCell().textContent = timeInLondon.format(latest.observed);
       row.insertCell().textContent = timeInLondon.format(latest.captured);
+      const ageHours = Math.max(0,Math.floor((Date.now() - latest.snapshot) / 3600000));
+      row.insertCell().textContent = (ageHours >= 24 ? 'Historical · ' : '') + ageHours + ' h';
       if (history.movementAvailable) {
         const movement = history.movement[side];
         row.insertCell().textContent = `${history.observationCount} captures · ${movement.decimal >= 0 ? '+' : ''}${movement.decimal.toFixed(3)} (${movement.percentage >= 0 ? '+' : ''}${movement.percentage.toFixed(2)}%)`;
