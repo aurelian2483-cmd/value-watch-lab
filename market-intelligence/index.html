@@ -6,8 +6,8 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <title>Market Intelligence | Value Watch</title>
   <link rel="stylesheet" href="../terminal.css">
-  <script src="../football-match/core.js?v=cutoff-2" defer></script>
-  <script src="./app.js?v=cutoff-1" defer></script>
+  <script src="../football-match/core.js?v=phase5-matrix" defer></script>
+  <script src="./app.js?v=phase5-matrix" defer></script>
 </head>
 <body class="market-terminal">
   <a class="terminal-skip" href="#main">Skip to market evidence</a>
@@ -31,17 +31,20 @@
       <h2 id="football-market">Football · 90-minute result</h2>
       <label for="match">Match</label>
       <select id="match" disabled></select>
+      <label for="source-filter">Source</label>
+      <select id="source-filter" disabled><option value="">All verified sources</option></select>
       <p id="market-status" role="status">Loading recorded markets…</p>
       <p id="model-leader"></p>
       <p id="market-withheld"></p>
       <a id="event-preview" hidden>Open Match Centre preview</a>
       <div class="terminal-table" tabindex="0" role="region" aria-label="Recorded market comparison">
         <table>
-          <thead><tr><th scope="col">Source</th><th scope="col">Selection</th><th scope="col">Decimal</th><th scope="col">Fractional equivalent</th><th scope="col">Observed (UK)</th><th scope="col">Captured (UK)</th><th scope="col">Field</th><th scope="col">Recorded favourite</th></tr></thead>
+          <thead><tr><th scope="col">Source</th><th scope="col">Selection</th><th scope="col">Decimal</th><th scope="col">Fractional</th><th scope="col">Raw implied</th><th scope="col">Proportional no-vig</th><th scope="col">Overround</th><th scope="col">Model difference</th><th scope="col">Observed (UK)</th><th scope="col">Captured (UK)</th><th scope="col">Comparable history</th></tr></thead>
           <tbody id="market-rows"></tbody>
         </table>
       </div>
-      <p>Price movement requires repeated observations from the same source and market. This view shows the single capture retained for each match.</p>
+      <div id="market-source-details" class="market-source-details"></div>
+      <p>Opening prices are not assumed. Movement is calculated only from repeated, comparable observations for the same fixture, source, market, period, outcome set and provider market ID.</p>
     </section>
     <section class="terminal-panel">
       <h2>Racing market evidence</h2>
