@@ -79,3 +79,5 @@ python scripts/audit_football_provenance.py --check --upstream-git /path/to/open
 The optional local upstream clone must contain the pinned CSV blobs. That mode rehashes the original bytes and verifies exact collector replay. The regular offline mode rebuilds the decisions from pinned repository files and identifies the raw-source findings as a recorded trace. No command makes a network request.
 
 To establish independence in future, obtain lawfully retained fixture-level receipts with event identifiers, settlement scope and auditable acquisition lineage, then manually review the crosswalk. A shared ID only establishes identity. Eight-digit dates, matching names and identical scores cannot prove independence.
+
+See [evidence operations](OPERATIONS.md) for the ledger, drift review and integration checks.

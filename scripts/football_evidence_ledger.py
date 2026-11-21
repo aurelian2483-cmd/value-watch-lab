@@ -97,7 +97,7 @@ def build(root=ROOT):
         require(disposition in POLICY, f'{item["key"]}: unsupported or promoted disposition')
         reason, needed = POLICY[disposition]
         row = {name: item[name] for name in ('competition', 'source_competition', 'season',
-                'date', 'date_precision', 'score', 'source_participants', 'upstream_provider', 'source_url',
+                'date', 'date_precision', 'score', 'source_participants', 'participants', 'upstream_provider', 'source_url',
                 'source_csv_sha256')}
         row.update(key=row_key(row), tier=TIER, input='single',
                    disposition=disposition, reason=reason, evidence_needed=needed,
@@ -181,7 +181,7 @@ def validate(ledger, pinned=False):
 
 def validate_row(row, references):
     fields(row, ('competition', 'source_competition', 'season', 'date', 'date_precision', 'score',
-                 'source_participants', 'upstream_provider', 'source_url', 'source_csv_sha256', 'key',
+                 'source_participants', 'participants', 'upstream_provider', 'source_url', 'source_csv_sha256', 'key',
                  'tier', 'input', 'disposition', 'reason', 'evidence_needed', 'candidates'), 'row')
     require(row['tier'] == TIER and row['input'] == 'single', 'mixed source evidence tier')
     require(all(text(row[name]) for name in ('competition', 'source_competition', 'season', 'upstream_provider',
@@ -191,9 +191,10 @@ def validate_row(row, references):
             'invalid source URL')
     require(row['date_precision'] == 'DATE_ONLY_END_OF_DAY' and
             audit.reconciliation.calendar_date(row['date']) is not None, 'invalid date-only evidence')
-    teams = row['source_participants']
-    require(isinstance(teams, list) and len(teams) == 2 and all(map(text, teams)) and
-            teams[0].casefold() != teams[1].casefold() and row['key'] == row_key(row), 'invalid ordered teams or key')
+    for teams in (row['source_participants'], row['participants']):
+        require(isinstance(teams, list) and len(teams) == 2 and all(map(text, teams)) and
+                teams[0].casefold() != teams[1].casefold(), 'invalid ordered teams')
+    require(row['key'] == row_key(row), 'invalid source observation key')
     score = row['score']
     require(isinstance(score, list) and len(score) == 2 and all(type(value) is int and value >= 0 for value in score),
             'invalid score')

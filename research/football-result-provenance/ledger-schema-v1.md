@@ -19,7 +19,7 @@ Unknown fields and JSON duplicate member names are rejected. SHA-256 values are 
 Every row has:
 
 - `key`, `tier` and `input`. The tier and input are always `SINGLE_SOURCE_UNVERIFIED` and `single`. The key is `source-v1:` followed by SHA-256 over a canonical UTF-8 JSON array of the source filename, source competition, calendar date and original ordered participants. It points into the pinned file through the original identity. A source-side naming or date edit causes removal and addition. A score, provider label or reviewed alias edit keeps the key. The key never serves as a stable fixture identifier.
-- `competition`, `source_competition`, `season`, `date`, `date_precision` and `source_participants`. `date` is YYYY-MM-DD and precision is always `DATE_ONLY_END_OF_DAY`. Participants are the two original strings in home/away order.
+- `competition`, `source_competition`, `season`, `date`, `date_precision` and `source_participants`. `date` is YYYY-MM-DD and precision is always `DATE_ONLY_END_OF_DAY`. Participants are in home/away order. `source_participants` retains the original team names, and `participants` records the reviewed alias mapping for drift comparisons.
 - `score`, two nonnegative integers, and `upstream_provider`, `source_url` and `source_csv_sha256`, which preserve the reported source provenance. The snapshot file hash is at `inputs.single.sha256`.
 - `disposition`, `reason`, `evidence_needed` and `candidates`. Allowed states and exact reason/evidence strings are defined by the versioned `POLICY` map. Each candidate has a `reference` key and a `disposition`. A nonempty list has one primary candidate, and any other entries are explicitly marked legacy repeats. Verification claims are rejected in v1.
 

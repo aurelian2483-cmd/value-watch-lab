@@ -68,7 +68,7 @@ class EvidenceLedgerTests(unittest.TestCase):
         added['key'] = evidence.row_key(added)
         after['rows'].append(added)
         changed['score'] = [20, 0]
-        changed['competition'] = 'ALIAS'
+        changed['participants'][0] = 'Reviewable Team Alias'
         state = 'score_or_source_conflict'
         reclassified.update(disposition=state, reason=evidence.POLICY[state][0],
                             evidence_needed=evidence.POLICY[state][1])
@@ -80,7 +80,7 @@ class EvidenceLedgerTests(unittest.TestCase):
         result = evidence.compare(before, after)
         self.assertEqual(result['totals'], {'added': 1, 'removed': 1, 'changed': 1, 'reclassified': 1})
         self.assertEqual(result['verified_coverage_gained'], 0)
-        self.assertEqual(result['changed'][0]['fields']['competition'][1], 'ALIAS')
+        self.assertEqual(result['changed'][0]['fields']['participants'][1][0], 'Reviewable Team Alias')
         self.assertEqual(result['reclassified'][0]['changed_input_hashes']['single'][1], 'b' * 64)
         self.assertEqual(result['reclassified'][0]['changed_rule_context']['rules_sha256'][1], 'a' * 64)
 

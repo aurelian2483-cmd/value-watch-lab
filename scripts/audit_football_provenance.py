@@ -287,6 +287,7 @@ def markdown(report):
         '', 'To establish independence in future, obtain lawfully retained fixture-level receipts with event identifiers, '
         'settlement scope and auditable acquisition lineage, then manually review the crosswalk. A shared ID only '
         'establishes identity. Eight-digit dates, matching names and identical scores cannot prove independence.', '',
+        'See [evidence operations](OPERATIONS.md) for the ledger, drift review and integration checks.', '',
     ]
     return '\n'.join(lines)
 
