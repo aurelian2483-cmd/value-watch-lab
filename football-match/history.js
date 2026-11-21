@@ -69,5 +69,5 @@
       meetings:prior.filter(match => (match.home === home && match.away === away) || (match.home === away && match.away === home)) };
   }
 
-  return { archiveMatches, competitionMatches, matchHistory };
+  return { archiveMatches, competitionMatches, matchHistory, premierLeagueTeam: archiveName };
 });

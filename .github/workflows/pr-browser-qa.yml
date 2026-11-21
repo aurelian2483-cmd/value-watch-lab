@@ -3,11 +3,12 @@ on:
   push:
     branches: [codex/value-watch-development]
   pull_request:
-    branches: [copilot/evidence-research-handover, main]
+    branches: [copilot/evidence-research-handover, codex/value-watch-development, main]
     paths:
       - 'index.html'
       - 'analyst/**'
       - 'football-match/**'
+      - 'football-teams/**'
       - 'market-intelligence/**'
       - 'pro-design.css'
       - 'pro-home.js'
@@ -38,6 +39,7 @@ jobs:
           node scripts/pro_design_browser_qa.cjs
           node scripts/darts_browser_qa.cjs
           if test -f scripts/football_match_browser_qa.cjs; then node scripts/football_match_browser_qa.cjs; fi
+          if test -f scripts/football_teams_browser_qa.cjs; then node scripts/football_teams_browser_qa.cjs; fi
       - name: Save QA report and screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -105,6 +107,7 @@ jobs:
         run: |
           npm run test:browser
           node scripts/football_match_browser_qa.cjs
+          if test -f scripts/football_teams_browser_qa.cjs; then node scripts/football_teams_browser_qa.cjs; fi
       - name: Retain integration QA evidence
         if: always()
         uses: actions/upload-artifact@v4
