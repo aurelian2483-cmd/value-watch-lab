@@ -103,9 +103,10 @@ def timestamp(row, data, packet_raw, token_raw, registry):
     require(all(item is not None for item in (schedule_row, inputs, window)),
             'timestamp requires fixture, verified inputs and approved study cutoff')
     kickoff, observed = instant(schedule_row['earliest_kickoff']), instant(row['observed_at'])
-    require(instant(inputs['input_cutoff']) <= observed < kickoff and
+    require(instant(schedule_row['observed_at']) <= observed and
+            instant(inputs['input_cutoff']) <= observed < kickoff and
             observed <= kickoff - timedelta(seconds=window['buffer_seconds']),
-            'timestamp is at or after the permitted pre-kickoff cutoff')
+            'timestamp must follow schedule observation and input cutoff, within the pre-kickoff buffer')
     packet = evidence.decode(packet_raw)
     fields(packet, ('schema_version', 'origin', 'event', 'input_sha256', 'forecasts'), 'readiness packet')
     require(type(packet['schema_version']) is int and packet['schema_version'] == 1 and
@@ -123,6 +124,8 @@ def timestamp(row, data, packet_raw, token_raw, registry):
                 instant(item['input_cutoff']) == instant(inputs['input_cutoff']) and
                 instant(item['frozen_at']) <= observed and
                 item['market_observation']['state'] == 'unavailable', 'packet model, evidence tier or freeze mismatch')
+        require(all(instant(receipt['observed_at']) <= instant(inputs['last_receipt_observed_at'])
+                    for receipt in item['input_receipts']), 'packet receipt is later than reviewed input receipts')
 
 
 def outcome_review(row, approvals):
@@ -183,13 +186,19 @@ def inspect(raw, packet=None, inputs=None, token=None):
     validators = {
         'schedule': lambda row: schedule(row, approvals),
         'earlier_inputs': lambda row: earlier_inputs(row, approvals, inputs),
-        'timestamp': lambda row: timestamp(row, data, packet, token, registry),
         'outcome_review': lambda row: outcome_review(row, approvals),
         'retention': lambda row: retention(row, data['study_registration'], approvals),
         'study_registration': lambda row: study(row, data['schedule']),
     }
     for name, validator in validators.items():
         checks[name] = check(name, validator)
+    def check_timestamp(row):
+        require(all(checks[name]['status'] not in ('missing', 'invalid')
+                    for name in ('schedule', 'earlier_inputs', 'study_registration')),
+                'timestamp requires valid schedule, earlier inputs and study registration')
+        timestamp(row, data, packet, token, registry)
+
+    checks['timestamp'] = check('timestamp', check_timestamp)
     ready = trusted and all(item['status'] == 'satisfied' for item in checks.values())
     return {'schema_version': 1, 'manifest_sha256': digest, 'status': 'READY FOR AUTHORIZATION REVIEW' if ready else 'NOT READY',
             'gates': checks, 'real_intake_enabled': False, 'eligible_real_captures': 0, 'eligible_real_outcomes': 0,
