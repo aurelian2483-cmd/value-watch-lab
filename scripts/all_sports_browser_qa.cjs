@@ -30,6 +30,8 @@ const routes = ['football-match','market-intelligence','racing-research','darts'
   'validation-centre','ops-control','wildcard','analyst','paper-lab'];
 const report = {repositoryScreenshots: [], syntheticChecks: [], accessibility: []};
 const blocked = ['golf','basketball','cricket'];
+const laneEvidence = {football:/OpenLigaDB/, racing:/racecard/, tennis:/ATP\/WTA/, nfl:/nflverse/,
+  darts:/PDC/, rugby:/Pro D2/, golf:/Manual directory only/, basketball:/Discovery only/, cricket:/Cricsheet/};
 
 async function viewportCheck(page, label) {
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), label + ' overflows');
@@ -226,6 +228,12 @@ async function discoveryFlow(browser, base) {
         if (compact) assert(await page.locator('html.visual-preview').count(), 'Compact preview must be active');
         const panel = page.locator('#sport-evidence');
         await panel.getByText(/PASS · No qualifying opportunity/).waitFor();
+        if (!baseline) {
+          const lane = panel.getByRole('region', {name:'Experimental source coverage'});
+          assert.match(await lane.textContent(), laneEvidence[sport]);
+          await lane.getByText('Current odds unavailable from approved free sources. No new free feed connected.').waitFor();
+          assert.equal(await lane.locator('button, a, input').count(), 0);
+        }
         await page.waitForFunction(() => document.querySelector('#source-summary')?.textContent.startsWith('Sources · '));
         assert.equal(await page.locator('#sport').inputValue(),sport);
         if (blocked.includes(sport)) {
@@ -260,7 +268,10 @@ async function discoveryFlow(browser, base) {
         }
       }
       if (compact && !baseline) {
-        await page.locator('#sport-nav [data-sport="rugby"]').click();
+        const quickFilters = page.locator('.pro-quick-filters [data-pro-sport]');
+        assert.deepEqual(await quickFilters.evaluateAll(buttons => buttons.map(button => button.dataset.proSport).sort()),
+          ['all', ...sports].sort());
+        await page.locator('.pro-quick-filters [data-pro-sport="rugby"]').click();
         await page.getByRole('heading', {name:'Rugby evidence and workflow'}).waitFor();
         assert.equal(new URL(page.url()).searchParams.get('view'), 'visual-preview');
         assert.equal(new URL(page.url()).searchParams.get('sport'), 'rugby');

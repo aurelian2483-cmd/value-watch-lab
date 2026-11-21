@@ -58,6 +58,9 @@ jobs:
           mv work/compact-baseline/work/browser-qa/compact-preview work/browser-qa/compact-before
           node scripts/all_sports_browser_qa.cjs --compact-preview
           mv work/browser-qa/compact-preview work/browser-qa/compact-after
+      - name: Verify nine research lanes in the approved compact design
+        if: github.head_ref == 'codex/phase69-free-sport-lanes'
+        run: node scripts/all_sports_browser_qa.cjs --compact-preview
       - name: Save QA report and screenshots
         if: always()
         uses: actions/upload-artifact@v4

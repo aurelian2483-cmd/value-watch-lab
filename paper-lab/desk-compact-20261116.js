@@ -907,6 +907,10 @@
     panel.dataset.signature = signature;
     panel.replaceChildren();
     make(panel, 'h3', sports[sport] + ' evidence and workflow');
+    const lane = make(panel, 'section');
+    lane.setAttribute('aria-label', 'Experimental source coverage');
+    make(lane, 'p', window.ValueWatchFreeSourceLanes.laneForSport(sport));
+    make(lane, 'p', 'Current odds unavailable from approved free sources. No new free feed connected.', 'small');
     make(panel, 'p', schedule);
     for (const line of sourcesText) make(panel, 'p', line, 'small');
     for (const failure of failures) make(panel, 'p', (specs.find(spec => spec.path === failure.path)?.label || failure.kind) +

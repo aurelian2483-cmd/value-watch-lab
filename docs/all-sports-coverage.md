@@ -54,3 +54,7 @@ The [research regression](../.github/workflows/research-regression.yml) specifie
 2. Complete input snapshots and independent regulation or sport-specific finalization. Football, racing, tennis and NFL require receipt-linked settlement. Rugby League and Darts need stronger exact fixture evidence before modelling or paper intake. Manual each-way/retirement/void settlement needs sport-specific contracts and reviewed outcomes.
 3. Whole-slate coverage and outcome denominators. Tennis draws and NFL regular-season coverage are incomplete. Pro D2 does not establish Rugby Union-wide coverage. A weekly target cannot substitute for schedule coverage.
 4. Provider integration decisions for basketball, cricket and golf. Establish access rights, durable event IDs, timestamp semantics and results coverage before adding markets, models or paper legs.
+
+## Phase 69 | Free-source research lanes
+
+The main site exposes a dedicated experimental coverage summary for all nine sports. Basketball and cricket show discovery coverage, and golf shows directory coverage. Their buttons carry no placeholder timed fixture count. Every lane reports that current odds are unavailable from approved free sources. Existing source timestamps, freshness, failure messages and research safeguards remain in place. No new connector cleared the free, no-registration access, licensing, identity, timestamp and update requirements. See the [Phase 69 decision and probe evidence](phase69-free-source-coverage.md).
