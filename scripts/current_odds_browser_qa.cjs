@@ -6,9 +6,11 @@ const path = require('node:path');
 const { chromium } = require('playwright');
 const sources = require('../pro-sources');
 const core = require('../football-match/core');
+const {renderCurrentOdds} = require('./render_current_odds.cjs');
 const root = path.join(__dirname, '..');
 const read = name => fs.readFile(path.join(root, name), 'utf8').then(JSON.parse);
-const live = process.argv.includes('--live');
+const deployed = process.argv.includes('--public');
+const live = deployed || process.argv.includes('--live');
 const mime = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json'};
 
 async function main(){
@@ -73,13 +75,30 @@ async function main(){
   ])assert.equal(join({...controlled,records:controlled.records.map(edit)}).size,0);
   assert.equal(join({...controlled,records:controlled.records.flatMap(r=>[r,r])}).size,0);
  }
+ const template=await fs.readFile(path.join(root,'index.html'),'utf8');
+ const published=renderCurrentOdds(template,document,{dashboard,expanded,other},now);
+ const servedHTML=live&&!deployed?await fs.readFile(path.join(root,'work/public-price-preview/site/index.html'),'utf8'):published.html;
+ assert.equal(servedHTML,published.html,'The built page must still match the current accepted receipts.');
+ assert.equal(published.count,matched.size);
+ if(!live){
+  assert.equal(renderCurrentOdds(template,document,{dashboard,expanded,other},now+31*60000).count,0);
+  assert(!published.html.includes('api.the-odds-api.com/v4/sports'));
+  assert(!published.html.includes('receipt_sha256'));
+  assert(!published.html.includes('work/current-odds.json'));
+  for(const {event_id,receipt_sha256} of controlled.records){
+   assert(!published.html.includes(event_id));
+   assert(!published.html.includes(receipt_sha256));
+  }
+ }
  const server=http.createServer(async(req,res)=>{
   try{
    const pathname=new URL(req.url,'http://localhost').pathname;
-   const file=path.resolve(root,'.'+pathname+(pathname.endsWith('/')?'index.html':''));
-   if(!file.startsWith(root+path.sep))return res.writeHead(403).end();
+   const site=live?path.join(root,'work/public-price-preview/site'):root;
+   const file=path.resolve(site,'.'+pathname+(pathname.endsWith('/')?'index.html':''));
+   if(!file.startsWith(site+path.sep))return res.writeHead(403).end();
    res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');
-   if(pathname==='/work/current-odds.json')return res.end(JSON.stringify(document));
+   if(pathname.startsWith('/work/'))return res.writeHead(404).end();
+   if(pathname==='/'||pathname==='/index.html')return res.end(servedHTML);
    if(!live&&pathname==='/research-dashboard-data.json')return res.end(JSON.stringify(dashboard));
    if(!live&&pathname==='/football-expanded-data.json')return res.end(JSON.stringify(expanded));
    if(!live&&pathname==='/other-sports-data.json')return res.end(JSON.stringify(other));
@@ -87,14 +106,14 @@ async function main(){
   }catch{res.writeHead(404).end();}
  });
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
- const base='http://127.0.0.1:'+server.address().port;
+ const base=deployed?'https://aurelian2483-cmd.github.io/value-watch-lab':'http://127.0.0.1:'+server.address().port;
  const browser=await chromium.launch();
  const verified=new Set();
  try{
   for(const width of (live?[820]:[1440,820,390])){
    const page=await browser.newPage({viewport:{width,height:920},hasTouch:width!==1440});
    await page.clock.setFixedTime(new Date(now));
-   await page.route(url=>url.origin!==base,route=>route.abort());
+   await page.route(url=>url.origin!==new URL(base).origin,route=>route.abort());
    for(const sport of ['football','tennis','nfl']){
     const item=[...matched.keys()].find(row=>row.sport===sport);
     if(!item)continue;
@@ -106,9 +125,19 @@ async function main(){
     await evidence.getByText(/Sky Bet via The Odds API/).waitFor();
     await evidence.getByText(/Checked .*Z/).waitFor();
     await evidence.getByText(/EV unavailable:/).waitFor();
-    await evidence.getByText(/home .* · implied .* · proportional no-vig/).waitFor();
+    await evidence.getByText(/Observed .*Z/).waitFor();
+    await evidence.getByText(/Expires .*Z/).waitFor();
+    await evidence.getByText('Home '+matched.get(item)[0].prices.home.toFixed(2),{exact:true}).waitFor();
+    assert.equal((await page.request.get(base+'/work/current-odds.json')).status(),404);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
     verified.add(sport);
+   }
+   if(!live&&width===390){
+    await page.clock.setFixedTime(new Date(now+31*60000));
+    await page.reload();
+    await page.locator('.pro-feature-event').first().waitFor();
+    assert.equal(await page.locator('.pro-featured .pro-fixture-evidence-toggle').filter({hasText:'Sky Bet prices'}).count(),0);
+    assert.equal(await page.locator('#pro-featured-rows').getByText('Sky Bet via The Odds API',{exact:true}).count(),0);
    }
    if(!live&&width===820&&choices.racing){
     await page.goto(base+'/?'+new URLSearchParams({fsport:'racing',fq:choices.racing.name.slice(0,65)}));
@@ -133,7 +162,7 @@ async function main(){
    await page.close();
   }
  }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
- console.log(JSON.stringify({mode:live?'live':'controlled',matchedFixtures:matched.size,renderedSports:[...verified]}));
+ console.log(JSON.stringify({mode:deployed?'public':live?'live':'controlled',matchedFixtures:matched.size,renderedSports:[...verified]}));
  assert.equal(verified.size,3,'Coverage incomplete: all three sports must render a matched quote.');
 }
 main().catch(error=>{

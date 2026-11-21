@@ -36,7 +36,8 @@ racecards and archived odds remain separate.
   and neither raw API responses nor normalized snapshots are uploaded as
   public workflow artifacts. The snapshot is ephemeral on GitHub-hosted
   runners. The live review prints counts and checks rendered cards on
-  loopback. No public live feed or publication workflow is enabled.
+  loopback. The build extracts exact matched prices into the dashboard
+  HTML. No public live feed or production release is enabled.
 - The provider [terms][terms] permit retention, research, derived analytics
   and UI display, and restrict using API responses as a standalone
   redistribution product, including downloadable raw feeds. The
@@ -54,6 +55,31 @@ racecards and archived odds remain separate.
   still need an exact settlement attestation before these receipts can
   enter the existing EV path. Previously supported football receipts keep
   their existing verification and EV requirements. No status is promoted.
+
+## Public dashboard build
+
+`node scripts/render_current_odds.cjs` builds
+`work/public-price-preview/index.html` from the private runner snapshot and
+the exact fixture snapshots in that checkout. It inserts a bounded set of
+display sections in the normal dashboard page. Each section carries a
+local fixture binding and expiry, matched prices, timestamps, provenance
+label and the settlement caveat. The browser mounts a section only while
+the exact current fixture still matches. A visible price is removed at
+kickoff or 30 minutes after observation, whichever comes first.
+
+Publisher builds must use the generated HTML in place of the stock
+`index.html` and omit the whole `work/` directory from the static site.
+The page does not fetch a provider JSON file or API endpoint. The
+review job builds a clean tracked-files staging tree and uses only its
+generated `index.html` in the loopback check. It does not deploy. Pages
+currently serves the root of `main` using the branch build. A public
+release requires an approved static deployment route for the staged
+build and a fresh authenticated review. A deployed check must rejoin the
+same source receipts and assert the visible prices before sign-off. From
+the runner checkout with the same fresh private snapshot, run
+`node scripts/current_odds_browser_qa.cjs --public` after deploying the
+staged tree. It checks the current Pages URL, the rendered prices and the
+absence of the snapshot route.
 
 ## Racing manual capture
 

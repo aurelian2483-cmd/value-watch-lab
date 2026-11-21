@@ -108,7 +108,7 @@ const FEATURE_PAGE_SIZE=6;
 const feedLabels={football:'Football',racing:'Horse racing',other:'Tennis/NFL',darts:'Darts',rugby:'Rugby'};
 const stateLabels={UNAVAILABLE:'unavailable',STALE_OR_UNDATED:'stale or undated',PARTIAL_RECORDS:'partial coverage',
  GATE_UNVERIFIED:'safeguards unverified',SCHEMA_UNVERIFIED:'format unverified'};
-let featured=[],page=0,loading=false,football,racing,providerPrices,quoteExpiry;
+let featured=[],page=0,loading=false,football,racing,publishedPrices,quoteExpiry;
 let featureClock=Date.now();
 const ukDay=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/London',dateStyle:'short'});
 function visibleFeatured(){
@@ -205,13 +205,13 @@ function evidenceCell(tr,item,index){
  const core=window.FootballMatchEvidence;
  const now=Date.now();
  const evidence=Sources.cardEvidence(item,football,core,now,racing);
- const current=providerPrices?.get(item)??[];
- evidence.quotes.push(...current.filter(quote=>item.startMs>now&&now>=quote.captured&&now-quote.observed<=30*60000));
+ const current=publishedPrices?.get(item);
+ const hasCurrent=Boolean(current&&current.expires>now&&item.startMs>now);
  const line=(parent,text)=>{
   const p=document.createElement('p');p.textContent=text;parent.append(p);
  };
  const pct=p=>(p*100).toFixed(1)+'%';
- const hasEvidence=evidence.models.length||evidence.unverified.length||evidence.quotes.length;
+ const hasEvidence=evidence.models.length||evidence.unverified.length||evidence.quotes.length||hasCurrent;
  const compact=document.documentElement.classList.contains('visual-preview');
  if(!hasEvidence&&(compact||!(item.fixtureKey||Sources.detailKey(item)))){
   line(cell,evidence.reason);return null;
@@ -224,8 +224,8 @@ function evidenceCell(tr,item,index){
  toggle.className='pro-fixture-evidence-toggle';
  toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls',detailRow.id);
  toggle.textContent=evidence.models.length?'Experimental model · '+(item.sport==='racing'?evidence.models[0].outcomes.length+' runners':evidence.models[0].outcomes.map(o=>pct(o.probability)).join(' / ')):
-  evidence.quotes.length?'Recorded market prices':evidence.unverified.length?'Unverified experimental estimate':'Evidence unavailable';
- if(current.length&&evidence.models.length)toggle.textContent+=' · Sky Bet prices';
+  hasCurrent?'Sky Bet prices':evidence.quotes.length?'Recorded market prices':evidence.unverified.length?'Unverified experimental estimate':'Evidence unavailable';
+ if(hasCurrent&&evidence.models.length)toggle.textContent+=' · Sky Bet prices';
  toggle.addEventListener('click',()=>{
   detailRow.hidden=!detailRow.hidden;
   toggle.setAttribute('aria-expanded',String(!detailRow.hidden));
@@ -241,7 +241,8 @@ function evidenceCell(tr,item,index){
   for(const outcome of model.outcomes)
    line(panel,outcome.name+' '+pct(outcome.probability)+(model.reason||outcome.probability===0?'':' · fair odds '+(1/outcome.probability).toFixed(2)));
  }
- if(!evidence.quotes.length)line(panel,evidence.priceReason);
+ if(hasCurrent)panel.append(current.markup.cloneNode(true));
+ else if(!evidence.quotes.length)line(panel,evidence.priceReason);
  manualPrice(panel,item,line);
  for(const quote of evidence.quotes){
   const receipt=document.createElement('a');receipt.href=quote.url.href;
@@ -263,16 +264,34 @@ function evidenceCell(tr,item,index){
 function schedulePriceExpiry(){
  clearTimeout(quoteExpiry);
  const now=Date.now(),deadlines=[];
- for(const [item,quotes] of providerPrices??[]){
-  for(const quote of quotes){
-   const until=Math.min(item.startMs,quote.observed+30*60000+1);
-   if(until>now)deadlines.push(until);
-  }
+ for(const [item,price] of publishedPrices??[]){
+  const until=Math.min(item.startMs,price.expires);
+  if(until>now)deadlines.push(until);
  }
  if(deadlines.length)quoteExpiry=setTimeout(()=>{
   renderFeatured();
   schedulePriceExpiry();
  },Math.min(...deadlines)-now);
+}
+function readPublishedPrices(fixtures,now){
+ const template=document.getElementById('vw-published-prices');
+ const nodes=new Map(),ambiguous=new Set(),matches=new Map(),fixtureCounts=new Map();
+ for(const markup of template?.content.children??[]){
+  const key=markup.dataset.fixture,expires=Number(markup.dataset.expires);
+  if(!key||!Number.isSafeInteger(expires)||expires<=now||expires>now+30*60000)continue;
+  if(nodes.has(key))ambiguous.add(key);
+  nodes.set(key,{markup,expires});
+ }
+ for(const item of fixtures){
+  const key=Sources.providerFixtureKey(item,football,now);
+  if(key)fixtureCounts.set(key,(fixtureCounts.get(key)||0)+1);
+ }
+ for(const item of fixtures){
+  const key=Sources.presentationKey(item,football,now);
+  if(nodes.has(key)&&!ambiguous.has(key)&&fixtureCounts.get(Sources.providerFixtureKey(item,football,now))===1)
+   matches.set(item,nodes.get(key));
+ }
+ return matches;
 }
 async function optionalEvidence(path){
  try{
@@ -323,15 +342,15 @@ async function showFeatured(){
  const now=Date.now();featureClock=now;
  const ids=Sources.SOURCES.filter(source=>source.id!=='history').map(source=>source.id);
  try{
-  const [feeds,expanded,prices,horseModels,odds]=await Promise.all([
+  const [feeds,expanded,prices,horseModels]=await Promise.all([
    Promise.all(ids.map(id=>Sources.load(id,'./',window.fetch.bind(window),now))),
-   optionalEvidence('./football-expanded-data.json'),optionalEvidence('./paper-lab/hybrid-market-data.json'),optionalEvidence('./horse-model-data.json'),optionalEvidence('./work/current-odds.json')
+   optionalEvidence('./football-expanded-data.json'),optionalEvidence('./paper-lab/hybrid-market-data.json'),optionalEvidence('./horse-model-data.json')
   ]);
   const core=window.FootballMatchEvidence;
   football=core?Sources.footballEvidence([feeds.find(feed=>feed.id==='football')?.data,expanded],prices,core,now):null;
   const summary=Sources.summarize(feeds,now),invalid=feeds.filter(x=>x.state!=='OBSERVED');
   for(const sport of Sources.sports)document.querySelectorAll('[data-pro-count="'+sport+'"]').forEach(el=>{el.textContent=summary.counts[sport]===null?'—':String(summary.counts[sport])});
-  providerPrices=Sources.providerPrices(Sources.currentOdds(odds,now),summary.upcoming,football,now);
+  publishedPrices=readPublishedPrices(summary.upcoming,now);
   schedulePriceExpiry();
   racing=Sources.racingEvidence(summary.upcoming,feeds.find(feed=>feed.id==='racing'),horseModels,now);
   const all=document.querySelector('[data-pro-count="all"]');if(all)all.textContent=summary.available.length?String(summary.totalAvailable):'—';

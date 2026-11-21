@@ -36,5 +36,12 @@ jobs:
         env:
           THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
         run: python scripts/collect_current_odds.py
+      - name: Build user-facing HTML without bundling the provider snapshot
+        run: |
+          node scripts/render_current_odds.cjs
+          mkdir -p work/public-price-preview/site
+          git archive --format=tar HEAD | tar -xf - -C work/public-price-preview/site
+          cp work/public-price-preview/index.html work/public-price-preview/site/index.html
+          test ! -e work/public-price-preview/site/work
       - name: Check exact fixture joins and render matches on the runner
         run: node scripts/current_odds_browser_qa.cjs --live

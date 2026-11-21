@@ -222,20 +222,28 @@
   for(const [key,quotes] of index)if(quotes.length!==1||duplicates.has(quotes[0].id))index.delete(key);
   return index;
  }
+ function presentationKey(record,football,now){
+  if(!(record.startMs>now))return null;
+  if(record.sport==='football'){
+   const fixture=football?.events.get(record.fixtureKey);
+   if(!fixture||unavailable(fixture.row)||fixture.row.result!=null||fixture.marketCutoff<=now)return null;
+   return 'football:'+record.fixtureKey;
+  }
+  return ['tennis','nfl'].includes(record.sport)&&record.detail?.participants?detailKey(record):null;
+ }
+ function providerFixtureKey(record,football,now){
+  if(!presentationKey(record,football,now))return null;
+  if(record.sport==='football'){
+   const [league,home,away]=football.events.get(record.fixtureKey).identity;
+   return oddsIdentity(footballKeys[league],home,away,record.startMs);
+  }
+  const [home,away]=record.detail.participants;
+  return oddsIdentity(record.sport==='nfl'?'americanfootball_nfl':tennisKeys[record.detail.competition],home[1],away[1],record.startMs);
+ }
  function providerPrices(index,records,football,now){
   const matches=new Map(),candidates=new Map();
   for(const record of records){
-   if(record.startMs<=now)continue;
-   let key;
-   if(record.sport==='football'){
-    const fixture=football?.events.get(record.fixtureKey);
-    if(!fixture||unavailable(fixture.row)||fixture.row.result!=null||fixture.marketCutoff<=now)continue;
-    const [league,home,away]=fixture.identity;
-    key=oddsIdentity(footballKeys[league],home,away,record.startMs);
-   }else if(record.detail?.participants){
-    const [home,away]=record.detail.participants;
-    key=oddsIdentity(record.sport==='nfl'?'americanfootball_nfl':tennisKeys[record.detail.competition],home[1],away[1],record.startMs);
-   }
+   const key=providerFixtureKey(record,football,now);
    if(!index.has(key))continue;
    if(!candidates.has(key))candidates.set(key,[]);
    candidates.get(key).push(record);
@@ -328,5 +336,5 @@
    return inspect(id,await response.json(),now);
   }catch(err){return {id,state:'UNAVAILABLE',fresh:false,generatedAt:null,records:[],data:null,error:String(err?.message||err).slice(0,120)}}
  }
- return Object.freeze({SOURCES,sports,stamp,gate,inspect,summarize,featuredOrder,load,detailKey,findDetail,footballEvidence,racingEvidence,cardEvidence,currentOdds,providerPrices});
+ return Object.freeze({SOURCES,sports,stamp,gate,inspect,summarize,featuredOrder,load,detailKey,findDetail,footballEvidence,racingEvidence,cardEvidence,currentOdds,providerPrices,presentationKey,providerFixtureKey});
 });
