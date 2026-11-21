@@ -8,9 +8,11 @@ function ready(){
   const sport=btn.getAttribute('data-pro-sport');
   const target=document.querySelector('#sport-nav button[data-sport="'+sport+'"]');
   if(target)target.click();
-  const destination=document.getElementById(sport==='all'?'main-content':'sport-evidence');
-  destination?.scrollIntoView({block:'start'});
-  destination?.focus({preventScroll:true});
+  queueMicrotask(()=>{
+   const destination=document.getElementById(sport==='all'?'main-content':'sport-evidence');
+   destination?.scrollIntoView({block:'start'});
+   destination?.focus({preventScroll:true});
+  });
  }));
  const showSlips=()=>{
   const open=document.getElementById('paper-open'),panel=document.getElementById('slip-panel');
