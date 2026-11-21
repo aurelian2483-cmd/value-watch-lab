@@ -92,3 +92,11 @@ assert.equal(sourceTime,now);assert.equal(S.stamp('bad'),null);
  assert.equal(fail.state,'UNAVAILABLE');assert.deepEqual(fail.records,[]);
  console.log('PASS: shared source read-only gates, strict ages, valid six-sport counts, schema, deduplication and partial availability');
 })().catch(e=>{console.error(e);process.exitCode=1});
+
+const matchEvidence=require('../football-match/core.js');
+const eligible={...base,schema_version:1,upcoming_fixtures:[f.upcoming_fixtures[0]]};
+const keyed=S.inspect('football',eligible,now,matchEvidence).records[0];
+assert.equal(keyed.fixtureKey,JSON.stringify(['PL','City','Forest',keyed.startUTC]));
+assert.equal(matchEvidence.fixtureIndex([eligible],now).byExact.get(keyed.fixtureKey).identity[1],'City');
+assert.equal(S.inspect('football',f,now,matchEvidence).records[0].fixtureKey,undefined);
+assert.equal(matchEvidence.fixtureKey({...f.upcoming_fixtures[0],home:'Forest'}),null);

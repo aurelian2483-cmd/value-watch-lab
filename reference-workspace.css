@@ -158,3 +158,19 @@ body:has(> .masthead) > .vw-workspaces { margin-inline: max(1rem, calc((100vw - 
   gap: 2px;
   white-space: nowrap;
 }
+
+.vw-fixture-range { align-items: end; gap: 8px 12px; }
+.vw-fixture-range > div { display: grid; gap: 4px; min-width: 0; }
+.vw-fixture-range > div:last-child { flex: 1 1 12rem; }
+.vw-fixture-range input {
+  width: 100%;
+  min-height: 44px;
+  color: var(--vw-ink);
+  background: var(--vw-navy);
+  border: 1px solid var(--vw-line);
+  border-radius: 6px;
+  padding: 5px 8px;
+}
+.vw-fixture-range input::placeholder { color: #a5b8c9; }
+.pro-featured-scroll td a { color: var(--vw-accent); text-decoration: underline; text-underline-offset: .2em; }
+.pro-featured-scroll td a:focus-visible, .vw-fixture-range input:focus-visible { outline: 2px solid var(--vw-accent); }
