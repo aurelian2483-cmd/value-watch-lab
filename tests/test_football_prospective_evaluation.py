@@ -277,3 +277,67 @@ class EvaluationTests(unittest.TestCase):
         reversed_receipt = outcome(3, event={**fixture('provider-3', 'fixture-3'), **reversed_order})
         result = self.evaluate(*synthetic_bundle(item, receipts=[first, second, reversed_receipt]))
         self.assertEqual(result['coverage'], {'outcome_participant_order_conflict': 1})
+
+    def test_future_and_mismatched_review_are_explicit_exclusions(self):
+        for changes, expected in (
+            ({'reviewed_at': '2026-09-15T19:00:00Z'}, 'outcome_review_chronology_invalid'),
+            ({'reviewed_at': '2026-09-18T00:00:00Z'}, 'outcome_review_chronology_invalid'),
+            ({'event': fixture(identifier='event-1', starts='2026-09-15T18:01:00Z')},
+             'reviewed_event_identity_conflict'),
+        ):
+            bundle = synthetic_bundle(forecast())
+            bundle[2]['outcome_reviews'][0].update(changes)
+            self.assertEqual(self.evaluate(*bundle)['coverage'], {expected: 1})
+        before_freeze = synthetic_bundle(forecast())
+        before_freeze[2]['as_of'] = '2026-09-10T00:00:00Z'
+        self.assertEqual(self.evaluate(*before_freeze)['coverage'], {'future_forecast_freeze': 1})
+
+    def test_utc_offset_alias_is_exact_but_local_time_without_offset_is_rejected(self):
+        item = forecast()
+        bundle = synthetic_bundle(item)
+        bundle[2]['split']['fixtures'][0]['event'] = {**item['event'], 'starts_at': '2026-09-15T19:00:00+01:00'}
+        self.assertEqual(self.evaluate(*bundle)['coverage'], {'synthetic_test_fixture_only': 1})
+
+
+class EvaluationCLITests(unittest.TestCase):
+    def test_examples_regenerate_and_cli_never_writes_input_files(self):
+        import json
+        import os
+        from pathlib import Path
+        import subprocess
+        import sys
+        import tempfile
+        from scripts import football_prospective_evaluation as evaluation
+        root = contract.evidence.ROOT
+        script = root / 'scripts/football_prospective_evaluation.py'
+        examples = root / 'tests/fixtures/football-prospective'
+        for label in ('empty', 'synthetic'):
+            folder = examples / label
+            expected = json.loads((folder / 'expected-report.json').read_bytes())
+            with self.subTest(example=label), tempfile.TemporaryDirectory(prefix='football evaluation ') as temporary:
+                target = Path(temporary)
+                filenames = ('forecasts.json', 'outcomes.json', 'manifest.json')
+                for filename in filenames:
+                    raw = (folder / filename).read_bytes()
+                    # The forecast and outcome parsers accept UTF-8 BOM and CRLF.
+                    # Keep manifest bytes exact because its hash is reported.
+                    if filename != 'manifest.json':
+                        raw = b'\xef\xbb\xbf' + raw.replace(b'\n', b'\r\n')
+                    (target / filename).write_bytes(raw)
+                before = {path.name: path.read_bytes() for path in target.iterdir()}
+                args = ['--forecasts', str(target / filenames[0]), '--outcomes', str(target / filenames[1]),
+                        '--manifest', str(target / filenames[2])]
+                command = [sys.executable, str(script)]
+                self.assertEqual(json.loads(subprocess.check_output([*command, 'validate', *args]))['scoring_run'],
+                                 False)
+                first = subprocess.check_output([*command, 'evaluate', *args], cwd=target)
+                second = subprocess.check_output([*command, 'evaluate', *args], cwd=target,
+                                                 env={**os.environ, 'PYTHONHASHSEED': '97'})
+                self.assertEqual(first, second)
+                self.assertEqual(first, evaluation.evidence.canonical(expected) + b'\n')
+                self.assertEqual(expected['eligible_real_forecasts'], 0)
+                self.assertEqual({path.name: path.read_bytes() for path in target.iterdir()}, before)
+                failed = subprocess.run([*command, 'evaluate', *args, '--trusted-manifest-sha256', '0' * 64],
+                                        cwd=target, capture_output=True)
+                self.assertNotEqual(failed.returncode, 0)
+                self.assertIn(b'trusted manifest SHA-256 mismatch', failed.stderr)

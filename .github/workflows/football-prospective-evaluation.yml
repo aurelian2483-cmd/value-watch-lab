@@ -1,0 +1,32 @@
+name: Offline football prospective evaluation
+on:
+  pull_request:
+    branches: [codex/phase11-evidence-operations]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prospective-evaluation:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            python: '3.12'
+          - os: macos-latest
+            python: '3.12'
+          - os: windows-latest
+            python: '3.11'
+          - os: windows-latest
+            python: '3.12'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Validate contracts, metrics and deterministic examples offline
+        run: python -m unittest discover -s tests -p test_football_prospective_evaluation.py -v
