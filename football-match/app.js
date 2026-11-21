@@ -201,7 +201,7 @@
     table.className = 'market-matrix';
     const head = node(table,'thead');
     const header = node(head,'tr');
-    for (const label of ['Source','Home','Draw','Away','Overround','Observed (UK)','Captured (UK)','History']) {
+    for (const label of ['Source','Home','Draw','Away','Overround','Observed (UK)','Captured (UK)','Snapshot age','History']) {
       const cell = node(header,'th',label);
       cell.scope = 'col';
     }
@@ -226,12 +226,16 @@
         (latest.metrics.overround * 100).toFixed(2) + '%');
       node(row,'td',format(latest.observed));
       node(row,'td',format(latest.captured));
+      const ageHours = Math.max(0,Math.floor((Date.now() - latest.snapshot) / 3600000));
+      node(row,'td',(ageHours >= 24 ? 'Historical · ' : '') + ageHours + ' h');
       node(row,'td',history.observationCount + (history.observationCount === 1 ? ' capture' : ' captures'));
       const details = node(parent,'details');
       node(details,'summary',history.name + ' · provenance and price history');
       node(details,'p','Provider event ID ' + latest.id + ' · ' + history.market + ' · ' + history.settlementPeriod + '.');
       node(details,'p','Latest recorded observation ' + format(latest.observed) + ' · captured ' + format(latest.captured) + '.');
-      node(details,'p','Source snapshot ' + format(latest.snapshot) + ' · HTTP Date ' + format(latest.httpDate) + '.');
+      const snapshotAge = Math.max(0,Math.floor((Date.now() - latest.snapshot) / 3600000));
+      node(details,'p','Source snapshot ' + format(latest.snapshot) + ' · HTTP Date ' + format(latest.httpDate) +
+        ' · age at review ' + snapshotAge + ' hours. Age is descriptive; no freshness expiry is inferred.');
       const link = node(details,'a',latest.url.hostname + ' · open source receipt');
       link.href = latest.url.href;
       link.rel = 'noopener noreferrer';
