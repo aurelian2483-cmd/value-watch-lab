@@ -321,6 +321,9 @@ async function referenceNavigation(browser, base) {
           assert.equal(response.status(),200);
           await page.waitForLoadState('networkidle');
           await screenshot(page,route + '-workspace-' + width);
+          if (route === 'ops-control') {
+            assert(await page.locator('.brandmark').evaluate(mark => mark.scrollHeight <= mark.clientHeight + 1));
+          }
           if (route === 'validation-centre') {
             await resultReceiptFlow(page,width);
             await providerReadinessFlow(page,width);
