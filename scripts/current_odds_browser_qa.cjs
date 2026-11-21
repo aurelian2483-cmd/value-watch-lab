@@ -143,14 +143,19 @@ async function main(){
      await page.locator('[data-open-events]').first().click();
      checkpoint='football outcome card';
      const card=page.locator('.event-card').filter({hasText:item.name}).first();
+     checkpoint='football card visible';
      await card.waitFor({state:'visible',timeout:15000});
+     checkpoint='football outcome prices';
      assert(football.events.get(item.fixtureKey)?.identity,'Exact football identity is required for card verification.');
      for(const side of ['home','draw','away']){
+      checkpoint='football '+side+' outcome price';
       const expected=matched.get(item)[0].prices[side].toFixed(2);
       const actual=await card.locator('[data-choice-id="'+side+'"] .selection-price').textContent();
       assert.equal(actual,expected,'Matched Sky Bet outcome price is missing from the exact fixture card.');
      }
+     checkpoint='football price attribution';
      await card.getByText(/Sky Bet 1X2 prices · observed/).waitFor();
+     checkpoint='football EV status';
      await card.getByText(/EV withheld/).first().waitFor();
     }
     assert.equal((await page.request.get(base+'/work/current-odds.json')).status(),404);
