@@ -99,6 +99,11 @@ def report(root=ROOT):
             'as_of': manifest['as_of'], 'input_sha256': manifest['input_sha256'],
             'snapshot_freshness': {name: freshness(doc.get('generated_at_utc'), as_of)
                                    for name, doc in [('premier-league', dashboard), ('expanded', expanded)]},
+            'model_lineage': {'registered_scoring_configurations': len(evaluation.lineage.ADMITTED_CONFIGURATIONS),
+                              'research_variants': [
+                                  {'model': name, 'implementation': path, 'status': status,
+                                   'version_sha256': None, 'configuration_sha256': None}
+                                  for name, path, status in evaluation.lineage.RESEARCH_VARIANTS]},
             'repository_observations': dict(zip(SOURCES, map(len, observed))) | {
                 'prospective_football_ledger_rows': len(football), 'all_outcome_feed_rows': len(outcome_rows),
                 'market_reference_rows': len(rows(market, 'records'))},

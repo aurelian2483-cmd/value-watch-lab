@@ -176,10 +176,17 @@ def synthetic_bundle(*items, receipts=None):
 
 
 class EvaluationTests(unittest.TestCase):
-    def evaluate(self, forecasts, outcomes, manifest, trusted=False):
+    def evaluate(self, forecasts, outcomes, manifest, trusted=False, admit_test_lineage=True):
         from scripts import football_prospective_evaluation as evaluation
         raw = contract.evidence.canonical(manifest)
-        return evaluation.evaluate(forecasts, outcomes, raw, contract.evidence.digest(raw) if trusted else None)
+        pin = contract.evidence.digest(raw) if trusted else None
+        # Exercise the scoring path only with a temporary synthetic registry.
+        if admit_test_lineage:
+            from unittest.mock import patch
+            with patch.object(evaluation.lineage, 'ADMITTED_CONFIGURATIONS',
+                              frozenset({('synthetic-candidate', 'a' * 64, 'b' * 64)})):
+                return evaluation.evaluate(forecasts, outcomes, raw, pin)
+        return evaluation.evaluate(forecasts, outcomes, raw, pin)
 
     def test_metrics_against_hand_calculated_examples(self):
         import math
@@ -313,6 +320,19 @@ class EvaluationTests(unittest.TestCase):
         bundle = synthetic_bundle(item)
         bundle[2]['split']['fixtures'][0]['event'] = {**item['event'], 'starts_at': '2026-09-15T19:00:00+01:00'}
         self.assertEqual(self.evaluate(*bundle)['coverage'], {'synthetic_test_fixture_only': 1})
+
+    def test_committed_registry_blocks_unregistered_and_ambiguous_versions(self):
+        for name, reason in (('unknown', 'unregistered_model'),
+                             ('POISSON_BASELINE_2025_26_V1', 'unresolved_model_version_or_configuration')):
+            item = forecast()
+            item['origin'] = 'prospective'
+            item['model']['name'] = name
+            item['record_id'] = contract.forecast_id(item)
+            bundle = synthetic_bundle(seal(item), receipts=[outcome(origin='prospective'), outcome(2, origin='prospective')])
+            report = self.evaluate(*bundle, trusted=True, admit_test_lineage=False)
+            self.assertEqual(report['coverage'], {reason: 1})
+            self.assertEqual(report['model_metrics'], [])
+
 
 
 class EvaluationCLITests(unittest.TestCase):
