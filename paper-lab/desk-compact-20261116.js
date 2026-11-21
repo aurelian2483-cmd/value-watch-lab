@@ -800,6 +800,7 @@
       const rugbyEvent = row.rugbyModel && state.events.find(event => event.sport === 'rugby' &&
         event.providerEventId === String(row.provider?.event_id) && event.startUTC === row.start &&
         event.name === row.name && E.statusOf(event).selectable);
+      if (rugbyEvent) card.dataset.paperEventId = rugbyEvent.id;
       const rugbyEstimate = row.rugbyModel?.probabilities;
       const addRugbyChoice = (outcome, choiceId) => {
         if (!rugbyEvent) return;
@@ -1151,18 +1152,26 @@
     const down = button(actions, '↓', () => savePlan(E.moveSelection(store.get().plan, slot.id, leg.id, position + 1)), 'move-button'); down.disabled = position === slot.legs.length - 1; down.setAttribute('aria-label', 'Move ' + leg.label + ' down');
     button(actions, store.get().replacing === leg.id ? 'Cancel replace' : 'Replace', () => { store.update(state => ({ ...state, view: 'events', replacing: state.replacing === leg.id ? null : leg.id })); closeSlip(); notice('Choose a board outcome to replace ' + leg.label + '.'); });
     const evidence = details(record.node, 'Captured evidence & price', 'leg-evidence'); evidence.open = Boolean(opened);
-    make(evidence, 'p', 'Event reference: ' + leg.eventId, 'small');
-    if (leg.currentStatus?.selectable && liveEvent && !archived && leg.sport !== 'rugby') {
+    make(evidence, 'p', 'Event reference: ' + leg.eventId, 'small event-reference');
+    if (leg.currentStatus?.selectable && liveEvent && !archived) {
       button(evidence,'Review this event on the board',() => {
         closeSlip();
         navigateSport(leg.sport);
         $('search').value = '';
         $('event-view').value = 'all';
         store.update(state => ({...state, query:'', eventView:'all', limit:24}));
-        const index = filtered(store.get()).findIndex(event => event.id === leg.eventId);
-        if (index < 0) return;
+        const state = store.get();
+        const index = leg.sport === 'rugby'
+          ? matchingFixtures(loadFixtureSnapshot('rugby'),state).findIndex(row =>
+            String(row.provider?.event_id) === liveEvent.providerEventId && row.start === liveEvent.startUTC && row.name === liveEvent.name)
+          : filtered(state).findIndex(event => event.id === leg.eventId);
+        if (index < 0) {
+          notice('The saved fixture is not visible in the current board or research engine. Its original evidence is retained.');
+          return;
+        }
         store.update(state => ({...state, limit:Math.max(24,index+1)}));
-        const card = cards.get(leg.eventId)?.node;
+        const card = leg.sport === 'rugby' ? [...$('events').querySelectorAll('[data-paper-event-id]')]
+          .find(row => row.dataset.paperEventId === leg.eventId) : cards.get(leg.eventId)?.node;
         card?.scrollIntoView({block:'start'});
         card?.querySelector('button:not([disabled])')?.focus({preventScroll:true});
       });

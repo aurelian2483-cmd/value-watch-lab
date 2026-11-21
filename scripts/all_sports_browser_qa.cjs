@@ -83,9 +83,13 @@ async function researchFlow(browser, base) {
   const persisted = saved.plan.slots.flatMap(slot => slot.legs).find(row => row.event === tennis.name);
   assert.equal(persisted.market,'Match winner');
   assert.equal(persisted.quote,null);
+  const slipLeg = page.locator('.slip-selection').filter({hasText:tennis.name});
+  await slipLeg.locator('.leg-evidence > summary').click();
+  await slipLeg.getByRole('button',{name:'Review this event on the board'}).click();
+  assert(await tennisCard.evaluate(el => el.contains(document.activeElement)));
   await page.locator('#sport-nav [data-sport="nfl"]').focus();
   await page.keyboard.press('Enter');
-  await page.getByText('Synthetic stale NFL',{exact:true}).waitFor();
+  await page.getByRole('heading',{name:'Synthetic stale NFL',exact:true}).waitFor();
   assert.equal(await page.locator('#events .event-card').count(),2);
   assert.equal(await page.locator('#events .event-card').filter({hasText:'Synthetic stale NFL'})
     .getByRole('button',{name:/paper selection unavailable/}).first().isDisabled(),true);
@@ -96,7 +100,7 @@ async function researchFlow(browser, base) {
   assert(await page.evaluate(id => JSON.parse(localStorage.getItem('value-watch-research-desk-v4'))
     .plan.slots.some(slot => slot.legs.some(row => row.id === id)),persisted.id));
   assert.deepEqual(errors, []);
-  report.syntheticChecks.push('Tennis/NFL exact source and market, invalid cross-sport row, duplicate, unavailable feed then recovery, stale event, keyboard sport selection, Back, paper persistence and unpriced quote');
+  report.syntheticChecks.push('Tennis/NFL exact source and market, invalid cross-sport row, duplicate, unavailable feed then recovery, stale event, keyboard sport selection, Back, exact saved-event return, paper persistence and unpriced quote');
   await page.close();
 }
 
@@ -141,6 +145,8 @@ async function discoveryFlow(browser, base) {
   const base = 'http://127.0.0.1:' + server.address().port;
   const browser = await chromium.launch({headless:true});
   try {
+    await researchFlow(browser,base);
+    await discoveryFlow(browser,base);
     for (const width of [1440,820,390]) {
       const context = await browser.newContext({viewport:{width,height:920},reducedMotion:'reduce'});
       const page = await context.newPage();
@@ -172,8 +178,6 @@ async function discoveryFlow(browser, base) {
       assert.deepEqual(errors, []);
       await context.close();
     }
-    await researchFlow(browser,base);
-    await discoveryFlow(browser,base);
     console.log(JSON.stringify(report,null,2));
   } finally {
     await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2) + '\n');
