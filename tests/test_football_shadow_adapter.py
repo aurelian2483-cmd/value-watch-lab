@@ -46,3 +46,42 @@ class ProducerAdapterTests(unittest.TestCase):
                 report = adapter.adapt_forecast({**row, **changes}, 'expanded')
                 self.assertIn(reason, report['reasons'])
                 self.assertIsNone(report['candidate'])
+
+
+def legacy_forecast():
+    return {'id': 'synthetic-forecast', 'isProspective': True, 'sportCode': 'FOOTBALL',
+            'marketCode': 'FULL_TIME_1X2', 'providerMatchId': 123, 'selectionCode': 'DRAW',
+            'eventStartUTC': '2026-09-15T18:00:00Z', 'recordedAtUTC': '2026-09-15T17:00:00Z'}
+
+
+def legacy_outcome():
+    return {'predictionId': 'synthetic-forecast', 'verified': True, 'result': 'LOSS',
+            'marketCode': 'FULL_TIME_1X2', 'fullTimeScore': {'home': 1, 'away': 0},
+            'source': 'https://api.football-data.org/v4/matches/123',
+            'observedAtUTC': '2026-09-15T20:00:00Z'}
+
+
+class LegacyBridgeTests(unittest.TestCase):
+    def test_supported_fields_round_trip_without_eligibility(self):
+        from scripts import football_legacy_adapter as legacy
+        for kind, row in (('forecast', legacy_forecast()), ('result', legacy_outcome())):
+            mapped = legacy.bridge(row, kind)
+            self.assertEqual(legacy.restore(mapped), row)
+            self.assertEqual(mapped['eligibility'], 'ineligible')
+            with self.assertRaisesRegex(ValueError, 'hash changed'):
+                legacy.restore({**mapped, 'source_row_sha256': 'b' * 64})
+
+    def test_rejects_unknown_fields_ambiguous_ids_and_invalid_chronology(self):
+        from scripts import football_legacy_adapter as legacy
+        row = legacy_forecast()
+        for field, value, error in (('event_id', 'guessed', 'schema'), ('providerMatchId', True, 'identity'),
+                                    ('recordedAtUTC', '2026-09-15T18:00:00Z', 'kickoff'),
+                                    ('recordedAtUTC', '2026-09-15T17:00:00', 'UTC offset')):
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, error):
+                legacy.bridge({**row, field: value}, 'forecast')
+        with self.assertRaisesRegex(ValueError, 'duplicate'):
+            legacy.bridge_batch([row, {**row, 'id': 'another'}], 'forecast')
+        with self.assertRaisesRegex(ValueError, 'duplicate'):
+            legacy.bridge_batch([legacy_outcome(), legacy_outcome()], 'result')
+        with self.assertRaisesRegex(ValueError, 'unsupported legacy source'):
+            legacy.bridge({**legacy_outcome(), 'source': 'https://api.football-data.org/v4/matches/0123'}, 'result')
