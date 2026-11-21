@@ -14,6 +14,7 @@ const live = deployed || process.argv.includes('--live');
 const mime = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json'};
 
 async function main(){
+ let checkpoint='fixture selection';
  let [dashboard,expanded,other,racing]=await Promise.all([
   'research-dashboard-data.json','football-expanded-data.json','other-sports-data.json','racing-research-data.json'
  ].map(read));
@@ -119,6 +120,7 @@ async function main(){
     if(!item)continue;
     const params=new URLSearchParams({fsport:sport,fq:item.name.slice(0,65)});
     if(sport==='football'){params.set('sport','football');params.set('desk-query',item.name);}
+    checkpoint=sport+' fixture evidence';
     await page.goto(base+'/?'+params);
     const row=page.locator('.pro-feature-event').filter({hasText:item.name});
     const trigger=row.locator('.pro-fixture-evidence-toggle');
@@ -137,6 +139,7 @@ async function main(){
      await page.locator('#date-to').dispatchEvent('change');
     }
     if(sport==='football'){
+     checkpoint='football outcome card';
      const card=page.locator('.event-card').filter({hasText:item.name}).first();
      await card.waitFor({state:'visible',timeout:15000});
      assert(football.events.get(item.fixtureKey)?.identity,'Exact football identity is required for card verification.');
@@ -186,7 +189,10 @@ async function main(){
  assert.equal(verified.size,3,'Coverage incomplete: all three sports must render a matched quote.');
 }
 main().catch(error=>{
- if(live)console.error('Live review incomplete. See the anonymized fixture counts; no quote payload was logged.');
+ if(live){
+  const reason=error?.name==='TimeoutError'?'browser element timed out':error?.code==='ERR_ASSERTION'?'browser assertion failed':'runtime error';
+  console.error('Live review incomplete at '+checkpoint+': '+reason+'. No event names or quote payload were logged.');
+ }
  else console.error(error);
  process.exitCode=1;
 });
