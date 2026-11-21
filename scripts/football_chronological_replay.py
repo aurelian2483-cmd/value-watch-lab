@@ -225,3 +225,92 @@ def walk_forward(records, rule, cfg, expanded):
                 output.append(entry)
             history.extend(fixtures)
     return output
+
+
+def compare_standalone(records, entries):
+    raw = subprocess.check_output(['node', str(ROOT / 'scripts/football_chronological_oracle.cjs')],
+                                  input=evidence.canonical(records), cwd=ROOT)
+    original = {row[0]: row[1:] for row in evidence.decode(raw)}
+    paired = [row for row in entries if row['probabilities'] is not None]
+    require(set(original) == {row['id'] for row in paired}, 'standalone source has different fixture eligibility')
+    highest = 0.
+    for entry in paired:
+        forecast = entry['probabilities']
+        for key, vector in zip(('standalone_baseline', 'standalone_form_alpha_0_025'), original[entry['id']]):
+            highest = max(highest, *(abs(actual - expected) for actual, expected in zip(forecast[key], vector)))
+    require(highest <= 1.01e-12, 'standalone port differs from the pinned JavaScript calculation')
+    return {'paired_fixtures': len(paired), 'probabilities_match_pinned_javascript': True}
+
+
+def observed_class(score):
+    home, away = score
+    return 'home' if home > away else 'away' if away > home else 'draw'
+
+
+def metrics(entries, variant_order):
+    results = {}
+    for season, season_rows in groupby(entries, key=lambda row: row['season']):
+        block = list(season_rows)
+        eligible = [row for row in block if row['exclusion_reason'] is None]
+        exclusions = dict(Counter(row['exclusion_reason'] for row in block if row['exclusion_reason'] is not None))
+        require(len(eligible) + sum(exclusions.values()) == len(block), 'season counts do not reconcile')
+        scores = {}
+        for variant in variant_order:
+            if not eligible:
+                scores[variant] = {'status': 'insufficient_data', 'n': 0}
+                continue
+            values = [evaluator.scores(row['probabilities'][variant], observed_class(row['ft'])) for row in eligible]
+            scores[variant] = {'n': len(values), **{
+                key: round(math.fsum(value[key] for value in values) / len(values), 10)
+                for key in ('log_loss', 'brier')}}
+        results[season] = {'rows': len(block), 'eligible': len(eligible), 'excluded': len(block) - len(eligible),
+                           'coverage': round(len(eligible) / len(block), 10), 'exclusion_reasons': exclusions,
+                           'first_date': block[0]['date'], 'last_date': block[-1]['date'],
+                           'teams': len({row[side] for row in block for side in ('home', 'away')}),
+                           'variants': scores}
+    return results
+
+
+def report(include_fixtures=False):
+    protocol, models, records, raw_sources = load_inputs()
+    with patch.dict(sys.modules):
+        _, expanded, _, _ = recovery.archived_modules(raw_sources)
+        entries = walk_forward(records, protocol, models['retrospective-poisson-and-form']['configuration'], expanded)
+    parity = compare_standalone(records, entries)
+    result = {
+        'schema_version': 1, 'label': 'date-ordered retrospective replay',
+        'status': 'exploratory_retrospective_only', **evidence.SAFETY,
+        'eligible_real_forecasts': 0, 'eligible_real_outcomes': 0,
+        'protocol_sha256': PROTOCOL_SHA256, 'input': protocol['input'],
+        'model_registry_sha256': protocol['registry_sha256'], 'models': protocol['models'],
+        'standalone_parity': parity, 'outcome_order': list(ORDER),
+        'seasons': metrics(entries, protocol['variant_order']),
+        'not_evaluable': {name: {'status': 'NOT EVALUABLE', 'reason': reason}
+                          for name, reason in NOT_EVALUABLE.items()},
+    }
+    if include_fixtures:
+        result['fixtures'] = entries
+    return result
+
+
+def main():
+    cli = argparse.ArgumentParser(description=__doc__)
+    commands = cli.add_mutually_exclusive_group()
+    commands.add_argument('--details', action='store_true', help='include per-fixture histories, features and reasons')
+    commands.add_argument('--check', action='store_true', help='compare regenerated compact report to committed report')
+    args = cli.parse_args()
+    try:
+        result = evidence.canonical(report(args.details)) + b'\n'
+        if args.check:
+            require((DIRECTORY / 'summary.json').read_bytes() == result, 'committed summary differs from replay')
+            print('PASS: pinned chronological replay regenerates the committed summary')
+        else:
+            sys.stdout.buffer.write(result)
+    except subprocess.CalledProcessError as error:
+        cli.error(f'pinned standalone oracle failed with exit code {error.returncode}')
+    except (ValueError, TypeError, KeyError, OSError) as error:
+        cli.error(str(error))
+
+
+if __name__ == '__main__':
+    main()
