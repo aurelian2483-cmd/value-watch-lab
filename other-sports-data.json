@@ -1,133 +1,202 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-20T20:06:37.595903Z",
-  "collection_started_at_utc": "2026-11-20T20:06:34.724269Z",
+  "generated_at_utc": "2026-11-21T01:27:33.751317Z",
+  "collection_started_at_utc": "2026-11-21T01:27:30.802309Z",
   "research_only": true,
   "model_validation": "UNVALIDATED",
   "publication_gate": "BLOCKED",
   "official_challenge": "0/100",
   "sports": {
     "tennis": {
-      "generated_at_utc": "2026-11-20T20:06:36.705425Z",
+      "generated_at_utc": "2026-11-21T01:27:33.161136Z",
       "events": [
         {
-          "id": "wta-186799",
-          "name": "Andrea Lazaro Garcia vs Guiomar Maristany Zuleta De Reales",
-          "competition": "WTA \u00b7 LP Open by IND",
-          "startUTC": "2026-11-20T20:30:00Z",
+          "id": "atp-187528",
+          "name": "Ben Shelton vs Carlos Alcaraz",
+          "competition": "ATP \u00b7 Nitto ATP Finals",
+          "startUTC": "2026-11-21T13:30:00Z",
           "participants": [
             {
-              "id": "4291",
-              "name": "Andrea Lazaro Garcia"
+              "id": "9250",
+              "name": "Ben Shelton"
+            },
+            {
+              "id": "3782",
+              "name": "Carlos Alcaraz"
+            }
+          ],
+          "source": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261121&limit=100",
+          "forecast": {
+            "model": "FIXED_ELO_K24_V1",
+            "outcomes": [
+              {
+                "id": "9250",
+                "name": "Ben Shelton",
+                "probability": 0.3590226572265711,
+                "prior_matches": 65
+              },
+              {
+                "id": "3782",
+                "name": "Carlos Alcaraz",
+                "probability": 0.6409773427734289,
+                "prior_matches": 48
+              }
+            ],
+            "training_matches": 3753,
+            "training_sha256": "9443fbb551d35ec999d8471df2f316e324390f8975f4a3d718b9592cd972564d",
+            "training_latest_start_utc": "2026-11-20T13:10:00Z",
+            "market": "MATCH_WINNER",
+            "calibrated": false,
+            "odds": null,
+            "expected_value": null,
+            "generated_at_utc": "2026-11-21T01:27:33.161136Z"
+          },
+          "unavailable_reason": "Requires eight source-observed prior completed singles matches per player.",
+          "source_collected_at_utc": "2026-11-21T01:27:32.372787Z",
+          "source_sha256": "a6fb758f9b26f2f4750f95675da47dffbc0ec6cd2fa34240f63a0bbf75424773"
+        },
+        {
+          "id": "atp-187527",
+          "name": "Daniil Medvedev vs Alexander Zverev",
+          "competition": "ATP \u00b7 Nitto ATP Finals",
+          "startUTC": "2026-11-21T19:30:00Z",
+          "participants": [
+            {
+              "id": "2383",
+              "name": "Daniil Medvedev"
+            },
+            {
+              "id": "2375",
+              "name": "Alexander Zverev"
+            }
+          ],
+          "source": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261121&limit=100",
+          "forecast": {
+            "model": "FIXED_ELO_K24_V1",
+            "outcomes": [
+              {
+                "id": "2383",
+                "name": "Daniil Medvedev",
+                "probability": 0.3750239542826696,
+                "prior_matches": 73
+              },
+              {
+                "id": "2375",
+                "name": "Alexander Zverev",
+                "probability": 0.6249760457173303,
+                "prior_matches": 80
+              }
+            ],
+            "training_matches": 3753,
+            "training_sha256": "9443fbb551d35ec999d8471df2f316e324390f8975f4a3d718b9592cd972564d",
+            "training_latest_start_utc": "2026-11-20T13:10:00Z",
+            "market": "MATCH_WINNER",
+            "calibrated": false,
+            "odds": null,
+            "expected_value": null,
+            "generated_at_utc": "2026-11-21T01:27:33.161136Z"
+          },
+          "unavailable_reason": "Requires eight source-observed prior completed singles matches per player.",
+          "source_collected_at_utc": "2026-11-21T01:27:32.372787Z",
+          "source_sha256": "a6fb758f9b26f2f4750f95675da47dffbc0ec6cd2fa34240f63a0bbf75424773"
+        },
+        {
+          "id": "wta-186811",
+          "name": "Lucia Bronzetti vs Leyre Romero Gormaz",
+          "competition": "WTA \u00b7 LP Open by IND",
+          "startUTC": "2026-11-21T20:00:00Z",
+          "participants": [
+            {
+              "id": "4666",
+              "name": "Lucia Bronzetti"
+            },
+            {
+              "id": "10676",
+              "name": "Leyre Romero Gormaz"
+            }
+          ],
+          "source": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261121&limit=100",
+          "forecast": {
+            "model": "FIXED_ELO_K24_V1",
+            "outcomes": [
+              {
+                "id": "4666",
+                "name": "Lucia Bronzetti",
+                "probability": 0.39361853698978727,
+                "prior_matches": 58
+              },
+              {
+                "id": "10676",
+                "name": "Leyre Romero Gormaz",
+                "probability": 0.6063814630102127,
+                "prior_matches": 61
+              }
+            ],
+            "training_matches": 6193,
+            "training_sha256": "0ac33419c15469bf93f6bfe284d6847e147a0f47c38ac7850d61c997663c06cc",
+            "training_latest_start_utc": "2026-11-20T17:25:00Z",
+            "market": "MATCH_WINNER",
+            "calibrated": false,
+            "odds": null,
+            "expected_value": null,
+            "generated_at_utc": "2026-11-21T01:27:33.161136Z"
+          },
+          "unavailable_reason": "Requires eight source-observed prior completed singles matches per player.",
+          "source_collected_at_utc": "2026-11-21T01:27:32.556075Z",
+          "source_sha256": "b952d4e6437495973b6fe98c2457006ffdb7a940fb04d2c81b1ebc5268a31502"
+        },
+        {
+          "id": "wta-186810",
+          "name": "Rebeka Masarova vs Guiomar Maristany Zuleta De Reales",
+          "competition": "WTA \u00b7 LP Open by IND",
+          "startUTC": "2026-11-21T21:30:00Z",
+          "participants": [
+            {
+              "id": "2984",
+              "name": "Rebeka Masarova"
             },
             {
               "id": "12957",
               "name": "Guiomar Maristany Zuleta De Reales"
             }
           ],
-          "source": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261120&limit=100",
+          "source": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261121&limit=100",
           "forecast": {
             "model": "FIXED_ELO_K24_V1",
             "outcomes": [
               {
-                "id": "4291",
-                "name": "Andrea Lazaro Garcia",
-                "probability": 0.48550392386732794,
-                "prior_matches": 39
+                "id": "2984",
+                "name": "Rebeka Masarova",
+                "probability": 0.40756005560572073,
+                "prior_matches": 55
               },
               {
                 "id": "12957",
                 "name": "Guiomar Maristany Zuleta De Reales",
-                "probability": 0.514496076132672,
+                "probability": 0.5924399443942793,
                 "prior_matches": 40
               }
             ],
-            "training_matches": 6191,
-            "training_sha256": "b8f4664dade826fc79f7118b3ce201ade0f383a50c7bcd0f630d51aa3d9a88da",
-            "training_latest_start_utc": "2026-11-19T22:05:00Z",
+            "training_matches": 6193,
+            "training_sha256": "0ac33419c15469bf93f6bfe284d6847e147a0f47c38ac7850d61c997663c06cc",
+            "training_latest_start_utc": "2026-11-20T17:25:00Z",
             "market": "MATCH_WINNER",
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:36.705425Z"
+            "generated_at_utc": "2026-11-21T01:27:33.161136Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed singles matches per player.",
-          "source_collected_at_utc": "2026-11-20T20:06:36.409452Z",
-          "source_sha256": "f2e83aa8465f6301bfc58a27edfa1442013f4249058e9f8e90a4b0c2631220d2"
-        },
-        {
-          "id": "wta-186798",
-          "name": "Laura Samson vs Rebeka Masarova",
-          "competition": "WTA \u00b7 LP Open by IND",
-          "startUTC": "2026-11-20T22:00:00Z",
-          "participants": [
-            {
-              "id": "15069",
-              "name": "Laura Samson"
-            },
-            {
-              "id": "2984",
-              "name": "Rebeka Masarova"
-            }
-          ],
-          "source": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261120&limit=100",
-          "forecast": {
-            "model": "FIXED_ELO_K24_V1",
-            "outcomes": [
-              {
-                "id": "15069",
-                "name": "Laura Samson",
-                "probability": 0.5541024408654531,
-                "prior_matches": 40
-              },
-              {
-                "id": "2984",
-                "name": "Rebeka Masarova",
-                "probability": 0.4458975591345469,
-                "prior_matches": 55
-              }
-            ],
-            "training_matches": 6191,
-            "training_sha256": "b8f4664dade826fc79f7118b3ce201ade0f383a50c7bcd0f630d51aa3d9a88da",
-            "training_latest_start_utc": "2026-11-19T22:05:00Z",
-            "market": "MATCH_WINNER",
-            "calibrated": false,
-            "odds": null,
-            "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:36.705425Z"
-          },
-          "unavailable_reason": "Requires eight source-observed prior completed singles matches per player.",
-          "source_collected_at_utc": "2026-11-20T20:06:36.409452Z",
-          "source_sha256": "f2e83aa8465f6301bfc58a27edfa1442013f4249058e9f8e90a4b0c2631220d2"
+          "source_collected_at_utc": "2026-11-21T01:27:32.556075Z",
+          "source_sha256": "b952d4e6437495973b6fe98c2457006ffdb7a940fb04d2c81b1ebc5268a31502"
         }
       ],
       "schedule_window_uk": [
-        "2026-11-20",
-        "2026-11-26"
+        "2026-11-21",
+        "2026-11-27"
       ],
       "schedule_days_requested": 7,
       "tournament_schedule_days": [
-        {
-          "date": "2026-11-20",
-          "tournaments": [
-            {
-              "tour": "ATP",
-              "name": "Nitto ATP Finals",
-              "source_url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261120&limit=100",
-              "verification": "SOURCE_OBSERVED_TOURNAMENT_ONLY",
-              "matchup_status": "DRAW_OR_MATCHUP_NOT_CONFIRMED"
-            },
-            {
-              "tour": "WTA",
-              "name": "LP Open by IND",
-              "source_url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261120&limit=100",
-              "verification": "SOURCE_OBSERVED_TOURNAMENT_ONLY",
-              "matchup_status": "DRAW_OR_MATCHUP_NOT_CONFIRMED"
-            }
-          ],
-          "draw_status": "SOURCE_OBSERVED_CONFIRMED_MATCHES",
-          "confirmed_match_count": 2
-        },
         {
           "date": "2026-11-21",
           "tournaments": [
@@ -146,8 +215,8 @@
               "matchup_status": "DRAW_OR_MATCHUP_NOT_CONFIRMED"
             }
           ],
-          "draw_status": "NO_CONFIRMED_MATCHES_IN_SOURCE",
-          "confirmed_match_count": 0
+          "draw_status": "SOURCE_OBSERVED_CONFIRMED_MATCHES",
+          "confirmed_match_count": 4
         },
         {
           "date": "2026-11-22",
@@ -225,51 +294,25 @@
           ],
           "draw_status": "NO_CONFIRMED_MATCHES_IN_SOURCE",
           "confirmed_match_count": 0
+        },
+        {
+          "date": "2026-11-27",
+          "tournaments": [
+            {
+              "tour": "WTA",
+              "name": "IEB+ Argentina Open",
+              "source_url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261127&limit=100",
+              "verification": "SOURCE_OBSERVED_TOURNAMENT_ONLY",
+              "matchup_status": "DRAW_OR_MATCHUP_NOT_CONFIRMED"
+            }
+          ],
+          "draw_status": "NO_CONFIRMED_MATCHES_IN_SOURCE",
+          "confirmed_match_count": 0
         }
       ],
       "schedule_coverage": "SOURCE_OBSERVED_NOT_COMPLETE_EXTERNAL_COVERAGE",
       "schedule_conflicts": [],
       "schedule_source_diagnostics": [
-        {
-          "tour": "ATP",
-          "requested_date": "2026-11-20",
-          "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261120&limit=100",
-          "tournaments": 1,
-          "actual_date_counts": {
-            "2026-11-15": {
-              "raw_singles_slots": 2,
-              "not_pre_event": 2
-            },
-            "2026-11-16": {
-              "raw_singles_slots": 2,
-              "not_pre_event": 2
-            },
-            "2026-11-17": {
-              "raw_singles_slots": 2,
-              "not_pre_event": 2
-            },
-            "2026-11-18": {
-              "raw_singles_slots": 2,
-              "not_pre_event": 2
-            },
-            "2026-11-19": {
-              "raw_singles_slots": 2,
-              "not_pre_event": 2
-            },
-            "2026-11-20": {
-              "raw_singles_slots": 2,
-              "not_pre_event": 2
-            },
-            "2026-11-21": {
-              "raw_singles_slots": 2,
-              "participants_unconfirmed": 2
-            },
-            "2026-11-22": {
-              "raw_singles_slots": 1,
-              "participants_unconfirmed": 1
-            }
-          }
-        },
         {
           "tour": "ATP",
           "requested_date": "2026-11-21",
@@ -302,7 +345,7 @@
             },
             "2026-11-21": {
               "raw_singles_slots": 2,
-              "participants_unconfirmed": 2
+              "eligible_before_window_and_identity_checks": 2
             },
             "2026-11-22": {
               "raw_singles_slots": 1,
@@ -342,7 +385,7 @@
             },
             "2026-11-21": {
               "raw_singles_slots": 2,
-              "participants_unconfirmed": 2
+              "eligible_before_window_and_identity_checks": 2
             },
             "2026-11-22": {
               "raw_singles_slots": 1,
@@ -379,46 +422,11 @@
           "actual_date_counts": {}
         },
         {
-          "tour": "WTA",
-          "requested_date": "2026-11-20",
-          "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261120&limit=100",
-          "tournaments": 1,
-          "actual_date_counts": {
-            "2026-11-15": {
-              "raw_singles_slots": 4,
-              "not_pre_event": 4
-            },
-            "2026-11-16": {
-              "raw_singles_slots": 8,
-              "not_pre_event": 8
-            },
-            "2026-11-17": {
-              "raw_singles_slots": 7,
-              "not_pre_event": 7
-            },
-            "2026-11-18": {
-              "raw_singles_slots": 5,
-              "not_pre_event": 5
-            },
-            "2026-11-19": {
-              "raw_singles_slots": 4,
-              "not_pre_event": 4
-            },
-            "2026-11-20": {
-              "raw_singles_slots": 4,
-              "not_pre_event": 2,
-              "eligible_before_window_and_identity_checks": 2
-            },
-            "2026-11-21": {
-              "raw_singles_slots": 2,
-              "time_unconfirmed": 1,
-              "participants_unconfirmed": 1
-            },
-            "2026-11-22": {
-              "raw_singles_slots": 1,
-              "participants_unconfirmed": 1
-            }
-          }
+          "tour": "ATP",
+          "requested_date": "2026-11-27",
+          "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261127&limit=100",
+          "tournaments": 0,
+          "actual_date_counts": {}
         },
         {
           "tour": "WTA",
@@ -448,13 +456,11 @@
             },
             "2026-11-20": {
               "raw_singles_slots": 4,
-              "not_pre_event": 2,
-              "eligible_before_window_and_identity_checks": 2
+              "not_pre_event": 4
             },
             "2026-11-21": {
               "raw_singles_slots": 2,
-              "time_unconfirmed": 1,
-              "participants_unconfirmed": 1
+              "eligible_before_window_and_identity_checks": 2
             },
             "2026-11-22": {
               "raw_singles_slots": 1,
@@ -490,13 +496,11 @@
             },
             "2026-11-20": {
               "raw_singles_slots": 4,
-              "not_pre_event": 2,
-              "eligible_before_window_and_identity_checks": 2
+              "not_pre_event": 4
             },
             "2026-11-21": {
               "raw_singles_slots": 2,
-              "time_unconfirmed": 1,
-              "participants_unconfirmed": 1
+              "eligible_before_window_and_identity_checks": 2
             },
             "2026-11-22": {
               "raw_singles_slots": 1,
@@ -615,15 +619,43 @@
               "participants_unconfirmed": 1
             }
           }
+        },
+        {
+          "tour": "WTA",
+          "requested_date": "2026-11-27",
+          "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261127&limit=100",
+          "tournaments": 1,
+          "actual_date_counts": {
+            "2026-11-23": {
+              "raw_singles_slots": 16,
+              "participants_unconfirmed": 16
+            },
+            "2026-11-25": {
+              "raw_singles_slots": 8,
+              "participants_unconfirmed": 8
+            },
+            "2026-11-27": {
+              "raw_singles_slots": 4,
+              "participants_unconfirmed": 4
+            },
+            "2026-11-28": {
+              "raw_singles_slots": 2,
+              "participants_unconfirmed": 2
+            },
+            "2026-11-29": {
+              "raw_singles_slots": 1,
+              "participants_unconfirmed": 1
+            }
+          }
         }
       ],
       "limitations": "Seven UK calendar days requested from existing daily ATP/WTA scoreboards; future draws and confirmed participants may not yet be published. Conflicting repeated schedule observations are withheld. Fixed Elo baseline, separate ATP/WTA histories from January of the current year (history resets each January; early-year coverage can be insufficient). No surface, fitness, retirement or fatigue model. Scheduled times can move. Historical results are not a verified backtest.",
-      "collection_started_at_utc": "2026-11-20T20:06:34.724271Z",
+      "collection_started_at_utc": "2026-11-21T01:27:30.802312Z",
       "collection_status": "COLLECTED",
       "result_tracking_status": "NOT_IMPLEMENTED"
     },
     "nfl": {
-      "generated_at_utc": "2026-11-20T20:06:37.595811Z",
+      "generated_at_utc": "2026-11-21T01:27:33.751175Z",
       "events": [
         {
           "id": "nfl-401873070",
@@ -669,11 +701,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873071",
@@ -719,11 +751,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873073",
@@ -769,11 +801,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873072",
@@ -819,11 +851,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873067",
@@ -869,11 +901,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873076",
@@ -919,11 +951,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873068",
@@ -969,11 +1001,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873074",
@@ -1019,11 +1051,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873075",
@@ -1069,11 +1101,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873069",
@@ -1119,11 +1151,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873077",
@@ -1169,11 +1201,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873078",
@@ -1219,11 +1251,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.568433Z",
-          "source_sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12"
+          "source_collected_at_utc": "2026-11-21T01:27:33.717484Z",
+          "source_sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573"
         },
         {
           "id": "nfl-401873079",
@@ -1269,11 +1301,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873081",
@@ -1319,11 +1351,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873080",
@@ -1369,11 +1401,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873082",
@@ -1419,11 +1451,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873083",
@@ -1469,11 +1501,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873087",
@@ -1519,11 +1551,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873088",
@@ -1569,11 +1601,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873089",
@@ -1619,11 +1651,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873084",
@@ -1669,11 +1701,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873090",
@@ -1719,11 +1751,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873085",
@@ -1769,11 +1801,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873093",
@@ -1819,11 +1851,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873092",
@@ -1869,11 +1901,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873091",
@@ -1919,11 +1951,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873086",
@@ -1969,11 +2001,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         },
         {
           "id": "nfl-401873094",
@@ -2019,11 +2051,11 @@
             "calibrated": false,
             "odds": null,
             "expected_value": null,
-            "generated_at_utc": "2026-11-20T20:06:37.595811Z"
+            "generated_at_utc": "2026-11-21T01:27:33.751175Z"
           },
           "unavailable_reason": "Requires eight source-observed prior completed games per team.",
-          "source_collected_at_utc": "2026-11-20T20:06:37.574455Z",
-          "source_sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413"
+          "source_collected_at_utc": "2026-11-21T01:27:33.651077Z",
+          "source_sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040"
         }
       ],
       "training_coverage": {
@@ -2056,7 +2088,7 @@
         }
       ],
       "limitations": "Regular-season NFL only; postseason and off-season forecasts are not implemented. Fixed Elo baseline; no home advantage, quarterback, injury, weather or spread model. Three-way result including overtime; tie prior is smoothed historical frequency. No verified value selections.",
-      "collection_started_at_utc": "2026-11-20T20:06:36.705463Z",
+      "collection_started_at_utc": "2026-11-21T01:27:33.161209Z",
       "collection_status": "COLLECTED",
       "result_tracking_status": "NOT_IMPLEMENTED"
     }
@@ -2156,68 +2188,68 @@
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=1&limit=100",
-      "sha256": "5aaed9df3d109d7578585ecbc2b95b8f832e0c530cc7fad2acb9b7d0226bc445",
-      "collected_at_utc": "2026-11-20T20:06:37.069079Z"
+      "sha256": "f2c201ffb34c3040360c80f19ef38900fd8de3c4925ca1bc589d3650900b8d4e",
+      "collected_at_utc": "2026-11-21T01:27:33.350376Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=10&limit=100",
-      "sha256": "f320be2e77a356cd76b4691ec99bb4c25450430f7e56211125e87c4767458ec8",
-      "collected_at_utc": "2026-11-20T20:06:37.378964Z"
+      "sha256": "5b334e4ae653ef9ac33cb3aac4b0488cc57ffadc419985b65aa24f9389b31911",
+      "collected_at_utc": "2026-11-21T01:27:33.522507Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=11&limit=100",
-      "sha256": "3cfbcf9716b5bfba314eb8cafa1d5b6c04d47238bcf45f93273ccbff78eeab12",
-      "collected_at_utc": "2026-11-20T20:06:37.568433Z"
+      "sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573",
+      "collected_at_utc": "2026-11-21T01:27:33.717484Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=12&limit=100",
-      "sha256": "e01ea4dc33134774578aff0ec8f01ed305b04a64b4e5a54395b4b3809d65a413",
-      "collected_at_utc": "2026-11-20T20:06:37.574455Z"
+      "sha256": "501ee76c5048e64587a0bc90956156cbd07968181e404c00912286e2cc493040",
+      "collected_at_utc": "2026-11-21T01:27:33.651077Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=2&limit=100",
-      "sha256": "3b2f485aeb4522a4d7b02b9d288a8a70cb5105913051611f89d4073e087947fd",
-      "collected_at_utc": "2026-11-20T20:06:37.046804Z"
+      "sha256": "55a0b2f39e644f4943d92818eaee41f467afe92ce5778f3dd74e43519f941c4e",
+      "collected_at_utc": "2026-11-21T01:27:33.401762Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=3&limit=100",
-      "sha256": "8d9a11167f91beaaedb5d3fa5baf3e421731630f698d4dd6f7e6262902a5b37a",
-      "collected_at_utc": "2026-11-20T20:06:37.087274Z"
+      "sha256": "d07cb4badab8daabf4cae13e3c50dce92a7f7b424e1da51c2953805c4eacf2bb",
+      "collected_at_utc": "2026-11-21T01:27:33.409376Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=4&limit=100",
-      "sha256": "25455549f3c1c199ed55d1b730d635a509730e74e37bd236daf027fe43422558",
-      "collected_at_utc": "2026-11-20T20:06:37.045630Z"
+      "sha256": "2434c8f8e377054f39f4b89a1a33b1d55b2bf673538860c32866c12ad702f588",
+      "collected_at_utc": "2026-11-21T01:27:33.360099Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=5&limit=100",
-      "sha256": "f5bb6d6f59b2bd2acc3ed4cc764a4d8d91b6019e450480d14281f2453fee3d33",
-      "collected_at_utc": "2026-11-20T20:06:37.209336Z"
+      "sha256": "0da533f7c780efa48aa78634014785aa64ddc9b80f741c0c2d9b9ea5a26555a5",
+      "collected_at_utc": "2026-11-21T01:27:33.426701Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=6&limit=100",
-      "sha256": "0526bfbfc74f7e801694b7a0297a73bb66dcb7a5121b77bf63dc0a1214f1a466",
-      "collected_at_utc": "2026-11-20T20:06:37.201124Z"
+      "sha256": "05c13c2eb793ff8787f9392ad9f090df5d079e6f34220cb0e4622d32f59c87cd",
+      "collected_at_utc": "2026-11-21T01:27:33.424077Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=7&limit=100",
-      "sha256": "b9a1dae282d462f269dfc555077b213dad9c8008e8ebaa8be4c14d79e30cdd0c",
-      "collected_at_utc": "2026-11-20T20:06:37.244412Z"
+      "sha256": "c7c927c986405f2ff46f9458db5a97f2786ccc71eb4be12e3c1f7dfe1a59ae8a",
+      "collected_at_utc": "2026-11-21T01:27:33.544291Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=8&limit=100",
-      "sha256": "519ffd512dac427847d250a9bc7921526bb6c95e13bb51954dace109bf1c33a5",
-      "collected_at_utc": "2026-11-20T20:06:37.292175Z"
+      "sha256": "be5a7e836186057151f43be808150dc0627efdcbdca76afdd15fc14b5be26eaa",
+      "collected_at_utc": "2026-11-21T01:27:33.488199Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2026&seasontype=2&week=9&limit=100",
-      "sha256": "bd9274d738e3df0f2a4ef84831723529ef74ef9ea6b3e3968fe981a4066fc1f8",
-      "collected_at_utc": "2026-11-20T20:06:37.368523Z"
+      "sha256": "d0955c5924d38632fff47b9cab5f81355af4e68e992a54a93d96037deb80957c",
+      "collected_at_utc": "2026-11-21T01:27:33.525899Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100",
-      "sha256": "9f9cc4c9b71c8636c349b81520cd6e890369cf6543f99a9bf3efbc8188a9dec3",
-      "collected_at_utc": "2026-11-20T20:06:36.856758Z"
+      "sha256": "a945c661ee0922445dde4913b7782e17e65aff220a124114e34dd20e9b143573",
+      "collected_at_utc": "2026-11-21T01:27:33.252535Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20260101-20260131&limit=100",
@@ -2270,44 +2302,44 @@
       "collected_at_utc": "2026-11-18T13:04:07.254222Z"
     },
     {
-      "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261101-20261120&limit=100",
-      "sha256": "f375e953731b6a8fe694d8d97a77bc4bea1af53f37e1f1d0107bcb9e98b85b63",
-      "collected_at_utc": "2026-11-20T20:06:35.668159Z"
-    },
-    {
-      "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261120&limit=100",
-      "sha256": "ee0278b01679ad17a56715cd94a99ba498f9e13e5ac26037d8b2b8ff573036f2",
-      "collected_at_utc": "2026-11-20T20:06:36.122544Z"
+      "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261101-20261121&limit=100",
+      "sha256": "f4587683979c125681b8d1c9c368bd3162c3f10cd3e14fd4f99725587aaf1696",
+      "collected_at_utc": "2026-11-21T01:27:31.929074Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261121&limit=100",
-      "sha256": "ee0278b01679ad17a56715cd94a99ba498f9e13e5ac26037d8b2b8ff573036f2",
-      "collected_at_utc": "2026-11-20T20:06:36.128088Z"
+      "sha256": "a6fb758f9b26f2f4750f95675da47dffbc0ec6cd2fa34240f63a0bbf75424773",
+      "collected_at_utc": "2026-11-21T01:27:32.372787Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261122&limit=100",
-      "sha256": "ee0278b01679ad17a56715cd94a99ba498f9e13e5ac26037d8b2b8ff573036f2",
-      "collected_at_utc": "2026-11-20T20:06:36.114627Z"
+      "sha256": "a6fb758f9b26f2f4750f95675da47dffbc0ec6cd2fa34240f63a0bbf75424773",
+      "collected_at_utc": "2026-11-21T01:27:32.420628Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261123&limit=100",
-      "sha256": "299db45a897a6e901d331264cbc7909f705518b0797b50a8eb575f8200064ce9",
-      "collected_at_utc": "2026-11-20T20:06:36.086612Z"
+      "sha256": "81be2cdea619b550c6598971da9c9535204a55be8eea3f1494fbe968dc34e85e",
+      "collected_at_utc": "2026-11-21T01:27:32.364280Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261124&limit=100",
-      "sha256": "299db45a897a6e901d331264cbc7909f705518b0797b50a8eb575f8200064ce9",
-      "collected_at_utc": "2026-11-20T20:06:36.216009Z"
+      "sha256": "81be2cdea619b550c6598971da9c9535204a55be8eea3f1494fbe968dc34e85e",
+      "collected_at_utc": "2026-11-21T01:27:32.401425Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261125&limit=100",
-      "sha256": "299db45a897a6e901d331264cbc7909f705518b0797b50a8eb575f8200064ce9",
-      "collected_at_utc": "2026-11-20T20:06:36.235195Z"
+      "sha256": "81be2cdea619b550c6598971da9c9535204a55be8eea3f1494fbe968dc34e85e",
+      "collected_at_utc": "2026-11-21T01:27:32.423970Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261126&limit=100",
-      "sha256": "299db45a897a6e901d331264cbc7909f705518b0797b50a8eb575f8200064ce9",
-      "collected_at_utc": "2026-11-20T20:06:36.254802Z"
+      "sha256": "81be2cdea619b550c6598971da9c9535204a55be8eea3f1494fbe968dc34e85e",
+      "collected_at_utc": "2026-11-21T01:27:32.461243Z"
+    },
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261127&limit=100",
+      "sha256": "81be2cdea619b550c6598971da9c9535204a55be8eea3f1494fbe968dc34e85e",
+      "collected_at_utc": "2026-11-21T01:27:32.466749Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20260101-20260131&limit=100",
@@ -2360,45 +2392,45 @@
       "collected_at_utc": "2026-11-18T13:04:08.675759Z"
     },
     {
-      "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261101-20261120&limit=100",
-      "sha256": "f60d6f10f535ce9fa9a64e889d8f1d483e29734143c117af7cdb1d0863142117",
-      "collected_at_utc": "2026-11-20T20:06:35.819702Z"
-    },
-    {
-      "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261120&limit=100",
-      "sha256": "f2e83aa8465f6301bfc58a27edfa1442013f4249058e9f8e90a4b0c2631220d2",
-      "collected_at_utc": "2026-11-20T20:06:36.409452Z"
+      "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261101-20261121&limit=100",
+      "sha256": "1b71097976a1959d9d6893a4379c1091c215020c52f691d43067ae3f9ace51bb",
+      "collected_at_utc": "2026-11-21T01:27:32.019764Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261121&limit=100",
-      "sha256": "8634a9419737f5f006ba0fb6304702e753c40ebc8c22fbdc5bd0b150f5333230",
-      "collected_at_utc": "2026-11-20T20:06:36.425187Z"
+      "sha256": "b952d4e6437495973b6fe98c2457006ffdb7a940fb04d2c81b1ebc5268a31502",
+      "collected_at_utc": "2026-11-21T01:27:32.556075Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261122&limit=100",
-      "sha256": "8634a9419737f5f006ba0fb6304702e753c40ebc8c22fbdc5bd0b150f5333230",
-      "collected_at_utc": "2026-11-20T20:06:36.498564Z"
+      "sha256": "b952d4e6437495973b6fe98c2457006ffdb7a940fb04d2c81b1ebc5268a31502",
+      "collected_at_utc": "2026-11-21T01:27:32.613063Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261123&limit=100",
-      "sha256": "fa446cf709810a780b395bf0ada1bfe2b9610271b8b69741ce64a4f0bd8d8caa",
-      "collected_at_utc": "2026-11-20T20:06:36.403206Z"
+      "sha256": "ace109e6fb4d7b188f283ad9bb096ce5f53cda50daf9aaae08338bf2024d195e",
+      "collected_at_utc": "2026-11-21T01:27:32.610185Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261124&limit=100",
-      "sha256": "fa446cf709810a780b395bf0ada1bfe2b9610271b8b69741ce64a4f0bd8d8caa",
-      "collected_at_utc": "2026-11-20T20:06:36.543468Z"
+      "sha256": "ace109e6fb4d7b188f283ad9bb096ce5f53cda50daf9aaae08338bf2024d195e",
+      "collected_at_utc": "2026-11-21T01:27:32.555064Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261125&limit=100",
-      "sha256": "fa446cf709810a780b395bf0ada1bfe2b9610271b8b69741ce64a4f0bd8d8caa",
-      "collected_at_utc": "2026-11-20T20:06:36.564772Z"
+      "sha256": "ace109e6fb4d7b188f283ad9bb096ce5f53cda50daf9aaae08338bf2024d195e",
+      "collected_at_utc": "2026-11-21T01:27:32.944329Z"
     },
     {
       "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261126&limit=100",
-      "sha256": "fa446cf709810a780b395bf0ada1bfe2b9610271b8b69741ce64a4f0bd8d8caa",
-      "collected_at_utc": "2026-11-20T20:06:36.572595Z"
+      "sha256": "ace109e6fb4d7b188f283ad9bb096ce5f53cda50daf9aaae08338bf2024d195e",
+      "collected_at_utc": "2026-11-21T01:27:32.716263Z"
+    },
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard?dates=20261127&limit=100",
+      "sha256": "ace109e6fb4d7b188f283ad9bb096ce5f53cda50daf9aaae08338bf2024d195e",
+      "collected_at_utc": "2026-11-21T01:27:32.711256Z"
     }
   ],
-  "archive_sha256": "ef78296802481bd7f0c01871fa8b41d08e56304a22b6247fafdc750d2e6386f6"
+  "archive_sha256": "4092f7edc578e80a773a179424f6cd2dd332dd265c06ec62ab052ebbb3851ae8"
 }
