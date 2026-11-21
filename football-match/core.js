@@ -190,10 +190,10 @@
           source.timestamp_basis !== 'GOLDEDGE_PINNACLE_1X2_OBSERVATION_TIME' || !matchedNames)
         return reject('GoldEdge event, participants or timestamp basis do not match this fixture.');
     } else {
-      const match = /^\\/football\\/[^/]+\\/([^/]+)-v-([^/]+)\\/e-(\\d+)$/.exec(url.pathname);
+      const match = /^\/football\/[^/]+\/([^/]+)-v-([^/]+)\/e-(\d+)$/.exec(url.pathname);
       if (!['skybet.com', 'www.skybet.com'].includes(url.hostname) || match?.[3] !== id ||
           !match.slice(1, 3).every((team, i) => teamKey(team) === expectedTeams[i]) ||
-          (names != null && !matchedNames) || !/^ppb:sbkMarket:[\\d.]+$/.test(source.source_market_id ?? '') ||
+          (names != null && !matchedNames) || !/^ppb:sbkMarket:[\d.]+$/.test(source.source_market_id ?? '') ||
           source.executable_verified !== false || observed !== captured ||
           source.timestamp_basis !== 'DIRECT_SKY_BET_HTTP_OBSERVATION_TIME')
         return reject('Sky Bet event, participants, market ID or timestamp basis do not match this fixture.');
