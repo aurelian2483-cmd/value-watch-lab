@@ -1,0 +1,37 @@
+{
+  "cohort": "intersection_of_all_variants_with_strictly_earlier_matched_season_history",
+  "input": {
+    "evidence_tier": "retrospective_reconstruction",
+    "path": "research/football-baseline-v1/608-reconstructed-forecasts.json",
+    "season_rows": {
+      "2024-25": 320,
+      "2025-26": 288
+    },
+    "sha256": "c489bbe629470ac9858dfebccd6d896451c98b0f3cca709f8c5bcccca8797fec"
+  },
+  "metric": "evaluator_log_loss_floor_1e-15_unscaled_multiclass_brier",
+  "minimum_form_matches_per_side": 3,
+  "minimum_prior_matches": 30,
+  "minimum_venue_matches_per_side": 3,
+  "models": {
+    "expanded-league-poisson": {
+      "audit_configuration_sha256": "2e03acce49239c030410eb7c12199063318765fbc7558d0026b6490befe73cdf",
+      "commit": "0ab96a96fd66608d931c4109392ee29fe2ba3650",
+      "path": "scripts/expanded_football.py",
+      "source_sha256": "1af62f103e61c7bd6412fce107f68e334638362c9a8cc5a059e3a78e421b5835"
+    },
+    "retrospective-poisson-and-form": {
+      "audit_configuration_sha256": "45676b7593d1256e9430fef174cce4e37254fac4a8548a6939d1dd8bf036b508",
+      "commit": "9898e7e7773878ec32a0bfd3c38197fddb566893",
+      "path": "research/football-baseline-v1/replay.mjs",
+      "source_sha256": "eee0da9df463b182301bae47c8bcb02095c3d3d49184594703e50dcc145ecb04"
+    }
+  },
+  "registry_sha256": "c1927f02e814a58be01165b7300cba285c956a6d3d6da0d3cb1fee8d5c95c353",
+  "schema_version": 1,
+  "variant_order": [
+    "standalone_baseline",
+    "standalone_form_alpha_0_025",
+    "expanded_current_formula"
+  ]
+}

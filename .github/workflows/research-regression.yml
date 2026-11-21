@@ -51,6 +51,9 @@ jobs:
       - name: Run recovered football research tests on synthetic fixtures
         if: hashFiles('scripts/football_model_recovery.py') != '' && (startsWith(github.head_ref, 'codex/phase') || startsWith(github.ref_name, 'codex/phase') || github.event_name == 'workflow_dispatch')
         run: python scripts/football_model_recovery.py archived-tests
+      - name: Regenerate date-ordered football replay offline
+        if: hashFiles('scripts/football_chronological_replay.py') != '' && (startsWith(github.head_ref, 'codex/phase') || startsWith(github.ref_name, 'codex/phase') || github.event_name == 'workflow_dispatch')
+        run: python scripts/football_chronological_replay.py --check
       - name: Mathematical library and Sky 81 validation
         run: |
           set -euo pipefail
@@ -122,3 +125,6 @@ jobs:
       - name: Run recovered football research tests on synthetic fixtures
         if: hashFiles('scripts/football_model_recovery.py') != ''
         run: python scripts/football_model_recovery.py archived-tests
+      - name: Regenerate date-ordered football replay offline
+        if: hashFiles('scripts/football_chronological_replay.py') != ''
+        run: python scripts/football_chronological_replay.py --check
