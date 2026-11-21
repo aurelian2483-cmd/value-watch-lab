@@ -111,7 +111,9 @@ def load_inputs():
                                                'form_last', 'form_alpha', 'lambda_range', 'grid_max')),
             'standalone configuration incomplete')
     records = validate_results(eligible_source(document, standalone), spec['season_rows'])
-    _, sources = recovery.verified_sources()
+    requested = (*protocol['models'], 'h2h-description')
+    sources = {name: recovery.git_source(models[name]['commit'], models[name]['path'],
+                                         models[name]['source_sha256']) for name in requested}
     return protocol, models, records, sources
 
 
@@ -288,7 +290,11 @@ def metrics(entries, variant_order):
 def report(include_fixtures=False):
     protocol, models, records, raw_sources = load_inputs()
     with patch.dict(sys.modules):
-        _, expanded, _, _ = recovery.archived_modules(raw_sources)
+        for module_name, model_id in (('football_h2h', 'h2h-description'),
+                                      ('expanded_football', 'expanded-league-poisson')):
+            module = recovery.run_module(module_name, models[model_id]['path'], raw_sources[model_id])
+            sys.modules[module_name] = module
+        expanded = sys.modules['expanded_football']
         entries = walk_forward(records, protocol, models['retrospective-poisson-and-form']['configuration'], expanded)
     parity = compare_standalone(records, entries)
     result = {
