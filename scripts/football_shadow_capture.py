@@ -113,8 +113,7 @@ def capture(body, schedule, recorded, registry, runtime):
                 'forecast chronology conflicts with pre-event packet proof')
         require(forecast['input_receipts'] == receipts and forecast['market_observation']['state'] == 'unavailable',
                 'forecast inputs differ from sealed history or include market evidence')
-        require(all(abs(given - predicted) <= 1e-12
-                    for given, predicted in zip(forecast['probabilities'], expected[name])),
+        require(forecast['probabilities'] == expected[name],
                 'submitted probabilities differ from the fixed calculation')
     require(seen == registry.keys(), 'capture must contain each frozen candidate once')
     return packet

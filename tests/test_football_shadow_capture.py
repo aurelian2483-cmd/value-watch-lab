@@ -272,3 +272,12 @@ class ShadowCaptureTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 journal.append(path, capture.Lifecycle(self.registry, self.runtime), text(scheduled()).encode())
             self.assertEqual(sorted(p.name for p in path.iterdir()), ['.writer'])
+
+    def test_resealed_subpicounit_forecast_edit_is_not_a_fixed_output(self):
+        packet = capture_packet(self.registry, self.runtime)
+        row = packet['forecasts']['records'][0]
+        row['probabilities'][0] -= 1e-13
+        row['probabilities'][1] += 1e-13
+        seal(row)
+        with self.assertRaisesRegex(ValueError, 'fixed calculation'):
+            self.state().apply(sealed_capture(packet), '2' * 64)
