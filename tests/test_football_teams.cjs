@@ -14,27 +14,58 @@ assert.equal(dashboard.retrospectiveCount,608);
 assert(dashboard.finalsCount > 0);
 for (const event of index.events.filter(event => event.start > now)) {
   const [code,home,away] = event.identity;
-  const entries = [...dashboard.competitions.get(code).teams.values()].filter(team => team.upcoming.some(fixture => fixture.id === event.id));
-  assert.deepEqual(entries.map(team => team.name).sort(),(code === 'PL' ? [home,away].map(history.premierLeagueTeam) : [home,away]).sort());
+  const entries = [...dashboard.upcoming].filter(([,fixtures]) => fixtures.some(fixture => fixture.id === event.id));
+  assert.deepEqual(entries.map(([key]) => JSON.parse(key)).sort(),
+    (code === 'PL' ? [home,away].map(history.premierLeagueTeam) : [home,away]).map(name => [code,name]).sort());
   const url = new URL(teams.fixtureHref(event),'https://example.test/football-teams/');
   assert.equal(url.searchParams.get('event'),event.id);
   assert.equal(url.searchParams.get('competition'),code);
 }
 const pl = dashboard.competitions.get('PL');
-assert(pl.teams.get('Leeds').upcoming.some(event => event.identity.includes('Leeds United')));
-assert.equal(pl.teams.has('Leeds United'),false);
-assert(pl.teams.get('Manchester City').trend);
-assert.equal(pl.teams.get('Coventry City').overall.played,0);
-assert(pl.teams.get('Coventry City').upcoming.length > 0);
+assert(dashboard.upcoming.get(JSON.stringify(['PL','Leeds'])).some(event => event.identity.includes('Leeds United')));
+assert.equal(pl.get('2026-27').teams.has('Leeds United'),false);
+assert.equal(pl.get('2024-25').matches.length,320);
+assert.equal(pl.get('2025-26').matches.length,288);
+assert.equal(pl.get('2025-26').teams.size,20);
+assert.equal(pl.get('2025-26').inferred,false);
+assert.equal(pl.get('2026-27').inferred,true);
+assert.equal(pl.get('2026-27').matches.length,0);
+assert.equal(pl.get('2026-27').teams.get('Coventry City').overall.played,0);
+assert(dashboard.upcoming.get(JSON.stringify(['PL','Coventry City'])).length > 0);
+const city = pl.get('2025-26').teams.get('Manchester City');
+assert(city.trend.every(window => window.played === 5 && window.from >= '2025-07-01' && window.to < '2026-07-01'));
+for (const seasons of dashboard.competitions.values()) for (const bucket of seasons.values())
+  assert.equal(Object.values(bucket.outcomes).reduce((a,b)=>a+b,0),bucket.matches.length);
+assert.equal(teams.inferredSeason('2026-06-30'),'2025-26');
+assert.equal(teams.inferredSeason('2026-07-01'),'2026-27');
+const sample = Array.from({length:10},(_,i) => ({day:'2025-10-' + String(i+1).padStart(2,'0'),
+  outcome:i<5?'L':'W',points:i<5?0:3,goalsFor:i<5?0:2,goalsAgainst:i<5?1:0}));
+assert.equal(teams.resultsTrend(sample.slice(0,5)),null);
+assert.equal(teams.resultsTrend(sample.slice(0,9)),null);
+assert.deepEqual(teams.resultsTrend(sample).map(window => [window.played,window.points,window.goalsFor,window.goalsAgainst]),
+  [[5,0,0,5],[5,15,10,0]]);
+assert.equal(teams.resultsTrend([sample[0],...sample]),null);
+assert.equal(teams.resultsTrend([...sample.slice(0,9),sample[8]]),null);
+const first = expanded.performance.entries[0];
+const fromFinals = entries => teams.build({archive,premier,expanded:{...expanded,performance:{entries}}},now);
+assert.equal(fromFinals([first,first]).finalsCount,1);
+assert.equal(fromFinals([first,{...first,score_home:first.score_home + 1}]).finalsCount,0);
+assert.equal(fromFinals([{...first,league:'PL'}]).finalsCount,0);
+const historic = archive.rows[0];
+const aliasHome = historic.home.replace(/ FC$/,'');
+const alias = {...historic,home:aliasHome,id:[historic.season,historic.date,aliasHome,historic.away].join('|')};
+const fromArchive = rows => teams.build({archive:{...archive,rows}},now);
+assert.equal(fromArchive([historic,alias]).retrospectiveCount,1);
+assert.equal(fromArchive([historic,{...alias,ft:[historic.ft[0] + 1,historic.ft[1]]}]).retrospectiveCount,0);
 const noHistory = teams.build({premier,expanded:{...expanded,performance:{entries:[]}}},now);
 assert.equal(noHistory.retrospectiveCount,0);
 assert.equal(noHistory.finalsCount,0);
 assert(noHistory.competitions.has('PL') && noHistory.competitions.has('D1'));
-assert.equal(noHistory.competitions.get('D1').teams.get('Bayern Munich').trend,null);
+assert.equal(noHistory.competitions.get('D1').get('2026-27').teams.get('Bayern Munich').trend,null);
 const noSchedule = teams.build({archive},now);
 assert.equal(noSchedule.premier.state,'unavailable');
 assert.equal(noSchedule.expanded.state,'unavailable');
-assert(noSchedule.competitions.get('PL').teams.get('Manchester City').overall.played > 0);
+assert(noSchedule.competitions.get('PL').get('2025-26').teams.get('Manchester City').overall.played > 0);
 assert.equal(teams.build({premier},now + 48*3600000).premier.state,'stale');
 assert.equal(teams.build({expanded:{...expanded,publication_gate:'OPEN'}},now).expanded.state,'unavailable');
 console.log('PASS: team coverage, exact fixture handoff, PL aliases, descriptive trends, missing/stale and gated snapshots');

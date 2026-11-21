@@ -21,7 +21,7 @@
   function archiveMatches(document) {
     return evidence.historicalRows(document).filter(row => Array.isArray(row.ft) &&
       row.ft.length === 2 && row.ft.every(score)).map(row => ({
-      league:'PL', day:row.date, home:archiveName(row.home),
+      league:'PL', season:row.season, day:row.date, home:archiveName(row.home),
       away:archiveName(row.away), goals:row.ft
     }));
   }

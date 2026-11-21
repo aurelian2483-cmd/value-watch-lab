@@ -48,13 +48,19 @@
       ['Goals for / against',overall.played ? overall.goalsFor + ' / ' + overall.goalsAgainst : '—'],['Points per match',ppg(overall)]]);
     add(panel,'p','Home: ' + team.home.played + ' matches, ' + recordLabel(team.home) + ' W–D–L, ' + ppg(team.home) +
       ' points per match. Away: ' + team.away.played + ' matches, ' + recordLabel(team.away) + ' W–D–L, ' + ppg(team.away) + ' points per match.').className = 'note';
+    add(panel,'h3','Descriptive results trend');
     if (team.trend) {
+      const trend = add(panel,'div');
+      trend.className = 'stats';
+      cards(trend,team.trend.map((window,i) => [
+        (i === 0 ? 'Preceding five' : 'Latest five') + ' · ' + window.from + ' to ' + window.to + ' · n=' + window.played,
+        ppg(window) + ' PPG · ' + window.goalsFor + ' GF / ' + window.goalsAgainst + ' GA'
+      ]));
       const [previous,latest] = team.trend;
-      const change = latest - previous;
-      add(panel,'p','Descriptive results trend: ' + previous.toFixed(2) + ' to ' + latest.toFixed(2) +
-        ' points per match (' + (change > 0 ? '+' : '') + change.toFixed(2) +
-        '), preceding five vs latest five recorded matches. Team-strength rating unavailable.').className = 'note';
-    } else add(panel,'p','Results trend: insufficient data for two chronologically distinct five-match samples.').className = 'note';
+      const change = latest.points / latest.played - previous.points / previous.played;
+      add(panel,'p','Change: ' + (change > 0 ? '+' : '') + change.toFixed(2) +
+        ' points per match. GF and GA are goals for and against. These windows can contain different opponents.').className = 'note';
+    } else add(panel,'p','Insufficient data for two chronologically distinct five-match windows in this season.').className = 'note';
     add(panel,'h3','Most recent recorded results');
     if (!overall.played) add(panel,'p','No qualifying historical results for this team in the available sample.');
     for (const game of team.games.slice(-5).reverse()) {
@@ -63,12 +69,14 @@
       add(row,'span',game.day + ' · ' + game.venue + ' vs ' + game.opponent);
       add(row,'strong',game.goalsFor + '–' + game.goalsAgainst + ' · ' + game.outcome);
     }
-    add(panel,'h3','Upcoming fixtures');
+    add(panel,'h3','Upcoming fixtures · current schedule');
+    add(panel,'p','The current schedule is separate from the selected historical results sample.').className = 'note';
+    const upcoming = data.upcoming.get(JSON.stringify([$('competition').value,team.name])) ?? [];
     const schedule = $('competition').value === 'PL' ? data.premier : data.expanded;
     if (schedule.state === 'stale') add(panel,'p','Stale schedule snapshot. Check the sourced kickoff before relying on it.');
-    if (!team.upcoming.length) add(panel,'p',schedule.state === 'unavailable' ?
+    if (!upcoming.length) add(panel,'p',schedule.state === 'unavailable' ?
       'Schedule snapshot unavailable.' : 'No upcoming fixture for this team in the loaded snapshot.');
-    for (const event of team.upcoming) {
+    for (const event of upcoming) {
       const row = add(panel,'div');
       row.className = 'fixture';
       const match = event.identity.slice(1).join(' v ');
@@ -81,18 +89,32 @@
 
   function render() {
     const code = $('competition').value;
-    const competition = data.competitions.get(code);
+    const competition = data.competitions.get(code)?.get($('season').value);
     const matches = competition?.matches ?? [];
     teams = [...(competition?.teams.values() ?? [])].sort((a,b) => b.overall.points - a.overall.points ||
       (b.overall.goalsFor - b.overall.goalsAgainst) - (a.overall.goalsFor - a.overall.goalsAgainst) || a.name.localeCompare(b.name));
     const historyTeams = teams.filter(team => team.overall.played).length;
     const days = matches.map(match => match.day).sort();
     const historySource = code === 'PL' ? 'Retrospective Premier League reconstruction' : 'Two-source regulation-time finals';
-    $('coverage').textContent = historySource + ' · ' + matches.length + ' recorded matches · ' + historyTeams + ' teams with results · ' +
+    $('evidence-source').textContent = competition ? 'Evidence source: ' +
+      (code === 'PL' && !competition.inferred ? historySource : code === 'PL' ? 'Premier League schedule only' : historySource) : 'Evidence source unavailable';
+    $('coverage').textContent = matches.length + ' recorded matches · ' + historyTeams + ' teams with results · ' +
       (days.length ? days[0] + ' to ' + days.at(-1) : 'no qualifying history') + '. Coverage may omit matches and teams.';
     cards($('competition-stats'),[['Recorded matches',matches.length],['Teams with results',historyTeams],
-      ['Recorded goals',matches.length ? matches.reduce((total,match) => total + match.goals[0] + match.goals[1],0) : '—'],
-      ['Teams including schedule',teams.length]]);
+      ['Recorded goals',matches.length ? competition.goals : '—'],['Teams including season schedule',teams.length]]);
+    const context = $('competition-context');
+    context.replaceChildren();
+    add(context,'h3','Competition context');
+    if (!matches.length) add(context,'p','Insufficient data for goals per match and outcome shares.');
+    else {
+      const count = matches.length;
+      add(context,'p',(competition.goals / count).toFixed(2) + ' goals per match (' + competition.goals +
+        ' goals across ' + count + ' recorded matches).');
+      for (const [label,key] of [['Home wins','home'],['Draws','draw'],['Away wins','away']]) {
+        const outcomes = competition.outcomes[key];
+        add(context,'p',label + ': ' + (outcomes * 100 / count).toFixed(1) + '% (' + outcomes + '/' + count + ').');
+      }
+    }
     const selector = $('team-select');
     const previous = selector.value;
     selector.replaceChildren(new Option('Choose a team',''));
@@ -116,6 +138,18 @@
     }
     $('team-count').textContent = teams.length + ' teams · ' + matches.length + ' recorded matches';
     choose(teams.some(team => team.name === previous) ? previous : '');
+  }
+
+  function selectSeasons() {
+    const seasons = data.competitions.get($('competition').value) ?? new Map();
+    const choices = [...seasons.values()].sort((a,b) => b.season.localeCompare(a.season));
+    const selector = $('season');
+    selector.replaceChildren(...choices.map(bucket => new Option(
+      bucket.season.replace('-','/') + (bucket.inferred ? ' (inferred)' : ''),bucket.season)));
+    if (!choices.length) selector.add(new Option('No season data available',''));
+    const mostRecentWithResults = choices.find(bucket => bucket.matches.length);
+    if (mostRecentWithResults) selector.value = mostRecentWithResults.season;
+    render();
   }
 
   async function read(path) {
@@ -145,10 +179,11 @@
       data.retrospectiveCount ? data.retrospectiveCount + ' retrospective Premier League results' : 'Premier League archive unavailable or has no qualifying results',
       data.finalsCount + ' two-source expanded finals', data.conflicts ? data.conflicts + ' conflicting fixture identities withheld' : null
     ].filter(Boolean).join(' · ');
-    render();
+    selectSeasons();
   }
 
-  $('competition').addEventListener('change',() => { $('team-select').value = ''; render(); });
+  $('competition').addEventListener('change',() => { $('team-select').value = ''; selectSeasons(); });
+  $('season').addEventListener('change',render);
   $('team-select').addEventListener('change',() => choose($('team-select').value));
   load().catch(() => { $('updated').textContent = 'Football evidence is unavailable. Publication remains BLOCKED.'; });
 })();
