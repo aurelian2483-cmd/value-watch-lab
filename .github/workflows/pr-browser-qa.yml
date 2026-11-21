@@ -3,13 +3,14 @@ on:
   push:
     branches: [codex/value-watch-development]
   pull_request:
-    branches: [copilot/evidence-research-handover, main, codex/value-watch-development]
+    branches: [copilot/evidence-research-handover, main, codex/value-watch-development, codex/all-sports-website-integration]
     paths:
       - 'index.html'
       - 'analyst/**'
       - 'football-match/**'
       - 'market-intelligence/**'
       - 'pro-design.css'
+      - 'visual-preview/**'
       - 'pro-home.js'
       - 'pro-sources.js'
       - 'sports-watch/**'
@@ -42,6 +43,20 @@ jobs:
           node --test sports-watch/*.test.cjs
           if test -f scripts/all_sports_browser_qa.cjs; then node scripts/all_sports_browser_qa.cjs; fi
           if test -f scripts/football_match_browser_qa.cjs; then node scripts/football_match_browser_qa.cjs; fi
+      - uses: actions/checkout@v4
+        if: github.event_name == 'pull_request' && github.head_ref == 'codex/phase66-compact-preview'
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: work/compact-baseline
+          persist-credentials: false
+      - name: Capture approved compact preview before and after
+        if: github.event_name == 'pull_request' && github.head_ref == 'codex/phase66-compact-preview'
+        run: |
+          cp scripts/all_sports_browser_qa.cjs work/compact-baseline/scripts/
+          node work/compact-baseline/scripts/all_sports_browser_qa.cjs --compact-preview --baseline
+          mv work/compact-baseline/work/browser-qa/compact-preview work/browser-qa/compact-before
+          node scripts/all_sports_browser_qa.cjs --compact-preview
+          mv work/browser-qa/compact-preview work/browser-qa/compact-after
       - name: Save QA report and screenshots
         if: always()
         uses: actions/upload-artifact@v4

@@ -8,7 +8,9 @@ const {chromium} = require('playwright');
 const AxeBuilder = require('@axe-core/playwright').default;
 
 const root = path.resolve(__dirname, '..');
-const output = path.join(root, 'work/browser-qa/all-sports');
+const compact = process.argv.includes('--compact-preview');
+const baseline = compact && process.argv.includes('--baseline');
+const output = path.join(root, 'work/browser-qa', compact ? 'compact-preview' : 'all-sports');
 const mime = {'.html':'text/html', '.css':'text/css', '.js':'text/javascript', '.json':'application/json'};
 const server = http.createServer(async (req, res) => {
   try {
@@ -171,9 +173,11 @@ async function discoveryFlow(browser, base) {
   const base = 'http://127.0.0.1:' + server.address().port;
   const browser = await chromium.launch({headless:true});
   try {
-    await researchFlow(browser,base);
-    await calendarRecovery(browser,base);
-    await discoveryFlow(browser,base);
+    if (!compact) {
+      await researchFlow(browser,base);
+      await calendarRecovery(browser,base);
+      await discoveryFlow(browser,base);
+    }
     for (const width of [1440,820,390]) {
       const context = await browser.newContext({viewport:{width,height:920},reducedMotion:'reduce'});
       const page = await context.newPage();
@@ -181,7 +185,9 @@ async function discoveryFlow(browser, base) {
       const errors = [];
       page.on('pageerror', err => errors.push(err.message));
       for (const sport of sports) {
-        await page.goto(base + '/?sport=' + sport + '#sport-evidence');
+        if (compact) await page.clock.setFixedTime(new Date('2026-11-21T10:30:00Z'));
+        await page.goto(base + '/?sport=' + sport + (compact ? '&view=visual-preview' : '') + '#sport-evidence');
+        if (compact) assert(await page.locator('html.visual-preview').count(), 'Compact preview must be active');
         const panel = page.locator('#sport-evidence');
         await panel.getByText(/PASS · No qualifying opportunity/).waitFor();
         await page.waitForFunction(() => document.querySelector('#source-summary')?.textContent.startsWith('Sources · '));
@@ -191,17 +197,35 @@ async function discoveryFlow(browser, base) {
           assert.equal(await page.locator('#generate').isDisabled(),true);
         }
         await screenshot(page, sport + '-' + width, '#sport-evidence');
+        if (compact && sport === 'racing') {
+          await page.waitForFunction(() => !document.getElementById('pro-featured-status').textContent.startsWith('Checking'));
+          const panel = page.locator('.pro-featured');
+          if (!baseline) {
+            assert.equal(await panel.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
+            assert.equal(await page.locator('#generate + #find-racing').count(), 1);
+            assert.equal(await page.locator('#pro-feature-page').evaluate(el => getComputedStyle(el).color), 'rgb(36, 61, 85)');
+          }
+          await screenshot(page, 'overview-' + width, '.pro-featured');
+        }
       }
       const axe = await new AxeBuilder({page}).include('#sport-evidence').analyze();
       assert.deepEqual(axe.violations.map(v => v.id), []);
       report.accessibility.push('Sport evidence panel at ' + width + 'px: no axe violations');
-      if (width !== 820) {
+      if (!compact && width !== 820) {
         for (const route of routes) {
           const response = await page.goto(base + '/' + route + '/');
           assert.equal(response.status(),200);
           await page.waitForLoadState('networkidle');
           await screenshot(page,route + '-workspace-' + width);
         }
+      }
+      if (compact && !baseline) {
+        await page.locator('#sport-nav [data-sport="rugby"]').click();
+        await page.getByRole('heading', {name:'Rugby evidence and workflow'}).waitFor();
+        assert.equal(new URL(page.url()).searchParams.get('view'), 'visual-preview');
+        assert.equal(new URL(page.url()).searchParams.get('sport'), 'rugby');
+        await page.goBack();
+        await page.getByRole('heading', {name:'Cricket evidence and workflow'}).waitFor();
       }
       assert.deepEqual(errors, []);
       await context.close();
