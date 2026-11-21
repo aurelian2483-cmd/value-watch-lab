@@ -23,13 +23,7 @@ const capture = {
 const index = evidence.fixtureIndex([feed([fixture])], now);
 const markets = (records, fixtures = index, asOf = now) => evidence.verifyMarkets({schema_version:1,records}, fixtures, asOf);
 assert.equal(index.espn.get('101'), 'espn:101');
-const firstMarketResult = markets([capture]);
-if (!firstMarketResult.matches.length) console.log('MARKET DEBUG',JSON.stringify({
-  fixtureId:index.events[0]?.id, exact:index.events[0]?.exact, byExact:[...index.byExact.keys()],
-  recordEventId:capture.event_id, recordStart:capture.start_utc,
-  withheld:firstMarketResult.withheldReasons
-}));
-assert.equal(firstMarketResult.matches[0].sources.length,1);
+assert.equal(markets([capture]).matches[0].sources.length,1);
 const moved = {...fixture,kickoff_utc:stamp('21:00')};
 const rescheduled = evidence.fixtureIndex([feed([fixture]),feed([moved],stamp('18:00'))],now);
 assert.equal(rescheduled.events[0].id,index.events[0].id);
