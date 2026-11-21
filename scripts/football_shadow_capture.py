@@ -18,6 +18,14 @@ def decode_text(text, label):
     return evidence.decode(text.encode('utf-8'))
 
 
+def premier_season(event):
+    day = instant(event['starts_at']).date()
+    start = day.year if day.month >= 7 else day.year - 1
+    require(event['competition'] == 'PL' and event['season'] == f'{start}-{(start + 1) % 100:02}',
+            'declared Premier League season disagrees with kickoff')
+    return day
+
+
 def history(text, target, cutoff):
     document = decode_text(text, 'complete input')
     fields(document, ('schema_version', 'origin', 'event', 'results'), 'complete input')
@@ -27,11 +35,13 @@ def history(text, target, cutoff):
     require(contract.same_event(document['event'], target), 'input fixture differs from schedule')
     require(isinstance(document['results'], list), 'missing complete input results')
     out, receipts, payloads, ids = [], [], set(), set()
+    ordered_pairs, team_dates = set(), set()
     cutoff_date = instant(target['starts_at']).date()
     for item in document['results']:
         fields(item, ('event', 'observed_at', 'score', 'provenance'), 'input result')
         event = item['event']
         contract.event(event)
+        day = premier_season(event).isoformat()
         observed, starts = instant(item['observed_at']), instant(event['starts_at'])
         require(event['competition'] == target['competition'] and event['season'] == target['season']
                 and starts.date() < cutoff_date and starts < observed <= cutoff,
@@ -43,12 +53,19 @@ def history(text, target, cutoff):
         sha = item['provenance']['sha256']
         require(sha not in payloads, 'duplicate input receipt payload')
         payloads.add(sha)
-        day = starts.date().isoformat()
+        pair = tuple(event[k].casefold() for k in ('home', 'away'))
+        require(pair not in ordered_pairs, 'duplicate ordered input fixture')
+        ordered_pairs.add(pair)
+        for team in pair:
+            require((day, team) not in team_dates, 'ambiguous same-date input appearance')
+            team_dates.add((day, team))
+        score = item['score']
+        require(isinstance(score, list) and len(score) == 2 and
+                all(type(goals) is int and 0 <= goals <= 30 for goals in score), 'invalid input score')
         out.append({'id': f"{event['season']}|{day}|{event['home']}|{event['away']}", 'date': day,
                     'season': event['season'], 'home': event['home'], 'away': event['away'], 'ft': item['score']})
         receipts.append({'period': 'training', 'observed_at': item['observed_at'], 'provenance': item['provenance']})
-    from_path = candidates.replay.validate_results(out)
-    return from_path, receipts
+    return sorted(out, key=lambda row: (row['date'], row['home'], row['away'])), receipts
 
 
 def capture(body, schedule, recorded, registry, runtime):
@@ -104,9 +121,13 @@ def attach(body, item, recorded):
     receipts = contract.records(body['receipts'], evaluator.OUTCOME_KIND, contract.outcome)
     require(all(row['origin'] == 'synthetic' and instant(row['retrieved_at']) <= recorded for row in receipts),
             'outcome receipt is nonsynthetic or not yet retrieved')
+    fixture = contract.fixture_collision_key(body['event'])
+    require(all(contract.fixture_collision_key(row['event']) == fixture for row in receipts),
+            'outcome receipt is unrelated to scheduled fixture')
     review = body['review']
     if review is not None:
         contract.review(review)
+        require(contract.same_event(review['event'], body['event']), 'review changed event identity')
         require(instant(review['reviewed_at']) <= recorded, 'outcome review not yet observed')
     previous = item['outcomes']
     if previous is None:
@@ -125,6 +146,7 @@ class Lifecycle:
         self.registry, self.runtime = registry, runtime
         self.events = {}
         self.collision_keys = set()
+        self.ordered_pairs = set()
         self.last_time = None
 
     def apply(self, operation, sha):
@@ -138,12 +160,15 @@ class Lifecycle:
             require(body['origin'] == 'synthetic', 'real capture is NOT READY')
             contract.event(body['event'])
             contract.provenance(body['provenance'])
-            require(body['event']['competition'] == 'PL', 'unsupported candidate competition')
+            premier_season(body['event'])
             require(instant(body['observed_at']) <= recorded < instant(body['event']['starts_at']),
                     'late or future schedule evidence')
             key = contract.event_key(body['event'])
             collision = contract.fixture_collision_key(body['event'])
-            require(key not in self.events and collision not in self.collision_keys, 'duplicate or changed schedule identity')
+            pair = tuple(body['event'][k].casefold() for k in ('season', 'home', 'away'))
+            require(key not in self.events and collision not in self.collision_keys and pair not in self.ordered_pairs,
+                    'duplicate or changed schedule identity')
+            self.ordered_pairs.add(pair)
             self.events[key] = {'schedule': body, 'capture': None, 'outcomes': None, 'excluded': None, 'head': sha}
             self.collision_keys.add(collision)
         else:
