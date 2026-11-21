@@ -119,7 +119,7 @@ async function main(){
     const item=[...matched.keys()].find(row=>row.sport===sport);
     if(!item)continue;
     const params=new URLSearchParams({fsport:sport,fq:item.name.slice(0,65)});
-    if(sport==='football'){params.set('sport','football');params.set('desk-query',item.name);}
+    if(sport==='football')params.set('sport','football');
     checkpoint=sport+' fixture evidence';
     await page.goto(base+'/?'+params);
     const row=page.locator('.pro-feature-event').filter({hasText:item.name});
