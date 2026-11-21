@@ -1,0 +1,24 @@
+{
+  "replay_summary_sha256": "57f209b63e348360ef691d12fca8c5e4acfc5a58a970b4e2624eaec753c6a596",
+  "cohort": "Phase 37 eligible common cohort",
+  "score_order": ["home", "draw", "away"],
+  "log_floor": 1e-15,
+  "tie_tolerance": 1e-12,
+  "pair_order": [
+    ["expanded_current_formula", "standalone_baseline"],
+    ["standalone_form_alpha_0_025", "standalone_baseline"],
+    ["expanded_current_formula", "standalone_form_alpha_0_025"]
+  ],
+  "bootstrap": {
+    "seed": 20261121,
+    "replicates": 2000,
+    "minimum_dates_per_season": 20,
+    "percentiles": [0.025, 0.975]
+  },
+  "venue_minima": [3, 4, 10],
+  "calibration": {
+    "edges": [0, 0.2, 0.4, 0.6, 0.8, 1],
+    "minimum_rows_per_interval": 20,
+    "minimum_dates_per_interval": 10
+  }
+}
