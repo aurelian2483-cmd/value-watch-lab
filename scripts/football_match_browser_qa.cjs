@@ -124,7 +124,7 @@ const server = http.createServer(async (request,response) => {
       assert.equal(await page.locator('#competition').inputValue(),'D1');
       const search = page.getByRole('searchbox',{name:'Find a team'});
       await search.pressSequentially(original);
-      assert.equal(new URL(page.url()).searchParams.get('q'),original);
+      await page.waitForURL(url => url.searchParams.get('q') === original);
       assert.equal(await search.inputValue(),original);
       assert(Number.parseInt(await page.locator('#fixture-count').textContent(),10)>0);
       await page.goto(shared);
