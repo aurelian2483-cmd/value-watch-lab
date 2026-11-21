@@ -139,6 +139,8 @@ async function main(){
      await page.locator('#date-to').dispatchEvent('change');
     }
     if(sport==='football'){
+     checkpoint='open the football research cards';
+     await page.locator('[data-open-events]').first().click();
      checkpoint='football outcome card';
      const card=page.locator('.event-card').filter({hasText:item.name}).first();
      await card.waitFor({state:'visible',timeout:15000});
