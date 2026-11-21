@@ -81,9 +81,11 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Provision pinned Value Watch archive
         run: git fetch --no-tags --depth=1 origin 0ab96a96fd66608d931c4109392ee29fe2ba3650
-      - name: Test and regenerate offline
-        run: |
-          python -m unittest discover -s tests -p "test_football*.py"
-          python -m unittest discover -s tests -p "test_verified_results_pilot.py"
-          python scripts/audit_football_provenance.py --check
-          python scripts/football_evidence_ledger.py check
+      - name: Football evidence tests
+        run: python -m unittest discover -s tests -p "test_football*.py"
+      - name: Verified-results pilot tests
+        run: python -m unittest discover -s tests -p "test_verified_results_pilot.py"
+      - name: Rebuild Phase 10 report offline
+        run: python scripts/audit_football_provenance.py --check
+      - name: Rebuild evidence ledger and compare offline
+        run: python scripts/football_evidence_ledger.py check

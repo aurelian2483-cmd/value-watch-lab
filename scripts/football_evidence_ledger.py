@@ -18,6 +18,8 @@ SOURCE_FILE = audit.reconciliation.INPUTS['single'][0]
 TIER = 'SINGLE_SOURCE_UNVERIFIED'
 REFERENCE_TIERS = {'expanded': 'TWO_SOURCE_EXPANDED_FINAL', 'legacy': 'LEGACY_SCORED_ARCHIVE'}
 RULE_VERSION = '2026-11-21.1'
+PHASE10_MANIFEST_SHA256 = '72d522e72eec69817b1064e3506bdcbd559a4596d173ff3abbd621c978310aec'
+PHASE10_REPORT_SHA256 = '60ba4451b369f03e98cd519cfbe2cf892535fa0d81df1b7ee1e3b4fb02327d85'
 POLICY = {
     'linked_identity_insufficient': ('REFERENCE_ID_ONLY', 'Audited source-side fixture ID crosswalk and independent final receipt.'),
     'ambiguous_identity': ('IDENTITY_UNRESOLVED', 'Unique exact ordered fixture identity and independent final receipt.'),
@@ -43,8 +45,12 @@ def unique_object(pairs):
     return result
 
 
+def decode(raw):
+    return json.loads(raw.decode('utf-8-sig'), object_pairs_hook=unique_object)
+
+
 def load(path):
-    return json.loads(path.read_bytes().decode('utf-8-sig'), object_pairs_hook=unique_object)
+    return decode(path.read_bytes())
 
 
 def row_key(row):
@@ -62,11 +68,16 @@ def input_inventory(report):
 
 def build(root=ROOT):
     directory = root / DIRECTORY
-    manifest = load(directory / 'manifest.json')
+    manifest_bytes = (directory / 'manifest.json').read_bytes()
+    manifest_hash = digest(manifest_bytes)
+    require(manifest_hash == PHASE10_MANIFEST_SHA256, 'Phase 10 manifest differs from its pinned hash')
+    report_pin = (directory / 'report.sha256').read_bytes()
+    require(report_pin == (PHASE10_REPORT_SHA256 + '\n').encode(), 'Phase 10 expected report hash changed')
+    manifest = decode(manifest_bytes)
     report = audit.build(root, manifest, lambda path: audit.pilot.read_archive(root, path))
     # Check the existing Phase 10 result before projecting it onto ledger rows.
     rendered = json.dumps(report, indent=2, ensure_ascii=False) + '\n'
-    require((directory / 'report.sha256').read_bytes() == (digest(rendered.encode()) + '\n').encode(),
+    require(digest(rendered.encode()) == PHASE10_REPORT_SHA256,
             'Phase 10 report differs from its pinned hash')
     pairs = defaultdict(list)
     references = {}
@@ -97,7 +108,7 @@ def build(root=ROOT):
     result = {'schema_version': 1, 'rule_version': RULE_VERSION, **SAFETY,
               'rules_sha256': digest(canonical({name: digest((root / 'scripts' / name).read_bytes().replace(b'\r\n', b'\n'))
                                                for name in rule_files})),
-              'manifest_sha256': digest((directory / 'manifest.json').read_bytes()),
+              'manifest_sha256': manifest_hash,
               'archive_commit': audit.pilot.ARCHIVE_COMMIT,
               'inputs': input_inventory(report), 'references': references,
               'counts': summaries(rows), 'rows': sorted(rows, key=lambda row: row['key'])}
