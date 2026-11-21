@@ -10,9 +10,11 @@ if __name__ == '__main__':
     sys.dont_write_bytecode = True
 
 if __package__:
+    from . import football_model_lineage as lineage
     from . import football_prospective_contract as contract
     from .football_prospective_outcomes import OutcomeIndex
 else:
+    import football_model_lineage as lineage
     import football_prospective_contract as contract
     from football_prospective_outcomes import OutcomeIndex
 
@@ -142,8 +144,12 @@ def forecast_conflicts(rows):
 def eligibility(row, as_of, split, pinned, freeze_receipt, review, outcomes, conflicts):
     if row['record_id'] in conflicts:
         return 'duplicate_forecast_fixture', None
-    if row['origin'] == 'prospective' and not pinned:
-        return 'untrusted_manifest', None
+    if row['origin'] == 'prospective':
+        if not pinned:
+            return 'untrusted_manifest', None
+        lineage_rejection = lineage.disposition(row['model'])
+        if lineage_rejection:
+            return lineage_rejection, None
     frozen = contract.instant(row['frozen_at'])
     if frozen > as_of:
         return 'future_forecast_freeze', None
