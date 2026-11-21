@@ -69,7 +69,16 @@ const wrongSport=S.inspect('other',{...other,sports:{...other.sports,tennis:{eve
 assert.equal(wrongSport.state,'PARTIAL_RECORDS');
 assert.equal(wrongSport.records.some(row=>row.sport==='tennis'),false);
 const missing=S.inspect('other',{...other,sports:{tennis:{events:[]}}},now);
-assert.equal(missing.state,'SCHEMA_UNVERIFIED');
+assert.equal(missing.state,'PARTIAL_RECORDS');
+assert.equal(S.summarize([missing],now).counts.tennis,0);
+assert.equal(S.summarize([missing],now).counts.nfl,null);
+const sameId={...f.upcoming_fixtures[0],fixture_id:'stable-id'};
+const changedTime={...sameId,kickoff_utc:new Date(now+7200000).toISOString()};
+for(const upcoming_fixtures of [[sameId,changedTime,sameId],[changedTime,sameId]]){
+ const conflict=S.inspect('football',{...f,upcoming_fixtures},now);
+ assert.equal(conflict.state,'PARTIAL_RECORDS');
+ assert.deepEqual(conflict.records,[]);
+}
 const absent=S.inspect('racing',{...racing,races:null},now);
 assert.equal(absent.records.length,0);
 assert.equal(S.inspect('history',history,now).state,'OBSERVED');

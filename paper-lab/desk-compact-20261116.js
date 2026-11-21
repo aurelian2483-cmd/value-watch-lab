@@ -889,7 +889,7 @@
     const hasSportBucket = !['tennis','nfl'].includes(sport) ||
       files.some(file => Array.isArray(file.document.sports?.[sport]?.events));
     const schedule = Object.hasOwn(discoveryOnly, sport)
-      ? sport === 'golf' ? 'Official coverage links only.' : 'Provider fixture discovery is available in Sports Watch when its source responds.'
+      ? sport === 'golf' ? 'Official coverage links only.' : 'Manual match discovery and official coverage links are available in Sports Watch.'
       : fixtureLabs[sport] ? 'See the calendar below for provider and official schedule evidence.'
       : !snapshot ? 'Loading schedule snapshots…'
       : !files.length ? 'Schedule sources unavailable.'

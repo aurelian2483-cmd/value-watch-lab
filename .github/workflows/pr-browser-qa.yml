@@ -42,6 +42,7 @@ jobs:
           node scripts/pro_design_browser_qa.cjs
           node scripts/darts_browser_qa.cjs
           node --test sports-watch/*.test.cjs
+          node sports-watch/browser-qa.cjs
           if test -f scripts/all_sports_browser_qa.cjs; then node scripts/all_sports_browser_qa.cjs; fi
           if test -f scripts/football_match_browser_qa.cjs; then node scripts/football_match_browser_qa.cjs; fi
       - uses: actions/checkout@v4

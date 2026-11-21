@@ -173,37 +173,49 @@ async function providerReadinessFlow(page,width) {
 
 async function discoveryFlow(browser, base) {
   const page = await browser.newPage({viewport:{width:390,height:920}});
-  for (const sport of ['basketball','cricket']) {
-    let available = true;
-    const handler = route => {
-      const params = new URL(route.request().url()).searchParams;
-      assert.equal(params.get('sport'),sport);
-      return available ? route.fulfill({json:{fixtures:[
-        {sport,home:'Synthetic ' + sport + ' A',away:'Synthetic B',status:'scheduled',time:'2026-11-22T19:00:00Z'},
-        {sport:'tennis',home:'Wrong sport A',away:'Wrong sport B',status:'scheduled',time:'2026-11-22T19:00:00Z'}
-      ]}}) : route.fulfill({status:503});
-    };
-    await page.route('https://sportscore.com/**',handler);
+  const providerRequests = [];
+  page.on('request', request => {
+    if (new URL(request.url()).hostname === 'sportscore.com') providerRequests.push(request.url());
+  });
+  await page.route(url => url.origin !== base, route => route.abort());
+  for (const sport of ['basketball','cricket','golf']) {
     await page.goto(base + '/sports-watch/?sport=' + sport);
-    const cards = page.locator('#fixture-results .fixture-card');
-    await cards.first().waitFor();
-    assert.equal(await cards.count(),1);
-    await cards.first().click();
+    await page.getByText(/Automatic fixture data is unavailable/).waitFor();
     assert.equal(await page.locator('#coverage-sport').inputValue(),sport);
-    await viewportCheck(page,sport + ' discovery');
-    available = false;
-    await page.locator('#fixture-refresh').click();
-    await page.getByText(/Fixture data unavailable:/).waitFor();
-    assert.equal(await cards.count(),0);
-    await page.unroute('https://sportscore.com/**',handler);
-    report.syntheticChecks.push(sport + ' provider discovery, sport mismatch rejected, deduplication, official coverage lookup and failed refresh');
+    assert.equal(await page.locator('#sports [data-sport="'+sport+'"]').getAttribute('aria-pressed'),'true');
+    await page.locator('#match-name').fill('QA manual coverage lookup');
+    await page.getByRole('button',{name:'Select match'}).click();
+    assert.match(await page.locator('#coverage-selected').textContent(),/QA manual coverage lookup/);
+    assert(await page.locator('.coverage-card').count());
+    await viewportCheck(page,sport + ' manual coverage');
   }
-  await page.route('https://sportscore.com/**',() => { throw Error('Golf must use manual coverage'); });
-  await page.goto(base + '/sports-watch/?sport=golf');
-  assert.equal(await page.locator('#fixture-sport').isDisabled(),true);
-  assert.equal(await page.locator('#sports [data-sport="golf"]').getAttribute('aria-pressed'),'true');
-  report.syntheticChecks.push('Golf manual coverage only');
+  assert.deepEqual(providerRequests, []);
+  report.syntheticChecks.push('Basketball, cricket and golf deep-link to manual coverage without automatic fixture requests');
   await page.close();
+}
+
+async function overviewStates(page) {
+  let state = 'missing';
+  const handler = route => state === 'missing'
+    ? route.fulfill({status:503})
+    : state === 'stale'
+      ? route.fulfill({json:{research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
+          generated_at_utc:'2026-10-01T00:00:00Z',upcoming_fixtures:[]}})
+      : route.continue();
+  await page.route('**/research-dashboard-data.json',handler);
+  await page.reload();
+  const football = page.locator('.pro-quick-filters [data-pro-count="football"]');
+  await page.waitForFunction(() => document.getElementById('pro-featured-status').textContent.includes('Football unavailable'));
+  assert.equal(await football.textContent(),'—');
+  state = 'stale';
+  await page.locator('#pro-feature-refresh').click();
+  await page.waitForFunction(() => document.getElementById('pro-featured-status').textContent.includes('Football stale or undated'));
+  assert.equal(await football.textContent(),'—');
+  state = 'available';
+  await page.locator('#pro-feature-refresh').click();
+  await page.waitForFunction(() => /^\d+$/.test(document.querySelector('.pro-quick-filters [data-pro-count="football"]').textContent));
+  await page.unroute('**/research-dashboard-data.json',handler);
+  report.syntheticChecks.push('Overview distinguishes unavailable and stale football snapshots and recovers to actual snapshot');
 }
 
 (async () => {
@@ -272,11 +284,16 @@ async function discoveryFlow(browser, base) {
         const quickFilters = page.locator('.pro-quick-filters [data-pro-sport]');
         assert.deepEqual(await quickFilters.evaluateAll(buttons => buttons.map(button => button.dataset.proSport).sort()),
           ['all', ...sports].sort());
+        if (width === 390) {
+          assert(await page.locator('.pro-featured-scroll').evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+          await overviewStates(page);
+        }
         await screenshot(page, 'research-lanes-' + width, '.pro-quick-filters');
         await page.locator('.pro-quick-filters [data-pro-sport="rugby"]').click();
         await page.getByRole('heading', {name:'Rugby evidence and workflow'}).waitFor();
         assert.equal(new URL(page.url()).searchParams.get('view'), 'visual-preview');
         assert.equal(new URL(page.url()).searchParams.get('sport'), 'rugby');
+        assert.equal(await page.locator('#sport-evidence').evaluate(el => el === document.activeElement),true);
         await page.goBack();
         await page.getByRole('heading', {name:'Cricket evidence and workflow'}).waitFor();
       }
