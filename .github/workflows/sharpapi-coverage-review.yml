@@ -20,12 +20,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: \${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Check current free-tier sports and complete moneyline coverage
         env:
-          THE_SHARP_API_KEY: \${{ secrets.THE_SHARP_API_KEY }}
+          THE_SHARP_API_KEY: ${{ secrets.THE_SHARP_API_KEY }}
         run: python scripts/check_sharpapi_coverage.py
