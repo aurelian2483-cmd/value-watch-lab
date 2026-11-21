@@ -42,6 +42,8 @@ const server = http.createServer(async (request,response) => {
       assert.equal(await page.locator('#market-rows tr').count(),3);
       assert((await page.locator('#market-rows').innerText()).includes('Pinnacle via GoldEdge'));
       assert((await page.locator('#market-rows').innerText()).includes('movement unavailable'));
+      assert((await page.locator('#market-withheld').innerText()).includes('No recorded quote for Sky Bet.'));
+      assert((await page.locator('#market-withheld').innerText()).includes('market evidence item(s) were withheld'));
       await page.locator('#source-filter').selectOption('PINNACLE_VIA_GOLDEDGE');
       assert.equal(await page.locator('#market-rows tr').count(),3);
       await page.locator('#source-filter').selectOption('');
