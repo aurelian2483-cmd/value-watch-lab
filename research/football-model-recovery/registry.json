@@ -1,0 +1,491 @@
+{
+  "schema_version": 1,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "components": [
+    {
+      "id": "pl-prior-poisson",
+      "status": "implemented-research",
+      "commit": "0ab96a96fd66608d931c4109392ee29fe2ba3650",
+      "path": "scripts/experiment102_poisson_research.py",
+      "configuration": {
+        "minimum_league": 300,
+        "minimum_venue": 10,
+        "lambda_range": [
+          0.15,
+          4
+        ],
+        "grid_max": 11
+      },
+      "inputs": "Prior season goal totals by venue and explicit schedule cross-check.",
+      "outputs": "POISSON_BASELINE_2025_26_V1 home/draw/away.",
+      "tests": "Synthetic producer main and hand-calculated lambdas.",
+      "source_sha256": "a332c60d3857d4e707d7e37614862076d71aa7aa0e8bbc2f59068fc42ab1f8f9",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "0b87b4a7398ef98e8875d5d54b0537c94a26756d9a44a83eec35b55663787354",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "pl-current-shrinkage",
+      "status": "implemented-research",
+      "commit": "0ab96a96fd66608d931c4109392ee29fe2ba3650",
+      "path": "scripts/experiment102_poisson_research.py",
+      "configuration": {
+        "minimum_league": 30,
+        "minimum_venue": 3,
+        "pseudo_matches": 5,
+        "lambda_range": [
+          0.15,
+          4
+        ],
+        "grid_max": 11
+      },
+      "inputs": "Current-season earlier-day goals by venue.",
+      "outputs": "POISSON_CURRENT_SEASON_SHRINKAGE_V1 fallback.",
+      "tests": "Synthetic producer main, date and minimum-history checks.",
+      "source_sha256": "a332c60d3857d4e707d7e37614862076d71aa7aa0e8bbc2f59068fc42ab1f8f9",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "8d11fef532b28524b1e291dc35966ed73777e99c99ce93ca6bc240d90146f8a8",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "expanded-league-poisson",
+      "status": "implemented-research",
+      "commit": "0ab96a96fd66608d931c4109392ee29fe2ba3650",
+      "path": "scripts/expanded_football.py",
+      "configuration": {
+        "pseudo_matches": 5,
+        "prior_minimum_venue": 10,
+        "ucl_and_current_minimum": 3,
+        "lambda_range": [
+          0.15,
+          4
+        ],
+        "grid_max": 11
+      },
+      "inputs": "League-isolated earlier training receipts, venue totals and corroborated fixtures.",
+      "outputs": "League-specific prior/current mode forecasts and lambda/basis metadata.",
+      "tests": "Pinned test_expanded_football.py; direct synthetic calls.",
+      "source_sha256": "1af62f103e61c7bd6412fce107f68e334638362c9a8cc5a059e3a78e421b5835",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "2e03acce49239c030410eb7c12199063318765fbc7558d0026b6490befe73cdf",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "expanded-current-comparison",
+      "status": "implemented-research",
+      "commit": "0ab96a96fd66608d931c4109392ee29fe2ba3650",
+      "path": "scripts/expanded_football.py",
+      "configuration": {
+        "pseudo_matches": 5,
+        "minimum_league": 30,
+        "minimum_venue": 3,
+        "small_sample_below": 10
+      },
+      "inputs": "Current-season fixture plus venue counts.",
+      "outputs": "CURRENT_SEASON_POISSON_COMPARISON_V1, separate from archive.",
+      "tests": "Pinned expanded suite and direct smoke.",
+      "source_sha256": "1af62f103e61c7bd6412fce107f68e334638362c9a8cc5a059e3a78e421b5835",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "c923da1c803c7abf70c39ee57c477d32cf8e93d05877f564afaf1f6c6c866950",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "h2h-description",
+      "status": "implemented-context",
+      "commit": "0ab96a96fd66608d931c4109392ee29fe2ba3650",
+      "path": "scripts/football_h2h.py",
+      "configuration": {
+        "default_limit": 10,
+        "max_limit": 50,
+        "conflict_minimum": 5
+      },
+      "inputs": "Dated prior results; exclude all cutoff-day games.",
+      "outputs": "Descriptive counts and disagreement, probability adjustment null.",
+      "tests": "Pinned test_football_h2h.py.",
+      "source_sha256": "e9e6e00c2523b76002989a3bc0b4334199d87e782c9103f48a6a9aa22a1956a0",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "107e0ade38fa3a02c82bad83c1604bafacfa7a066f71af616fa445151e29f8d2",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "h2h-adjustment",
+      "status": "historical-research",
+      "commit": "0ab96a96fd66608d931c4109392ee29fe2ba3650",
+      "path": "scripts/football_h2h_backtest.py",
+      "configuration": {
+        "default_weight": 0,
+        "minimum": 5,
+        "prior": 6
+      },
+      "inputs": "Base vector and historical H2H counts.",
+      "outputs": "Separate smoothed challenger vector.",
+      "tests": "Pinned test_football_h2h_backtest.py and hand check.",
+      "source_sha256": "f412b2b01a21da7232d36a89d93c6c0bf17b69c8bab8600b7d8ff6d966f76f17",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "1f477dbba0a95a73698ada35453b37ca9d95b751aa7e2b4fa57b9ec2ffb25b23",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "retrospective-poisson-and-form",
+      "status": "historical-research",
+      "commit": "9898e7e7773878ec32a0bfd3c38197fddb566893",
+      "path": "research/football-baseline-v1/replay.mjs",
+      "configuration": {
+        "pseudo_matches": 5,
+        "minimum_league": 30,
+        "minimum_venue": 3,
+        "form_last": 5,
+        "form_alpha": 0.025,
+        "lambda_range": [
+          0.15,
+          4
+        ],
+        "grid_max": 11
+      },
+      "inputs": "Same-season result counts for earlier calendar dates.",
+      "outputs": "Two earlier-date replay probability vectors; baseline clamp before form.",
+      "tests": "Synthetic replay function; perturb same-day outcomes.",
+      "source_sha256": "eee0da9df463b182301bae47c8bcb02095c3d3d49184594703e50dcc145ecb04",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "45676b7593d1256e9430fef174cce4e37254fac4a8548a6939d1dd8bf036b508",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "international-recent-goals",
+      "status": "implemented-research",
+      "commit": "9898e7e7773878ec32a0bfd3c38197fddb566893",
+      "path": "scripts/international_football_analysis.py",
+      "configuration": {
+        "window_days": 365,
+        "maximum_matches": 10,
+        "minimum_matches": 5,
+        "minimum_result_delay_hours": 3,
+        "grid_max": 60
+      },
+      "inputs": "Captured regulation-time team results, by ID where known.",
+      "outputs": "INTERNATIONAL_RECENT_RESULTS_V1; independent of domestic leagues.",
+      "tests": "test_international_analysis.py and equal-rate synthetic smoke.",
+      "source_sha256": "0ccff5550aa1b549f4acc32bc916a05c57ced949bd01564c7e3f88fbbcfd09fb",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "e7e874afadc40bb5a8e0c12313695a9147983ae68b8440189cef36da90212285",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "frozen-market-mix",
+      "status": "implemented-display",
+      "commit": "9898e7e7773878ec32a0bfd3c38197fddb566893",
+      "path": "paper-lab/experimental.js",
+      "configuration": {
+        "market_weight": 0.5,
+        "maximum_decimal": 5,
+        "minimum_estimated_ev": 0.05
+      },
+      "inputs": "Frozen recent-form vector and complete same-market decimal odds.",
+      "outputs": "Proportional de-vig then blend and paper gate.",
+      "tests": "test_market_blend_candidate.cjs and arithmetic smoke.",
+      "source_sha256": "4ced64ada0539127f1f76bd7be122a09a1bcf4f6ddfa7d47b69cb5a468576256",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "8f6d9b72b1925875bb09b2b1de64ed9f8206677406bfdf981a274f43f06dd0ce",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "hybrid-current-market-mix",
+      "status": "implemented-display",
+      "commit": "9898e7e7773878ec32a0bfd3c38197fddb566893",
+      "path": "paper-lab/hybrid.js",
+      "configuration": {
+        "market_weight": 0.5,
+        "max_quote_age_minutes": 30,
+        "minimum_buffer_minutes": 5,
+        "minimum_venue": 4,
+        "maximum_decimal": 5,
+        "minimum_estimated_ev": 0.05
+      },
+      "inputs": "Current-season model, independent benchmark and separately observed price.",
+      "outputs": "Blend plus separate paper price gate.",
+      "tests": "test_hybrid_engine.cjs and synthetic intermediate vector.",
+      "source_sha256": "434e581c738f9d8e9d0227c928a63fe5c090561821d613bb4318470856c6d945",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "c76e6c9b067ea492ab2b9496b0df79475bc12c83d980b4cd59532b755c23bcdf",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "manual-form-proxy",
+      "status": "implemented-display",
+      "commit": "9898e7e7773878ec32a0bfd3c38197fddb566893",
+      "path": "reliability-lab/challenger.js",
+      "configuration": {
+        "form_matches": 5,
+        "pseudo_count_per_outcome": 2,
+        "market_weight": 0.5
+      },
+      "inputs": "Manually entered W/D/L and decimal odds.",
+      "outputs": "Smoothed form proxy and separate 50/50 benchmark.",
+      "tests": "Synthetic browser-function extraction and hand check.",
+      "source_sha256": "2f2d24cdc537c2c22e665ff7d4f36938c84723d7436e73127a2ef06b03b52cec",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "90bb14b2d812056c77162a8501a7d9ba3c11483ffcf948ecca0978695eef6fc5",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "historical-reliability-filter",
+      "status": "implemented-context",
+      "commit": "9898e7e7773878ec32a0bfd3c38197fddb566893",
+      "path": "paper-lab/reliability-core.js",
+      "configuration": {
+        "form_matches": 5,
+        "favourite_min_wins": 4,
+        "opponent_max_wins": 1
+      },
+      "inputs": "Single-source result history and earlier kickoff filters.",
+      "outputs": "Pattern status; no probability.",
+      "tests": "Synthetic pattern and missing-data cases.",
+      "source_sha256": "be8d93986b5c7f739ab9cc63fe2345876e207ec26cd5026ebe0f6a6fb25d5559",
+      "git_commit_date": "2026-11-21",
+      "audit_configuration_sha256": "e38c6e83e93045755e6ac25bb2e31c93c369356046e0dabfab7c5e731466d372",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "opponent-ppg-form",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "scripts/match_intelligence_backtest.cjs",
+      "configuration": {
+        "ppg_prior_matches": 8,
+        "ppg_prior": 1.35,
+        "adjustment": 0.5,
+        "alphas": [
+          0,
+          0.025,
+          0.05,
+          0.1,
+          0.15,
+          0.2
+        ]
+      },
+      "inputs": "Earlier date results, rolling venue rates and opponent PPG.",
+      "outputs": "Raw and opponent-adjusted form challengers.",
+      "tests": "Pinned test_match_intelligence_backtest.cjs.",
+      "source_sha256": "dc17f1d1a8448f581608b858d6e29818cef065a7c259ba7f9f267a637c205671",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "f6e1f997a5117c5e847dbf5d505310eb8feaacc70432a0495681a99bf5116ae9",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "opponent-defence",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "scripts/match_intelligence_stage3.cjs",
+      "configuration": {
+        "pseudo_matches": 5,
+        "factor_bounds": [
+          0.65,
+          1.5
+        ],
+        "gamma": [
+          0,
+          0.25,
+          0.5,
+          0.75,
+          1
+        ]
+      },
+      "inputs": "Earlier venue-specific goals conceded.",
+      "outputs": "Opponent-defence adjustment to attacking observations.",
+      "tests": "Pinned test_match_intelligence_stage3.cjs.",
+      "source_sha256": "a73695f9d91c24285f9fc5036595d3405e82b0a696e43ab155b6c991282297b8",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "5dcdb7b16f67ff3c104bdf3e5b177a8fe6a1f35bd79f86358a98222ef1aa6bd4",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "squad-context",
+      "status": "implemented-context",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/squad-context.js",
+      "configuration": {
+        "adjustment": null
+      },
+      "inputs": "Dated lineup, transfer, injury, suspension, manager and rest evidence.",
+      "outputs": "Descriptive accepted/rejected receipts and null effect.",
+      "tests": "Pinned test_match_intelligence_stage4.cjs.",
+      "source_sha256": "2e6c5975eca7c94b1d2b0c459a72a8fd6fb635649f586d4079d0be801b0dfd30",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "531e0d602bad0cd7cbcb33996595c81c30674584e087fc2f40f848d13c79ce88",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "dynamic-player-scenario",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/dynamic-player-impact.js",
+      "configuration": {
+        "default_reliability_k": 20,
+        "minutes_scale": 90,
+        "lambda_range": [
+          0.15,
+          4
+        ],
+        "grid_max": 11
+      },
+      "inputs": "Signed hypothetical attack/defence, differential minutes, form, matchup and sample count.",
+      "outputs": "Per-player signed shifts, baseline and counterfactual Poisson vectors.",
+      "tests": "Pinned test_match_intelligence_dynamic_player.cjs.",
+      "source_sha256": "c4c8c7a9114194ecfc1e9e88287190522d02e40415e0e31e788ccca983d7d81a",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "0470c0cc1b621af050068ce6d8c365e9f140744b49a0b85d88103c0ea58d13b4",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "player-residual",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/stage10-player-residuals.cjs",
+      "configuration": {
+        "configuration_status": "exact grid and decision logic pinned in source"
+      },
+      "inputs": "Earlier lineup/residual history.",
+      "outputs": "Separate lagged player signal challenger.",
+      "tests": "Pinned test_match_intelligence_stage10.cjs.",
+      "source_sha256": "94658d1d3c185bd9680063d6389a8dfbf80575c5eca42820db9b068429bee898",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "ae394078bede583b688fa481ad51e636edcb96f899719ce46da707f10ff6b362",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "replacement-proxy",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/stage11-replacement-proxy.cjs",
+      "configuration": {
+        "ridge_min_history": 12,
+        "alphas": [
+          -0.6,
+          -0.3,
+          0,
+          0.3,
+          0.6
+        ]
+      },
+      "inputs": "Earlier lineups and earlier residuals.",
+      "outputs": "Ridge relative-lineup signal, isolated replay.",
+      "tests": "Pinned test_match_intelligence_stage11.cjs.",
+      "source_sha256": "b7d769a3c85148d045859e495537d44a59eb8a342b74c3526401ebbb2210cc21",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "13ff902b2c2cf9382f61a39e8663c622363db32226bb3fa87131540e1b99b192",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "market-calibration",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/stage12-market-calibration.cjs",
+      "configuration": {
+        "configuration_status": "exact market and bootstrap logic pinned in source"
+      },
+      "inputs": "Complete three-way historical odds and earlier-date estimates.",
+      "outputs": "De-vig, paired score and calibration research.",
+      "tests": "Pinned test_match_intelligence_stage12.cjs.",
+      "source_sha256": "232b933cfbdd2ddec936fb2d96e8579b70f9501fbb717bc4ac71e262f372c32c",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "d15dac278046aa9ba79eb7244d6e02cc93b78a6b949a13bbc69fe80843e8eefb",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "isolated-market-blend",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/stage13-market-blend.cjs",
+      "configuration": {
+        "configuration_status": "exact prespecified weight grid pinned in source"
+      },
+      "inputs": "Matched closing market and model vectors.",
+      "outputs": "Isolated blend and prospective quote audit.",
+      "tests": "Pinned test_match_intelligence_stage13.cjs.",
+      "source_sha256": "2039a30423b6997bd7bf0add56c3da1fbd72dfa95a96a7c5b12c84d01778e7c3",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "0287cab2216583d308ab69a2d0a323d322cde3c85fd84fc963ef34ff3d76fdaa",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "market-anchor",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/stage14-market-anchored-ev.cjs",
+      "configuration": {
+        "configuration_status": "exact caps and anchor grid pinned in source"
+      },
+      "inputs": "Model, market and price bands.",
+      "outputs": "Isolated research candidate comparisons.",
+      "tests": "Pinned test_match_intelligence_stage14.cjs.",
+      "source_sha256": "0afeba9f7aaf4a3ee3902df38ec509a1312b537e0bfbb241b3f63444587b14fa",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "06a00df6b785c82c04d044a38c659b661e9e54ea3e1c0da35e7b67d9e779782b",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "market-calibration-bins",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/stage15-outcome-odds-calibration.cjs",
+      "configuration": {
+        "configuration_status": "exact bounds and variants pinned in source"
+      },
+      "inputs": "Matched model and outcome/odds groups.",
+      "outputs": "Outcome and price-band diagnostics.",
+      "tests": "Pinned test_match_intelligence_stage15.cjs.",
+      "source_sha256": "8000487158739a2ce20186f161c8b23909cb8e902c126b93dbcdf9186f79e767",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "070c3b1e6a7d0c2ec8351f6638ac79b6cc13d7a8c0d25b9a4b0b890333a87e3a",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    },
+    {
+      "id": "optimism-correction",
+      "status": "historical-research",
+      "commit": "a29079994013f159f8a67861d029c6b12f5061e5",
+      "path": "research/match-intelligence/stage16-chronological-selection-correction.cjs",
+      "configuration": {
+        "prior": 30,
+        "shares": [
+          0.5,
+          1
+        ],
+        "maximum_decimal": [
+          null,
+          5
+        ]
+      },
+      "inputs": "Earlier selected observations and outcome-specific expected/observed counts.",
+      "outputs": "Research-only optimism correction; rejected in archived note.",
+      "tests": "Pinned test_match_intelligence_stage16.cjs.",
+      "source_sha256": "4323f26d009e8a06ddf2abc59c93a672abc4bd7032271afcca8ea00118f92bbc",
+      "git_commit_date": "2026-11-14",
+      "audit_configuration_sha256": "81f6fa22dfbf5faf026c5cdcf53607fdf31c438f4bf93c308ec3b3b54a8f0e6d",
+      "empirical_validation": "unvalidated",
+      "prospective_eligibility": "not_admitted"
+    }
+  ]
+}
