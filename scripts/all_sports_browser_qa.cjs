@@ -24,7 +24,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 const sports = ['football','racing','tennis','nfl','darts','rugby','golf','basketball','cricket'];
-const routes = ['football-match','market-intelligence','racing-research','darts','rugby',
+const routes = ['football-match','market-intelligence','racing-research','darts','rugby','sports-watch',
   'validation-centre','ops-control','wildcard','analyst','paper-lab'];
 const report = {repositoryScreenshots: [], syntheticChecks: [], accessibility: []};
 const blocked = ['golf','basketball','cricket'];
@@ -199,6 +199,7 @@ async function discoveryFlow(browser, base) {
         for (const route of routes) {
           const response = await page.goto(base + '/' + route + '/');
           assert.equal(response.status(),200);
+          await page.waitForLoadState('networkidle');
           await screenshot(page,route + '-workspace-' + width);
         }
       }
