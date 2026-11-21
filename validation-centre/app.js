@@ -128,18 +128,50 @@ function showPerformance(ledger,outcomes,review,weekly){
    for(const item of weekly.source_health){const tr=add(b,'tr');for(const x of [item.sport,item.source,item.sourceStatus,item.captureSupport,item.secondaryResultSupport])add(tr,'td',x??'Unavailable');}
  }else add(cover,'p','Coverage report unavailable; no claim of seven fully operational model pipelines.');
 }
+function showProviderReadiness(registry){
+ const target=$('provider-readiness');target.replaceChildren();
+ const fail=()=>write('provider-readiness-status','Provider registry unavailable or invalid.');
+ const sportIds=new Set(['football','racing','nfl','tennis','rugby','darts','basketball','cricket','golf']);
+ if(!C.guarded(registry)||registry.schema_version!==1||!/^\d{4}-\d{2}-\d{2}$/.test(registry.reviewed_on??'')||
+    !Array.isArray(registry.sports)||registry.sports.length!==sportIds.size||!Array.isArray(registry.providers))return fail();
+ const providers=new Map(registry.providers.map(row=>[row?.id,row?.name]));
+ if(providers.size!==registry.providers.length||[...providers.values()].some(name=>typeof name!=='string'||!name.trim()))return fail();
+ const gates={access_authorized:'NEEDS ACCESS APPROVAL',rights_approved:'NEEDS RIGHTS REVIEW',
+              independent_source_reviewed:'NEEDS INDEPENDENT SOURCE'};
+ const rows=[];
+ for(const row of registry.sports){
+  if(!sportIds.delete(row?.id)||typeof row.name!=='string'||typeof row.next_action!=='string'||
+     !Array.isArray(row.providers)||!row.providers.length||row.providers.some(id=>!providers.has(id))||
+     Object.keys(gates).some(key=>typeof row[key]!=='boolean'))return fail();
+  const states=Object.keys(gates).filter(key=>!row[key]).map(key=>gates[key]);
+  rows.push([row.name,row.providers.map(id=>providers.get(id)).join(', '),
+    states.join(' · ')||'CHECK CREDENTIALS OFFLINE',row.next_action]);
+ }
+ const table=add(target,'table'),head=add(add(table,'thead'),'tr');
+ ['Sport','Candidate providers','External gates','Next action'].forEach(label=>add(head,'th',label).scope='col');
+ const body=add(table,'tbody');
+ for(const [sport,...cells] of rows){
+  const row=add(body,'tr');
+  add(row,'th',sport).scope='row';
+  cells.forEach(value=>add(row,'td',value));
+ }
+ write('provider-readiness-status','Reviewed '+registry.reviewed_on+' · UNVALIDATED / BLOCKED');
+}
 async function refresh(){
  const token=++generation,button=$('retry'),started=Date.now();
  button.disabled=true;$('result-heading').textContent='Checking source archives…';
  write('result-reason','Verifying source metadata and prospective forecast/outcome contracts.');
  write('last-checked','Check started: '+when(started));$('sports-body').replaceChildren();
- const responses=await Promise.allSettled(SOURCES.map(s=>get(s)));
+ const [responses,providerRegistry]=await Promise.all([
+  Promise.allSettled(SOURCES.map(s=>get(s))),get('research/provider-readiness.json').catch(()=>null)
+ ]);
  if(token!==generation)return;
  const feeds={};const failed=[];
  responses.forEach((r,i)=>{if(r.status==='fulfilled')feeds[SOURCES[i]]=r.value;else failed.push(SOURCES[i])});
  const score=C.evaluate(feeds['prediction-ledger.json'],feeds['results-feed.json']);
  const health=C.sourceHealth(feeds,Date.now()),legacy=C.descriptiveHistory(feeds['research-history.json']);
  draw(score,health,legacy);
+ showProviderReadiness(providerRegistry);
  showReview(feeds['research/result-review-status.json'],feeds['prediction-ledger.json'],feeds['research/provider-result-observations.json'],feeds['research/secondary-result-evidence.json']);
  showPerformance(feeds['prediction-ledger.json'],feeds['results-feed.json'],feeds['research/result-review-status.json'],feeds['research/performance-report-latest.json']);
  const unavailable=health.filter(x=>x.sourceStatus!=='CURRENT');

@@ -42,9 +42,15 @@
 <section class="panel" aria-labelledby="coverage-heading"><h2 id="coverage-heading">Seven-sport pipeline coverage</h2>
 <p>Coverage status is separate from model performance. Source-observed fixtures must not be mistaken for frozen forecasts or independently corroborated outcomes.</p>
 <div id="coverage-report" class="table-scroll">Checking sport-by-sport capture and result verification…</div>
+<details>
+  <summary>Proposed provider readiness</summary>
+  <p>Planning evidence for nine sports. Credential presence is checked offline.</p>
+  <p id="provider-readiness-status" role="status">Checking provider registry…</p>
+  <div id="provider-readiness" class="table-scroll" tabindex="0" role="region" aria-label="Provider readiness by sport"></div>
+</details>
 </section>
 <section class="panel" aria-labelledby="policy-heading"><h2 id="policy-heading">Validation release gates</h2>
 <ol><li>Freeze each forecast before its event begins, with a unique prediction ID and source snapshot fingerprint.</li><li>Confirm a final outcome with matching event and market identity and independent source evidence.</li><li>Verify chronology, duplicates, contradictory results and leakage risks before numerical scoring.</li><li>Assess sample adequacy, calibration, Brier/log loss, uncertainty and chronological independent baselines per sport.</li><li>Evaluate genuine bookmaker prices and settlement rules separately; no model promotion or positive-EV claims without approval.</li></ol>
 <p>This dashboard never edits the research models, betting slips, archived predictions, or result collectors. It cannot itself attest that external provider receipts are genuine.</p></section>
 <footer>VALUE WATCH PRO · Independent research-quality review · Not a betting recommendation</footer></main>
-<script src="./core.js?v=result-receipts" defer></script><script src="./performance-core.js" defer></script><script src="./app.js?v=result-receipts" defer></script></body></html>
+<script src="./core.js?v=result-receipts" defer></script><script src="./performance-core.js" defer></script><script src="./app.js?v=provider-readiness" defer></script></body></html>

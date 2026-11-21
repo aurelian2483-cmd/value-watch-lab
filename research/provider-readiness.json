@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-11-21",
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "providers": [
+    {
+      "id": "football_data",
+      "name": "football-data.org",
+      "required_variables": [
+        "FOOTBALL_DATA_API_KEY"
+      ],
+      "references": [
+        "https://docs.football-data.org/general/v4/match.html",
+        "https://docs.football-data.org/general/v4/policies.html",
+        "https://www.football-data.org/pricing"
+      ]
+    },
+    {
+      "id": "racing_api",
+      "name": "The Racing API",
+      "required_variables": [
+        "RACING_API_USERNAME",
+        "RACING_API_PASSWORD"
+      ],
+      "references": [
+        "https://api.theracingapi.com/documentation",
+        "https://api.theracingapi.com/openapi.json",
+        "https://www.theracingapi.com/terms-of-service"
+      ]
+    },
+    {
+      "id": "odds_api",
+      "name": "The Odds API",
+      "required_variables": [
+        "ODDS_API_KEY"
+      ],
+      "references": [
+        "https://the-odds-api.com/liveapi/guides/v4/",
+        "https://the-odds-api.com/sports-odds-data/sports-apis.html",
+        "https://the-odds-api.com/#pricing",
+        "https://the-odds-api.com/terms-and-conditions.html"
+      ]
+    },
+    {
+      "id": "sportradar",
+      "name": "Sportradar",
+      "required_variables": [
+        "SPORTRADAR_API_KEY"
+      ],
+      "references": [
+        "https://developer.sportradar.com/getting-started/docs/get-started",
+        "https://developer.sportradar.com/odds/docs/oc-ig-overview"
+      ]
+    }
+  ],
+  "sports": [
+    {
+      "id": "football",
+      "name": "Football",
+      "providers": [
+        "football_data"
+      ],
+      "access_authorized": false,
+      "rights_approved": false,
+      "independent_source_reviewed": false,
+      "next_action": "Confirm league entitlements and fixture/price crosswalk. Approve retention and public display and nominate an independent regulation-time result reviewer."
+    },
+    {
+      "id": "racing",
+      "name": "Horse racing",
+      "providers": [
+        "racing_api"
+      ],
+      "access_authorized": false,
+      "rights_approved": false,
+      "independent_source_reviewed": false,
+      "next_action": "Confirm licensed GB/IRE racecards and settlement, Pro odds history if needed, win/place terms and separate result provenance."
+    },
+    {
+      "id": "nfl",
+      "name": "NFL",
+      "providers": [
+        "odds_api",
+        "sportradar"
+      ],
+      "access_authorized": false,
+      "rights_approved": false,
+      "independent_source_reviewed": false,
+      "next_action": "Confirm NFL provider IDs and overtime/tie settlement. Assign the ESPN/nflverse fixture and independence review."
+    },
+    {
+      "id": "tennis",
+      "name": "Tennis",
+      "providers": [
+        "odds_api",
+        "sportradar"
+      ],
+      "access_authorized": false,
+      "rights_approved": false,
+      "independent_source_reviewed": false,
+      "next_action": "Confirm ATP/WTA tournament and singles mappings, evidence rights, and retirement, walkover and void settlement."
+    },
+    {
+      "id": "rugby",
+      "name": "Rugby",
+      "providers": [
+        "odds_api",
+        "sportradar"
+      ],
+      "access_authorized": false,
+      "rights_approved": false,
+      "independent_source_reviewed": false,
+      "next_action": "Request Union and League package coverage separately, including regulation-time settlement and independent results."
+    },
+    {
+      "id": "darts",
+      "name": "Darts",
+      "providers": [
+        "sportradar"
+      ],
+      "access_authorized": false,
+      "rights_approved": false,
+      "independent_source_reviewed": false,
+      "next_action": "Verify competition and exact start-time coverage, market availability, and an independent result source."
+    },
+    {
+      "id": "basketball",
+      "name": "Basketball",
+      "providers": [
+        "odds_api",
+        "sportradar"
+      ],
+      "access_authorized": false,
+      "rights_approved": false,
+      "independent_source_reviewed": false,
+      "next_action": "Select NBA scope before approving licensed fixtures, market retention and overtime settlement."
+    },
+    {
+      "id": "cricket",
+      "name": "Cricket",
+      "providers": [
+        "odds_api",
+        "sportradar"
+      ],
+      "access_authorized": false,
+      "rights_approved": false,
+      "independent_source_reviewed": false,
+      "next_action": "Select competition and format. Validate rain, no-result and super-over rules and independent score evidence."
+    },
+    {
+      "id": "golf",
+      "name": "Golf",
+      "providers": [
+        "odds_api",
+        "sportradar"
+      ],
+      "access_authorized": false,
+      "rights_approved": false,
+      "independent_source_reviewed": false,
+      "next_action": "Select tours and confirm stable tournament and player mappings, withdrawal and dead-heat settlement."
+    }
+  ]
+}
