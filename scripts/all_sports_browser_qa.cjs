@@ -300,6 +300,13 @@ async function overviewStates(page) {
         assert.equal(await page.locator('#sport-evidence').evaluate(el => el === document.activeElement),true);
         await page.goBack();
         await page.getByRole('heading', {name:'Cricket evidence and workflow'}).waitFor();
+        await page.goto(base + '/?view=visual-preview');
+        assert.equal(await page.locator('#sport-evidence').isVisible(),false);
+        const football = page.locator('.pro-quick-filters [data-pro-sport="football"]');
+        await football.focus();
+        await page.keyboard.press('Enter');
+        await page.getByRole('heading', {name:'Football evidence and workflow'}).waitFor();
+        assert.equal(await page.evaluate(() => document.activeElement.id),'sport-evidence');
       }
       assert.deepEqual(errors, []);
       await context.close();
