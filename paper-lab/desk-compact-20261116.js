@@ -22,7 +22,10 @@
     const rows=window.ValueWatchCurrentOddsForCards;
     if(!Array.isArray(rows)||event?.sport!=='football')return null;
     const start=Date.parse(event.startUTC),now=Date.now();
-    const matches=rows.filter(row=>row&&row.sport==='football'&&row.name===event.name&&row.startMs===start&&row.expires>now);
+    const normalize=value=>String(value||'').normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('en-GB').replace(/[^a-z0-9]/g,'');
+    const [home,away]=event.participants.map(participant=>participant?.name);
+    const matches=rows.filter(row=>row&&row.sport==='football'&&row.startMs===start&&row.expires>now&&
+      normalize(row.home)===normalize(home)&&normalize(row.away)===normalize(away));
     if(matches.length!==1)return null;
     const quote=matches[0],prices=quote.prices;
     if(!prices||!['home','draw','away'].every(side=>Number.isFinite(prices[side])&&prices[side]>1))return null;
