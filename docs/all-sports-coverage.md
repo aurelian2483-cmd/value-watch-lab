@@ -58,3 +58,38 @@ The [research regression](../.github/workflows/research-regression.yml) specifie
 ## Phase 69 | Free-source research lanes
 
 The main site exposes a dedicated experimental coverage summary for all nine sports. Basketball and cricket show discovery coverage, and golf shows directory coverage. Their buttons carry no placeholder timed fixture count. Every lane reports that current odds are unavailable from approved free sources. Existing source timestamps, freshness, failure messages and research safeguards remain in place. No new connector cleared the free, no-registration access, licensing, identity, timestamp and update requirements. See the [Phase 69 decision and probe evidence](phase69-free-source-coverage.md).
+
+## Exact fixture navigation audit
+
+Follow-up to the shared navigation in PR #138 and the exact football
+handoff in PR #139 (`6dcddba6d67301fda3b8e6d8f11df68dac348d8c`).
+The scope here is the redesigned homepage and paths reachable from its
+nine sport selectors. “Exact” means the destination can match the
+identity in a fresh published snapshot. It does not establish independent
+corroboration, a verified odds quote or a qualified model.
+
+| Sport | Homepage to calendar/research | Direct fixture status and evidence | Blocker or limitation |
+| --- | --- | --- | --- |
+| Football | Research desk, Match Centre, Market Intelligence | Available for the existing competition, ordered team and UTC kickoff key. Match Centre re-resolves against its existing conflict-aware index and requires fresh dashboard coverage for an overview link. | No direct link for an unmatched or rescheduled exact key, a started event or a stale dashboard. Standalone historical reconstruction remains separate. |
+| Horse racing | Timed racecards, future meeting schedules, Racing Research | Available for source-observed Sporting Life racecards with matching race ID in the source path, receipt hash, pre-off receipt time within 30 minutes, cross-checked schedule, course, card name and UTC off-time. The destination independently reloads the same published feed. | Meeting-only and uncaptured cards remain schedule-only. A card hash and ID do not certify bookmaker prices or settlement. |
+| Tennis | ATP/WTA research desk, Operations and Validation | Available for ESPN tour-qualified fixture IDs, separate participant IDs in published order, exact names, competition, UTC start and fresh per-sport observation. | Partial draws and unavailable, stale or cancelled events do not become eligible. No independent result or retirement inference. |
+| NFL | NFL research desk, Operations and Validation | Available for ESPN NFL event ID and matching ordered participant IDs, names, competition, UTC kickoff and fresh observation. | Coverage is a published scoreboard sample. No independent final, odds or overtime settlement inferred. |
+| Darts | Darts live research desk calendar, analysis and source review | Calendar only. Timed provider observations carry provider/player IDs, but official listings can be date/session only and a shared exact-identity contract across the destination and provider schedules is not established. | Link extension needs the official/provider crosswalk and compatible schedule status. Tentative or time-conflicting rows stay separate. |
+| Rugby | Rugby calendar and research, separate union/league views | Calendar only. Observed event ID, names, competition code and receipt do not supply ordered team IDs or an exact team crosswalk to the official Rugby League calendar. | League calendar announcements can be date-only. Pro D2 research remains separate and cannot fill gaps in other competitions. |
+| Basketball | Discovery-only lane and manual Sports Watch coverage | Unavailable. No connected fixture IDs or timing receipts. | Manual entry is a coverage lookup. |
+| Cricket | Discovery-only lane and manual Sports Watch coverage | Unavailable. Historical day-level sources do not establish prospective fixture identity. | No connected exact fixture feed. |
+| Golf | Directory-only lane and manual Sports Watch coverage | Unavailable. No event, round or participant schedule contract. | No connected exact fixture feed. |
+
+The overview's UK date, timed sport and search filters are URL-backed for
+refresh and browser Back. The desk keeps its saved date range and
+URL-backed sport, competition, search and status independently of the
+overview. Sport changes reset the desk competition on the new history
+entry. Back restores the previous competition instead of guessing a
+replacement. A saved competition outside current coverage is labelled.
+
+The new fixture evidence view validates the event tuple against the
+normalised snapshot on entry and withholds stale, started, ambiguous and
+mismatched records. It displays schedule provenance only. No result,
+price, model or publication gate changed. **UNVALIDATED / BLOCKED.**
+Use the browser QA artefacts for desktop, emulated touch tablet and
+phone screenshots. Physical Windows-tablet checks remain outstanding.

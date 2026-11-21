@@ -135,9 +135,13 @@ function renderFeatured(){
   const when=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(item.startMs));
   cell(tr,label);
   const fixture=document.createElement('td');
-  if(item.fixtureKey && !document.documentElement.classList.contains('visual-preview')){
+  const compact=document.documentElement.classList.contains('visual-preview');
+  const exact=Sources.detailKey(item);
+  if(!compact && item.startMs>Date.now() && (item.fixtureKey||exact)){
    const link=document.createElement('a');
-   link.href='./football-match/?'+new URLSearchParams({event:'fixture:'+item.fixtureKey});
+   link.href=item.fixtureKey
+    ?'./football-match/?'+new URLSearchParams({event:'fixture:'+item.fixtureKey,overview:'1'})
+    :'./fixture-detail/?'+new URLSearchParams({sport:item.sport,event:exact});
    link.textContent=item.name;
    fixture.append(link);
   }else fixture.textContent=item.name;
@@ -178,14 +182,43 @@ function wireFeatured(){
  document.getElementById('pro-feature-prev')?.addEventListener('click',()=>{if(page>0){page--;renderFeatured()}});
  document.getElementById('pro-feature-next')?.addEventListener('click',()=>{if((page+1)*FEATURE_PAGE_SIZE<visibleFeatured().length){page++;renderFeatured()}});
  document.getElementById('pro-feature-refresh')?.addEventListener('click',showFeatured);
- const redraw=()=>{page=0;renderFeatured()};
+ const controls=[['pro-feature-range','fdate'],['pro-feature-sport','fsport'],['pro-feature-query','fq']];
+ function restoreFilters(){
+  if(document.documentElement.classList.contains('visual-preview'))return;
+  const params=new URLSearchParams(location.search);
+  for(const [id,key] of controls){
+   const control=document.getElementById(id);
+   if(!control)continue;
+   const value=params.get(key)||'';
+   control.value=control.tagName==='SELECT'
+    ?([ ...control.options ].some(option=>option.value===value)?value:'all'):value.slice(0,80);
+  }
+ }
+ function redraw(save=true){
+  if(save){
+   const url=new URL(location.href);
+   for(const [id,key] of controls){
+    const value=document.getElementById(id)?.value;
+    if(value&&value!=='all')url.searchParams.set(key,value);
+    else url.searchParams.delete(key);
+   }
+   history.replaceState(history.state,'',url);
+  }
+  const link=document.querySelector('.pro-featured [data-open-events]');
+  if(link)link.textContent=document.getElementById('pro-feature-range')?.value==='all'?'Explore all ↗':'Explore selected date ↗';
+  page=0;
+  renderFeatured();
+ }
+ restoreFilters();
+ if(!document.documentElement.classList.contains('visual-preview')){
+  window.addEventListener('popstate',()=>{restoreFilters();redraw(false)});
+  window.addEventListener('pageshow',event=>{if(event.persisted){restoreFilters();redraw(false)}});
+ }
  document.getElementById('pro-feature-sport')?.addEventListener('change',redraw);
  document.getElementById('pro-feature-query')?.addEventListener('input',redraw);
- document.getElementById('pro-feature-range')?.addEventListener('change',event=>{
-  const link=document.querySelector('.pro-featured [data-open-events]');
-  if(link)link.textContent=event.target.value==='all'?'Explore all ↗':'Explore selected date ↗';
-  redraw();
- });
+ document.getElementById('pro-feature-range')?.addEventListener('change',redraw);
+ const range=document.getElementById('pro-feature-range');
+ if(range && range.value!=='all')document.querySelector('.pro-featured [data-open-events]').textContent='Explore selected date ↗';
 }
 function init(){ready();wireFeatured();showFeatured()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

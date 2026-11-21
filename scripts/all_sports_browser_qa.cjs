@@ -266,6 +266,8 @@ async function referenceNavigation(browser, base) {
   await table.getByText(/Synthetic Tomorrow/).waitFor();
   assert.equal(await range.inputValue(),'tomorrow');
   await range.selectOption('today');
+  await page.reload();
+  assert.equal(await range.inputValue(),'today');
   await table.getByText(/Synthetic Today/).waitFor();
   assert.equal(await table.getByText(/Synthetic Tomorrow/).count(),0);
   await page.getByRole('link',{name:/Explore selected date/}).click();
@@ -289,6 +291,65 @@ async function referenceNavigation(browser, base) {
   await page.close();
 }
 
+async function exactCrossSport(page, base, width) {
+  await page.clock.setFixedTime(new Date('2026-11-21T13:55:00Z'));
+  await page.goto(base + '/');
+  for (const sport of sports) {
+    const choice = page.locator('.pro-quick-filters [data-pro-sport="'+sport+'"]');
+    if (width === 1440) { await choice.focus(); await page.keyboard.press('Enter'); }
+    else await choice.tap();
+    assert.equal(await page.locator('#sport').inputValue(),sport);
+    assert.equal(await page.evaluate(()=>document.activeElement.id),'sport-evidence');
+    if (['darts','rugby',...blocked].includes(sport))
+      assert.match(await page.locator('#sport-evidence').textContent(),/Exact fixture .*unavailable/);
+  }
+  for (const sport of ['racing','tennis','nfl']) {
+    await page.locator('#pro-feature-sport').selectOption(sport);
+    const link=page.locator('#pro-featured-rows a').first();
+    await link.waitFor();
+    const name=await link.innerText();
+    await page.locator('#pro-feature-query').fill(name.slice(0,25));
+    await page.reload();
+    assert.equal(await page.locator('#pro-feature-sport').inputValue(),sport);
+    assert.equal(await page.locator('#pro-feature-query').inputValue(),name.slice(0,25));
+    if(width===1440){await link.focus();await page.keyboard.press('Enter');}
+    else await link.tap();
+    await page.getByRole('heading',{name,exact:true}).waitFor();
+    await page.locator('#evidence').waitFor();
+    await screenshot(page,sport+'-exact-'+width);
+    const good=new URL(page.url());
+    const tuple=JSON.parse(good.searchParams.get('event'));
+    tuple[4]='2026-11-22T11:22:00.000Z';
+    const mismatch=new URL(good);
+    mismatch.searchParams.set('event',JSON.stringify(tuple));
+    await page.goto(mismatch.href);
+    await page.getByText(/This fixture is unavailable/).waitFor();
+    assert.equal(await page.locator('#evidence').isVisible(),false);
+    await page.goBack();
+    await page.getByRole('heading',{name,exact:true}).waitFor();
+    await page.goBack();
+    assert.equal(await page.locator('#pro-feature-sport').inputValue(),sport);
+    assert.equal(await page.locator('#pro-feature-query').inputValue(),name.slice(0,25));
+    await page.locator('#pro-feature-query').fill('');
+  }
+  const desk = new URL(base+'/');
+  desk.search = new URLSearchParams({sport:'nfl','desk-query':'buffalo','desk-view':'all','desk-competition':'NFL · Week 11'});
+  await page.goto(desk.href);
+  await page.locator('#range-presets [data-range="tomorrow"]').click();
+  await page.reload();
+  assert.equal(await page.locator('#date-from').inputValue(),'2026-11-22');
+  assert.equal(await page.locator('#competition').inputValue(),'NFL · Week 11');
+  assert.equal(await page.locator('#search').inputValue(),'buffalo');
+  await page.locator('#sport-nav [data-sport="tennis"]').click();
+  await page.goBack();
+  assert.equal(await page.locator('#sport').inputValue(),'nfl');
+  assert.equal(await page.locator('#event-view').inputValue(),'all');
+  assert.equal(await page.locator('#search').inputValue(),'buffalo');
+  assert.equal(await page.locator('#competition').inputValue(),'NFL · Week 11');
+  assert.equal(await page.locator('#date-from').inputValue(),'2026-11-22');
+  report.syntheticChecks.push(width+'px nine selector handoffs, exact racing/tennis/NFL snapshots, mismatch, touch or keyboard, refresh and Back');
+}
+
 (async () => {
   await fs.mkdir(output, {recursive:true});
   await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
@@ -302,7 +363,7 @@ async function referenceNavigation(browser, base) {
       await referenceNavigation(browser,base);
     }
     for (const width of [1440,820,390]) {
-      const context = await browser.newContext({viewport:{width,height:920},reducedMotion:'reduce'});
+      const context = await browser.newContext({viewport:{width,height:920},hasTouch:width<1000,reducedMotion:'reduce'});
       const page = await context.newPage();
       await page.route(url => url.origin !== base, route => route.abort());
       const errors = [];
@@ -383,6 +444,7 @@ async function referenceNavigation(browser, base) {
         await page.getByRole('heading', {name:'Football evidence and workflow'}).waitFor();
         assert.equal(await page.evaluate(() => document.activeElement.id),'sport-evidence');
       }
+      if (!compact) await exactCrossSport(page,base,width);
       assert.deepEqual(errors, []);
       await context.close();
     }

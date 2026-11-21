@@ -1,0 +1,8 @@
+main { max-width: 68rem; margin: 0 auto; padding: 1rem clamp(1rem, 3vw, 2rem); }
+#evidence { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: .6rem 1rem; padding: 1rem; background: var(--vw-card); border: 1px solid var(--vw-line); border-radius: .75rem; }
+dt { color: var(--muted); }
+dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 420px) {
+  #evidence { grid-template-columns: minmax(0, 1fr); gap: .3rem; }
+  dd:not(:last-child) { margin-bottom: .6rem; }
+}

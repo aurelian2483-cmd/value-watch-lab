@@ -3,11 +3,12 @@ on:
   push:
     branches: [codex/value-watch-development]
   pull_request:
-    branches: [copilot/evidence-research-handover, main, codex/value-watch-development, codex/all-sports-website-integration, codex/phase66-compact-preview, codex/phase67-result-evidence, codex/reference-workspace-redesign]
+    branches: [copilot/evidence-research-handover, main, codex/value-watch-development, codex/all-sports-website-integration, codex/phase66-compact-preview, codex/phase67-result-evidence, codex/reference-workspace-redesign, codex/reference-fixture-integration]
     paths:
       - 'index.html'
       - 'analyst/**'
       - 'football-match/**'
+      - 'fixture-detail/**'
       - 'market-intelligence/**'
       - 'pro-design.css'
       - 'visual-preview/**'
@@ -62,7 +63,7 @@ jobs:
           node scripts/all_sports_browser_qa.cjs --compact-preview
           mv work/browser-qa/compact-preview work/browser-qa/compact-after
       - name: Verify nine research lanes in the approved compact design
-        if: github.head_ref == 'codex/phase69-free-sport-lanes' || github.head_ref == 'codex/reference-workspace-redesign' || github.head_ref == 'codex/reference-fixture-integration'
+        if: github.head_ref == 'codex/phase69-free-sport-lanes' || github.head_ref == 'codex/reference-workspace-redesign' || github.head_ref == 'codex/reference-fixture-integration' || github.head_ref == 'codex/exact-cross-sport-navigation'
         run: node scripts/all_sports_browser_qa.cjs --compact-preview
       - name: Save QA report and screenshots
         if: always()

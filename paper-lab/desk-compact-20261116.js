@@ -71,8 +71,27 @@
      initial.plan.slots.every(slot => !slot.legs.length)){
     initial.plan=E.createPlan({from:today(),to:plusDays(today(),6)});
   }
-  const requestedSport = new URLSearchParams(location.search).get('sport');
-  const store = S.createStore({ ...initial, events: [], eventVersion: 0, snapshotState: null, slot: 0, sport: Object.hasOwn(sports, requestedSport) ? requestedSport : 'all', competition: 'all', query: '', eventView: 'upcoming', view: 'events', limit: 24, replacing: null, clockTick: 0 });
+  function urlFilters() {
+    const params = new URLSearchParams(location.search);
+    const sport = params.get('sport'), view = params.get('desk-view');
+    return {
+      sport: Object.hasOwn(sports, sport) ? sport : 'all',
+      competition: params.get('desk-competition')?.slice(0, 160) || 'all',
+      query: params.get('desk-query')?.slice(0, 120).trim().toLocaleLowerCase('en-GB') || '',
+      eventView: ['history','all'].includes(view) ? view : 'upcoming'
+    };
+  }
+  const store = S.createStore({ ...initial, ...urlFilters(), events: [], eventVersion: 0, snapshotState: null, slot: 0, view: 'events', limit: 24, replacing: null, clockTick: 0 });
+  function writeDeskFilters() {
+    const state = store.get();
+    const url = new URL(location.href);
+    for (const [key,value,fallback] of [['desk-competition',state.competition,'all'],
+      ['desk-query',state.query,''],['desk-view',state.eventView,'upcoming']]) {
+      if (value === fallback) url.searchParams.delete(key);
+      else url.searchParams.set(key,value);
+    }
+    if (url.href !== location.href) history.replaceState(history.state,'',url);
+  }
   let legacy = [];
   try { const raw = storage.getItem('value-watch-paper-lab-v3'); legacy = Object.values(raw ? JSON.parse(raw) : {}).map(plan => PaperLab.restore(JSON.stringify(plan))); }
   catch { notice('Earlier research could not be read; its original storage is untouched.'); }
@@ -916,6 +935,8 @@
     for (const failure of failures) make(panel, 'p', (specs.find(spec => spec.path === failure.path)?.label || failure.kind) +
       (failure.retained ? ' refresh failed · last successful snapshot retained' : ' source unavailable'), 'small');
     make(panel, 'p', 'PASS · No qualifying opportunity established. UNVALIDATED / BLOCKED.', 'small');
+    if (['darts','rugby'].includes(sport)) make(panel, 'p', 'Exact fixture links are unavailable. Use the calendar to inspect the published schedule and its evidence.', 'small');
+    if (Object.hasOwn(discoveryOnly, sport)) make(panel, 'p', 'Exact fixture details are unavailable for this sport.', 'small');
     if (sport === 'nfl') make(panel, 'p', 'Weekly screening target: 3–5 statistical candidates when evidence supports them. The target is optional.', 'small');
     const routes = {
       football:[['Football Match Centre','football-match/'],['Market Intelligence','market-intelligence/']],
@@ -1072,10 +1093,12 @@
     });
     const fixtureCompetitions = Object.keys(fixtureLabs).filter(sport => state.sport === 'all' || state.sport === sport).flatMap(sport => matchingFixtures(loadFixtureSnapshot(sport), {...state,competition:'all'}).map(row => row.competition));
     const competitions = [...new Set([...filtered({ ...state, competition: 'all' }).map(event => event.competition), ...fixtureCompetitions])].filter(Boolean).sort(), signature = JSON.stringify(competitions);
-    if (state.competition !== 'all' && !competitions.includes(state.competition)) store.update(current => ({ ...current, competition: 'all', limit: 24 }));
-    if ($('competition').dataset.signature !== signature) {
-      $('competition').dataset.signature = signature; $('competition').replaceChildren(); const all = make($('competition'), 'option', 'All competitions'); all.value = 'all';
-      for (const name of competitions) { const option = make($('competition'), 'option', name); option.value = name; }
+    const outside = state.competition !== 'all' && !competitions.includes(state.competition);
+    if (outside) competitions.push(state.competition);
+    const optionsSignature = signature + (outside ? '|' + state.competition : '');
+    if ($('competition').dataset.signature !== optionsSignature) {
+      $('competition').dataset.signature = optionsSignature; $('competition').replaceChildren(); const all = make($('competition'), 'option', 'All competitions'); all.value = 'all';
+      for (const name of competitions) { const option = make($('competition'), 'option', outside && name === state.competition ? name + ' (outside current coverage)' : name); option.value = name; }
       write($('competition-count'), String(competitions.length));
       $('competition-nav').replaceChildren();
       button($('competition-nav'), 'All competitions', () => store.update(state => ({ ...state, competition: 'all', limit: 24 })), 'competition-button').dataset.competition = 'all';
@@ -1942,6 +1965,8 @@
   $('paper-open').addEventListener('click', openSlip); $('paper-close').addEventListener('click', closeSlip); $('paper-backdrop').addEventListener('click', closeSlip);
   document.addEventListener('keydown', event => { if (!document.body.classList.contains('paper-open')) return; if (event.key === 'Escape') closeSlip(); if (event.key === 'Tab') { const items = [...$('slip-panel').querySelectorAll('button:not([disabled]),input,select,summary,a[href]')].filter(element => element.getClientRects().length); if (event.shiftKey && document.activeElement === items[0]) { event.preventDefault(); items.at(-1)?.focus(); } else if (!event.shiftKey && document.activeElement === items.at(-1)) { event.preventDefault(); items[0]?.focus(); } } });
   $('date-from').value = initial.plan.from; $('date-to').value = initial.plan.to;
+  $('search').value = store.get().query;
+  $('event-view').value = store.get().eventView;
   document.querySelectorAll('[data-range]').forEach(element => { element.addEventListener('click', () => safely(() => preset(element.dataset.range))); const active = !restored && element.dataset.range === '7'; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
   function chooseSport(sport) {
     store.update(state => ({ ...state, sport, view: 'events', competition: 'all', limit: 24 }));
@@ -1951,6 +1976,7 @@
     if (!Object.hasOwn(sports, sport)) return;
     if (store.get().sport !== sport) {
       const url = new URL(location.href);
+      url.searchParams.delete('desk-competition');
       if (sport === 'all') url.searchParams.delete('sport');
       else url.searchParams.set('sport', sport);
       history.pushState(null, '', url);
@@ -1959,8 +1985,11 @@
   }
   document.querySelectorAll('[data-sport]').forEach(element => element.addEventListener('click', () => navigateSport(element.dataset.sport)));
   window.addEventListener('popstate', () => {
-    const sport = new URLSearchParams(location.search).get('sport');
-    chooseSport(Object.hasOwn(sports, sport) ? sport : 'all');
+    clearTimeout(searchTimer);
+    const filters = urlFilters();
+    $('search').value = filters.query;
+    $('event-view').value = filters.eventView;
+    store.update(state => ({ ...state, ...filters, view: 'events', limit: 24 }));
   });
   document.querySelectorAll('[data-view]').forEach(element => element.addEventListener('click', () => store.update(state => ({ ...state, view: element.dataset.view }))));
   document.querySelectorAll('[data-slot]').forEach(element => element.addEventListener('click', () => store.update(state => ({ ...state, slot: Number(element.dataset.slot) - 1, replacing: null }))));
@@ -1968,7 +1997,7 @@
   $('sport').addEventListener('change', event => navigateSport(event.target.value));
   $('competition').addEventListener('change', event => store.update(state => ({ ...state, competition: event.target.value, limit: 24 })));
   $('event-view').addEventListener('change', event => store.update(state => ({ ...state, eventView: event.target.value, limit: 24 })));
-  let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
+  let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.slice(0,120).trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
   $('refresh').addEventListener('click', () => safely(() => { if (!hybridEvidence?.pending) hybridEvidence = null; fixtureMarketRequest = null; fixtureSnapshots.clear(); renderFixtureCounts(store.get()); renderEvents(); return refresh(); }));
   $('find-racing')?.addEventListener('click',()=>safely(()=>{racingCandidatesRequested=true;renderRacingCandidates();$('racing-candidates')?.scrollIntoView?.({block:'nearest'});}));
   $('wildcard-build')?.addEventListener('click',()=>safely(createWeeklyWildcard));
@@ -2100,6 +2129,7 @@
     historicalStatus='seven-competition archive unavailable or stale ('+error.message+')';
     if(engineView==='reliability'){renderEvents();renderSlip();}
   });
+  store.subscribe(state => JSON.stringify([state.competition,state.query,state.eventView]), writeDeskFilters);
   store.subscribe(state => JSON.stringify([state.plan.id, state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick, state.claims]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderWildcard(); renderTracker(); }));
   store.subscribe(state => JSON.stringify([state.sport, state.plan.from, state.plan.to]), () => { if (store.get().view === 'history') safely(renderHistory); });
   store.subscribe(state => state.view, () => safely(renderView));
