@@ -29,7 +29,7 @@ const server=http.createServer((req,res)=>{
    const markets = page.locator('#match option');
    if (await markets.count()) {
      assert(await page.locator('#market-rows tr').count() >= 3);
-     assert((await page.locator('#market-status').innerText()).includes('historical source observations'));
+     assert((await page.locator('#market-status').innerText()).includes('recorded historical observations'));
      assert((await page.locator('#market-rows a').first().getAttribute('href')).startsWith('https://'));
      if (await markets.count() > 1) await page.locator('#match').selectOption('1');
    } else {
