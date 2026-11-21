@@ -277,3 +277,10 @@
 .sport-evidence nav a {display: inline-flex; min-height: 32px; align-items: center}
 .sport-evidence nav a:focus-visible {outline: 2px solid currentColor; outline-offset: 3px}
 .event-reference {overflow-wrap: anywhere}
+
+/* Put exact source prices in the primary outcome row; make unavailable estimates visually quieter. */
+.event-card .selection-button.is-unpriced{min-height:82px}
+.event-card .selection-button.is-unpriced .selection-price{font-size:15px;line-height:1.2;color:#a9bfd4}
+.event-card .selection-button.is-unpriced .selection-caption{font-size:9px;color:#a9bfd4}
+.event-card .compact-signal-pill.live-price-pill{background:#123b42;border-color:#3b8690;color:#c8f4f4}
+.event-card .selection-price{font-variant-numeric:tabular-nums}
