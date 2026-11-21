@@ -51,7 +51,7 @@ def eligible_source(document, model):
             meta.get('research_only') is True and meta.get('validated') is False and
             meta.get('model_publication_gate') == 'BLOCKED' and meta.get('outcomes_order') == list(ORDER),
             'wrong retrospective evidence tier or safety gates')
-    configuration_keys = {'goal_rate_prior_pseudo_matches': 'pseudo_matches', 'form_alpha': 'form_alpha',
+    configuration_keys = {'goal_rate_prior_pseudomatches': 'pseudo_matches', 'form_alpha': 'form_alpha',
                           'poisson_grid_goals_max': 'grid_max'}
     require(all(config in model and key in meta and meta[key] == model[config]
                 for key, config in configuration_keys.items()) and
@@ -65,6 +65,7 @@ def eligible_source(document, model):
 
 
 def validate_results(records, expected_counts=None):
+    require(isinstance(records, list), 'date-only results must be a list')
     ids, team_days, ordered_pairs = set(), set(), set()
     for row in records:
         evidence.fields(row, RESULT_FIELDS, 'date-only result')
@@ -230,13 +231,16 @@ def walk_forward(records, rule, cfg, expanded):
 def compare_standalone(records, entries):
     raw = subprocess.check_output(['node', str(ROOT / 'scripts/football_chronological_oracle.cjs')],
                                   input=evidence.canonical(records), cwd=ROOT)
-    original = {row[0]: row[1:] for row in evidence.decode(raw)}
+    oracle = evidence.decode(raw)
+    original = {row[0]: row[1:] for row in oracle}
+    require(len(original) == len(oracle), 'pinned oracle repeats a fixture')
     paired = [row for row in entries if row['probabilities'] is not None]
     require(set(original) == {row['id'] for row in paired}, 'standalone source has different fixture eligibility')
     highest = 0.
     for entry in paired:
         forecast = entry['probabilities']
         for key, vector in zip(('standalone_baseline', 'standalone_form_alpha_0_025'), original[entry['id']]):
+            require(len(vector) == len(ORDER), 'invalid pinned oracle outcome order')
             highest = max(highest, *(abs(actual - expected) for actual, expected in zip(forecast[key], vector)))
     require(highest <= 1.01e-12, 'standalone port differs from the pinned JavaScript calculation')
     return {'paired_fixtures': len(paired), 'probabilities_match_pinned_javascript': True}
@@ -254,20 +258,30 @@ def metrics(entries, variant_order):
         eligible = [row for row in block if row['exclusion_reason'] is None]
         exclusions = dict(Counter(row['exclusion_reason'] for row in block if row['exclusion_reason'] is not None))
         require(len(eligible) + sum(exclusions.values()) == len(block), 'season counts do not reconcile')
-        scores = {}
+        scores, paired_scores = {}, {}
         for variant in variant_order:
             if not eligible:
                 scores[variant] = {'status': 'insufficient_data', 'n': 0}
                 continue
             values = [evaluator.scores(row['probabilities'][variant], observed_class(row['ft'])) for row in eligible]
+            paired_scores[variant] = values
             scores[variant] = {'n': len(values), **{
                 key: round(math.fsum(value[key] for value in values) / len(values), 10)
                 for key in ('log_loss', 'brier')}}
+        form = {'n': len(eligible), 'comparison': 'standalone_form_minus_standalone_baseline'}
+        if eligible:
+            pairs = list(zip(paired_scores['standalone_form_alpha_0_025'], paired_scores['standalone_baseline']))
+            form['score_difference'] = {
+                key: round(math.fsum(new[key] - base[key] for new, base in pairs) / len(pairs), 10)
+                for key in ('log_loss', 'brier')}
+            form['nonzero_form_delta'] = sum(row['standalone']['form_delta'] != 0 for row in eligible)
+        else:
+            form['status'] = 'insufficient_data'
         results[season] = {'rows': len(block), 'eligible': len(eligible), 'excluded': len(block) - len(eligible),
                            'coverage': round(len(eligible) / len(block), 10), 'exclusion_reasons': exclusions,
                            'first_date': block[0]['date'], 'last_date': block[-1]['date'],
                            'teams': len({row[side] for row in block for side in ('home', 'away')}),
-                           'variants': scores}
+                           'variants': scores, 'paired_form_component': form}
     return results
 
 
