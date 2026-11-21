@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "experiment": 86,
-  "generated_at_utc": "2026-11-21T16:10:31.498640+00:00",
+  "generated_at_utc": "2026-11-21T23:26:29.782335+00:00",
   "research_only": true,
   "model_validation": "UNVALIDATED",
   "publication_gate": "BLOCKED",
@@ -435,6 +435,18 @@
       "home": "Liverpool",
       "away": "Leeds United",
       "kickoff_utc": "2026-12-12T15:00:00Z",
+      "verification": "SCHEDULE_CROSS_CHECK",
+      "paper_prediction": null,
+      "result": null,
+      "forecast_eligible": false,
+      "has_archived_paper_forecast": false,
+      "has_experimental_model_forecast": true,
+      "forecast_status": "EXPERIMENTAL_MODEL_FORECAST"
+    },
+    {
+      "home": "Manchester City",
+      "away": "Chelsea",
+      "kickoff_utc": "2026-12-12T17:30:00Z",
       "verification": "SCHEDULE_CROSS_CHECK",
       "paper_prediction": null,
       "result": null,
@@ -1366,6 +1378,22 @@
       "challenge_eligible": 0,
       "odds": null,
       "expected_value": null
+    },
+    {
+      "home": "Manchester City",
+      "away": "Chelsea",
+      "kickoff_utc": "2026-12-12T17:30:00Z",
+      "prob_home": 0.643930169925589,
+      "prob_draw": 0.19372112031126212,
+      "prob_away": 0.16234870976314889,
+      "model": "POISSON_BASELINE_2025_26_V1",
+      "training_basis": null,
+      "research_only": true,
+      "model_validation": "UNVALIDATED",
+      "publication_gate": "BLOCKED",
+      "challenge_eligible": 0,
+      "odds": null,
+      "expected_value": null
     }
   ],
   "experimental_model_unavailable": [],
@@ -1374,7 +1402,7 @@
     "training_source": "https://www.football-data.co.uk/mmz4281/2526/E0.csv",
     "training_matches": 380,
     "training_sha256": "3e3a8352f9ada6789c508d6ca184424421fed56a30400904a4a327c583407e62",
-    "forecast_count": 36,
+    "forecast_count": 37,
     "fallback_audit": {
       "source": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
       "sha256": "d598a5f681e1a9a4acf9dad9fb203b68da6f67e2d195678dbe99e95fbba14593",
@@ -1390,11 +1418,11 @@
   },
   "prospective_archive_audit": {
     "status": "RESEARCH_ARCHIVE_UPDATED",
-    "new_primary_records": 3,
+    "new_primary_records": 1,
     "unchanged": 0,
-    "revisions": 33,
+    "revisions": 36,
     "skipped_started": 0,
-    "primary_records": 54,
+    "primary_records": 55,
     "publication_gate": "BLOCKED",
     "official_challenge": "0/100",
     "independent_timestamp_attested": false
@@ -1403,15 +1431,15 @@
     "status": "EXPERIMENTAL_OUTPUTS_AVAILABLE_UNVALIDATED",
     "counts": {
       "archived": 0,
-      "experimental_model": 36,
+      "experimental_model": 37,
       "schedule_unverified": 0,
       "model_unavailable": 0
     },
     "count_policy": "Exclusive primary status per upcoming fixture; availability counts may overlap.",
     "availability_counts": {
       "archived": 3,
-      "experimental_model": 36
+      "experimental_model": 37
     },
-    "automated_probabilities_generated": 36
+    "automated_probabilities_generated": 37
   }
 }
