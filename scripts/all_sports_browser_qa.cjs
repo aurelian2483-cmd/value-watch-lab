@@ -10,6 +10,7 @@ const AxeBuilder = require('@axe-core/playwright').default;
 const root = path.resolve(__dirname, '..');
 const compact = process.argv.includes('--compact-preview');
 const baseline = compact && process.argv.includes('--baseline');
+const compactAsOf = new Date(baseline ? '2026-11-21T10:30:00Z' : '2026-11-21T11:50:00Z');
 const output = path.join(root, 'work/browser-qa', compact ? 'compact-preview' : 'all-sports');
 const mime = {'.html':'text/html', '.css':'text/css', '.js':'text/javascript', '.json':'application/json'};
 const server = http.createServer(async (req, res) => {
@@ -223,7 +224,7 @@ async function discoveryFlow(browser, base) {
       const errors = [];
       page.on('pageerror', err => errors.push(err.message));
       for (const sport of sports) {
-        if (compact) await page.clock.setFixedTime(new Date('2026-11-21T10:30:00Z'));
+        if (compact) await page.clock.setFixedTime(compactAsOf);
         await page.goto(base + '/?sport=' + sport + (compact ? '&view=visual-preview' : '') + '#sport-evidence');
         if (compact) assert(await page.locator('html.visual-preview').count(), 'Compact preview must be active');
         const panel = page.locator('#sport-evidence');
@@ -271,6 +272,7 @@ async function discoveryFlow(browser, base) {
         const quickFilters = page.locator('.pro-quick-filters [data-pro-sport]');
         assert.deepEqual(await quickFilters.evaluateAll(buttons => buttons.map(button => button.dataset.proSport).sort()),
           ['all', ...sports].sort());
+        await screenshot(page, 'research-lanes-' + width, '.pro-quick-filters');
         await page.locator('.pro-quick-filters [data-pro-sport="rugby"]').click();
         await page.getByRole('heading', {name:'Rugby evidence and workflow'}).waitFor();
         assert.equal(new URL(page.url()).searchParams.get('view'), 'visual-preview');
