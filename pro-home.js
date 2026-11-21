@@ -306,8 +306,9 @@ function publishCardPrices(now){
   const stamps=[...entry.markup.querySelectorAll('time')].map(node=>Date.parse(node.dateTime));
   if(Object.keys(prices).length!==sides.length||!sides.every(side=>Number.isFinite(prices[side])&&prices[side]>1)||
      stamps.length<2||!stamps.slice(0,2).every(Number.isFinite)||stamps[0]>stamps[1]||stamps[1]>now||now-stamps[0]>30*60000)continue;
-  rows.push({sport:item.sport,name:item.name,startMs:item.startMs,expires:entry.expires,
-   observed:stamps[0],checked:stamps[1],market:entry.markup.querySelector('p')?.textContent||'1X2',
+  const identity=item.sport==='football'?football?.events.get(item.fixtureKey)?.identity:null;
+  rows.push({sport:item.sport,name:item.name,home:identity?.[1]||null,away:identity?.[2]||null,
+   startMs:item.startMs,expires:entry.expires,observed:stamps[0],checked:stamps[1],market:entry.markup.querySelector('p')?.textContent||'1X2',
    prices,bookmaker:'Sky Bet'});
  }
  window.ValueWatchCurrentOddsForCards=rows;
