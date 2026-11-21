@@ -29,18 +29,12 @@ jobs:
         run: node --test sports-watch/fixtures.test.cjs
       - name: Validate official coverage source trust
         run: node --test sports-watch/coverage.test.cjs
-      - name: Probe live fixture provider connectivity and response schema
-        continue-on-error: true
-        run: node sports-watch/feed-smoke.cjs
       - name: Validate external LiveTV.sx handoff constraints
         run: node --test sports-watch/livetv-handoff.test.cjs
       - name: Install repository test dependencies
         run: npm ci --ignore-scripts
       - name: Install Chromium for browser QA
         run: npx playwright install --with-deps chromium
-      - name: Probe real cross-origin fixture selection in mobile Chromium
-        continue-on-error: true
-        run: node sports-watch/live-browser-probe.cjs
       - name: Run responsive Chromium browser checks
         run: node sports-watch/browser-qa.cjs
       - name: Check JavaScript syntax

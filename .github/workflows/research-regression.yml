@@ -1,7 +1,7 @@
 name: Full research regression
 on:
   push:
-    branches: [main]
+    branches: [main, codex/value-watch-development]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -25,3 +25,29 @@ jobs:
           for script in paper-lab/*.js; do node --check "$script"; done
       - name: Historical, collector and model safeguards
         run: python -m unittest discover -s tests
+      - name: Mathematical library and Sky 81 validation
+        run: |
+          set -euo pipefail
+          node research/mathematical-library/validate.mjs
+          node --test research/mathematical-library/validate-v1.test.mjs research/mathematical-library/sky81/experiment.test.mjs
+          node research/mathematical-library/catalogue.mjs summary > /tmp/sky-catalogue-summary.json
+          node research/mathematical-library/catalogue.mjs ledger > /tmp/sky-catalogue-ledger.json
+          node research/mathematical-library/sky81/experiment.mjs > /tmp/sky81-configurations.json
+          node research/mathematical-library/sky81/reproduce-phase3.mjs research/horse-ab-phase3-master-20261115 > /tmp/sky81-phase3-replay.json
+          node --input-type=module <<'EOF'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const catalogue = JSON.parse(fs.readFileSync('/tmp/sky-catalogue-summary.json', 'utf8'));
+          const grid = JSON.parse(fs.readFileSync('/tmp/sky81-configurations.json', 'utf8'));
+          const replay = JSON.parse(fs.readFileSync('/tmp/sky81-phase3-replay.json', 'utf8'));
+          assert.equal(catalogue.registered, 286);
+          assert.equal(catalogue.qualified, 0);
+          assert.equal(grid.gridSettings, 100);
+          assert.equal(grid.uniqueConfigurations, 81);
+          assert.equal(replay.races, 76);
+          assert.equal(replay.runnerAppearances, 730);
+          assert.equal(replay.gitBlobsVerified, 76);
+          assert.equal(replay.archiveRecordsWithNonNullOdds, 0);
+          assert.equal(replay.reconstructedTournamentConfigurationsScored, 0);
+          console.log('PASS: catalogue preserved; 100 settings canonicalize to 81; 76 archived forecasts replay; no tournament or holdout scoring claimed.');
+          EOF

@@ -1,0 +1,196 @@
+[
+  {
+    "id": "jacobi-linear-solve",
+    "name": "Jacobi stationary linear solver",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "profile": "multifeature",
+    "definition": "Split A=D+L+U into diagonal, strict lower, and strict upper parts. Iterate x_(k+1)=D⁻¹[b−(L+U)x_k]. Convergence for every initial vector holds when ρ(−D⁻¹(L+U))<1.",
+    "variables": "A coefficient matrix, b right-hand side, x iterate, ρ spectral radius",
+    "assumptions": "Nonzero diagonal and contraction of the iteration matrix in spectral radius",
+    "limitations": "Convergence can be slow for weak diagonal dominance and can fail even for some positive definite systems",
+    "failure_conditions": [
+      "Convergence can be slow for weak diagonal dominance and can fail even for some positive definite systems"
+    ],
+    "computation": "O(nnz(A)) per sweep with parallel component updates",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, Netlib. https://www.netlib.org/templates/templates.html"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit an earlier high-dimensional linear baseline with sparse and diagonally dominant normal equations",
+    "required_inputs": "A sparse square coefficient matrix, right-hand side and declared convergence tolerance from a historical fit or synthetic system.",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence before acquisition.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "pivoted-lu"
+    ],
+    "incompatible_methods": [
+      "Inputs first available after the forecast cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "pivoted-lu",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "013"
+  },
+  {
+    "id": "gauss-seidel-linear-solve",
+    "name": "Gauss–Seidel stationary linear solver",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "profile": "multifeature",
+    "definition": "With A=D+L+U, solve (D+L)x_(k+1)=b−Ux_k in increasing component order. Equivalently each update uses the latest already-computed lower-index entries.",
+    "variables": "A coefficient matrix, D diagonal, L/U strict triangular parts, b right-hand side",
+    "assumptions": "Nonzero diagonal; symmetric positive definite or strictly diagonally dominant A suffices for convergence",
+    "limitations": "Ordering changes convergence and the triangular dependency limits naive parallelism",
+    "failure_conditions": [
+      "Ordering changes convergence and the triangular dependency limits naive parallelism"
+    ],
+    "computation": "O(nnz(A)) operations per sparse sweep",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, Netlib. https://www.netlib.org/templates/templates.html"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Solve an ordered sparse historical feature system by sequential coordinate updates",
+    "required_inputs": "A sparse square coefficient matrix, right-hand side and declared convergence tolerance from a historical fit or synthetic system.",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence before acquisition.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "jacobi-linear-solve"
+    ],
+    "incompatible_methods": [
+      "Inputs first available after the forecast cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "jacobi-linear-solve",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "013"
+  },
+  {
+    "id": "gmres-linear-solve",
+    "name": "GMRES minimum-residual solver",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "profile": "multifeature",
+    "definition": "Set r₀=b−Ax₀ and K_k=span(r₀,Ar₀,…,A^(k−1)r₀). Compute x_k=argmin_(x∈x₀+K_k)‖b−Ax‖₂ using an Arnoldi orthonormal basis and its Hessenberg least-squares problem.",
+    "variables": "A real square matrix, x₀ initial estimate, b right-hand side, k Krylov dimension",
+    "assumptions": "Nonsingular A for the general full-dimensional exact-arithmetic claim; stop immediately if r₀=0",
+    "limitations": "Basis growth increases memory, and restarting can stall",
+    "failure_conditions": [
+      "Basis growth increases memory, and restarting can stall"
+    ],
+    "computation": "One matrix–vector product and O(kd) orthogonalization at step k for d unknowns",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, Netlib. https://www.netlib.org/templates/templates.html"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Fit a coupled sparse linear state system whose coefficient matrix is nonsymmetric",
+    "required_inputs": "A sparse square coefficient matrix, right-hand side and declared convergence tolerance from a historical fit or synthetic system.",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence before acquisition.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "conjugate-gradient"
+    ],
+    "incompatible_methods": [
+      "Inputs first available after the forecast cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "conjugate-gradient",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "013",
+    "mechanism_note": "Residual minimization over a Krylov space. MINRES exploits symmetry via Lanczos and short recurrences."
+  },
+  {
+    "id": "minres-linear-solve",
+    "name": "MINRES symmetric minimum-residual solver",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "profile": "multifeature",
+    "definition": "For r₀=b−Ax₀ and β=‖r₀‖₂, build Lanczos basis V_k and tridiagonal extension T̄_k from A V_k=V_(k+1)T̄_k. Set x_k=x₀+V_k z where z minimizes ‖βe₁−T̄_k z‖₂, using sequential rotations and short recurrences.",
+    "variables": "A symmetric system, β initial residual norm, e₁ first coordinate, V_k orthonormal, z reduced coefficients",
+    "assumptions": "A real symmetric, possibly indefinite; stop immediately at β=0 and handle terminated Lanczos runs in their attained subspaces",
+    "limitations": "Symmetry loss invalidates the short recurrence, and residual minimization alone does not guarantee a minimum-norm solution for singular problems",
+    "failure_conditions": [
+      "Symmetry loss invalidates the short recurrence, and residual minimization alone does not guarantee a minimum-norm solution for singular problems"
+    ],
+    "computation": "One matrix–vector product and linear vector work per iteration with short updates",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers’ minres reference and Barrett et al., Templates, Symmetric Lanczos Methods. https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.minres.html"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Solve a symmetric indefinite optimality system for an equality-constrained historical fit",
+    "required_inputs": "A sparse square coefficient matrix, right-hand side and declared convergence tolerance from a historical fit or synthetic system.",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence before acquisition.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "gmres-linear-solve"
+    ],
+    "incompatible_methods": [
+      "Inputs first available after the forecast cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "gmres-linear-solve",
+        "type": "related"
+      }
+    ],
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "013",
+    "mechanism_note": "Same Krylov residual objective as unrestarted GMRES under symmetry; distinct basis and computation."
+  }
+]

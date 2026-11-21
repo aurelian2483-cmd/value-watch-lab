@@ -91,10 +91,100 @@
    errors:errors.slice(0,12),modelValidated:false,bettingEligible:false,
    note:'Contract-qualified file pairs are only descriptive. GitHub file contents and receipt claims are not independent external verification. No calibration, confidence interval or profit advantage established.'};
  }
+ const NFLVERSE='https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv';
+ const REVIEW_MARKETS={tennis:'MATCH_WINNER',nfl:'GAME_RESULT_INCLUDING_OVERTIME'};
+
+ function uniqueRecords(rows){
+  const index=new Map();
+  for(const row of rows){
+   if(!text(row?.prediction_id))continue;
+   index.set(row.prediction_id,index.has(row.prediction_id)?null:row);
+  }
+  return index;
+ }
+ function reviewSource(value){
+  try{
+   const url=new URL(value);
+   return url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&!url.hash?url:null;
+  }catch{return null;}
+ }
+ function reviewReceipts(feed,ledger,primary,secondary,now=Date.now()){
+  const ready=Array.isArray(feed?.items)?feed.items.filter(row=>row?.review_state==='READY_FOR_HUMAN_REVIEW'):[];
+  const fail=reason=>({matches:[],withheld:ready.length,reason,stale:false});
+  if(!guarded(feed)||feed.schema_version!==1||feed.independently_verified_results_added!==0||
+     ageStatus(feed.generated_at_utc,now,72)==='UNDATED'||Date.parse(feed.generated_at_utc)>now||
+     ledger?.schemaVersion!==1||ledger.kind!=='PROSPECTIVE_PREDICTION_LEDGER'||ledger.modelValidated!==false||
+     !Array.isArray(ledger.records))return fail('The review queue or frozen forecast ledger is unavailable or invalid.');
+  const reportTime=Date.parse(feed.generated_at_utc);
+  if(![primary,secondary].every(doc=>guarded(doc)&&doc.schema_version===1&&Array.isArray(doc.observations)&&
+     iso(doc.generated_at_utc)&&Date.parse(doc.generated_at_utc)<=reportTime)){
+   return fail('A source receipt archive is missing, invalid, or newer than the review queue. Recheck after the next complete snapshot.');
+  }
+  const forecasts=uniqueRecords(ledger.records),firsts=uniqueRecords(primary.observations),
+        seconds=uniqueRecords(secondary.observations),queue=uniqueRecords(feed.items);
+  const matches=[];
+  for(const row of ready){
+   const id=row.prediction_id,p=forecasts.get(id),a=firsts.get(id),b=seconds.get(id);
+   if(queue.get(id)!==row||row.auto_certified!==false||row.betting_eligible!==false||!p||!a||!b||
+      !Object.hasOwn(REVIEW_MARKETS,row.sport)||validatePrediction(p)||p.research_only!==true||p.model_validated!==false||
+      p.sport!==row.sport||p.event_id!==row.event_id||p.market!==REVIEW_MARKETS[row.sport]||
+      !iso(row.event_start_utc)||Date.parse(p.event_start_utc)!==Date.parse(row.event_start_utc)||
+      !Object.hasOwn(p.probabilities,row.observed_result))continue;
+   const kickoff=Date.parse(p.event_start_utc);
+   const receipts=[[a,primary,'SINGLE_PROVIDER_FINAL_UNVERIFIED','source_observed_at_utc','provider_response_sha256'],
+                   [b,secondary,'SECONDARY_UNVERIFIED','observed_at_utc','response_sha256']];
+   if(!receipts.every(([r,doc,status,time,hash])=>r.status===status&&r.independently_verified===false&&
+      r.betting_eligible===false&&r.sport===p.sport&&r.event_id===p.event_id&&r.market===p.market&&
+      r.actual_outcome===row.observed_result&&iso(r[time])&&Date.parse(r[time])>kickoff&&
+      Date.parse(r[time])<=Date.parse(doc.generated_at_utc)&&typeof r[hash]==='string'&&SHA.test(r[hash])))continue;
+   if(!Array.isArray(p.participant_ids)||!Array.isArray(b.participant_ids)||p.participant_ids.length!==2||
+      b.participant_ids.length!==2||new Set(b.participant_ids).size!==2||
+      !p.participant_ids.every(text)||new Set(p.participant_ids).size!==2||
+      !b.participant_ids.every(participant=>p.participant_ids.includes(participant)))continue;
+   const first=reviewSource(a.source_url),second=reviewSource(b.source_url);
+   const primaryPath=row.sport==='nfl'?/^\/apis\/site\/v2\/sports\/football\/nfl\/scoreboard$/:
+      /^\/apis\/site\/v2\/sports\/tennis\/(atp|wta)\/scoreboard$/;
+   if(!first||!second||first.hostname!=='site.api.espn.com'||!primaryPath.test(first.pathname)||
+      a.source_url!==p.source_url||a.provider_response_sha256.toLowerCase()===b.response_sha256.toLowerCase())continue;
+   let label,description,receiptKind;
+   if(row.sport==='nfl'){
+    const game=/^\d{4}_\d{2}_([A-Z]{2,3})_([A-Z]{2,3})$/.exec(b.source_event_id||'');
+    const score=b.final_score;
+    if(second.href!==NFLVERSE||!game||game[1]===game[2]||b.source_match_status!=='SCHEDULE_SCORED'||
+       ![score?.home,score?.away].every(n=>Number.isInteger(n)&&n>=0&&n<=999)||
+       (score.home===score.away)!==(row.observed_result==='tie')||
+       row.source_game_id!==b.source_event_id||row.observed_score?.home!==score.home||row.observed_score?.away!==score.away)continue;
+    label=game[1]+' '+score.away+'–'+score.home+' '+game[2];
+    description='nflverse game '+b.source_event_id+' · game result including overtime';
+    receiptKind='Schedule CSV receipt';
+   }else{
+    const players=b.source_match_players;
+    const pdf=first.pathname.endsWith('/wta/scoreboard')&&second.hostname==='wtafiles.wtatennis.com'&&second.pathname.endsWith('.pdf')&&b.receipt_kind==='PROVIDER_PDF';
+    const reviewed=first.pathname.endsWith('/atp/scoreboard')&&second.hostname==='www.nittoatpfinals.com'&&b.receipt_kind==='REVIEWED_SOURCE_FACTS';
+    if((!pdf&&!reviewed)||b.source_match_status!=='COMPLETED_SINGLES_RESULT'||
+       !Array.isArray(players)||players.length!==2||!players.every(text)||players[0]===players[1]||
+       !players.includes(b.source_match_winner))continue;
+    label=players.join(' vs ');
+    description='Observed winner: '+b.source_match_winner+' · completed singles';
+    receiptKind=pdf?'Tournament PDF receipt':'Reviewed facts fingerprint';
+   }
+   matches.push({sport:row.sport,eventId:p.event_id,kickoff:p.event_start_utc,label,description,receiptKind,
+      primary:{url:first.href,observed:a.source_observed_at_utc,hash:a.provider_response_sha256},
+      secondary:{url:second.href,observed:b.observed_at_utc,hash:b.response_sha256}});
+  }
+  const counts=new Map();
+  for(const match of matches){
+   const key=JSON.stringify([match.sport,match.eventId,match.kickoff]);
+   counts.set(key,(counts.get(key)||0)+1);
+  }
+  const unique=matches.filter(match=>counts.get(JSON.stringify([match.sport,match.eventId,match.kickoff]))===1);
+  return {matches:unique,withheld:ready.length-unique.length,reason:null,
+   stale:[feed,primary,secondary].some(doc=>ageStatus(doc.generated_at_utc,now,72)==='STALE')};
+ }
  function descriptiveHistory(history){
   if(!guarded(history)||!Array.isArray(history.entries))return {status:'UNAVAILABLE',count:0};
   return {status:'LEGACY_DESCRIPTIVE_NOT_PROSPECTIVE',count:history.entries.length,
    note:'Legacy historical scoring is excluded from independent prospective validation, irrespective of its reported Brier/log-loss values.'};
  }
- return Object.freeze({SPORTS,guarded,ageStatus,sourceHealth,evaluate,descriptiveHistory,validatePrediction,validateOutcome});
+ return Object.freeze({SPORTS,guarded,ageStatus,sourceHealth,evaluate,reviewReceipts,descriptiveHistory,validatePrediction,validateOutcome});
 });

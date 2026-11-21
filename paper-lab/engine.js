@@ -126,8 +126,18 @@
     return list(document.upcoming_fixtures).map(row => {
       if (!str(row?.home) || !str(row?.away) || row.home === row.away) return null;
       const league = row.league || 'PL', start = row.kickoff_utc;
-      const candidates = modelRows.filter(model => model.home === row.home && model.away === row.away && instant(model.kickoff_utc) === instant(start) && (model.league || 'PL') === league);
-      const model = candidates.find(model => model.research_only === true && model.publication_gate === 'BLOCKED' && model.model_validation === 'UNVALIDATED' && model.odds === null && model.expected_value === null && vector([model.prob_home, model.prob_draw, model.prob_away]) && instant(model.generated_at_utc || document.generated_at_utc) < instant(start) - 300000) || null;
+      const candidates = modelRows.filter(model => {
+        const observed = instant(model?.generated_at_utc || document.generated_at_utc);
+        return model?.home === row.home && model.away === row.away &&
+          instant(model.kickoff_utc) === instant(start) && (model.league || 'PL') === league &&
+          (model.espn_event_id == null || model.espn_event_id === row.espn_event_id) &&
+          observed <= instant(document.generated_at_utc) && observed < instant(start) - 300000 &&
+          model.research_only === true && model.publication_gate === 'BLOCKED' &&
+          model.model_validation === 'UNVALIDATED' && model.odds === null && model.expected_value === null &&
+          vector([model.prob_home, model.prob_draw, model.prob_away]);
+      });
+      const modelKey = value => key(value.model, value.prob_home, value.prob_draw, value.prob_away, value.training_basis);
+      const model = new Set(candidates.map(modelKey)).size === 1 ? candidates[0] : null;
       const h2h = row.head_to_head_research;
       const sources = sourceRows(row.schedule_source_receipts, document.generated_at_utc, path);
       const participants = [{ id: key(league, row.home), name: str(row.home) }, { id: key(league, row.away), name: str(row.away) }];
@@ -278,17 +288,23 @@
 
   function otherSports(document, path, now) {
     return Object.entries(document.sports || {}).filter(([sport]) => ['tennis', 'nfl'].includes(sport)).flatMap(([sport, part]) => list(part.events).map(row => {
-      const participants = list(row.participants).map(p => ({ id: String(p.id), name: str(p.name) }));
+      if (!Audit.validateOtherIdentity(row, sport) ||
+          (row.sport != null && row.sport !== sport) || (row.sport_type != null && row.sport_type !== SPORTS[sport])) return null;
+      const players = list(row.participants);
+      if (players.length !== 2 || players.some(p => typeof p?.id !== 'string' || !p.id.trim() ||
+          !str(p.name)) || players[0].name.trim().toLowerCase() === players[1].name.trim().toLowerCase()) return null;
+      const participants = players.map(p => ({ id: p.id, name: str(p.name) }));
       const generatedAt = part.generated_at_utc || document.generated_at_utc;
       const observedAt = row.source_collected_at_utc ?? generatedAt;
       if (!Number.isFinite(instant(observedAt)) || instant(observedAt) > instant(generatedAt) || instant(observedAt) > now) return null;
       const validModel = Audit.validateOtherForecast(row, sport, generatedAt, now);
-      const outcomes = validModel ? row.forecast.outcomes : participants.map(p => ({ id: p.id, name: p.name }));
+      const outcomes = validModel ? row.forecast.outcomes : [...participants];
+      if (!validModel && sport === 'nfl') outcomes.push({id:'tie',name:'Tie after overtime'});
       return makeEvent({ sport, identity: String(row.id), providerId: row.id, competition: str(row.competition).replace(/\ufffd/g, '·'), name: row.name, participants, startUTC: row.startUTC, observedAt, sources: sourceRows([{ url: row.source, observed_at_utc: observedAt, sha256: row.source_sha256 }], observedAt, path),
         choices: outcomes.map(outcome => ({ id: String(outcome.id), label: str(outcome.name), probability: validModel ? outcome.probability : null, uncertainty: null, quote: null, market: sport === 'nfl' ? 'Game result · including overtime' : 'Match winner' })),
         stats: { h2h: null, recent: null, rankings: null },
         model: validModel ? { name: str(row.forecast.model), observedAt: row.forecast.generated_at_utc || observedAt, validation: 'UNVALIDATED', probabilityKind: 'EXPERIMENTAL_MODEL_ESTIMATE', trainingMatches: row.forecast.training_matches, uncertainty: null } : null,
-        extra: { providerStatus: str(row.status || row.event_status) }
+        extra: { providerStatus: str(row.status || row.event_status), unavailableReason: str(row.unavailable_reason) }
       }, now);
     }).filter(Boolean));
   }
@@ -348,10 +364,44 @@
       try {
         for (const event of adapters[item.kind](document, item.path, now, item.kind === 'rugby' ? rugbyResults : contextFeed)) {
           const previous = index.get(event.id);
-          if (previous && instant(previous.observedAt) === instant(event.observedAt) && key(previous.choices.map(c => [c.id, c.label])) !== key(event.choices.map(c => [c.id, c.label]))) { previous.identityConflict = true; previous.status = statusOf(previous, now); continue; }
-          if (!previous || instant(event.observedAt) > instant(previous.observedAt) || (instant(event.observedAt) === instant(previous.observedAt) && event.sources.filter(s => s.url).length > previous.sources.filter(s => s.url).length)) index.set(event.id, event);
+          if (!previous || instant(event.observedAt) > instant(previous.observedAt)) {
+            index.set(event.id, event);
+          } else if (instant(event.observedAt) === instant(previous.observedAt)) {
+            const signature = row => key(row.providerStatus?.toUpperCase(), row.competition,
+              row.participants.map(p => [p.id, p.name]), row.choices.map(c => [c.id, c.label, c.market]));
+            if (signature(previous) !== signature(event)) {
+              previous.identityConflict = true;
+              previous.status = statusOf(previous, now);
+            } else if (!previous.identityConflict && event.sources.filter(s => s.url).length > previous.sources.filter(s => s.url).length) {
+              index.set(event.id, event);
+            }
+          }
         }
       } catch (error) { diagnostics.push({ path: str(item.path), reason: 'Snapshot could not be normalized: ' + str(error.message) }); }
+    }
+    // A stable provider identity may be rescheduled. A later receipt for the
+    // same ordered participants supersedes the older schedule, never a saved leg.
+    const providerGroups = new Map();
+    for (const event of index.values()) {
+      if (event.sport === 'racing' || !event.providerEventId) continue;
+      const providerKey = key(event.sport, event.providerEventId);
+      if (!providerGroups.has(providerKey)) providerGroups.set(providerKey, []);
+      providerGroups.get(providerKey).push(event);
+    }
+    for (const rows of providerGroups.values()) {
+      if (rows.length < 2) continue;
+      rows.sort((a,b) => instant(b.observedAt) - instant(a.observedAt) || a.id.localeCompare(b.id));
+      const latest = rows[0];
+      if (rows.some(row => key(row.competition,row.participants) !== key(latest.competition,latest.participants)) ||
+          rows.some((row,i) => i > 0 && instant(row.observedAt) === instant(latest.observedAt)) ||
+          rows.some(row => row.identityConflict)) {
+        for (const row of rows) {
+          row.identityConflict = true;
+          row.status = statusOf(row, now);
+        }
+      } else {
+        for (const obsolete of rows.slice(1)) index.delete(obsolete.id);
+      }
     }
     const events = [...index.values()].sort((a, b) => instant(a.startUTC) - instant(b.startUTC) || a.id.localeCompare(b.id));
     const identities = new Map();
@@ -516,18 +566,20 @@
     const index = events instanceof Map ? events : new Map(list(events).map(event => [event.id, event]));
     const warnings = new Set(), checked = list(slot.legs).map(leg => {
       const event = index.get(leg.eventId), choice = event?.choices.find(item => item.id === leg.choiceId);
-      const state = !event ? { code: 'EVENT_MISSING', label: 'Event absent from current snapshots', selectable: false } : !choice ? { code: 'OUTCOME_REMOVED', label: 'Outcome removed or runner withdrawn', selectable: false } : statusOf(event, now);
+      const exact = event && choice && event.sport === leg.sport && event.identity === leg.identity &&
+        instant(event.startUTC) === instant(leg.startUTC) && choice.market === leg.market && choice.label === leg.label;
+      const state = !event ? { code: 'EVENT_MISSING', label: 'Event absent from current snapshots', selectable: false } : !choice ? { code: 'OUTCOME_REMOVED', label: 'Outcome removed or runner withdrawn', selectable: false } : !exact ? { code: 'SELECTION_MISMATCH', label: 'Current sport, fixture or market differs from the saved selection', selectable: false } : statusOf(event, now);
       let quoteState = 'UNPRICED';
-      if (event && choice && leg.quote?.status === 'USER_RECORDED_UNVERIFIED' && supportedQuote(leg.quote, event, now)) {
+      if (exact && leg.quote?.status === 'USER_RECORDED_UNVERIFIED' && supportedQuote(leg.quote, event, now)) {
         quoteState = 'ILLUSTRATIVE_SOURCE_PRICE';
         warnings.add('Includes a user-recorded, unverified price. Its source, market identity and availability have not been independently checked.');
-      } else if (event && choice && supportedQuote(leg.quote, event, now) && supportedQuote(choice.quote, event, now)) {
+      } else if (exact && supportedQuote(leg.quote, event, now) && supportedQuote(choice.quote, event, now)) {
         quoteState = leg.quote.decimal === choice.quote.decimal && leg.quote.bookmaker === choice.quote.bookmaker && leg.quote.source === choice.quote.source ? 'ILLUSTRATIVE_SOURCE_PRICE' : 'PRICE_CHANGED';
       } else if (leg.quote) quoteState = 'PRICE_STALE_OR_UNCONFIRMED';
       if (!state.selectable) warnings.add(state.label);
       if (quoteState === 'PRICE_CHANGED') warnings.add('A source price changed. Replace the selection explicitly to capture the new observation.');
       if (quoteState === 'PRICE_STALE_OR_UNCONFIRMED') warnings.add('A recorded price is stale, withdrawn or no longer source-matched.');
-      return { ...clone(leg), currentStatus: state, currentQuote: clone(choice?.quote || null), quoteState, canCalculate: state.selectable && quoteState === 'ILLUSTRATIVE_SOURCE_PRICE' };
+      return { ...clone(leg), currentStatus: state, currentQuote: clone(exact ? choice.quote || null : null), quoteState, canCalculate: state.selectable && quoteState === 'ILLUSTRATIVE_SOURCE_PRICE' };
     });
     const size = { singles: 1, doubles: 2, trebles: 3, accumulator: checked.length }[slot.structure];
     const lines = combinations(checked.length, size), totalStakeMinor = lines.length * slot.stakeMinor;
@@ -919,7 +971,7 @@
     if (!event?.model || !validProbability(choice?.probability)) blockers.push('No supported experimental estimate for this outcome');
     if (!supportedQuote(choice?.quote, event, now)) blockers.push('No current source price');
     blockers.push('Model is unvalidated; no verified EV or actionable grade');
-    return { grade: blockers.length > 1 ? 'C' : 'B', label: blockers.length > 1 ? 'Incomplete evidence' : 'Speculative research', blockers, expectedValue: null, actionable: false };
+    return { grade: null, label: 'PASS · no qualifying opportunity established', blockers, expectedValue: null, actionable: false };
   }
 
   function fractionalToDecimal(value) {

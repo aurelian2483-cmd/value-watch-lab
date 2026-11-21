@@ -31,3 +31,12 @@ test('invalid or incompatible fixture data fails closed rather than fabricating 
   assert.equal(listFromPayload({bad:'data'}),null);
   assert.equal(listFromPayload(null),null);
 });
+test('sport and cancellation claims cannot inherit a contradictory request state',()=>{
+  const fixture={home:'Synthetic A',away:'Synthetic B',status:'scheduled',
+    time:'2026-11-16T20:00:00Z',sport:'basketball'};
+  assert.equal(normalizeMatch(fixture,'cricket','upcoming'),null);
+  assert.equal(normalizeMatch(fixture,'basketball','upcoming').sport,'basketball');
+  assert.equal(normalizeMatch({...fixture,status_text:'Postponed'},'basketball','upcoming'),null);
+  assert.equal(normalizeMatch({...fixture,status:'Cancelled',status_text:'Scheduled'},'basketball','upcoming'),null);
+  assert.equal(normalizeMatch({...fixture,time:'2026-11-16T20:00:00'},'basketball','upcoming').time,null);
+});

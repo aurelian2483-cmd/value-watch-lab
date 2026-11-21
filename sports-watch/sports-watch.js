@@ -2,13 +2,13 @@
 (function (root) {
   'use strict';
 
-  const SPORTS = Object.freeze(['all','football','racing','tennis','nfl','darts','rugby','golf']);
+  const SPORTS = Object.freeze(['all','football','racing','tennis','nfl','darts','rugby','golf','basketball','cricket']);
   const SOURCES = Object.freeze([
-    { name:'BBC Sport', description:'Sports news, fixtures and broadcaster coverage', url:'https://www.bbc.com/sport', sports:['football','tennis','rugby','golf','racing','nfl','darts'] },
-    { name:'BBC iPlayer', description:'BBC programming; live rights vary by event', url:'https://www.bbc.co.uk/iplayer', sports:['football','tennis','rugby','golf'] },
+    { name:'BBC Sport', description:'Sports news, fixtures and broadcaster coverage', url:'https://www.bbc.com/sport', sports:['football','tennis','rugby','golf','racing','nfl','darts','basketball','cricket'] },
+    { name:'BBC iPlayer', description:'BBC programming; live rights vary by event', url:'https://www.bbc.co.uk/iplayer', sports:['football','tennis','rugby','golf','basketball','cricket'] },
     { name:'ITVX', description:'ITV programmes and scheduled sport', url:'https://www.itv.com/', sports:['football','rugby','racing'] },
     { name:'Channel 4', description:'Official broadcaster and programmes', url:'https://www.channel4.com/', sports:['football','racing'] },
-    { name:'Sky Sports', description:'Sports schedules and subscription coverage', url:'https://www.skysports.com/', sports:['football','racing','tennis','nfl','darts','rugby','golf'] },
+    { name:'Sky Sports', description:'Sports schedules and subscription coverage', url:'https://www.skysports.com/', sports:['football','racing','tennis','nfl','darts','rugby','golf','basketball','cricket'] },
     { name:'TNT Sports', description:'Official sports coverage and schedules', url:'https://www.tntsports.co.uk/', sports:['football','rugby','tennis','golf'] },
     { name:'NFL', description:'Official league video and coverage information', url:'https://www.nfl.com/', sports:['nfl'] },
     { name:'PDC', description:'Official darts news and broadcast information', url:'https://www.pdc.tv/', sports:['darts'] },
@@ -280,5 +280,6 @@
     });
     setSelectionButtons();
   }
-  setSport('all');
+  const requestedSport = new URLSearchParams(root.location.search).get('sport');
+  setSport(SPORTS.includes(requestedSport) ? requestedSport : 'all');
 })(typeof globalThis !== 'undefined' ? globalThis : this);

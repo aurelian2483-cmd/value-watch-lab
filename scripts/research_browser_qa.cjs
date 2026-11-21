@@ -87,6 +87,9 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   await p.reload({waitUntil:'networkidle'}); await waitBoard(p);
   await p.locator('#engine-select').selectOption('compare');
   const engineAnalysis = p.locator('#engine-analysis');
+  const comparison = engineAnalysis.locator('.engine-selection-details').first();
+  assert.equal(await comparison.evaluate(node => node.open), false);
+  await comparison.locator(':scope > summary').click();
   await engineAnalysis.getByText('3.1 · Current-season hybrid', {exact:true}).first().waitFor();
   assert((await engineAnalysis.textContent()).includes('2.5 · Saved estimate'));
   assert((await engineAnalysis.textContent()).includes('3.0 · Frozen recent-form blend'));
@@ -201,7 +204,7 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   assert(gold.entries[0].review.selectionCount>=1,'Supported football fixture should create a research-only wildcard');
   const afterWildcard=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
   assert.deepEqual(afterWildcard,beforeWildcard,'Weekly Wildcard must not rewrite existing ordinary paper slips');
-  assert((await dailyPage.locator('#wildcard-result').textContent()).includes('Potential payout: unavailable'));
+  assert((await dailyPage.locator('#wildcard-result').textContent()).includes('Combined slip: verified prices unavailable.'));
   assert(await dailyPage.locator('#wildcard-build').isDisabled(),'Weekly review should be locked once generated this UK week');
   await dailyPage.reload({waitUntil:'networkidle'});
   await waitBoard(dailyPage);

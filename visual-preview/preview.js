@@ -23,6 +23,17 @@
     darts.querySelector('.pro-darts-preview-summary').textContent = 'Historical Elo estimates and fixture coverage. Bookmaker prices unverified.';
   }
 
+  // Scope and its primary action stay adjacent before secondary research tools.
+  const build = document.getElementById('generate');
+  const racing = document.getElementById('find-racing');
+  if (build && racing) build.after(racing);
+
+  // The coverage explanation already appears in the sport evidence panel.
+  for (const sport of ['golf', 'basketball', 'cricket']) {
+    const option = document.querySelector('#sport option[value="' + sport + '"]');
+    if (option) option.textContent = option.textContent.split(' · ')[0];
+  }
+
   const sportsPanel = document.querySelector('.workspace-grid > .navigation-rail');
   const competitionPicker = document.getElementById('competition')?.closest('label');
   const competitionPanel = sportsPanel?.querySelector('.competition-rail');

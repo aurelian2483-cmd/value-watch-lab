@@ -2,10 +2,10 @@
 // Value Watch Pro display-only source normalizer. No bets, odds, model grades or source writes.
 // Shared by Betting Hub and Analyst Terminal to prevent conflicting event counts.
 (function(root,factory){
- const api=factory();
+ const api=factory(typeof module==="object" && module.exports ? require("./research-audit-core.js") : root.ResearchAudit);
  if(typeof module==='object'&&module.exports)module.exports=api;
  else root.ValueWatchProSources=api;
-})(typeof window!=='undefined'?window:this,function(){
+})(typeof window!=='undefined'?window:this,function(Audit){
  const SOURCES=[
   {id:'football',filename:'research-dashboard-data.json',maxAgeHours:24},
   {id:'racing',filename:'racing-research-data.json',maxAgeHours:6},
@@ -15,7 +15,7 @@
   {id:'history',filename:'research-history.json',maxAgeHours:168}
  ];
  const sports=['football','racing','tennis','nfl','darts','rugby'];
- function stamp(s){if(typeof s!=='string')return null;const n=Date.parse(s);return Number.isFinite(n)?n:null}
+ function stamp(s){if(typeof s!=='string'||!/(?:Z|[+-]\d{2}:\d{2})$/.test(s))return null;const n=Date.parse(s);return Number.isFinite(n)?n:null}
  function safeName(v){return typeof v==='string'&&v.trim()?v.trim().slice(0,220):null}
  function gate(d){return !!(d&&typeof d==='object'&&!Array.isArray(d)&&d.research_only===true&&d.model_validation==='UNVALIDATED'&&d.publication_gate==='BLOCKED')}
  function inspect(id,data,now=Date.now()){
@@ -26,15 +26,23 @@
   const fresh=age!==null&&age>=-300000&&age<=def.maxAgeHours*3600000;
   if(!fresh)return {id,state:'STALE_OR_UNDATED',fresh:false,generatedAt:ts,records:[],data};
   if(id==='history')return {id,state:'OBSERVED',fresh:true,generatedAt:ts,records:[],data};
-  const records=[],seen=new Set(),invalid=[];
+  const seen=new Map(),conflicts=new Set(),invalid=[];
+  const result=()=>[...seen].filter(([id])=>!conflicts.has(id)).map(([,record])=>record);
   function add(sport,name,time,key,hasModel){
    const n=safeName(name),t=stamp(time);
    // Reject unknown time, malformed identity, and duplicates; never make a synthetic event.
    if(!n||t===null||!Number.isFinite(t)||!safeName(key)){invalid.push('INVALID_RECORD');return}
    const identity=sport+'|'+String(key);
-   if(seen.has(identity)){invalid.push('DUPLICATE_RECORD');return}
-   seen.add(identity);
-   records.push({sport,name:n,startUTC:new Date(t).toISOString(),startMs:t,hasModel:hasModel===true,source:id});
+   const record={sport,name:n,startUTC:new Date(t).toISOString(),startMs:t,hasModel:hasModel===true,source:id};
+   const previous=seen.get(identity);
+   if(previous){
+    if(previous.name!==record.name||previous.startMs!==record.startMs||previous.hasModel!==record.hasModel){
+     conflicts.add(identity);
+     invalid.push('CONFLICTING_RECORD');
+    }else invalid.push('DUPLICATE_RECORD');
+    return;
+   }
+   seen.set(identity,record);
   }
   if(id==='football'){
    if(!Array.isArray(data.upcoming_fixtures))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
@@ -50,11 +58,28 @@
     add('racing',e.racecourse+' · '+(safeName(e.name)||'Race '+e.race_id),e.startUTC,String(e.race_id),e.forecast_eligible===true&&e.prediction!=null);
    }
   }else if(id==='other'){
-   if(!data.sports||typeof data.sports!=='object'||!['tennis','nfl'].every(k=>Array.isArray(data.sports[k]?.events)))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
-   for(const sport of ['tennis','nfl'])for(const e of data.sports[sport].events.slice(0,300)){
-    if(!e||!safeName(e.id)||!safeName(e.name))continue;
-    add(sport,e.name,e.startUTC,e.id,Array.isArray(e.forecast?.outcomes)&&e.forecast.outcomes.length>0);
+   if(!data.sports||!['tennis','nfl'].some(k=>Array.isArray(data.sports[k]?.events)))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
+   const usableSports=[];
+   for(const sport of ['tennis','nfl']){
+    const part=data.sports[sport];
+    if(!Array.isArray(part?.events)){invalid.push('MISSING_SPORT');continue;}
+    const seenAt=part.generated_at_utc??data.generated_at_utc;
+    if(!Audit.freshness(seenAt,def.maxAgeHours*3600000,now).fresh||stamp(seenAt)>ts){
+     invalid.push('STALE_SPORT');continue;
+    }
+    usableSports.push(sport);
+    for(const e of part.events.slice(0,300)){
+     const observed=stamp(e?.source_collected_at_utc??seenAt);
+     if(!Audit.validateOtherIdentity(e,sport)||(e.sport!=null&&e.sport!==sport)||
+        observed===null||observed>stamp(seenAt)||now-observed>def.maxAgeHours*3600000||
+        /cancel|postpon|suspend|final|finish|running/i.test(e.status||e.event_status||'')){
+      invalid.push('INVALID_OR_UNAVAILABLE_EVENT');continue;
+     }
+     add(sport,e.name,e.startUTC,e.id,Audit.validateOtherForecast(e,sport,seenAt,now));
+    }
    }
+   return {id,state:invalid.length?'PARTIAL_RECORDS':'OBSERVED',fresh:usableSports.length>0,
+    generatedAt:ts,records:result(),data,usableSports,invalidCount:invalid.length};
   }else if(id==='darts'){
    if(data.schema_version!==1||data.source_verification!=='PROVIDER_OBSERVED_UNCORROBORATED'||!Array.isArray(data.fixtures))
     return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
@@ -70,13 +95,13 @@
     add('rugby',e.home+' vs '+e.away,e.kickoff_utc,e.event_id,false);
    }
   }
-  return {id,state:invalid.length?'PARTIAL_RECORDS':'OBSERVED',fresh:true,generatedAt:ts,records,data,invalidCount:invalid.length};
+  return {id,state:invalid.length?'PARTIAL_RECORDS':'OBSERVED',fresh:true,generatedAt:ts,records:result(),data,invalidCount:invalid.length};
  }
  function summarize(results,now=Date.now()){
   const events=[],available=new Set(),counts=Object.fromEntries(sports.map(s=>[s,null]));
   for(const r of results){
    if(!r||r.fresh!==true||!Array.isArray(r.records))continue;
-   for(const sport of r.id==='other'?['tennis','nfl']:[r.id]){
+   for(const sport of r.id==='other'?r.usableSports:[r.id]){
     if(!sports.includes(sport))continue;
     available.add(sport);
     const subset=r.records.filter(x=>x.sport===sport);

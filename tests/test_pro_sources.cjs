@@ -9,7 +9,7 @@ const f={...base,upcoming_fixtures:[
  {home:'Past',away:'Fixture',kickoff_utc:new Date(now-3600000).toISOString()},
  {home:'Bad',away:'Date',kickoff_utc:'nonsense'}
 ]};
-const other={...base,sports:{tennis:{events:[{id:'t-1',name:'A vs B',startUTC:new Date(now+600000).toISOString(),forecast:{outcomes:[{id:'A',probability:.5}]}}]},nfl:{events:[{id:'n-1',name:'C vs D',startUTC:new Date(now+7200000).toISOString()}]}}};
+const other={...base,sports:{tennis:{events:[{id:'t-1',name:'A vs B',competition:'Synthetic ATP',source:'https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard',startUTC:new Date(now+600000).toISOString(),forecast:{outcomes:[{id:'A',probability:.5}]}}]},nfl:{events:[{id:'n-1',name:'C vs D',competition:'Synthetic NFL',source:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',startUTC:new Date(now+7200000).toISOString()}]}}};
 const racing={...base,races:[{race_id:'r-1',racecourse:'Ascot',startUTC:new Date(now+1800000).toISOString(),forecast_eligible:false,prediction:null}]};
 const rugby={...base,upcoming_fixtures:[{event_id:'ru-1',home:'France',away:'Argentina',kickoff_utc:new Date(now+5400000).toISOString()}]};
 const timed={id:'dart-1',start_utc:new Date(now+2700000).toISOString(),status:'SCHEDULED',
@@ -60,8 +60,25 @@ const future=S.inspect('other',{...other,generated_at_utc:new Date(now+8*60000).
 assert.equal(future.fresh,false,'future timestamps beyond tolerance must fail closed');
 const gates=S.inspect('football',{...f,publication_gate:'OPEN'},now);
 assert.equal(gates.fresh,false);assert.equal(gates.data,null);
+assert.equal(tennisNFL.records.find(event=>event.sport==='tennis').hasModel,false,'incomplete model cannot qualify');
+const isolated=S.inspect('other',{...other,sports:{...other.sports,tennis:{
+ ...other.sports.tennis,generated_at_utc:new Date(now-25*3600000).toISOString()}}},now);
+assert.equal(S.summarize([isolated],now).counts.tennis,null);
+assert.equal(S.summarize([isolated],now).counts.nfl,1);
+const wrongSport=S.inspect('other',{...other,sports:{...other.sports,tennis:{events:other.sports.nfl.events}}},now);
+assert.equal(wrongSport.state,'PARTIAL_RECORDS');
+assert.equal(wrongSport.records.some(row=>row.sport==='tennis'),false);
 const missing=S.inspect('other',{...other,sports:{tennis:{events:[]}}},now);
-assert.equal(missing.state,'SCHEMA_UNVERIFIED');
+assert.equal(missing.state,'PARTIAL_RECORDS');
+assert.equal(S.summarize([missing],now).counts.tennis,0);
+assert.equal(S.summarize([missing],now).counts.nfl,null);
+const sameId={...f.upcoming_fixtures[0],fixture_id:'stable-id'};
+const changedTime={...sameId,kickoff_utc:new Date(now+7200000).toISOString()};
+for(const upcoming_fixtures of [[sameId,changedTime,sameId],[changedTime,sameId]]){
+ const conflict=S.inspect('football',{...f,upcoming_fixtures},now);
+ assert.equal(conflict.state,'PARTIAL_RECORDS');
+ assert.deepEqual(conflict.records,[]);
+}
 const absent=S.inspect('racing',{...racing,races:null},now);
 assert.equal(absent.records.length,0);
 assert.equal(S.inspect('history',history,now).state,'OBSERVED');

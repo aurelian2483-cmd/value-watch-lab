@@ -1,0 +1,779 @@
+[
+  {
+    "id": "poisson",
+    "name": "Poisson goal model",
+    "family": "count-probability",
+    "classification": "distribution",
+    "profile": "count",
+    "definition": "P(X=k)=exp(-λ)λ^k/k!",
+    "variables": "X goals, k nonnegative integer, λ expected goals per fixture",
+    "assumptions": "Fixed exposure and conditional equidispersion",
+    "limitations": "Overdispersion or correlated scores",
+    "failure_conditions": [
+      "Overdispersion or correlated scores"
+    ],
+    "computation": "O(1) recurrence per mass after initialization",
+    "source": {
+      "kind": "literature",
+      "citation": "Cameron and Trivedi, Regression Analysis of Count Data, 2nd ed., 2013"
+    },
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "application": "Model goal or try counts at a fixed exposure",
+    "required_inputs": "Historical football goals or rugby tries, exposure and fixture identifiers",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "bivariate-poisson",
+      "negative-binomial"
+    ],
+    "incompatible_methods": [
+      "Raw rugby points as unweighted event counts"
+    ],
+    "relationships": [
+      {
+        "target": "bivariate-poisson",
+        "type": "related"
+      },
+      {
+        "target": "negative-binomial",
+        "type": "related"
+      }
+    ],
+    "status": "IMPLEMENTED",
+    "implementation_ref": "research/football-baseline-v1/replay.mjs",
+    "test_evidence": null,
+    "legacy_id": "poisson",
+    "batch": "legacy"
+  },
+  {
+    "id": "dixon-coles",
+    "name": "Dixon-Coles low-score adjustment",
+    "family": "football-goals",
+    "classification": "model-variant",
+    "profile": "football",
+    "definition": "P(x,y)=Pois(x;λ)Pois(y;μ)τ(x,y), with τ(0,0)=1−λμρ, τ(0,1)=1+λρ, τ(1,0)=1+μρ, τ(1,1)=1−ρ and τ=1 otherwise",
+    "variables": "x,y home and away goals, λ,μ positive fitted intensities, ρ fitted low-score dependence",
+    "assumptions": "All four factors nonnegative and rate fit uses prior fixtures only",
+    "limitations": "Low-score correction misses broader dependence",
+    "failure_conditions": [
+      "Low-score correction misses broader dependence"
+    ],
+    "computation": "O(n) per likelihood evaluation for n historical fixtures",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1111/1467-9876.00065"
+    },
+    "sports": [
+      "football"
+    ],
+    "application": "Estimate a football scoreline or goal differential",
+    "required_inputs": "Prior home and away goals, fixture dates, identities, and venue",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "poisson"
+    ],
+    "incompatible_methods": [
+      "Raw rugby/NFL points or any current fixture outcome"
+    ],
+    "relationships": [
+      {
+        "target": "poisson",
+        "type": "variant-of"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "dixon-coles",
+    "batch": "legacy"
+  },
+  {
+    "id": "bivariate-poisson",
+    "name": "Bivariate Poisson score model",
+    "family": "dependence",
+    "classification": "distinct-model",
+    "profile": "football",
+    "definition": "X=A+C, Y=B+C with independent A~Pois(a), B~Pois(b), C~Pois(c), so joint mass at x,y is Σ[j=0..min(x,y)] Pois(x−j;a)Pois(y−j;b)Pois(j;c)",
+    "variables": "X,Y team goals, A,B team-specific and C shared counts, a,b,c nonnegative intensities",
+    "assumptions": "Shared Poisson increment and nonnegative dependence",
+    "limitations": "Negative conditional covariance cannot be represented",
+    "failure_conditions": [
+      "Negative conditional covariance cannot be represented"
+    ],
+    "computation": "O(min(x,y)+1) per joint mass",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1111/1467-9884.00366"
+    },
+    "sports": [
+      "football"
+    ],
+    "application": "Estimate a football scoreline or goal differential",
+    "required_inputs": "Prior home and away goals, fixture dates, identities, and venue",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "poisson"
+    ],
+    "incompatible_methods": [
+      "Raw rugby/NFL points or any current fixture outcome"
+    ],
+    "relationships": [
+      {
+        "target": "poisson",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "bivariate-poisson",
+    "batch": "legacy"
+  },
+  {
+    "id": "negative-binomial",
+    "name": "Negative binomial goal/score model",
+    "family": "count-probability",
+    "classification": "distribution",
+    "profile": "count",
+    "definition": "P(X=k)=Γ(k+r)/(Γ(r)k!)·(1−p)^k p^r. For p=1 set P(X=0)=1 and P(X=k)=0 for k>0",
+    "variables": "X score count, k nonnegative integer, r>0 size, 0<p≤1 success parameter, Γ gamma function",
+    "assumptions": "Variance exceeds mean for 0<p<1",
+    "limitations": "Underdispersion and structural zeros",
+    "failure_conditions": [
+      "Underdispersion and structural zeros"
+    ],
+    "computation": "O(1) per log mass with log gamma",
+    "source": {
+      "kind": "literature",
+      "citation": "Cameron and Trivedi, Regression Analysis of Count Data, 2nd ed., 2013"
+    },
+    "sports": [
+      "football",
+      "rugby"
+    ],
+    "application": "Model goal or try counts at a fixed exposure",
+    "required_inputs": "Historical football goals or rugby tries, exposure and fixture identifiers",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "poisson"
+    ],
+    "incompatible_methods": [
+      "Raw rugby points as unweighted event counts"
+    ],
+    "relationships": [
+      {
+        "target": "poisson",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "negative-binomial",
+    "batch": "legacy"
+  },
+  {
+    "id": "elo",
+    "name": "Elo strength rating",
+    "family": "ratings",
+    "classification": "distinct-algorithm",
+    "profile": "paired",
+    "definition": "E_A=1/(1+10^((R_B−R_A)/400)), R_A←R_A+K(S_A−E_A), R_B←R_B−K(S_A−E_A), update after result publication",
+    "variables": "R ratings, E expected score, S_A=1 win, 0.5 draw, 0 loss, K positive step size",
+    "assumptions": "Common rating scale and comparable contest results",
+    "limitations": "Draw share cannot be recovered from expected score alone",
+    "failure_conditions": [
+      "Draw share cannot be recovered from expected score alone"
+    ],
+    "computation": "O(1) per contest after rating lookup",
+    "source": {
+      "kind": "literature",
+      "citation": "Arpad Elo, The Rating of Chessplayers, Past and Present, 1978"
+    },
+    "sports": [
+      "football",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "application": "Estimate relative strength from comparable opponent results",
+    "required_inputs": "Prior contest outcomes, participants, rules, dates and venue when specified",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "bradley-terry",
+      "glicko"
+    ],
+    "incompatible_methods": [
+      "Unresolved draws passed to binary likelihood or unknown future lineups"
+    ],
+    "relationships": [
+      {
+        "target": "bradley-terry",
+        "type": "related"
+      },
+      {
+        "target": "glicko",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "elo",
+    "batch": "legacy"
+  },
+  {
+    "id": "glicko",
+    "name": "Glicko rating system",
+    "family": "ratings",
+    "classification": "distinct-algorithm",
+    "profile": "paired",
+    "definition": "Set q=ln(10)/400 and g(s)=(1+3q²s²/π²)^(-1/2). Inflate own RD to v=min(350,√(RD²+c²t)). For prior period opponents compute E_j=(1+10^(−g(RD_j)(r−r_j)/400))^(-1), I=q²Σg(RD_j)²E_j(1−E_j). Set RD_new=(v^(-2)+I)^(-1/2) and r_new=r+q RD_new²Σg(RD_j)(S_j−E_j). For game expected score use E=1/(1+10^(−g(√(RD_A²+RD_B²))(r_A−r_B)/400)) with both pre-period deviations. The E_j above is the rating-update term",
+    "variables": "r,r_j ratings, RD standard deviations, c process inflation, t elapsed periods, S_j assigned Elo score, j opponent index. RD_j is the opponent deviation after pre-period inflation. RD_A and RD_B are the two pre-period deviations for game expectation",
+    "assumptions": "Use simultaneous snapshots within a rating period",
+    "limitations": "Sparse periods produce uncertain ratings and asymmetric expected scores",
+    "failure_conditions": [
+      "Sparse periods produce uncertain ratings and asymmetric expected scores"
+    ],
+    "computation": "O(m) per rating update with m contests",
+    "source": {
+      "kind": "literature",
+      "citation": "Mark Glickman, The Glicko System, glicko.net/glicko/glicko.pdf"
+    },
+    "sports": [
+      "football",
+      "tennis",
+      "darts"
+    ],
+    "application": "Track tennis or darts head-to-head strength and rating uncertainty, or football expected score under a declared draw convention.",
+    "required_inputs": "Prior contest outcomes, participants, rules, dates and venue when specified",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "elo"
+    ],
+    "incompatible_methods": [
+      "Unresolved draws passed to binary likelihood or unknown future lineups"
+    ],
+    "relationships": [
+      {
+        "target": "elo",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "glicko",
+    "batch": "legacy"
+  },
+  {
+    "id": "bradley-terry",
+    "name": "Bradley-Terry comparisons",
+    "family": "ratings",
+    "classification": "distinct-model",
+    "profile": "paired",
+    "definition": "P(i beats j)=exp(θ_i)/(exp(θ_i)+exp(θ_j)), fit θ by binary likelihood with Σθ_i=0",
+    "variables": "i,j competitors, θ log strengths, draws excluded under conditional decisive-result interpretation",
+    "assumptions": "Connected comparison graph and time-stable strength for fit window",
+    "limitations": "Complete separation yields infinite unpenalised estimates",
+    "failure_conditions": [
+      "Complete separation yields infinite unpenalised estimates"
+    ],
+    "computation": "O(n) likelihood per n contests",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1093/biomet/39.3-4.324"
+    },
+    "sports": [
+      "football",
+      "tennis",
+      "darts"
+    ],
+    "application": "Estimate relative strength from comparable opponent results",
+    "required_inputs": "Prior contest outcomes, participants, rules, dates and venue when specified",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "elo"
+    ],
+    "incompatible_methods": [
+      "Unresolved draws passed to binary likelihood or unknown future lineups"
+    ],
+    "relationships": [
+      {
+        "target": "elo",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "bradley-terry",
+    "batch": "legacy",
+    "mechanism_note": "Two-alternative conditional logit with paired identity contrasts; conditioning on two remaining choices reduces Plackett–Luce to this form."
+  },
+  {
+    "id": "ewma",
+    "name": "Exponentially weighted moving average",
+    "family": "time-weighting",
+    "classification": "feature-transformation",
+    "profile": "series",
+    "definition": "S_t=αX_t+(1−α)S_(t−1), S_1=X_1",
+    "variables": "X_t time-ordered metric, S_t smoothed value, 0<α≤1 smoothing weight, t observations",
+    "assumptions": "Fixed observation-step interpretation of decay",
+    "limitations": "Unequal gaps distort real-time decay",
+    "failure_conditions": [
+      "Unequal gaps distort real-time decay"
+    ],
+    "computation": "O(1) time and memory per observation",
+    "source": {
+      "kind": "literature",
+      "citation": "Hyndman and Athanasopoulos, Forecasting: Principles and Practice, 3rd ed., §8.1"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "cusum"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "cusum",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "ewma",
+    "batch": "legacy",
+    "mechanism_note": "Matches geometric weighting with its recursive initialization; finite renormalized decay treats the boundary differently."
+  },
+  {
+    "id": "cusum",
+    "name": "CUSUM change detection",
+    "family": "change-detection",
+    "classification": "diagnostic",
+    "profile": "series",
+    "definition": "C_t=max(0,C_(t−1)+X_t−μ_0−k), C_0=0, alarm when C_t≥h",
+    "variables": "X_t observed statistic, μ_0 in-control mean, k≥0 allowance, h>0 threshold",
+    "assumptions": "Direction is upward and threshold is fixed before deployment",
+    "limitations": "Autocorrelation raises false-alert rate under iid thresholds",
+    "failure_conditions": [
+      "Autocorrelation raises false-alert rate under iid thresholds"
+    ],
+    "computation": "O(1) per observation",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1093/biomet/41.1-2.100"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "ewma",
+      "changepoint"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "ewma",
+        "type": "related"
+      },
+      {
+        "target": "changepoint",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "cusum",
+    "batch": "legacy"
+  },
+  {
+    "id": "kalman",
+    "name": "Kalman filter",
+    "family": "state-estimation",
+    "classification": "distinct-algorithm",
+    "profile": "series",
+    "definition": "Predict m⁻=Fm and P⁻=FPFᵀ+Q. Set K=P⁻Hᵀ(HP⁻Hᵀ+R)^(-1), m←m⁻+K(y−Hm⁻), P←(I−KH)P⁻(I−KH)ᵀ+KRKᵀ",
+    "variables": "m,P conditional state mean/covariance, y observation, F transition, H observation map, Q,R noise covariances, K gain, I identity",
+    "assumptions": "Linear Gaussian system, independent noise, estimable covariance and invertible innovation covariance",
+    "limitations": "Large structural break invalidates the state transition",
+    "failure_conditions": [
+      "Large structural break invalidates the state transition"
+    ],
+    "computation": "O((d+p)^3) dense step with state dimension d and observation dimension p",
+    "source": {
+      "kind": "literature",
+      "citation": "doi:10.1115/1.3662552"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "changepoint"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "changepoint",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "kalman",
+    "batch": "legacy"
+  },
+  {
+    "id": "bayesian-hierarchical",
+    "name": "Hierarchical Bayesian modelling",
+    "family": "inference",
+    "classification": "framework",
+    "profile": "series",
+    "definition": "p(θ,η∣y)∝p(η)∏_j p(θ_j∣η)∏_i p(y_ji∣θ_j)",
+    "variables": "j subgroup, i within group, θ_j group parameter, η hyperparameter, y data",
+    "assumptions": "Exchangeable groups conditional on η in this factorization",
+    "limitations": "Over-pooling for nonexchangeable leagues",
+    "failure_conditions": [
+      "Over-pooling for nonexchangeable leagues"
+    ],
+    "computation": "Cost depends on chosen likelihood and posterior solver",
+    "source": {
+      "kind": "literature",
+      "citation": "Gelman et al., Bayesian Data Analysis, 3rd ed., ch. 5"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "kalman"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "kalman",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "bayesian-hierarchical",
+    "batch": "legacy"
+  },
+  {
+    "id": "monte-carlo",
+    "name": "Monte Carlo simulation",
+    "family": "simulation",
+    "classification": "distinct-algorithm",
+    "profile": "simulation",
+    "definition": "Draw independent X_i~P and compute μ̂=N^(-1)Σ_i f(X_i), SE=s_f/√N for finite variance",
+    "variables": "P simulator law, f measured payoff or outcome indicator, s_f sample SD, N draws",
+    "assumptions": "Independent draws and finite second moment for standard error",
+    "limitations": "Rare outcomes yield unstable estimates",
+    "failure_conditions": [
+      "Rare outcomes yield unstable estimates"
+    ],
+    "computation": "O(N·C) for simulator-and-summary cost C",
+    "source": {
+      "kind": "literature",
+      "citation": "Robert and Casella, Monte Carlo Statistical Methods, 2nd ed., 2004"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "application": "Summarize rule-consistent scoring or rank trajectories",
+    "required_inputs": "Specified simulator or scenario law, historical state inputs and reproducible random seeds where used",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "poisson"
+    ],
+    "incompatible_methods": [
+      "Simulators calibrated with target results or invented missing transition data"
+    ],
+    "relationships": [
+      {
+        "target": "poisson",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "monte-carlo",
+    "batch": "legacy"
+  },
+  {
+    "id": "weighted-ensemble",
+    "name": "Weighted probability ensemble",
+    "family": "combination",
+    "classification": "ensemble",
+    "profile": "forecast",
+    "definition": "p(y)=Σ_j w_j p_j(y), w_j≥0 and Σ_j w_j=1",
+    "variables": "p_j aligned component distributions, w_j fixed or trained on earlier out-of-fold forecasts, y common outcome",
+    "assumptions": "Identical target definitions and support",
+    "limitations": "Correlated component errors provide little diversification",
+    "failure_conditions": [
+      "Correlated component errors provide little diversification"
+    ],
+    "computation": "O(JK) for J members and K outcomes",
+    "source": {
+      "kind": "literature",
+      "citation": "Genest and Zidek, Combining Probability Distributions: A Critique and an Annotated Bibliography, Statistical Science, 1986"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "application": "Combine aligned pre-event probabilities for the same outcome, such as horse-race winners across a declared field.",
+    "required_inputs": "Archived forecasts on aligned events and targets; older labels only when fitting",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "isotonic"
+    ],
+    "incompatible_methods": [
+      "Mismatched horizons or labels from the event being predicted"
+    ],
+    "relationships": [
+      {
+        "target": "isotonic",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "weighted-ensemble",
+    "batch": "legacy",
+    "mechanism_note": "Common linear pooling operation used by stacking, BMA and shrinkage; weight construction distinguishes the records."
+  },
+  {
+    "id": "isotonic",
+    "name": "Isotonic probability calibration",
+    "family": "calibration",
+    "classification": "calibration",
+    "profile": "forecast",
+    "definition": "Sort calibration pairs by p_i, pool equal scores, then merge adjacent blocks whose label means decrease. Set calibrated q(p_i)=mean of y in its final block, extend as a right-continuous step function with endpoint clipping.",
+    "variables": "p_i pre-event probability, y_i observed 0/1, block means fitted calibrated probabilities",
+    "assumptions": "Chronologically separate calibration and assessment, reliability monotone in score",
+    "limitations": "Small blocks produce extreme outputs",
+    "failure_conditions": [
+      "Small blocks produce extreme outputs"
+    ],
+    "computation": "O(n log n) with sorting followed by linear pooling",
+    "source": {
+      "kind": "literature",
+      "citation": "Barlow et al., Statistical Inference Under Order Restrictions, 1972"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "application": "Calibrate a fixed binary target, such as whether a named entrant wins, on older forecasts; fieldwise binary calibration may require a separate coherence step.",
+    "required_inputs": "Archived forecasts on aligned events and targets; older labels only when fitting",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "weighted-ensemble",
+      "logistic"
+    ],
+    "incompatible_methods": [
+      "Mismatched horizons or labels from the event being predicted"
+    ],
+    "relationships": [
+      {
+        "target": "weighted-ensemble",
+        "type": "related"
+      },
+      {
+        "target": "logistic",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "isotonic",
+    "batch": "legacy"
+  },
+  {
+    "id": "logistic",
+    "name": "Logistic regression",
+    "family": "classification",
+    "classification": "distinct-model",
+    "profile": "binary",
+    "definition": "P(Y=1∣x)=1/(1+exp(−β_0−βᵀx)); fit coefficients by Bernoulli log likelihood",
+    "variables": "Y binary target, x pre-event feature vector, β_0 intercept, β coefficients",
+    "assumptions": "Linear conditional log odds for specified features",
+    "limitations": "Separation and nonlinear misspecification",
+    "failure_conditions": [
+      "Separation and nonlinear misspecification"
+    ],
+    "computation": "O(nd) objective and gradient per iteration for n rows, d features",
+    "source": {
+      "kind": "literature",
+      "citation": "Hastie, Tibshirani and Friedman, The Elements of Statistical Learning, 2nd ed., §4.4"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "application": "Estimate or update a binary event such as a tennis service hold or a football clean sheet",
+    "required_inputs": "Historically available features and older binary outcomes or prespecified likelihoods",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "bradley-terry",
+      "isotonic"
+    ],
+    "incompatible_methods": [
+      "Multiclass results passed as binary without a stated recoding"
+    ],
+    "relationships": [
+      {
+        "target": "bradley-terry",
+        "type": "related"
+      },
+      {
+        "target": "isotonic",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "logistic",
+    "batch": "legacy",
+    "mechanism_note": "Binary softmax and two-alternative conditional-logit specialize to this link with the appropriate features. Platt adds score calibration and target smoothing."
+  },
+  {
+    "id": "changepoint",
+    "name": "Bayesian change-point detection",
+    "family": "change-detection",
+    "classification": "distinct-algorithm",
+    "profile": "series",
+    "definition": "Initialize J₀(0)=1. Let h(r)=P(D=r+1 ∣ D≥r+1) for positive integer segment duration D and previous run length r. Compute G_r=J_(t−1)(r)π_r(x_t), J_t(r+1)=G_r(1−h(r)), and J_t(0)=Σ_r G_r h(r). Normalize by Σ_s J_t(s)>0 for the run-length posterior. Initialize the reset state at the segment prior and extend growth states with x_t",
+    "variables": "r previous run length, J joint run-length and observation mass up to a common scale, D segment duration, h(r) duration hazard written on the previous-run index, π_r previous-run predictive density",
+    "assumptions": "Segments have a probabilistic duration and tractable run predictive updates",
+    "limitations": "Mis-specified hazard generates spurious resets",
+    "failure_conditions": [
+      "Mis-specified hazard generates spurious resets"
+    ],
+    "computation": "O(t) per step without pruning",
+    "source": {
+      "kind": "literature",
+      "citation": "Adams and MacKay, Bayesian Online Changepoint Detection, arXiv:0710.3742"
+    },
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "nfl",
+      "darts",
+      "rugby"
+    ],
+    "application": "Track changes in prior football chance-creation rates, horse sectionals, tennis serve rates, rugby try rates, NFL drive efficiency or darts checkout rates",
+    "required_inputs": "Timestamped preceding sport measurements with their observation and availability times",
+    "data_rights": "Use synthetic inputs or source-authorized historical records. Verify licence and permitted use before acquisition. No data are bundled.",
+    "input_timing": "as-of-cutoff",
+    "compatible_methods": [
+      "cusum",
+      "kalman"
+    ],
+    "incompatible_methods": [
+      "Centered windows, retrospective vendor corrections and whole-season fit parameters unavailable at cutoff"
+    ],
+    "relationships": [
+      {
+        "target": "cusum",
+        "type": "related"
+      },
+      {
+        "target": "kalman",
+        "type": "related"
+      }
+    ],
+    "status": "IDEA",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": "changepoint",
+    "batch": "legacy"
+  }
+]
