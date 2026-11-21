@@ -1,0 +1,73 @@
+{
+  "as_of": "2026-09-17T00:00:00Z",
+  "freeze_attestations": [
+    {
+      "forecast_sha256": "a6fae84b9988c0a321db19ea807c80c44875d1113755cc302b08a2d69f4a5b15",
+      "observed_at": "2026-09-14T16:01:00Z",
+      "provenance": {
+        "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "source": {
+          "kind": "permitted_receipt_reference",
+          "reference": "synthetic-ref-d"
+        }
+      },
+      "record_id": "forecast-v1:8116f02a8ccc8cc45756998eba7a7615f0d9468ea373b25bd7b0df8096bd6c6f"
+    }
+  ],
+  "kind": "football-evaluation-manifest",
+  "outcome_reviews": [
+    {
+      "decision": "exact_fixture_and_independent_sources_reviewed",
+      "event": {
+        "away": "Away Test",
+        "competition": "synthetic-league",
+        "home": "München Test",
+        "id": "event-1",
+        "namespace": "canonical",
+        "season": "2026/27",
+        "starts_at": "2026-09-15T18:00:00Z"
+      },
+      "outcome_sha256": [
+        "8d672b478c8d053e298636c6b60abf5d0379b5fb855a5ac00077f0bf6d0d95ff",
+        "6195f0633ae68e3b5e5ca01f37ac21c6d9b8876a98d76f2103838073ffa589d3"
+      ],
+      "provenance": {
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "source": {
+          "kind": "permitted_receipt_reference",
+          "reference": "synthetic-ref-c"
+        }
+      },
+      "reviewed_at": "2026-09-16T00:00:00Z"
+    }
+  ],
+  "schema_version": 1,
+  "split": {
+    "calibration": {
+      "end": "2026-09-01T00:00:00Z",
+      "start": "2026-08-15T00:00:00Z"
+    },
+    "evaluation": {
+      "end": "2026-10-01T00:00:00Z",
+      "start": "2026-09-01T00:00:00Z"
+    },
+    "fixtures": [
+      {
+        "event": {
+          "away": "Away Test",
+          "competition": "synthetic-league",
+          "home": "München Test",
+          "id": "event-1",
+          "namespace": "canonical",
+          "season": "2026/27",
+          "starts_at": "2026-09-15T18:00:00Z"
+        },
+        "partition": "evaluation"
+      }
+    ],
+    "training": {
+      "end": "2026-08-15T00:00:00Z",
+      "start": "2026-07-01T00:00:00Z"
+    }
+  }
+}
