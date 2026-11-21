@@ -371,6 +371,7 @@ async function showFeatured(){
   const summary=Sources.summarize(feeds,now),invalid=feeds.filter(x=>x.state!=='OBSERVED');
   for(const sport of Sources.sports)document.querySelectorAll('[data-pro-count="'+sport+'"]').forEach(el=>{el.textContent=summary.counts[sport]===null?'—':String(summary.counts[sport])});
   publishedPrices=readPublishedPrices(summary.upcoming,now);
+  publishCardPrices(now);
   schedulePriceExpiry();
   racing=Sources.racingEvidence(summary.upcoming,feeds.find(feed=>feed.id==='racing'),horseModels,now);
   const all=document.querySelector('[data-pro-count="all"]');if(all)all.textContent=summary.available.length?String(summary.totalAvailable):'—';
