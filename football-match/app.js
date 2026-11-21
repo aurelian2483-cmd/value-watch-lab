@@ -178,6 +178,9 @@
 
   function renderMarketMatrix(parent, market, estimates) {
     node(parent,'p','Recorded historical 90-minute Home/Draw/Away prices. These are not live quotes.');
+    if (market?.collectionStatus?.state)
+      node(parent,'p','Market collection status: ' + market.collectionStatus.state +
+        '. Existing observations are historical captures; no live bookmaker prices are requested.');
     node(parent,'p','An opening price is not supplied by this archive. The earliest recorded observation must not be treated as the market opening.');
     if (!market?.sourceHistories?.length) {
       node(parent,'p','No complete source-verified 90-minute 1X2 observation is available for this fixture.');
