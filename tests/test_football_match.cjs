@@ -45,12 +45,62 @@ for (const invalid of [
   {prices:{home:2,away:4}}, {prices:{home:2,draw:3,away:4,extra:5}},
   {market:'SECOND_HALF_RESULT'}, {settlement_period:'EXTRA_TIME'},
   {start_utc:stamp('21:00')}, {source:'https://goldedge.net.example.org/odds/football/abc123'}
-]) assert.equal(markets([{...capture,benchmark:{...capture.benchmark,...invalid}}]).matches.length,0,JSON.stringify(invalid));
+]) {
+  const rejected = markets([{...capture,benchmark:{...capture.benchmark,...invalid}}]);
+  assert.equal(rejected.matches.flatMap(match => match.sources).length,0,JSON.stringify(invalid));
+  assert(rejected.withheldReasons.length > 0,JSON.stringify(invalid));
+}
 
 assert.equal(markets([{...capture,snapshot_at_utc:stamp('20:00')}],index,Date.parse(stamp('21:00'))).matches.length,0);
 assert.equal(markets([capture],index,Date.parse(stamp('17:59'))).matches.length,0);
 assert.equal(markets([{...capture,market:'FOOTBALL_EXTRA_TIME_1X2'}]).matches.length,0);
-assert.equal(markets([capture,{...capture,benchmark:{...capture.benchmark,prices:{home:3,draw:4,away:5}}}]).matches.length,0);
+const conflictingQuotes = markets([capture,{...capture,benchmark:{...capture.benchmark,prices:{home:3,draw:4,away:5}}}]);
+assert.equal(conflictingQuotes.matches.flatMap(match => match.sources).length,0);
+assert(conflictingQuotes.withheldReasons.some(item => item.reason.includes('Conflicting prices')));
+const repeated = {...capture,snapshot_at_utc:stamp('18:10'),benchmark:{
+  ...capture.benchmark,source_sha256:'c'.repeat(64),observed_at_utc:stamp('18:05'),
+  captured_at_utc:stamp('18:10'),http_date_utc:stamp('18:10'),
+  prices:{home:1.9,draw:3.2,away:4.2}
+}};
+const repeatedResult = markets([capture,repeated]);
+const sourceHistory = repeatedResult.matches[0].sourceHistories[0];
+assert.equal(sourceHistory.observationCount,2);
+assert.equal(sourceHistory.earliest.prices.home,2);
+assert.equal(sourceHistory.latest.prices.home,1.9);
+assert.equal(sourceHistory.movementAvailable,true);
+assert(Math.abs(sourceHistory.movement.home.decimal + .1) < 1e-12);
+assert.equal(sourceHistory.openingPriceAvailable,false);
+assert(Math.abs(sourceHistory.latest.metrics.overround - (1/1.9 + 1/3.2 + 1/4.2 - 1)) < 1e-12);
+const deduplicated = markets([capture,capture]).matches[0].sourceHistories[0];
+assert.equal(deduplicated.observationCount,1);
+assert.equal(deduplicated.movementAvailable,false);
+assert.equal(deduplicated.latest.metrics.overround,1/2+1/3+1/4-1);
+
+const skyQuote = {
+  source:'https://skybet.com/football/division/home-v-away/e-101',
+  source_event_id:'101',source_market_id:'ppb:sbkMarket:1.1',source_id:'SKY_BET',
+  source_sha256:'d'.repeat(64),verified:true,observed_at_utc:stamp('17:50'),
+  captured_at_utc:stamp('17:50'),http_date_utc:stamp('17:50'),
+  source_team_names:['Home','Away'],executable_verified:false,
+  timestamp_basis:'DIRECT_SKY_BET_HTTP_OBSERVATION_TIME',
+  prices:{home:2.1,draw:3.1,away:4.1}
+};
+const skyRecord = {...capture,sky_bet:skyQuote};
+const skyLater = {...skyRecord,snapshot_at_utc:stamp('18:10'),sky_bet:{
+  ...skyQuote,source_market_id:'ppb:sbkMarket:2.2',source_sha256:'e'.repeat(64),
+  observed_at_utc:stamp('18:05'),captured_at_utc:stamp('18:05'),http_date_utc:stamp('18:05'),
+  prices:{home:2.2,draw:3.2,away:4.2}
+}};
+const marketIdConflict = markets([skyRecord,skyLater]);
+assert.equal(marketIdConflict.matches.flatMap(match => match.sources).filter(source => source.sourceId === 'SKY_BET').length,0);
+assert(marketIdConflict.withheldReasons.some(item => item.reason.includes('market identity changed')));
+
+const eligibleFrozen = {...frozen,observed_at_utc:stamp('17:40'),comparison:{
+  ...estimate,method:'CURRENT_SEASON_POISSON_COMPARISON_V1',unvalidated:true,
+  training_sha256:'c'.repeat(64),cutoff_utc:stamp('16:00'),source_receipts:[inputReceipt]
+}};
+const eligibleMarket = markets([{...capture,frozen_model:eligibleFrozen}]).matches[0];
+assert.equal(eligibleMarket.model.cutoffReason,null);
 const another = {...fixture,espn_event_id:'102',kickoff_utc:stamp('22:00')};
 assert.equal(markets([capture,{...capture,event_id:eventID(another),start_utc:another.kickoff_utc}],
   evidence.fixtureIndex([feed([fixture,another])],now)).matches.length,0);
