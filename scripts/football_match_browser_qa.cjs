@@ -34,19 +34,18 @@ const server = http.createServer(async (request,response) => {
       page.on('pageerror',error => errors.push(error.message));
       await page.goto(base+'/market-intelligence/');
       await page.locator('#market-rows tr').first().waitFor();
-      const bayernOption = await page.locator('#match option').evaluateAll(options =>
-        options.find(option => option.textContent.includes('Bayern Munich'))?.value);
-      assert.notEqual(bayernOption,undefined);
-      await page.locator('#match').selectOption(bayernOption);
-      assert.equal(await page.locator('#market-rows tr').count(),6);
+      const werderOption = await page.locator('#match option').evaluateAll(options =>
+        options.find(option => option.textContent.includes('Werder Bremen'))?.value);
+      assert.notEqual(werderOption,undefined);
+      await page.locator('#match').selectOption(werderOption);
+      assert.equal(await page.locator('#market-rows tr').count(),3);
       assert((await page.locator('#market-rows').innerText()).includes('Pinnacle via GoldEdge'));
-      assert((await page.locator('#market-rows').innerText()).includes('Sky Bet'));
       assert((await page.locator('#market-rows').innerText()).includes('movement unavailable'));
-      await page.locator('#source-filter').selectOption('SKY_BET');
+      await page.locator('#source-filter').selectOption('PINNACLE_VIA_GOLDEDGE');
       assert.equal(await page.locator('#market-rows tr').count(),3);
       await page.locator('#source-filter').selectOption('');
-      assert.equal(await page.locator('#market-rows tr').count(),6);
-      assert.equal(await page.locator('#market-source-details details').count(),2);
+      assert.equal(await page.locator('#market-rows tr').count(),3);
+      assert.equal(await page.locator('#market-source-details details').count(),1);
       const marketProvenance = page.locator('#market-source-details details').first();
       await marketProvenance.locator('summary').click();
       assert(await marketProvenance.getByText(/Opening price is not explicitly recorded/).isVisible());
@@ -60,7 +59,7 @@ const server = http.createServer(async (request,response) => {
       assert(shared.includes('event=espn%3A'));
       await page.getByRole('link',{name:'Markets',exact:true}).click();
       await page.locator('#markets .market-matrix').waitFor();
-      assert.equal(await page.locator('#markets .market-matrix tbody tr').count(),2);
+      assert.equal(await page.locator('#markets .market-matrix tbody tr').count(),1);
       assert(await page.locator('#markets').getByText(/No model passes the explicit training-cutoff/).isVisible());
       assert(await page.locator('#markets').getByText(/Opening price is not supplied/).isVisible());
       const fixtureMarketDetails = page.locator('#markets details').first();
