@@ -128,6 +128,18 @@ async function main(){
     await evidence.getByText(/Observed .*Z/).waitFor();
     await evidence.getByText(/Expires .*Z/).waitFor();
     await evidence.getByText('Home '+matched.get(item)[0].prices.home.toFixed(2),{exact:true}).waitFor();
+    if(live&&sport==='football'){
+     const card=page.locator('.event-card').filter({hasText:item.name}).first();
+     await card.waitFor({state:'visible',timeout:15000});
+     assert(football.events.get(item.fixtureKey)?.identity,'Exact football identity is required for card verification.');
+     for(const side of ['home','draw','away']){
+      const expected=matched.get(item)[0].prices[side].toFixed(2);
+      const actual=await card.locator('[data-choice-id="'+side+'"] .selection-price').textContent();
+      assert.equal(actual,expected,'Matched Sky Bet outcome price is missing from the exact fixture card.');
+     }
+     await card.getByText(/Sky Bet 1X2 prices · observed/).waitFor();
+     await card.getByText(/EV withheld/).first().waitFor();
+    }
     assert.equal((await page.request.get(base+'/work/current-odds.json')).status(),404);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
     verified.add(sport);
