@@ -18,6 +18,16 @@
   const dateText = value => Number.isFinite(Date.parse(value)) ? new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) : 'Time not supplied';
   const money = value => value === null || value === undefined ? '—' : new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(value / 100);
   const pct = value => typeof value === 'number' && Number.isFinite(value) ? (value * 100).toFixed(1) + '%' : '—';
+  function publishedOddsForEvent(event){
+    const rows=window.ValueWatchCurrentOddsForCards;
+    if(!Array.isArray(rows)||event?.sport!=='football')return null;
+    const start=Date.parse(event.start),now=Date.now();
+    const matches=rows.filter(row=>row&&row.sport==='football'&&row.name===event.name&&row.startMs===start&&row.expires>now);
+    if(matches.length!==1)return null;
+    const quote=matches[0],prices=quote.prices;
+    if(!prices||!['home','draw','away'].every(side=>Number.isFinite(prices[side])&&prices[side]>1))return null;
+    return quote;
+  }
   const make = (parent, tag, text, className) => {
     const element = document.createElement(tag);
     if (text !== undefined) element.textContent = String(text);
@@ -431,6 +441,7 @@
       }
     }
     const racingPicks = racingHighlights(event);
+    const currentOdds = publishedOddsForEvent(event);
     // Compact universal header keeps selection signals visible without duplicating full source research.
     let quickSignals = record.node.querySelector('.compact-event-signals');
     if (!quickSignals) { quickSignals = make(null, 'div', undefined, 'compact-event-signals'); record.market.before(quickSignals); }
@@ -438,6 +449,8 @@
     if (event.sport === 'racing') {
       const highlights = racingPicks.map(item => item.choice.label + ' · ' + item.labels.join(' + '));
       make(quickSignals, 'span', highlights.length ? 'Experimental signals: ' + highlights.join('; ') : 'No confirmed research signal', 'compact-signal-pill');
+    } else if(currentOdds) {
+      make(quickSignals,'span','Sky Bet 1X2 prices · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK','compact-signal-pill live-price-pill');
     } else {
       const first = E.modelLeaders(event).find(item => item.rank === 1);
       make(quickSignals, 'span', first ? 'Unvalidated model leader: ' + (event.choices.find(choice => choice.id === first.id)?.label || 'Unavailable') : 'Model comparison unavailable', 'compact-signal-pill');
@@ -483,12 +496,17 @@
     }
     for (const choice of event.choices) {
       const view = record.choices.get(choice.id); if (!view) continue;
-      const chosen = selected.some(leg => leg.eventId === event.id && leg.choiceId === choice.id), priced = typeof choice.quote?.decimal === 'number', publishedForecast=typeof choice.forecastPrice?.decimal==='number';
+      const chosen = selected.some(leg => leg.eventId === event.id && leg.choiceId === choice.id);
+      const livePrice=currentOdds?.prices?.[choice.id],hasLivePrice=Number.isFinite(livePrice)&&livePrice>1;
+      const quote=hasLivePrice?{decimal:livePrice}:choice.quote;
+      const priced = typeof quote?.decimal === 'number', publishedForecast=typeof choice.forecastPrice?.decimal==='number';
       const estimated = event.model && typeof choice.probability === 'number';
       const contextWeight = event.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT';
-      const value = estimated ? pct(choice.probability) : priced ? choice.quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'No estimate';
-      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
-      write(view.odds, priced ? estimated ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'Bookmaker odds not connected');
+      const unavailableEstimate=!estimated&&!priced&&!publishedForecast;
+      const value = estimated ? pct(choice.probability) : hasLivePrice ? livePrice.toFixed(2) : priced ? quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'—';
+      view.element.classList.toggle('is-unpriced',unavailableEstimate);
+      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : hasLivePrice ? 'SKY BET OBSERVED PRICE · MODEL DATA UNAVAILABLE' : priced ? 'SOURCE ODDS · UNVERIFIED' : publishedForecast?'PUBLISHER FORECAST · NOT BOOKMAKER ODDS':'MODEL DATA UNAVAILABLE'));
+      write(view.odds, hasLivePrice ? 'Sky Bet '+livePrice.toFixed(2)+' · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK · checked '+dateText(new Date(currentOdds.checked).toISOString())+' UK · EV withheld' : priced ? estimated ? 'Source odds ' + quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'No matched bookmaker price in this snapshot');
       write(view.method, event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' + (contextWeight ? ' · context weight, not win probability' : '') : 'Method: unavailable · no validated forecast');
       const leader = leaders.find(leader => leader.id === choice.id);
       const racingPick = event.sport === 'racing' ? racingPicks.find(pick => pick.choice.id === choice.id) : null;
@@ -2136,6 +2154,7 @@
   store.subscribe(state => JSON.stringify([state.history, state.journal, state.claims]), () => { if (store.get().view === 'history') safely(renderHistory); });
   store.subscribe(state => state.eventVersion, () => { if (store.get().view === 'results') safely(renderResults); });
   window.addEventListener('storage', event => { if (event.key === key || event.key === null) persistence.invalidate(); });
+   window.addEventListener('valuewatch:published-card-odds',()=>safely(renderEvents()));
   let timer = null, lastRefresh = 0;
   function startClock() { if (timer === null) timer = setInterval(() => { if (!document.hidden) { store.update(state => ({ ...state, clockTick: state.clockTick + 1 })); if (navigator.onLine && Date.now() - lastRefresh >= 60000) safely(refresh); } }, 30000); }
   document.addEventListener('visibilitychange', () => { transport.setPaused(document.hidden); if (!document.hidden) safely(refresh); });
