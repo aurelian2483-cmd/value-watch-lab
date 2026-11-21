@@ -8,6 +8,9 @@ from pathlib import Path
 import re
 import sys
 
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
+
 if __package__:
     from . import football_evidence_ledger as ledger
 else:

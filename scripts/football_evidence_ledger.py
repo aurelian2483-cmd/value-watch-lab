@@ -7,6 +7,9 @@ from pathlib import Path
 import sys
 from urllib.parse import urlsplit
 
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
+
 if __package__:
     from . import audit_football_provenance as audit
 else:

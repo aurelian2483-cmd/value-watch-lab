@@ -114,3 +114,24 @@ class FootballIntakeTests(unittest.TestCase):
             self.assertEqual(list(Path(temporary).iterdir()), [path])
             self.assertEqual(path.read_bytes(), raw.replace(b'\n', b'\r\n'))
         self.assertEqual(ledger_path.read_bytes(), before)
+
+    def test_cli_creates_no_files_in_clean_script_directory(self):
+        files = ('football_evidence_ledger.py', 'football_evidence_intake.py', 'audit_football_provenance.py',
+                 'audit_football_result_reconciliation.py', 'audit_verified_results_pilot.py',
+                 'collect_reliability_history.py')
+        with tempfile.TemporaryDirectory(prefix='isolated football evidence ') as temporary:
+            root = Path(temporary)
+            scripts = root / 'scripts'
+            scripts.mkdir()
+            for name in files:
+                (scripts / name).write_bytes((intake.ledger.ROOT / 'scripts' / name).read_bytes())
+            receipt = root / 'receipt.json'
+            receipt.write_bytes(b'{"schema_version":1,"receipts":[]}')
+            ledger = root / 'ledger.json'
+            ledger.write_bytes((intake.ledger.ROOT / intake.ledger.DIRECTORY / 'ledger.v1.json').read_bytes())
+            before = {path.relative_to(root): path.read_bytes() for path in root.rglob('*') if path.is_file()}
+            subprocess.check_output([sys.executable, str(scripts / 'football_evidence_intake.py'), str(receipt)])
+            subprocess.check_output([sys.executable, str(scripts / 'football_evidence_ledger.py'),
+                                     'compare', str(ledger), str(ledger)])
+            self.assertEqual({path.relative_to(root): path.read_bytes()
+                              for path in root.rglob('*') if path.is_file()}, before)
