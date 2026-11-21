@@ -139,8 +139,10 @@ async function load() {
       'Collection status: ' + collection.state + '. These are archived observations, not live prices; no live bookmaker requests are made.' :
       'Collection status is not recorded. Prices remain historical source observations.';
     const matches = result.matches.sort((a, b) => b.fixture.start - a.fixture.start);
+    const unmatchedReasons = result.withheldReasons.filter(item => !item.fixture).map(item => item.reason);
     globalWithheldMessage = result.withheld ?
-      result.withheld + ' market evidence item(s) were withheld because fixture, source or receipt evidence did not match. Fixture-specific reasons are shown when available.' : '';
+      result.withheld + ' market evidence item(s) were withheld because fixture, source or receipt evidence did not match. ' +
+      unmatchedReasons.join(' ') : '';
     if (!matches.length) {
       status.textContent = 'No source-backed pre-kickoff captures are available.';
       return;
