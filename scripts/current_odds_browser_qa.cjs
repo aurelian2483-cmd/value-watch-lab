@@ -13,8 +13,8 @@ const deployed = process.argv.includes('--public');
 const live = deployed || process.argv.includes('--live');
 const mime = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json'};
 
+let checkpoint='fixture selection';
 async function main(){
- let checkpoint='fixture selection';
  let [dashboard,expanded,other,racing]=await Promise.all([
   'research-dashboard-data.json','football-expanded-data.json','other-sports-data.json','racing-research-data.json'
  ].map(read));
