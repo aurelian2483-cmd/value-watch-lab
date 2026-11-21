@@ -231,6 +231,20 @@ function evidenceCell(tr,item,index){
   toggle.setAttribute('aria-expanded',String(!detailRow.hidden));
  });
  cell.append(toggle);
+ if(hasCurrent){
+  const summary=document.createElement('div');summary.className='pro-current-price-summary';
+  const heading=document.createElement('strong');heading.textContent='Sky Bet · 1X2';summary.append(heading);
+  const outcomes=document.createElement('div');outcomes.className='pro-current-price-outcomes';
+  for(const entry of current.markup.querySelectorAll('li')){
+   const match=entry.textContent.trim().match(/^(Home|Draw|Away)\\s+([0-9]+(?:\\.[0-9]+)?)$/);
+   if(match){const value=document.createElement('span');value.textContent=match[1]+' '+Number(match[2]).toFixed(2);outcomes.append(value);}
+  }
+  if(outcomes.children.length===3){summary.append(outcomes);const times=[...current.markup.querySelectorAll('time')];
+   const observed=Date.parse(times[0]?.dateTime),checked=Date.parse(times[1]?.dateTime);
+   if(Number.isFinite(observed)&&Number.isFinite(checked)){const stamp=document.createElement('small');stamp.textContent='Observed '+new Date(observed).toISOString()+' · checked '+new Date(checked).toISOString()+' · EV withheld';summary.append(stamp);}
+   cell.append(summary);
+  }
+ }
  if(!evidence.models.length)line(panel,evidence.reason);
  line(panel,'Models UNVALIDATED · Publication BLOCKED · Fixture cutoff '+item.startUTC);
  for(const model of [...evidence.models,...evidence.unverified]){
