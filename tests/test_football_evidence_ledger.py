@@ -56,3 +56,37 @@ class EvidenceLedgerTests(unittest.TestCase):
             path.write_bytes(b'{"schema_version":1,"schema_version":1}')
             with self.assertRaisesRegex(ValueError, 'duplicate JSON object key'):
                 evidence.load(path)
+
+    def test_drift_identifies_row_and_pin_changes_without_promotions(self):
+        before = self.ledger
+        after = copy.deepcopy(before)
+        available = [row for row in after['rows'] if row['disposition'] == 'unmatched']
+        removed, changed, reclassified = available[:3]
+        after['rows'].remove(removed)
+        added = copy.deepcopy(removed)
+        added['date'] = '2026-06-01'
+        added['key'] = evidence.row_key(added)
+        after['rows'].append(added)
+        changed['score'] = [20, 0]
+        changed['competition'] = 'ALIAS'
+        state = 'score_or_source_conflict'
+        reclassified.update(disposition=state, reason=evidence.POLICY[state][0],
+                            evidence_needed=evidence.POLICY[state][1])
+        # The new rules concern source drift, and the changed bytes affect the
+        # score. Both contexts are reported for review, without asserting causality.
+        after['rules_sha256'] = 'a' * 64
+        after['inputs']['single']['sha256'] = 'b' * 64
+        after['counts'] = evidence.summaries(after['rows'])
+        result = evidence.compare(before, after)
+        self.assertEqual(result['totals'], {'added': 1, 'removed': 1, 'changed': 1, 'reclassified': 1})
+        self.assertEqual(result['verified_coverage_gained'], 0)
+        self.assertEqual(result['changed'][0]['fields']['competition'][1], 'ALIAS')
+        self.assertEqual(result['reclassified'][0]['changed_input_hashes']['single'][1], 'b' * 64)
+        self.assertEqual(result['reclassified'][0]['changed_rule_context']['rules_sha256'][1], 'a' * 64)
+
+    def test_drift_ignores_row_and_candidate_reordering(self):
+        after = copy.deepcopy(self.ledger)
+        after['rows'].reverse()
+        for row in after['rows']:
+            row['candidates'].reverse()
+        self.assertFalse(any(evidence.compare(self.ledger, after)['totals'].values()))
