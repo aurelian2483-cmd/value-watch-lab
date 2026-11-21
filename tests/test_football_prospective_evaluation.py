@@ -153,3 +153,71 @@ class OutcomeContractTests(unittest.TestCase):
                          'outcome_event_identity_conflict')
         with self.assertRaisesRegex(ValueError, 'invalid final'):
             contract.outcome(outcome(observed_at='2026-09-15T17:59:00Z'))
+
+
+def synthetic_bundle(*items, receipts=None):
+    from scripts import football_prospective_evaluation as evaluation
+    complete = [outcome(), outcome(2)] if receipts is None else receipts
+    data = {
+        'schema_version': 1, 'kind': evaluation.MANIFEST_KIND, 'as_of': '2026-09-17T00:00:00Z',
+        'split': {
+            'training': {'start': '2026-07-01T00:00:00Z', 'end': '2026-08-15T00:00:00Z'},
+            'calibration': {'start': '2026-08-15T00:00:00Z', 'end': '2026-09-01T00:00:00Z'},
+            'evaluation': {'start': '2026-09-01T00:00:00Z', 'end': '2026-10-01T00:00:00Z'},
+            'fixtures': [{'partition': 'evaluation', 'event': item['event']} for item in items],
+        },
+        'freeze_attestations': [
+            {'record_id': item['record_id'], 'forecast_sha256': item['content_sha256'],
+             'observed_at': item['frozen_at'], 'provenance': provenance('d')} for item in items
+        ],
+        'outcome_reviews': [review(*complete)] if len(complete) >= 2 else [],
+    }
+    return packet(evaluation.FORECAST_KIND, *items), packet(evaluation.OUTCOME_KIND, *complete), data
+
+
+class EvaluationTests(unittest.TestCase):
+    def evaluate(self, forecasts, outcomes, manifest, trusted=False):
+        from scripts import football_prospective_evaluation as evaluation
+        raw = contract.evidence.canonical(manifest)
+        return evaluation.evaluate(forecasts, outcomes, raw, contract.evidence.digest(raw) if trusted else None)
+
+    def test_metrics_against_hand_calculated_examples(self):
+        import math
+        from scripts import football_prospective_evaluation as evaluation
+        result = evaluation.scores([0.5, 0.3, 0.2], 'home')
+        self.assertAlmostEqual(result['log_loss'], math.log(2))
+        self.assertAlmostEqual(result['brier'], 0.38)
+        self.assertAlmostEqual(evaluation.scores([1, 0, 0], 'draw')['log_loss'], -math.log(1e-15))
+        self.assertEqual(evaluation.scores([1, 0, 0], 'draw')['brier'], 2)
+        self.assertEqual(evaluation.scores([1, 0, 0], 'home')['brier'], 0)
+
+    def test_empty_and_complete_synthetic_sets_always_have_no_real_scores(self):
+        empty = self.evaluate(*synthetic_bundle(receipts=[]))
+        self.assertEqual(empty['status'], 'insufficient_data')
+        result = self.evaluate(*synthetic_bundle(forecast()), trusted=True)
+        self.assertEqual(result['status'], 'insufficient_data')
+        self.assertEqual(result['coverage'], {'synthetic_test_fixture_only': 1})
+        self.assertEqual(result['eligible_real_forecasts'], 0)
+        self.assertEqual(result['model_metrics'], [])
+
+    def test_real_path_requires_external_pin_and_exact_frozen_hash(self):
+        item = seal({**forecast(), 'origin': 'prospective'})
+        inputs = synthetic_bundle(item, receipts=[outcome(origin='prospective'), outcome(2, origin='prospective')])
+        # These are synthetic tests of the prospective-labelled code path,
+        # never evidence of a real forecast, attestation, or observed result.
+        self.assertEqual(self.evaluate(*inputs)['coverage'], {'untrusted_manifest': 1})
+        result = self.evaluate(*inputs, trusted=True)
+        self.assertEqual(result['eligible_real_forecasts'], 1)
+        self.assertEqual(result['eligible_real_adjudicated_outcomes'], 1)
+        self.assertAlmostEqual(result['model_metrics'][0]['candidate']['brier'], 0.38)
+        self.assertEqual(result['model_metrics'][0]['n'], 1)
+        self.assertEqual(set(result['model_metrics'][0]['baselines']), {'uniform', 'fixed_home_weighted'})
+        inputs[0]['records'][0] = seal({**item, 'probabilities': [0.7, 0.1, 0.2]})
+        self.assertEqual(self.evaluate(*inputs, trusted=True)['coverage'], {'frozen_content_hash_mismatch': 1})
+
+    def test_late_or_missing_freeze_attestation_excludes(self):
+        inputs = synthetic_bundle(forecast())
+        inputs[2]['freeze_attestations'][0]['observed_at'] = '2026-09-15T18:00:00Z'
+        self.assertEqual(self.evaluate(*inputs)['coverage'], {'freeze_attestation_chronology_invalid': 1})
+        inputs[2]['freeze_attestations'].clear()
+        self.assertEqual(self.evaluate(*inputs)['coverage'], {'missing_freeze_attestation': 1})
