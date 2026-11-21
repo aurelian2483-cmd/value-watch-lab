@@ -34,6 +34,7 @@ const server = http.createServer(async (request,response) => {
       page.on('pageerror',error => errors.push(error.message));
       await page.goto(base+'/market-intelligence/');
       await page.locator('#market-rows tr').first().waitFor();
+      assert.match(await page.locator('#market-collection-status').innerText(),/Collection status: RATE_LIMITED/);
       const werderOption = await page.locator('#match option').evaluateAll(options =>
         options.find(option => option.textContent.includes('Werder Bremen'))?.value);
       assert.notEqual(werderOption,undefined);
