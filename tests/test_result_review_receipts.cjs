@@ -5,15 +5,19 @@ const inputs = [
   require('../research/result-review-status.json'), require('../prediction-ledger.json'),
   require('../research/provider-result-observations.json'), require('../research/secondary-result-evidence.json')
 ];
-const now = Date.parse('2026-11-21T12:00:00Z');
+// Replay the checked-in receipt set at its own publication time.
+const now = Date.parse(inputs[0].generated_at_utc);
+assert(Number.isFinite(now), 'The receipt queue needs a publication timestamp');
 const review = (args=inputs, at=now) => reviewReceipts(...args,at);
 const baseline = review();
-assert.equal(baseline.matches.filter(row=>row.sport==='tennis').length,23);
-assert.equal(baseline.matches.filter(row=>row.sport==='nfl').length,2);
+const ready = inputs[0].items.filter(row=>row.review_state==='READY_FOR_HUMAN_REVIEW');
+const identities = rows=>rows.map(row=>row.sport+':'+(row.eventId ?? row.event_id)).sort();
+assert(ready.some(row=>row.sport==='tennis') && ready.some(row=>row.sport==='nfl'));
+assert.deepEqual(identities(baseline.matches),identities(ready));
 assert.equal(baseline.withheld,0);
 assert.equal(baseline.stale,false);
 assert.equal(review(inputs,now+4*86400000).stale,true);
-assert.equal(review(inputs,Date.parse('2026-11-19T12:00:00Z')).matches.length,0);
+assert.equal(review(inputs,now-1).matches.length,0);
 for(const index of [0,1,2,3]){
   const copy=inputs.slice();
   copy[index]=null;
@@ -41,6 +45,6 @@ for(const mutate of [
   const id=row.prediction_id;
   const find=rows=>rows.find(entry=>entry.prediction_id===id);
   mutate(find(copy[2].observations),find(copy[3].observations),row,find(copy[1].records),copy);
-  assert.equal(review(copy).matches.length,24);
+  assert.deepEqual(identities(review(copy).matches),identities(ready.filter(entry=>entry.prediction_id!==id)));
 }
 console.log('PASS: archived NFL and tennis receipt coverage, stale state, failures, conflicts and exact fixture joins');
