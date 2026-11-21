@@ -128,7 +128,13 @@ async function main(){
     await evidence.getByText(/Observed .*Z/).waitFor();
     await evidence.getByText(/Expires .*Z/).waitFor();
     await evidence.getByText('Home '+matched.get(item)[0].prices.home.toFixed(2),{exact:true}).waitFor();
-    if(live&&sport==='football'){
+    if(sport==='football'){
+     const ukDate=value=>new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value));
+     await page.locator('#date-from').fill(ukDate(now));
+     await page.locator('#date-to').fill(ukDate(item.startMs));
+     await page.locator('#date-to').dispatchEvent('change');
+    }
+    if(sport==='football'){
      const card=page.locator('.event-card').filter({hasText:item.name}).first();
      await card.waitFor({state:'visible',timeout:15000});
      assert(football.events.get(item.fixtureKey)?.identity,'Exact football identity is required for card verification.');
