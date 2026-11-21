@@ -2,10 +2,10 @@
 // Value Watch Pro display-only source normalizer. No bets, odds, model grades or source writes.
 // Shared by Betting Hub and Analyst Terminal to prevent conflicting event counts.
 (function(root,factory){
- const api=factory();
+ const api=factory(typeof module==="object" && module.exports ? require("./research-audit-core.js") : root.ResearchAudit);
  if(typeof module==='object'&&module.exports)module.exports=api;
  else root.ValueWatchProSources=api;
-})(typeof window!=='undefined'?window:this,function(){
+})(typeof window!=='undefined'?window:this,function(Audit){
  const SOURCES=[
   {id:'football',filename:'research-dashboard-data.json',maxAgeHours:24},
   {id:'racing',filename:'racing-research-data.json',maxAgeHours:6},
@@ -15,7 +15,7 @@
   {id:'history',filename:'research-history.json',maxAgeHours:168}
  ];
  const sports=['football','racing','tennis','nfl','darts','rugby'];
- function stamp(s){if(typeof s!=='string')return null;const n=Date.parse(s);return Number.isFinite(n)?n:null}
+ function stamp(s){if(typeof s!=='string'||!/(?:Z|[+-]\d{2}:\d{2})$/.test(s))return null;const n=Date.parse(s);return Number.isFinite(n)?n:null}
  function safeName(v){return typeof v==='string'&&v.trim()?v.trim().slice(0,220):null}
  function gate(d){return !!(d&&typeof d==='object'&&!Array.isArray(d)&&d.research_only===true&&d.model_validation==='UNVALIDATED'&&d.publication_gate==='BLOCKED')}
  function inspect(id,data,now=Date.now()){
@@ -51,10 +51,25 @@
    }
   }else if(id==='other'){
    if(!data.sports||typeof data.sports!=='object'||!['tennis','nfl'].every(k=>Array.isArray(data.sports[k]?.events)))return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
-   for(const sport of ['tennis','nfl'])for(const e of data.sports[sport].events.slice(0,300)){
-    if(!e||!safeName(e.id)||!safeName(e.name))continue;
-    add(sport,e.name,e.startUTC,e.id,Array.isArray(e.forecast?.outcomes)&&e.forecast.outcomes.length>0);
+   const usableSports=[];
+   for(const sport of ['tennis','nfl']){
+    const part=data.sports[sport],seenAt=part.generated_at_utc??data.generated_at_utc;
+    if(!Audit.freshness(seenAt,def.maxAgeHours*3600000,now).fresh||stamp(seenAt)>ts){
+     invalid.push('STALE_SPORT');continue;
+    }
+    usableSports.push(sport);
+    for(const e of part.events.slice(0,300)){
+     const observed=stamp(e?.source_collected_at_utc??seenAt);
+     if(!Audit.validateOtherIdentity(e,sport)||(e.sport!=null&&e.sport!==sport)||
+        observed===null||observed>stamp(seenAt)||now-observed>def.maxAgeHours*3600000||
+        /cancel|postpon|suspend|final|finish|running/i.test(e.status||e.event_status||'')){
+      invalid.push('INVALID_OR_UNAVAILABLE_EVENT');continue;
+     }
+     add(sport,e.name,e.startUTC,e.id,Audit.validateOtherForecast(e,sport,seenAt,now));
+    }
    }
+   return {id,state:invalid.length?'PARTIAL_RECORDS':'OBSERVED',fresh:usableSports.length>0,
+    generatedAt:ts,records,data,usableSports,invalidCount:invalid.length};
   }else if(id==='darts'){
    if(data.schema_version!==1||data.source_verification!=='PROVIDER_OBSERVED_UNCORROBORATED'||!Array.isArray(data.fixtures))
     return {id,state:'SCHEMA_UNVERIFIED',fresh:false,generatedAt:ts,records:[],data};
@@ -76,7 +91,7 @@
   const events=[],available=new Set(),counts=Object.fromEntries(sports.map(s=>[s,null]));
   for(const r of results){
    if(!r||r.fresh!==true||!Array.isArray(r.records))continue;
-   for(const sport of r.id==='other'?['tennis','nfl']:[r.id]){
+   for(const sport of r.id==='other'?r.usableSports:[r.id]){
     if(!sports.includes(sport))continue;
     available.add(sport);
     const subset=r.records.filter(x=>x.sport===sport);

@@ -141,7 +141,7 @@ assert.deepEqual(keptExplorer.slots[2].legs,savedExplorer.slots[2].legs,
 for(const path of ['index.html','paper-lab/index.html']){
   const content=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
   assert(content.includes('id="paper-eligibility-audit"'),path+' must expose eligibility disclosure');
-  assert(content.includes('engine.js?v=3.4.64'),path+' must load updated engine');
+  assert(content.includes('engine.js?v=3.4.65'),path+' must load updated engine');
   assert(content.includes('desk-compact-20261116.js'),path+' must load updated disclosure');
   assert(content.includes('style-compact-20261116.css'),path+' must load updated styling');
 }
@@ -170,7 +170,7 @@ const deskAudit=fs.readFileSync(require('node:path').join(__dirname,'..','paper-
 assert(deskAudit.includes('E.footballSeasonMaturity(event)'), 'Football maturity appears in event card UI');
 for(const path of ['index.html','paper-lab/index.html']){
  const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
- assert(html.includes('engine.js?v=3.4.64'),'Updated football engine cache revision required');
+ assert(html.includes('engine.js?v=3.4.65'),'Updated football engine cache revision required');
  assert(html.includes('desk-compact-20261116.js'),'Updated football UI cache revision required');
 }
 console.log('Football venue sample maturity, 5–7 checkpoint and no invented manager or transfer impact passed');
@@ -244,7 +244,7 @@ assert.throws(()=>E.freshDailyResearch(previousDaily,[],'2026-11-08','2026-11-09
 for(const path of ['index.html','paper-lab/index.html']){
  const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
  assert(html.includes('id="fresh-daily-slips"'),path+' must expose a fresh daily rollover control');
- assert(html.includes('engine.js?v=3.4.64'),path+' must load fresh generator');
+ assert(html.includes('engine.js?v=3.4.65'),path+' must load fresh generator');
  assert(html.includes('desk-compact-20261116.js'),path+' must load safe refresh controller');
 }
 const dailyUI=fs.readFileSync(require('node:path').join(__dirname,'..','paper-lab','desk.js'),'utf8');
@@ -383,8 +383,77 @@ for(const path of ['index.html','paper-lab/index.html']) {
  assert(html.includes('id="weekly-wildcard"'),'Both entrypoints require the Gold Wildcard');
  assert(html.indexOf('id="weekly-wildcard"') < html.indexOf('id="slip-tabs"'),
    'Wildcard must be above four paper slips');
- assert(html.includes('engine.js?v=3.4.64'),'Browser needs new wildcard engine');
+ assert(html.includes('engine.js?v=3.4.65'),'Browser needs new wildcard engine');
  assert(html.includes('desk-compact-20261116.js'),'Browser needs new wildcard desk');
  assert(html.includes('style-compact-20261116.css'),'Browser needs gold-card stylesheet');
 }
 console.log('Weekly Wildcard research-only gates, source integrity, sport coverage and gold panel passed');
+
+{
+  // Synthetic refresh with the same internal ID but a different sport, market, or participant.
+  const saved = E.addSelection(E.createPlan({from:'2026-11-08'}),1,a,'a',now);
+  const priced = E.setRecordedQuote(saved,1,0,observation,now);
+  for (const changed of [
+    {...a,sport:'nfl'},
+    {...a,identity:'a-different-fixture'},
+    {...a,choices:[{...a.choices[0],market:'Set winner'},a.choices[1]]},
+    {...a,choices:[{...a.choices[0],label:'Wrong participant'},a.choices[1]]}
+  ]) {
+    const result = E.evaluateSlot(priced.slots[0],[changed],now);
+    assert.equal(result.legs[0].currentStatus.code,'SELECTION_MISMATCH');
+    assert.equal(result.legs[0].canCalculate,false);
+    assert.equal(result.legs[0].currentQuote,null);
+    assert.equal(result.grossReturnMinor,null);
+  }
+  assert.equal(E.evaluateSlot(E.restore(E.serialize(priced)).slots[0],[a],now).legs[0].canCalculate,true);
+  const assessment = E.candidateAssessment({...a,choices:[{...a.choices[0],quote:{
+    ...observation,status:'SOURCE_OBSERVED_UNVERIFIED',executable:false,bookmaker:'Sky Bet'
+  }},a.choices[1]]},'a',now);
+  assert.equal(assessment.grade,null);
+  assert.match(assessment.label,/^PASS/);
+  assert.equal(assessment.expectedValue,null);
+}
+
+{
+  const guard = {...E.GATES,schema_version:1,generated_at_utc:'2026-11-08T08:59:00Z'};
+  const row = {id:'synthetic-other',name:'Synthetic A vs B',competition:'Synthetic NFL',
+    startUTC:'2026-11-08T19:00:00Z',participants:[{id:'a',name:'A'},{id:'b',name:'B'}],
+    source:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard'};
+  const feed = (sport,events) => ({kind:'other',path:'synthetic',document:{...guard,sports:{[sport]:{events}}}});
+  assert.deepEqual(E.normalizeFeeds([feed('tennis',[row])],now),[]);
+  assert.deepEqual(E.normalizeFeeds([feed('nfl',[{...row,participants:[{name:'A'},row.participants[1]]}])],now),[]);
+  assert.deepEqual(E.normalizeFeeds([feed('nfl',[{...row,sport:'tennis'}])],now),[]);
+  const deduped = E.normalizeFeeds([feed('nfl',[row,row])],now);
+  assert.equal(deduped.length,1);
+  assert.equal(deduped[0].choices[0].market,'Game result · including overtime');
+  assert.equal(deduped[0].model,null);
+  const cancel = {...row,status:'CANCELLED'};
+  const conflict = E.normalizeFeeds([feed('nfl',[row,cancel,row])],now);
+  assert.equal(conflict[0].status.code,'IDENTITY_CONFLICT');
+  const update = feed('nfl',[cancel]);
+  update.document.generated_at_utc = new Date(now).toISOString();
+  assert.equal(E.normalizeFeeds([update,feed('nfl',[row])],now)[0].status.code,'CANCELLED');
+  const later = feed('nfl',[{...row,startUTC:'2026-11-09T19:00:00Z'}]);
+  assert(E.normalizeFeeds([later,feed('nfl',[row])],now).every(event=>event.status.code==='IDENTITY_CONFLICT'));
+  later.document.generated_at_utc = new Date(now).toISOString();
+  const rescheduled = E.normalizeFeeds([later,feed('nfl',[row])],now);
+  assert.equal(rescheduled.length,1);
+  assert.equal(rescheduled[0].startUTC,'2026-11-09T19:00:00Z');
+  assert.equal(rescheduled[0].choices.find(c=>c.id==='tie').probability,null);
+  assert.equal(E.normalizeFeeds([feed('nfl',[{...row,startUTC:'2026-11-11T19:00:00Z'}])],now+37*3600000)[0].status.code,'STALE');
+}
+console.log('All-sports identity, market recheck, cancellation, stale snapshots and PASS boundaries passed');
+
+{
+  const guard = {...E.GATES,schema_version:1,generated_at_utc:'2026-11-08T08:59:00Z'};
+  const fixture = {league:'PL',home:'Synthetic Home',away:'Synthetic Away',espn_event_id:'123',
+    kickoff_utc:'2026-11-08T19:00:00Z'};
+  const model = {...guard,...fixture,model:'SYNTHETIC',prob_home:.6,prob_draw:.2,prob_away:.2,
+    odds:null,expected_value:null};
+  const read = (...forecasts) => E.normalizeFeeds([{kind:'football',path:'synthetic',
+    document:{...guard,upcoming_fixtures:[fixture],experimental_model_forecasts:forecasts}}],now)[0];
+  assert.equal(read(model,model).choices[0].probability,.6);
+  assert.equal(read({...model,espn_event_id:'999'}).model,null);
+  assert.equal(read({...model,generated_at_utc:'2026-11-08T09:01:00Z'}).model,null);
+  assert.equal(read(model,{...model,prob_home:.5,prob_draw:.3}).model,null);
+}

@@ -4,10 +4,6 @@
 const Sources=window.ValueWatchProSources;
 function ready(){
  const root=document.querySelector('.pro-landing');if(!root)return;
- const requestedSport = new URLSearchParams(location.search).get('sport');
- if (['football', 'racing', 'tennis', 'nfl'].includes(requestedSport)) {
-  document.querySelector('#sport-nav [data-sport="'+requestedSport+'"]')?.click();
- }
  root.querySelectorAll('[data-pro-sport]').forEach(btn=>btn.addEventListener('click',()=>{
   const sport=btn.getAttribute('data-pro-sport');
   const target=document.querySelector('#sport-nav button[data-sport="'+sport+'"]');
