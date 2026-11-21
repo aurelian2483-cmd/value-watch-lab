@@ -285,7 +285,11 @@ async function overviewStates(page) {
         assert.deepEqual(await quickFilters.evaluateAll(buttons => buttons.map(button => button.dataset.proSport).sort()),
           ['all', ...sports].sort());
         if (width === 390) {
-          assert(await page.locator('.pro-featured-scroll').evaluate(el => el.scrollWidth <= el.clientWidth + 1));
+          assert(await page.locator('.pro-featured-scroll').evaluate(el => {
+            const evidence = el.querySelector('th:last-child').getBoundingClientRect();
+            return el.scrollWidth <= el.clientWidth + 1 && evidence.width > 0 &&
+              evidence.right <= el.getBoundingClientRect().right + 1;
+          }));
           await overviewStates(page);
         }
         await screenshot(page, 'research-lanes-' + width, '.pro-quick-filters');
