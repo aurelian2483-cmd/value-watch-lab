@@ -1,4 +1,4 @@
-# Football evidence operations, Phases 11–14
+# Football evidence operations, Phases 11–16
 
 The [Phase 10 audit](README.md) remains pinned. The [ledger summary](ledger-summary.md)
 and [schema](ledger-schema-v1.md) describe its row-level projection. The ledger
@@ -10,7 +10,8 @@ Models remain **UNVALIDATED** and publication remains **BLOCKED**.
 A clean checkout needs the Value Watch Git object
 `0ab96a96fd66608d931c4109392ee29fe2ba3650`. If it is missing, provision that
 specific repository object first. A shallow checkout without the archive
-fails closed. The reporting commands use only local inputs.
+fails with an archive error. The fetch is a one-time repository setup step.
+The reporting commands use only local inputs and run offline after provisioning.
 
 ```sh
 git fetch --no-tags --depth=1 origin 0ab96a96fd66608d931c4109392ee29fe2ba3650
@@ -18,6 +19,7 @@ python scripts/audit_football_provenance.py --check
 python scripts/football_evidence_ledger.py check
 python scripts/football_evidence_ledger.py validate research/football-result-provenance/ledger.v1.json
 python scripts/football_evidence_ledger.py compare "old ledger.json" "new ledger.json"
+python scripts/football_evidence_intake.py research/football-result-provenance/intake.empty.json
 ```
 
 Use `emit` for canonical JSON and `summary` for Markdown. The CLI emits bytes
@@ -38,6 +40,16 @@ are tied to the pinned files and changes to their ordering alone are ignored
 during drift comparison. `validate` checks internal consistency of a supplied
 ledger. `check` also checks the immutable Phase 10 pins, rebuilds decisions,
 compares committed bytes, and checks for drift.
+
+## Future receipt intake
+
+The [intake contract](intake-schema-v1.md) defines provider and acquisition lineage,
+namespaced event IDs, ordered fixtures, timestamp precision, settlement, retrieval
+time, source references, content hashes, and licence/retention claims. Explicit
+unknown and unavailable fields keep missing evidence visible. The validator opens
+only the supplied metadata file. It has no ledger integration, classification
+write path, or fetch operation. Empty, partial and complete synthetic inputs all
+produced zero verified results and zero automatic classification changes.
 
 ## Integration review
 
@@ -69,3 +81,24 @@ The clean-checkout review with `core.autocrlf=true` also exposed an existing
 catalogue SHA-256 failure when Git converted archived bytes to CRLF. Exact-byte
 attributes now cover the pinned catalogue and the 76 Sky 81 replay blobs.
 The hash checks and archive contents are unchanged.
+
+
+## Adversarial tests
+
+A review found that a locator such as `expanded:01` could alias `expanded:1`
+while appearing distinct in the structural validator. Locators now require
+canonical decimal ordinals. Source URLs reject ambiguous delimiters, embedded
+whitespace, credentials and invalid ports. Byte-exact regeneration still
+detects artifact substitutions that a structural check cannot adjudicate.
+
+In temporary copies, targeted tests caught six deliberate mutations: bypassing
+home/away order, accepting a swapped evidence tier, skipping a CSV hash
+comparison, skipping count reconciliation, claiming one verified result, and
+allowing leading-zero locators. The mutations were discarded. These checks
+exercise the stated guards. They cannot establish source independence or
+prove any real fixture identity.
+
+The final review ran the Phase 6/7 tests against their checked-out heads and
+loaded the pinned Phase 10 snapshots into both views. Supplying the single-source
+snapshot as an extra input left both views unchanged. Phase 8/9 counts reconciled
+with the ledger and Phase 10 regenerated against its original report hash.

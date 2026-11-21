@@ -311,13 +311,14 @@ def check(root=ROOT):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
-    for command in ('emit', 'summary', 'check'):
-        commands.add_parser(command)
-    validator = commands.add_parser('validate')
-    validator.add_argument('ledger', type=Path)
-    drift = commands.add_parser('compare')
-    drift.add_argument('before', type=Path)
-    drift.add_argument('after', type=Path)
+    commands.add_parser('emit', help='rebuild the pinned ledger and write UTF-8 JSON to stdout')
+    commands.add_parser('summary', help='rebuild the pinned ledger and write Markdown to stdout')
+    commands.add_parser('check', help='verify pinned inputs and exact committed output bytes')
+    validator = commands.add_parser('validate', help='check an input ledger structure and counts')
+    validator.add_argument('ledger', type=Path, help='local ledger JSON file')
+    drift = commands.add_parser('compare', help='compare two local ledgers without attributing causality')
+    drift.add_argument('before', type=Path, help='earlier ledger JSON file')
+    drift.add_argument('after', type=Path, help='later ledger JSON file')
     args = parser.parse_args()
     try:
         if args.command == 'emit':
