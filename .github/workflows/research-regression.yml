@@ -54,6 +54,9 @@ jobs:
       - name: Regenerate date-ordered football replay offline
         if: hashFiles('scripts/football_chronological_replay.py') != '' && (startsWith(github.head_ref, 'codex/phase') || startsWith(github.ref_name, 'codex/phase') || github.event_name == 'workflow_dispatch')
         run: python scripts/football_chronological_replay.py --check
+      - name: Regenerate retrospective score robustness report offline
+        if: hashFiles('scripts/football_score_robustness.py') != '' && (startsWith(github.head_ref, 'codex/phase') || startsWith(github.ref_name, 'codex/phase') || github.event_name == 'workflow_dispatch')
+        run: python scripts/football_score_robustness.py --check
       - name: Mathematical library and Sky 81 validation
         run: |
           set -euo pipefail
@@ -128,3 +131,6 @@ jobs:
       - name: Regenerate date-ordered football replay offline
         if: hashFiles('scripts/football_chronological_replay.py') != ''
         run: python scripts/football_chronological_replay.py --check
+      - name: Regenerate retrospective score robustness report offline
+        if: hashFiles('scripts/football_score_robustness.py') != ''
+        run: python scripts/football_score_robustness.py --check

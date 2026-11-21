@@ -1,0 +1,2252 @@
+{
+  "arithmetic_verified": true,
+  "cohort_sha256": "19209db4bb347b913aa0ed456cf38e535c6bd2da73cc069d724180192e444982",
+  "combined": {
+    "date_clusters": {
+      "2024-25": 78,
+      "2025-26": 75
+    },
+    "paired": {
+      "expanded_current_formula_minus_standalone_baseline": {
+        "brier": {
+          "date_cluster_interval": {
+            "interval": [
+              -0.05109453,
+              -0.01389169
+            ],
+            "status": "exploratory_retrospective"
+          },
+          "left_higher": 222,
+          "left_lower": 253,
+          "mean": -0.03213431,
+          "median": -0.01050356,
+          "population_sd": 0.17854791,
+          "tie": 6
+        },
+        "log_loss": {
+          "date_cluster_interval": {
+            "interval": [
+              -0.07616413,
+              -0.02299948
+            ],
+            "status": "exploratory_retrospective"
+          },
+          "left_higher": 222,
+          "left_lower": 253,
+          "mean": -0.04924477,
+          "median": -0.01166608,
+          "population_sd": 0.26166934,
+          "tie": 6
+        }
+      },
+      "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+        "brier": {
+          "date_cluster_interval": {
+            "interval": [
+              -0.04930222,
+              -0.01178144
+            ],
+            "status": "exploratory_retrospective"
+          },
+          "left_higher": 234,
+          "left_lower": 247,
+          "mean": -0.02994523,
+          "median": -0.00219237,
+          "population_sd": 0.17768681,
+          "tie": 0
+        },
+        "log_loss": {
+          "date_cluster_interval": {
+            "interval": [
+              -0.07437777,
+              -0.02019113
+            ],
+            "status": "exploratory_retrospective"
+          },
+          "left_higher": 234,
+          "left_lower": 247,
+          "mean": -0.04659191,
+          "median": -0.00193021,
+          "population_sd": 0.26504773,
+          "tie": 0
+        }
+      },
+      "standalone_form_alpha_0_025_minus_standalone_baseline": {
+        "brier": {
+          "date_cluster_interval": {
+            "interval": [
+              -0.00554743,
+              0.00120056
+            ],
+            "status": "exploratory_retrospective"
+          },
+          "left_higher": 201,
+          "left_lower": 255,
+          "mean": -0.00218908,
+          "median": -0.00311114,
+          "population_sd": 0.03472674,
+          "tie": 25
+        },
+        "log_loss": {
+          "date_cluster_interval": {
+            "interval": [
+              -0.00782764,
+              0.00261922
+            ],
+            "status": "exploratory_retrospective"
+          },
+          "left_higher": 201,
+          "left_lower": 255,
+          "mean": -0.00265286,
+          "median": -0.00398928,
+          "population_sd": 0.05185272,
+          "tie": 25
+        }
+      }
+    },
+    "scores": {
+      "expanded_current_formula": {
+        "brier": 0.6169182934,
+        "log_loss": 1.0274009133
+      },
+      "n": 481,
+      "standalone_baseline": {
+        "brier": 0.6490526076,
+        "log_loss": 1.0766456859
+      },
+      "standalone_form_alpha_0_025": {
+        "brier": 0.6468635231,
+        "log_loss": 1.0739928251
+      }
+    }
+  },
+  "eligible_real_forecasts": 0,
+  "eligible_real_outcomes": 0,
+  "label": "retrospective exploratory score robustness",
+  "model_validation": "UNVALIDATED",
+  "not_evaluable": {
+    "composed_v1_v6": {
+      "reason": "No authenticated composed implementation or input set.",
+      "status": "NOT EVALUABLE"
+    },
+    "market_paths": {
+      "reason": "No exact pre-event price receipts.",
+      "status": "NOT EVALUABLE"
+    },
+    "opponent_adjustments_and_nonzero_h2h": {
+      "reason": "No predeclared fixed comparable configuration in this replay.",
+      "status": "NOT EVALUABLE"
+    },
+    "producer_prior_season_fallback": {
+      "reason": "No comparable prior-season producer training inputs in the frozen protocol.",
+      "status": "NOT EVALUABLE"
+    },
+    "squad_player_stadium": {
+      "reason": "No authenticated pre-event player, squad or stadium inputs in this archive.",
+      "status": "NOT EVALUABLE"
+    }
+  },
+  "protocol_sha256": "892c61cc45699e22f0ba9b2040e42bb68ce920103b2bc343a432c4d92eb0d76b",
+  "publication_gate": "BLOCKED",
+  "replay_summary_sha256": "57f209b63e348360ef691d12fca8c5e4acfc5a58a970b4e2624eaec753c6a596",
+  "schema_version": 1,
+  "seasons": {
+    "2024-25": {
+      "archive_rows": 320,
+      "by_outcome": {
+        "away": {
+          "paired_means": {
+            "expanded_current_formula_minus_standalone_baseline": {
+              "brier": -0.12288177,
+              "log_loss": -0.18707437
+            },
+            "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+              "brier": -0.1110276,
+              "log_loss": -0.17383963
+            },
+            "standalone_form_alpha_0_025_minus_standalone_baseline": {
+              "brier": -0.01185417,
+              "log_loss": -0.01323474
+            }
+          },
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.5749575497,
+              "log_loss": 0.9672062615
+            },
+            "n": 95,
+            "standalone_baseline": {
+              "brier": 0.6978393148,
+              "log_loss": 1.154280631
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.6859851459,
+              "log_loss": 1.1410458958
+            }
+          }
+        },
+        "draw": {
+          "paired_means": {
+            "expanded_current_formula_minus_standalone_baseline": {
+              "brier": -0.04801186,
+              "log_loss": -0.0503109
+            },
+            "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+              "brier": -0.06345039,
+              "log_loss": -0.06980028
+            },
+            "standalone_form_alpha_0_025_minus_standalone_baseline": {
+              "brier": 0.01543853,
+              "log_loss": 0.01948938
+            }
+          },
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.9252113546,
+              "log_loss": 1.4653269227
+            },
+            "n": 60,
+            "standalone_baseline": {
+              "brier": 0.9732232176,
+              "log_loss": 1.5156378251
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.988661746,
+              "log_loss": 1.5351272006
+            }
+          }
+        },
+        "home": {
+          "paired_means": {
+            "expanded_current_formula_minus_standalone_baseline": {
+              "brier": 0.08624388,
+              "log_loss": 0.11971546
+            },
+            "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+              "brier": 0.09055316,
+              "log_loss": 0.12659237
+            },
+            "standalone_form_alpha_0_025_minus_standalone_baseline": {
+              "brier": -0.00430929,
+              "log_loss": -0.00687692
+            }
+          },
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.4435066653,
+              "log_loss": 0.7824806751
+            },
+            "n": 105,
+            "standalone_baseline": {
+              "brier": 0.3572627898,
+              "log_loss": 0.6627652185
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.3529535033,
+              "log_loss": 0.6558883014
+            }
+          }
+        }
+      },
+      "by_period": {
+        "earlier_dates": {
+          "first_date": "2024-11-29",
+          "last_date": "2025-02-21",
+          "paired_means": {
+            "expanded_current_formula_minus_standalone_baseline": {
+              "brier": -0.03958257,
+              "log_loss": -0.05790529
+            },
+            "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+              "brier": -0.03531685,
+              "log_loss": -0.05223755
+            },
+            "standalone_form_alpha_0_025_minus_standalone_baseline": {
+              "brier": -0.00426572,
+              "log_loss": -0.00566774
+            }
+          },
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.6110496302,
+              "log_loss": 1.0194679028
+            },
+            "n": 132,
+            "standalone_baseline": {
+              "brier": 0.6506322043,
+              "log_loss": 1.0773731976
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.6463664844,
+              "log_loss": 1.0717054552
+            }
+          }
+        },
+        "later_dates": {
+          "first_date": "2025-02-22",
+          "last_date": "2025-05-25",
+          "paired_means": {
+            "expanded_current_formula_minus_standalone_baseline": {
+              "brier": -0.00214041,
+              "log_loss": -0.00450857
+            },
+            "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+              "brier": -0.00144327,
+              "log_loss": -0.0040252
+            },
+            "standalone_form_alpha_0_025_minus_standalone_baseline": {
+              "brier": -0.00069714,
+              "log_loss": -0.00048337
+            }
+          },
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.5940882591,
+              "log_loss": 0.9952727963
+            },
+            "n": 128,
+            "standalone_baseline": {
+              "brier": 0.5962286713,
+              "log_loss": 0.9997813696
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.5955315275,
+              "log_loss": 0.9992979976
+            }
+          }
+        }
+      },
+      "calibration": {
+        "expanded_current_formula": {
+          "away": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 34,
+              "mean_probability": 0.16136424,
+              "n": 44,
+              "observed_rate": 0.20454545,
+              "observed_rate_interval": {
+                "interval": [
+                  0.08571429,
+                  0.33333333
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 63,
+              "mean_probability": 0.29814201,
+              "n": 131,
+              "observed_rate": 0.28244275,
+              "observed_rate_interval": {
+                "interval": [
+                  0.20338027,
+                  0.35877863
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 44,
+              "mean_probability": 0.46857052,
+              "n": 67,
+              "observed_rate": 0.52238806,
+              "observed_rate_interval": {
+                "interval": [
+                  0.4,
+                  0.63936066
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 11,
+              "mean_probability": 0.68868131,
+              "n": 15,
+              "observed_rate": 0.8,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 3,
+              "mean_probability": 0.82048027,
+              "n": 3,
+              "observed_rate": 0.66666667,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "draw": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 32,
+              "mean_probability": 0.17341123,
+              "n": 46,
+              "observed_rate": 0.17391304,
+              "observed_rate_interval": {
+                "interval": [
+                  0.07692308,
+                  0.28308625
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 72,
+              "mean_probability": 0.24234329,
+              "n": 214,
+              "observed_rate": 0.24299065,
+              "observed_rate_interval": {
+                "interval": [
+                  0.19213422,
+                  0.29756876
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "home": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 14,
+              "mean_probability": 0.1318799,
+              "n": 20,
+              "observed_rate": 0.1,
+              "observed_rate_interval": {
+                "interval": [
+                  0.0,
+                  0.27272727
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 52,
+              "mean_probability": 0.32162141,
+              "n": 93,
+              "observed_rate": 0.31182796,
+              "observed_rate_interval": {
+                "interval": [
+                  0.22826087,
+                  0.39476941
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 61,
+              "mean_probability": 0.48866412,
+              "n": 113,
+              "observed_rate": 0.48672566,
+              "observed_rate_interval": {
+                "interval": [
+                  0.38833905,
+                  0.58407299
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 28,
+              "mean_probability": 0.64857854,
+              "n": 34,
+              "observed_rate": 0.55882353,
+              "observed_rate_interval": {
+                "interval": [
+                  0.4,
+                  0.71878125
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ]
+        },
+        "standalone_baseline": {
+          "away": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 51,
+              "mean_probability": 0.14862206,
+              "n": 90,
+              "observed_rate": 0.23333333,
+              "observed_rate_interval": {
+                "interval": [
+                  0.14940587,
+                  0.31819431
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 59,
+              "mean_probability": 0.29826999,
+              "n": 116,
+              "observed_rate": 0.34482759,
+              "observed_rate_interval": {
+                "interval": [
+                  0.26445124,
+                  0.424
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 31,
+              "mean_probability": 0.47913505,
+              "n": 41,
+              "observed_rate": 0.56097561,
+              "observed_rate_interval": {
+                "interval": [
+                  0.41463415,
+                  0.71428571
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 10,
+              "mean_probability": 0.70557983,
+              "n": 13,
+              "observed_rate": 0.84615385,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "draw": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 42,
+              "mean_probability": 0.1701104,
+              "n": 71,
+              "observed_rate": 0.22535211,
+              "observed_rate_interval": {
+                "interval": [
+                  0.13792026,
+                  0.32142857
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 69,
+              "mean_probability": 0.23953114,
+              "n": 189,
+              "observed_rate": 0.23280423,
+              "observed_rate_interval": {
+                "interval": [
+                  0.17788194,
+                  0.2921374
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "home": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 11,
+              "mean_probability": 0.1297276,
+              "n": 14,
+              "observed_rate": 0.07142857,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 35,
+              "mean_probability": 0.31390943,
+              "n": 60,
+              "observed_rate": 0.3,
+              "observed_rate_interval": {
+                "interval": [
+                  0.19296559,
+                  0.41181542
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 61,
+              "mean_probability": 0.4965323,
+              "n": 115,
+              "observed_rate": 0.40869565,
+              "observed_rate_interval": {
+                "interval": [
+                  0.32036183,
+                  0.5
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 42,
+              "mean_probability": 0.67132693,
+              "n": 68,
+              "observed_rate": 0.55882353,
+              "observed_rate_interval": {
+                "interval": [
+                  0.44444444,
+                  0.67799808
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 3,
+              "mean_probability": 0.81873303,
+              "n": 3,
+              "observed_rate": 0.33333333,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ]
+        },
+        "standalone_form_alpha_0_025": {
+          "away": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 51,
+              "mean_probability": 0.14009257,
+              "n": 90,
+              "observed_rate": 0.22222222,
+              "observed_rate_interval": {
+                "interval": [
+                  0.14017687,
+                  0.30339521
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 57,
+              "mean_probability": 0.29716444,
+              "n": 112,
+              "observed_rate": 0.35714286,
+              "observed_rate_interval": {
+                "interval": [
+                  0.2719277,
+                  0.44118873
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 29,
+              "mean_probability": 0.47284238,
+              "n": 40,
+              "observed_rate": 0.525,
+              "observed_rate_interval": {
+                "interval": [
+                  0.375,
+                  0.66666667
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 11,
+              "mean_probability": 0.67688276,
+              "n": 14,
+              "observed_rate": 0.78571429,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 4,
+              "mean_probability": 0.81714738,
+              "n": 4,
+              "observed_rate": 0.75,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "draw": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 46,
+              "mean_probability": 0.16638788,
+              "n": 81,
+              "observed_rate": 0.20987654,
+              "observed_rate_interval": {
+                "interval": [
+                  0.13414634,
+                  0.30002688
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 68,
+              "mean_probability": 0.24015075,
+              "n": 179,
+              "observed_rate": 0.24022346,
+              "observed_rate_interval": {
+                "interval": [
+                  0.1796334,
+                  0.3050875
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "home": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 13,
+              "mean_probability": 0.12628694,
+              "n": 18,
+              "observed_rate": 0.11111111,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 37,
+              "mean_probability": 0.31617903,
+              "n": 60,
+              "observed_rate": 0.28333333,
+              "observed_rate_interval": {
+                "interval": [
+                  0.18032787,
+                  0.39583333
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 57,
+              "mean_probability": 0.49877137,
+              "n": 110,
+              "observed_rate": 0.41818182,
+              "observed_rate_interval": {
+                "interval": [
+                  0.32228372,
+                  0.51515933
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 42,
+              "mean_probability": 0.68111044,
+              "n": 66,
+              "observed_rate": 0.56060606,
+              "observed_rate_interval": {
+                "interval": [
+                  0.44776119,
+                  0.68181818
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 6,
+              "mean_probability": 0.82069319,
+              "n": 6,
+              "observed_rate": 0.5,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ]
+        }
+      },
+      "coverage_sensitivity": {
+        "10": {
+          "coverage": 0.35,
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.6032181943,
+              "log_loss": 1.0067763245
+            },
+            "n": 112,
+            "standalone_baseline": {
+              "brier": 0.6039953992,
+              "log_loss": 1.0092164201
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.6032183554,
+              "log_loss": 1.0076720631
+            }
+          }
+        },
+        "3": {
+          "coverage": 0.8125,
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.6026994167,
+              "log_loss": 1.0075564657
+            },
+            "n": 260,
+            "standalone_baseline": {
+              "brier": 0.6238489265,
+              "log_loss": 1.0391741438
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.6213400441,
+              "log_loss": 1.0360587068
+            }
+          }
+        },
+        "4": {
+          "coverage": 0.75,
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.6025176541,
+              "log_loss": 1.0072498033
+            },
+            "n": 240,
+            "standalone_baseline": {
+              "brier": 0.6298611153,
+              "log_loss": 1.0467223208
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.6266410341,
+              "log_loss": 1.0428014829
+            }
+          }
+        }
+      },
+      "date_clusters": {
+        "2024-25": 78
+      },
+      "eligible": 260,
+      "exclusions": {
+        "insufficient_earlier_league_results": 30,
+        "insufficient_earlier_venue_results": 30
+      },
+      "paired": {
+        "expanded_current_formula_minus_standalone_baseline": {
+          "brier": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.04224664,
+                -0.00196413
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 118,
+            "left_lower": 136,
+            "mean": -0.02114951,
+            "median": -0.00855095,
+            "population_sd": 0.13488062,
+            "tie": 6
+          },
+          "log_loss": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.06085792,
+                -0.00518803
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 118,
+            "left_lower": 136,
+            "mean": -0.03161768,
+            "median": -0.00854005,
+            "population_sd": 0.1997017,
+            "tie": 6
+          }
+        },
+        "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+          "brier": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.03981617,
+                0.00078533
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 129,
+            "left_lower": 131,
+            "mean": -0.01864063,
+            "median": -0.00039008,
+            "population_sd": 0.1368238,
+            "tie": 0
+          },
+          "log_loss": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.05793025,
+                -0.00199043
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 129,
+            "left_lower": 131,
+            "mean": -0.02850224,
+            "median": -0.00048903,
+            "population_sd": 0.20610135,
+            "tie": 0
+          }
+        },
+        "standalone_form_alpha_0_025_minus_standalone_baseline": {
+          "brier": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.00716057,
+                0.00269595
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 107,
+            "left_lower": 139,
+            "mean": -0.00250888,
+            "median": -0.00475412,
+            "population_sd": 0.03677855,
+            "tie": 14
+          },
+          "log_loss": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.0101441,
+                0.00449463
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 107,
+            "left_lower": 139,
+            "mean": -0.00311544,
+            "median": -0.00545828,
+            "population_sd": 0.0542848,
+            "tie": 14
+          }
+        }
+      },
+      "scores": {
+        "expanded_current_formula": {
+          "brier": 0.6026994167,
+          "log_loss": 1.0075564657
+        },
+        "n": 260,
+        "standalone_baseline": {
+          "brier": 0.6238489265,
+          "log_loss": 1.0391741438
+        },
+        "standalone_form_alpha_0_025": {
+          "brier": 0.6213400441,
+          "log_loss": 1.0360587068
+        }
+      }
+    },
+    "2025-26": {
+      "archive_rows": 288,
+      "by_outcome": {
+        "away": {
+          "paired_means": {
+            "expanded_current_formula_minus_standalone_baseline": {
+              "brier": -0.27929508,
+              "log_loss": -0.43103367
+            },
+            "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+              "brier": -0.26020175,
+              "log_loss": -0.40826362
+            },
+            "standalone_form_alpha_0_025_minus_standalone_baseline": {
+              "brier": -0.01909333,
+              "log_loss": -0.02277005
+            }
+          },
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.6739372159,
+              "log_loss": 1.1066274958
+            },
+            "n": 72,
+            "standalone_baseline": {
+              "brier": 0.9532322939,
+              "log_loss": 1.5376611678
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.9341389669,
+              "log_loss": 1.5148911147
+            }
+          }
+        },
+        "draw": {
+          "paired_means": {
+            "expanded_current_formula_minus_standalone_baseline": {
+              "brier": -0.11752688,
+              "log_loss": -0.14019796
+            },
+            "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+              "brier": -0.13302428,
+              "log_loss": -0.1616939
+            },
+            "standalone_form_alpha_0_025_minus_standalone_baseline": {
+              "brier": 0.0154974,
+              "log_loss": 0.02149594
+            }
+          },
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.9455942976,
+              "log_loss": 1.4926646984
+            },
+            "n": 55,
+            "standalone_baseline": {
+              "brier": 1.0631211808,
+              "log_loss": 1.6328626602
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 1.0786185799,
+              "log_loss": 1.6543586013
+            }
+          }
+        },
+        "home": {
+          "paired_means": {
+            "expanded_current_formula_minus_standalone_baseline": {
+              "brier": 0.17676055,
+              "log_loss": 0.24765078
+            },
+            "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+              "brier": 0.17546563,
+              "log_loss": 0.24774488
+            },
+            "standalone_form_alpha_0_025_minus_standalone_baseline": {
+              "brier": 0.00129492,
+              "log_loss": -9.41e-05
+            }
+          },
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.420262605,
+              "log_loss": 0.7493768093
+            },
+            "n": 94,
+            "standalone_baseline": {
+              "brier": 0.243502056,
+              "log_loss": 0.5017260331
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.2447969746,
+              "log_loss": 0.5016319337
+            }
+          }
+        }
+      },
+      "by_period": {
+        "earlier_dates": {
+          "first_date": "2025-11-29",
+          "last_date": "2026-02-21",
+          "paired_means": {
+            "expanded_current_formula_minus_standalone_baseline": {
+              "brier": -0.07580605,
+              "log_loss": -0.11157814
+            },
+            "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+              "brier": -0.07448483,
+              "log_loss": -0.11040108
+            },
+            "standalone_form_alpha_0_025_minus_standalone_baseline": {
+              "brier": -0.00132122,
+              "log_loss": -0.00117706
+            }
+          },
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.6440549974,
+              "log_loss": 1.0639010156
+            },
+            "n": 115,
+            "standalone_baseline": {
+              "brier": 0.7198610458,
+              "log_loss": 1.1754791545
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.7185398285,
+              "log_loss": 1.1743020992
+            }
+          }
+        },
+        "later_dates": {
+          "first_date": "2026-02-22",
+          "last_date": "2026-05-24",
+          "paired_means": {
+            "expanded_current_formula_minus_standalone_baseline": {
+              "brier": -0.01169846,
+              "log_loss": -0.02485522
+            },
+            "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+              "brier": -0.00935223,
+              "log_loss": -0.02173587
+            },
+            "standalone_form_alpha_0_025_minus_standalone_baseline": {
+              "brier": -0.00234623,
+              "log_loss": -0.00311935
+            }
+          },
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.6223540197,
+              "log_loss": 1.0364768056
+            },
+            "n": 106,
+            "standalone_baseline": {
+              "brier": 0.6340524821,
+              "log_loss": 1.0613320258
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.6317062533,
+              "log_loss": 1.0582126763
+            }
+          }
+        }
+      },
+      "calibration": {
+        "expanded_current_formula": {
+          "away": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 38,
+              "mean_probability": 0.14938919,
+              "n": 44,
+              "observed_rate": 0.18181818,
+              "observed_rate_interval": {
+                "interval": [
+                  0.07692308,
+                  0.30952381
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 54,
+              "mean_probability": 0.29876378,
+              "n": 122,
+              "observed_rate": 0.33606557,
+              "observed_rate_interval": {
+                "interval": [
+                  0.25,
+                  0.42727273
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 37,
+              "mean_probability": 0.47172115,
+              "n": 51,
+              "observed_rate": 0.39215686,
+              "observed_rate_interval": {
+                "interval": [
+                  0.26086957,
+                  0.51789148
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 4,
+              "mean_probability": 0.63677758,
+              "n": 4,
+              "observed_rate": 0.75,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "draw": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 24,
+              "mean_probability": 0.18052663,
+              "n": 27,
+              "observed_rate": 0.40740741,
+              "observed_rate_interval": {
+                "interval": [
+                  0.2,
+                  0.60013158
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 68,
+              "mean_probability": 0.23932328,
+              "n": 194,
+              "observed_rate": 0.22680412,
+              "observed_rate_interval": {
+                "interval": [
+                  0.16763006,
+                  0.28723404
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "home": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 5,
+              "mean_probability": 0.16697213,
+              "n": 5,
+              "observed_rate": 0.0,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 47,
+              "mean_probability": 0.32203233,
+              "n": 79,
+              "observed_rate": 0.26582278,
+              "observed_rate_interval": {
+                "interval": [
+                  0.17389855,
+                  0.36363636
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 52,
+              "mean_probability": 0.49424427,
+              "n": 102,
+              "observed_rate": 0.52941176,
+              "observed_rate_interval": {
+                "interval": [
+                  0.42372118,
+                  0.62931833
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 29,
+              "mean_probability": 0.66804403,
+              "n": 35,
+              "observed_rate": 0.54285714,
+              "observed_rate_interval": {
+                "interval": [
+                  0.35714286,
+                  0.72227011
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ]
+        },
+        "standalone_baseline": {
+          "away": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 59,
+              "mean_probability": 0.12866155,
+              "n": 114,
+              "observed_rate": 0.22807018,
+              "observed_rate_interval": {
+                "interval": [
+                  0.16127592,
+                  0.3
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 51,
+              "mean_probability": 0.26991888,
+              "n": 93,
+              "observed_rate": 0.43010753,
+              "observed_rate_interval": {
+                "interval": [
+                  0.33333333,
+                  0.53765509
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 14,
+              "mean_probability": 0.45372003,
+              "n": 14,
+              "observed_rate": 0.42857143,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "draw": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 48,
+              "mean_probability": 0.16150344,
+              "n": 86,
+              "observed_rate": 0.31395349,
+              "observed_rate_interval": {
+                "interval": [
+                  0.21176471,
+                  0.41666667
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 62,
+              "mean_probability": 0.23441227,
+              "n": 135,
+              "observed_rate": 0.20740741,
+              "observed_rate_interval": {
+                "interval": [
+                  0.14393939,
+                  0.27434407
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "home": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 19,
+              "mean_probability": 0.32985976,
+              "n": 22,
+              "observed_rate": 0.22727273,
+              "observed_rate_interval": {
+                "interval": [
+                  0.05555556,
+                  0.42857143
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 53,
+              "mean_probability": 0.51289716,
+              "n": 95,
+              "observed_rate": 0.36842105,
+              "observed_rate_interval": {
+                "interval": [
+                  0.26504293,
+                  0.46366162
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 53,
+              "mean_probability": 0.68576011,
+              "n": 91,
+              "observed_rate": 0.52747253,
+              "observed_rate_interval": {
+                "interval": [
+                  0.43154529,
+                  0.62964976
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 12,
+              "mean_probability": 0.84282921,
+              "n": 13,
+              "observed_rate": 0.46153846,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ]
+        },
+        "standalone_form_alpha_0_025": {
+          "away": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 60,
+              "mean_probability": 0.12351861,
+              "n": 112,
+              "observed_rate": 0.20535714,
+              "observed_rate_interval": {
+                "interval": [
+                  0.13999462,
+                  0.27778986
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 49,
+              "mean_probability": 0.27213093,
+              "n": 92,
+              "observed_rate": 0.45652174,
+              "observed_rate_interval": {
+                "interval": [
+                  0.34830239,
+                  0.57142857
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 16,
+              "mean_probability": 0.46873368,
+              "n": 17,
+              "observed_rate": 0.41176471,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "draw": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 49,
+              "mean_probability": 0.15826024,
+              "n": 89,
+              "observed_rate": 0.31460674,
+              "observed_rate_interval": {
+                "interval": [
+                  0.22352941,
+                  0.40449438
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 61,
+              "mean_probability": 0.23545044,
+              "n": 132,
+              "observed_rate": 0.20454545,
+              "observed_rate_interval": {
+                "interval": [
+                  0.14280684,
+                  0.26923759
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 0,
+              "mean_probability": null,
+              "n": 0,
+              "observed_rate": null,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ],
+          "home": [
+            {
+              "bounds": [
+                0,
+                0.2
+              ],
+              "dates": 1,
+              "mean_probability": 0.18904099,
+              "n": 1,
+              "observed_rate": 0.0,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            },
+            {
+              "bounds": [
+                0.2,
+                0.4
+              ],
+              "dates": 22,
+              "mean_probability": 0.33117241,
+              "n": 26,
+              "observed_rate": 0.19230769,
+              "observed_rate_interval": {
+                "interval": [
+                  0.04545455,
+                  0.35721429
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.4,
+                0.6
+              ],
+              "dates": 49,
+              "mean_probability": 0.51170409,
+              "n": 91,
+              "observed_rate": 0.3956044,
+              "observed_rate_interval": {
+                "interval": [
+                  0.29030136,
+                  0.5
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.6,
+                0.8
+              ],
+              "dates": 50,
+              "mean_probability": 0.68730813,
+              "n": 85,
+              "observed_rate": 0.52941176,
+              "observed_rate_interval": {
+                "interval": [
+                  0.43417616,
+                  0.62651004
+                ],
+                "status": "exploratory_retrospective"
+              }
+            },
+            {
+              "bounds": [
+                0.8,
+                1
+              ],
+              "dates": 17,
+              "mean_probability": 0.84505509,
+              "n": 18,
+              "observed_rate": 0.44444444,
+              "observed_rate_interval": {
+                "status": "sparse_bin"
+              }
+            }
+          ]
+        }
+      },
+      "coverage_sensitivity": {
+        "10": {
+          "coverage": 0.26736111,
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.6048716625,
+              "log_loss": 1.0115427803
+            },
+            "n": 77,
+            "standalone_baseline": {
+              "brier": 0.6079379523,
+              "log_loss": 1.0230831802
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.6048509296,
+              "log_loss": 1.018497647
+            }
+          }
+        },
+        "3": {
+          "coverage": 0.76736111,
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.6336463836,
+              "log_loss": 1.0507473221
+            },
+            "n": 221,
+            "standalone_baseline": {
+              "brier": 0.6787039972,
+              "log_loss": 1.120729853
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.6768911454,
+              "log_loss": 1.1186211995
+            }
+          }
+        },
+        "4": {
+          "coverage": 0.69097222,
+          "scores": {
+            "expanded_current_formula": {
+              "brier": 0.6347073725,
+              "log_loss": 1.0525104487
+            },
+            "n": 199,
+            "standalone_baseline": {
+              "brier": 0.676362922,
+              "log_loss": 1.1189470392
+            },
+            "standalone_form_alpha_0_025": {
+              "brier": 0.6751371175,
+              "log_loss": 1.1178983905
+            }
+          }
+        }
+      },
+      "date_clusters": {
+        "2025-26": 75
+      },
+      "eligible": 221,
+      "exclusions": {
+        "insufficient_earlier_league_results": 30,
+        "insufficient_earlier_venue_results": 37
+      },
+      "paired": {
+        "expanded_current_formula_minus_standalone_baseline": {
+          "brier": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.07880844,
+                -0.01138314
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 104,
+            "left_lower": 117,
+            "mean": -0.04505761,
+            "median": -0.04095628,
+            "population_sd": 0.21833972,
+            "tie": 0
+          },
+          "log_loss": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.11877494,
+                -0.02100138
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 104,
+            "left_lower": 117,
+            "mean": -0.06998253,
+            "median": -0.03631121,
+            "population_sd": 0.31829329,
+            "tie": 0
+          }
+        },
+        "expanded_current_formula_minus_standalone_form_alpha_0_025": {
+          "brier": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.07607552,
+                -0.01041321
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 105,
+            "left_lower": 116,
+            "mean": -0.04324476,
+            "median": -0.02547434,
+            "population_sd": 0.21532581,
+            "tie": 0
+          },
+          "log_loss": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.11752135,
+                -0.01949748
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 105,
+            "left_lower": 116,
+            "mean": -0.06787388,
+            "median": -0.02236171,
+            "population_sd": 0.31950894,
+            "tie": 0
+          }
+        },
+        "standalone_form_alpha_0_025_minus_standalone_baseline": {
+          "brier": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.00614205,
+                0.00260716
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 94,
+            "left_lower": 116,
+            "mean": -0.00181285,
+            "median": -0.0029719,
+            "population_sd": 0.03214153,
+            "tie": 11
+          },
+          "log_loss": {
+            "date_cluster_interval": {
+              "interval": [
+                -0.0088177,
+                0.00478582
+              ],
+              "status": "exploratory_retrospective"
+            },
+            "left_higher": 94,
+            "left_lower": 116,
+            "mean": -0.00210865,
+            "median": -0.00373383,
+            "population_sd": 0.04883103,
+            "tie": 11
+          }
+        }
+      },
+      "scores": {
+        "expanded_current_formula": {
+          "brier": 0.6336463836,
+          "log_loss": 1.0507473221
+        },
+        "n": 221,
+        "standalone_baseline": {
+          "brier": 0.6787039972,
+          "log_loss": 1.120729853
+        },
+        "standalone_form_alpha_0_025": {
+          "brier": 0.6768911454,
+          "log_loss": 1.1186211995
+        }
+      }
+    }
+  },
+  "verified_coverage_gained": 0
+}
