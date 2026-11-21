@@ -44,7 +44,7 @@ def comparison(current,previous):
  base['previous_observation']={k:previous[k] for k in ('record_sha256','observed_at_utc','startUTC','bookmaker','publisher','bookmaker_race_id','bookmaker_market_id','active_runner_ids','quotes','source','source_sha256')}
  if stamp(current['startUTC'])!=stamp(previous['startUTC']):return {**base,'history_status':'SCHEDULE_CHANGED'}
  if current['active_runner_ids']!=previous['active_runner_ids']:return {**base,'history_status':'FIELD_CHANGED'}
- if any(current[k]!=previous[k] for k in ('bookmaker','bookmaker_race_id','bookmaker_market_id')):return {**base,'history_status':'MARKET_CHANGED'}
+ if any(current[k]!=previous[k] for k in ('bookmaker','publisher','bookmaker_race_id','bookmaker_market_id')):return {**base,'history_status':'MARKET_CHANGED'}
  old={str(q['horse_id']):q for q in previous['quotes']}
  movements=[]
  for q in current['quotes']:
@@ -61,13 +61,16 @@ def update(data,archive=ARCHIVE):
   if current is None:continue
   if stamp(current['observed_at_utc'])>now+dt.timedelta(minutes=5):raise ValueError('Future market observation')
   day=stamp(race['startUTC']).date().isoformat();folder=archive/day/str(race['race_id']);folder.mkdir(parents=True,exist_ok=True)
-  previous=[]
+  previous=[]; same_time_conflict=False
   for path in folder.glob('*.json'):
    item=json.loads(path.read_text());body={k:v for k,v in item.items() if k!='record_sha256'}
    if item.get('record_sha256')!=path.stem or digest(body)!=path.stem:raise ValueError('Market capture integrity mismatch')
    if str(item['race_id'])!=str(race['race_id']) or stamp(item['startUTC']).date().isoformat()!=day:raise ValueError('Market capture race identity mismatch')
    if stamp(item['observed_at_utc'])>=stamp(item['startUTC']) or stamp(item['observed_at_utc'])>now+dt.timedelta(minutes=5):raise ValueError('Invalid market archive chronology')
-   if stamp(item['observed_at_utc'])<stamp(current['observed_at_utc']):previous.append(item)
+   seen=stamp(item['observed_at_utc'])
+   if seen==stamp(current['observed_at_utc']) and item['record_sha256']!=current['record_sha256']:
+    same_time_conflict=True
+   if seen<stamp(current['observed_at_utc']):previous.append(item)
   path=folder/(current['record_sha256']+'.json');raw=json.dumps(current,indent=2)+'\n'
   if path.exists():
    if json.loads(path.read_text())!=current:raise ValueError('Refusing to overwrite market capture')
@@ -75,7 +78,12 @@ def update(data,archive=ARCHIVE):
    with path.open('x') as out:out.write(raw)
    count+=1
   prior=max(previous,key=lambda p:stamp(p['observed_at_utc'])) if previous else None
-  race['market_observation'].update(comparison(current,prior))
+  ambiguous_prior=prior is not None and sum(
+   stamp(item['observed_at_utc'])==stamp(prior['observed_at_utc']) for item in previous)>1
+  if same_time_conflict or ambiguous_prior:
+   race['market_observation'].update(previous_observation=None,movements=[],history_status='OBSERVATION_CONFLICT')
+  else:
+   race['market_observation'].update(comparison(current,prior))
   race['market_observation']['record_sha256']=current['record_sha256']
   race['market_observation']['archive_path']=str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)
  data['market_history_status']={'new_captures':count,'kind':'APPEND_ONLY_SOURCE_OBSERVATIONS','executable_prices_verified':False,
