@@ -140,7 +140,7 @@ async function load() {
       'Collection status is not recorded. Prices remain historical source observations.';
     const matches = result.matches.sort((a, b) => b.fixture.start - a.fixture.start);
     globalWithheldMessage = result.withheld ?
-      result.withheld + ' observation(s) were withheld because fixture, source or receipt evidence did not match. Fixture-specific reasons are shown when available.' : '';
+      result.withheld + ' market evidence item(s) were withheld because fixture, source or receipt evidence did not match. Fixture-specific reasons are shown when available.' : '';
     if (!matches.length) {
       status.textContent = 'No source-backed pre-kickoff captures are available.';
       return;
