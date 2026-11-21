@@ -336,7 +336,7 @@
         missingSources, withheldReasons:match.reasons
       };
     }).filter(match => match.sources.length || match.withheldReasons.length);
-    return { withheld:withheld + conflicts.size, withheldReasons, matches };
+    return { withheld:withheld + conflicts.size, withheldReasons, matches:output };
   }
 
   function probabilities(values) {
