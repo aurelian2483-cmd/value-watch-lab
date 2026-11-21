@@ -134,3 +134,21 @@ html:not(.visual-preview) .pro-landing .pro-stat {
   border: 1px solid var(--terminal-line);
   border-radius: .4rem;
 }
+
+.market-terminal .market-main { max-width: min(96vw, 1500px); }
+.market-terminal .terminal-panel { min-width:0; }
+.market-terminal .terminal-panel label { display:block; margin:.7rem 0 .25rem; color:var(--terminal-muted); font-size:.82rem; }
+.market-terminal .terminal-panel select { width:100%; min-height:2.6rem; padding:.5rem .7rem; border:1px solid var(--terminal-line); border-radius:.4rem; background:var(--terminal-panel); color:var(--terminal-text); font:inherit; }
+.market-terminal .terminal-table { max-width:100%; overflow:auto; border:1px solid var(--terminal-line); border-radius:.5rem; }
+.market-terminal .terminal-table table { width:100%; min-width:1120px; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+.market-terminal .terminal-table th,.market-terminal .terminal-table td { padding:.65rem .7rem; text-align:left; vertical-align:top; border-bottom:1px solid var(--terminal-line); }
+.market-terminal .terminal-table th { position:sticky; top:0; z-index:1; background:#172438; color:var(--terminal-accent); font-size:.75rem; white-space:nowrap; }
+.market-terminal .terminal-table td { color:var(--terminal-text); font-size:.82rem; }
+.market-terminal .market-source-details { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,25rem),1fr)); gap:.6rem; margin-top:.8rem; }
+.market-terminal .market-source-details details { min-width:0; border:1px solid var(--terminal-line); border-radius:.5rem; padding:.7rem .8rem; background:var(--terminal-bg); overflow-wrap:anywhere; }
+.market-terminal .market-source-details summary { color:var(--terminal-accent); cursor:pointer; min-height:1.7rem; }
+.market-terminal .market-source-details p { font-size:.82rem; }
+.market-terminal .terminal-panel a:focus-visible,.market-terminal .terminal-panel select:focus-visible { outline:2px solid var(--terminal-accent); outline-offset:3px; }
+@media(max-width:760px) {
+  .market-terminal .terminal-table table { min-width:1080px; }
+}
