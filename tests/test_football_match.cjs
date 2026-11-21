@@ -96,8 +96,10 @@ assert.equal(marketIdConflict.matches.flatMap(match => match.sources).filter(sou
 assert(marketIdConflict.withheldReasons.some(item => item.reason.includes('market identity changed')));
 
 const another = {...fixture,espn_event_id:'102',kickoff_utc:stamp('22:00')};
-assert.equal(markets([capture,{...capture,event_id:eventID(another),start_utc:another.kickoff_utc}],
-  evidence.fixtureIndex([feed([fixture,another])],now)).matches.length,0);
+const reusedProviderID = markets([capture,{...capture,event_id:eventID(another),start_utc:another.kickoff_utc}],
+  evidence.fixtureIndex([feed([fixture,another])],now));
+assert.equal(reusedProviderID.matches.flatMap(match => match.sources).length,0);
+assert(reusedProviderID.withheldReasons.some(item => item.reason.includes('provider event ID')));
 const inputReceipt = {url:'https://example.org/training.csv',sha256:'b'.repeat(64),observed_at_utc:stamp('16:00')};
 const estimate = {...fixture,...gates,model:'QA_POISSON',prob_home:.806,prob_draw:.135,prob_away:.059,
   cutoff_utc:stamp('16:00'),source_receipts:[inputReceipt]};
