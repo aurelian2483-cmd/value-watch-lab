@@ -104,6 +104,32 @@ async function researchFlow(browser, base) {
   await page.close();
 }
 
+async function calendarRecovery(browser, base) {
+  const context = await browser.newContext({viewport:{width:390,height:920}});
+  await context.route(url => url.origin !== base, route => route.abort());
+  for (const [sport, feed] of [['darts','darts/feed.json'],['rugby','rugby-research-data.json']]) {
+    const page = await context.newPage();
+    await page.clock.install({time:new Date('2026-11-21T08:00:00Z')});
+    const fail = route => route.fulfill({status:503});
+    await page.route('**/' + feed,fail);
+    await page.goto(base + '/?sport=' + sport);
+    const calendar = page.locator('#events .fixture-events');
+    await calendar.getByText(/Provider feed unavailable or stale/).waitFor();
+    assert.equal(await calendar.getAttribute('data-fixture-sport'),sport);
+    assert.equal(await calendar.getByRole('button',{name:'Add to paper slip'}).count(),0);
+    await page.unroute('**/' + feed,fail);
+    await page.locator('#refresh').click();
+    await calendar.getByText(/^Provider snapshot:/).waitFor();
+    assert.equal(await calendar.getByText(/Provider feed unavailable or stale/).count(),0);
+    if (sport === 'rugby') {
+      assert.match(await calendar.getByRole('link',{name:'Open Rugby League calendar'}).getAttribute('href'),/code=RL/);
+    }
+    await page.close();
+    report.syntheticChecks.push(sport + ' provider error, retained calendar without paper controls, and recovery to repository snapshot');
+  }
+  await context.close();
+}
+
 async function discoveryFlow(browser, base) {
   const page = await browser.newPage({viewport:{width:390,height:920}});
   for (const sport of ['basketball','cricket']) {
@@ -146,6 +172,7 @@ async function discoveryFlow(browser, base) {
   const browser = await chromium.launch({headless:true});
   try {
     await researchFlow(browser,base);
+    await calendarRecovery(browser,base);
     await discoveryFlow(browser,base);
     for (const width of [1440,820,390]) {
       const context = await browser.newContext({viewport:{width,height:920},reducedMotion:'reduce'});
