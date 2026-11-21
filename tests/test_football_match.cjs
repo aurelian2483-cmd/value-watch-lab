@@ -114,4 +114,23 @@ assert.equal(evidence.historicalRows({...archive,meta:{...archive.meta,validated
 assert.equal(evidence.historicalRows({...archive,rows:[archive.rows[0],archive.rows[0],archive.rows[0]]}).length,0);
 for (const file of ['index.html','paper-lab/index.html']) assert.match(fs.readFileSync(file,'utf8'),/journal\.js\?v=3/);
 assert.doesNotMatch(fs.readFileSync('football-match/app.js','utf8'),/localStorage|sessionStorage/);
+const history = require('../football-match/history');
+const premier = history.archiveMatches(archive);
+assert.equal(premier.length,608);
+const city = {identity:['PL','Manchester City','Fulham'],marketCutoff:Date.parse(stamp('20:00'))};
+const cityHistory = history.matchHistory(city,premier);
+assert(cityHistory.home.length > cityHistory.homeVenue.length);
+assert(cityHistory.away.length > cityHistory.awayVenue.length);
+assert(cityHistory.meetings.length > 0);
+assert(cityHistory.home.every(row => row.day < '2026-11-20'));
+const historicView = history.matchHistory({identity:['PL',archive.rows[0].home,archive.rows[0].away],
+  row:archive.rows[0],archived:true},premier);
+assert(historicView.home.every(row => row.day < archive.rows[0].date));
+const expanded = require('../football-expanded-data.json');
+const firstFinal = expanded.performance.entries[0];
+const results = entries => history.competitionMatches({...expanded,performance:{entries}});
+assert.equal(results([firstFinal,firstFinal]).length,1);
+assert.equal(results([firstFinal,{...firstFinal,score_home:firstFinal.score_home + 1},firstFinal]).length,0);
+assert.equal(results([{...firstFinal,source_receipts:[firstFinal.source_receipts[0]]}]).length,0);
+assert.equal(history.matchHistory({...city,identity:['UCL','Manchester City','Fulham']},premier).count,0);
 console.log('PASS: exact football identity, reschedules, ambiguous providers, cutoff, complete markets, reconstruction and journal compatibility');

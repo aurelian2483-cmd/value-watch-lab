@@ -2,6 +2,7 @@
 
 (() => {
   const evidence = FootballMatchEvidence;
+  const historical = FootballMatchHistory;
   const $ = id => document.getElementById(id);
   const date = new Intl.DateTimeFormat('en-GB', { dateStyle:'medium', timeStyle:'short', timeZone:'Europe/London' });
   const format = value => date.format(value) + ' UK';
@@ -15,7 +16,6 @@
   const label = event => event.identity.slice(1).join(' v ');
   const stateURL = id => {
     const url = new URL(location.href);
-    url.hash = '';
     for (const [key, value] of [['event', id], ['competition', $('competition').value], ['q', $('search').value]]) {
       if (value) url.searchParams.set(key, value);
       else url.searchParams.delete(key);
@@ -26,38 +26,130 @@
   let markets = new Map();
   let feedMessage = '';
   let archiveMetrics = null;
+  let records = [];
   const archive = new URLSearchParams(location.search).get('mode') === 'archive';
+
+  function meterRow(parent, label, value, maximum, display) {
+    const row = node(parent, 'div');
+    row.className = 'chart-row';
+    node(row, 'span', label);
+    const meter = node(row, 'meter');
+    meter.max = maximum;
+    meter.value = value;
+    meter.setAttribute('aria-label', label);
+    node(row, 'span', display);
+  }
+
+  function selectControl(parent, label, id, options) {
+    const title = node(parent, 'label', label);
+    title.htmlFor = id;
+    const control = node(parent, 'select');
+    control.id = id;
+    options.forEach(([name,value]) => control.add(new Option(name,value)));
+    return control;
+  }
 
   function chart(parent, models) {
     if (!models.length) {
       node(parent, 'p', 'No cutoff-eligible experimental model is available for this fixture.');
       return;
     }
-    const title = node(parent, 'label', 'Probability model');
-    title.htmlFor = 'chart-model';
-    const selector = node(parent, 'select');
-    selector.id = title.htmlFor;
-    models.forEach((model, i) => selector.add(new Option(model.name, i)));
+    const selector = selectControl(parent, 'Probability model', 'chart-model', models.map((model,i) => [model.name,i]));
+    const compare = models.length > 1 ? selectControl(parent, 'Compare with', 'chart-compare',
+      [['Single model',''],...models.map((model,i) => [model.name,i])]) : null;
     const graph = node(parent, 'div');
     graph.className = 'chart';
     graph.setAttribute('aria-live', 'polite');
     function draw() {
       const model = models[Number(selector.value)];
+      const other = compare?.value && compare.value !== selector.value ? models[Number(compare.value)] : null;
       graph.replaceChildren();
-      ['Home', 'Draw', 'Away'].forEach((label, i) => {
-        const row = node(graph, 'div');
-        row.className = 'chart-row';
-        node(row, 'span', label);
-        const meter = node(row, 'meter');
-        meter.max = 1;
-        meter.value = model.values[i];
-        meter.setAttribute('aria-label', label + ' probability');
-        node(row, 'span', (model.values[i] * 100).toFixed(1) + '%');
-      });
-      node(graph, 'p', model.note);
+      const columns = node(graph, 'div');
+      columns.className = 'team-grid';
+      for (const entry of other ? [model,other] : [model]) {
+        const column = node(columns, 'div');
+        node(column, 'h3', entry.name);
+        ['Home', 'Draw', 'Away'].forEach((outcome,i) =>
+          meterRow(column, outcome + ' probability', entry.values[i], 1, (entry.values[i] * 100).toFixed(1) + '%'));
+        node(column, 'p', entry.note);
+      }
+      if (other) {
+        const spread = Math.max(...model.values.map((probability,i) => Math.abs(probability - other.values[i])));
+        node(graph, 'p', 'Largest outcome disagreement: ' + (spread * 100).toFixed(1) +
+          ' percentage points. This measures the gap between estimates.');
+      }
     }
     selector.addEventListener('change', draw);
+    compare?.addEventListener('change', draw);
     draw();
+  }
+
+  function renderHistory(parent, event) {
+    const history = historical.matchHistory(event, records);
+    node(parent, 'h3', 'Form and venue comparison');
+    const source = event.identity[0] === 'PL' ? 'the retrospective Premier League archive' : 'the published two-source final records';
+    if (!history.home.length && !history.away.length) {
+      node(parent, 'p', 'No prior results for either team were matched in ' + source + '.');
+      return;
+    }
+    node(parent, 'p', 'Prior-date results from ' + source + '. This sample may omit fixtures.');
+    const controls = node(parent, 'div');
+    controls.className = 'stats-controls';
+    const windowSize = selectControl(controls, 'Results per team', 'form-window', [['Last five','5'],['Last ten','10']]);
+    const venue = selectControl(controls, 'Venue filter', 'form-venue', [['All results','all'],['Home team at home / away team away','venue']]);
+    const results = node(parent, 'div');
+    results.className = 'team-grid';
+    results.setAttribute('aria-live','polite');
+    function draw() {
+      results.replaceChildren();
+      const series = venue.value === 'all' ? [history.home,history.away] : [history.homeVenue,history.awayVenue];
+      const samples = series.map(team => team.slice(0, Number(windowSize.value)));
+      const average = (sample,key) => sample.length ? sample.reduce((sum,row) => sum + row[key],0) / sample.length : 0;
+      const scale = Math.max(1,...samples.flatMap(sample => [average(sample,'scored'),average(sample,'conceded')]));
+      const trendScale = Math.max(1,...samples.flatMap(sample => sample.flatMap(row => [row.scored,row.conceded])));
+      samples.forEach((sample,i) => {
+        const column = node(results,'div');
+        node(column,'h3',event.identity[i+1]);
+        if (!sample.length) {
+          node(column,'p','No matching results for this venue filter.');
+          return;
+        }
+        const strip = node(column,'div');
+        strip.className = 'form-row';
+        strip.setAttribute('aria-label','Form, newest first');
+        for (const row of sample) {
+          const outcome = node(strip,'span',row.outcome);
+          outcome.className = row.outcome === 'W' ? 'win' : row.outcome === 'L' ? 'loss' : 'draw';
+          outcome.title = row.day + ' · ' + row.opponent + ' · ' + row.scored + '–' + row.conceded;
+        }
+        node(column,'p',sample.length + ' recorded matches · newest first');
+        for (const [key,label] of [['scored','Scored per match'],['conceded','Conceded per match']]) {
+          const value = average(sample,key);
+          meterRow(column,label,value,scale,value.toFixed(2));
+        }
+        const timeline = node(column,'details');
+        node(timeline,'summary','Goal trend and result timeline');
+        const list = node(timeline,'ol');
+        for (const row of sample) {
+          const item = node(list,'li');
+          node(item,'strong',row.day + ' · ' + row.opponent + ' (' + row.venue + ')');
+          meterRow(item,'Scored',row.scored,trendScale,String(row.scored));
+          meterRow(item,'Conceded',row.conceded,trendScale,String(row.conceded));
+        }
+      });
+    }
+    windowSize.addEventListener('change',draw);
+    venue.addEventListener('change',draw);
+    draw();
+    node(parent,'p','Competition sample before this fixture: ' + history.count + ' recorded matches · ' +
+      (history.goals / history.count).toFixed(2) + ' goals per match.');
+    if (history.meetings.length) {
+      const meetings = node(parent,'details');
+      node(meetings,'summary','Recorded head-to-head results (' + history.meetings.length + ')');
+      const list = node(meetings,'ol');
+      for (const row of history.meetings.slice(0,10))
+        node(list,'li',row.day + ' · ' + row.home + ' ' + row.goals.join('–') + ' ' + row.away);
+    }
   }
 
   function addReceipt(target, receipt, heading) {
@@ -77,7 +169,9 @@
     $('event').hidden = !event;
     if (!event) return;
     $('event-competition').textContent = competition(event);
-    $('event-title').textContent = label(event);
+    $('event-title').replaceChildren(document.createTextNode(event.identity[1] + ' '));
+    node($('event-title'), 'span', 'v').className = 'match-versus';
+    $('event-title').append(' ' + event.identity[2]);
     const [overview, facts, models, sources] = ['overview', 'facts', 'models', 'sources'].map(name => $(name + '-content'));
     [overview, facts, models, sources].forEach(section => section.replaceChildren());
     if (archive) {
@@ -86,6 +180,7 @@
       node(overview, 'p', 'Retrospective Premier League research · ' + row.season + ' season.');
       if (Array.isArray(row.ft) && row.ft.length === 2 && row.ft.every(value => Number.isSafeInteger(value) && value >= 0))
         node(facts, 'p', 'Archived full-time score ' + row.ft.join('–') + '.');
+      renderHistory(facts, {...event,archived:true});
       node(facts, 'p', 'Player statistics, lineups and timeline are unavailable in this archive.');
       chart(models, [
         { name:'Reconstructed Poisson baseline V1', values:row.p_unadjusted, note:'Training cutoff excludes the match date. Earlier league matches: ' + row.prior_league_matches + '.' },
@@ -95,6 +190,7 @@
         const comparison = node(models, 'details');
         node(comparison, 'summary', 'Same-sample historical scores');
         for (const [name, metrics] of [['Poisson baseline',archiveMetrics.unadjusted],['Recent-form variant',archiveMetrics.form]]) {
+          meterRow(comparison, name + ' Brier', metrics.multiclass_brier, Math.max(1, archiveMetrics.unadjusted.multiclass_brier, archiveMetrics.form.multiclass_brier), metrics.multiclass_brier.toFixed(3));
           node(comparison, 'p', name + ' · ' + metrics.n + ' matches · Brier ' +
             metrics.multiclass_brier.toFixed(3) + ' · log loss ' + metrics.log_loss.toFixed(3) + '.');
         }
@@ -139,11 +235,15 @@
       node(facts, 'h3', 'Head-to-head');
       node(facts, 'p', h2h.sample_size + ' recorded meetings · ' + h2h.home_team_wins + ' home wins · ' + h2h.draws +
         ' draws · ' + h2h.away_team_wins + ' away wins. Most recent ' + h2h.most_recent_match_date + '.');
+      const bars = node(facts,'div');
+      for (const [name,value] of [['Home wins',h2h.home_team_wins],['Draws',h2h.draws],['Away wins',h2h.away_team_wins]])
+        meterRow(bars,name,value,h2h.sample_size,String(value));
       node(facts, 'p', 'Descriptive historical sample. Coverage may be incomplete.');
-    } else node(facts, 'p', 'Cutoff-eligible head-to-head evidence is unavailable.');
+    } else node(facts, 'p', 'The published fixture has no cutoff-eligible head-to-head summary.');
     const comparison = available.find(item => item.cutoffReason === null && Number.isSafeInteger(item.row.home_venue_matches) && Number.isSafeInteger(item.row.away_venue_matches));
     if (comparison) node(facts, 'p', 'Team performance inputs: ' + comparison.row.home_venue_matches + ' home venue matches and ' +
       comparison.row.away_venue_matches + ' away venue matches in the model sample.');
+    renderHistory(facts, event);
     node(facts, 'p', 'Player statistics, verified lineups and match timeline are unavailable from these snapshots.');
     chart(models, estimates);
     if (unverified.length) {
@@ -162,6 +262,9 @@
     node(models, 'p', 'Probabilities are uncalibrated research estimates. Confidence intervals are unavailable for this fixture.');
     const history = node(models, 'a', 'Browse the separate historical reconstruction');
     history.href = '?mode=archive';
+    const ageHours = Math.max(0,Math.floor((Date.now() - event.observed) / 3600000));
+    node(sources, 'p', (ageHours === 0 ? 'Snapshot observed within the last hour' : 'Snapshot age: ' + ageHours + ' hours') +
+      (ageHours >= 24 ? ' · historical snapshot' : '')).className = 'evidence-state';
     node(sources, 'p', 'Fixture snapshot observed ' + format(event.observed) + '.');
     if (event.providerId) node(sources, 'p', 'ESPN event ID ' + event.providerId + '.');
     else node(sources, 'p', 'Provider event ID unavailable. This fixture uses an exact schedule key.');
@@ -176,6 +279,8 @@
       const timestamp = evidence.instant(receipt?.observed_at_utc);
       if (timestamp <= observed) addReceipt(sources, { url:receipt.url, observed:timestamp, hash:receipt.sha256 }, 'Model input receipt');
     }
+    const historySource = node(sources, 'a', event.identity[0] === 'PL' ? 'Premier League reconstruction methodology' : 'Expanded football evidence snapshot');
+    historySource.href = event.identity[0] === 'PL' ? '../research/football-baseline-v1/README.md' : '../football-expanded-data.json';
     if (!sources.querySelector('details')) node(sources, 'p', 'No matching detailed receipt is available for this fixture.');
   }
 
@@ -205,7 +310,7 @@
         if (click.button || click.ctrlKey || click.shiftKey || click.altKey || click.metaKey) return;
         click.preventDefault();
         navigate(fixture.id);
-        $('match').focus();
+        (document.getElementById(location.hash.slice(1)) ?? $('match')).focus();
       });
     }
     renderEvent(event);
@@ -223,10 +328,12 @@
     return response.json();
   }
   async function load() {
+    const archivePath = '../research/football-baseline-v1/608-reconstructed-forecasts.json';
     if (archive) {
       $('mode').href = './';
       $('mode').textContent = 'Published fixture snapshots';
-      const document = await read('../research/football-baseline-v1/608-reconstructed-forecasts.json');
+      const document = await read(archivePath);
+      records = historical.archiveMatches(document);
       for (const row of evidence.historicalRows(document).reverse()) index.set(row.id, {id:row.id, row, identity:['PL', row.home, row.away]});
       if (index.size && [document.metrics?.unadjusted, document.metrics?.form].every(metrics =>
         metrics?.n === index.size && [metrics.multiclass_brier, metrics.log_loss].every(value => Number.isFinite(value) && value >= 0))) {
@@ -235,10 +342,11 @@
       if (!index.size) feedMessage = 'Historical reconstruction unavailable.';
     } else {
       const now = Date.now();
-      const [dashboard, expanded, market] = await Promise.allSettled([
-        read('../research-dashboard-data.json'), read('../football-expanded-data.json'), read('../paper-lab/hybrid-market-data.json')
+      const [dashboard, expanded, market, reconstructed] = await Promise.allSettled([
+        read('../research-dashboard-data.json'), read('../football-expanded-data.json'), read('../paper-lab/hybrid-market-data.json'), read(archivePath)
       ]);
       const feeds = [dashboard, expanded].filter(item => item.status === 'fulfilled').map(item => item.value);
+      records = [...historical.archiveMatches(reconstructed.value),...historical.competitionMatches(expanded.value)];
       const snapshot = evidence.fixtureIndex(feeds, now);
       markets = new Map(evidence.verifyMarkets(market.value, snapshot, now).matches.map(match => [match.fixture.id, match]));
       snapshot.events.sort((a,b) => (a.start < now) - (b.start < now) || a.start - b.start);
@@ -250,14 +358,24 @@
     const leagues = new Map([...index.values()].map(event => [event.identity[0], competition(event)]));
     [...leagues].sort((a,b) => a[1].localeCompare(b[1])).forEach(([code, name]) => $('competition').add(new Option(name, code)));
     $('fixture').addEventListener('change', () => navigate($('fixture').value));
-    $('competition').addEventListener('change', () => navigate(null));
+    $('competition').addEventListener('change', () => navigate(new URLSearchParams(location.search).get('event')));
     $('search').addEventListener('input', () => {
       const caret = $('search').selectionStart;
-      navigate(null, true);
+      navigate(new URLSearchParams(location.search).get('event'), true);
       if (caret != null) $('search').setSelectionRange(caret, caret);
     });
     addEventListener('popstate', render);
     render();
   }
+  function markSection() {
+    const active = ['#overview','#facts','#models','#sources'].includes(location.hash) ? location.hash : '#overview';
+    for (const link of document.querySelectorAll('.sections a')) {
+      if (link.hash === active) link.setAttribute('aria-current','location');
+      else link.removeAttribute('aria-current');
+    }
+  }
+  addEventListener('hashchange',markSection);
+  addEventListener('popstate',markSection);
+  markSection();
   load().catch(() => { $('feed-status').textContent = 'Published football evidence is unavailable.'; });
 })();

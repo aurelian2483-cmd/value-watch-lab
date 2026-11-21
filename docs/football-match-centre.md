@@ -43,3 +43,15 @@ The preview preserves gated, matched probability estimates that fail these check
 The receipt boundary screenshots use synthetic observations in the browser test. An exact-cutoff receipt remains eligible and a receipt one microsecond later is withheld. The original Manchester City v Fulham estimate remains visible with its missing-cutoff reason.
 
 [Receipt boundary desktop](preview/football-match/receipt-cutoff-1440.webp) · [Receipt boundary mobile](preview/football-match/receipt-cutoff-390.webp)
+
+## Phase 3 analytical workspace
+
+The preview now uses a persistent fixture rail, a compact mobile picker and anchored section navigation. Competition, query, selected fixture and section are represented in the URL. Filters preserve an explicitly selected fixture while the matching list changes.
+
+Match Facts shows recent form, venue-specific samples, goals per match, an expandable results timeline, and recorded head-to-head meetings where records match. The Premier League view uses the 608-row retrospective reconstruction with explicit club aliases. Other competitions use the published expanded-football finals with two source hosts. Duplicate identical finals count once; conflicting scores are withheld. Results on or after the fixture cutoff date are excluded from descriptive history. Counts and rates describe that source sample and can omit real matches. This history never changes model eligibility.
+
+The Models view offers side-by-side eligible estimates and the largest outcome disagreement in percentage points. The retrospective reconstruction has its own matched-sample Brier and log-loss evidence. The discrepancy between two estimates is not a confidence interval. Missing eligible models remain explicit, and the unverified section retains original estimates and reasons. The Sources view shows fixture snapshot age and preserves the existing receipt disclosures and cutoff gates.
+
+The archive and expanded snapshots do not supply verified lineups, player or injury data, complete league histories, or in-match timelines. A useful next step is a versioned results feed with stable team IDs and full season coverage, followed by documented lineup and event feeds and prospective matched-sample calibration.
+
+[Desktop match](preview/football-match/phase3-1440.webp) · [Tablet match](preview/football-match/phase3-820.webp) · [Mobile match](preview/football-match/phase3-390.webp) · [Historical model comparison](preview/football-match/phase3-models-1440.webp)

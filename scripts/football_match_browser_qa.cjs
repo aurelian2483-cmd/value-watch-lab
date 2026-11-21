@@ -27,7 +27,7 @@ const server = http.createServer(async (request,response) => {
   const base = 'http://127.0.0.1:'+server.address().port;
   const browser = await chromium.launch({headless:true});
   try {
-    for (const width of [1440,390]) {
+    for (const width of [1440,820,390]) {
       const context = await browser.newContext({viewport:{width,height:940},reducedMotion:'reduce'});
       const page = await context.newPage();
       const errors = [];
@@ -74,10 +74,15 @@ const server = http.createServer(async (request,response) => {
       await page.getByRole('link',{name:'Historical reconstruction',exact:true}).click();
       await page.getByLabel('Probability model').waitFor();
       const before = await page.locator('.chart').innerText();
+      await page.getByLabel('Compare with').selectOption('1');
+      assert(await page.getByText(/Largest outcome disagreement/).isVisible());
+      await page.getByLabel('Compare with').selectOption('');
       await page.getByLabel('Probability model').selectOption('1');
       assert.notEqual(await page.locator('.chart').innerText(),before);
       await page.getByText('Same-sample historical scores',{exact:true}).click();
       assert(await page.getByText(/608 matches · Brier.*log loss/).first().isVisible());
+      await page.getByLabel('Compare with').selectOption('0');
+      await page.screenshot({path:path.join(output,'football-phase3-models-'+width+'.png'),fullPage:true});
       await page.goto(base+'/football-match/?q=Manchester+City+v+Fulham');
       await page.getByRole('heading',{name:'Manchester City v Fulham',exact:true}).waitFor();
       const unverified = page.getByRole('region',{name:'UNVERIFIED EXPERIMENTAL ESTIMATES'});
@@ -89,7 +94,18 @@ const server = http.createServer(async (request,response) => {
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       const cutoffIssues = (await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations;
       assert.deepEqual(cutoffIssues.map(issue => issue.id),[]);
-      await page.screenshot({path:path.join(output,'football-cutoff-'+width+'.png'),fullPage:true});
+      const factsLink = page.getByRole('link',{name:'Match facts',exact:true});
+      await factsLink.focus();
+      await page.keyboard.press('Enter');
+      assert.equal(await factsLink.getAttribute('aria-current'),'location');
+      const form = page.getByLabel('Results per team');
+      await form.selectOption('10');
+      assert.equal(await page.locator('#facts .form-row').first().locator('span').count(),10);
+      await page.getByLabel('Venue filter').selectOption('venue');
+      await page.getByText('Goal trend and result timeline',{exact:true}).first().click();
+      assert(await page.locator('#facts details[open]').getByText(/\(home\)$/).first().isVisible());
+      await page.evaluate(() => scrollTo(0,0));
+      await page.screenshot({path:path.join(output,'football-phase3-'+width+'.png'),fullPage:true});
       const dashboard = JSON.parse(await fs.readFile(path.join(root,'research-dashboard-data.json'),'utf8'));
       const baseline = dashboard.experimental_model_forecasts.find(row => row.model === 'POISSON_BASELINE_2025_26_V1' &&
         row.home === 'Manchester City' && row.away === 'Fulham');
@@ -108,6 +124,8 @@ const server = http.createServer(async (request,response) => {
       assert(await unverified.getByText('Training source receipt 2 was observed after the explicit training cutoff.',{exact:true}).isVisible());
       await page.screenshot({path:path.join(output,'football-receipt-cutoff-'+width+'.png'),fullPage:true});
       await page.unroute('**/research-dashboard-data.json');
+      await page.goto(base+'/football-match/?competition=UCL&q=Manchester+City+v+Napoli');
+      await page.getByText('No prior results for either team were matched in the published two-source final records.',{exact:true}).waitFor();
       await page.route('**/football-expanded-data.json',route => route.fulfill({status:503}));
       await page.goto(shared);
       await page.getByRole('status').getByText('This fixture is unavailable or its identity is ambiguous.').waitFor();
