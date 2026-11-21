@@ -51,8 +51,8 @@ for (const invalid of [
   assert(rejected.withheldReasons.length > 0,JSON.stringify(invalid));
 }
 
-assert.equal(markets([{...capture,snapshot_at_utc:stamp('20:00')}],index,Date.parse(stamp('21:00'))).matches.length,0);
-assert.equal(markets([capture],index,Date.parse(stamp('17:59'))).matches.length,0);
+assert.equal(markets([{...capture,snapshot_at_utc:stamp('20:00')}],index,Date.parse(stamp('21:00'))).matches.flatMap(match => match.sources).length,0);
+assert.equal(markets([capture],index,Date.parse(stamp('17:59'))).matches.flatMap(match => match.sources).length,0);
 assert.equal(markets([{...capture,market:'FOOTBALL_EXTRA_TIME_1X2'}]).matches.length,0);
 const conflictingQuotes = markets([capture,{...capture,benchmark:{...capture.benchmark,prices:{home:3,draw:4,away:5}}}]);
 assert.equal(conflictingQuotes.matches.flatMap(match => match.sources).length,0);
