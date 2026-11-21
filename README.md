@@ -4,6 +4,7 @@ A multi-sport paper research desk with four flexible approaches, cross-day selec
 
 - [Open the research desk](https://aurelian2483-cmd.github.io/value-watch-lab/)
 - [Implementation, architecture, tests and data limitations](paper-lab/README.md)
+- [All-sports coverage and integration ledger](docs/all-sports-coverage.md)
 - [Preserved previous dashboard](https://aurelian2483-cmd.github.io/value-watch-lab/legacy-dashboard.html)
 
 Models remain **UNVALIDATED**. Betting publication remains **BLOCKED**. No real-money wallet, bet placement or verified positive-EV claim is provided.

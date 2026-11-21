@@ -11,12 +11,12 @@ assert(home.includes('analyst/')&&home.includes('pro-landing')&&home.includes('d
 assert(home.includes('paper-lab/desk-compact-20261116.js'),'Existing desk engine must be retained');
 assert(home.includes('paper-lab/engine.js'),'Existing calculations must be retained');
 assert(home.includes('paper-lab/store.js'),'Existing persisted slip format must be retained');
-assert(home.includes('pro-home.js?v=inline-slips')&&home.includes('pro-design.css?v=7')&& !home.includes('darts/home-preview.js'));
+assert(home.includes('pro-home.js?v=all-sports')&&home.includes('pro-design.css?v=7')&& !home.includes('darts/home-preview.js'));
 for(const id of ['pro-featured-rows','pro-featured-status','pro-market-feeds','pro-feature-prev','pro-feature-next','pro-feature-refresh','pro-feature-page'])assert(home.includes('id="'+id+'"'));
 assert(home.includes('pro-darts-preview-summary') && !home.includes('pro-darts-feed-status') && home.includes('href="./darts/"'),'Darts homepage must show compact lab invitation only');
 assert(home.includes('data-pro-count="darts"')&&analyst.includes('<option value="darts">Darts</option>'));
 assert(home.includes('Research Across')&&home.includes('href="./analyst/"'));
-assert(home.includes('pro-sources.js?v=4')&&analyst.includes('../pro-sources.js?v=4'));
+assert(home.includes('pro-sources.js?v=4a')&&analyst.includes('../pro-sources.js?v=4a'));
 assert(homeJs.includes('Sources.summarize')&&homeJs.includes('Sources.featuredOrder')&&homeJs.includes('No verified bookmaker odds'));
 assert(analystJs.includes('Sources.summarize')&&analystJs.includes('Sources.load'));
 assert(require('fs').readFileSync('pro-sources.js','utf8').includes("publication_gate==='BLOCKED'"));
