@@ -82,3 +82,4 @@ The current main snapshot records the GoldEdge collection as **RATE_LIMITED**. T
 ### Phase 5 verification
 
 The football regression now covers repeated comparable observations, deduplication, overround arithmetic, source-market ID changes, reused provider IDs, conflicting same-time quotes, and model eligibility. Browser QA checks the fixture Markets section and the dedicated market source filter at desktop, tablet and mobile widths. Existing cutoff, market completeness, exact fixture identity, journal/storage, model status and production safeguards remain in force.
+The matrix also shows snapshot age at review time. Age is descriptive only: the current data contract supplies no market freshness TTL, so the interface does not silently convert age into a rejection. Historical capture status and the collection's RATE_LIMITED state are shown separately from source verification.
