@@ -397,8 +397,11 @@ async function exactCrossSport(page, base, width) {
     const link=page.locator('#pro-featured-rows .pro-feature-event a').first();
     await link.waitFor();
     const name=await link.innerText();
-    await page.locator('#pro-feature-query').fill(name.slice(0,25));
+    const query=name.slice(0,25);
+    await page.locator('#pro-feature-query').fill(query);
+    await page.waitForURL(url=>url.searchParams.get('fq')===query);
     await page.reload();
+    await page.waitForFunction(expected => document.getElementById('pro-feature-query').value===expected,query);
     assert.equal(await page.locator('#pro-feature-sport').inputValue(),sport);
     assert.equal(await page.locator('#pro-feature-query').inputValue(),name.slice(0,25));
     if(width===1440){await link.focus();await page.keyboard.press('Enter');}
@@ -421,6 +424,7 @@ async function exactCrossSport(page, base, width) {
     assert.equal(await page.locator('#evidence').isVisible(),false);
     await page.clock.setFixedTime(now);
     await page.goBack();
+    await page.waitForFunction(expected => document.getElementById('pro-feature-query').value===expected,query);
     assert.equal(await page.locator('#pro-feature-sport').inputValue(),sport);
     assert.equal(await page.locator('#pro-feature-query').inputValue(),name.slice(0,25));
     await page.locator('#pro-feature-query').fill('');
