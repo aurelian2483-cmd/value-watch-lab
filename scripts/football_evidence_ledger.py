@@ -131,6 +131,18 @@ def text(value):
     return isinstance(value, str) and bool(value.strip()) and value == value.strip()
 
 
+def https_reference(value):
+    if not text(value) or not value.isprintable() or any(char.isspace() for char in value) or '\\' in value:
+        return False
+    try:
+        url = urlsplit(value)
+        port = url.port
+    except ValueError:
+        return False
+    return (url.scheme == 'https' and bool(url.hostname) and url.username is None and
+            url.password is None and '#' not in value and (port is None or port > 0))
+
+
 def validate(ledger, pinned=False):
     fields(ledger, (*SAFETY, 'schema_version', 'rule_version', 'rules_sha256', 'manifest_sha256',
                     'archive_commit', 'inputs', 'references', 'counts', 'rows'), 'ledger')
@@ -156,9 +168,10 @@ def validate(ledger, pinned=False):
         require(kind in REFERENCE_TIERS and ref['tier'] == REFERENCE_TIERS[kind] and valid_hash(ref['record_sha256'])
                 and key == f"{kind}:{ref['record_sha256']}", 'invalid reference provenance or tier')
         locator = ref['locator']
-        require(isinstance(locator, str) and locator.startswith(kind + ':') and locator.split(':')[1].isascii()
-                and locator.split(':')[1].isdigit() and 1 <= int(locator.split(':')[1]) <= inputs[kind]['rows']
-                and locator not in locators and locator.count(':') == 1, 'invalid or duplicate reference locator')
+        prefix, separator, ordinal = locator.partition(':') if isinstance(locator, str) else ('', '', '')
+        require(prefix == kind and separator and ordinal.isascii() and ordinal.isdigit() and
+                not ordinal.startswith('0') and 1 <= int(ordinal) <= inputs[kind]['rows'] and
+                locator not in locators, 'invalid or duplicate reference locator')
         locators.add(locator)
     rows = ledger['rows']
     require(isinstance(rows, list) and len(rows) == inputs['single']['rows'] and len(rows) > 0, 'invalid source row count')
@@ -186,9 +199,7 @@ def validate_row(row, references):
     require(row['tier'] == TIER and row['input'] == 'single', 'mixed source evidence tier')
     require(all(text(row[name]) for name in ('competition', 'source_competition', 'season', 'upstream_provider',
                                            'source_url')) and valid_hash(row['source_csv_sha256']), 'missing row provenance')
-    url = urlsplit(row['source_url'])
-    require(url.scheme == 'https' and bool(url.hostname) and not url.username and not url.password,
-            'invalid source URL')
+    require(https_reference(row['source_url']), 'invalid source URL')
     require(row['date_precision'] == 'DATE_ONLY_END_OF_DAY' and
             audit.reconciliation.calendar_date(row['date']) is not None, 'invalid date-only evidence')
     for teams in (row['source_participants'], row['participants']):

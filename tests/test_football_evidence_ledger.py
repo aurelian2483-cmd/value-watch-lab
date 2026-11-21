@@ -132,3 +132,26 @@ class EvidenceLedgerTests(unittest.TestCase):
             (target / 'report.sha256').write_bytes(b'0' * 64 + b'\n')
             with self.assertRaisesRegex(ValueError, 'expected report hash changed'):
                 evidence.build(root)
+
+    def test_reference_locators_cannot_alias_the_same_physical_row(self):
+        artifact = copy.deepcopy(self.ledger)
+        first, second = [ref for ref in artifact['references'].values() if ref['input'] == 'expanded'][:2]
+        ordinal = first['locator'].split(':')[1]
+        second['locator'] = 'expanded:0' + ordinal
+        with self.assertRaisesRegex(ValueError, 'invalid or duplicate reference locator'):
+            evidence.validate(artifact)
+
+    def test_table_driven_adversarial_artifacts_fail_closed(self):
+        for field, value, error in (
+            ('publication_gate', 'OPEN', 'invalid safety gates'),
+            ('verified_coverage_gained', True, 'invalid safety gates'),
+            ('verified_coverage_gained', 1, 'invalid safety gates'),
+            ('rules_sha256', None, 'missing rule or manifest provenance'),
+        ):
+            with self.subTest(field=field, value=value), self.assertRaisesRegex(ValueError, error):
+                evidence.validate({**self.ledger, field: value})
+        for url in ('https://example.invalid:\t443/results', 'https://@example.invalid/result',
+                    'https://example.invalid:70000/result', 'https://example.invalid\\result',
+                    'https://example.invalid/result#'):
+            with self.subTest(url=url), self.assertRaisesRegex(ValueError, 'invalid source URL'):
+                evidence.validate_row({**self.ledger['rows'][0], 'source_url': url}, self.ledger['references'])

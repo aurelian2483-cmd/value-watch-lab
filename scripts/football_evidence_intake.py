@@ -7,7 +7,6 @@ import json
 from pathlib import Path
 import re
 import sys
-from urllib.parse import urlsplit
 
 if __package__:
     from . import football_evidence_ledger as ledger
@@ -90,14 +89,7 @@ def source(value):
     reference = value['reference']
     if value['kind'] == 'permitted_receipt_reference':
         return token(reference)  # Opaque handle, never opened as a path.
-    if value['kind'] != 'https_url' or not text(reference) or any(char.isspace() for char in reference):
-        return False
-    try:
-        url = urlsplit(reference)
-        return (url.scheme == 'https' and bool(url.hostname) and url.username is None and
-                url.password is None and not url.fragment)
-    except ValueError:
-        return False
+    return value['kind'] == 'https_url' and text(reference) and ledger.https_reference(reference)
 
 
 def licence(value):
