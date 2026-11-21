@@ -64,3 +64,8 @@ structure cannot override the pinned regeneration check. Ledger v1 prohibits
 all verification dispositions because this evidence tranche has no new
 fixture-level independent evidence. A future review would need a separately
 designed schema and policy update before accepting such evidence.
+
+The clean-checkout review with `core.autocrlf=true` also exposed an existing
+catalogue SHA-256 failure when Git converted archived bytes to CRLF. Exact-byte
+attributes now cover the pinned catalogue and the 76 Sky 81 replay blobs.
+The hash checks and archive contents are unchanged.
