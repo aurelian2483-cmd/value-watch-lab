@@ -221,8 +221,12 @@ async function publishedFixtureEvidence(browser,base){
     const sample=joined.find(item=>item.models.length)||joined.find(item=>item.unverified.length);
     if(!sample)continue;
     await page.goto(base+'/?'+new URLSearchParams({fsport:sport,fq:sample.row.name.slice(0,65)}));
-    const card=page.locator('#pro-featured-rows tr').filter({hasText:sample.row.name});
-    await card.locator('details > summary').first().tap();
+    const fixtureRow=page.locator('#pro-featured-rows .pro-feature-event').filter({hasText:sample.row.name});
+    const disclosure=fixtureRow.locator('.pro-fixture-evidence-toggle');
+    await disclosure.tap();
+    assert.equal(await disclosure.getAttribute('aria-expanded'),'true');
+    const card=page.locator('#'+await disclosure.getAttribute('aria-controls'));
+    assert.equal(await card.locator('td').getAttribute('colspan'),'4');
     const model=sample.models[0]||sample.unverified[0];
     await card.getByText(model.name,{exact:false}).first().waitFor();
     assert.equal(await card.getByText(/fair odds/).count()>0,Boolean(sample.models.length));
@@ -390,7 +394,7 @@ async function exactCrossSport(page, base, width) {
   }
   for (const sport of ['racing','tennis','nfl']) {
     await page.locator('#pro-feature-sport').selectOption(sport);
-    const link=page.locator('#pro-featured-rows a').first();
+    const link=page.locator('#pro-featured-rows .pro-feature-event a').first();
     await link.waitFor();
     const name=await link.innerText();
     await page.locator('#pro-feature-query').fill(name.slice(0,25));
@@ -456,7 +460,7 @@ async function repositoryFixtureLinks(page,base,width) {
     const expected = upcoming.slice(0,6).filter(row => row.startMs > +asOf).map(sources.detailKey).filter(Boolean);
     await page.goto(base+'/?fsport='+sport);
     await page.waitForFunction(() => !document.querySelector('#pro-featured-status').textContent.startsWith('Checking'));
-    const links = await page.locator('#pro-featured-rows a').evaluateAll(rows => rows.map(a => a.href));
+    const links = await page.locator('#pro-featured-rows .pro-feature-event a').evaluateAll(rows => rows.map(a => a.href));
     assert.deepEqual(links.map(href => new URL(href).searchParams.get('event')),expected,
       sport+' links must match the exact fixture evidence on the first page');
     if (links.length) {
@@ -549,7 +553,7 @@ async function repositoryFixtureLinks(page,base,width) {
           await overviewStates(page);
         }
         assert.match(await page.locator('#pro-feature-link-guide').textContent(),/Use the sport lanes/);
-        assert.equal(await page.locator('#pro-featured-rows a').count(),0);
+        assert.equal(await page.locator('#pro-featured-rows .pro-feature-event a').count(),0);
         await screenshot(page, 'research-lanes-' + width, '.pro-quick-filters');
         await page.locator('.pro-quick-filters [data-pro-sport="rugby"]').click();
         await page.getByRole('heading', {name:'Rugby evidence and workflow'}).waitFor();

@@ -175,7 +175,7 @@ function manualPrice(panel,item,line){
  });
  line(wrapper,'Saved in this browser. Manual observations cannot enter EV or qualification.');
 }
-function evidenceCell(tr,item){
+function evidenceCell(tr,item,index){
  const cell=document.createElement('td');
  tr.append(cell);
  const core=window.FootballMatchEvidence;
@@ -184,14 +184,26 @@ function evidenceCell(tr,item){
   const p=document.createElement('p');p.textContent=text;parent.append(p);
  };
  const pct=p=>(p*100).toFixed(1)+'%';
- if(!evidence.models.length&&!evidence.unverified.length&&!evidence.quotes.length){
-  line(cell,evidence.reason);
-  manualPrice(cell,item,line);return;
+ const hasEvidence=evidence.models.length||evidence.unverified.length||evidence.quotes.length;
+ const compact=document.documentElement.classList.contains('visual-preview');
+ if(!hasEvidence&&(compact||!(item.fixtureKey||Sources.detailKey(item)))){
+  line(cell,evidence.reason);return null;
  }
- const panel=document.createElement('details'), summary=document.createElement('summary');
- summary.textContent=evidence.models.length?'Experimental model · '+(item.sport==='racing'?evidence.models[0].outcomes.length+' runners':evidence.models[0].outcomes.map(o=>pct(o.probability)).join(' / ')):
-  evidence.quotes.length?'Recorded market prices':'Unverified experimental estimate';
- panel.append(summary);cell.append(panel);
+ const detailRow=document.createElement('tr'),panel=document.createElement('td');
+ detailRow.className='pro-fixture-evidence';detailRow.hidden=true;
+ detailRow.id='pro-fixture-evidence-'+index;
+ panel.colSpan=4;detailRow.append(panel);
+ const toggle=document.createElement('button');toggle.type='button';
+ toggle.className='pro-fixture-evidence-toggle';
+ toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls',detailRow.id);
+ toggle.textContent=evidence.models.length?'Experimental model · '+(item.sport==='racing'?evidence.models[0].outcomes.length+' runners':evidence.models[0].outcomes.map(o=>pct(o.probability)).join(' / ')):
+  evidence.quotes.length?'Recorded market prices':evidence.unverified.length?'Unverified experimental estimate':'Evidence unavailable';
+ toggle.addEventListener('click',()=>{
+  detailRow.hidden=!detailRow.hidden;
+  toggle.setAttribute('aria-expanded',String(!detailRow.hidden));
+ });
+ cell.append(toggle);
+ if(!evidence.models.length)line(panel,evidence.reason);
  line(panel,'Models UNVALIDATED · Publication BLOCKED · Fixture cutoff '+item.startUTC);
  for(const model of [...evidence.models,...evidence.unverified]){
   line(panel,model.name+' · '+model.market+' · observed '+model.observed);
@@ -215,6 +227,7 @@ function evidenceCell(tr,item){
     line(panel,comparison.model+' · research EV '+pct(comparison.values[side]));
   }
  }
+ return detailRow;
 }
 async function optionalEvidence(path){
  try{
@@ -230,7 +243,7 @@ function renderFeatured(){
  const visible=visibleFeatured(),pages=Math.ceil(visible.length/FEATURE_PAGE_SIZE);
  page=Math.max(0,Math.min(page,Math.max(0,pages-1)));
  body.replaceChildren();
- for(const item of visible.slice(page*FEATURE_PAGE_SIZE,(page+1)*FEATURE_PAGE_SIZE)){
+ for(const [index,item] of visible.slice(page*FEATURE_PAGE_SIZE,(page+1)*FEATURE_PAGE_SIZE).entries()){
   const tr=document.createElement('tr');tr.className='pro-feature-event';
   const label={football:'⚽ Football',racing:'♞ Horse racing',tennis:'🎾 Tennis',nfl:'🏈 NFL',darts:'🎯 Darts',rugby:'🏉 Rugby'}[item.sport]||item.sport;
   const when=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(item.startMs));
@@ -248,8 +261,9 @@ function renderFeatured(){
   }else fixture.textContent=item.name;
   tr.append(fixture);
   cell(tr,when);
-  evidenceCell(tr,item);
+  const detailRow=evidenceCell(tr,item,index);
   body.append(tr);
+  if(detailRow)body.append(detailRow);
  }
  if(!visible.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=4;td.textContent=featured.length?'No timed events match these filters.':'No future events from the currently usable source feeds.';tr.append(td);body.append(tr)}
  if(counter)counter.textContent=pages?'Page '+(page+1)+' of '+pages+' · '+visible.length+' events':'No events';
