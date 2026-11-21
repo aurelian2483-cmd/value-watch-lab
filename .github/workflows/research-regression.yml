@@ -25,11 +25,20 @@ jobs:
           for script in paper-lab/*.js; do node --check "$script"; done
       - name: Historical, collector and model safeguards
         run: python -m unittest discover -s tests
-      - name: Regenerate pinned Phase 10 provenance report
-        if: github.head_ref == 'codex/phase10-provenance-system'
+      - name: Provision pinned Value Watch archive
+        if: github.head_ref == 'codex/phase11-evidence-operations' || github.ref_name == 'codex/phase11-evidence-operations'
+        run: git fetch --no-tags --depth=1 origin 0ab96a96fd66608d931c4109392ee29fe2ba3650
+      - name: Regenerate pinned provenance and ledger offline
+        if: github.head_ref == 'codex/phase11-evidence-operations' || github.ref_name == 'codex/phase11-evidence-operations'
         run: |
-          git fetch --no-tags --depth=1 origin 0ab96a96fd66608d931c4109392ee29fe2ba3650
           python scripts/audit_football_provenance.py --check
+          python scripts/football_evidence_ledger.py check
+          python scripts/football_evidence_intake.py research/football-result-provenance/intake.empty.json
+      - name: Repeat ledger regeneration with a different hash seed
+        if: github.head_ref == 'codex/phase11-evidence-operations' || github.ref_name == 'codex/phase11-evidence-operations'
+        env:
+          PYTHONHASHSEED: '97'
+        run: python scripts/football_evidence_ledger.py check
       - name: Mathematical library and Sky 81 validation
         run: |
           set -euo pipefail
@@ -56,3 +65,35 @@ jobs:
           assert.equal(replay.reconstructedTournamentConfigurationsScored, 0);
           console.log('PASS: catalogue preserved; 100 settings canonicalize to 81; 76 archived forecasts replay; no tournament or holdout scoring claimed.');
           EOF
+
+  provenance-portability:
+    if: github.head_ref == 'codex/phase11-evidence-operations' || github.ref_name == 'codex/phase11-evidence-operations'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            python: '3.11'
+          - os: windows-latest
+            python: '3.12'
+          - os: macos-latest
+            python: '3.12'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Provision pinned Value Watch archive
+        run: git fetch --no-tags --depth=1 origin 0ab96a96fd66608d931c4109392ee29fe2ba3650
+      - name: Football evidence tests
+        run: python -m unittest discover -s tests -p "test_football*.py"
+      - name: Verified-results pilot tests
+        run: python -m unittest discover -s tests -p "test_verified_results_pilot.py"
+      - name: Rebuild Phase 10 report offline
+        run: python scripts/audit_football_provenance.py --check
+      - name: Rebuild evidence ledger and compare offline
+        run: python scripts/football_evidence_ledger.py check
+      - name: Validate empty fixture receipt intake offline
+        run: python scripts/football_evidence_intake.py research/football-result-provenance/intake.empty.json
