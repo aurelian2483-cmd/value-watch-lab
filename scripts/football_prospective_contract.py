@@ -159,3 +159,41 @@ def records(document, kind, validator, *, enforce_unique=False):
         except (ValueError, TypeError, KeyError) as error:
             raise ValueError(f'{kind} record {index}: {error}') from error
     return document['records']
+
+
+def outcome(row):
+    fields(row, ('receipt_id', 'content_sha256', 'origin', 'event', 'provider', 'acquisition_lineage',
+                 'status', 'settlement_scope', 'score', 'observed_at', 'retrieved_at', 'provenance'), 'outcome')
+    require(intake.token(row['receipt_id']) and row['origin'] in ('prospective', 'synthetic'),
+            'invalid outcome receipt ID or origin')
+    event(row['event'])
+    require(intake.token(row['provider']) and intake.token(row['acquisition_lineage']),
+            'outcome provider or acquisition lineage missing')
+    require(row['status'] in ('final', 'abandoned', 'postponed', 'void'), 'unsupported outcome status')
+    require(row['settlement_scope'] in (REGULATION, 'including_extra_time', 'including_penalties', 'unavailable'),
+            'unsupported outcome settlement scope')
+    observed, retrieved = map(instant, (row['observed_at'], row['retrieved_at']))
+    require(observed <= retrieved, 'outcome observed after retrieval')
+
+    def score(value):
+        require(isinstance(value, list) and len(value) == 2 and
+                all(type(goals) is int and goals >= 0 for goals in value), 'invalid ordered outcome score')
+
+    state(row['score'], 'outcome score', score)
+    if row['status'] == 'final':
+        require(observed > instant(row['event']['starts_at']) and row['score']['state'] == 'known' and
+                row['settlement_scope'] != 'unavailable', 'invalid final time, score or settlement scope')
+    provenance(row['provenance'])
+    validate_hash(row)
+
+
+def review(row):
+    fields(row, ('event', 'outcome_sha256', 'reviewed_at', 'decision', 'provenance'), 'reviewed outcome link')
+    event(row['event'])
+    require(row['decision'] == 'exact_fixture_and_independent_sources_reviewed',
+            'missing explicit reviewed fixture and acquisition decision')
+    hashes = row['outcome_sha256']
+    require(isinstance(hashes, list) and len(hashes) >= 2 and all(map(evidence.valid_hash, hashes)) and
+            len(set(hashes)) == len(hashes), 'review requires distinct exact outcome hashes')
+    instant(row['reviewed_at'])
+    provenance(row['provenance'])

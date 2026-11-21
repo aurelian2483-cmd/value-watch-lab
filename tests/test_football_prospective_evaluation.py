@@ -1,4 +1,3 @@
-import copy
 import unittest
 
 from scripts import football_prospective_contract as contract
@@ -91,3 +90,66 @@ class FrozenForecastTests(unittest.TestCase):
             contract.forecast(seal({**item, 'input_receipts': [late]}))
         with self.assertRaisesRegex(ValueError, 'forecast origin'):
             contract.forecast(seal({**item, 'origin': 'retrospective'}))
+
+
+def outcome(index=1, **changes):
+    receipt = {
+        'receipt_id': f'synthetic-receipt-{index}', 'origin': 'synthetic',
+        'event': fixture(f'provider-{index}', f'provider-fixture-{index}'),
+        'provider': f'provider-{index}', 'acquisition_lineage': f'direct-{index}',
+        'status': 'final', 'settlement_scope': 'regulation_time', 'score': known([1, 0]),
+        'observed_at': '2026-09-15T20:00:00Z', 'retrieved_at': '2026-09-15T20:01:00Z',
+        'provenance': provenance(str(index)),
+    }
+    return seal({**receipt, **changes})
+
+
+def review(*receipts):
+    return {'event': fixture(), 'outcome_sha256': [row['content_sha256'] for row in receipts],
+            'reviewed_at': '2026-09-16T00:00:00Z',
+            'decision': 'exact_fixture_and_independent_sources_reviewed', 'provenance': provenance('c')}
+
+
+class OutcomeContractTests(unittest.TestCase):
+    def assess(self, receipts, link=None):
+        from scripts.football_prospective_outcomes import OutcomeIndex
+        for receipt in receipts:
+            contract.outcome(receipt)
+        if link:
+            contract.review(link)
+        return OutcomeIndex(receipts).resolve(forecast(), link, contract.instant('2026-09-17T00:00:00Z'))
+
+    def test_exact_reviewed_receipt_set_requires_independent_claims(self):
+        a, b = outcome(), outcome(2)
+        self.assertEqual(self.assess([a, b], review(a, b)), ('outcome_reviewed', 'home'))
+        self.assertEqual(self.assess([a, b])[0], 'missing_reviewed_fixture_link')
+        self.assertEqual(self.assess([a, b, outcome(3)], review(a, b))[0], 'reviewed_receipt_set_mismatch')
+        shared = outcome(2, acquisition_lineage=a['acquisition_lineage'])
+        self.assertEqual(self.assess([a, shared], review(a, shared))[0], 'duplicate_or_shared_outcome_source')
+        duplicate_payload = outcome(2, provenance=a['provenance'])
+        self.assertEqual(self.assess([a, duplicate_payload], review(a, duplicate_payload))[0], 'duplicate_outcome_payload')
+
+    def test_status_scope_conflict_and_future_receipts(self):
+        a = outcome()
+        for status in ('abandoned', 'void', 'postponed'):
+            self.assertEqual(self.assess([outcome(status=status)])[0], f'outcome_{status}')
+        for scope in ('including_extra_time', 'including_penalties'):
+            self.assertEqual(self.assess([outcome(settlement_scope=scope)])[0], f'outcome_{scope}')
+        for other, expected in (
+            (outcome(2, status='abandoned'), 'conflicting_outcome_status'),
+            (outcome(2, settlement_scope='including_extra_time'), 'conflicting_settlement_scopes'),
+            (outcome(2, score=known([0, 0])), 'conflicting_regulation_scores'),
+            (outcome(2, retrieved_at='2026-09-18T00:00:00Z'), 'future_outcome_receipt'),
+            (a, 'duplicate_outcome_receipt'),
+        ):
+            with self.subTest(expected=expected):
+                self.assertEqual(self.assess([a, other])[0], expected)
+
+    def test_swapped_teams_and_event_id_collisions_are_unresolved(self):
+        original = fixture()
+        swapped = {**original, 'home': original['away'], 'away': original['home']}
+        self.assertEqual(self.assess([outcome(event=swapped)])[0], 'outcome_event_identity_conflict')
+        self.assertEqual(self.assess([outcome(event=original), outcome(2, event=swapped)])[0],
+                         'outcome_event_identity_conflict')
+        with self.assertRaisesRegex(ValueError, 'invalid final'):
+            contract.outcome(outcome(observed_at='2026-09-15T17:59:00Z'))
