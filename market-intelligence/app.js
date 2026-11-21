@@ -130,6 +130,10 @@ async function load() {
     const feeds = [dashboard, expanded].filter(feed => feed.status === 'fulfilled').map(feed => feed.value);
     const index = evidence.fixtureIndex(feeds);
     const result = evidence.verifyMarkets(snapshot.value, index);
+    const collection = result.collectionStatus;
+    document.getElementById('market-collection-status').textContent = collection?.state ?
+      'Collection status: ' + collection.state + '. These are archived observations, not live prices; no live bookmaker requests are made.' :
+      'Collection status is not recorded. Prices remain historical source observations.';
     const matches = result.matches.sort((a, b) => b.fixture.start - a.fixture.start);
     globalWithheldMessage = result.withheld ?
       result.withheld + ' observation(s) were withheld because fixture, source or receipt evidence did not match. Fixture-specific reasons are shown when available.' : '';
