@@ -42,6 +42,10 @@ const server = http.createServer(async (request,response) => {
       assert((await page.locator('#market-rows').innerText()).includes('Pinnacle via GoldEdge'));
       assert((await page.locator('#market-rows').innerText()).includes('Sky Bet'));
       assert((await page.locator('#market-rows').innerText()).includes('movement unavailable'));
+      await page.locator('#source-filter').selectOption('SKY_BET');
+      assert.equal(await page.locator('#market-rows tr').count(),3);
+      await page.locator('#source-filter').selectOption('');
+      assert.equal(await page.locator('#market-rows tr').count(),6);
       assert.equal(await page.locator('#market-source-details details').count(),2);
       const marketProvenance = page.locator('#market-source-details details').first();
       await marketProvenance.locator('summary').click();
