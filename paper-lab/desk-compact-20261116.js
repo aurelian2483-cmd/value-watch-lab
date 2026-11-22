@@ -266,10 +266,13 @@
       convergence:false };
   }
   function createCard(id) {
-    const article = make(null, 'article', undefined, 'event-card'); article.dataset.eventId = id;
+    const article = make(null, 'article', undefined, 'event-card desk-event-card'); article.dataset.eventId = id;
+    const time = make(article, 'time', '', 'event-time');
+    const date = make(time, 'span', '', 'desk-event-date'), clock = make(time, 'strong', '', 'desk-event-clock');
     const header = make(article, 'div', undefined, 'event-card-header');
-    const meta = make(header, 'span', '', 'event-meta'), time = make(header, 'time', '', 'event-time'), title = make(article, 'h3', '', 'event-title');
-    const status = make(article, 'span', '', 'event-status'), conditions = make(article, 'p', '', 'event-conditions');
+    const meta = make(header, 'span', '', 'event-meta'), title = make(header, 'h3', '', 'event-title');
+    const signals = make(header, 'div', undefined, 'compact-event-signals');
+    const status = make(signals, 'span', '', 'event-status'), conditions = make(article, 'p', '', 'event-conditions');
     const prediction = make(article, 'div', '', 'prediction-summary'); prediction.setAttribute('aria-live', 'polite');
     const racingDisclosure = details(article, 'Horse racing · research evidence & source audit', 'compact-evidence-disclosure');
     const racingPanel = make(racingDisclosure, 'section', undefined, 'racing-highlights'); racingPanel.setAttribute('aria-label', 'Horse racing research highlights');
@@ -296,19 +299,23 @@
     }
     evidence.addEventListener('toggle', () => { if (evidence.open && (!panel.dataset.loaded || panel.dataset.pending === 'true')) safely(() => loadStats(id, preferredStats(store.get().events.find(event => event.id === id)), panel, buttons)); else if (!evidence.open) statsRequests.get(id)?.abort(); });
     // Two primary disclosures keep all outcome cards visible while preserving original evidence widgets.
-    const researchGroup = details(article, 'Research Evidence', 'research-main-disclosure');
-    const advancedGroup = details(article, 'Advanced Analysis', 'research-main-disclosure');
-    article.insertBefore(researchGroup, tools);
-    article.insertBefore(advancedGroup, tools);
-    researchGroup.append(racingDisclosure, choiceDisclosure, evidence);
-    advancedGroup.append(seasonDisclosure, estimates, notes, matchView);
-    return { node: article, meta, time, title, status, conditions, prediction, market, racingPanel, racingDisclosure, researchGroup, advancedGroup, seasonPanel, seasonDisclosure, choiceInformation, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
+    const disclosures = make(article, 'div', undefined, 'desk-row-disclosures');
+    const researchGroup = details(disclosures, 'Research Evidence', 'research-main-disclosure');
+    const advancedGroup = details(disclosures, 'Advanced Analysis', 'research-main-disclosure');
+    researchGroup.append(conditions, explanation, racingDisclosure, choiceDisclosure, evidence, tools);
+    advancedGroup.append(prediction, seasonDisclosure, estimates, notes, matchView);
+    return { node: article, signals, meta, time, date, clock, title, status, conditions, prediction, market, racingPanel, racingDisclosure, researchGroup, advancedGroup, seasonPanel, seasonDisclosure, choiceInformation, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
   }
   function preferredStats(event) { return event?.stats?.h2h ? 'h2h' : Array.isArray(event?.stats?.recent) && event.stats.recent.length ? 'recent' : event?.stats?.rankings ? 'rankings' : 'sources'; }
   function patchCard(record, event) {
     for (const [tab, button] of record.buttons) { const available = tab === 'sources' || (tab === 'recent' ? Array.isArray(event.stats?.recent) && event.stats.recent.length > 0 : Boolean(event.stats?.[tab])); button.disabled = !available; button.title = available ? '' : 'Not supplied by the connected feed for this event'; }
     const state = store.get(), status = E.statusOf(event), selected = state.plan.slots[state.slot].legs;
-    write(record.meta, symbols[event.sport] + ' ' + event.competition); write(record.time, dateText(event.startUTC)); record.time.dateTime = event.startUTC; write(record.title, event.name);
+    write(record.meta, (symbols[event.sport] || '') + ' ' + event.competition);
+    const [date, clock] = dateText(event.startUTC).split(', ');
+    write(record.date, date);
+    write(record.clock, clock || '');
+    record.time.dateTime = event.startUTC;
+    write(record.title, event.name);
     write(record.status, status.label); record.status.className = 'event-status ' + (status.selectable ? 'is-current' : status.code === 'STARTED' ? '' : 'is-warning');
     const conditions = event.stats?.conditions; write(record.conditions, conditions ? [conditions.distance, conditions.going, conditions.raceClass && 'Class ' + conditions.raceClass].filter(Boolean).join(' · ') : event.choices[0]?.market || 'Research outcome');
     // Cross-sport v3 evidence signals: displayed independently from paper-slip selections.
@@ -445,21 +452,28 @@
     }
     const racingPicks = racingHighlights(event);
     const currentOdds = publishedOddsForEvent(event);
-    // Compact universal header keeps selection signals visible without duplicating full source research.
-    let quickSignals = record.node.querySelector('.compact-event-signals');
-    if (!quickSignals) { quickSignals = make(null, 'div', undefined, 'compact-event-signals'); record.market.before(quickSignals); }
-    quickSignals.replaceChildren();
+    record.node.dataset.sport = event.sport;
+    const marketRow = event.sport !== 'racing';
+    record.node.classList.toggle('desk-market-row', marketRow);
+    const hasModelEstimate = Boolean(event.model && event.choices.some(choice => Number.isFinite(choice.probability)));
+    const fixtureKey = event.sport === 'football' && event.league &&
+      window.FootballMatchEvidence?.fixtureKey({
+        league: event.league, home: event.participants[0]?.name, away: event.participants[1]?.name, kickoff_utc: event.startUTC
+      });
+    const comparisonModel = window.ValueWatchFootballMarketModels?.get(fixtureKey);
+    const model = comparisonModel?.cutoff > Date.now() ? comparisonModel : null;
+    const quickSignals = record.signals;
+    quickSignals.replaceChildren(record.status);
     if (event.sport === 'racing') {
       const highlights = racingPicks.map(item => item.choice.label + ' · ' + item.labels.join(' + '));
       make(quickSignals, 'span', highlights.length ? 'Experimental signals: ' + highlights.join('; ') : 'No confirmed research signal', 'compact-signal-pill');
     } else if(currentOdds) {
-      make(quickSignals,'span','Sky Bet 1X2 prices · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK','compact-signal-pill live-price-pill');
-    } else {
-      const first = E.modelLeaders(event).find(item => item.rank === 1);
-      make(quickSignals, 'span', first ? 'Unvalidated model leader: ' + (event.choices.find(choice => choice.id === first.id)?.label || 'Unavailable') : 'Model comparison unavailable', 'compact-signal-pill');
+      make(quickSignals,'span','Sky Bet · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK','compact-signal-pill live-price-pill');
     }
-    make(quickSignals, 'span', 'Research only · source prices unverified', 'compact-evidence-note');
+    if (marketRow && (model || hasModelEstimate)) make(quickSignals, 'span', 'Model unvalidated', 'compact-evidence-note');
+    if (marketRow && (currentOdds || model || hasModelEstimate)) make(quickSignals, 'span', 'EV withheld', 'compact-evidence-note');
     const review = E.footballEvidenceReview(event);
+    record.market.classList.toggle('desk-three-way',event.sport==='football'&&event.choices.length===3);
     const leaders = E.modelLeaders(event), ordered = event.sport === 'racing' ? [...leaders.map(leader => event.choices.find(choice => choice.id === leader.id)), ...event.choices.filter(choice => !leaders.some(leader => leader.id === choice.id))] : event.choices;
     const structural = JSON.stringify([status.code === 'STARTED',event.futureScheduleOnly,event.provisionalEntry, ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id), racingPicks.map(pick => pick.choice.id)]);
     if (record.structural !== structural) {
@@ -482,11 +496,19 @@
       else {
         if(event.provisionalEntry)make(record.market,'p','Provisional entries · final declarations and prices unverified.','provisional-entry-note small');
         const shown = ordered; // All participants visible for comparison across all sports.
-        const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), method = make(b, 'small', '', 'selection-methodology'), odds = make(b, 'small', '', 'selection-odds'); record.choices.set(choice.id, { element: b, modelBadge, name, price, caption, method, odds, previous: null }); };
+        const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), method = make(b, 'small', '', 'selection-methodology'), odds = make(b, 'small', '', 'selection-odds'), comparison = make(b, 'small', '', 'desk-market-comparison'); record.choices.set(choice.id, { element: b, modelBadge, name, price, caption, method, odds, comparison, previous: null }); };
         for (const choice of shown) append(record.market, choice);
         if (shown.length < event.choices.length) { const rest = details(record.market, 'Show all ' + event.choices.length + ' runners', 'runner-disclosure'); const grid = make(rest, 'div', undefined, 'market-grid'); for (const choice of ordered.slice(shown.length)) append(grid, choice); }
       }
     }
+    const emptyMarket = marketRow && record.choices.size > 0 && !currentOdds && !model && !hasModelEstimate &&
+      !event.choices.some(choice => Number.isFinite(choice.quote?.decimal) || Number.isFinite(choice.forecastPrice?.decimal));
+    record.market.classList.toggle('desk-market-empty', emptyMarket);
+    const note = record.market.querySelector('.desk-market-note');
+    if (emptyMarket && !note) record.market.prepend(make(null, 'p', 'No verified prices or model estimates', 'desk-market-note'));
+    else if (!emptyMarket) note?.remove();
+    if (marketRow && !currentOdds && !emptyMarket && record.choices.size)
+      make(quickSignals, 'span', 'No verified price', 'compact-evidence-note');
     const compactRunners = event.sport === 'racing' && record.choices.size > 0 &&
       event.choices.every(choice => !Number.isFinite(choice.probability) &&
         !Number.isFinite(choice.quote?.decimal) && !Number.isFinite(choice.forecastPrice?.decimal));
@@ -505,10 +527,20 @@
       const priced = typeof quote?.decimal === 'number', publishedForecast=typeof choice.forecastPrice?.decimal==='number';
       const estimated = event.model && typeof choice.probability === 'number';
       const contextWeight = event.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT';
-      const unavailableEstimate=!estimated&&!priced&&!publishedForecast;
-      const value = estimated ? pct(choice.probability) : hasLivePrice ? livePrice.toFixed(2) : priced ? quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'—';
+      const acceptedProbability = model?.outcomes.find(outcome => outcome.id === choice.id)?.probability;
+      const probability = acceptedProbability ?? (estimated && !contextWeight ? choice.probability : null);
+      const fair = acceptedProbability > 0 ? (1 / acceptedProbability).toFixed(2) : '';
+      const unavailableEstimate=!estimated&&!priced&&!publishedForecast&&acceptedProbability==null;
+      const value = hasLivePrice ? livePrice.toFixed(2) : acceptedProbability != null ? pct(acceptedProbability) : estimated ? pct(choice.probability) : priced ? quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'—';
       view.element.classList.toggle('is-unpriced',unavailableEstimate);
-      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : hasLivePrice ? 'SKY BET OBSERVED PRICE · MODEL DATA UNAVAILABLE' : priced ? 'SOURCE ODDS · UNVERIFIED' : publishedForecast?'PUBLISHER FORECAST · NOT BOOKMAKER ODDS':'MODEL DATA UNAVAILABLE'));
+      view.element.classList.toggle('has-matched-price',hasLivePrice);
+      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':hasLivePrice ? 'Sky Bet price' : estimated ? contextWeight ? 'Context weight' : 'Model estimate' : priced ? 'SOURCE ODDS · UNVERIFIED' : publishedForecast?'PUBLISHER FORECAST · NOT BOOKMAKER ODDS':marketRow?'':'Model unavailable'));
+      if (marketRow) {
+        const comparison = [hasLivePrice && probability != null ? pct(probability) + ' model' : '', fair ? 'Fair ' + fair : ''].filter(Boolean);
+        write(view.comparison, comparison.join(' · '));
+        view.comparison.title = comparison.length && model ? model.name + ' · UNVALIDATED' : '';
+        if (!hasLivePrice && acceptedProbability != null) write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + 'Model estimate');
+      }
       write(view.odds, hasLivePrice ? 'Sky Bet '+livePrice.toFixed(2)+' · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK · checked '+dateText(new Date(currentOdds.checked).toISOString())+' UK · EV withheld' : priced ? estimated ? 'Source odds ' + quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'No matched bookmaker price in this snapshot');
       write(view.method, event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' + (contextWeight ? ' · context weight, not win probability' : '') : 'Method: unavailable · no validated forecast');
       const leader = leaders.find(leader => leader.id === choice.id);
@@ -516,7 +548,7 @@
       view.element.dataset.evidenceGreen=String(racingPick?.gate.green==='PROVISIONAL');
       view.element.dataset.evidenceBlue=String(['VERIFIED','EXPERIMENTAL'].includes(racingPick?.gate.blue));
       view.element.dataset.evidenceYellow=String(['MULTI_USER_CONSENSUS','EXPERIMENTAL_AGREEMENT'].includes(racingPick?.gate.yellow));
-      view.modelBadge.hidden = !leader && !racingPick;
+      view.modelBadge.hidden = marketRow || (!leader && !racingPick);
       write(view.modelBadge, racingPick ? racingPick.labels.join(' + ').toUpperCase() : leader?.rank === 1 ? 'MODEL FIRST CHOICE' : 'MODEL ALTERNATIVE');
       // Explicit high-contrast styling survives disabled-button and mobile theme rules.
       view.element.classList.toggle('is-racing-highlight', Boolean(racingPick));
@@ -528,25 +560,33 @@
       view.element.style.setProperty('background-color', racingPick ? agreement ? '#433b20' : hasCommunity ? '#1c3049' : '#203b36' : '', racingPick ? 'important' : '');
       view.element.style.setProperty('color', racingPick ? '#f4ffe8' : '', racingPick ? 'important' : '');
       view.element.style.setProperty('opacity', racingPick ? '1' : '', racingPick ? 'important' : '');
-      view.name.textContent = racingPick ? '★ ' + choice.label : choice.label;
+      view.name.textContent = racingPick ? '★ ' + choice.label : event.sport === 'football' ?
+        ({ home: 'Home', draw: 'Draw', away: 'Away' }[choice.id] || choice.label) : choice.label;
       view.name.style.setProperty('color', racingPick ? agreement ? '#fef08a' : hasCommunity ? '#bfdbfe' : '#e1ffae' : '', racingPick ? 'important' : '');
-      view.modelBadge.style.setProperty('display', racingPick||leader ? 'block' : 'none', 'important');
+      view.modelBadge.style.setProperty('display', !view.modelBadge.hidden ? 'block' : 'none', 'important');
       if (racingPick) view.modelBadge.textContent = agreement ? '🟡 EXPERIMENTAL AGREEMENT · PRICE/FORECAST + SOURCE' : racingPick.labels.join(' + ').toUpperCase();
       view.modelBadge.style.setProperty('color', racingPick ? agreement ? '#fef08a' : hasCommunity ? '#bfdbfe' : '#e1ffae' : '', racingPick ? 'important' : '');
       view.element.classList.toggle('is-model-first', leader?.rank === 1); view.element.classList.toggle('is-model-alternative', leader?.rank === 2);
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
-      const metric = contextWeight ? value + ' context weight' : estimated ? value + ' model estimate' :
+      const metric = hasLivePrice ? value + ' Sky Bet observed price' : acceptedProbability != null ? value + ' model estimate' : contextWeight ? value + ' context weight' : estimated ? value + ' model estimate' :
         priced ? value + ' source odds' : publishedForecast ? value + ' publisher forecast' : 'estimate unavailable';
-      view.element.setAttribute('aria-label', choice.label + ' · ' + (leader ? leader.rank === 1 ? 'model first choice · ' : 'model alternative · ' : '') + metric + ' · ' + (status.selectable ? (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name : 'paper selection unavailable'));
-      if (priced && view.previous !== null && view.previous !== choice.quote.decimal) { view.element.classList.remove('odds-up', 'odds-down'); view.element.classList.add(choice.quote.decimal > view.previous ? 'odds-up' : 'odds-down'); }
-      view.previous = priced ? choice.quote.decimal : null;
+      view.element.setAttribute('aria-label', choice.label + ' · ' + (leader ? leader.rank === 1 ? 'model first choice · ' : 'model alternative · ' : '') + metric + (view.comparison.textContent ? ' · ' + view.comparison.textContent : '') + ' · ' + (status.selectable ? (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name : 'paper selection unavailable'));
+      const priceSource = hasLivePrice ? 'matched-sky-bet' : choice.quote?.source;
+      if (!priced || view.previousSource !== priceSource) view.element.classList.remove('odds-up', 'odds-down');
+      else if (view.previous !== null && view.previous !== quote.decimal) {
+        view.element.classList.remove('odds-up', 'odds-down');
+        view.element.classList.add(quote.decimal > view.previous ? 'odds-up' : 'odds-down');
+      }
+      view.previous = priced ? quote.decimal : null;
+      view.previousSource = priceSource;
     }
     // Preserve detailed per-choice source information in an expandable panel rather than repeating it on every card.
     record.choiceInformation.replaceChildren();
     for (const choice of event.choices) {
       const row = make(record.choiceInformation, 'div', undefined, 'compact-choice-info-row');
       make(row, 'strong', choice.label);
-      make(row, 'p', Number.isFinite(choice.quote?.decimal) ? 'Source-observed odds: ' + choice.quote.decimal.toFixed(2) + ' · unverified' : Number.isFinite(choice.forecastPrice?.decimal) ? 'Publisher forecast: ' + choice.forecastPrice.decimal.toFixed(2) + ' · not bookmaker odds' : 'No source-observed bookmaker odds', 'small');
+      const matchedPrice = currentOdds?.prices?.[choice.id];
+      make(row, 'p', Number.isFinite(matchedPrice) ? 'Sky Bet '+matchedPrice.toFixed(2)+' via The Odds API · checked '+dateText(new Date(currentOdds.checked).toISOString())+' UK · EV withheld' : Number.isFinite(choice.quote?.decimal) ? 'Source-observed odds: ' + choice.quote.decimal.toFixed(2) + ' · unverified' : Number.isFinite(choice.forecastPrice?.decimal) ? 'Publisher forecast: ' + choice.forecastPrice.decimal.toFixed(2) + ' · not bookmaker odds' : 'No source-observed bookmaker odds', 'small');
       const assessment = E.candidateAssessment(event, choice.id);
       make(row, 'p', assessment.label + ' · ' + assessment.blockers[0], 'small');
       make(row, 'p', event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' : 'Method unavailable · ' + (event.unavailableReason || 'no supported estimate'), 'small');
@@ -991,6 +1031,16 @@
     root.setAttribute('aria-busy', String(!state.snapshotState && !Object.hasOwn(discoveryOnly, state.sport)));
     if (!cards.size) root.replaceChildren(); root.querySelectorAll('.event-empty, .load-more, .fixture-events').forEach(element => element.remove());
     S.reconcile(root, visible.map(event => event.id), cards, createCard, (record, id) => patchCard(record, visible.find(event => event.id === id)));
+    root.querySelector('.desk-market-head')?.remove();
+    if (visible.length && visible.every(event => event.sport === 'football')) {
+      const heading = make(null, 'div', undefined, 'desk-market-head');
+      make(heading, 'span', 'Start (UK)');
+      make(heading, 'span', 'Fixture / competition');
+      const outcomes = make(heading, 'div', undefined, 'desk-market-head-outcomes');
+      for (const label of ['1 · Home', 'X · Draw', '2 · Away']) make(outcomes, 'span', label);
+      make(heading, 'span', 'Evidence');
+      root.prepend(heading);
+    }
     if (!state.snapshotState && !fixtureLabs[state.sport] && !Object.hasOwn(discoveryOnly, state.sport)) {
       make(root, 'p', 'Loading research schedules…', 'event-empty');
     } else if (!visible.length && state.sport === 'racing' && !isReliability) {
