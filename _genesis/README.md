@@ -1,0 +1,17 @@
+# Local Value Watch specialist bridge
+
+The first supported question is “Why did this fixture receive a PASS?” For now, pass a recorded Racing Lab race ID. This adapter reads the same `racing-research/recommendations.json` as Racing Lab → Selections & verdicts → Earlier reviewed race decisions. It copies the editorial betting verdict. It neither reruns grading nor treats a display-time assessment as a saved decision. Football assessments and other races outside this feed have no endpoint in this version. Racing remains paper only, and football betting publication remains blocked.
+
+## Genesis integration
+
+Run `node _genesis/pass-bridge.cjs` with Node 22 or later. The process binds only to IPv4 loopback. Set `VW_GENESIS_BRIDGE_PORT` to override 8766. Configure a fresh 32-byte random token encoded as unpadded URL-safe Base64 in the Genesis process. Supply only the lowercase SHA-256 hex digest of the ASCII token to the Value Watch process as `VW_GENESIS_BRIDGE_TOKEN_SHA256`. Use a separate token from Universal Intelligence. Use process-scoped configuration, since either token or digest authenticates a client. There is no browser or website configuration. Stop the process to disable the connection.
+
+Add the server-side Genesis operation `read_fixture_pass`. The request is `GET /api/v1/genesis-bridge/fixtures/racing/<race_id>/pass`, with an exact decimal race ID and no query. Use the existing `X-UI-Bridge-Action`, `X-UI-Bridge-Proof`, `request-v1` and `response-v1` signing conventions from the Genesis Universal Intelligence integration at revision `36e583ec51d9c2a14e83d22372e78cfd5b797036`. Sign the full path including the race ID. Keep the signed response verification and 24 KiB limit. Select the Value Watch port and token separately from the Universal Intelligence ones. In the Genesis payload validator, accept integer `version: 1`, a string `receipt_id`, and one of the documented statuses. For `ok`, also require the returned fixture ID to be the requested race ID and the decision code to be `PASS`. The existing UI client is unchanged and needs this separate operation before it can connect.
+
+Signed HTTP 200 results report `ok`, `fixture_not_found`, `ambiguous_fixture`, or `no_recorded_pass`. A missing, unreadable or invalid source returns HTTP 503. Treat reason fields with `status: missing` as evidence gaps. Odds statuses are `missing`, `incomplete`, `outside_capture_window`, `unverified_reference`, or `stale_reference`. Archived odds references carry their original timestamp and remain unverified. The decision archive uses the review expiry and the same five-minute pre-race cutoff displayed by the Racing Lab. `model.version` is null because the editorial feed does not attach a model version to these decisions. Nearby model references in editorial prose are not model provenance.
+
+The website does not load this directory or connect to Genesis. The underscore-prefixed directory is outside the default GitHub Pages Jekyll output. Keep it out of any future custom static export. The bridge writes no files, returns no private journals or diagnostics, and needs no network service. Run tests with `node --test _genesis/pass-bridge.test.cjs`.
+
+[Genesis bridge contract](https://github.com/aurelian2483-cmd/genesis-ai/blob/36e583ec51d9c2a14e83d22372e78cfd5b797036/SPECIALIST-BRIDGE.md)
+
+`example-response.json` uses the archived 19:30 Wolverhampton decision (race 946749). Its receipt ID is an example placeholder.
