@@ -92,3 +92,59 @@ assert.equal(sourceTime,now);assert.equal(S.stamp('bad'),null);
  assert.equal(fail.state,'UNAVAILABLE');assert.deepEqual(fail.records,[]);
  console.log('PASS: shared source read-only gates, strict ages, valid six-sport counts, schema, deduplication and partial availability');
 })().catch(e=>{console.error(e);process.exitCode=1});
+
+const matchEvidence=require('../football-match/core.js');
+const eligible={...base,schema_version:1,upcoming_fixtures:[f.upcoming_fixtures[0]]};
+const keyed=S.inspect('football',eligible,now,matchEvidence).records[0];
+assert.equal(keyed.fixtureKey,JSON.stringify(['PL','City','Forest',keyed.startUTC]));
+assert.equal(matchEvidence.fixtureIndex([eligible],now).byExact.get(keyed.fixtureKey).identity[1],'City');
+assert.equal(S.inspect('football',f,now,matchEvidence).records[0].fixtureKey,undefined);
+assert.equal(matchEvidence.fixtureKey({...f.upcoming_fixtures[0],home:'Forest'}),null);
+
+const raceRow={...racing.races[0],race_id:'12345',name:'Handicap',schedule_cross_checked:true,capture_phase:'PRE_EVENT',race_stage:'DORMANT',runner_observed_at_utc:base.generated_at_utc,
+ runner_source:'https://www.sportinglife.com/racing/racecard/12345/handicap',runner_source_sha256:'a'.repeat(64)};
+const receipt={...racing,races:[raceRow]};
+const loadedRace=S.inspect('racing',receipt,now);
+const raceKey=S.detailKey(loadedRace.records[0]);
+assert.equal(S.findDetail(loadedRace,raceKey,now).detail.id,'12345');
+assert.equal(S.findDetail(loadedRace,raceKey,now+1800000),null,'started race must not resolve');
+assert.equal(S.findDetail(S.inspect('racing',{...receipt,generated_at_utc:'2026-11-10T00:00:00Z'},now),raceKey,now),null);
+assert.equal(S.findDetail(S.inspect('racing',{...receipt,races:[{...raceRow,runner_source_sha256:'missing'}]},now),raceKey,now),null);
+assert.equal(S.findDetail(S.inspect('racing',{...receipt,races:[raceRow,{...raceRow,racecourse:'York'}]},now),raceKey,now),null);
+assert.equal(S.findDetail(S.inspect('racing',{...receipt,races:[{...raceRow,startUTC:new Date(now+1900000).toISOString()}]},now),raceKey,now),null);
+for (const [sport,id] of [['tennis','atp-1'],['nfl','nfl-1']]) {
+ const event={...other.sports[sport].events[0],id,name:'A vs B',participants:[{id:'10',name:'A'},{id:'20',name:'B'}]};
+ const fixture=events=>S.inspect('other',{...other,sports:{...other.sports,[sport]:{events}}},now);
+ const current=fixture([event]);
+ const key=S.detailKey(current.records.find(row=>row.sport===sport));
+ assert.equal(S.findDetail(current,key,now).detail.id,id);
+ const reversed={...event,participants:[...event.participants].reverse()};
+ assert.equal(S.findDetail(fixture([reversed]),key,now),null);
+ assert.equal(S.findDetail(fixture([event,reversed]),key,now),null);
+}
+assert.equal(S.detailKey(dartsFeed.records[0]),null);
+assert.equal(S.detailKey(rugbyFeed.records[0]),null);
+assert.equal(S.findDetail(S.inspect('racing',{...receipt,races:[{
+ ...raceRow,runner_observed_at_utc:new Date(now-31*60000).toISOString()
+}]},now),raceKey,now),null,'racecard receipt TTL is stricter than the overview feed TTL');
+
+// An exact current active field is required to join a separate racing vector.
+{
+ const field=[{horse_id:'1',name:'First',active_runner:true},{horse_id:'2',name:'Second',active_runner:true}];
+ const vector=field.map(({horse_id,name})=>({horse_id,name,model_probability:.5}));
+ const form={...base,model:'FORM_PERCENTILE_SOFTMAX_RESEARCH_V1',race_id:raceRow.race_id,racecourse:raceRow.racecourse,
+  race_name:raceRow.name,startUTC:raceRow.startUTC,source:raceRow.runner_source,runner_observed_at_utc:base.generated_at_utc,
+  runner_source_sha256:raceRow.runner_source_sha256,reference_only:false,schedule_cross_checked:true,
+  odds:null,expected_value:null,active_runner_count:2,runners:vector};
+ const card={...raceRow,runners:field,active_runner_count:2};
+ const joined=(rows,race=card)=>{
+  const cards=S.inspect('racing',{...base,races:[race]},now);
+  return S.racingEvidence(cards.records,cards,{...base,form_forecasts:rows},now);
+ };
+ assert.equal(joined([form]).get('12345').outcomes.length,2);
+ assert.equal(joined([form],{...card,runner_count_changed_since_discovery:true}).size,0);
+ assert.equal(joined([form],{...card,runners:[...field,{runner_status:'DOUBTFUL'}]}).size,0);
+ assert.equal(joined([form,form]).size,0);
+ assert.equal(joined([{...form,runners:[null,vector[1]]}]).size,0);
+ assert.equal(joined([{...form,runners:[{...vector[0],model_probability:1},vector[1]]}]).size,0);
+}

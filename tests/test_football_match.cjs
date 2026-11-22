@@ -207,3 +207,23 @@ const blocked = () => {throw new Error('Storage denied');};
 assert.equal(discovery.saveFavourites(new Set(['PL']),blocked),false);
 assert.equal(discovery.readFavourites(blocked).size,0);
 console.log('PASS: exact football identity, reschedules, ambiguous providers, cutoff, complete markets, reconstruction and journal compatibility');
+
+// Fixture overview uses the same exact receipt verifier and independently checks quote age.
+{
+  const source = require('../pro-sources');
+  const clock = Date.parse(stamp('18:15'));
+  const event = {sport:'football',fixtureKey:evidence.fixtureKey(fixture),startMs:Date.parse(fixture.kickoff_utc)};
+  const build = (rows, quotes, at=clock) => source.cardEvidence(event,source.footballEvidence(
+    [{...feed([fixture]),experimental_model_forecasts:rows}],{schema_version:1,records:quotes},evidence,at),evidence,at);
+  const joined = build([estimate],[{...capture,sky_bet:skyQuote}]);
+  assert.equal(joined.models.length,1);
+  assert.equal(joined.quotes[0].sourceId,'SKY_BET');
+  assert(Math.abs(joined.quotes[0].comparisons[0].values.home-(estimate.prob_home*2.1-1))<1e-12);
+  assert(Math.abs(Object.values(joined.quotes[0].metrics.proportionalNoVig).reduce((a,b)=>a+b,0)-1)<1e-12);
+  assert.equal(build([estimate],[capture],now).quotes.length,0);
+  assert.equal(build([{...estimate,cutoff_utc:null}],[capture]).quotes[0].comparisons.length,0);
+  assert.equal(build([{...estimate,prob_home:2}],[capture]).models.length,0);
+  assert.equal(build([estimate,estimate],[capture]).quotes[0].comparisons.length,0);
+  assert.equal(build([estimate],[{...capture,market:'SECOND_HALF_RESULT'}]).quotes.length,0);
+  assert.equal(build([estimate],[capture],Date.parse(stamp('20:00'))).quotes.length,0);
+}

@@ -114,7 +114,10 @@ async function calendarRecovery(browser, base) {
   await context.route(url => url.origin !== base, route => route.abort());
   for (const [sport, feed] of [['darts','darts/feed.json'],['rugby','rugby-research-data.json']]) {
     const page = await context.newPage();
-    await page.clock.install({time:new Date('2026-11-21T08:00:00Z')});
+    const snapshot = JSON.parse(await fs.readFile(path.join(root,feed),'utf8'));
+    const observedAt = Date.parse(snapshot.generated_at_utc);
+    assert(Number.isFinite(observedAt),sport+' recovery snapshot must have a capture time');
+    await page.clock.setFixedTime(new Date(observedAt+60000));
     const fail = route => route.fulfill({status:503});
     await page.route('**/' + feed,fail);
     await page.goto(base + '/?sport=' + sport);
@@ -194,13 +197,71 @@ async function discoveryFlow(browser, base) {
   await page.close();
 }
 
+async function publishedFixtureEvidence(browser,base){
+  const read=async file=>JSON.parse(await fs.readFile(path.join(root,file),'utf8'));
+  const [dashboard,expanded,racecards,horses,other,markets]=await Promise.all([
+    'research-dashboard-data.json','football-expanded-data.json','racing-research-data.json',
+    'horse-model-data.json','other-sports-data.json','paper-lab/hybrid-market-data.json'
+  ].map(read));
+  const now=Math.max(...[dashboard,expanded,racecards,horses,other].map(feed=>Date.parse(feed.generated_at_utc)))+60000;
+  const sources=require('../pro-sources'),core=require('../football-match/core');
+  const feeds=[sources.inspect('football',dashboard,now,core),sources.inspect('racing',racecards,now),sources.inspect('other',other,now)];
+  const fixtures=sources.summarize(feeds,now).upcoming;
+  const football=sources.footballEvidence([dashboard,expanded],markets,core,now);
+  const racing=sources.racingEvidence(fixtures,feeds[1],horses,now);
+  const page=await browser.newPage({viewport:{width:820,height:920},hasTouch:true});
+  await page.route(url=>url.origin!==base,route=>route.abort());
+  await page.clock.setFixedTime(new Date(now));
+  const reportCounts={};
+  for(const sport of ['football','racing','tennis','nfl']){
+    const rows=fixtures.filter(row=>row.sport===sport);
+    const joined=rows.map(row=>({row,...sources.cardEvidence(row,football,core,now,racing)}));
+    reportCounts[sport]={fixtures:rows.length,estimates:joined.filter(row=>row.models.length).length,
+      unverified:joined.filter(row=>row.unverified.length).length,currentPrices:joined.filter(row=>row.quotes.length).length};
+    const sample=joined.find(item=>item.models.length)||joined.find(item=>item.unverified.length);
+    if(!sample)continue;
+    await page.goto(base+'/?'+new URLSearchParams({fsport:sport,fq:sample.row.name.slice(0,65)}));
+    const fixtureRow=page.locator('#pro-featured-rows .pro-feature-event').filter({hasText:sample.row.name});
+    const disclosure=fixtureRow.locator('.pro-fixture-evidence-toggle');
+    await disclosure.tap();
+    assert.equal(await disclosure.getAttribute('aria-expanded'),'true');
+    const card=page.locator('#'+await disclosure.getAttribute('aria-controls'));
+    assert.equal(await card.locator('td').getAttribute('colspan'),'4');
+    const model=sample.models[0]||sample.unverified[0];
+    await card.getByText(model.name,{exact:false}).first().waitFor();
+    assert.equal(await card.getByText(/fair odds/).count()>0,Boolean(sample.models.length));
+    if(!sample.quotes.length)assert.equal(await card.getByText(/research EV/).count(),0);
+    if(sport==='nfl'){
+      await card.getByText('Record an unverified price privately').tap();
+      await card.getByLabel('Market and line').fill('Result including overtime');
+      await card.getByLabel('Outcome').fill(model.outcomes[0].name);
+      await card.getByLabel('Decimal price').fill('2.5');
+      await card.getByLabel('HTTPS source URL').fill('https://example.org/manual-qa');
+      await card.getByRole('button',{name:'Save observation now'}).tap();
+      await card.getByText(/Latest unverified observation/).waitFor();
+      await page.reload();
+      const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-private-price-observations-v1')));
+      assert.equal(saved[0].verification,'USER_RECORDED_UNVERIFIED');
+      assert.equal(saved[0].price,2.5);
+      assert.equal(await card.getByText(/research EV/).count(),0);
+    }
+  }
+  report.fixtureEvidence=reportCounts;
+  await page.close();
+}
+
 async function overviewStates(page) {
+  const dashboard=JSON.parse(await fs.readFile(path.join(root,'research-dashboard-data.json'),'utf8'));
+  const observedAt=Date.parse(dashboard.generated_at_utc);
+  assert(Number.isFinite(observedAt));
+  await page.clock.setFixedTime(new Date(observedAt+60000));
+  const staleAt=new Date(observedAt-48*3600000).toISOString();
   let state = 'missing';
   const handler = route => state === 'missing'
     ? route.fulfill({status:503})
     : state === 'stale'
       ? route.fulfill({json:{research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
-          generated_at_utc:'2026-10-01T00:00:00Z',upcoming_fixtures:[]}})
+          generated_at_utc:staleAt,upcoming_fixtures:[]}})
       : route.continue();
   await page.route('**/research-dashboard-data.json',handler);
   await page.reload();
@@ -218,6 +279,204 @@ async function overviewStates(page) {
   report.syntheticChecks.push('Overview distinguishes unavailable and stale football snapshots and recovers to actual snapshot');
 }
 
+async function referenceNavigation(browser, base) {
+  const page = await browser.newPage({viewport:{width:820,height:920},hasTouch:true});
+  await page.clock.setFixedTime(new Date('2026-06-15T22:15:00Z'));
+  await page.route(url => url.origin !== base, route => route.abort());
+  await page.route('**/research-dashboard-data.json', route => route.fulfill({json:{
+    research_only:true, model_validation:'UNVALIDATED', publication_gate:'BLOCKED',
+    schema_version:1, generated_at_utc:'2026-06-15T22:00:00Z',
+    upcoming_fixtures:[
+      {fixture_id:'synthetic-today',espn_event_id:'1234',home:'Synthetic Today',away:'Visitors',kickoff_utc:'2026-06-15T22:30:00Z'},
+      {fixture_id:'synthetic-tomorrow',home:'Synthetic Tomorrow',away:'Visitors',kickoff_utc:'2026-06-15T23:30:00Z'}
+    ]
+  }}));
+  await page.goto(base + '/');
+  const table = page.locator('#pro-featured-rows');
+  const range = page.getByLabel('Fixture date (UK)');
+  await table.getByText(/Synthetic Today/).waitFor();
+  const sport = page.getByRole('group',{name:'Upcoming fixture filters'}).getByLabel('Sport',{exact:true});
+  const query = page.getByLabel('Find a fixture');
+  await sport.selectOption('racing');
+  assert.equal(await table.getByText(/Synthetic Today/).count(),0);
+  await sport.selectOption('football');
+  await query.fill('  TOMORROW  ');
+  await table.getByText(/Synthetic Tomorrow/).waitFor();
+  assert.equal(await table.getByText(/Synthetic Today/).count(),0);
+  await page.locator('#pro-feature-refresh').click();
+  await page.waitForFunction(() => !document.getElementById('pro-feature-refresh').disabled);
+  assert.equal(await sport.inputValue(),'football');
+  assert.equal(await query.inputValue(),'  TOMORROW  ');
+  await query.fill('');
+  await table.getByRole('link',{name:'Synthetic Today vs Visitors'}).tap();
+  await page.getByRole('heading',{name:'Synthetic Today v Visitors',exact:true}).waitFor();
+  assert.equal(await page.locator('#fixture').inputValue(),'espn:1234');
+  const stale = new URL(page.url());
+  const exact = JSON.parse(stale.searchParams.get('event').slice('fixture:'.length));
+  exact[3] = '2026-06-15T22:31:00.000Z';
+  stale.searchParams.set('event','fixture:'+JSON.stringify(exact));
+  await page.goto(stale.href);
+  await page.getByText('This fixture is unavailable or its identity is ambiguous.').waitFor();
+  assert.equal(await page.locator('#event').isVisible(),false);
+  await page.goBack();
+  await page.getByRole('heading',{name:'Synthetic Today v Visitors',exact:true}).waitFor();
+  await page.clock.setFixedTime(new Date('2026-06-15T22:30:00Z'));
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));
+  await page.getByText('This fixture is unavailable or its identity is ambiguous.').waitFor();
+  assert.equal(await page.locator('#event').isVisible(),false);
+  await page.clock.setFixedTime(new Date('2026-06-15T22:15:00Z'));
+  await page.goto(base + '/');
+  await table.getByText(/Synthetic Today/).waitFor();
+  await range.selectOption('tomorrow');
+  await table.getByText(/Synthetic Tomorrow/).waitFor();
+  assert.equal(await table.getByText(/Synthetic Today/).count(),0);
+  await page.locator('#pro-feature-refresh').click();
+  await table.getByText(/Synthetic Tomorrow/).waitFor();
+  assert.equal(await range.inputValue(),'tomorrow');
+  await range.selectOption('today');
+  await page.reload();
+  assert.equal(await range.inputValue(),'today');
+  await table.getByText(/Synthetic Today/).waitFor();
+  assert.equal(await table.getByText(/Synthetic Tomorrow/).count(),0);
+  await page.getByRole('link',{name:/Explore selected date/}).click();
+  assert.equal(await page.locator('#date-from').inputValue(),'2026-06-15');
+  assert.equal(await page.locator('#date-to').inputValue(),'2026-06-15');
+  await page.locator('.pro-quick-filters [data-pro-sport="football"]').focus();
+  await page.keyboard.press('Enter');
+  await page.getByRole('heading',{name:'Football evidence and workflow'}).waitFor();
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'sport-evidence');
+  const nav = page.getByRole('navigation',{name:'Value Watch workspaces'});
+  await nav.getByRole('link',{name:'Market evidence'}).click();
+  assert.equal(await nav.getByRole('link',{name:'Market evidence'}).getAttribute('aria-current'),'page');
+  await nav.getByRole('link',{name:'Validation'}).click();
+  assert.equal(await nav.getByRole('link',{name:'Validation'}).getAttribute('aria-current'),'page');
+  await nav.getByRole('link',{name:'Research desk'}).click();
+  await nav.getByText('More',{exact:true}).click();
+  await nav.getByRole('link',{name:'Compact preview'}).click();
+  await page.locator('html.visual-preview').waitFor({state:'attached'});
+  assert.equal(await range.isVisible(),false);
+  report.syntheticChecks.push('UK date, sport and name filters, exact touch fixture handoff, changed kickoff withheld, refresh retention, keyboard focus and compact fallback');
+  await page.close();
+}
+
+async function exactCrossSport(page, base, width) {
+  const now = new Date('2026-11-21T13:55:00Z');
+  const startUTC = '2026-11-21T17:00:00Z';
+  const guard = {schema_version:1,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
+    generated_at_utc:'2026-11-21T13:50:00Z'};
+  const race = {race_id:'12345',racecourse:'QA racecourse',name:'Synthetic QA Handicap',startUTC,
+    schedule_cross_checked:true,capture_phase:'PRE_EVENT',race_stage:'DORMANT',
+    runner_observed_at_utc:guard.generated_at_utc,runner_source_sha256:'a'.repeat(64),
+    runner_source:'https://www.sportinglife.com/racing/racecard/12345/qa-handicap'};
+  function exactSample(sport,id) {
+    const event = otherEvent(sport,id,startUTC);
+    const participants = event.participants.map((p,i) => ({...p,id:String(i+1)}));
+    return {...event,participants,forecast:null};
+  }
+  const other = {...guard,sports:{
+    tennis:{events:[exactSample('tennis','atp-12345')]},
+    nfl:{events:[exactSample('nfl','nfl-12345')]}
+  }};
+  const raceRoute = route => route.fulfill({json:{...guard,races:[race]}});
+  const otherRoute = route => route.fulfill({json:other});
+  await page.route('**/racing-research-data.json',raceRoute);
+  await page.route('**/other-sports-data.json',otherRoute);
+  await page.clock.setFixedTime(now);
+  await page.goto(base + '/');
+  for (const sport of sports) {
+    const choice = page.locator('.pro-quick-filters [data-pro-sport="'+sport+'"]');
+    if (width === 1440) { await choice.focus(); await page.keyboard.press('Enter'); }
+    else await choice.tap();
+    assert.equal(await page.locator('#sport').inputValue(),sport);
+    assert.equal(await page.evaluate(()=>document.activeElement.id),'sport-evidence');
+    if (['darts','rugby',...blocked].includes(sport))
+      assert.match(await page.locator('#sport-evidence').textContent(),/Exact fixture .*unavailable/);
+  }
+  for (const sport of ['racing','tennis','nfl']) {
+    await page.locator('#pro-feature-sport').selectOption(sport);
+    const link=page.locator('#pro-featured-rows .pro-feature-event a').first();
+    await link.waitFor();
+    const name=await link.innerText();
+    const query=name.slice(0,25);
+    await page.locator('#pro-feature-query').fill(query);
+    await page.waitForURL(url=>url.searchParams.get('fq')===query);
+    await page.reload();
+    await page.waitForFunction(expected => document.getElementById('pro-feature-query').value===expected,query);
+    assert.equal(await page.locator('#pro-feature-sport').inputValue(),sport);
+    assert.equal(await page.locator('#pro-feature-query').inputValue(),name.slice(0,25));
+    if(width===1440){await link.focus();await page.keyboard.press('Enter');}
+    else await link.tap();
+    await page.getByRole('heading',{name,exact:true}).waitFor();
+    await page.locator('#evidence').waitFor();
+    const good=new URL(page.url());
+    const tuple=JSON.parse(good.searchParams.get('event'));
+    tuple[4]='2026-11-22T11:22:00.000Z';
+    const mismatch=new URL(good);
+    mismatch.searchParams.set('event',JSON.stringify(tuple));
+    await page.goto(mismatch.href);
+    await page.getByText(/This fixture is unavailable/).waitFor();
+    assert.equal(await page.locator('#evidence').isVisible(),false);
+    await page.goBack();
+    await page.getByRole('heading',{name,exact:true}).waitFor();
+    await page.clock.setFixedTime(new Date(startUTC));
+    await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));
+    await page.getByText(/This fixture is unavailable/).waitFor();
+    assert.equal(await page.locator('#evidence').isVisible(),false);
+    await page.clock.setFixedTime(now);
+    await page.goBack();
+    await page.waitForFunction(expected => document.getElementById('pro-feature-query').value===expected,query);
+    assert.equal(await page.locator('#pro-feature-sport').inputValue(),sport);
+    assert.equal(await page.locator('#pro-feature-query').inputValue(),name.slice(0,25));
+    await page.locator('#pro-feature-query').fill('');
+  }
+  const desk = new URL(base+'/');
+  desk.search = new URLSearchParams({sport:'nfl','desk-query':'buffalo','desk-view':'all','desk-competition':'NFL · Week 11'});
+  await page.goto(desk.href);
+  await page.locator('#range-presets [data-range="tomorrow"]').click();
+  await page.reload();
+  assert.equal(await page.locator('#date-from').inputValue(),'2026-11-22');
+  assert.equal(await page.locator('#competition').inputValue(),'NFL · Week 11');
+  assert.equal(await page.locator('#search').inputValue(),'buffalo');
+  await page.locator('#sport-nav [data-sport="tennis"]').click();
+  await page.goBack();
+  assert.equal(await page.locator('#sport').inputValue(),'nfl');
+  assert.equal(await page.locator('#event-view').inputValue(),'all');
+  assert.equal(await page.locator('#search').inputValue(),'buffalo');
+  assert.equal(await page.locator('#competition').inputValue(),'NFL · Week 11');
+  assert.equal(await page.locator('#date-from').inputValue(),'2026-11-22');
+  await page.unroute('**/racing-research-data.json',raceRoute);
+  await page.unroute('**/other-sports-data.json',otherRoute);
+  report.syntheticChecks.push(width+'px nine selector handoffs, exact racing/tennis/NFL links, expired history restore, mismatch, touch or keyboard, refresh and Back');
+}
+
+async function repositoryFixtureLinks(page,base,width) {
+  const asOf = new Date();
+  await page.clock.setFixedTime(asOf);
+  const sources = require('../pro-sources.js');
+  for (const [sport, source, file] of [
+    ['racing','racing','racing-research-data.json'],
+    ['tennis','other','other-sports-data.json'],
+    ['nfl','other','other-sports-data.json']
+  ]) {
+    const data = JSON.parse(await fs.readFile(path.join(root,file),'utf8'));
+    const snapshot = sources.inspect(source,data,+asOf);
+    const upcoming = sources.summarize([snapshot],+asOf).upcoming.filter(row => row.sport === sport);
+    const expected = upcoming.slice(0,6).filter(row => row.startMs > +asOf).map(sources.detailKey).filter(Boolean);
+    await page.goto(base+'/?fsport='+sport);
+    await page.waitForFunction(() => !document.querySelector('#pro-featured-status').textContent.startsWith('Checking'));
+    const links = await page.locator('#pro-featured-rows .pro-feature-event a').evaluateAll(rows => rows.map(a => a.href));
+    assert.deepEqual(links.map(href => new URL(href).searchParams.get('event')),expected,
+      sport+' links must match the exact fixture evidence on the first page');
+    if (links.length) {
+      await page.goto(links[0]);
+      await page.locator('#evidence').waitFor();
+      await screenshot(page,sport+'-exact-'+width);
+    }
+    report.repositoryFixtureLinks ??= [];
+    report.repositoryFixtureLinks.push({sport,width,visibleExactLinks:links.length,verifiedOnFirstPage:expected.length});
+  }
+}
+
 (async () => {
   await fs.mkdir(output, {recursive:true});
   await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
@@ -225,12 +484,14 @@ async function overviewStates(page) {
   const browser = await chromium.launch({headless:true});
   try {
     if (!compact) {
+      await publishedFixtureEvidence(browser,base);
       await researchFlow(browser,base);
       await calendarRecovery(browser,base);
       await discoveryFlow(browser,base);
+      await referenceNavigation(browser,base);
     }
     for (const width of [1440,820,390]) {
-      const context = await browser.newContext({viewport:{width,height:920},reducedMotion:'reduce'});
+      const context = await browser.newContext({viewport:{width,height:920},hasTouch:width<1000,reducedMotion:'reduce'});
       const page = await context.newPage();
       await page.route(url => url.origin !== base, route => route.abort());
       const errors = [];
@@ -268,13 +529,16 @@ async function overviewStates(page) {
       const axe = await new AxeBuilder({page}).include('#sport-evidence').analyze();
       assert.deepEqual(axe.violations.map(v => v.id), []);
       report.accessibility.push('Sport evidence panel at ' + width + 'px: no axe violations');
-      if (!compact && width !== 820) {
+      if (!compact) {
         for (const route of routes) {
           const response = await page.goto(base + '/' + route + '/');
           assert.equal(response.status(),200);
           await page.waitForLoadState('networkidle');
           await screenshot(page,route + '-workspace-' + width);
-          if (route === 'validation-centre') {
+          if (route === 'ops-control') {
+            assert(await page.locator('.brandmark').evaluate(mark => mark.scrollHeight <= mark.clientHeight + 1));
+          }
+          if (route === 'validation-centre' && width !== 820) {
             await resultReceiptFlow(page,width);
             await providerReadinessFlow(page,width);
           }
@@ -292,6 +556,8 @@ async function overviewStates(page) {
           }));
           await overviewStates(page);
         }
+        assert.match(await page.locator('#pro-feature-link-guide').textContent(),/Use the sport lanes/);
+        assert.equal(await page.locator('#pro-featured-rows .pro-feature-event a').count(),0);
         await screenshot(page, 'research-lanes-' + width, '.pro-quick-filters');
         await page.locator('.pro-quick-filters [data-pro-sport="rugby"]').click();
         await page.getByRole('heading', {name:'Rugby evidence and workflow'}).waitFor();
@@ -307,6 +573,10 @@ async function overviewStates(page) {
         await page.keyboard.press('Enter');
         await page.getByRole('heading', {name:'Football evidence and workflow'}).waitFor();
         assert.equal(await page.evaluate(() => document.activeElement.id),'sport-evidence');
+      }
+      if (!compact) {
+        await exactCrossSport(page,base,width);
+        await repositoryFixtureLinks(page,base,width);
       }
       assert.deepEqual(errors, []);
       await context.close();

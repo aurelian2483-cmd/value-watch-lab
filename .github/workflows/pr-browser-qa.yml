@@ -3,17 +3,20 @@ on:
   push:
     branches: [codex/value-watch-development]
   pull_request:
-    branches: [copilot/evidence-research-handover, main, codex/value-watch-development, codex/all-sports-website-integration, codex/phase66-compact-preview, codex/phase67-result-evidence]
+    branches: [copilot/evidence-research-handover, main, codex/value-watch-development, codex/all-sports-website-integration, codex/phase66-compact-preview, codex/phase67-result-evidence, codex/reference-workspace-redesign, codex/reference-fixture-integration]
     paths:
       - 'index.html'
       - 'analyst/**'
       - 'football-match/**'
+      - 'fixture-detail/**'
       - 'market-intelligence/**'
       - 'pro-design.css'
       - 'visual-preview/**'
       - 'validation-centre/**'
       - 'pro-home.js'
       - 'pro-sources.js'
+      - 'reference-workspace.css'
+      - 'reference-workspace.js'
       - 'sports-watch/**'
       - 'paper-lab/**'
       - 'tests/**'
@@ -38,6 +41,7 @@ jobs:
       - name: Verify research browser interactions (desktop/mobile/racing/paper)
         run: |
           npm run test:browser
+          if test -f scripts/current_odds_browser_qa.cjs; then node scripts/current_odds_browser_qa.cjs; fi
           node tests/test_pro_design.cjs
           node scripts/pro_design_browser_qa.cjs
           node scripts/darts_browser_qa.cjs
@@ -60,7 +64,7 @@ jobs:
           node scripts/all_sports_browser_qa.cjs --compact-preview
           mv work/browser-qa/compact-preview work/browser-qa/compact-after
       - name: Verify nine research lanes in the approved compact design
-        if: github.head_ref == 'codex/phase69-free-sport-lanes'
+        if: github.head_ref == 'codex/phase69-free-sport-lanes' || github.head_ref == 'codex/reference-workspace-redesign' || github.head_ref == 'codex/reference-fixture-integration' || github.head_ref == 'codex/exact-cross-sport-navigation'
         run: node scripts/all_sports_browser_qa.cjs --compact-preview
       - name: Save QA report and screenshots
         if: always()
@@ -99,11 +103,17 @@ jobs:
             international-analysis-data.json
             international-football-data.json
             other-sports-data.json
+            racing-future-coverage.json
             racing-future-data.json
             racing-research-data.json
             racing-research/source-observations.json
             research-dashboard-data.json
             research-history.json
+            prediction-ledger.json
+            research/result-review-status.json
+            research/provider-result-observations.json
+            research/secondary-result-evidence.json
+            rugby-research-data.json
           )
           for path in "${files[@]}"; do
             git cat-file -e "FETCH_HEAD:$path"
@@ -128,6 +138,7 @@ jobs:
       - name: Test real-main snapshots and synthetic browser workflows
         run: |
           npm run test:browser
+          if test -f scripts/current_odds_browser_qa.cjs; then node scripts/current_odds_browser_qa.cjs; fi
           node scripts/football_match_browser_qa.cjs
           if test -f scripts/all_sports_browser_qa.cjs; then node scripts/all_sports_browser_qa.cjs; fi
       - name: Retain integration QA evidence

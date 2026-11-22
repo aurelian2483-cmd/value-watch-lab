@@ -1,0 +1,188 @@
+/* Value Watch workspace. Original components adapted from the reference audit. */
+:root {
+  --vw-navy: #0d1a2b;
+  --vw-card: #142438;
+  --vw-line: #344b62;
+  --vw-ink: #edf6ff;
+  --vw-accent: #a9ebd4;
+}
+.vw-workspaces {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 8px;
+  margin: 10px 0;
+  border: 1px solid var(--vw-line);
+  border-radius: 12px;
+  background: var(--vw-navy);
+  color: var(--vw-ink);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+}
+.vw-workspaces a, .vw-workspaces summary {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--vw-ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.vw-workspaces summary { cursor: pointer; }
+.vw-workspaces summary::after { content: "▾"; margin-inline-start: .4em; }
+.vw-workspaces a[aria-current="page"] {
+  background: #22443f;
+  color: var(--vw-accent);
+  border-color: #4b8d7e;
+  font-weight: 650;
+}
+.vw-workspaces a:hover, .vw-workspaces summary:hover { background: #253e54; }
+.vw-workspaces :is(a, summary):focus-visible { outline: 2px solid #a9ebd4; outline-offset: 2px; }
+.vw-workspaces details { position: relative; }
+.vw-workspaces details > div {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-end: 0;
+  display: grid;
+  z-index: 12;
+  background: var(--vw-card);
+  border: 1px solid var(--vw-line);
+  border-radius: 8px;
+  padding: 4px;
+}
+.visual-preview .app-shell > .vw-workspaces,
+.visual-preview .vw-fixture-range { display: none; }
+html:not(.visual-preview) .pro-landing .pro-topnav { display: none; }
+html:not(.visual-preview) .pro-landing .pro-steps { display: none; }
+
+html:not(.visual-preview) .pro-landing {
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+html:not(.visual-preview) .pro-hero {
+  display: block;
+  min-height: 0;
+  padding: 16px 20px;
+  background: var(--vw-card);
+  border: 1px solid var(--vw-line);
+  color: var(--vw-ink);
+}
+html:not(.visual-preview) .pro-hero :is(.pro-arena-sports, .pro-arena-lights, .pro-arena-track, .pro-hero-arena, .pro-stat) { display: none; }
+html:not(.visual-preview) .pro-hero h2 { margin-block: 4px; font-size: clamp(1.55rem, 3vw, 2.3rem); }
+html:not(.visual-preview) .pro-hero p { font-size: .9rem; }
+html:not(.visual-preview) .pro-reference-panel {
+  background: var(--vw-card);
+  border-color: var(--vw-line);
+}
+html:not(.visual-preview) .pro-reference-grid {
+  grid-template-columns: minmax(170px, .95fr) minmax(0, 3.35fr) minmax(180px, 1.1fr);
+}
+html:not(.visual-preview) .pro-quick-filters button {
+  min-height: 43px;
+  font-size: .81rem;
+}
+html:not(.visual-preview) .pro-featured-scroll tbody tr:nth-child(even) { background: #1b3046; }
+html:not(.visual-preview) .pro-featured-scroll th { background: #263e56; }
+html:not(.visual-preview) .pro-slip-grid { gap: 8px; }
+html:not(.visual-preview) .pro-slip-grid :is(.pro-slip-card, .pro-wildcard-card) {
+  background: var(--vw-card);
+  border-color: var(--vw-line);
+  min-height: 0;
+  padding: 12px;
+  box-shadow: none;
+}
+html:not(.visual-preview) .pro-slip-card > span { display: none; }
+html:not(.visual-preview) .pro-slip-grid em { font-size: .78rem; }
+html:not(.visual-preview) .pro-wildcard-card { border-inline-start: 3px solid #d7aa5a; }
+html:not(.visual-preview) .pro-featured-scroll td:nth-child(2) { font-weight: 600; }
+html:not(.visual-preview) .pro-reference-heading { flex-wrap: wrap; }
+
+.vw-fixture-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-block: 8px;
+  font-size: .82rem;
+}
+.vw-fixture-range select {
+  min-height: 40px;
+  color: var(--vw-ink);
+  background: var(--vw-navy);
+  border: 1px solid var(--vw-line);
+  border-radius: 6px;
+  padding: 5px 8px;
+}
+.vw-fixture-range select:focus-visible { outline: 2px solid var(--vw-accent); }
+
+@media (max-width: 1000px) {
+  html:not(.visual-preview) .pro-reference-grid { grid-template-columns: minmax(150px, .95fr) minmax(0, 3fr); }
+  html:not(.visual-preview) .pro-market { grid-column: 1 / -1; }
+}
+@media (max-width: 720px) {
+  html:not(.visual-preview) .pro-reference-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .vw-workspaces { gap: 3px; font-size: 12px; }
+  .vw-workspaces a, .vw-workspaces summary { min-height: 44px; padding-inline: 7px; }
+  .vw-workspaces details > div { position: static; }
+}
+@media (pointer: coarse) {
+  .vw-workspaces a, .vw-workspaces summary, .vw-fixture-range select { min-height: 44px; }
+}
+
+.app-shell > .vw-workspaces { margin-inline: clamp(10px, 1.3vw, 22px); }
+html:not(.visual-preview) .pro-reference-grid > .pro-market { align-self: start; }
+html:not(.visual-preview) .pro-hero .pro-hero-actions > a[href="./analyst/"] { display: none; }
+html:not(.visual-preview) .pro-hero .pro-eyebrow { display: none; }
+.vw-fixture-range select { width: auto; }
+.vw-market-controls { display: grid; gap: 12px; }
+.vw-market-controls > div { min-width: 0; }
+.vw-market-controls select { min-height: 44px; }
+@media (min-width: 700px) {
+  .vw-market-controls { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+}
+body:has(> .masthead) > .vw-workspaces { margin-inline: max(1rem, calc((100vw - 86rem) / 2)); }
+
+@media (max-width: 520px) {
+  html:not(.visual-preview) .pro-featured-scroll th:nth-child(2) { width: 33%; }
+  html:not(.visual-preview) .pro-featured-scroll th:last-child { width: 25%; }
+}
+
+.topbar .brandmark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.vw-fixture-range { align-items: end; gap: 8px 12px; }
+.vw-fixture-range > div { display: grid; gap: 4px; min-width: 0; }
+.vw-fixture-range > div:last-child { flex: 1 1 12rem; }
+.vw-fixture-range input {
+  width: 100%;
+  min-height: 44px;
+  color: var(--vw-ink);
+  background: var(--vw-navy);
+  border: 1px solid var(--vw-line);
+  border-radius: 6px;
+  padding: 5px 8px;
+}
+.vw-fixture-range input::placeholder { color: #a5b8c9; }
+.pro-featured-scroll td a { color: var(--vw-accent); text-decoration: underline; text-underline-offset: .2em; }
+.pro-featured-scroll td a:focus-visible, .vw-fixture-range input:focus-visible { outline: 2px solid var(--vw-accent); }
+
+.pro-featured td details { min-width: 0; overflow-wrap: anywhere; }
+.pro-featured td details summary { cursor: pointer; }
+.pro-featured td details p { margin: .35rem 0; }
+
+.pro-featured td details form label { display: block; margin: .35rem 0; }
+.pro-featured td details form input { display: block; width: 100%; min-width: 0; }
+
+.pro-featured .pro-fixture-evidence[hidden] { display: none; }
+.pro-featured .pro-fixture-evidence td { overflow-wrap: anywhere; }
+.pro-featured .pro-fixture-evidence td p { margin: .35rem 0; }
+.pro-fixture-evidence-toggle { text-align: start; min-height: 44px; max-width: 100%; overflow-wrap: anywhere; }

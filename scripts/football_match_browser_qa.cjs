@@ -124,7 +124,7 @@ const server = http.createServer(async (request,response) => {
       assert.equal(await page.locator('#competition').inputValue(),'D1');
       const search = page.getByRole('searchbox',{name:'Find a team'});
       await search.pressSequentially(original);
-      assert.equal(new URL(page.url()).searchParams.get('q'),original);
+      await page.waitForURL(url => url.searchParams.get('q') === original);
       assert.equal(await search.inputValue(),original);
       assert(Number.parseInt(await page.locator('#fixture-count').textContent(),10)>0);
       await page.goto(shared);
@@ -142,6 +142,11 @@ const server = http.createServer(async (request,response) => {
       assert(await page.getByText(/608 matches · Brier.*log loss/).first().isVisible());
       await page.getByLabel('Compare with').selectOption('0');
       await page.screenshot({path:path.join(output,'football-phase3-models-'+width+'.png'),fullPage:true});
+      // Replay the captured estimate after the event rolls out of the current schedule.
+      // The market-to-fixture journey above still uses actual repository snapshots.
+      const dashboard = JSON.parse(await fs.readFile(path.join(root,'tests/fixtures/football-cutoff-regression.json'),'utf8'));
+      const replayDashboard = route => route.fulfill({json:dashboard});
+      await page.route('**/research-dashboard-data.json',replayDashboard);
       await page.goto(base+'/football-match/?q=Manchester+City+v+Fulham');
       await page.getByRole('heading',{name:'Manchester City v Fulham',exact:true}).waitFor();
       const unverified = page.getByRole('region',{name:'UNVERIFIED EXPERIMENTAL ESTIMATES'});
@@ -165,9 +170,7 @@ const server = http.createServer(async (request,response) => {
       assert(await page.locator('#facts details[open]').getByText(/\(home\)$/).first().isVisible());
       await page.evaluate(() => scrollTo(0,0));
       await page.screenshot({path:path.join(output,'football-phase3-'+width+'.png'),fullPage:true});
-      const dashboard = JSON.parse(await fs.readFile(path.join(root,'research-dashboard-data.json'),'utf8'));
-      const baseline = dashboard.experimental_model_forecasts.find(row => row.model === 'POISSON_BASELINE_2025_26_V1' &&
-        row.home === 'Manchester City' && row.away === 'Fulham');
+      const [baseline] = dashboard.experimental_model_forecasts;
       const cutoff = '2026-11-20T15:00:00Z';
       const receipt = {url:'https://example.org/training.csv',sha256:'a'.repeat(64),observed_at_utc:cutoff};
       dashboard.experimental_model_forecasts.push(
@@ -175,16 +178,19 @@ const server = http.createServer(async (request,response) => {
         {...baseline,model:'QA receipt after cutoff',cutoff_utc:cutoff,
           source_receipts:[receipt,{...receipt,observed_at_utc:'2026-11-20T15:00:00.000001Z'}]}
       );
-      await page.route('**/research-dashboard-data.json',route => route.fulfill({json:dashboard}));
       await page.reload();
       await page.getByText(/^1 eligible model estimate ·/).waitFor();
       assert.deepEqual(await page.getByLabel('Probability model').locator('option').allTextContents(),['QA receipt at cutoff']);
       assert(await unverified.getByText('QA receipt after cutoff',{exact:true}).isVisible());
       assert(await unverified.getByText('Training source receipt 2 was observed after the explicit training cutoff.',{exact:true}).isVisible());
       await page.screenshot({path:path.join(output,'football-receipt-cutoff-'+width+'.png'),fullPage:true});
-      await page.unroute('**/research-dashboard-data.json');
-      await page.goto(base+'/football-match/?competition=UCL&q=Manchester+City+v+Napoli');
+      await page.unroute('**/research-dashboard-data.json',replayDashboard);
+      const sparse = route => route.fulfill({json:{...dashboard,experimental_model_forecasts:[],
+        upcoming_fixtures:[{league:'UCL',home:'QA Home',away:'QA Away',kickoff_utc:'2026-11-24T20:00:00Z'}]}});
+      await page.route('**/football-expanded-data.json',sparse);
+      await page.goto(base+'/football-match/?competition=UCL&q=QA+Home+v+QA+Away');
       await page.getByText('No prior results for either team were matched in the published two-source final records.',{exact:true}).waitFor();
+      await page.unroute('**/football-expanded-data.json',sparse);
       await page.route('**/football-expanded-data.json',route => route.fulfill({status:503}));
       await page.goto(shared);
       await page.getByRole('status').getByText('This fixture is unavailable or its identity is ambiguous.').waitFor();

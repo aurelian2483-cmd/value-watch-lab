@@ -18,6 +18,19 @@
   const dateText = value => Number.isFinite(Date.parse(value)) ? new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) : 'Time not supplied';
   const money = value => value === null || value === undefined ? '—' : new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(value / 100);
   const pct = value => typeof value === 'number' && Number.isFinite(value) ? (value * 100).toFixed(1) + '%' : '—';
+  function publishedOddsForEvent(event){
+    const rows=window.ValueWatchCurrentOddsForCards;
+    if(!Array.isArray(rows)||event?.sport!=='football')return null;
+    const start=Date.parse(event.startUTC),now=Date.now();
+    const normalize=value=>String(value||'').normalize('NFKD').toLocaleLowerCase('en-GB').replace(/[^a-z0-9]/g,'');
+    const [home,away]=event.participants.map(participant=>participant?.name);
+    const matches=rows.filter(row=>row&&row.sport==='football'&&row.startMs===start&&row.expires>now&&
+      normalize(row.home)===normalize(home)&&normalize(row.away)===normalize(away));
+    if(matches.length!==1)return null;
+    const quote=matches[0],prices=quote.prices;
+    if(!prices||!['home','draw','away'].every(side=>Number.isFinite(prices[side])&&prices[side]>1))return null;
+    return quote;
+  }
   const make = (parent, tag, text, className) => {
     const element = document.createElement(tag);
     if (text !== undefined) element.textContent = String(text);
@@ -71,8 +84,27 @@
      initial.plan.slots.every(slot => !slot.legs.length)){
     initial.plan=E.createPlan({from:today(),to:plusDays(today(),6)});
   }
-  const requestedSport = new URLSearchParams(location.search).get('sport');
-  const store = S.createStore({ ...initial, events: [], eventVersion: 0, snapshotState: null, slot: 0, sport: Object.hasOwn(sports, requestedSport) ? requestedSport : 'all', competition: 'all', query: '', eventView: 'upcoming', view: 'events', limit: 24, replacing: null, clockTick: 0 });
+  function urlFilters() {
+    const params = new URLSearchParams(location.search);
+    const sport = params.get('sport'), view = params.get('desk-view');
+    return {
+      sport: Object.hasOwn(sports, sport) ? sport : 'all',
+      competition: params.get('desk-competition')?.slice(0, 160) || 'all',
+      query: params.get('desk-query')?.slice(0, 120).trim().toLocaleLowerCase('en-GB') || '',
+      eventView: ['history','all'].includes(view) ? view : 'upcoming'
+    };
+  }
+  const store = S.createStore({ ...initial, ...urlFilters(), events: [], eventVersion: 0, snapshotState: null, slot: 0, view: 'events', limit: 24, replacing: null, clockTick: 0 });
+  function writeDeskFilters() {
+    const state = store.get();
+    const url = new URL(location.href);
+    for (const [key,value,fallback] of [['desk-competition',state.competition,'all'],
+      ['desk-query',state.query,''],['desk-view',state.eventView,'upcoming']]) {
+      if (value === fallback) url.searchParams.delete(key);
+      else url.searchParams.set(key,value);
+    }
+    if (url.href !== location.href) history.replaceState(history.state,'',url);
+  }
   let legacy = [];
   try { const raw = storage.getItem('value-watch-paper-lab-v3'); legacy = Object.values(raw ? JSON.parse(raw) : {}).map(plan => PaperLab.restore(JSON.stringify(plan))); }
   catch { notice('Earlier research could not be read; its original storage is untouched.'); }
@@ -412,6 +444,7 @@
       }
     }
     const racingPicks = racingHighlights(event);
+    const currentOdds = publishedOddsForEvent(event);
     // Compact universal header keeps selection signals visible without duplicating full source research.
     let quickSignals = record.node.querySelector('.compact-event-signals');
     if (!quickSignals) { quickSignals = make(null, 'div', undefined, 'compact-event-signals'); record.market.before(quickSignals); }
@@ -419,6 +452,8 @@
     if (event.sport === 'racing') {
       const highlights = racingPicks.map(item => item.choice.label + ' · ' + item.labels.join(' + '));
       make(quickSignals, 'span', highlights.length ? 'Experimental signals: ' + highlights.join('; ') : 'No confirmed research signal', 'compact-signal-pill');
+    } else if(currentOdds) {
+      make(quickSignals,'span','Sky Bet 1X2 prices · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK','compact-signal-pill live-price-pill');
     } else {
       const first = E.modelLeaders(event).find(item => item.rank === 1);
       make(quickSignals, 'span', first ? 'Unvalidated model leader: ' + (event.choices.find(choice => choice.id === first.id)?.label || 'Unavailable') : 'Model comparison unavailable', 'compact-signal-pill');
@@ -464,12 +499,17 @@
     }
     for (const choice of event.choices) {
       const view = record.choices.get(choice.id); if (!view) continue;
-      const chosen = selected.some(leg => leg.eventId === event.id && leg.choiceId === choice.id), priced = typeof choice.quote?.decimal === 'number', publishedForecast=typeof choice.forecastPrice?.decimal==='number';
+      const chosen = selected.some(leg => leg.eventId === event.id && leg.choiceId === choice.id);
+      const livePrice=currentOdds?.prices?.[choice.id],hasLivePrice=Number.isFinite(livePrice)&&livePrice>1;
+      const quote=hasLivePrice?{decimal:livePrice}:choice.quote;
+      const priced = typeof quote?.decimal === 'number', publishedForecast=typeof choice.forecastPrice?.decimal==='number';
       const estimated = event.model && typeof choice.probability === 'number';
       const contextWeight = event.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT';
-      const value = estimated ? pct(choice.probability) : priced ? choice.quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'No estimate';
-      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : priced ? 'SOURCE ODDS · UNVERIFIED' : 'NO MODEL DATA'));
-      write(view.odds, priced ? estimated ? 'Source odds ' + choice.quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'Bookmaker odds not connected');
+      const unavailableEstimate=!estimated&&!priced&&!publishedForecast;
+      const value = estimated ? pct(choice.probability) : hasLivePrice ? livePrice.toFixed(2) : priced ? quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'—';
+      view.element.classList.toggle('is-unpriced',unavailableEstimate);
+      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : hasLivePrice ? 'SKY BET OBSERVED PRICE · MODEL DATA UNAVAILABLE' : priced ? 'SOURCE ODDS · UNVERIFIED' : publishedForecast?'PUBLISHER FORECAST · NOT BOOKMAKER ODDS':'MODEL DATA UNAVAILABLE'));
+      write(view.odds, hasLivePrice ? 'Sky Bet '+livePrice.toFixed(2)+' · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK · checked '+dateText(new Date(currentOdds.checked).toISOString())+' UK · EV withheld' : priced ? estimated ? 'Source odds ' + quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'No matched bookmaker price in this snapshot');
       write(view.method, event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' + (contextWeight ? ' · context weight, not win probability' : '') : 'Method: unavailable · no validated forecast');
       const leader = leaders.find(leader => leader.id === choice.id);
       const racingPick = event.sport === 'racing' ? racingPicks.find(pick => pick.choice.id === choice.id) : null;
@@ -916,6 +956,8 @@
     for (const failure of failures) make(panel, 'p', (specs.find(spec => spec.path === failure.path)?.label || failure.kind) +
       (failure.retained ? ' refresh failed · last successful snapshot retained' : ' source unavailable'), 'small');
     make(panel, 'p', 'PASS · No qualifying opportunity established. UNVALIDATED / BLOCKED.', 'small');
+    if (['darts','rugby'].includes(sport)) make(panel, 'p', 'Exact fixture links are unavailable. Use the calendar to inspect the published schedule and its evidence.', 'small');
+    if (Object.hasOwn(discoveryOnly, sport)) make(panel, 'p', 'Exact fixture details are unavailable for this sport.', 'small');
     if (sport === 'nfl') make(panel, 'p', 'Weekly screening target: 3–5 statistical candidates when evidence supports them. The target is optional.', 'small');
     const routes = {
       football:[['Football Match Centre','football-match/'],['Market Intelligence','market-intelligence/']],
@@ -1072,10 +1114,12 @@
     });
     const fixtureCompetitions = Object.keys(fixtureLabs).filter(sport => state.sport === 'all' || state.sport === sport).flatMap(sport => matchingFixtures(loadFixtureSnapshot(sport), {...state,competition:'all'}).map(row => row.competition));
     const competitions = [...new Set([...filtered({ ...state, competition: 'all' }).map(event => event.competition), ...fixtureCompetitions])].filter(Boolean).sort(), signature = JSON.stringify(competitions);
-    if (state.competition !== 'all' && !competitions.includes(state.competition)) store.update(current => ({ ...current, competition: 'all', limit: 24 }));
-    if ($('competition').dataset.signature !== signature) {
-      $('competition').dataset.signature = signature; $('competition').replaceChildren(); const all = make($('competition'), 'option', 'All competitions'); all.value = 'all';
-      for (const name of competitions) { const option = make($('competition'), 'option', name); option.value = name; }
+    const outside = state.competition !== 'all' && !competitions.includes(state.competition);
+    if (outside) competitions.push(state.competition);
+    const optionsSignature = signature + (outside ? '|' + state.competition : '');
+    if ($('competition').dataset.signature !== optionsSignature) {
+      $('competition').dataset.signature = optionsSignature; $('competition').replaceChildren(); const all = make($('competition'), 'option', 'All competitions'); all.value = 'all';
+      for (const name of competitions) { const option = make($('competition'), 'option', outside && name === state.competition ? name + ' (outside current coverage)' : name); option.value = name; }
       write($('competition-count'), String(competitions.length));
       $('competition-nav').replaceChildren();
       button($('competition-nav'), 'All competitions', () => store.update(state => ({ ...state, competition: 'all', limit: 24 })), 'competition-button').dataset.competition = 'all';
@@ -1942,6 +1986,8 @@
   $('paper-open').addEventListener('click', openSlip); $('paper-close').addEventListener('click', closeSlip); $('paper-backdrop').addEventListener('click', closeSlip);
   document.addEventListener('keydown', event => { if (!document.body.classList.contains('paper-open')) return; if (event.key === 'Escape') closeSlip(); if (event.key === 'Tab') { const items = [...$('slip-panel').querySelectorAll('button:not([disabled]),input,select,summary,a[href]')].filter(element => element.getClientRects().length); if (event.shiftKey && document.activeElement === items[0]) { event.preventDefault(); items.at(-1)?.focus(); } else if (!event.shiftKey && document.activeElement === items.at(-1)) { event.preventDefault(); items[0]?.focus(); } } });
   $('date-from').value = initial.plan.from; $('date-to').value = initial.plan.to;
+  $('search').value = store.get().query;
+  $('event-view').value = store.get().eventView;
   document.querySelectorAll('[data-range]').forEach(element => { element.addEventListener('click', () => safely(() => preset(element.dataset.range))); const active = !restored && element.dataset.range === '7'; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
   function chooseSport(sport) {
     store.update(state => ({ ...state, sport, view: 'events', competition: 'all', limit: 24 }));
@@ -1951,6 +1997,7 @@
     if (!Object.hasOwn(sports, sport)) return;
     if (store.get().sport !== sport) {
       const url = new URL(location.href);
+      url.searchParams.delete('desk-competition');
       if (sport === 'all') url.searchParams.delete('sport');
       else url.searchParams.set('sport', sport);
       history.pushState(null, '', url);
@@ -1959,8 +2006,11 @@
   }
   document.querySelectorAll('[data-sport]').forEach(element => element.addEventListener('click', () => navigateSport(element.dataset.sport)));
   window.addEventListener('popstate', () => {
-    const sport = new URLSearchParams(location.search).get('sport');
-    chooseSport(Object.hasOwn(sports, sport) ? sport : 'all');
+    clearTimeout(searchTimer);
+    const filters = urlFilters();
+    $('search').value = filters.query;
+    $('event-view').value = filters.eventView;
+    store.update(state => ({ ...state, ...filters, view: 'events', limit: 24 }));
   });
   document.querySelectorAll('[data-view]').forEach(element => element.addEventListener('click', () => store.update(state => ({ ...state, view: element.dataset.view }))));
   document.querySelectorAll('[data-slot]').forEach(element => element.addEventListener('click', () => store.update(state => ({ ...state, slot: Number(element.dataset.slot) - 1, replacing: null }))));
@@ -1968,7 +2018,7 @@
   $('sport').addEventListener('change', event => navigateSport(event.target.value));
   $('competition').addEventListener('change', event => store.update(state => ({ ...state, competition: event.target.value, limit: 24 })));
   $('event-view').addEventListener('change', event => store.update(state => ({ ...state, eventView: event.target.value, limit: 24 })));
-  let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
+  let searchTimer; $('search').addEventListener('input', event => { clearTimeout(searchTimer); const query = event.target.value.slice(0,120).trim().toLocaleLowerCase('en-GB'); searchTimer = setTimeout(() => store.update(state => ({ ...state, query, limit: 24 })), 100); });
   $('refresh').addEventListener('click', () => safely(() => { if (!hybridEvidence?.pending) hybridEvidence = null; fixtureMarketRequest = null; fixtureSnapshots.clear(); renderFixtureCounts(store.get()); renderEvents(); return refresh(); }));
   $('find-racing')?.addEventListener('click',()=>safely(()=>{racingCandidatesRequested=true;renderRacingCandidates();$('racing-candidates')?.scrollIntoView?.({block:'nearest'});}));
   $('wildcard-build')?.addEventListener('click',()=>safely(createWeeklyWildcard));
@@ -2100,12 +2150,14 @@
     historicalStatus='seven-competition archive unavailable or stale ('+error.message+')';
     if(engineView==='reliability'){renderEvents();renderSlip();}
   });
+  store.subscribe(state => JSON.stringify([state.competition,state.query,state.eventView]), writeDeskFilters);
   store.subscribe(state => JSON.stringify([state.plan.id, state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick, state.claims]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderWildcard(); renderTracker(); }));
   store.subscribe(state => JSON.stringify([state.sport, state.plan.from, state.plan.to]), () => { if (store.get().view === 'history') safely(renderHistory); });
   store.subscribe(state => state.view, () => safely(renderView));
   store.subscribe(state => JSON.stringify([state.history, state.journal, state.claims]), () => { if (store.get().view === 'history') safely(renderHistory); });
   store.subscribe(state => state.eventVersion, () => { if (store.get().view === 'results') safely(renderResults); });
   window.addEventListener('storage', event => { if (event.key === key || event.key === null) persistence.invalidate(); });
+   window.addEventListener('valuewatch:published-card-odds',()=>safely(renderEvents()));
   let timer = null, lastRefresh = 0;
   function startClock() { if (timer === null) timer = setInterval(() => { if (!document.hidden) { store.update(state => ({ ...state, clockTick: state.clockTick + 1 })); if (navigator.onLine && Date.now() - lastRefresh >= 60000) safely(refresh); } }, 30000); }
   document.addEventListener('visibilitychange', () => { transport.setPaused(document.hidden); if (!document.hidden) safely(refresh); });

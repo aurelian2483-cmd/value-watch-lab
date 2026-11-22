@@ -8,7 +8,7 @@
   const heroHeading = document.querySelector('.pro-hero h2');
   if (heroHeading) heroHeading.textContent = 'Sports Research Desk';
 
-  toggle.textContent = 'Return to classic design';
+  toggle.textContent = 'Return to research desk';
   const classic = new URL(location.href);
   classic.searchParams.delete('view');
   toggle.href = classic.href;

@@ -22,6 +22,7 @@
   const label = event => event.identity.slice(1).join(' v ');
   const stateURL = id => {
     const url = new URL(location.href);
+    if (id !== url.searchParams.get('event')) url.searchParams.delete('overview');
     for (const [key, value] of [['event', id], ['competition', $('competition').value], ['q', $('search').value],
       ['date', $('fixture-day').value], ['status', $('match-status').value], ['favourites', $('favourites-only').checked ? '1' : '']]) {
       if (value) url.searchParams.set(key, value);
@@ -30,6 +31,8 @@
     return url;
   };
   let index = new Map();
+  let exactFixtures = new Map();
+  let overviewKeys = new Set();
   let markets = new Map();
   let feedMessage = '';
   let archiveMetrics = null;
@@ -466,7 +469,10 @@
       (!$('match-status').value || statusOf(event) === $('match-status').value) &&
       (!$('favourites-only').checked || favourites.has(event.identity[0])) &&
       label(event).toLowerCase().includes(query));
-    const event = requested ? index.get(requested) : fixtures[0];
+    const exact = !archive && requested?.startsWith('fixture:') ? requested.slice('fixture:'.length) : null;
+    const candidate = requested ? (exact === null ? index.get(requested) : exactFixtures.get(exact)) : fixtures[0];
+    const overview = params.get('overview') === '1' && exact !== null;
+    const event = overview && (!overviewKeys.has(exact) || !(candidate?.start > Date.now())) ? null : candidate;
     const outside = Boolean(event && !fixtures.includes(event));
     $('feed-status').textContent = requested && !event ? 'This fixture is unavailable or its identity is ambiguous.' : feedMessage;
     $('fixture-count').textContent = fixtures.length + ' matching fixture' + (fixtures.length === 1 ? '' : 's');
@@ -547,6 +553,11 @@
       finals = new Map(recordedFinals.map(final => [final.exact,final]));
       records = [...historical.archiveMatches(reconstructed.value),...recordedFinals];
       const snapshot = evidence.fixtureIndex(feeds, now);
+      exactFixtures = snapshot.byExact;
+      const dash = dashboard.value;
+      const stamp = evidence.instant(dash?.generated_at_utc);
+      if(now-stamp>=-300000 && now-stamp<=86400000)
+        overviewKeys = new Set(evidence.fixtureIndex([dash], now).byExact.keys());
       markets = new Map(evidence.verifyMarkets(market.value, snapshot, now).matches.map(match => [match.fixture.id, match]));
       snapshot.events.sort((a,b) => (a.start < now) - (b.start < now) || a.start - b.start);
       index = new Map(snapshot.events.map(event => [event.id, event]));
@@ -580,6 +591,13 @@
   }
   addEventListener('hashchange',markSection);
   addEventListener('popstate',markSection);
+  addEventListener('pageshow', event => {
+    if (event.persisted && new URLSearchParams(location.search).get('overview') === '1') {
+      $('event').hidden = true;
+      $('feed-status').textContent = 'Checking published fixture identity…';
+      location.reload();
+    }
+  });
   markSection();
   load().catch(() => { $('feed-status').textContent = 'Published football evidence is unavailable.'; });
 })();

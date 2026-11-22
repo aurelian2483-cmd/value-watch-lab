@@ -241,7 +241,7 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   const beforeBlocked=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
   await dailyPage.evaluate(()=>{const original=Storage.prototype.setItem;window.__restoreSave=()=>Storage.prototype.setItem=original;Storage.prototype.setItem=function(){throw new DOMException('Test storage outage','QuotaExceededError');};});
   await dailyPage.locator('#fresh-daily-slips').click();
-  await dailyPage.locator('#page-status').waitFor({state:'visible'});
+  await dailyPage.locator('#page-status').filter({hasText:'The change could not be saved.'}).waitFor();
   await dailyPage.evaluate(()=>window.__restoreSave());
   const afterBlocked=await dailyPage.evaluate(()=>JSON.parse(localStorage.getItem('value-watch-research-desk-v4')));
   assert.deepEqual(afterBlocked,beforeBlocked,'Failed save cannot replace or archive plan');

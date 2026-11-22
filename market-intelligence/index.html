@@ -8,18 +8,12 @@
   <link rel="stylesheet" href="../terminal.css?v=phase5-matrix-3">
   <script src="../football-match/core.js?v=phase5-matrix-3" defer></script>
   <script src="./app.js?v=phase5-matrix-3" defer></script>
-</head>
+<link rel="stylesheet" href="../reference-workspace.css?v=1"></head>
 <body class="market-terminal">
   <a class="terminal-skip" href="#main">Skip to market evidence</a>
   <header class="terminal-masthead">
     <a class="terminal-wordmark" href="../">Value Watch</a>
-    <nav aria-label="Research workspaces" class="terminal-links">
-      <a href="../#events-view">Events</a>
-      <a href="../analyst/">Models</a>
-      <a href="../track-record/">Track record</a>
-      <a href="./" aria-current="page">Markets</a>
-      <a href="../ops-control/">Operations</a>
-    </nav>
+    <nav class="vw-workspaces" aria-label="Value Watch workspaces"><a href="../">Research desk</a><a href="../football-match/">Match centre</a><a href="../market-intelligence/" aria-current="page">Market evidence</a><a href="../analyst/">Analysis</a><a href="../validation-centre/">Validation</a><a href="../ops-control/">Operations</a><details><summary>More</summary><div><a href="../track-record/">Evidence archive</a></div></details></nav>
   </header>
   <main id="main" class="market-main">
     <div class="market-title">
@@ -29,10 +23,10 @@
     </div>
     <section class="terminal-panel" aria-labelledby="football-market">
       <h2 id="football-market">Football · 90-minute result</h2>
-      <label for="match">Match</label>
-      <select id="match" disabled></select>
-      <label for="source-filter">Source</label>
-      <select id="source-filter" disabled><option value="">All verified sources</option></select>
+      <div class="vw-market-controls">
+        <div><label for="match">Match</label><select id="match" disabled></select></div>
+        <div><label for="source-filter">Source</label><select id="source-filter" disabled><option value="">All verified sources</option></select></div>
+      </div>
       <p id="market-status" role="status">Loading recorded markets…</p>
       <p id="market-collection-status"></p>
       <p id="model-leader"></p>

@@ -51,7 +51,7 @@ const server=http.createServer((req,res)=>{
     const displayed=await page.locator('[data-pro-count="'+sport+'"]').innerText();
     assert(/^\d+$/.test(displayed)||displayed==='—','Unavailable sport counts must not masquerade as zero');
    }
-   assert((await page.locator('#pro-featured-status').innerText()).includes('No verified bookmaker odds, EV or qualifying bets.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'),'Homepage must clearly deny verified betting value when source feeds are absent or unverified');
+   assert((await page.locator('#pro-featured-status').innerText()).includes('No qualifying bets.') || (await page.locator('#pro-featured-status').innerText()).includes('unavailable'),'Homepage must clearly deny verified betting value when source feeds are absent or unverified');
 
    assert.equal(await page.locator('.pro-darts-preview').count(),1,'Homepage must have one darts preview');
    assert.equal(await page.locator('#pro-darts-feed-status').count(),0,'Detailed coverage must not clutter homepage');
@@ -95,9 +95,9 @@ const server=http.createServer((req,res)=>{
    if(width<1020)await page.locator('#paper-close').click();
 
    assert.equal(await page.locator('.pro-arena-sport').count(),4,'Homepage hero must present four sports');
-   assert.equal(await page.locator('.pro-hero-arena').isVisible(),true);
-   assert.equal(await page.locator('.pro-topnav a[href="./analyst/"]').count(),1);
-   await page.locator('.pro-topnav [data-pro-sport="tennis"]').click();
+   assert.equal(await page.locator('.pro-hero-arena').isVisible(),false);
+   assert.equal(await page.locator('.vw-workspaces a[href="./analyst/"]').count(),1);
+   await page.locator('.pro-quick-filters [data-pro-sport="tennis"]').click();
    await page.waitForTimeout(1000);
    assert.equal(await page.locator('#sport-nav button[data-sport="tennis"]').getAttribute('aria-pressed'),'true','Pro sport nav must use existing desk filter');
    await page.locator('[data-pro-slot="2"]').click();
