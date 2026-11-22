@@ -44,7 +44,7 @@ const server=http.createServer((req,res)=>{
    await page.getByText('The recorded market feed is unavailable.', {exact:true}).waitFor();
    assert.equal(await page.locator('#market-rows tr').count(), 0);
    await page.unroute('**/hybrid-market-data.json');
-   await page.goto('http://127.0.0.1:8177/',{waitUntil:'domcontentloaded'});
+   await page.goto('http://127.0.0.1:8177/?view=overview',{waitUntil:'domcontentloaded'});
    await page.locator('.pro-landing').waitFor();
    await page.waitForFunction(()=>!document.getElementById('pro-featured-status').textContent.includes('Checking published'),{timeout:12000});
    for(const sport of ['football','racing','tennis','nfl']){
@@ -66,7 +66,7 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('#coverage-tentative').count(),1);
    assert.equal(await page.locator('#coverage-history').count(),1);
    assert((await page.locator('#coverage-verification').innerText()).includes('BLOCKED'),'Darts lab must retain verification gate');
-   await page.goto('http://127.0.0.1:8177/',{waitUntil:'domcontentloaded'});
+   await page.goto('http://127.0.0.1:8177/?view=overview',{waitUntil:'domcontentloaded'});
    assert.equal(await page.locator('[data-pro-slot]').count(),4);
    if(width<1020)await page.locator('#paper-open').click();
    await page.locator('.wildcard-current-audit > summary').click();

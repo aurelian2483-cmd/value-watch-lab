@@ -47,6 +47,7 @@
   }
   const api = Object.freeze({youtubeId,embedUrl,bySport,SPORTS,SOURCES});
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  root.ValueWatchSportsWatch = api;
   if (!root.document) return;
 
   const doc = root.document;

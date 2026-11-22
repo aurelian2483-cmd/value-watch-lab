@@ -26,12 +26,28 @@ const server = http.createServer(async (request,response) => {
   await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
   const base = 'http://127.0.0.1:'+server.address().port;
   const browser = await chromium.launch({headless:true});
+  const capture = JSON.parse(await fs.readFile(path.join(root,'tests/fixtures/football-market-replay.json'),'utf8'));
   try {
     for (const width of [1440,820,390]) {
       const context = await browser.newContext({viewport:{width,height:940},reducedMotion:'reduce'});
       const page = await context.newPage();
       const errors = [];
       page.on('pageerror',error => errors.push(error.message));
+      if (width === 1440) {
+        await page.goto(base+'/market-intelligence/');
+        const production = await page.waitForFunction(() => {
+          const status = document.querySelector('#market-status')?.textContent;
+          return document.querySelector('#market-rows tr') ? 'recorded' :
+            status === 'No source-backed pre-kickoff captures are available.' ? 'unavailable' : false;
+        });
+        assert.match(await production.jsonValue(), /^(recorded|unavailable)$/);
+      }
+      // Daily schedules can drop the historical fixture. Replay its unmodified receipts with the captured fixture identities.
+      await page.clock.setFixedTime(new Date(capture.as_of_utc));
+      const capturedFixtures = route => route.fulfill({json:capture.fixtures});
+      const capturedMarket = route => route.fulfill({json:capture.market});
+      await page.route('**/football-expanded-data.json',capturedFixtures);
+      await page.route('**/paper-lab/hybrid-market-data.json',capturedMarket);
       await page.goto(base+'/market-intelligence/');
       await page.locator('#market-rows tr').first().waitFor();
       assert.match(await page.locator('#market-collection-status').innerText(),/Collection status: RATE_LIMITED/);
@@ -143,7 +159,10 @@ const server = http.createServer(async (request,response) => {
       await page.getByLabel('Compare with').selectOption('0');
       await page.screenshot({path:path.join(output,'football-phase3-models-'+width+'.png'),fullPage:true});
       // Replay the captured estimate after the event rolls out of the current schedule.
-      // The market-to-fixture journey above still uses actual repository snapshots.
+      // The earlier journey replays dated repository market evidence using its original fixture identities.
+      await page.unroute('**/football-expanded-data.json',capturedFixtures);
+      await page.unroute('**/paper-lab/hybrid-market-data.json',capturedMarket);
+      await page.clock.setFixedTime(new Date());
       const dashboard = JSON.parse(await fs.readFile(path.join(root,'tests/fixtures/football-cutoff-regression.json'),'utf8'));
       const replayDashboard = route => route.fulfill({json:dashboard});
       await page.route('**/research-dashboard-data.json',replayDashboard);

@@ -118,15 +118,19 @@ async function calendarRecovery(browser, base) {
     const observedAt = Date.parse(snapshot.generated_at_utc);
     assert(Number.isFinite(observedAt),sport+' recovery snapshot must have a capture time');
     await page.clock.setFixedTime(new Date(observedAt+60000));
-    const fail = route => route.fulfill({status:503});
-    await page.route('**/' + feed,fail);
+    let available = false;
+    await page.route('**/' + feed, route => available
+      ? route.fulfill({json:snapshot})
+      : route.fulfill({status:503}));
     await page.goto(base + '/?sport=' + sport);
     const calendar = page.locator('#events .fixture-events');
     await calendar.getByText(/Provider feed unavailable or stale/).waitFor();
     assert.equal(await calendar.getAttribute('data-fixture-sport'),sport);
     assert.equal(await calendar.getByRole('button',{name:'Add to paper slip'}).count(),0);
-    await page.unroute('**/' + feed,fail);
+    available = true;
+    const refreshed = page.waitForResponse(response => response.url().endsWith('/' + feed) && response.ok());
     await page.locator('#refresh').click();
+    await refreshed;
     await calendar.getByText(/^Provider snapshot:/).waitFor();
     assert.equal(await calendar.getByText(/Provider feed unavailable or stale/).count(),0);
     if (sport === 'rugby') {
@@ -291,7 +295,7 @@ async function referenceNavigation(browser, base) {
       {fixture_id:'synthetic-tomorrow',home:'Synthetic Tomorrow',away:'Visitors',kickoff_utc:'2026-06-15T23:30:00Z'}
     ]
   }}));
-  await page.goto(base + '/');
+  await page.goto(base + '/?view=overview');
   const table = page.locator('#pro-featured-rows');
   const range = page.getByLabel('Fixture date (UK)');
   await table.getByText(/Synthetic Today/).waitFor();
@@ -325,7 +329,7 @@ async function referenceNavigation(browser, base) {
   await page.getByText('This fixture is unavailable or its identity is ambiguous.').waitFor();
   assert.equal(await page.locator('#event').isVisible(),false);
   await page.clock.setFixedTime(new Date('2026-06-15T22:15:00Z'));
-  await page.goto(base + '/');
+  await page.goto(base + '/?view=overview');
   await table.getByText(/Synthetic Today/).waitFor();
   await range.selectOption('tomorrow');
   await table.getByText(/Synthetic Tomorrow/).waitFor();
@@ -351,8 +355,8 @@ async function referenceNavigation(browser, base) {
   await nav.getByRole('link',{name:'Validation'}).click();
   assert.equal(await nav.getByRole('link',{name:'Validation'}).getAttribute('aria-current'),'page');
   await nav.getByRole('link',{name:'Research desk'}).click();
-  await nav.getByText('More',{exact:true}).click();
-  await nav.getByRole('link',{name:'Compact preview'}).click();
+  await page.locator('#research-pages > summary').click();
+  await page.locator('#research-pages').getByRole('link',{name:'Compact layout'}).click();
   await page.locator('html.visual-preview').waitFor({state:'attached'});
   assert.equal(await range.isVisible(),false);
   report.syntheticChecks.push('UK date, sport and name filters, exact touch fixture handoff, changed kickoff withheld, refresh retention, keyboard focus and compact fallback');
@@ -382,7 +386,7 @@ async function exactCrossSport(page, base, width) {
   await page.route('**/racing-research-data.json',raceRoute);
   await page.route('**/other-sports-data.json',otherRoute);
   await page.clock.setFixedTime(now);
-  await page.goto(base + '/');
+  await page.goto(base + '/?view=overview');
   for (const sport of sports) {
     const choice = page.locator('.pro-quick-filters [data-pro-sport="'+sport+'"]');
     if (width === 1440) { await choice.focus(); await page.keyboard.press('Enter'); }
@@ -432,6 +436,8 @@ async function exactCrossSport(page, base, width) {
   const desk = new URL(base+'/');
   desk.search = new URLSearchParams({sport:'nfl','desk-query':'buffalo','desk-view':'all','desk-competition':'NFL · Week 11'});
   await page.goto(desk.href);
+  const dateFilters=page.locator('.dashboard-filter-tools > summary');
+  if(await dateFilters.isVisible())await dateFilters.click();
   await page.locator('#range-presets [data-range="tomorrow"]').click();
   await page.reload();
   assert.equal(await page.locator('#date-from').inputValue(),'2026-11-22');

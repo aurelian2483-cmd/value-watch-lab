@@ -38,6 +38,8 @@ module.exports=async function checkRacingPaper(browser,base){
     });
     await page.goto(base+'/',{waitUntil:'networkidle'});
     await page.waitForFunction(()=>document.querySelector('#events')?.getAttribute('aria-busy')==='false');
+    const filters=page.locator('.dashboard-filter-tools > summary');
+    if(await filters.isVisible())await filters.click();
     await page.locator('[data-range=tomorrow]').click();
     if(await page.locator('#sport').isVisible())await page.selectOption('#sport','racing');
     else await page.locator('[data-sport=racing]:visible').first().click();
@@ -53,6 +55,8 @@ module.exports=async function checkRacingPaper(browser,base){
       assert.equal(await page.locator('.meeting-fixture-disclosure').count(),1);
       assert.equal(await page.locator('.racing-fixture-board').count(),0);
     }
+    const parentCoverage=page.locator('#dashboard-coverage:not([open]) > summary');
+    if(await parentCoverage.isVisible())await parentCoverage.click();
     await coverage.locator('> summary').click();
     await page.locator('.meeting-fixture-disclosure > summary').click();
     assert.equal(await page.locator('.meeting-fixture-disclosure a').count(),1);
@@ -146,6 +150,8 @@ module.exports=async function checkRacingPaper(browser,base){
     return route.fulfill({contentType:'application/json',body:JSON.stringify(document)});
   });
   await missing.goto(base+'/',{waitUntil:'networkidle'});
+  const missingFilters=missing.locator('.dashboard-filter-tools > summary');
+  if(await missingFilters.isVisible())await missingFilters.click();
   await missing.locator('[data-range=tomorrow]').click();
   if(await missing.locator('#sport').isVisible())await missing.selectOption('#sport','racing');
   else await missing.locator('[data-sport=racing]:visible').first().click();
