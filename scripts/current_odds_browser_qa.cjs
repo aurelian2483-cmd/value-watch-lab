@@ -23,7 +23,15 @@ async function main(){
   const gates={research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',schema_version:1,
    generated_at_utc:new Date(now-1000).toISOString()};
   const start=new Date(now+2*3600000).toISOString();
-  dashboard={...gates,upcoming_fixtures:[{league:'PL',home:'QA Football Home',away:'QA Football Away',kickoff_utc:start}]};
+  const fixture={league:'PL',home:'QA Football Home',away:'QA Football Away',kickoff_utc:start};
+  const emptyFixture={...fixture,home:'QA Football Unpriced'};
+  const unverifiedFixture={...fixture,home:'QA Football Unverified'};
+  const cutoff=new Date(now-60000).toISOString();
+  const forecast={...gates,...fixture,model:'QA model',odds:null,expected_value:null,
+   prob_home:0.5,prob_draw:0.25,prob_away:0.25,cutoff_utc:cutoff,
+   source_receipts:[{observed_at_utc:cutoff,url:'https://example.test/results',sha256:'b'.repeat(64)}]};
+  dashboard={...gates,upcoming_fixtures:[fixture,emptyFixture,unverifiedFixture],
+   experimental_model_forecasts:[forecast,{...forecast,...unverifiedFixture,cutoff_utc:null}]};
   expanded=null;
   const otherEvent=(id,competition,home,away,url)=>({id,competition,name:home+' vs '+away,startUTC:start,
    source:'https://site.api.espn.com/apis/site/v2/sports/'+url+'/scoreboard',
@@ -111,8 +119,8 @@ async function main(){
  const browser=await chromium.launch();
  const verified=new Set();
  try{
-  for(const width of (live?[820]:[1440,820,390])){
-   const page=await browser.newPage({viewport:{width,height:920},hasTouch:width!==1440});
+  for(const width of (live?[820]:[1440,1180,820,390])){
+   const page=await browser.newPage({viewport:{width,height:width===1180?820:width===820?1180:920},hasTouch:width!==1440});
    await page.clock.setFixedTime(new Date(now));
    await page.route(url=>url.origin!==new URL(base).origin,route=>route.abort());
    for(const sport of ['football','tennis','nfl']){
@@ -149,6 +157,48 @@ async function main(){
      }
      await featuredRow.getByText('Sky Bet · 1X2',{exact:true}).waitFor();
      await featuredRow.getByText(/Observed .*checked .*EV withheld/).waitFor();
+     if(!live){
+      const card=page.locator('#events .desk-event-card').filter({has:page.getByRole('heading',{name:item.name,exact:true})});
+      await card.locator('.live-price-pill').filter({hasText:/Sky Bet · observed/}).waitFor();
+      const headings=page.locator('#events .desk-market-head');
+      assert.equal(await headings.isVisible(),width>=1000);
+      if(width>=1000){
+       const column=await headings.locator('.desk-market-head-outcomes').boundingBox();
+       const market=await card.locator('.desk-three-way').boundingBox();
+       assert(Math.abs(column.x-market.x)<=1 && Math.abs(column.width-market.width)<=1);
+      }
+      const empty=page.locator('#events .desk-event-card').filter({hasText:'QA Football Unpriced vs QA Football Away'});
+      await empty.getByText('No verified prices or model estimates',{exact:true}).waitFor();
+      assert.equal(await empty.locator('.selection-price:visible').count(),0);
+      const unverified=page.locator('#events .desk-event-card').filter({hasText:'QA Football Unverified vs QA Football Away'});
+      await unverified.locator('[data-choice-id=home] .selection-price').filter({hasText:'50.0%'}).waitFor();
+      assert.equal(await unverified.locator('.desk-market-comparison:visible').count(),0);
+      for(const side of ['home','draw','away']){
+       const button=card.locator('button[data-choice-id="'+side+'"]');
+       const expected=matched.get(item)[0].prices[side].toFixed(2);
+       await button.getByText(expected,{exact:true}).waitFor();
+       const comparison=side==='home'?'50.0% model · Fair 2.00':'25.0% model · Fair 4.00';
+       await button.getByText(comparison,{exact:true}).waitFor();
+       assert((await button.boundingBox()).height>=44);
+      }
+      assert.equal(await card.locator('.desk-three-way').evaluate(grid=>grid.scrollWidth<=grid.clientWidth),true);
+      await card.getByText('EV withheld',{exact:true}).waitFor();
+      const disclosure=card.getByText('Research Evidence',{exact:true});
+      await disclosure.focus();
+      await page.keyboard.press('Enter');
+      assert(await disclosure.evaluate(summary=>summary.parentElement.open));
+      await page.keyboard.press('Enter');
+      if(width!==1440){
+       await page.locator('#paper-open').click();
+       await page.locator('#slip-tabs').waitFor({state:'visible'});
+       await page.keyboard.press('Escape');
+       assert.equal(await page.locator('#paper-open').getAttribute('aria-expanded'),'false');
+      }
+      if(process.env.VW_DESK_SCREENSHOTS){
+       await card.screenshot({path:path.join(process.env.VW_DESK_SCREENSHOTS,'controlled-prices-'+width+'.png')});
+      }
+     }
+
     }
     assert.equal((await page.request.get(base+'/work/current-odds.json')).status(),404);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
