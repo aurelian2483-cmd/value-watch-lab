@@ -111,8 +111,8 @@ async function main(){
  const browser=await chromium.launch();
  const verified=new Set();
  try{
-  for(const width of (live?[820]:[1440,820,390])){
-   const page=await browser.newPage({viewport:{width,height:920},hasTouch:width!==1440});
+  for(const width of (live?[820]:[1440,1180,820,390])){
+   const page=await browser.newPage({viewport:{width,height:width===1180?820:width===820?1180:920},hasTouch:width!==1440});
    await page.clock.setFixedTime(new Date(now));
    await page.route(url=>url.origin!==new URL(base).origin,route=>route.abort());
    for(const sport of ['football','tennis','nfl']){
@@ -149,6 +149,26 @@ async function main(){
      }
      await featuredRow.getByText('Sky Bet · 1X2',{exact:true}).waitFor();
      await featuredRow.getByText(/Observed .*checked .*EV withheld/).waitFor();
+     if(!live){
+      const card=page.locator('#events .desk-event-card').filter({has:page.getByRole('heading',{name:item.name,exact:true})});
+      await card.locator('.live-price-pill').filter({hasText:/Sky Bet · observed/}).waitFor();
+      for(const side of ['home','draw','away']){
+       const button=card.locator('button[data-choice-id="'+side+'"]');
+       const expected=matched.get(item)[0].prices[side].toFixed(2);
+       await button.getByText(expected,{exact:true}).waitFor();
+       assert((await button.boundingBox()).height>=44);
+      }
+      assert.equal(await card.locator('.desk-three-way').evaluate(grid=>grid.scrollWidth<=grid.clientWidth),true);
+      const disclosure=card.getByText('Research Evidence',{exact:true});
+      await disclosure.focus();
+      await page.keyboard.press('Enter');
+      assert(await disclosure.evaluate(summary=>summary.parentElement.open));
+      await page.keyboard.press('Enter');
+      if(process.env.VW_DESK_SCREENSHOTS){
+       await card.screenshot({path:path.join(process.env.VW_DESK_SCREENSHOTS,'controlled-prices-'+width+'.png')});
+      }
+     }
+
     }
     assert.equal((await page.request.get(base+'/work/current-odds.json')).status(),404);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));

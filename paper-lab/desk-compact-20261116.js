@@ -266,7 +266,7 @@
       convergence:false };
   }
   function createCard(id) {
-    const article = make(null, 'article', undefined, 'event-card'); article.dataset.eventId = id;
+    const article = make(null, 'article', undefined, 'event-card desk-event-card'); article.dataset.eventId = id;
     const header = make(article, 'div', undefined, 'event-card-header');
     const meta = make(header, 'span', '', 'event-meta'), time = make(header, 'time', '', 'event-time'), title = make(article, 'h3', '', 'event-title');
     const status = make(article, 'span', '', 'event-status'), conditions = make(article, 'p', '', 'event-conditions');
@@ -300,8 +300,8 @@
     const advancedGroup = details(article, 'Advanced Analysis', 'research-main-disclosure');
     article.insertBefore(researchGroup, tools);
     article.insertBefore(advancedGroup, tools);
-    researchGroup.append(racingDisclosure, choiceDisclosure, evidence);
-    advancedGroup.append(seasonDisclosure, estimates, notes, matchView);
+    researchGroup.append(conditions, explanation, racingDisclosure, choiceDisclosure, evidence);
+    advancedGroup.append(prediction, seasonDisclosure, estimates, notes, matchView);
     return { node: article, meta, time, title, status, conditions, prediction, market, racingPanel, racingDisclosure, researchGroup, advancedGroup, seasonPanel, seasonDisclosure, choiceInformation, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
   }
   function preferredStats(event) { return event?.stats?.h2h ? 'h2h' : Array.isArray(event?.stats?.recent) && event.stats.recent.length ? 'recent' : event?.stats?.rankings ? 'rankings' : 'sources'; }
@@ -445,21 +445,22 @@
     }
     const racingPicks = racingHighlights(event);
     const currentOdds = publishedOddsForEvent(event);
+    record.node.dataset.sport = event.sport;
     // Compact universal header keeps selection signals visible without duplicating full source research.
     let quickSignals = record.node.querySelector('.compact-event-signals');
     if (!quickSignals) { quickSignals = make(null, 'div', undefined, 'compact-event-signals'); record.market.before(quickSignals); }
-    quickSignals.replaceChildren();
+    quickSignals.replaceChildren(record.status);
     if (event.sport === 'racing') {
       const highlights = racingPicks.map(item => item.choice.label + ' · ' + item.labels.join(' + '));
       make(quickSignals, 'span', highlights.length ? 'Experimental signals: ' + highlights.join('; ') : 'No confirmed research signal', 'compact-signal-pill');
     } else if(currentOdds) {
-      make(quickSignals,'span','Sky Bet 1X2 prices · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK','compact-signal-pill live-price-pill');
+      make(quickSignals,'span','Sky Bet · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK','compact-signal-pill live-price-pill');
     } else {
-      const first = E.modelLeaders(event).find(item => item.rank === 1);
-      make(quickSignals, 'span', first ? 'Unvalidated model leader: ' + (event.choices.find(choice => choice.id === first.id)?.label || 'Unavailable') : 'Model comparison unavailable', 'compact-signal-pill');
+      make(quickSignals,'span','No verified price', 'compact-evidence-note');
     }
-    make(quickSignals, 'span', 'Research only · source prices unverified', 'compact-evidence-note');
+    if(event.model&&event.sport!=='racing')make(quickSignals,'span','Model unvalidated','compact-evidence-note');
     const review = E.footballEvidenceReview(event);
+    record.market.classList.toggle('desk-three-way',event.sport==='football'&&event.choices.length===3);
     const leaders = E.modelLeaders(event), ordered = event.sport === 'racing' ? [...leaders.map(leader => event.choices.find(choice => choice.id === leader.id)), ...event.choices.filter(choice => !leaders.some(leader => leader.id === choice.id))] : event.choices;
     const structural = JSON.stringify([status.code === 'STARTED',event.futureScheduleOnly,event.provisionalEntry, ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id), racingPicks.map(pick => pick.choice.id)]);
     if (record.structural !== structural) {
@@ -506,9 +507,10 @@
       const estimated = event.model && typeof choice.probability === 'number';
       const contextWeight = event.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT';
       const unavailableEstimate=!estimated&&!priced&&!publishedForecast;
-      const value = estimated ? pct(choice.probability) : hasLivePrice ? livePrice.toFixed(2) : priced ? quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'—';
+      const value = hasLivePrice ? livePrice.toFixed(2) : estimated ? pct(choice.probability) : priced ? quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'—';
       view.element.classList.toggle('is-unpriced',unavailableEstimate);
-      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':estimated ? contextWeight ? 'CONTEXT WEIGHT · UNVALIDATED' : 'MODEL ESTIMATE · UNVALIDATED' : hasLivePrice ? 'SKY BET OBSERVED PRICE · MODEL DATA UNAVAILABLE' : priced ? 'SOURCE ODDS · UNVERIFIED' : publishedForecast?'PUBLISHER FORECAST · NOT BOOKMAKER ODDS':'MODEL DATA UNAVAILABLE'));
+      view.element.classList.toggle('has-matched-price',hasLivePrice);
+      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':hasLivePrice ? 'Sky Bet price' : estimated ? contextWeight ? 'Context weight' : 'Model estimate' : priced ? 'SOURCE ODDS · UNVERIFIED' : publishedForecast?'PUBLISHER FORECAST · NOT BOOKMAKER ODDS':event.sport==='football'?'':'Model unavailable'));
       write(view.odds, hasLivePrice ? 'Sky Bet '+livePrice.toFixed(2)+' · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK · checked '+dateText(new Date(currentOdds.checked).toISOString())+' UK · EV withheld' : priced ? estimated ? 'Source odds ' + quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'No matched bookmaker price in this snapshot');
       write(view.method, event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' + (contextWeight ? ' · context weight, not win probability' : '') : 'Method: unavailable · no validated forecast');
       const leader = leaders.find(leader => leader.id === choice.id);
@@ -535,18 +537,25 @@
       view.modelBadge.style.setProperty('color', racingPick ? agreement ? '#fef08a' : hasCommunity ? '#bfdbfe' : '#e1ffae' : '', racingPick ? 'important' : '');
       view.element.classList.toggle('is-model-first', leader?.rank === 1); view.element.classList.toggle('is-model-alternative', leader?.rank === 2);
       view.element.classList.toggle('is-selected', chosen); view.element.setAttribute('aria-pressed', String(chosen)); view.element.disabled = !status.selectable;
-      const metric = contextWeight ? value + ' context weight' : estimated ? value + ' model estimate' :
+      const metric = hasLivePrice ? value + ' Sky Bet observed price' : contextWeight ? value + ' context weight' : estimated ? value + ' model estimate' :
         priced ? value + ' source odds' : publishedForecast ? value + ' publisher forecast' : 'estimate unavailable';
       view.element.setAttribute('aria-label', choice.label + ' · ' + (leader ? leader.rank === 1 ? 'model first choice · ' : 'model alternative · ' : '') + metric + ' · ' + (status.selectable ? (chosen ? 'remove from ' : 'add to ') + state.plan.slots[state.slot].name : 'paper selection unavailable'));
-      if (priced && view.previous !== null && view.previous !== choice.quote.decimal) { view.element.classList.remove('odds-up', 'odds-down'); view.element.classList.add(choice.quote.decimal > view.previous ? 'odds-up' : 'odds-down'); }
-      view.previous = priced ? choice.quote.decimal : null;
+      const priceSource = hasLivePrice ? 'matched-sky-bet' : choice.quote?.source;
+      if (!priced || view.previousSource !== priceSource) view.element.classList.remove('odds-up', 'odds-down');
+      else if (view.previous !== null && view.previous !== quote.decimal) {
+        view.element.classList.remove('odds-up', 'odds-down');
+        view.element.classList.add(quote.decimal > view.previous ? 'odds-up' : 'odds-down');
+      }
+      view.previous = priced ? quote.decimal : null;
+      view.previousSource = priceSource;
     }
     // Preserve detailed per-choice source information in an expandable panel rather than repeating it on every card.
     record.choiceInformation.replaceChildren();
     for (const choice of event.choices) {
       const row = make(record.choiceInformation, 'div', undefined, 'compact-choice-info-row');
       make(row, 'strong', choice.label);
-      make(row, 'p', Number.isFinite(choice.quote?.decimal) ? 'Source-observed odds: ' + choice.quote.decimal.toFixed(2) + ' · unverified' : Number.isFinite(choice.forecastPrice?.decimal) ? 'Publisher forecast: ' + choice.forecastPrice.decimal.toFixed(2) + ' · not bookmaker odds' : 'No source-observed bookmaker odds', 'small');
+      const matchedPrice = currentOdds?.prices?.[choice.id];
+      make(row, 'p', Number.isFinite(matchedPrice) ? 'Sky Bet '+matchedPrice.toFixed(2)+' via The Odds API · checked '+dateText(new Date(currentOdds.checked).toISOString())+' UK · EV withheld' : Number.isFinite(choice.quote?.decimal) ? 'Source-observed odds: ' + choice.quote.decimal.toFixed(2) + ' · unverified' : Number.isFinite(choice.forecastPrice?.decimal) ? 'Publisher forecast: ' + choice.forecastPrice.decimal.toFixed(2) + ' · not bookmaker odds' : 'No source-observed bookmaker odds', 'small');
       const assessment = E.candidateAssessment(event, choice.id);
       make(row, 'p', assessment.label + ' · ' + assessment.blockers[0], 'small');
       make(row, 'p', event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' : 'Method unavailable · ' + (event.unavailableReason || 'no supported estimate'), 'small');

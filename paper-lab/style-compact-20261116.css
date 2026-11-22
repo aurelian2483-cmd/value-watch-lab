@@ -284,3 +284,114 @@
 .event-card .selection-button.is-unpriced .selection-caption{font-size:9px;color:#a9bfd4}
 .event-card .compact-signal-pill.live-price-pill{background:#123b42;border-color:#3b8690;color:#c8f4f4}
 .event-card .selection-price{font-variant-numeric:tabular-nums}
+
+/* Scan-first fixture tiles. Keep research and slip controls on their existing paths. */
+#events .desk-event-card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-inline-size: 0;
+  padding: 12px;
+  scroll-margin-top: 12px;
+}
+#events .desk-event-card > * { grid-column: 1 / -1; min-inline-size: 0; }
+#events .desk-event-card .event-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin: 0;
+}
+#events .desk-event-card :is(.event-meta, .event-time) {
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+#events .desk-event-card .event-time { font-variant-numeric: tabular-nums; }
+#events .desk-event-card .event-title {
+  margin: 0;
+  font-size: clamp(16px, 2vw, 20px);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+#events .desk-event-card .compact-event-signals {
+  margin: 0;
+  gap: 4px 10px;
+}
+#events .desk-event-card .compact-event-signals :is(.event-status, .compact-signal-pill) {
+  margin: 0;
+  padding: 3px 7px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+#events .desk-event-card .compact-evidence-note { font-size: 12px; }
+#events .desk-event-card > .market-grid {
+  margin: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(122px, 100%), 1fr));
+  gap: 6px;
+}
+#events .desk-event-card > .desk-three-way { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#events .desk-event-card .selection-button {
+  min-inline-size: 0;
+  min-height: 52px;
+  padding: 7px 9px;
+  gap: 3px;
+}
+#events .desk-event-card .selection-name {
+  font-size: 13px;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#events .desk-event-card .selection-price { font-size: 18px; line-height: 1.1; }
+#events .desk-event-card .selection-caption { font-size: 10px; overflow-wrap: anywhere; }
+#events .desk-event-card .selection-caption:empty { display: none; }
+#events .desk-event-card .selection-button.is-unpriced .selection-price { display: none; }
+#events .desk-event-card > .research-main-disclosure {
+  grid-column: auto;
+  margin: 0;
+  min-inline-size: 0;
+  overflow: visible;
+}
+#events .desk-event-card:has(> .research-main-disclosure[open]) > .research-main-disclosure {
+  grid-column: 1 / -1;
+}
+#events .desk-event-card > .research-main-disclosure > summary {
+  min-height: 44px;
+  padding: 11px 9px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+#events .desk-event-card > .research-main-disclosure > :is(.event-conditions, .market-explanation, .prediction-summary) {
+  margin: 8px 12px;
+  overflow-wrap: anywhere;
+}
+#events .desk-event-card .event-tools {
+  margin: 0;
+  padding: 0;
+  gap: 4px 12px;
+  flex-wrap: wrap;
+}
+#events .desk-event-card .event-tools > :is(a, button):not([hidden]) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  line-height: 1.3;
+}
+#events .desk-event-card :is(button, a, summary):focus-visible {
+  outline: 2px solid #a9dcff;
+  outline-offset: 2px;
+}
+#events .fixture-event-card .fixture-outcomes {
+  grid-template-columns: repeat(auto-fit, minmax(min(135px, 100%), 1fr));
+  margin: 8px 0;
+}
+#events .fixture-event-card .fixture-outcome { gap: 5px; padding: 8px; }
+#events .fixture-event-card .fixture-outcome strong { font-size: 14px; }
+#events .fixture-event-card .fixture-outcome span { font-size: 12px; }
+@media (max-width: 480px) {
+  #events .desk-event-card { padding: 10px; }
+  #events .desk-event-card .selection-button { padding: 7px 6px; }
+  #events .desk-event-card .selection-name { font-size: 12px; }
+}
+#events .desk-event-card .has-matched-price .selection-price { color: #a7f3d0; }
