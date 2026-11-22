@@ -16,7 +16,7 @@ function ready(){
  }));
  const showSlips=()=>{
   const open=document.getElementById('paper-open'),panel=document.getElementById('slip-panel');
-  if(open&&window.matchMedia?.('(max-width: 1000px)').matches){open.click();return}
+  if(open?.getClientRects().length){open.click();return}
   panel?.scrollIntoView({block:'start'});
   panel?.focus({preventScroll:true});
  };
@@ -307,6 +307,15 @@ function readPublishedPrices(fixtures,now){
  }
  return matches;
 }
+function publishFootballMarketModels(now){
+ const comparisons=new Map();
+ for(const [fixtureKey,fixture] of football?.events??[]){
+  const {models}=Sources.cardEvidence({sport:'football',fixtureKey,startMs:fixture.start},football,window.FootballMatchEvidence,now);
+  // Every displayed fair-odds figure uses the same accepted model as the fixture evidence view.
+  if(models.length===1)comparisons.set(fixtureKey,{...models[0],cutoff:fixture.marketCutoff});
+ }
+ window.ValueWatchFootballMarketModels=comparisons;
+}
 function publishCardPrices(now){
  const rows=[];
  for(const [item,entry] of publishedPrices??[]){
@@ -386,6 +395,7 @@ async function showFeatured(){
   const summary=Sources.summarize(feeds,now),invalid=feeds.filter(x=>x.state!=='OBSERVED');
   for(const sport of Sources.sports)document.querySelectorAll('[data-pro-count="'+sport+'"]').forEach(el=>{el.textContent=summary.counts[sport]===null?'—':String(summary.counts[sport])});
   publishedPrices=readPublishedPrices(summary.upcoming,now);
+  publishFootballMarketModels(now);
   publishCardPrices(now);
   schedulePriceExpiry();
   racing=Sources.racingEvidence(summary.upcoming,feeds.find(feed=>feed.id==='racing'),horseModels,now);
