@@ -39,6 +39,8 @@ jobs:
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
       - name: Verify research browser interactions (desktop/mobile/racing/paper)
+        env:
+          VW_DESK_SCREENSHOTS: work/browser-qa/controlled-market-prices
         run: |
           npm run test:browser
           if test -f scripts/current_odds_browser_qa.cjs; then node scripts/current_odds_browser_qa.cjs; fi

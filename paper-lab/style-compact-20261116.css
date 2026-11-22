@@ -285,7 +285,7 @@
 .event-card .compact-signal-pill.live-price-pill{background:#123b42;border-color:#3b8690;color:#c8f4f4}
 .event-card .selection-price{font-variant-numeric:tabular-nums}
 
-/* Scan-first fixture tiles. Keep research and slip controls on their existing paths. */
+/* Shared fixture, runner, and evidence controls. */
 #events .desk-event-card {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -347,22 +347,7 @@
 #events .desk-event-card .selection-caption { font-size: 10px; overflow-wrap: anywhere; }
 #events .desk-event-card .selection-caption:empty { display: none; }
 #events .desk-event-card .selection-button.is-unpriced .selection-price { display: none; }
-#events .desk-event-card > .research-main-disclosure {
-  grid-column: auto;
-  margin: 0;
-  min-inline-size: 0;
-  overflow: visible;
-}
-#events .desk-event-card:has(> .research-main-disclosure[open]) > .research-main-disclosure {
-  grid-column: 1 / -1;
-}
-#events .desk-event-card > .research-main-disclosure > summary {
-  min-height: 44px;
-  padding: 11px 9px;
-  font-size: 12px;
-  line-height: 1.5;
-}
-#events .desk-event-card > .research-main-disclosure > :is(.event-conditions, .market-explanation, .prediction-summary) {
+#events .desk-event-card .research-main-disclosure > :is(.event-conditions, .market-explanation, .prediction-summary) {
   margin: 8px 12px;
   overflow-wrap: anywhere;
 }
@@ -395,3 +380,232 @@
   #events .desk-event-card .selection-name { font-size: 12px; }
 }
 #events .desk-event-card .has-matched-price .selection-price { color: #a7f3d0; }
+
+/* The fixture board uses shared market columns. Racing keeps its runner grid. */
+#events {
+  --board-gap: 12px;
+  --market-edge: #344239;
+  --market-surface: #141d19;
+  --market-ink: #edf3e9;
+  --market-muted: #bac8bc;
+  --market-accent: #d6f093;
+  --market-columns: 68px minmax(150px, 1.08fr) minmax(264px, 1.45fr) 118px;
+  container: fixture-board / inline-size;
+}
+
+#events .desk-market-head {
+  display: none;
+  padding: 11px 14px;
+  background: #252f25;
+  border: 1px solid var(--market-edge);
+  border-radius: 8px 8px 0 0;
+  color: var(--market-accent);
+  font: 650 11px/1.3 system-ui, sans-serif;
+  letter-spacing: .065em;
+  text-transform: uppercase;
+}
+#events .desk-market-head-outcomes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  text-align: center;
+}
+#events .desk-market-row {
+  padding: 13px 14px;
+  border: 1px solid var(--market-edge);
+  border-radius: 5px;
+  background: var(--market-surface);
+  color: var(--market-ink);
+  box-shadow: none;
+  row-gap: 9px;
+}
+
+#events .desk-market-row:nth-of-type(even) { background: #19231d; }
+#events .desk-market-row .event-card-header { display: block; }
+#events .desk-market-row .event-title { margin: 3px 0 4px; color: var(--market-ink); font-size: 16px; }
+#events .desk-market-row :is(.event-meta, .event-time, .compact-evidence-note, .desk-market-comparison) { color: var(--market-muted); }
+#events .desk-event-card .event-time { white-space: normal; }
+#events .desk-event-card .desk-event-clock { margin-inline-start: .4em; color: inherit; }
+#events .desk-market-row .event-time { font-size: 13px; }
+#events .desk-market-row .desk-event-clock { color: var(--market-ink); }
+#events .desk-market-row .event-meta { font-size: 11px; font-weight: 650; }
+#events .desk-market-row .compact-event-signals { gap: 3px 9px; }
+#events .desk-market-row .compact-event-signals :is(.event-status, .compact-signal-pill) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--market-muted);
+  font-weight: 500;
+}
+#events .desk-market-row .compact-event-signals .live-price-pill { color: var(--market-accent); }
+#events .desk-market-row .compact-event-signals .is-warning { color: #ffcd91; }
+#events .desk-market-row > .market-grid {
+  gap: 0;
+  align-self: stretch;
+  align-content: center;
+  border-inline-start: 1px solid var(--market-edge);
+}
+#events .desk-market-row .selection-button {
+  min-height: 48px;
+  padding: 4px 5px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: 0;
+  border-inline-end: 1px solid var(--market-edge);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--market-ink);
+}
+#events .desk-market-row .selection-button:is(:hover, .is-selected):not(:disabled) {
+  background: #2e4027;
+  color: #f5ffe4;
+}
+#events .desk-market-row .selection-button .selection-name { color: inherit; font-weight: 600; font-size: 13px; }
+#events .desk-market-row .selection-price { font-size: 20px; }
+#events .desk-market-row .has-matched-price .selection-price { color: var(--market-accent); }
+#events .desk-market-row .desk-market-comparison { font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
+#events .desk-market-comparison:empty { display: none; }
+#events .desk-market-row > .desk-market-empty { border: 0; }
+#events .desk-market-row .desk-market-empty .selection-button { border: 0; min-height: 44px; }
+#events .desk-market-row .desk-market-empty .selection-name { color: var(--market-muted); }
+#events .desk-market-row .desk-market-empty .selection-caption { color: var(--market-accent); }
+#events .desk-market-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 5px 7px 0;
+  color: var(--market-muted);
+  font-size: 12px;
+  text-align: center;
+}
+#events .desk-row-disclosures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-inline-size: 0;
+  gap: 7px;
+}
+#events .desk-row-disclosures:has(> details[open]) { grid-template-columns: minmax(0, 1fr); }
+#events .desk-row-disclosures > details { margin: 0; min-inline-size: 0; }
+#events .desk-row-disclosures > details > summary { min-height: 44px; }
+#events .desk-market-row .desk-row-disclosures > details {
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  color: var(--market-ink);
+}
+#events .desk-market-row .desk-row-disclosures > details > summary {
+  padding: 11px 8px;
+  font-size: 11px;
+  color: var(--market-accent);
+  border: 1px solid var(--market-edge);
+  border-radius: 3px;
+}
+#events .desk-market-row .desk-row-disclosures > details[open] {
+  background: #1c2820;
+  border: 1px solid var(--market-edge);
+  overflow-wrap: anywhere;
+}
+#events .desk-market-row .desk-row-disclosures > details[open] > summary { background: #28352a; }
+#events .desk-row-disclosures .event-tools { padding: 0 10px; }
+#events .desk-row-disclosures .event-conditions,
+#events .desk-row-disclosures .market-explanation { margin: 8px 12px; }
+#events .desk-event-card[data-sport="racing"] > .event-time { grid-column: 2; grid-row: 1; justify-self: end; }
+#events .desk-event-card[data-sport="racing"] > .event-card-header { grid-column: 1 / -1; display: block; }
+#events .desk-event-card[data-sport="racing"] > .event-card-header > .event-meta { padding-inline-end: 100px; }
+
+@container fixture-board (min-width: 670px) {
+  #events :is(.desk-market-head, .desk-market-row) {
+    display: grid;
+    grid-template-columns: var(--market-columns);
+    column-gap: 10px;
+    align-items: center;
+  }
+  #events .desk-market-row > :is(.event-time, .event-card-header, .market-grid, .desk-row-disclosures) { grid-column: auto; }
+  #events .desk-market-row > .event-time { align-self: start; padding-top: 3px; }
+  #events .desk-market-row .desk-event-clock { display: block; margin: 0; }
+  #events:has(.desk-market-head) > .desk-market-row { margin-block-start: calc(-1 * var(--board-gap)); border-radius: 0; }
+  #events:has(.desk-market-head) > .desk-market-row + .desk-market-row { border-top: 0; }
+  #events .desk-market-row > .desk-row-disclosures {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  #events .desk-market-row > .desk-row-disclosures:has(> details[open]) { grid-column: 1 / -1; gap: 7px; }
+  #events .desk-market-row > .desk-row-disclosures:not(:has(> details[open])) > details > summary {
+    border: 0;
+    padding-inline: 4px;
+  }
+}
+@container fixture-board (max-width: 669px) {
+  #events .desk-market-row > .event-time { grid-column: 2; grid-row: 1; justify-self: end; }
+  #events .desk-market-row > .event-card-header { grid-row: 1; }
+  #events .desk-market-row .event-meta { display: inline-block; max-width: calc(100% - 101px); overflow-wrap: anywhere; }
+  #events .desk-market-row > .market-grid {
+    border-inline-start: 0;
+    border-block: 1px solid var(--market-edge);
+    padding-block: 3px;
+  }
+  #events .desk-market-row .selection-button:last-child { border-inline-end: 0; }
+}
+@container fixture-board (min-width: 530px) and (max-width: 669px) {
+  #events .desk-market-row {
+    grid-template-columns: minmax(148px, .85fr) minmax(0, 1.15fr);
+    column-gap: 14px;
+  }
+  #events .desk-market-row > .event-time { grid-column: 1; justify-self: start; }
+  #events .desk-market-row > .event-card-header { grid-column: 1; grid-row: 2; }
+  #events .desk-market-row .event-meta { max-width: 100%; }
+  #events .desk-market-row > .market-grid {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    border-block: 0;
+    border-inline-start: 1px solid var(--market-edge);
+  }
+  #events .desk-market-row > .desk-row-disclosures { grid-row: 3; }
+  #events .desk-market-row > .desk-row-disclosures:not(:has(> details[open])) {
+    grid-template-columns: max-content max-content;
+    justify-content: end;
+  }
+}
+.slip-jump {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #d6f093;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+#slip-tabs:focus-visible { outline: 2px solid #d6f093; outline-offset: 3px; }
+@media (min-width: 1021px) and (max-width: 1250px) {
+  /* Keep the market columns useful in tablet landscape. The slip drawer uses its existing focus handling. */
+  .workspace-grid { grid-template-columns: 150px minmax(0, 1fr); }
+  .research-main { padding-bottom: 104px; }
+  .mobile-slip-bar {
+    display: flex;
+    position: fixed;
+    inset: auto 0 0;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 20px;
+    background: #171f19;
+    border-top: 1px solid #526048;
+    z-index: 35;
+  }
+  .mobile-slip-bar .eyebrow { display: block; }
+  body:not(.paper-open) .slip-panel { display: none; }
+  body.paper-open .slip-panel {
+    position: fixed;
+    z-index: 65;
+    inset: 0 0 0 auto;
+    inline-size: min(400px, 100%);
+  }
+  body.paper-open { overflow: hidden; }
+  body.paper-open .paper-backdrop:not([hidden]) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: #020712aa;
+  }
+  body.paper-open #paper-close { display: inline-flex; }
+}
