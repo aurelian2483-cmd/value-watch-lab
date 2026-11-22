@@ -40,14 +40,27 @@
       const resize = () => { group.open = !phone.matches; };
       phone.addEventListener('change', resize);
       resize();
+      return group;
     }
-    const engine = document.querySelector('.engine-switch');
-    responsiveDisclosure(engine, 'Model engine', 'dashboard-engine-tools', engine);
     const filters = document.querySelector('.filter-controls');
-    responsiveDisclosure(filters, 'Dates and filters', 'dashboard-filter-tools', filters);
+    const filterTools = responsiveDisclosure(filters, 'Dates and filters', 'dashboard-filter-tools', filters);
+    const datePresets = document.querySelector('.filter-topline');
+    const engine = document.querySelector('.engine-switch');
+    const status = document.querySelector('.status-strip');
     const scope = document.querySelector('#events-view .build-scope');
-    responsiveDisclosure(scope, 'Paper slip tools', 'dashboard-slip-tools', scope,
+    const slipTools = responsiveDisclosure(scope, 'Research tools', 'dashboard-slip-tools', scope,
       $('find-racing'), $('generate'), $('fresh-daily-slips'));
+    const arrange = () => {
+      if (phone.matches) {
+        filterTools.insertBefore(datePresets, filters);
+        slipTools.append(engine);
+      } else {
+        filterTools.before(datePresets);
+        status.before(engine);
+      }
+    };
+    phone.addEventListener('change', arrange);
+    arrange();
     document.querySelector('#slip-panel .slip-footnote').before($('weekly-wildcard'));
     menu.addEventListener('click', event => {
       if (event.target.closest('[data-view]')) {

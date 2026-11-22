@@ -432,6 +432,8 @@ async function exactCrossSport(page, base, width) {
   const desk = new URL(base+'/');
   desk.search = new URLSearchParams({sport:'nfl','desk-query':'buffalo','desk-view':'all','desk-competition':'NFL · Week 11'});
   await page.goto(desk.href);
+  const dateFilters=page.locator('.dashboard-filter-tools > summary');
+  if(await dateFilters.isVisible())await dateFilters.click();
   await page.locator('#range-presets [data-range="tomorrow"]').click();
   await page.reload();
   assert.equal(await page.locator('#date-from').inputValue(),'2026-11-22');
