@@ -23,6 +23,13 @@ def fixture(race_id='1',context=True,probability=.6):
 
 
 class PairedModelComparison(unittest.TestCase):
+    def cross_source(self,record,entry):
+        entry['cross_source_evidence']={'verification':'TWO_PUBLISHER_RESULT_CORROBORATED','record_sha256':record['record_sha256'],
+          'winner_horse_id':entry['winner_horse_id'],'primary_receipt':entry['source_receipt'],
+          'secondary_receipt':{'url':'https://api.theracingapi.com/v1/results/today/free?region=gb','sha256':'d'*64,
+            'observed_at_utc':'2026-11-04T16:05:00Z'},'publication_gate':'BLOCKED','challenge_eligible':0}
+        return entry
+
     def test_paired_deltas_show_distinct_freeze_times_and_research_status(self):
         c,ce=fixture();b,be=fixture(context=False,probability=.4)
         result=compare_models([c],[ce],[b],[be])
@@ -64,6 +71,23 @@ class PairedModelComparison(unittest.TestCase):
             c,ce=fixture();b,be=fixture(context=False);c.update(changes)
             result=compare_models([c],[ce],[b],[be])
             self.assertEqual(result['exclusions'],{'BASELINE_OUTSIDE_RECORDED_SCOPE':1})
+
+    def test_cross_source_comparison_requires_matching_safe_second_receipts(self):
+        c,ce=fixture();b,be=fixture(context=False,probability=.4)
+        self.cross_source(c,ce);self.cross_source(b,be)
+        result=compare_models([c],[ce],[b],[be],require_cross_source=True)
+        self.assertEqual(result['matched_races'],1)
+        self.assertEqual(result['result_evidence_scope'],'TWO_PUBLISHER_CORROBORATED')
+        for issue in ('missing','winner','host','early'):
+            c,ce=fixture();b,be=fixture(context=False,probability=.4)
+            self.cross_source(c,ce);self.cross_source(b,be)
+            if issue=='missing':ce.pop('cross_source_evidence')
+            elif issue=='winner':ce['cross_source_evidence']['winner_horse_id']='2'
+            elif issue=='host':ce['cross_source_evidence']['secondary_receipt']['url']='https://example.org/v1/results/today/free'
+            else:ce['cross_source_evidence']['secondary_receipt']['observed_at_utc']='2026-11-04T14:59:59Z'
+            result=compare_models([c],[ce],[b],[be],require_cross_source=True)
+            self.assertEqual(result['matched_races'],0,issue)
+            self.assertEqual(result['exclusions'],{'INVALID_OR_UNSUPPORTED_RESULT_EVIDENCE':1},issue)
 
     def test_configurations_are_separate_in_evaluation_and_model_comparison(self):
         c,ce=fixture('1');c2,ce2=fixture('2');c2['parameters']={'temperature':3}
