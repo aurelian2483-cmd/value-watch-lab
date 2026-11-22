@@ -118,15 +118,19 @@ async function calendarRecovery(browser, base) {
     const observedAt = Date.parse(snapshot.generated_at_utc);
     assert(Number.isFinite(observedAt),sport+' recovery snapshot must have a capture time');
     await page.clock.setFixedTime(new Date(observedAt+60000));
-    const fail = route => route.fulfill({status:503});
-    await page.route('**/' + feed,fail);
+    let available = false;
+    await page.route('**/' + feed, route => available
+      ? route.fulfill({json:snapshot})
+      : route.fulfill({status:503}));
     await page.goto(base + '/?sport=' + sport);
     const calendar = page.locator('#events .fixture-events');
     await calendar.getByText(/Provider feed unavailable or stale/).waitFor();
     assert.equal(await calendar.getAttribute('data-fixture-sport'),sport);
     assert.equal(await calendar.getByRole('button',{name:'Add to paper slip'}).count(),0);
-    await page.unroute('**/' + feed,fail);
+    available = true;
+    const refreshed = page.waitForResponse(response => response.url().endsWith('/' + feed) && response.ok());
     await page.locator('#refresh').click();
+    await refreshed;
     await calendar.getByText(/^Provider snapshot:/).waitFor();
     assert.equal(await calendar.getByText(/Provider feed unavailable or stale/).count(),0);
     if (sport === 'rugby') {
