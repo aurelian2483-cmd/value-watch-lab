@@ -281,6 +281,8 @@
     const choiceInformation = make(choiceDisclosure, 'div', undefined, 'compact-choice-information');
     const seasonDisclosure = details(article, 'Form and season comparison', 'compact-evidence-disclosure');
     const seasonPanel = make(seasonDisclosure, 'section', undefined, 'season-comparison'), explanation = make(article, 'p', '', 'market-explanation'); seasonPanel.setAttribute('aria-label','Current-season-only model comparison');
+    const watch = button(header, 'Watch', () => chooseWatch('desk', id, article.dataset.sport, watch), 'desk-watch-button');
+    watch.hidden = !$('dashboard-watch');
     const tools = make(article, 'div', undefined, 'event-tools');
     const check = link(tools, 'Check prices on Oddschecker ↗', 'https://www.oddschecker.com/');
     const note = button(tools, 'Add private note', () => {
@@ -304,7 +306,7 @@
     const advancedGroup = details(disclosures, 'Advanced Analysis', 'research-main-disclosure');
     researchGroup.append(conditions, explanation, racingDisclosure, choiceDisclosure, evidence, tools);
     advancedGroup.append(prediction, seasonDisclosure, estimates, notes, matchView);
-    return { node: article, signals, meta, time, date, clock, title, status, conditions, prediction, market, racingPanel, racingDisclosure, researchGroup, advancedGroup, seasonPanel, seasonDisclosure, choiceInformation, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
+    return { node: article, watch, signals, meta, time, date, clock, title, status, conditions, prediction, market, racingPanel, racingDisclosure, researchGroup, advancedGroup, seasonPanel, seasonDisclosure, choiceInformation, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
   }
   function preferredStats(event) { return event?.stats?.h2h ? 'h2h' : Array.isArray(event?.stats?.recent) && event.stats.recent.length ? 'recent' : event?.stats?.rankings ? 'rankings' : 'sources'; }
   function patchCard(record, event) {
@@ -316,6 +318,7 @@
     write(record.clock, clock || '');
     record.time.dateTime = event.startUTC;
     write(record.title, event.name);
+    record.watch.setAttribute('aria-label', 'Watch ' + event.name);
     write(record.status, status.label); record.status.className = 'event-status ' + (status.selectable ? 'is-current' : status.code === 'STARTED' ? '' : 'is-warning');
     const conditions = event.stats?.conditions; write(record.conditions, conditions ? [conditions.distance, conditions.going, conditions.raceClass && 'Class ' + conditions.raceClass].filter(Boolean).join(' · ') : event.choices[0]?.market || 'Research outcome');
     // Cross-sport v3 evidence signals: displayed independently from paper-slip selections.
@@ -874,6 +877,10 @@
       const time = make(header, 'time', row.start ? dateText(row.start) + ' UK' : row.session ? dateText(row.session) + ' UK session' : row.date + (row.venueZone ? ' · Las Vegas date · UK kickoff TBC' : ' · match time unconfirmed'), 'event-time');
       time.dateTime = row.start || row.session || row.date;
       make(card, 'h3', row.name, 'event-title');
+      if ($('dashboard-watch')) {
+        const watch = button(card, 'Watch', () => chooseWatch('lab', row.id, sport, watch), 'desk-watch-button');
+        watch.setAttribute('aria-label', 'Watch ' + row.name);
+      }
       make(card, 'p', row.sourceStatus, 'event-status');
       if (row.venue) make(card, 'p', row.venue, 'small');
       const outcomes = make(card, 'div', undefined, 'fixture-outcomes');
@@ -1014,10 +1021,48 @@
       a.href = new URL(path, rootURL).href;
     }
   }
+  function chooseWatch(kind, id, sport, opener) {
+    const url = new URL(location.href);
+    url.searchParams.set('watch', kind + ':' + sport + ':' + id);
+    if (url.href !== location.href) history.pushState(history.state, '', url);
+    renderWatchSelection();
+    $('dashboard-watch-title').focus();
+    $('dashboard-watch').scrollIntoView({block:'nearest'});
+    watchOpener = opener;
+  }
+  let watchOpener;
+  function renderWatchSelection() {
+    if (!$('dashboard-watch')) return;
+    const key = new URLSearchParams(location.search).get('watch');
+    const match = typeof key === 'string' && key.length <= 500 &&
+      /^(desk|lab):(football|racing|tennis|nfl|darts|rugby):(.+)$/.exec(key);
+    let event = null;
+    if (match) {
+      const [, kind, sport, id] = match;
+      const rows = kind === 'desk' ? store.get().events : loadFixtureSnapshot(sport)?.fixtures ?? [];
+      const candidates = rows.filter(row => row.id === id && (kind === 'lab' || row.sport === sport));
+      if (candidates.length === 1) {
+        const row = candidates[0];
+        event = { key, sport, name: row.name, time: row.startUTC || row.start || row.session || row.date };
+      }
+    }
+    window.dispatchEvent(new CustomEvent('valuewatch:watch-selection', {detail:{event, requested:Boolean(key)}}));
+  }
+  window.addEventListener('valuewatch:watch-ready', renderWatchSelection);
+  $('dashboard-watch-close')?.addEventListener('click', () => {
+    const url = new URL(location.href);
+    url.searchParams.delete('watch');
+    history.pushState(history.state, '', url);
+    renderWatchSelection();
+    if (watchOpener?.isConnected) watchOpener.focus();
+    else $('search').focus();
+  });
+
   function renderEvents() {
     renderRacingCandidates();
     renderPaperEligibilityAudit();
     const state = store.get();
+    renderWatchSelection();
     renderSportActions(state);
     renderSportEvidence(state);
     const normalRows = filtered(state).filter(event => event.sport !== 'rugby');
@@ -1271,7 +1316,7 @@
         const card = leg.sport === 'rugby' ? [...$('events').querySelectorAll('[data-paper-event-id]')]
           .find(row => row.dataset.paperEventId === leg.eventId) : cards.get(leg.eventId)?.node;
         card?.scrollIntoView({block:'start'});
-        card?.querySelector('button:not([disabled])')?.focus({preventScroll:true});
+        if (card) [...card.querySelectorAll('button:not([disabled])')].find(control => control.getClientRects().length)?.focus({preventScroll:true});
       });
     }
     make(evidence, 'p', 'Captured ' + dateText(leg.capturedAt) + ' · estimate ' + pct(leg.probability) + ' · uncertainty unquantified', 'small'); provenance(evidence, leg.sources);
@@ -2041,7 +2086,7 @@
   document.querySelectorAll('[data-range]').forEach(element => { element.addEventListener('click', () => safely(() => preset(element.dataset.range))); const active = !restored && element.dataset.range === '7'; element.classList.toggle('active', active); element.setAttribute('aria-pressed', String(active)); });
   function chooseSport(sport) {
     store.update(state => ({ ...state, sport, view: 'events', competition: 'all', limit: 24 }));
-    if (fixtureLabs[sport] || Object.hasOwn(discoveryOnly, sport)) $('events-view').scrollIntoView({block:'start'});
+    if (!document.documentElement.classList.contains('unified-desk') && (fixtureLabs[sport] || Object.hasOwn(discoveryOnly, sport))) $('events-view').scrollIntoView({block:'start'});
   }
   function navigateSport(sport) {
     if (!Object.hasOwn(sports, sport)) return;
@@ -2058,6 +2103,7 @@
   window.addEventListener('popstate', () => {
     clearTimeout(searchTimer);
     const filters = urlFilters();
+    renderWatchSelection();
     $('search').value = filters.query;
     $('event-view').value = filters.eventView;
     store.update(state => ({ ...state, ...filters, view: 'events', limit: 24 }));
@@ -2207,7 +2253,7 @@
   store.subscribe(state => JSON.stringify([state.history, state.journal, state.claims]), () => { if (store.get().view === 'history') safely(renderHistory); });
   store.subscribe(state => state.eventVersion, () => { if (store.get().view === 'results') safely(renderResults); });
   window.addEventListener('storage', event => { if (event.key === key || event.key === null) persistence.invalidate(); });
-   window.addEventListener('valuewatch:published-card-odds',()=>safely(renderEvents()));
+   window.addEventListener('valuewatch:published-card-odds',()=>safely(renderEvents));
   let timer = null, lastRefresh = 0;
   function startClock() { if (timer === null) timer = setInterval(() => { if (!document.hidden) { store.update(state => ({ ...state, clockTick: state.clockTick + 1 })); if (navigator.onLine && Date.now() - lastRefresh >= 60000) safely(refresh); } }, 30000); }
   document.addEventListener('visibilitychange', () => { transport.setPaused(document.hidden); if (!document.hidden) safely(refresh); });

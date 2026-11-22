@@ -291,7 +291,7 @@ async function referenceNavigation(browser, base) {
       {fixture_id:'synthetic-tomorrow',home:'Synthetic Tomorrow',away:'Visitors',kickoff_utc:'2026-06-15T23:30:00Z'}
     ]
   }}));
-  await page.goto(base + '/');
+  await page.goto(base + '/?view=overview');
   const table = page.locator('#pro-featured-rows');
   const range = page.getByLabel('Fixture date (UK)');
   await table.getByText(/Synthetic Today/).waitFor();
@@ -325,7 +325,7 @@ async function referenceNavigation(browser, base) {
   await page.getByText('This fixture is unavailable or its identity is ambiguous.').waitFor();
   assert.equal(await page.locator('#event').isVisible(),false);
   await page.clock.setFixedTime(new Date('2026-06-15T22:15:00Z'));
-  await page.goto(base + '/');
+  await page.goto(base + '/?view=overview');
   await table.getByText(/Synthetic Today/).waitFor();
   await range.selectOption('tomorrow');
   await table.getByText(/Synthetic Tomorrow/).waitFor();
@@ -351,8 +351,8 @@ async function referenceNavigation(browser, base) {
   await nav.getByRole('link',{name:'Validation'}).click();
   assert.equal(await nav.getByRole('link',{name:'Validation'}).getAttribute('aria-current'),'page');
   await nav.getByRole('link',{name:'Research desk'}).click();
-  await nav.getByText('More',{exact:true}).click();
-  await nav.getByRole('link',{name:'Compact preview'}).click();
+  await page.locator('#research-pages > summary').click();
+  await page.locator('#research-pages').getByRole('link',{name:'Compact layout'}).click();
   await page.locator('html.visual-preview').waitFor({state:'attached'});
   assert.equal(await range.isVisible(),false);
   report.syntheticChecks.push('UK date, sport and name filters, exact touch fixture handoff, changed kickoff withheld, refresh retention, keyboard focus and compact fallback');
@@ -382,7 +382,7 @@ async function exactCrossSport(page, base, width) {
   await page.route('**/racing-research-data.json',raceRoute);
   await page.route('**/other-sports-data.json',otherRoute);
   await page.clock.setFixedTime(now);
-  await page.goto(base + '/');
+  await page.goto(base + '/?view=overview');
   for (const sport of sports) {
     const choice = page.locator('.pro-quick-filters [data-pro-sport="'+sport+'"]');
     if (width === 1440) { await choice.focus(); await page.keyboard.press('Enter'); }

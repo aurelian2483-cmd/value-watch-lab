@@ -44,6 +44,7 @@ jobs:
         run: |
           npm run test:browser
           if test -f scripts/current_odds_browser_qa.cjs; then node scripts/current_odds_browser_qa.cjs; fi
+          if test -f scripts/dashboard_shell_browser_qa.cjs; then node scripts/dashboard_shell_browser_qa.cjs; fi
           node tests/test_pro_design.cjs
           node scripts/pro_design_browser_qa.cjs
           node scripts/darts_browser_qa.cjs
