@@ -9,6 +9,7 @@ import {buildSourceVerificationDossier} from './source-verification.mjs';
 import {auditRawSourceEvidence} from './raw-source-evidence.mjs';
 import {loadLocalOriginalEvidence} from './raw-source-evidence-cli.mjs';
 import {buildReviewJournalReport} from './review-journal.mjs';
+import {buildRollingHistoryView} from './rolling-history.mjs';
 
 const repoRoot=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 const read=(root,path)=>readFileSync(resolve(root,path),'utf8');
@@ -25,7 +26,12 @@ const sourcePaths={
   progress:'research/mathematical-library/progress.v1.json'
 };
 
-export function buildCompletionReport({bridge,identity,worklist,source,raw,journal}){
+export function buildCompletionReport({bridge,identity,worklist,source,raw,journal,rolling}){
+  assert(rolling?.kind==='BOTTLENECK_SHARED_ROLLING_HISTORY_V1'&&
+    rolling.publication_gate==='BLOCKED'&&rolling.selected_method===null&&
+    rolling.frozen_forecast_receipts===bridge.prospective.forecasts&&
+    rolling.source_counts['historical-reliability-data.json']>=0,
+    'Unified rolling history not connected');
   assert(bridge?.kind==='BOTTLENECK_EVIDENCE_BRIDGE_V1'&&bridge.publication_gate==='BLOCKED'&&
     bridge.selected_method===null&&bridge.selection_eligible===false,'Invalid evidence bridge');
   assert(identity?.kind==='BOTTLENECK_METHOD_IDENTITY_V1'&&identity.selected_method===null&&
@@ -114,6 +120,15 @@ export function buildCompletionReport({bridge,identity,worklist,source,raw,journ
     raw_original_responses_hash_consistent:raw.hash_consistent_raw_sources,
     raw_original_responses_missing:raw.raw_sources_missing,
     forecast_ledger_records:bridge.prospective.forecasts,
+    rolling_history:{
+      results_by_sport:rolling.historical_results_by_sport,
+      results_by_source:rolling.source_counts,
+      previous_7_full_days:rolling.recent_completed_last_7_full_days,
+      previous_7_full_days_by_sport:rolling.recent_completed_by_sport,
+      refresh_existing_workflow:rolling.refresh.existing_workflow,
+      refresh_declared_cron:rolling.refresh.declared_cron_utc,
+      source_time_policy:'DATE_ONLY_NEXT_DAY_NO_LOOKAHEAD'
+    },
     verified_outcome_records:bridge.prospective.outcome_archive_rows,
     review_packets:worklist.review_packets,
     private_review_decisions:journal.private_decision_entries,
@@ -161,7 +176,15 @@ export function runCompletionAudit({
   const raw=auditRawSourceEvidence(source,privateBytes);
   const review=privateJournal?JSON.parse(readFileSync(resolve(privateJournal),'utf8')):null;
   const journal=buildReviewJournalReport(raw,review,asOfUTC);
-  return buildCompletionReport({bridge,identity,worklist,source,raw,journal});
+  const rolling=buildRollingHistoryView({
+    currentFootball:json(root,'historical-reliability-data.json'),
+    reconstructedFootball:parsed.history,
+    darts:json(root,'darts/feed.json'),
+    ledger:parsed.ledger,
+    refreshWorkflowText:read(root,'.github/workflows/reliability-results-refresh.yml'),
+    asOfUTC
+  });
+  return buildCompletionReport({bridge,identity,worklist,source,raw,journal,rolling});
 }
 
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
