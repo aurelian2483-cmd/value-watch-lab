@@ -1450,6 +1450,26 @@
       document.activeElement.parentElement.dataset.comparison : undefined;
     root.hidden = engineView === 'current'; root.replaceChildren();
     if (root.hidden) return;
+    const state = store.get();
+    if (engineView === 'bottleneck') {
+      const lab = window.ValueWatchBottleneckLab;
+      write($('engine-status'), 'Bottleneck Lab · sport-specific research readiness · no active betting output.');
+      make(root, 'h3', state.sport === 'all' ? 'Cross-sport Bottleneck readiness' : (sports[state.sport] || state.sport) + ' · Bottleneck readiness');
+      make(root, 'p', 'Football’s experimental adjustment is not a universal model. Each sport needs its own compatible inputs, chronological experiment and evidence review. No cross-sport Bottleneck forecasts are currently deployed.', 'small');
+      const choices = state.sport === 'all' ? Object.keys(lab?.sports || {}) : [state.sport];
+      const list = make(root, 'div', undefined, 'bottleneck-readiness-list');
+      for (const sport of choices) {
+        const row = lab?.forSport(sport, state.events) || {label:sports[sport] || sport, status:'NO_RESEARCH_PATH', baseline:'No connected model', bottleneck:'Not available', evidence:'No sport-specific research path is connected.', next:'Connect permitted event and result data before modelling.', eventCount:0, currentEstimateCount:0, disclaimer:'Research only · UNVALIDATED.'};
+        const card = make(list, 'section', undefined, 'bottleneck-readiness-card');
+        make(card, 'h4', row.label + ' · ' + row.status.replaceAll('_', ' '));
+        make(card, 'p', 'Current path: ' + row.baseline + ' · event estimates in this feed: ' + row.currentEstimateCount + '/' + row.eventCount, 'small');
+        make(card, 'p', 'Bottleneck candidate: ' + row.bottleneck, 'small');
+        make(card, 'p', row.evidence, 'small');
+        make(card, 'p', 'Next: ' + row.next, 'small');
+      }
+      make(root, 'p', 'All current model outputs remain UNVALIDATED. The mathematical library has 286 of the 1,000 planned entries; 0 entries have empirical qualification. Candidate comparison and activation remain gated.', 'small');
+      return;
+    }
     if (engineView === 'reliability') {
       const available = filtered(store.get()).filter(event => event.sport==='football');
       const matched = available.map(event=>({event,result:currentHistoryStatus(event)}));
@@ -1462,8 +1482,12 @@
       if(!candidates.length)make(root,'p','No candidate satisfies the strict form rule with the historical evidence currently loaded. No matches are added merely to fill the list.');
       return;
     }
+    if (engineView === 'hybrid' && state.sport !== 'football') {
+      make(root, 'h3', 'Hybrid 3.1 · football only');
+      make(root, 'p', 'The current-season hybrid is a football research method. It cannot score ' + (sports[state.sport] || state.sport) + ' events. Select Football to see its football-only view; cross-sport Bottleneck forecasts are not deployed.', 'small');
+      return;
+    }
     const entry = engineView === 'experimental' ? null : loadHybridEvidence();
-    const state = store.get();
     if (engineView === 'hybrid') {
       make(root, 'h3', 'Football paper suggestions');
       make(root, 'p', 'UNVALIDATED · Paper research only', 'small');

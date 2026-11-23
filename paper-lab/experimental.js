@@ -1,6 +1,6 @@
 'use strict';
 (function (root) {
-  const modes = ['current', 'experimental', 'hybrid', 'compare', 'reliability'];
+  const modes = ['current', 'experimental', 'hybrid', 'compare', 'reliability', 'bottleneck'];
   const preferenceKey = 'value-watch-engine-view-v1';
   const mode = value => modes.includes(value) ? value : 'current';
   // Unit-stake Bernoulli payoff: o-1 on a win, -1 otherwise.
