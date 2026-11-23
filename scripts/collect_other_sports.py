@@ -408,6 +408,7 @@ def finalize_part(part, started, completed):
             continue
         row = dict(event)
         if row.get('forecast'):
+            row['unavailable_reason'] = None
             row['forecast'] = {**row['forecast'], 'generated_at_utc': stamp(completed)}
         result['events'].append(row)
     return result
