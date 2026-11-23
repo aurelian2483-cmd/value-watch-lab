@@ -1,10 +1,11 @@
+import copy
 import math
 import sys
 import unittest
 from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
-from horse_evaluation import compare_models,evaluate,parameter_fingerprint
+from horse_evaluation import compare_embedded_form_baseline,compare_models,evaluate,parameter_fingerprint
 
 
 def fixture(race_id='1',context=True,probability=.6):
@@ -169,3 +170,64 @@ class RevisionTieIntegrity(unittest.TestCase):
         c,ce=fixture();b,be=fixture(context=False)
         result=compare_models([c,copy.deepcopy(c)],[ce],[b],[be])
         self.assertEqual(result['matched_races'],1)
+
+class EmbeddedFormBaselineComparison(unittest.TestCase):
+    def challenger_fixture(self):
+        record,entry=fixture()
+        record['model']='AW_CONDITIONAL_LOGIT_PILOT_V1'
+        entry['model']=record['model']
+        record['runners'][0]['baseline_form_weight']=.4
+        record['runners'][1]['baseline_form_weight']=.6
+        return record,entry
+
+    def corroborated(self,entry):
+        result=copy.deepcopy(entry)
+        result['cross_source_evidence']={'verification':'TWO_PUBLISHER_RESULT_CORROBORATED',
+          'record_sha256':result['record_sha256'],'winner_horse_id':result['winner_horse_id'],
+          'publication_gate':'BLOCKED','challenge_eligible':0,
+          'primary_receipt':copy.deepcopy(result['source_receipt']),
+          'secondary_receipt':{'url':'https://api.theracingapi.com/v1/results/today/free',
+            'sha256':'d'*64,'observed_at_utc':'2026-11-04T16:01:00Z'}}
+        return result
+
+    def test_same_frozen_record_is_compared_with_uniform_also_preserved(self):
+        record,entry=self.challenger_fixture()
+        result=compare_embedded_form_baseline([record],[entry])
+        self.assertEqual(result['matched_races'],1)
+        self.assertAlmostEqual(result['mean_brier_delta_challenger_minus_form'],-.4)
+        self.assertAlmostEqual(result['pairs'][0]['brier_delta_challenger_minus_uniform'],-.18)
+        self.assertEqual(result['model_validation'],'UNVALIDATED')
+        self.assertEqual(result['publication_gate'],'BLOCKED')
+        self.assertEqual(result['two_publisher_corroborated']['matched_races'],0)
+
+    def test_two_publisher_results_are_reported_as_a_separate_subset(self):
+        record,entry=self.challenger_fixture()
+        result=compare_embedded_form_baseline([record],[entry],[self.corroborated(entry)])
+        subset=result['two_publisher_corroborated']
+        self.assertEqual(result['matched_races'],1)
+        self.assertEqual(subset['matched_races'],1)
+        self.assertAlmostEqual(subset['mean_brier_delta_challenger_minus_form'],-.4)
+        self.assertEqual(subset['pairs'][0]['result_evidence'],'TWO_PUBLISHER_RESULT_CORROBORATED')
+
+    def test_corroboration_requires_distinct_valid_receipts_and_matching_winner(self):
+        record,entry=self.challenger_fixture()
+        for issue in ('same_host','early_receipt','winner'):
+            evidence=self.corroborated(entry)
+            if issue=='same_host':evidence['cross_source_evidence']['secondary_receipt']['url']=record['source']
+            if issue=='early_receipt':evidence['cross_source_evidence']['secondary_receipt']['observed_at_utc']='2026-11-04T14:59:00Z'
+            if issue=='winner':
+                evidence['winner_horse_id']='2';evidence['cross_source_evidence']['winner_horse_id']='2'
+            with self.assertRaises(ValueError,msg=issue):
+                compare_embedded_form_baseline([record],[entry],[evidence])
+
+    def test_missing_nonfinite_or_unnormalized_baseline_is_rejected(self):
+        for baseline in ((.4,None),(.4,float('nan')),(.4,.5)):
+            record,entry=self.challenger_fixture()
+            for runner,value in zip(record['runners'],baseline):runner['baseline_form_weight']=value
+            with self.assertRaisesRegex(ValueError,'embedded form baseline'):
+                compare_embedded_form_baseline([record],[entry])
+
+    def test_duplicate_scored_revision_cannot_inflate_comparison(self):
+        record,entry=self.challenger_fixture()
+        with self.assertRaisesRegex(ValueError,'More than one scored revision'):
+            compare_embedded_form_baseline([record],[entry,dict(entry)])

@@ -68,6 +68,99 @@ def evaluate(records,entries):
   'comparison':'Paired form-model minus equal-chance score on the same frozen field; negative values favour the form model.',
   'model_validation':'UNVALIDATED'}
 
+def _corroborated_outcomes(entries):
+ """Validate and index explicit two-publisher result agreement by event."""
+ indexed={}
+ for entry in entries or []:
+  evidence=entry.get('cross_source_evidence',{})
+  if (entry.get('verification')!='SINGLE_SOURCE_PROVISIONAL'
+      or entry.get('independently_verified') is not False
+      or entry.get('publication_gate')!='BLOCKED' or entry.get('challenge_eligible')!=0
+      or evidence.get('verification')!='TWO_PUBLISHER_RESULT_CORROBORATED'
+      or evidence.get('record_sha256')!=entry.get('record_sha256')
+      or str(evidence.get('winner_horse_id'))!=str(entry.get('winner_horse_id'))
+      or evidence.get('publication_gate')!='BLOCKED' or evidence.get('challenge_eligible')!=0):
+   raise ValueError('Invalid two-publisher result corroboration')
+  kickoff=_instant(entry['startUTC']);receipts=[]
+  for name in ('primary_receipt','secondary_receipt'):
+   receipt=evidence.get(name,{})
+   url=urllib.parse.urlsplit(receipt.get('url',''));digest=str(receipt.get('sha256',''))
+   if (url.scheme!='https' or not url.hostname or len(digest)!=64
+       or any(c not in '0123456789abcdef' for c in digest)
+       or _instant(receipt.get('observed_at_utc'))<kickoff):
+    raise ValueError('Invalid corroboration receipt')
+   receipts.append((url.hostname.casefold(),receipt))
+  if receipts[0][0]==receipts[1][0] or receipts[0][1]!=entry.get('source_receipt'):
+   raise ValueError('Corroboration does not contain two explicit publisher receipts')
+  key=(str(entry['race_id']),_instant(entry['startUTC']),str(entry['racecourse']).casefold())
+  winner=str(entry['winner_horse_id'])
+  if key in indexed:raise ValueError('Duplicate corroborated event')
+  indexed[key]=winner
+ return indexed
+
+def compare_embedded_form_baseline(records,entries,corroborated_results=None):
+ """Score a challenger against the form vector frozen in the same record.
+
+ This avoids the capture-time and field-revision confounding that occurs when
+ separately collected model archives are joined retrospectively. The embedded
+ vector is evidence only because it was stored before the race; it does not
+ make the provisional result independent or the model validated.
+ """
+ frozen={}
+ for record in records:
+  digest=record['record_sha256']
+  if digest in frozen and frozen[digest]!=record:
+   raise ValueError('Conflicting frozen records share an archive identity')
+  frozen[digest]=record
+ corroborated=_corroborated_outcomes(corroborated_results)
+ seen=set();rows=[]
+ for entry in entries:
+  record=frozen.get(entry['record_sha256'])
+  if record is None:raise ValueError('Scored outcome lacks a frozen forecast')
+  key=(record['model'],str(record['race_id']),record['startUTC'])
+  if key in seen:raise ValueError('More than one scored revision per race/model')
+  seen.add(key)
+  ids,winner,challenger_brier,challenger_loss=_validated_score(record,entry)
+  runners=record['runners'];baseline=[runner.get('baseline_form_weight') for runner in runners]
+  if (any(type(p) not in (int,float) or not math.isfinite(p) or not 0<p<1 for p in baseline)
+      or abs(sum(baseline)-1)>1e-8):
+   raise ValueError('Invalid embedded form baseline vector')
+  ordered_ids=[str(runner['horse_id']) for runner in runners]
+  winner_index=ordered_ids.index(winner)
+  baseline_brier=sum((p-int(i==winner_index))**2 for i,p in enumerate(baseline))
+  baseline_loss=-math.log(baseline[winner_index])
+  n=len(runners);uniform_brier=(n-1)/n;uniform_loss=math.log(n)
+  event_key=(str(record['race_id']),_instant(record['startUTC']),str(record['racecourse']).casefold())
+  if event_key in corroborated and corroborated[event_key]!=winner:
+   raise ValueError('Corroborated outcome winner mismatch')
+  evidence='TWO_PUBLISHER_RESULT_CORROBORATED' if event_key in corroborated else 'SINGLE_SOURCE_PROVISIONAL'
+  rows.append({'race_id':record['race_id'],'racecourse':record['racecourse'],'startUTC':record['startUTC'],
+   'record_sha256':record['record_sha256'],'frozen_at_utc':record['generated_at_utc'],'winner_horse_id':winner,
+   'result_evidence':evidence,
+   'brier_delta_challenger_minus_form':challenger_brier-baseline_brier,
+   'log_loss_delta_challenger_minus_form':challenger_loss-baseline_loss,
+   'brier_delta_challenger_minus_uniform':challenger_brier-uniform_brier,
+   'log_loss_delta_challenger_minus_uniform':challenger_loss-uniform_loss})
+ def summary(selected):
+  b=[r['brier_delta_challenger_minus_form'] for r in selected]
+  l=[r['log_loss_delta_challenger_minus_form'] for r in selected]
+  return {'matched_races':len(selected),
+   'status':'NO_ELIGIBLE_PAIRS' if not selected else 'INSUFFICIENT_SAMPLE' if len(selected)<30 else 'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION',
+   'mean_brier_delta_challenger_minus_form':sum(b)/len(b) if b else None,
+   'mean_log_loss_delta_challenger_minus_form':sum(l)/len(l) if l else None,
+   'brier_delta_bootstrap_95_interval':paired_interval(b),
+   'log_loss_delta_bootstrap_95_interval':paired_interval(l),
+   'pairs':sorted(selected,key=lambda r:(r['startUTC'],r['race_id']))}
+ all_results=summary(rows)
+ corroborated_results=summary([r for r in rows if r['result_evidence']=='TWO_PUBLISHER_RESULT_CORROBORATED'])
+ return {'protocol_version':'CHALLENGER_VS_EMBEDDED_FORM_PAIRED_V2','model_validation':'UNVALIDATED',
+  'research_only':True,'publication_gate':'BLOCKED',**all_results,
+  'two_publisher_corroborated':corroborated_results,
+  'comparison':'Challenger minus its embedded form baseline on the identical frozen field and forecast receipt; negative deltas favour the challenger.',
+  'limitations':['The embedded baseline shares the exact field and freeze, removing join-time confounding but not training-sample, selection or source bias.',
+   'Two-publisher agreement is reported separately. It does not prove independent underlying data origin or official finality.',
+   'No odds, closing-price, EV or profitability conclusion follows from predictive-score differences.']}
+
 def _instant(value):
  if not isinstance(value,str):raise ValueError('Timestamp string required')
  stamp=dt.datetime.fromisoformat(value.replace('Z','+00:00'))
