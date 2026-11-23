@@ -150,7 +150,7 @@ class PrivateCaptureTests(unittest.TestCase):
     def test_collector_accepts_future_first_capture_with_exact_bytes_timestamp(self):
         src=archive()
         result=obs.collect(bare_ledger(),src,NOW,fetcher=fetcher,private_capture=self.store)
-        self.assertEqual(result["new_observations"],1)
+        self.assertEqual(result["new_observations"],1,repr(result))
         self.assertEqual(src["observations"][0]["source_observed_at_utc"],cap.iso(NOW))
         self.assertFalse(src["observations"][0]["independently_verified"])
         self.assertFalse(src["observations"][0]["betting_eligible"])
@@ -168,7 +168,7 @@ class PrivateCaptureTests(unittest.TestCase):
     def test_existing_two_tuple_fetcher_without_private_storage_is_compatible(self):
         src=archive()
         result=obs.collect(bare_ledger(),src,NOW,fetcher=lambda url:fetcher(url)[:2])
-        self.assertEqual(result["new_observations"],1)
+        self.assertEqual(result["new_observations"],1,repr(result))
         self.assertEqual(src["observations"][0]["actual_outcome"],"a")
 
     def test_collector_refuses_late_capture_timestamp(self):
