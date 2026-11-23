@@ -1,0 +1,195 @@
+/* The selected Tennis lane opts into these presentation tokens. */
+:root {
+  --vw-header: #080d16;
+  --vw-header-line: #1fd655;
+  --vw-page: #0d1526;
+  --vw-panel: #162036;
+  --vw-panel-2: #1b2742;
+  --vw-control: #0d1424;
+  --vw-border: #243250;
+  --vw-text: #ffffff;
+  --vw-muted: #8f9bb3;
+  --vw-accent: #1fd655;
+  --vw-accent-ink: #04210f;
+  --vw-info: #2a3be0;
+  --vw-live: #e5322d;
+  --vw-radius: 6px;
+  --vw-column-gap: 16px;
+  --vw-body-size: 14px;
+}
+
+.tennis-desk-disclosures { display: none; }
+
+html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true"]) {
+  color-scheme: dark;
+
+  & body { background: var(--vw-page); color: var(--vw-text); font-size: var(--vw-body-size); }
+  & .app-header {
+    background: var(--vw-header);
+    border-block-end: 2px solid var(--vw-header-line);
+  }
+  & .brand-accent { color: var(--vw-accent); }
+  & .header-search :is(input, input:focus) { background: var(--vw-control); color: var(--vw-text); }
+  & .dashboard-actions > button,
+  & .research-page-groups {
+    background: var(--vw-panel);
+    border-color: var(--vw-border);
+    color: var(--vw-text);
+  }
+  & .research-pages > summary {
+    background: var(--vw-accent);
+    border-color: var(--vw-accent);
+    border-radius: var(--vw-radius);
+    color: var(--vw-accent-ink);
+  }
+  & .research-page-groups h2 { color: var(--vw-accent); }
+  & .workspace-grid { gap: var(--vw-column-gap); padding-inline: clamp(10px, 1.2vw, 20px); }
+  & .workspace-grid > * { min-width: 0; }
+  & .research-main { padding-inline: 0; }
+  & .desk-heading .heading-caption,
+  & .tennis-desk-disclosures { color: var(--vw-muted); font-size: 13px; line-height: 1.5; }
+  & .tennis-desk-disclosures { display: block; margin-top: 3px; }
+  & :is(button, a, input, select, summary):focus-visible {
+    outline: 2px solid var(--vw-accent);
+    outline-offset: 2px;
+  }
+
+  @media (min-width: 1021px) {
+    & .workspace-grid { grid-template-columns: clamp(188px, 19vw, 310px) minmax(0, 1fr) clamp(238px, 21vw, 300px); }
+  }
+  @media (max-width: 680px) {
+    & .workspace-grid { row-gap: 0; }
+  }
+}
+
+html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true"]) {
+  & .navigation-rail { background: transparent; border: 0; padding-inline: 0; }
+  & .navigation-rail :is(.filter-panel, .competition-rail) {
+    background: var(--vw-panel);
+    border: 1px solid var(--vw-border);
+    border-radius: var(--vw-radius);
+    padding: 10px;
+  }
+  & .navigation-rail :is(input, select, .competition-button, [data-range]) {
+    background: var(--vw-control);
+    border: 1px solid var(--vw-border);
+    border-radius: var(--vw-radius);
+    color: var(--vw-text);
+  }
+  & .navigation-rail :is(.competition-button.active, [data-range][aria-pressed="true"]) {
+    border-color: var(--vw-accent);
+    color: var(--vw-accent);
+    background: var(--vw-panel-2);
+  }
+  & .navigation-rail .section-label,
+  & .navigation-rail .timezone-label { color: var(--vw-muted); }
+  & .navigation-rail .competition-button { min-height: 40px; }
+}
+
+html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true"]) {
+  & #dashboard-sports { border-color: var(--vw-border); }
+  & #dashboard-sports #sport-nav { gap: 7px; padding-block: 8px; }
+  & #dashboard-sports #sport-nav button {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    place-items: center;
+    min-width: 86px;
+    min-height: 58px;
+    padding: 5px 8px;
+    gap: 2px 4px;
+    border: 1px solid var(--vw-border);
+    border-radius: var(--vw-radius);
+    background: var(--vw-panel);
+    color: var(--vw-text);
+  }
+  & #dashboard-sports #sport-nav .sport-symbol {
+    grid-column: 1 / -1;
+    inline-size: auto;
+    font-size: 19px;
+    line-height: 1;
+  }
+  & #dashboard-sports #sport-nav button:not(:has(.sport-symbol)) { display: flex; }
+  & #dashboard-sports #sport-nav .sport-count { background: var(--vw-control); color: var(--vw-muted); }
+  & #dashboard-sports #sport-nav button[aria-pressed="true"] {
+    border-color: var(--vw-accent);
+    background: var(--vw-panel-2);
+    box-shadow: inset 0 -3px var(--vw-accent);
+  }
+}
+
+html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true"]) {
+  & #events { --market-edge: var(--vw-border); --market-accent: var(--vw-accent); }
+  & #events .desk-market-row[data-sport="tennis"] {
+    margin-block: 0;
+    background: var(--vw-panel);
+    border: 1px solid var(--vw-border);
+    border-inline-start: 3px solid var(--vw-info);
+    border-radius: var(--vw-radius);
+  }
+  & #events .desk-market-row[data-sport="tennis"] .market-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    border: 0;
+  }
+  & #events .desk-market-row[data-sport="tennis"] .selection-button {
+    background: var(--vw-control);
+    border: 1px solid var(--vw-border);
+    border-radius: var(--vw-radius);
+    color: var(--vw-text);
+  }
+  & #events .desk-market-row[data-sport="tennis"] .selection-button:is(:hover, .is-selected, [aria-pressed="true"]):not(:disabled) {
+    background: var(--vw-panel-2);
+    border-color: var(--vw-accent);
+  }
+  & #events .desk-market-row[data-sport="tennis"] .selection-price { color: var(--vw-accent); }
+  & #events .desk-market-row[data-sport="tennis"] :is(.event-time, .event-meta, .compact-evidence-note, .desk-market-note) {
+    color: var(--vw-muted);
+  }
+  & :is(.engine-switch, .dashboard-watch, #dashboard-coverage, #events .empty-state) {
+    background: var(--vw-panel);
+    border-color: var(--vw-border);
+    border-radius: var(--vw-radius);
+  }
+  & #events .desk-market-row[data-sport="tennis"] .market-grid.desk-market-empty .selection-button {
+    background: transparent;
+  }
+}
+
+html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true"]) {
+  & #slip-panel,
+  & .mobile-slip-bar {
+    background: var(--vw-panel);
+    border: 1px solid var(--vw-border);
+    color: var(--vw-text);
+  }
+  & #slip-panel { border-radius: var(--vw-radius); }
+  & .slip-panel-header {
+    background: var(--vw-panel-2);
+    border-radius: var(--vw-radius);
+    padding: 10px 12px;
+  }
+  & #slip-panel :is(.slip-selection, .slip-empty, .slip-calculator, #stake, #slip-structure, #slip-tabs button) {
+    background: var(--vw-control);
+    border-color: var(--vw-border);
+    border-radius: var(--vw-radius);
+    color: var(--vw-text);
+  }
+  & #slip-tabs button[aria-pressed="true"] { border-color: var(--vw-accent); color: var(--vw-accent); }
+  & :is(#paper-open, #generate).button-primary {
+    background: var(--vw-accent);
+    color: var(--vw-accent-ink);
+  }
+  & :is(.slip-footnote, #slip-subtitle, #slip-refresh-health, #slip-refresh-outcome) { color: var(--vw-muted); }
+  @media (min-width: 1021px) {
+    & #slip-panel { top: 8px; margin-block-start: 16px; max-height: calc(100dvh - 16px); }
+  }
+}
+
+html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true"]) {
+  & #refresh { white-space: nowrap; }
+  & #refresh svg { flex-shrink: 0; }
+  @media (min-width: 1251px) {
+    & .engine-switch { grid-template-columns: auto minmax(0, 16rem) minmax(0, 1fr); }
+  }
+}
