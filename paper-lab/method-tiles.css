@@ -68,3 +68,31 @@ html.unified-desk .engine-switch .engine-method-tile[aria-pressed="true"] .engin
     grid-template-columns:minmax(0,1fr);
   }
 }
+
+
+/* Unified Desk still uses a legacy 3-column dropdown CSS grid. Override its
+   container (not only Visual Preview) so each method box is a full-size card. */
+html.unified-desk .engine-switch{
+  display:block!important;
+  grid-template-columns:none!important;
+  grid-template-rows:none!important;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+html.unified-desk .engine-switch .engine-method-grid{
+  display:grid!important;
+  width:100%;
+  min-width:0;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+@media(max-width:1180px){
+ html.unified-desk .engine-switch .engine-method-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+}
+@media(max-width:400px){
+ html.unified-desk .engine-switch .engine-method-grid{
+  grid-template-columns:minmax(0,1fr);
+ }
+}
