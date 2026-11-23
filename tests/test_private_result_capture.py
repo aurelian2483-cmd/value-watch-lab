@@ -20,7 +20,20 @@ START = cap.iso(NOW - timedelta(days=1))
 URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard?dates=20261119"
 
 def source_bytes():
-    return b'{"events":[{"groupings":[{"grouping":{"slug":"mens-singles"},"competitions":[{"id":"555","date":"' + START.encode() + b'","status":{"type":{"name":"STATUS_FINAL","completed":true}},"competitors":[{"id":"a","type":"athlete","winner":true},{"id":"b","type":"athlete","winner":false}]}]}]}]}]}'
+    # Construct the synthetic source as JSON, rather than hand-writing brackets.
+    # Earlier two collector tests were failing on an extra bracket in the mock.
+    document = {"events": [{"groupings": [{
+        "grouping": {"slug": "mens-singles"},
+        "competitions": [{
+            "id": "555", "date": START,
+            "status": {"type": {"name": "STATUS_FINAL", "completed": True}},
+            "competitors": [
+                {"id": "a", "type": "athlete", "winner": True},
+                {"id": "b", "type": "athlete", "winner": False}
+            ]
+        }]
+    }]}]}
+    return json.dumps(document, separators=(",", ":"), sort_keys=True).encode("utf-8")
 
 def prediction():
     return {
