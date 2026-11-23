@@ -55,7 +55,7 @@ html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true
   }
 
   @media (min-width: 1021px) {
-    & .workspace-grid { grid-template-columns: clamp(188px, 19vw, 310px) minmax(0, 1fr) clamp(238px, 21vw, 300px); }
+    & .workspace-grid { grid-template-columns: clamp(188px, 22vw, 310px) minmax(0, 1fr) clamp(238px, 21vw, 300px); }
   }
   @media (max-width: 680px) {
     & .workspace-grid { row-gap: 0; }
@@ -124,7 +124,7 @@ html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true
     margin-block: 0;
     background: var(--vw-panel);
     border: 1px solid var(--vw-border);
-    border-inline-start: 3px solid var(--vw-info);
+    border-inline-start: 3px solid var(--vw-border);
     border-radius: var(--vw-radius);
   }
   & #events .desk-market-row[data-sport="tennis"] .market-grid {
@@ -187,6 +187,40 @@ html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true
 }
 
 html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true"]) {
+  & .header-main { padding-block: 6px; }
+  & .brand-mark { background: var(--vw-accent); color: var(--vw-accent-ink); }
+  & .research-page-groups :is(a, button):hover { background: var(--vw-panel-2); }
+  & .engine-switch .engine-select,
+  & .engine-switch .engine-select option {
+    background: var(--vw-control);
+    color: var(--vw-text);
+  }
+  & .engine-switch .engine-select {
+    min-height: 44px;
+    border: 1px solid var(--vw-border);
+    border-radius: var(--vw-radius);
+  }
+  & .engine-switch [aria-pressed="true"] {
+    background: var(--vw-panel-2);
+    border-color: var(--vw-accent);
+  }
+  & .engine-switch :is(button, select):focus-visible {
+    outline: 2px solid var(--vw-accent);
+  }
+  & #events .desk-market-row[data-sport="tennis"] .selection-button .selection-name {
+    color: var(--vw-text);
+  }
+  & #events .desk-market-row[data-sport="tennis"] .selection-button { padding-block: 4px; }
+  & #events .desk-market-row[data-sport="tennis"] .desk-row-disclosures > details[open] {
+    background: var(--vw-panel);
+    border-color: var(--vw-border);
+    border-radius: var(--vw-radius);
+  }
+  & #events .desk-market-row[data-sport="tennis"] .desk-row-disclosures > details[open] > summary {
+    background: var(--vw-panel-2);
+  }
+  & #events .desk-market-row :is(button,a,summary):focus-visible { outline-color: var(--vw-accent); }
+  & #slip-tabs:focus-visible { outline-color: var(--vw-accent); }
   & #refresh { white-space: nowrap; }
   & #refresh svg { flex-shrink: 0; }
   @media (min-width: 1251px) {
