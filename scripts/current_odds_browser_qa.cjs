@@ -168,7 +168,7 @@ async function main(){
        assert(Math.abs(column.x-market.x)<=1 && Math.abs(column.width-market.width)<=1);
       }
       const empty=page.locator('#events .desk-event-card').filter({hasText:'QA Football Unpriced vs QA Football Away'});
-      await empty.getByText('No verified prices or model estimates',{exact:true}).waitFor();
+      await empty.getByText(/^No verified prices or model estimates · .+$/).waitFor();
       assert.equal(await empty.locator('.selection-price:visible').count(),0);
       const unverified=page.locator('#events .desk-event-card').filter({hasText:'QA Football Unverified vs QA Football Away'});
       await unverified.locator('[data-choice-id=home] .selection-price').filter({hasText:'50.0%'}).waitFor();

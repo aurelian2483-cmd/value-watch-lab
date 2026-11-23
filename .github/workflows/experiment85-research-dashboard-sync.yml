@@ -85,6 +85,7 @@ jobs:
           set -euo pipefail
           cp /tmp/experiment82/dashboard-data.json website/research-dashboard-data.json
           cp /tmp/experiment93/history.json website/research-history.json
+          python website/scripts/count_football_fixtures.py website/research-history.json
           cd website
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

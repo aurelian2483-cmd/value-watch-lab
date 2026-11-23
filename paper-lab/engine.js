@@ -304,7 +304,7 @@
         choices: outcomes.map(outcome => ({ id: String(outcome.id), label: str(outcome.name), probability: validModel ? outcome.probability : null, uncertainty: null, quote: null, market: sport === 'nfl' ? 'Game result · including overtime' : 'Match winner' })),
         stats: { h2h: null, recent: null, rankings: null },
         model: validModel ? { name: str(row.forecast.model), observedAt: row.forecast.generated_at_utc || observedAt, validation: 'UNVALIDATED', probabilityKind: 'EXPERIMENTAL_MODEL_ESTIMATE', trainingMatches: row.forecast.training_matches, uncertainty: null } : null,
-        extra: { providerStatus: str(row.status || row.event_status), unavailableReason: str(row.unavailable_reason) }
+        extra: { providerStatus: str(row.status || row.event_status), unavailableReason: validModel ? null : str(row.unavailable_reason) }
       }, now);
     }).filter(Boolean));
   }
@@ -722,7 +722,8 @@
       selections.push({sport,eventId:choice.event.id,event:choice.event.name,
         startUTC:choice.event.startUTC,choiceId:choice.choice.id,outcome:choice.choice.label,
         market:choice.choice.market,experimentalProbability:probability,
-        evidenceScore:choice.evidence,model:choice.event.model.name,
+        evidenceScore:choice.evidence,model:sport==='football' ? choice.event.seasonComparison.method : choice.event.model.name,
+        probabilityKind:choice.event.model.probabilityKind, snapshotAt:choice.event.observedAt,
         sourceReceiptCount:choice.event.sources.filter(source=>source.kind==='PROVIDER_RECEIPT').length,
         preEventPrice,odds:null,expectedValue:null,potentialReturn:null,priceVerified:false,
         review:'AUTOMATED_PRELIMINARY_NOT_INDEPENDENTLY_APPROVED'});
@@ -811,7 +812,7 @@
       candidates.push({
         eventId:event.id,event:str(event.name,160),sport:event.sport,
         startUTC:event.startUTC,choiceId:choice.id,outcome:str(choice.label,100),
-        market:str(choice.market,80),model:str(event.model.name,120),
+        market:str(choice.market,80),model:str(event.sport==='football' ? event.seasonComparison.method : event.model.name,120),
         experimentalProbability:p,evidenceScore:row.evidence,
         priceVerified:false,decimalOdds:null,expectedValue:null,verifiedProbability:null,
         status:'EXPERIMENTAL_RESEARCH_LEAD'
