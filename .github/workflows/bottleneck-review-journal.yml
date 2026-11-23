@@ -1,0 +1,50 @@
+name: Bottleneck private review journal (read-only)
+on:
+  push:
+    branches:
+      - research/bottleneck-review-journal-20261123
+  pull_request:
+    branches:
+      - research/bottleneck-raw-receipts-20261123
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review-journal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run full isolated Bottleneck test chain
+        run: |
+          node --check research/bottleneck-selector/review-journal.mjs
+          node --check research/bottleneck-selector/review-journal-cli.mjs
+          node --test research/bottleneck-selector/selector.test.mjs research/bottleneck-selector/evidence-bridge.test.mjs research/bottleneck-selector/method-identity.test.mjs research/bottleneck-selector/result-review.test.mjs research/bottleneck-selector/source-verification.test.mjs research/bottleneck-selector/raw-source-evidence.test.mjs research/bottleneck-selector/review-journal.test.mjs
+      - name: Replay real sources and confirm no certification
+        run: |
+          node research/bottleneck-selector/result-review-cli.mjs > /tmp/bottleneck-review-worklist.json
+          node research/bottleneck-selector/source-verification-cli.mjs /tmp/bottleneck-review-worklist.json > /tmp/bottleneck-source-dossier.json
+          node research/bottleneck-selector/raw-source-evidence-cli.mjs /tmp/bottleneck-source-dossier.json > /tmp/bottleneck-original-byte-readiness.json
+          node research/bottleneck-selector/review-journal-cli.mjs /tmp/bottleneck-original-byte-readiness.json > /tmp/bottleneck-private-review-register.json
+          node --input-type=module -e '
+            import assert from "node:assert/strict";
+            import fs from "node:fs";
+            const r=JSON.parse(fs.readFileSync("/tmp/bottleneck-private-review-register.json","utf8"));
+            assert.equal(r.kind,"BOTTLENECK_MANUAL_REVIEW_REGISTER_V1");
+            assert.equal(r.publication_gate,"BLOCKED");
+            assert.equal(r.selected_method,null);
+            assert.equal(r.independent_outcomes_certified,0);
+            assert.equal(r.private_decision_entries,0);
+            assert.equal(r.review_status_counts.NOT_REVIEWED,r.total_packets);
+            assert.equal(r.engine_identity_certified,0);
+            assert.equal(r.scoring_authorised,false);
+            assert(r.queue.every(p=>p.independently_verified_outcome===false&&
+              p.linked_dropdown_method===null&&p.betting_eligible===false));
+            console.log("Read-only manual review register:",r.total_packets,
+              "pending review packets, 0 submitted decisions, 0 certified outcomes");
+          '
