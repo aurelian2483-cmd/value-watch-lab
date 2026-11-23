@@ -342,3 +342,50 @@ html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true
     font-size: 10px;
   }
 }
+
+html.unified-desk:has(#dashboard-sports [data-sport="tennis"][aria-pressed="true"]) {
+  --vw-gold: #d4af37;
+  --vw-model: #acd0ff;
+  --vw-source: #79ead7;
+  --vw-withheld: #ffce85;
+  --vw-unvalidated: #dec2ff;
+
+  & #slip-panel #weekly-wildcard {
+    background: var(--vw-panel);
+    color: var(--vw-text);
+    border: 1px solid var(--vw-gold);
+    border-radius: var(--vw-radius);
+    box-shadow: none;
+  }
+  & #weekly-wildcard :is(.wildcard-symbol, .wildcard-eyebrow, h3, .wildcard-council-launch, #wildcard-build),
+  & .tennis-gold-link {
+    color: var(--vw-gold);
+    border-color: var(--vw-gold);
+  }
+  & #weekly-wildcard :is(.wildcard-council-launch, #wildcard-build):not([hidden]) {
+    display: block;
+    background: var(--vw-control);
+    text-align: center;
+  }
+  & .dashboard-actions > .tennis-gold-link { display: inline-flex; padding-inline: 4px; }
+  & .engine-switch { --engine-ink: var(--vw-model); border-inline-start: 3px solid var(--engine-ink); }
+  & .engine-switch:has(option[value="experimental"]:checked) { --engine-ink: var(--vw-unvalidated); }
+  & .engine-switch:has(option[value="hybrid"]:checked) { --engine-ink: var(--vw-source); }
+  & .engine-switch:has(option[value="compare"]:checked) { --engine-ink: var(--vw-withheld); }
+  & .engine-switch:has(option[value="reliability"]:checked) { --engine-ink: #f7b8cf; }
+  & .engine-switch #engine-status { color: var(--engine-ink); }
+  & #events .desk-market-row[data-sport="tennis"] .selection-button:not(.is-unpriced) .selection-price { color: var(--vw-model); }
+  & #events .desk-market-row[data-sport="tennis"] .selection-button:is(.has-matched-price, [aria-label*=" source odds · "]) .selection-price { color: var(--vw-source); }
+  & #events .desk-market-row[data-sport="tennis"] .selection-button[aria-label*=" publisher forecast · "] .selection-price { color: var(--vw-withheld); }
+  & #events .desk-market-row[data-sport="tennis"] .selection-caption:not(:empty) { color: var(--vw-model); }
+  & #events .desk-market-row[data-sport="tennis"] .selection-button[aria-pressed="true"] .selection-caption { color: var(--vw-accent); }
+  & #events .desk-market-row[data-sport="tennis"] .compact-event-signals > .compact-evidence-note { color: var(--vw-muted); }
+  /* Without a matched quote the three notes are validation, EV and price status in render order. */
+  & #events .desk-market-row[data-sport="tennis"] .compact-event-signals:not(:has(.live-price-pill)):has(.compact-evidence-note:nth-child(4)) > :nth-child(2) { color: var(--vw-unvalidated); }
+  & #events .desk-market-row[data-sport="tennis"] .compact-event-signals:not(:has(.live-price-pill)):has(.compact-evidence-note:nth-child(4)) > :nth-child(3) { color: var(--vw-withheld); }
+  & #events .desk-market-row[data-sport="tennis"] .selection-button:disabled { border-style: dashed; }
+  & #slip-panel .paper-tag { color: var(--vw-gold); border-color: var(--vw-gold); }
+  @media (max-width: 680px) {
+    & .dashboard-actions > .tennis-gold-link { display: none; }
+  }
+}
