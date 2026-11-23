@@ -1,0 +1,33 @@
+name: Bottleneck future original-result capture (offline)
+on:
+  push:
+    branches:
+      - research/bottleneck-future-raw-capture-20261123
+  pull_request:
+    branches:
+      - research/bottleneck-review-journal-20261123
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  private-capture-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check first-provider result capture and private original response code
+        run: |
+          python -m py_compile scripts/private_result_capture.py scripts/observe_pending_results.py scripts/export_private_result_manifest.py
+          python -m unittest discover -s tests -p 'test_private_result_capture.py' -v
+          python -m unittest discover -s tests -p 'test_result_observations.py' -v
+          python -m unittest discover -s tests -p 'test_result_reconciliation.py' -v
+      - name: Check no live result archive or forecast data was changed
+        run: |
+          git diff --exit-code -- prediction-ledger.json results-feed.json research/provider-result-observations.json research/secondary-result-evidence.json research/result-review-status.json
+          test ! -d private-result-capture
+          echo "Offline only; no live provider fetched, no raw byte artifact uploaded"

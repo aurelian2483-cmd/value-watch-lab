@@ -6,12 +6,14 @@ Never infers a result from an old schedule, unknown player, walkover or reschedu
 """
 import hashlib
 import json
+import os
 import re
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 from capture_prospective_research import ROOT, utc, iso
+from private_result_capture import PrivateResultCapture, PrivateCaptureError
 
 MAX_CALLS=20
 MAX_RESPONSE=12_000_000
@@ -28,9 +30,13 @@ def safe_url(value,sport):
 def fetch(url):
     request=urllib.request.Request(url,headers={'User-Agent':'ValueWatchResearch/1.0','Accept':'application/json'})
     with urllib.request.urlopen(request,timeout=20) as response:
+        if response.geturl()!=url:raise ValueError('Redirected provider response not accepted')
         raw=response.read(MAX_RESPONSE+1)
     if len(raw)>MAX_RESPONSE:raise ValueError('Source too large')
-    return json.loads(raw),hashlib.sha256(raw).hexdigest()
+    # Timestamp refers to completed receipt of these exact bytes, not the
+    # beginning of the workflow or a later report-generation timestamp.
+    received_at=iso(datetime.now(timezone.utc))
+    return json.loads(raw),hashlib.sha256(raw).hexdigest(),raw,received_at
 
 def competitions(doc,sport,identity):
     if not isinstance(doc,dict) or not isinstance(doc.get('events'),list):return []
@@ -92,7 +98,7 @@ def observe(record,document,source_hash,now):
     except (KeyError,ValueError,TypeError,AttributeError):
         return None
 
-def collect(ledger,previous,now,fetcher=fetch,max_calls=MAX_CALLS):
+def collect(ledger,previous,now,fetcher=fetch,max_calls=MAX_CALLS,private_capture=None):
     if ledger.get('schemaVersion')!=1 or ledger.get('kind')!='PROSPECTIVE_PREDICTION_LEDGER' or not isinstance(ledger.get('records'),list):
         raise ValueError('Invalid prediction archive')
     if previous.get('schema_version')!=1 or not isinstance(previous.get('observations'),list):
@@ -117,17 +123,34 @@ def collect(ledger,previous,now,fetcher=fetch,max_calls=MAX_CALLS):
     added=0;failures=0;unconfirmed=0;revisions=0
     for url,rows in list(grouped.items())[:max_calls]:
         try:
-            document,source_hash=fetcher(url)
+            fetched=fetcher(url)
+            if not isinstance(fetched,(tuple,list)) or len(fetched) not in (2,4):
+                raise ValueError('Invalid provider response contract')
+            document,source_hash=fetched[:2]
             if not re.fullmatch(r'[a-f0-9]{64}',source_hash):raise ValueError('Missing content receipt')
+            observed_at=now
+            original_bytes=None
+            if len(fetched)==4:
+                original_bytes=fetched[2]
+                observed_at=utc(fetched[3])
+                if observed_at<now-timedelta(minutes=1) or observed_at>now+timedelta(minutes=5):
+                    raise ValueError('Source observation timestamp inconsistent with fetch window')
+            if private_capture is not None:
+                if not isinstance(original_bytes,bytes):
+                    raise ValueError('Original response bytes required when private capture is enabled')
+                if hashlib.sha256(original_bytes).hexdigest()!=source_hash:
+                    raise ValueError('Original provider response hash mismatch')
             for p in rows:
-                new=observe(p,document,source_hash,now)
+                new=observe(p,document,source_hash,observed_at)
                 if not new:unconfirmed+=1;continue
+                if private_capture is not None:
+                    private_capture.preserve_observation(new,original_bytes)
                 old=originals.get(new['prediction_id'])
                 if old:
                     if old!=new:revisions+=1
                     continue
                 previous['observations'].append(new);originals[new['prediction_id']]=new;added+=1
-        except (OSError,ValueError,TypeError,KeyError,TimeoutError):
+        except (OSError,ValueError,TypeError,KeyError,TimeoutError,PrivateCaptureError):
             failures+=1
     previous['observations'].sort(key=lambda x:x['prediction_id'])
     return {'new_observations':added,'total_observations':len(previous['observations']),
@@ -142,7 +165,12 @@ def run(root,now):
         'schema_version':1,'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED',
         'observations':[],'notice':'Single-source results are not independent outcome verification'}
     if archive.get('research_only') is not True or archive.get('publication_gate')!='BLOCKED':raise ValueError('Unsafe results archive')
-    audit=collect(ledger,archive,now)
+    private_root=os.environ.get('BOTTLENECK_PRIVATE_RESULT_CAPTURE_ROOT')
+    # This variable must refer to an owned 0700 local directory OUTSIDE the
+    # checkout. GitHub Actions has no durable private store by default.
+    capture=PrivateResultCapture(private_root,ROOT) if private_root else None
+    audit=collect(ledger,archive,now,private_capture=capture)
+    audit['private_raw_capture']='PRIVATE_LOCAL_ONLY' if capture else 'DISABLED_NO_PRIVATE_STORAGE'
     archive['generated_at_utc']=iso(now)
     path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(json.dumps(archive,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
