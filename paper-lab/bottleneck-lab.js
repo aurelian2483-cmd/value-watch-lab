@@ -41,7 +41,7 @@
     rugby_union: {
       label: 'Rugby Union · Pro D2', baseline: 'Pro D2 Elo · regulation result',
       bottleneck: 'Capped prior points-margin adjustment', status: 'RETROSPECTIVE_ONLY',
-      evidence: 'The 24-match retrospective comparison uses single-source finals. The estimated gain is uncertain and independent outcomes and pre-event receipts are absent.',
+      evidence: 'The 24-match retrospective screen covers one season and one source. The paired log-loss interval crosses zero, and the challenger was worse in one of three rounds. With no time-matched bookmaker benchmark, incremental value is unproven.',
       next: 'Freeze a new window with timestamped inputs and independently checked finals. Other Union competitions have no connected challenger.'
     },
     rugby_league: {

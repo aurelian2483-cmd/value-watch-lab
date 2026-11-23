@@ -74,6 +74,8 @@ async function main() {
         assert.equal(await lanes.getByText(/Second star withheld/).count(), expected.length);
       };
       await activate('rugby', ['rugby_union', 'rugby_league']);
+      assert.equal(await engine.locator('option:checked').textContent(), 'Bottleneck Lab');
+      assert.equal(await lanes.getByText(/incremental value is unproven/).count(), 1);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
       await page.locator('#engine-analysis').screenshot({path: path.join(out, 'bottleneck-rugby-' + width + '.png')});
       if (width === 1440) {
