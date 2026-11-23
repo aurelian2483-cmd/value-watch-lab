@@ -508,7 +508,7 @@
       !event.choices.some(choice => Number.isFinite(choice.quote?.decimal) || Number.isFinite(choice.forecastPrice?.decimal));
     record.market.classList.toggle('desk-market-empty', emptyMarket);
     const note = record.market.querySelector('.desk-market-note');
-    if (emptyMarket && !note) record.market.prepend(make(null, 'p', 'No verified prices or model estimates', 'desk-market-note'));
+    if (emptyMarket && !note) record.market.prepend(make(null, 'p', 'No verified prices or model estimates · ' + (event.unavailableReason || event.forecastStatus || 'No matched forecast in this feed'), 'desk-market-note'));
     else if (!emptyMarket) note?.remove();
     if (marketRow && !currentOdds && !emptyMarket && record.choices.size)
       make(quickSignals, 'span', 'No verified price', 'compact-evidence-note');
@@ -542,7 +542,7 @@
         const comparison = [hasLivePrice && probability != null ? pct(probability) + ' model' : '', fair ? 'Fair ' + fair : ''].filter(Boolean);
         write(view.comparison, comparison.join(' · '));
         view.comparison.title = comparison.length && model ? model.name + ' · UNVALIDATED' : '';
-        if (!hasLivePrice && acceptedProbability != null) write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + 'Model estimate');
+        if (!hasLivePrice && probability != null) write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (acceptedProbability != null ? model.name : event.model?.name || 'Model estimate'));
       }
       write(view.odds, hasLivePrice ? 'Sky Bet '+livePrice.toFixed(2)+' · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK · checked '+dateText(new Date(currentOdds.checked).toISOString())+' UK · EV withheld' : priced ? estimated ? 'Source odds ' + quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'No matched bookmaker price in this snapshot');
       write(view.method, event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' + (contextWeight ? ' · context weight, not win probability' : '') : 'Method: unavailable · no validated forecast');
@@ -1465,7 +1465,7 @@
         make(card, 'h4', row.label + ' · ' + row.status.replaceAll('_', ' '));
         make(card, 'p', 'Baseline path: ' + row.baseline + (row.baselineEstimateCount ?
           ' · ' + row.baselineEstimateCount + ' fresh estimates in the filtered desk feed' :
-          ' · no fresh estimate counted in the filtered desk feed'), 'small');
+          ' · no fresh estimate counted for this baseline. The board may show another model.'), 'small');
         make(card, 'p', 'Bottleneck estimate: unavailable for current events. Second star withheld.', 'small');
         make(card, 'p', 'Research candidate: ' + row.bottleneck, 'small');
         make(card, 'p', row.evidence, 'small');
@@ -1798,7 +1798,8 @@
       }
       make(box,'strong',chosen.outcome,'wildcard-shortlist-pick');
       make(box,'small',chosen.event+' · '+dateText(chosen.startUTC),'wildcard-shortlist-detail');
-      make(box,'strong',pct(chosen.experimentalProbability)+' · experimental estimate','wildcard-shortlist-estimate');
+      make(box,'strong',pct(chosen.experimentalProbability)+(sport==='racing' && (chosen.probabilityKind==='EXPERIMENTAL_CONTEXT_WEIGHT' || /CONTEXT_FORM/.test(chosen.model)) ? ' · form ranking weight' : ' · '+(chosen.market || 'experimental estimate')),'wildcard-shortlist-estimate');
+      make(box,'small',[chosen.model,chosen.snapshotAt && 'Snapshot '+dateText(chosen.snapshotAt)].filter(Boolean).join(' · '),'wildcard-shortlist-detail');
     }
     make(target,'p','Combined slip: verified prices unavailable.','wildcard-compact-warning');
     renderWildcardTracker(target,data?.entries||[],openWeeks,keepSavedOpen,Date.now());
