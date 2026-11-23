@@ -1482,7 +1482,7 @@
       if(!candidates.length)make(root,'p','No candidate satisfies the strict form rule with the historical evidence currently loaded. No matches are added merely to fill the list.');
       return;
     }
-    if (engineView === 'hybrid' && state.sport !== 'football') {
+    if (engineView === 'hybrid' && !['football', 'all'].includes(state.sport)) {
       make(root, 'h3', 'Hybrid 3.1 · football only');
       make(root, 'p', 'The current-season hybrid is a football research method. It cannot score ' + (sports[state.sport] || state.sport) + ' events. Select Football to see its football-only view; cross-sport Bottleneck forecasts are not deployed.', 'small');
       return;
