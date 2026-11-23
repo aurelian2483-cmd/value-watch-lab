@@ -22,6 +22,8 @@ body:has(> .vw-page-header) :is(.panel, .card, .surface, .pro-reference-panel, .
 body:has(> .vw-page-header) main :is(a, a:visited):where(:not([class])) { color: var(--vw-shared-accent); }
 
 .vw-page-header {
+  display: block;
+  min-width: 0;
   position: relative;
   z-index: 35;
   isolation: isolate;
@@ -40,7 +42,10 @@ body:has(> .vw-page-header) main :is(a, a:visited):where(:not([class])) { color:
   align-items: center;
   gap: 4px 10px;
   margin: 0 auto;
+  width: 100%;
+  min-width: 0;
   max-width: 1760px;
+  box-sizing: border-box;
   padding: 7px clamp(10px, 2vw, 24px);
 }
 .vw-page-header a,
