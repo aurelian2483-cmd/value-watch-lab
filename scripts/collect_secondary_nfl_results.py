@@ -10,6 +10,7 @@ import csv
 import hashlib
 import io
 import json
+import os
 import re
 import urllib.request
 from collections import defaultdict
@@ -19,6 +20,7 @@ from urllib.parse import urlencode, urlsplit
 from zoneinfo import ZoneInfo
 
 from capture_prospective_research import ROOT, iso, utc
+from private_result_capture import PrivateResultCapture, PrivateCaptureError
 
 NFLVERSE='https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv'
 EASTERN=ZoneInfo('America/New_York')
@@ -49,7 +51,9 @@ def read_json(url):
         if response.geturl()!=url:raise ValueError('Redirect not permitted')
         raw=response.read(MAX_BYTES+1)
     if len(raw)>MAX_BYTES:raise ValueError('Provider payload too large')
-    return json.loads(raw),hashlib.sha256(raw).hexdigest()
+    # First original byte receipt, not a later report creation time.
+    receipt_time=iso(datetime.now(timezone.utc))
+    return json.loads(raw),hashlib.sha256(raw).hexdigest(),raw,receipt_time
 
 def espn_identity(doc,p):
     if not isinstance(doc,dict) or not isinstance(doc.get('events'),list):return None
@@ -125,7 +129,8 @@ def read_nflverse():
     for row in reader:
         if row['espn'] and row['espn'].isdecimal():
             indexed[row['espn']].append(row)
-    return indexed,hashlib.sha256(raw).hexdigest()
+    receipt_time=iso(datetime.now(timezone.utc))
+    return indexed,hashlib.sha256(raw).hexdigest(),raw,receipt_time
 
 
 def nflverse_observation(index,identity,p,now,receipt):
@@ -158,7 +163,7 @@ def nflverse_observation(index,identity,p,now,receipt):
         'final_score':{'home':home,'away':away}}
 
 
-def collect(ledger,previous,now,fetcher=read_json,schedules_fetcher=None):
+def collect(ledger,previous,now,fetcher=read_json,schedules_fetcher=None,private_capture=None):
     if ledger.get('schemaVersion')!=1 or ledger.get('kind')!='PROSPECTIVE_PREDICTION_LEDGER' or not isinstance(ledger.get('records'),list):
         raise ValueError('Invalid forecast ledger')
     if previous.get('schema_version')!=1 or previous.get('publication_gate')!='BLOCKED' or not isinstance(previous.get('observations'),list):
@@ -190,18 +195,37 @@ def collect(ledger,previous,now,fetcher=read_json,schedules_fetcher=None):
         if not doc:continue
         identity=espn_identity(doc,p)
         if identity:by_day[utc(p['event_start_utc']).date().isoformat()].append((p,identity))
-    appended=0;days_scanned=0
+    appended=0;days_scanned=0;private_capture_failures=0
     for day,items in sorted(by_day.items())[:MAX_DAYS]:
         url=API+'?'+urlencode({'d':day,'s':'American Football','l':'NFL'})
         try:
-            result,hash_value=fetcher(url)
-            if not re.fullmatch('[0-9a-f]{64}',hash_value):raise ValueError('Missing provider receipt')
+            fetched=fetcher(url)
+            if not isinstance(fetched,(tuple,list)) or len(fetched) not in (2,4):
+                raise ValueError('Invalid secondary provider response contract')
+            result,hash_value=fetched[:2]
+            if not re.fullmatch('[0-9a-f]{64}',hash_value):
+                raise ValueError('Missing provider receipt')
+            observed_at=now
+            original=None
+            if len(fetched)==4:
+                original=fetched[2]
+                observed_at=utc(fetched[3])
+                if not now-timedelta(minutes=1)<=observed_at<=now+timedelta(minutes=10):
+                    raise ValueError('Secondary source capture time outside collection window')
+            if private_capture is not None and (
+                not isinstance(original,bytes) or
+                hashlib.sha256(original).hexdigest()!=hash_value):
+                raise ValueError('Secondary original bytes missing or hash mismatch')
             days_scanned+=1
         except (ValueError,OSError,TimeoutError,TypeError):
             errors+=1;continue
         for p,identity in items:
-            evidence=sportsdb_observation(result,identity,p,now,url,hash_value)
+            evidence=sportsdb_observation(result,identity,p,observed_at,url,hash_value)
             if not evidence:continue
+            if private_capture is not None:
+                try: private_capture.preserve_secondary_observation(evidence,original)
+                except PrivateCaptureError:
+                    private_capture_failures+=1;errors+=1;continue
             previous['observations'].append(evidence)
             stored[p['prediction_id']]=evidence
             appended+=1
@@ -210,12 +234,31 @@ def collect(ledger,previous,now,fetcher=read_json,schedules_fetcher=None):
     nflverse_claims=0
     if remaining and schedules_fetcher:
         try:
-            index,receipt=schedules_fetcher()
+            fetched=schedules_fetcher()
+            if not isinstance(fetched,(tuple,list)) or len(fetched) not in (2,4):
+                raise ValueError('Invalid nflverse source response contract')
+            index,receipt=fetched[:2]
+            observed_at=now
+            original=None
+            if len(fetched)==4:
+                original=fetched[2]
+                observed_at=utc(fetched[3])
+                if not now-timedelta(minutes=1)<=observed_at<=now+timedelta(minutes=10):
+                    raise ValueError('nflverse source capture time outside collection window')
+            if private_capture is not None and (
+                not isinstance(original,bytes) or
+                hashlib.sha256(original).hexdigest()!=receipt):
+                raise ValueError('nflverse original bytes missing or hash mismatch')
             for p,identity in remaining:
-                evidence=nflverse_observation(index,identity,p,now,receipt)
-                if evidence:
-                    previous['observations'].append(evidence)
-                    nflverse_claims+=1
+                evidence=nflverse_observation(index,identity,p,observed_at,receipt)
+                if not evidence:continue
+                if private_capture is not None:
+                    try: private_capture.preserve_secondary_observation(evidence,original)
+                    except PrivateCaptureError:
+                        private_capture_failures+=1;errors+=1;continue
+                previous['observations'].append(evidence)
+                stored[p['prediction_id']]=evidence
+                nflverse_claims+=1
         except (ValueError,OSError,TimeoutError,TypeError,csv.Error):
             errors+=1
     previous['observations'].sort(key=lambda x:x['prediction_id'])
@@ -223,6 +266,7 @@ def collect(ledger,previous,now,fetcher=read_json,schedules_fetcher=None):
             'second_provider_days_scanned':days_scanned,'new_secondary_claims':appended+nflverse_claims,'nflverse_claims':nflverse_claims,
             'total_secondary_claims':len(previous['observations']),
             'unmatched_events':len(remaining)-nflverse_claims,'source_errors':errors,
+            'private_capture_failures':private_capture_failures,
             'status':'SECONDARY_PROVIDER_OBSERVATIONS_ONLY_UNVERIFIED'}
 
 def run(root,now):
@@ -234,7 +278,12 @@ def run(root,now):
        'notice':'Separate public sports provider claims only; no automatic independent verification'}
     if previous.get('research_only') is not True or previous.get('publication_gate')!='BLOCKED':
         raise ValueError('Unsafe secondary source archive')
-    status=collect(ledger,previous,now,schedules_fetcher=read_nflverse)
+    private_root=os.environ.get('BOTTLENECK_PRIVATE_RESULT_CAPTURE_ROOT')
+    # Private evidence is OFF unless authorised durable local storage is supplied.
+    private_capture=PrivateResultCapture(private_root,ROOT) if private_root else None
+    status=collect(ledger,previous,now,schedules_fetcher=read_nflverse,
+                   private_capture=private_capture)
+    status['private_raw_capture']='PRIVATE_LOCAL_ONLY' if private_capture else 'DISABLED_NO_PRIVATE_STORAGE'
     previous['generated_at_utc']=iso(now)
     path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(json.dumps(previous,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
