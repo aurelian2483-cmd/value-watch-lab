@@ -1,0 +1,44 @@
+name: Bottleneck result review (read-only)
+on:
+  push:
+    branches:
+      - research/bottleneck-result-review-20261123
+  pull_request:
+    branches:
+      - research/bottleneck-method-identity-20261123
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and existing Bottleneck regression tests
+        run: |
+          node --check research/bottleneck-selector/result-review.mjs
+          node --check research/bottleneck-selector/result-review-cli.mjs
+          node --test research/bottleneck-selector/selector.test.mjs research/bottleneck-selector/evidence-bridge.test.mjs research/bottleneck-selector/method-identity.test.mjs research/bottleneck-selector/result-review.test.mjs
+      - name: Audit existing frozen predictions and source review worklist
+        run: |
+          node research/bottleneck-selector/result-review-cli.mjs > /tmp/bottleneck-result-review.json
+          node --input-type=module -e '
+            import fs from "node:fs";
+            import assert from "node:assert/strict";
+            const r=JSON.parse(fs.readFileSync("/tmp/bottleneck-result-review.json","utf8"));
+            assert.equal(r.kind,"BOTTLENECK_RESULT_REVIEW_WORKLIST_V1");
+            assert.equal(r.selected_method,null);
+            assert.equal(r.selection_eligible,false);
+            assert.equal(r.publication_gate,"BLOCKED");
+            assert.equal(r.review_packets+r.withheld_ready_claims,r.ready_claims);
+            assert(r.packets.every(p=>p.independent_outcome_verified===false &&
+              p.linked_dropdown_engine===null && p.scoring_authorised===false));
+            console.log("Read-only result worklist audited:",r.review_packets,
+              "manual-review packets, of",r.ready_claims,"source-matched claims");
+          '
