@@ -13,7 +13,7 @@ import stat
 import tempfile
 from datetime import datetime
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 
 MAX_BODY = 3_000_000
 SHA = re.compile(r"^[a-f0-9]{64}$")
@@ -150,6 +150,75 @@ class PrivateResultCapture:
                 "body_sha256": actual, "raw_object_new": created,
                 "independently_authenticated": False}
 
+    def preserve_secondary_observation(self, observation, original_response):
+        """Retain a newly fetched NFL secondary claim, never independently certify it.
+
+        A second publisher, different hostname or byte hash does NOT establish
+        upstream independence. No existing primary receipt is replaced.
+        """
+        if not isinstance(original_response, bytes) or not 0 < len(original_response) <= MAX_BODY:
+            raise PrivateCaptureError("Missing or oversized original second-source bytes")
+        if not isinstance(observation, dict) or (
+            observation.get("status") != "SECONDARY_UNVERIFIED"
+            or observation.get("independently_verified") is not False
+            or observation.get("betting_eligible") is not False
+        ):
+            raise PrivateCaptureError("Not an eligible unverified second-source observation")
+        prediction = observation.get("prediction_id")
+        source = observation.get("source_url")
+        observed_at = observation.get("observed_at_utc")
+        expected = observation.get("response_sha256")
+        if not isinstance(prediction, str) or not 0 < len(prediction) <= 180:
+            raise PrivateCaptureError("Missing immutable prediction identifier")
+        if not isinstance(source, str) or not 0 < len(source) <= 1200 or not _timestamp(observed_at):
+            raise PrivateCaptureError("Invalid secondary URL or capture timestamp")
+        try:
+            url = urlsplit(source)
+            no_auth = (url.scheme == "https" and not url.username and not url.password
+                       and not url.fragment and url.port is None)
+            nflverse = (source == "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv")
+            qs = parse_qs(url.query, strict_parsing=True)
+            sportsdb = (
+                url.hostname == "www.thesportsdb.com"
+                and url.path == "/api/v1/json/123/eventsday.php"
+                and set(qs) == {"d", "s", "l"}
+                and len(qs["d"]) == len(qs["s"]) == len(qs["l"]) == 1
+                and bool(re.fullmatch(r"\d{4}-\d{2}-\d{2}", qs["d"][0]))
+                and qs["s"] == ["American Football"] and qs["l"] == ["NFL"]
+            )
+            allowed = no_auth and (nflverse or sportsdb)
+        except (ValueError, TypeError, KeyError):
+            allowed = False
+        if not allowed:
+            raise PrivateCaptureError("Secondary result source not on allowlist")
+        actual = hashlib.sha256(original_response).hexdigest()
+        if not isinstance(expected, str) or not SHA.fullmatch(expected) or actual != expected:
+            raise PrivateCaptureError("Secondary response hash does not match original bytes")
+        if (observation.get("sport") != "nfl"
+                or observation.get("market") != "GAME_RESULT_INCLUDING_OVERTIME"
+                or not all(isinstance(observation.get(k), str) and observation[k]
+                           for k in ("event_id", "actual_outcome", "source_match_status"))):
+            raise PrivateCaptureError("Unsupported secondary result market or identity")
+        if not isinstance(observation.get("participant_ids"), list) or len(observation["participant_ids"]) != 2:
+            raise PrivateCaptureError("Incomplete secondary participant IDs")
+        filename = "raw/" + actual + ".bin"
+        receipt = {
+            "schema_version": 1, "kind": "PRIVATE_RESULT_SOURCE_CAPTURE_V1",
+            "prediction_id": prediction, "side": "second_source",
+            "source_url": source, "observed_at_utc": observed_at,
+            "relative_path": filename, "body_sha256": actual,
+            "sport": observation["sport"], "event_id": observation["event_id"],
+            "market": observation["market"], "result_claim": observation["actual_outcome"],
+            "independently_authenticated": False, "betting_eligible": False
+        }
+        blob = (json.dumps(receipt, sort_keys=True, separators=(",", ":")) + "\n").encode()
+        receipt_name = hashlib.sha256(("second_source:" + prediction).encode()).hexdigest() + ".json"
+        created = _atomic_create(self.raw / (actual + ".bin"), original_response)
+        _atomic_create(self.receipts / receipt_name, blob)
+        return {"status": "SECOND_SOURCE_BYTES_PRESERVED_LOCALLY_UNATTESTED",
+                "body_sha256": actual, "raw_object_new": created,
+                "independently_authenticated": False}
+
     def manifest(self):
         """Private manifest only. Verify stored bytes before exporting references."""
         records = []
@@ -160,16 +229,20 @@ class PrivateResultCapture:
             if receipt_path.stat().st_mode & (stat.S_IRWXG | stat.S_IRWXO):
                 raise PrivateCaptureError("Exposed receipt file")
             r = json.loads(body)
-            if r.get("kind") != "PRIVATE_RESULT_SOURCE_CAPTURE_V1" or r.get("side") != "first_source":
+            if r.get("kind") != "PRIVATE_RESULT_SOURCE_CAPTURE_V1" or r.get("side") not in ("first_source", "second_source"):
                 raise PrivateCaptureError("Invalid saved private receipt")
             digest = r.get("body_sha256")
             if not isinstance(digest, str) or not SHA.fullmatch(digest):
                 raise PrivateCaptureError("Invalid saved response digest")
-            if receipt_path.name != hashlib.sha256(r["prediction_id"].encode()).hexdigest() + ".json":
+            expected_name = (r["prediction_id"] if r["side"] == "first_source"
+                             else "second_source:" + r["prediction_id"])
+            if receipt_path.name != hashlib.sha256(expected_name.encode()).hexdigest() + ".json":
                 raise PrivateCaptureError("Saved receipt identity mismatch")
             raw_file = self.raw / (digest + ".bin")
-            if raw_file.is_symlink() or not raw_file.is_file() or raw_file.stat().st_size > MAX_BODY:
+            if raw_file.is_symlink() or not raw_file.is_file() or not 0 < raw_file.stat().st_size <= MAX_BODY:
                 raise PrivateCaptureError("Original response missing or unsafe")
+            if raw_file.stat().st_mode & (stat.S_IRWXG | stat.S_IRWXO):
+                raise PrivateCaptureError("Exposed raw source response")
             if hashlib.sha256(raw_file.read_bytes()).hexdigest() != digest:
                 raise PrivateCaptureError("Original response tampered")
             records.append({k: r[k] for k in
