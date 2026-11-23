@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Regression checks for sourced community selections and racecard matching."""
 import json
+import sys
+from unittest.mock import patch
 import unittest
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -30,7 +32,8 @@ class CommunityEvidenceTests(unittest.TestCase):
         spec=importlib.util.spec_from_file_location('reconcile_schedule',
             ROOT/'scripts/reconcile_racing_schedule_observation.py')
         module=importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        with patch.object(sys, 'path', [str(ROOT / 'scripts'), *sys.path]):
+            spec.loader.exec_module(module)
         url='https://www.sportinglife.com/racing/racecards/2026-11-21/newcastle/racecard/950179/test'
         gates={'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED'}
         def selection(identifier,start,observed,digest):
@@ -75,7 +78,8 @@ class CommunityEvidenceTests(unittest.TestCase):
         import importlib.util
         spec=importlib.util.spec_from_file_location('racing_collector',ROOT/'scripts/collect_racing_community.py')
         module=importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        with patch.object(sys, 'path', [str(ROOT / 'scripts'), *sys.path]):
+            spec.loader.exec_module(module)
         positive=('NAP: The Mourne Rambler','The Mourne Rambler - Tip','Pick: Low Kick')
         for headline in positive:
             horse='Low Kick' if 'Low Kick' in headline else 'The Mourne Rambler'
