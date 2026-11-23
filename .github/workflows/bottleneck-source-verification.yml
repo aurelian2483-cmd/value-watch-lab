@@ -1,0 +1,48 @@
+name: Bottleneck source verification (read-only)
+on:
+  push:
+    branches:
+      - research/bottleneck-source-verification-20261123
+  pull_request:
+    branches:
+      - research/bottleneck-result-review-20261123
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify syntax and prior research safeguards
+        run: |
+          node --check research/bottleneck-selector/source-verification.mjs
+          node --check research/bottleneck-selector/source-verification-cli.mjs
+          node --test research/bottleneck-selector/selector.test.mjs research/bottleneck-selector/evidence-bridge.test.mjs research/bottleneck-selector/method-identity.test.mjs research/bottleneck-selector/result-review.test.mjs research/bottleneck-selector/source-verification.test.mjs
+      - name: Audit the canonical archived sources without certifying anything
+        run: |
+          node research/bottleneck-selector/result-review-cli.mjs > /tmp/bottleneck-source-worklist.json
+          node research/bottleneck-selector/source-verification-cli.mjs /tmp/bottleneck-source-worklist.json > /tmp/bottleneck-source-dossier.json
+          node --input-type=module -e '
+            import fs from "node:fs";
+            import assert from "node:assert/strict";
+            const r=JSON.parse(fs.readFileSync("/tmp/bottleneck-source-dossier.json","utf8"));
+            assert.equal(r.kind,"BOTTLENECK_SOURCE_VERIFICATION_DOSSIER_V1");
+            assert.equal(r.publication_gate,"BLOCKED");
+            assert.equal(r.selected_method,null);
+            assert.equal(r.certified_outcomes_added,0);
+            assert.equal(r.source_independence_certified,0);
+            assert.equal(r.inspectable_packets+r.withheld_packets,r.total_ready_claims);
+            assert(r.packets.every(p=>p.upstream_source_independence==="NOT_ESTABLISHED" &&
+              p.independently_verified_outcome===false &&
+              p.verified_dropdown_engine===null && p.scoring_authorised===false));
+            console.log("Read-only source verification:",r.inspectable_packets,
+              "review packets; source host-pair groups:",Object.keys(r.by_source_host_pair).length,
+              "; independent outcomes certified:",r.certified_outcomes_added);
+          '
