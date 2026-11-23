@@ -1066,7 +1066,7 @@
     renderSportActions(state);
     renderSportEvidence(state);
     const normalRows = filtered(state).filter(event => event.sport !== 'rugby');
-    const isReliability = engineView === 'reliability';
+    const isReliability = selectedMethods.length === 1 && selectedMethods[0] === 'reliability';
     const rows = isReliability
       ? normalRows.filter(event => currentHistoryStatus(event).status === 'FORM_CANDIDATE')
       : normalRows;
@@ -1336,16 +1336,25 @@
     }
   }
   const X = ResearchExperimental;
+  const M = ValueWatchEngineMethodSelection;
   const sportsMethods = typeof ValueWatchSportMethods === 'undefined' ? null : ValueWatchSportMethods;
   const methodModes = sportsMethods?.modes || {};
   const researchMode = value => Object.hasOwn(methodModes, value) ? value : X.mode(value);
   const methodSnapshots = new Map();
-  for (const [id, method] of Object.entries(methodModes)) {
-    const option = make($('engine-select'), 'option', method.label);
-    option.value = id;
-  }
-  let engineView = 'current';
-  try { engineView = researchMode(storage.getItem(X.preferenceKey)); } catch { /* Default view remains usable without storage. */ }
+  let selectedMethods = ['current'];
+  try { selectedMethods = M.fromStorage(storage.getItem(M.preferenceKey), storage.getItem(X.preferenceKey)); }
+  catch { /* Default view remains usable without storage. */ }
+  let engineView = selectedMethods[0] || 'current';
+  const engineExplanations = {
+    current:'Current Engine 2.5 · existing research workflow.',
+    experimental:'Engine 3.0 · frozen recent-form football model + market.',
+    hybrid:'Hybrid 3.1 · current-season football model + independent market.',
+    compare:'Compare the saved estimate with each experimental method.',
+    reliability:'Historical Reliability · form-pattern screen; not certified betting value.',
+    bottleneck:'Bottleneck Lab · research readiness, no active forecasting or betting output.',
+    'racing-top-four':'Racing Top Four · unvalidated win-to-place research transform.'
+  };
+  const engineLabels = Object.fromEntries(M.methods.map(method => [method.id,method.label]));
   let hybridEvidence;
   function loadHybridEvidence() {
     if (hybridEvidence && Date.now() - hybridEvidence.at < 60000) return hybridEvidence;
@@ -1363,7 +1372,7 @@
       .catch(() => {})
       .finally(() => {
         entry.pending = false;
-        if (hybridEvidence === entry && ['compare','hybrid'].includes(engineView)) safely(renderSlip);
+        if (hybridEvidence === entry && ['compare','hybrid'].some(mode => selectedMethods.includes(mode))) safely(renderSlip);
       });
     return entry;
   }
@@ -1413,19 +1422,14 @@
     make(parent, 'p', candidate.selection === 'PASS' ? 'PASS · below 5% estimated EV or above odds cap' :
       candidate.selection + ' · odds ' + candidate.selectedOdds.toFixed(2) + ' · estimated EV ' + pct(candidate.estimatedEV));
   }
-  function renderEngine(evaluation) {
-    const engineSelect = $('engine-select');
-    if (engineSelect) engineSelect.value = engineView;
-    const method = methodModes[engineView];
+  function renderEngineMode(evaluation, view, root, openComparisons, focusedComparison) {
+    const method = methodModes[view];
     if (method) {
-      write($('engine-status'), method.label + ' · Research only');
-      const root = $('engine-analysis');
-      root.hidden = false;
-      root.replaceChildren();
+      make(root, 'p', method.label + ' · Research only', 'small');
       make(root, 'h3', 'Research suggestions');
       make(root, 'p', 'PASS for betting · UNVALIDATED · Publication blocked');
 
-      const mode = engineView;
+      const mode = view;
       let entry = methodSnapshots.get(mode);
       if (!entry || (!entry.pending && Date.now() - entry.at >= 60000)) {
         entry = {pending:true, at:Date.now()};
@@ -1434,7 +1438,7 @@
           entry.result = {note:'Research feed unavailable or invalid.', rows:[]};
         }).finally(() => {
           entry.pending = false;
-          if (engineView === mode) renderEngine(evaluation);
+          if (selectedMethods.includes(mode)) renderSlip();
         });
       }
       if (entry.pending) { make(root, 'p', 'Loading published research…'); return; }
@@ -1443,17 +1447,14 @@
       if (!entry.result.rows.length) make(root, 'p', 'No eligible research suggestions in the current feed.');
       return;
     }
-    write($('engine-status'), ({current:'Current Engine 2.5 · existing research workflow.', experimental:'Engine 3.0 · frozen recent-form football model + market.', hybrid:'Hybrid 3.1 · current-season football model + independent market.', compare:'Compare the saved estimate with each experimental method.', reliability:'Historical Reliability · automatic research-only favourite-pattern filter; not certified value picks.'})[engineView]);
-    const root = $('engine-analysis');
-    const openComparisons = new Set([...root.querySelectorAll('details[data-comparison][open]')].map(row => row.dataset.comparison));
-    const focusedComparison = document.activeElement?.matches('summary') ?
-      document.activeElement.parentElement.dataset.comparison : undefined;
-    root.hidden = engineView === 'current'; root.replaceChildren();
-    if (root.hidden) return;
+    if (view === 'current') {
+      make(root, 'p', 'Saved estimates and prices stay on the fixture board and paper slips. Research only.', 'small');
+      return;
+    }
     const state = store.get();
-    if (engineView === 'bottleneck') {
+    if (view === 'bottleneck') {
       const lab = window.ValueWatchBottleneckLab;
-      write($('engine-status'), 'Bottleneck Lab · sport-specific research readiness · no active betting output.');
+      make(root, 'p', 'Sport-specific research readiness · no active betting output.', 'small');
       make(root, 'h3', state.sport === 'all' ? 'Cross-sport Bottleneck readiness' : (sports[state.sport] || state.sport) + ' · Bottleneck readiness');
       make(root, 'p', 'Each lane has its own market definition and evidence requirements. Bookmaker prices and existing model values stay on the fixture board.', 'small');
       const rows = lab?.forSelection(state.sport, filtered(state), E.statusOf) || [];
@@ -1476,7 +1477,7 @@
       evidence.href = new URL('research/bottleneck/inventory.json', rootURL).href;
       return;
     }
-    if (engineView === 'reliability') {
+    if (view === 'reliability') {
       const available = filtered(store.get()).filter(event => event.sport==='football');
       const matched = available.map(event=>({event,result:currentHistoryStatus(event)}));
       const candidates = matched.filter(item=>item.result.status==='FORM_CANDIDATE');
@@ -1488,13 +1489,13 @@
       if(!candidates.length)make(root,'p','No candidate satisfies the strict form rule with the historical evidence currently loaded. No matches are added merely to fill the list.');
       return;
     }
-    if (engineView === 'hybrid' && !['football', 'all'].includes(state.sport)) {
+    if (view === 'hybrid' && !['football', 'all'].includes(state.sport)) {
       make(root, 'h3', 'Hybrid 3.1 · football only');
       make(root, 'p', 'The current-season hybrid is a football research method. It cannot score ' + (sports[state.sport] || state.sport) + ' events. Select Football to see its football-only view; cross-sport Bottleneck forecasts are not deployed.', 'small');
       return;
     }
-    const entry = engineView === 'experimental' ? null : loadHybridEvidence();
-    if (engineView === 'hybrid') {
+    const entry = view === 'experimental' ? null : loadHybridEvidence();
+    if (view === 'hybrid') {
       make(root, 'h3', 'Football paper suggestions');
       make(root, 'p', 'UNVALIDATED · Paper research only', 'small');
       const fixtures = filtered(state).filter(event => event.sport === 'football');
@@ -1570,11 +1571,65 @@
       make(scenario, 'p', 'Margin to break-even ' + (result.fragility * 100).toFixed(2) + ' pp · payoff variance ' + result.variance.toFixed(4) + ' · EV sensitivity ' + result.sensitivity.toFixed(4), 'small');
     }
   }
-  $('engine-select').addEventListener('change', event => safely(() => {
-    engineView = researchMode(event.target.value);
+  function renderEngine(evaluation) {
+    const picker = $('engine-methods');
+    for (const tile of picker.querySelectorAll('button[data-method]')) {
+      const chosen = selectedMethods.includes(tile.dataset.method);
+      tile.classList.toggle('is-selected',chosen);
+      tile.setAttribute('aria-pressed',String(chosen));
+    }
+    const legacySelect = $('engine-select');
+    if (legacySelect) legacySelect.value = selectedMethods[0] || 'current';
+    const root = $('engine-analysis');
+    const openByView = new Map();
+    for (const detail of root.querySelectorAll('details[data-comparison][open]')) {
+      const view = detail.closest('[data-engine-panel]')?.dataset.enginePanel;
+      if (!view) continue;
+      if (!openByView.has(view)) openByView.set(view,new Set());
+      openByView.get(view).add(detail.dataset.comparison);
+    }
+    const focusedElement = document.activeElement;
+    const focusedView = focusedElement?.closest?.('[data-engine-panel]')?.dataset.enginePanel;
+    const focusedKey = focusedElement?.matches?.('summary') ?
+      focusedElement.parentElement?.dataset.comparison : undefined;
+    if (!selectedMethods.length) {
+      write($('engine-status'),'Select one or more method boxes to inspect their research evidence.');
+    } else if (selectedMethods.length === 1) {
+      write($('engine-status'),engineExplanations[selectedMethods[0]] || 'Research-only comparison.');
+    } else {
+      write($('engine-status'),selectedMethods.length + ' methods selected · Separate evidence panels below. Models UNVALIDATED; betting publication BLOCKED.');
+    }
+    root.hidden = selectedMethods.length === 0 ||
+      (selectedMethods.length === 1 && selectedMethods[0] === 'current');
+    root.replaceChildren();
+    if (root.hidden) return;
+    for (const view of selectedMethods) {
+      const panel = make(root,'section',undefined,'engine-mode-panel');
+      panel.dataset.enginePanel = view;
+      make(panel,'h3',engineLabels[view] || view,'engine-mode-panel-heading');
+      const content = make(panel,'div',undefined,'engine-mode-content');
+      renderEngineMode(evaluation,view,content,openByView.get(view) || new Set(),
+        focusedView === view ? focusedKey : undefined);
+    }
+  }
+  function applyMethodSelection(next) {
+    selectedMethods = M.normalize(next,[]);
+    engineView = selectedMethods[0] || 'current';
     renderSlip();
     renderEvents();
-    try { storage.setItem(X.preferenceKey, engineView); } catch { write($('engine-status'), $('engine-status').textContent + ' View preference could not be saved on this device.'); }
+    try {
+      storage.setItem(M.preferenceKey,JSON.stringify(selectedMethods));
+      storage.setItem(X.preferenceKey,engineView);
+    } catch { write($('engine-status'), $('engine-status').textContent + ' View preference could not be saved on this device.'); }
+  }
+  $('engine-methods').addEventListener('click', event => safely(() => {
+    const tile = event.target.closest('button[data-method]');
+    if (!tile || !$('engine-methods').contains(tile)) return;
+    applyMethodSelection(M.toggle(selectedMethods,tile.dataset.method));
+  }));
+  // Hidden legacy select supports old saved single-mode integrations.
+  $('engine-select').addEventListener('change', event => safely(() => {
+    applyMethodSelection([researchMode(event.target.value)]);
   }));
   const wildcardStorageKey = 'value-watch-weekly-wildcard-v1';
   const wildcardSportNames = {football:'Football',racing:'Horse racing',tennis:'Tennis',nfl:'NFL',rugby:'Rugby'};
@@ -2270,11 +2325,11 @@
       return true;
     });
     historicalStatus=historicalResults.length+' source-reported 2026/27 results across seven competitions · refreshed '+dateText(data.generated_at_utc)+' · not independently verified';
-    if(engineView==='reliability'){renderEvents();renderSlip();}
+    if(selectedMethods.includes('reliability')){renderEvents();renderSlip();}
   }).catch(error=>{
     historicalResults=[];
     historicalStatus='seven-competition archive unavailable or stale ('+error.message+')';
-    if(engineView==='reliability'){renderEvents();renderSlip();}
+    if(selectedMethods.includes('reliability')){renderEvents();renderSlip();}
   });
   store.subscribe(state => JSON.stringify([state.competition,state.query,state.eventView]), writeDeskFilters);
   store.subscribe(state => JSON.stringify([state.plan.id, state.plan.revision, state.slot, state.eventVersion, state.sport, state.competition, state.query, state.eventView, state.limit, state.replacing, state.clockTick, state.claims]), () => safely(() => { renderNavigation(); renderEvents(); renderSlip(); renderWildcard(); renderTracker(); }));
