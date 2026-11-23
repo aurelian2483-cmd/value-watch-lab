@@ -1,0 +1,43 @@
+name: Bottleneck method identity (research only)
+on:
+  push:
+    branches:
+      - research/bottleneck-method-identity-20261123
+  pull_request:
+    branches:
+      - research/bottleneck-selector-20261123
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate sources and tests
+        run: |
+          node --check research/bottleneck-selector/method-identity.mjs
+          node --check research/bottleneck-selector/method-identity-cli.mjs
+          node --test research/bottleneck-selector/selector.test.mjs research/bottleneck-selector/evidence-bridge.test.mjs research/bottleneck-selector/method-identity.test.mjs
+      - name: Exact source and forecast audit
+        run: |
+          node research/bottleneck-selector/method-identity-cli.mjs > /tmp/bottleneck-method-identity.json
+          node --input-type=module -e '
+            import fs from "node:fs";
+            import assert from "node:assert/strict";
+            const r=JSON.parse(fs.readFileSync("/tmp/bottleneck-method-identity.json","utf8"));
+            assert.equal(r.kind,"BOTTLENECK_METHOD_IDENTITY_V1");
+            assert.equal(r.selected_method,null);
+            assert.equal(r.selection_eligible,false);
+            assert.equal(r.publication_gate,"BLOCKED");
+            assert.equal(r.dropdown_methods.length,6);
+            assert(r.dropdown_methods.every(m=>m.verified_engine_version===null));
+            assert(r.source_ledger_groups.every(m=>m.linked_dropdown_method===null));
+            console.log("Read-only method identity audit passed:",r.source_ledger_groups.length,"source groups");
+          '
