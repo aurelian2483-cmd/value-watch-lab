@@ -1,0 +1,151 @@
+/* Shared chrome and surface palette. Page-specific layouts and status badges retain their rules. */
+body:has(> .vw-page-header) {
+  --vw-shared-page: #0d1526;
+  --vw-shared-panel: #162036;
+  --vw-shared-border: #243250;
+  --vw-shared-text: #f3f6ff;
+  --vw-shared-muted: #b6c3db;
+  --vw-shared-accent: #1fd655;
+  --vw-shared-header: #080d16;
+  margin: 0;
+  background: var(--vw-shared-page);
+  color: var(--vw-shared-text);
+  color-scheme: dark;
+}
+
+body:has(> .vw-page-header) :is(.panel, .card, .surface, .pro-reference-panel, .lab-panel, .evidence-panel, .data-panel) {
+  background-color: var(--vw-shared-panel);
+  background-image: none;
+  border-color: var(--vw-shared-border);
+}
+
+body:has(> .vw-page-header) main :is(a, a:visited):where(:not([class])) { color: var(--vw-shared-accent); }
+
+.vw-page-header {
+  position: relative;
+  z-index: 35;
+  isolation: isolate;
+  border-bottom: 2px solid var(--vw-shared-accent);
+  background: var(--vw-shared-header);
+  color: var(--vw-shared-text);
+  font: 600 14px/1.35 system-ui, sans-serif;
+}
+
+.vw-page-header *, .vw-page-header *::before, .vw-page-header *::after { box-sizing: border-box; }
+
+.vw-page-header .vw-page-header-inner {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0 auto;
+  max-width: 1760px;
+  padding: 7px clamp(10px, 2vw, 24px);
+}
+.vw-page-header a,
+.vw-page-header summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 5px 8px;
+  color: var(--vw-shared-text);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.vw-page-header a:hover { background: var(--vw-shared-panel); }
+.vw-page-header a[aria-current="page"] {
+  color: var(--vw-shared-accent);
+  border-color: var(--vw-shared-accent);
+  background: var(--vw-shared-panel);
+}
+.vw-page-header :is(a, summary):focus-visible {
+  outline: 2px solid var(--vw-shared-accent);
+  outline-offset: 1px;
+}
+.vw-page-header .vw-page-brand { padding-inline: 0; font-weight: 800; }
+.vw-page-header .vw-page-logo {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: var(--vw-shared-accent);
+  color: #04210f;
+}
+.vw-page-header .vw-page-logo svg { width: 24px; height: 24px; }
+.vw-page-header .vw-page-accent { color: var(--vw-shared-accent); }
+.vw-page-header .vw-page-back,
+.vw-page-header .vw-page-methodology { border-color: var(--vw-shared-border); }
+.vw-page-header .vw-page-nav {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.vw-page-header .vw-page-gold { color: #e8c768; }
+.vw-page-header .vw-page-menu { position: static; margin: 0; padding: 0; border: 0; background: none; }
+.vw-page-header .vw-page-menu > summary {
+  list-style: none;
+  cursor: pointer;
+  background: var(--vw-shared-accent);
+  color: #04210f;
+}
+.vw-page-header .vw-page-menu > summary::-webkit-details-marker { display: none; }
+.vw-page-header .vw-page-menu > summary::after { content: "▾"; }
+.vw-page-header .vw-page-menu[open] > summary::after { content: "▴"; }
+.vw-page-header .vw-page-menu-grid {
+  position: absolute;
+  inset: 100% clamp(10px, 2vw, 24px) auto;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(175px, 100%), 1fr));
+  gap: 10px;
+  max-height: 70dvh;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--vw-shared-border);
+  border-radius: 6px;
+  background: var(--vw-shared-panel);
+}
+.vw-page-header .vw-page-menu:not([open]) .vw-page-menu-grid { display: none; }
+.vw-page-header .vw-page-menu-grid section { min-width: 0; padding: 0; margin: 0; background: none; border: 0; }
+.vw-page-header .vw-page-menu-grid h2 { color: var(--vw-shared-muted); font: 700 13px/1.4 system-ui, sans-serif; margin: 0 0 4px; }
+.vw-page-header .vw-page-menu-grid a { display: flex; white-space: normal; }
+
+@media (max-width: 760px) {
+  .vw-page-header .vw-page-nav {
+    order: 1;
+    flex: 1 1 100%;
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    padding: 2px;
+  }
+}
+@media (max-width: 500px) {
+  .vw-page-header .vw-page-header-inner { gap: 2px 5px; }
+  .vw-page-header a, .vw-page-header summary { font-size: 12px; padding-inline: 5px; }
+  .vw-page-header .vw-page-menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* The desk retains its existing menu because it includes interactive workspace controls. */
+html.unified-desk > body:has(> .vw-page-header) > .vw-page-header .vw-page-menu,
+html.unified-desk .app-header .header-main > :is(.brand,.tennis-header-nav),
+html.unified-desk .app-header .dashboard-actions > :is(.tennis-methodology,.tennis-gold-link) {
+  display: none;
+}
+html.unified-desk .app-header .header-main:has(> .dashboard-actions) {
+  display: flex;
+  justify-content: flex-end;
+}

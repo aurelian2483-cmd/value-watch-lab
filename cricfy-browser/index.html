@@ -3,7 +3,73 @@
 <style>
 :root{font-family:system-ui,-apple-system,Arial,sans-serif;color:#f3f7fc;background:#090e19}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 100% 5%,#143149,#090e19 43%) fixed;font-size:16px}header{display:flex;align-items:center;gap:12px;padding:22px 17px;border-bottom:1px solid #27354b}.logo{padding:13px;background:#59e0b2;border-radius:14px;color:#061422;font-size:22px}header strong{font-size:23px}header small{font-size:11px;color:#a3acc0}main{max-width:800px;margin:auto;padding:22px 17px 120px}section[hidden]{display:none!important}.hero,.panel,.sport-card,.item-card{background:#152237;border:1px solid #33455b;border-radius:19px;padding:20px;margin-bottom:18px}.hero{background:linear-gradient(110deg,#1c3b47,#152039)}.eyebrow{color:#88edc4;font-weight:700;letter-spacing:.16em;font-size:12px;text-transform:uppercase}h1{font-size:30px;line-height:1.15;margin:12px 0}h2{font-size:23px;margin:16px 0}h3{margin:0 0 8px}p,.muted{color:#afbdd0;line-height:1.6}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #7de8bf;outline-offset:2px}.primary{background:#8cecc0;color:#092017;border:0;border-radius:13px;padding:13px 19px;font-weight:700}.secondary,.sport-card button,.item-card button{background:#1a293c;border:1px solid #465a70;color:#e8f2fc;border-radius:12px;padding:10px 14px}.sport-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.sport-card{margin:0;padding:17px}.sport-card .emoji{font-size:30px}.sport-card h3{margin:12px 0}.sport-card button{width:100%}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{min-width:0}input{width:100%;padding:13px;color:white;background:#0d1829;border:1px solid #455872;border-radius:11px;margin:7px 0 13px}label{color:#cbd4e2;display:block;margin-top:10px}.item-card{margin:12px 0}.item-card p{margin:6px 0}.player{display:block;width:100%;aspect-ratio:16/9;background:#000;border-radius:15px;margin:16px 0}.empty{border:1px dashed #40546b;border-radius:15px;padding:18px;color:#afbdd0}.bottom{position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;background:#111b2b;border-top:1px solid #34455a;padding:9px 8px calc(9px + env(safe-area-inset-bottom));z-index:4}.tab{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:transparent;color:#9bafc5;border-radius:13px;padding:11px 2px;font-size:14px}.tab span{font-size:25px}.tab.active{background:#87ebbc;color:#0b2621;font-weight:700}.status{font-size:13px;color:#a8d7c5;margin-top:10px;min-height:18px}@media(min-width:660px){.sport-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style></head>
-<body><header><span class="logo">▶</span><div><strong>CRICFy</strong> <small>WEB LAB · BROWSER PROTOTYPE</small></div></header>
+<body>
+<!-- research-header:start -->
+<link rel="stylesheet" href="../research-header.css">
+<header class="vw-page-header" aria-label="Value Watch">
+  <div class="vw-page-header-inner">
+    <a class="vw-page-brand" href="../" aria-label="Value Watch Pro research desk">
+      <span class="vw-page-logo" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="m5 9 7 15 4-8 4 8 7-15M14 8h4" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span>VALUE<span class="vw-page-accent">WATCH PRO</span></span>
+    </a>
+    <a class="vw-page-back" href="../">← Research desk</a>
+    <nav class="vw-page-nav" aria-label="Research sections">
+      <a href="../">Research</a>
+      <a href="../analyst/">Analysis</a>
+      <a href="../validation-centre/">Validation</a>
+      <a href="../ops-control/">Operations</a>
+      <a class="vw-page-gold" href="../wildcard/">Gold Council</a>
+    </nav>
+    <a class="vw-page-methodology" href="../research-overview/">Methodology</a>
+    <details class="vw-page-menu">
+      <summary>Research Pages</summary>
+      <div class="vw-page-menu-grid">
+        <section aria-label="Desk and methodology">
+          <h2>Desk</h2>
+          <a href="../">Research desk</a>
+          <a href="../?view=overview">Overview dashboard</a>
+          <a href="../?view=visual-preview">Compact layout</a>
+          <a href="../research-overview/">Methodology</a>
+          <a href="../paper-lab/">Paper Lab</a>
+          <a href="../legacy-dashboard.html">Legacy dashboard</a>
+        </section>
+        <section aria-label="Sport research">
+          <h2>Sports</h2>
+          <a href="../football-match/">Football Match Centre</a>
+          <a href="../football-leagues/">Football leagues</a>
+          <a href="../fixture-detail/">Fixture evidence</a>
+          <a href="../racing-research/">Horse Racing Lab</a>
+          <a href="../darts/">Darts Lab</a>
+          <a href="../rugby/">Rugby Lab</a>
+          <a href="../sports-watch/">Sports Watch</a>
+          <a href="../cricfy-browser/" aria-current="page">CRICFy Browser Lab</a>
+        </section>
+        <section aria-label="Analytics">
+          <h2>Analysis</h2>
+          <a href="../analyst/">Analyst Terminal</a>
+          <a href="../market-intelligence/">Market Intelligence</a>
+          <a href="../research-lab/">Football Research Lab</a>
+          <a href="../racing-research/analysis.html">Racing analysis desk</a>
+          <a href="../racing-research/context.html">Context Racing Lab</a>
+          <a href="../racing-research/sources.html">Horse advice board</a>
+          <a href="../v3-research/">Horse Racing V3 Lab</a>
+          <a href="../reliability-lab/">Historical Reliability Lab</a>
+          <a class="vw-page-gold" href="../wildcard/">Gold Wildcard Council</a>
+        </section>
+        <section aria-label="Validation, reports and operations">
+          <h2>Evidence and operations</h2>
+          <a href="../validation-centre/">Independent Validation Centre</a>
+          <a href="../track-record/">Evidence &amp; track record</a>
+          <a href="../research-reports/">Report archive</a>
+          <a href="../research/horse-ab-phase3-master-20261115/dashboard/">Archived racing model comparison</a>
+          <a href="../ops-control/">Operations Control Centre</a>
+        </section>
+      </div>
+    </details>
+  </div>
+</header>
+<!-- research-header:end -->
+<header><span class="logo">▶</span><div><strong>CRICFy</strong> <small>WEB LAB · BROWSER PROTOTYPE</small></div></header>
 <main>
 <section id="home"><div class="hero"><div class="eyebrow">Browser-based test</div><h1>Select a sport. Browse matches.</h1><p>Choose a sport, add your own authorised channels or matches, and play compatible videos. This prototype does not execute the original Android APK or supply its streaming feeds.</p><button class="primary" data-page="player">Open video player →</button></div><div class="panel" id="apk-sources"><div class="eyebrow">Experimental · APK-discovered endpoints</div><h2>Original app service links</h2><p>These URLs were found inside the APK but are not verified safe or operational. No connections are made automatically. External links leave this site; do not enter credentials or install software from them.</p><div id="apk-links"></div><button class="secondary" id="test-lookup">Test channel lookup (read-only)</button><div class="status" id="lookup-status" role="status" aria-live="polite">Not tested in this browser.</div><pre id="lookup-preview" style="white-space:pre-wrap;word-break:break-word;font-size:12px;max-height:220px;overflow:auto;color:#b5c4d6"></pre></div><div class="panel" id="catalog-import"><div class="eyebrow">Browser-native · Opt-in</div><h2>Import authorised channels</h2><p>Load a JSON or standard M3U playlist from your device. Entries stay in this browser; nothing is uploaded to our website. Only HTTPS MP4, WebM, and HLS links are accepted. This does not unlock streams or bypass DRM, login, or provider restrictions.</p><label for="catalog-file">Choose JSON or M3U playlist</label><input type="file" id="catalog-file" accept=".json,.m3u,.m3u8,.txt,application/json,text/plain"><label for="catalog-text">Or paste JSON / M3U</label><textarea id="catalog-text" rows="5" style="display:block;width:100%;background:#0d1829;border:1px solid #455872;border-radius:12px;color:#fff;padding:12px;font:13px ui-monospace,monospace;resize:vertical" placeholder='[{"sport":"cricket","name":"Licensed channel","url":"https://example.org/video.m3u8"}]'></textarea><div class="row"><button class="secondary" id="catalog-example">Load test example</button><button class="primary" id="catalog-apply">Import channels</button><button class="secondary" id="catalog-export">Export catalogue</button><button class="secondary" id="catalog-clear">Clear catalogue</button></div><div id="catalog-status" class="status" role="status" aria-live="polite">No catalogue imported.</div></div><h2>Explore</h2><input id="search" placeholder="Search sports" aria-label="Search sports"><div id="sports" class="sport-grid"></div></section>
 <section id="matches" hidden><div class="row"><h2 id="sport-heading">Matches &amp; channels</h2><button class="secondary" data-page="home">← Sports</button></div><h3>Imported channels <span id="catalog-count" class="muted"></span></h3><label for="channel-search">Find a channel in this sport</label><input id="channel-search" type="search" placeholder="Search imported channels" aria-label="Search imported channels"><div id="catalog-matches"></div><h3>My entries</h3><div id="matches-list"></div><div class="panel"><h3>Add match or channel</h3><label for="item-name">Name</label><input id="item-name" placeholder="Example: My authorised channel"><label for="item-url">Video URL (optional, HTTPS)</label><input id="item-url" type="url" placeholder="https://example.com/video.mp4"><div class="row"><button class="primary" id="add">Add entry</button><button class="secondary" id="clear-list">Clear sport</button></div><div id="item-status" class="status" role="status"></div></div></section>

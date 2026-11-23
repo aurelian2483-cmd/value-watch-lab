@@ -1,1 +1,67 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Value Watch · Context Racing Lab</title><link rel="stylesheet" href="../sportsbook.css?v=context-1"><link rel="stylesheet" href="context.css?v=1"></head><body><div class="utility"><div><span>EXPERIMENTAL RACING RESEARCH</span><span>18+ · No real bets placed</span></div></div><header class="sports-header"><div class="masthead"><a href="../" class="wordmark">VALUE<span>WATCH</span><small>LAB</small></a></div><nav class="product-nav"><a href="../">Selections</a><a href="./">Original form baseline</a><a href="sources.html">Horse advice</a><a href="analysis.html">Analysis desk</a><a class="active" href="context.html">Context model</a></nav></header><main class="context-layout"><section class="context-intro"><span class="eyebrow">COMPARE INPUTS BEFORE CONCLUSIONS</span><h1>Context racing lab</h1><p>Historical form adjusted for observed race conditions. Flat turf, all-weather and jump races are considered only when the complete field has enough comparable dated evidence.</p><div class="context-flags"><span>MODEL UNVALIDATED</span><span>FIXED EXPLORATORY WEIGHTS</span><span>NO VERIFIED BETTING VALUE</span></div><p id="context-status" role="status">Loading the published context snapshot…</p><button id="context-refresh" type="button">Refresh published snapshots</button></section><section aria-label="Context model coverage"><div id="context-coverage" class="context-metrics"></div><p id="context-discipline" class="context-note"></p><p class="context-note">A model weight ranks the runners within this experimental calculation. It is not a calibrated probability of winning. The original form-only baseline remains separate for comparison.</p></section><section class="context-controls"><label>Meeting<select id="context-meeting"><option value="all">All collected meetings</option></select></label><label>Show<select id="context-view"><option value="upcoming">Upcoming forecast records</option><option value="all">Recent frozen forecast records</option><option value="current">Fresh matching field and context</option></select></label></section><section id="context-forecasts" aria-label="Frozen context forecasts"></section><section class="context-panel"><h2>Races without a context forecast</h2><p>Exclusions are retained. Missing or uncertain inputs are never replaced by an invented prediction.</p><div id="context-skipped"></div></section><section class="context-panel"><h2>Prospective result checks</h2><div id="context-performance"></div><p class="context-note">Only predictions frozen before a race may enter this comparison. A scored research race does not establish profitability, verified prices, calibration or official challenge credit.</p></section><section class="context-panel"><h2>What this model does and does not know</h2><p>The calculation uses comparable dated finishing evidence and records how much past form matches the current trip, going, course and class. The weights are exploratory choices, not fitted winning probabilities.</p><p>Coverage counts expose missing evidence. There is no invented draw bias, pace map, trainer/jockey advantage, replay judgement, fitness assessment or live rail-movement analysis. A bookmaker favourite and a context-model leader may differ.</p><p>Recorded price moves describe earlier source quotes. Shortening prices and agreement between commentators do not, by themselves, prove value.</p><div id="context-limitations"></div></section></main><footer class="sports-footer"><strong>VALUE WATCH</strong><span>Research only · Publication BLOCKED · Official challenge 0/100</span><a href="https://www.gamcare.org.uk/">GamCare</a></footer><script src="../racecards-core.js?v=3.3.1"></script><script src="context.js?v=4"></script></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Value Watch · Context Racing Lab</title><link rel="stylesheet" href="../sportsbook.css?v=context-1"><link rel="stylesheet" href="context.css?v=1"></head><body>
+<!-- research-header:start -->
+<link rel="stylesheet" href="../research-header.css">
+<header class="vw-page-header" aria-label="Value Watch">
+  <div class="vw-page-header-inner">
+    <a class="vw-page-brand" href="../" aria-label="Value Watch Pro research desk">
+      <span class="vw-page-logo" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="m5 9 7 15 4-8 4 8 7-15M14 8h4" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span>VALUE<span class="vw-page-accent">WATCH PRO</span></span>
+    </a>
+    <a class="vw-page-back" href="../">← Research desk</a>
+    <nav class="vw-page-nav" aria-label="Research sections">
+      <a href="../">Research</a>
+      <a href="../analyst/">Analysis</a>
+      <a href="../validation-centre/">Validation</a>
+      <a href="../ops-control/">Operations</a>
+      <a class="vw-page-gold" href="../wildcard/">Gold Council</a>
+    </nav>
+    <a class="vw-page-methodology" href="../research-overview/">Methodology</a>
+    <details class="vw-page-menu">
+      <summary>Research Pages</summary>
+      <div class="vw-page-menu-grid">
+        <section aria-label="Desk and methodology">
+          <h2>Desk</h2>
+          <a href="../">Research desk</a>
+          <a href="../?view=overview">Overview dashboard</a>
+          <a href="../?view=visual-preview">Compact layout</a>
+          <a href="../research-overview/">Methodology</a>
+          <a href="../paper-lab/">Paper Lab</a>
+          <a href="../legacy-dashboard.html">Legacy dashboard</a>
+        </section>
+        <section aria-label="Sport research">
+          <h2>Sports</h2>
+          <a href="../football-match/">Football Match Centre</a>
+          <a href="../football-leagues/">Football leagues</a>
+          <a href="../fixture-detail/">Fixture evidence</a>
+          <a href="../racing-research/">Horse Racing Lab</a>
+          <a href="../darts/">Darts Lab</a>
+          <a href="../rugby/">Rugby Lab</a>
+          <a href="../sports-watch/">Sports Watch</a>
+          <a href="../cricfy-browser/">CRICFy Browser Lab</a>
+        </section>
+        <section aria-label="Analytics">
+          <h2>Analysis</h2>
+          <a href="../analyst/">Analyst Terminal</a>
+          <a href="../market-intelligence/">Market Intelligence</a>
+          <a href="../research-lab/">Football Research Lab</a>
+          <a href="../racing-research/analysis.html">Racing analysis desk</a>
+          <a href="../racing-research/context.html" aria-current="page">Context Racing Lab</a>
+          <a href="../racing-research/sources.html">Horse advice board</a>
+          <a href="../v3-research/">Horse Racing V3 Lab</a>
+          <a href="../reliability-lab/">Historical Reliability Lab</a>
+          <a class="vw-page-gold" href="../wildcard/">Gold Wildcard Council</a>
+        </section>
+        <section aria-label="Validation, reports and operations">
+          <h2>Evidence and operations</h2>
+          <a href="../validation-centre/">Independent Validation Centre</a>
+          <a href="../track-record/">Evidence &amp; track record</a>
+          <a href="../research-reports/">Report archive</a>
+          <a href="../research/horse-ab-phase3-master-20261115/dashboard/">Archived racing model comparison</a>
+          <a href="../ops-control/">Operations Control Centre</a>
+        </section>
+      </div>
+    </details>
+  </div>
+</header>
+<!-- research-header:end -->
+<div class="utility"><div><span>EXPERIMENTAL RACING RESEARCH</span><span>18+ · No real bets placed</span></div></div><header class="sports-header"><div class="masthead"><a href="../" class="wordmark">VALUE<span>WATCH</span><small>LAB</small></a></div><nav class="product-nav"><a href="../">Selections</a><a href="./">Original form baseline</a><a href="sources.html">Horse advice</a><a href="analysis.html">Analysis desk</a><a class="active" href="context.html">Context model</a></nav></header><main class="context-layout"><section class="context-intro"><span class="eyebrow">COMPARE INPUTS BEFORE CONCLUSIONS</span><h1>Context racing lab</h1><p>Historical form adjusted for observed race conditions. Flat turf, all-weather and jump races are considered only when the complete field has enough comparable dated evidence.</p><div class="context-flags"><span>MODEL UNVALIDATED</span><span>FIXED EXPLORATORY WEIGHTS</span><span>NO VERIFIED BETTING VALUE</span></div><p id="context-status" role="status">Loading the published context snapshot…</p><button id="context-refresh" type="button">Refresh published snapshots</button></section><section aria-label="Context model coverage"><div id="context-coverage" class="context-metrics"></div><p id="context-discipline" class="context-note"></p><p class="context-note">A model weight ranks the runners within this experimental calculation. It is not a calibrated probability of winning. The original form-only baseline remains separate for comparison.</p></section><section class="context-controls"><label>Meeting<select id="context-meeting"><option value="all">All collected meetings</option></select></label><label>Show<select id="context-view"><option value="upcoming">Upcoming forecast records</option><option value="all">Recent frozen forecast records</option><option value="current">Fresh matching field and context</option></select></label></section><section id="context-forecasts" aria-label="Frozen context forecasts"></section><section class="context-panel"><h2>Races without a context forecast</h2><p>Exclusions are retained. Missing or uncertain inputs are never replaced by an invented prediction.</p><div id="context-skipped"></div></section><section class="context-panel"><h2>Prospective result checks</h2><div id="context-performance"></div><p class="context-note">Only predictions frozen before a race may enter this comparison. A scored research race does not establish profitability, verified prices, calibration or official challenge credit.</p></section><section class="context-panel"><h2>What this model does and does not know</h2><p>The calculation uses comparable dated finishing evidence and records how much past form matches the current trip, going, course and class. The weights are exploratory choices, not fitted winning probabilities.</p><p>Coverage counts expose missing evidence. There is no invented draw bias, pace map, trainer/jockey advantage, replay judgement, fitness assessment or live rail-movement analysis. A bookmaker favourite and a context-model leader may differ.</p><p>Recorded price moves describe earlier source quotes. Shortening prices and agreement between commentators do not, by themselves, prove value.</p><div id="context-limitations"></div></section></main><footer class="sports-footer"><strong>VALUE WATCH</strong><span>Research only · Publication BLOCKED · Official challenge 0/100</span><a href="https://www.gamcare.org.uk/">GamCare</a></footer><script src="../racecards-core.js?v=3.3.1"></script><script src="context.js?v=4"></script></body></html>
