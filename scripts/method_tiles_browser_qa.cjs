@@ -38,6 +38,18 @@ const server=http.createServer(async(req,res)=>{
         await box('experimental').focus();
         await page.keyboard.press('Space');
         await box('hybrid').click();
+        const overlap = await page.evaluate(() => {
+          const picker=document.querySelector('#engine-methods');
+          const tile=document.querySelector('#engine-methods [data-method="bottleneck"]');
+          const slip=document.querySelector('#slip-panel');
+          const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom}};
+          const target=rect(tile),column=rect(picker),panel=rect(slip);
+          const hit=document.elementFromPoint(target.x+target.width/2,target.y+target.height/2);
+          return {target,column,panel,hit:hit?.id||hit?.className||hit?.tagName,
+            body:document.body.className,html:document.documentElement.className,
+            viewport:{width:innerWidth,height:innerHeight}};
+        });
+        console.log('Engine tile geometry',entry,width,JSON.stringify(overlap));
         await box('bottleneck').click();
         for(const id of ['experimental','hybrid','bottleneck'])
           assert.equal(await box(id).getAttribute('aria-pressed'),'true');
