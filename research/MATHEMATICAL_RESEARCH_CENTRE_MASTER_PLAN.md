@@ -2,6 +2,14 @@
 **Master design record — agreed discussion, 20 November 2026**  
 **Status:** DESIGN APPROVED IN PRINCIPLE; IMPLEMENTATION PARTIAL; RESEARCH ONLY. This document is not a deployment approval.
 
+## Unified rolling historical data decision — 23 November 2026
+
+**Historical is any completed game from the past, including last week's results and all completed matches this season; it is not limited to previous seasons.** The laboratory must use one logical, continuously refreshed historical research view across existing source archives and keep adding newly completed results from external collectors. It must not create competing isolated datasets or assume the empty independent-final verification feed means no historical outcomes exist.
+
+At the inspected 23 November 2026 snapshot the repository has 782 completed 2026/27 football results, including 48 from 20–22 November, plus 608 older reconstructed football results and 80 historical darts finals. These sources have distinct evidence tiers and should not be blindly added together as unique verified games. Existing football source collection is scheduled twice daily through reliability-results-refresh.yml; reuse the collector instead of inventing another football feed. Apply prior-date-only training cutoffs for date-only results, cross-source identity checks, and no lookahead.
+
+The canonical implementation note is [Unified rolling history](bottleneck-selector/UNIFIED_ROLLING_HISTORY.md) and its read-only adapter is rolling-history.mjs, integrated into the Bottleneck completion audit. Extend the same shared view to all existing sport histories as source identities are reconciled. Research-only historical backtesting may proceed without original-response attestation; live betting/model validation remains separately blocked.
+
 ## 0. Mandatory catalogue completion gate — user decision 20 Nov 2026
 
 **Do not progress to the next Mathematical Research Centre development phase until the shared library contains at least 1,000 properly registered catalogue entries.** Current audited baseline when this decision was made: **16** entries in isolated research PR #112 (one implemented research baseline and fifteen IDEA records), hence **984 additional qualified entries required**. This is a blocking **catalogue-readiness** milestone, NOT a claim of 1,000 implemented, independently validated or sport-effective models.

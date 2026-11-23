@@ -219,6 +219,85 @@ class PrivateResultCapture:
                 "body_sha256": actual, "raw_object_new": created,
                 "independently_authenticated": False}
 
+    def preserve_tennis_secondary_observation(self, observation, original_response):
+        """Store exactly matching ORIGINAL WTA PDF or ATP Finals article bytes.
+
+        The supplied original response may be historical and is NOT proof of
+        its claimed observation time. This function never fetches or backdates.
+        """
+        if not isinstance(original_response, bytes) or not 0 < len(original_response) <= MAX_BODY:
+            raise PrivateCaptureError("Missing or oversized original tennis evidence bytes")
+        if not isinstance(observation, dict) or (
+            observation.get("status") != "SECONDARY_UNVERIFIED"
+            or observation.get("independently_verified") is not False
+            or observation.get("betting_eligible") is not False
+            or observation.get("sport") != "tennis"
+            or observation.get("market") != "MATCH_WINNER"
+            or observation.get("source_match_status") != "COMPLETED_SINGLES_RESULT"
+        ):
+            raise PrivateCaptureError("Not an eligible unverified tennis result")
+        prediction, source = observation.get("prediction_id"), observation.get("source_url")
+        seen, expected = observation.get("observed_at_utc"), observation.get("response_sha256")
+        if not isinstance(prediction, str) or not 0 < len(prediction) <= 180:
+            raise PrivateCaptureError("Invalid tennis prediction receipt")
+        if not isinstance(source, str) or not 0 < len(source) <= 1200 or not _timestamp(seen):
+            raise PrivateCaptureError("Missing tennis source URL or observation time")
+        try:
+            url = urlsplit(source)
+            no_auth = (url.scheme == "https" and not url.username and not url.password
+                       and not url.fragment and url.port is None and not url.query)
+            wta = (
+                url.hostname == "wtafiles.wtatennis.com"
+                and bool(re.fullmatch(r"/pdf/draws/\d{4}/\d{1,6}/[A-Za-z0-9_-]+\.pdf", url.path))
+                and observation.get("receipt_kind") == "PROVIDER_PDF"
+                and original_response.startswith(b"%PDF-")
+            )
+            atp = (
+                url.hostname == "www.nittoatpfinals.com"
+                and bool(re.fullmatch(r"/en/news/[A-Za-z0-9-]+/?", url.path))
+                and observation.get("receipt_kind") == "REVIEWED_SOURCE_FACTS"
+                and b"<html" in original_response[:4096].lower()
+            )
+            allowed = no_auth and (wta or atp)
+        except (TypeError, ValueError):
+            allowed = False
+        if not allowed:
+            raise PrivateCaptureError("Unrecognised tennis source, receipt kind or body format")
+        if (not isinstance(expected, str) or not SHA.fullmatch(expected)
+                or hashlib.sha256(original_response).hexdigest() != expected):
+            raise PrivateCaptureError("Tennis source original-byte fingerprint mismatch")
+        players = observation.get("source_match_players")
+        winner = observation.get("source_match_winner")
+        participants = observation.get("participant_ids")
+        if (not isinstance(players, list) or len(players) != 2
+                or not all(isinstance(p, str) and p.strip() for p in players)
+                or players[0] == players[1] or winner not in players
+                or not isinstance(participants, list) or len(participants) != 2
+                or len(set(participants)) != 2
+                or not all(isinstance(x, str) and x for x in participants)
+                or observation.get("actual_outcome") not in participants
+                or not all(isinstance(observation.get(k), str) and observation[k]
+                           for k in ("event_id", "source_competition"))):
+            raise PrivateCaptureError("Tennis match identity or settlement not traceable")
+        digest = expected
+        receipt = {
+            "schema_version": 1, "kind": "PRIVATE_RESULT_SOURCE_CAPTURE_V1",
+            "prediction_id": prediction, "side": "second_source",
+            "source_url": source, "observed_at_utc": seen,
+            "relative_path": "raw/" + digest + ".bin",
+            "body_sha256": digest,
+            "sport": "tennis", "event_id": observation["event_id"],
+            "market": "MATCH_WINNER", "result_claim": observation["actual_outcome"],
+            "independently_authenticated": False, "betting_eligible": False
+        }
+        blob = (json.dumps(receipt, sort_keys=True, separators=(",", ":")) + "\n").encode()
+        receipt_name = hashlib.sha256(("second_source:" + prediction).encode()).hexdigest() + ".json"
+        created = _atomic_create(self.raw / (digest + ".bin"), original_response)
+        _atomic_create(self.receipts / receipt_name, blob)
+        return {"status": "TENNIS_ORIGINAL_BYTES_MATCH_PRIVATE_RECEIPT_UNATTESTED",
+                "body_sha256": digest, "raw_object_new": created,
+                "independently_authenticated": False, "historical_capture_time_attested": False}
+
     def manifest(self):
         """Private manifest only. Verify stored bytes before exporting references."""
         records = []

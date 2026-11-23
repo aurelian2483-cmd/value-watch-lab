@@ -1,0 +1,66 @@
+name: Bottleneck complete research pipeline (blocked)
+on:
+  push:
+    branches:
+      - research/bottleneck-completion-20261123
+  pull_request:
+    branches:
+      - research/bottleneck-future-secondary-capture-20261123
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-all:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile Python and JavaScript
+        run: |
+          python -m py_compile scripts/private_result_capture.py scripts/ingest_private_tennis_secondary.py scripts/collect_secondary_nfl_results.py scripts/observe_pending_results.py
+          node --check research/bottleneck-selector/completion-audit.mjs
+      - name: Test entire Bottleneck research evidence chain
+        run: |
+          node --test research/bottleneck-selector/*.test.mjs
+          python -m unittest discover -s tests -p 'test_private_tennis_capture.py' -v
+          python -m unittest discover -s tests -p 'test_private_secondary_capture.py' -v
+          python -m unittest discover -s tests -p 'test_private_result_capture.py' -v
+          python -m unittest discover -s tests -p 'test_secondary_nfl_results.py' -v
+          python -m unittest discover -s tests -p 'test_result_observations.py' -v
+          python -m unittest discover -s tests -p 'test_result_reconciliation.py' -v
+      - name: Evaluate canonical repository evidence without promotion
+        run: |
+          node research/bottleneck-selector/completion-audit.mjs > /tmp/bottleneck-final-readiness.json
+          node --input-type=module -e '
+            import fs from "node:fs";
+            import assert from "node:assert/strict";
+            const p=JSON.parse(fs.readFileSync("/tmp/bottleneck-final-readiness.json","utf8"));
+            assert.equal(p.kind,"BOTTLENECK_END_TO_END_COMPLETION_AUDIT_V1");
+            assert.equal(p.model_validation,"UNVALIDATED");
+            assert.equal(p.publication_gate,"BLOCKED");
+            assert.equal(p.selected_method,null);
+            assert.equal(p.certified_outcomes_added,0);
+            assert.equal(p.scoring_authorised,false);
+            assert.equal(p.betting_eligible,false);
+            assert.equal(p.six_method_ids.length,6);
+            assert.equal(p.raw_original_responses_expected,p.review_packets*2);
+            assert.equal(p.gates.length,6);
+            assert(p.blockers.length>0);
+            console.log("End-to-end research audit",p.forecast_ledger_records,
+              "forecasts,",p.review_packets,"review packets,",
+              p.raw_original_responses_missing,"missing original sources,",
+              p.blockers.length,"remaining evidence/approval gates.");
+          '
+      - name: Verify no public dataset or website changed by tests
+        run: |
+          git diff --exit-code -- prediction-ledger.json results-feed.json research/provider-result-observations.json research/secondary-result-evidence.json research/result-review-status.json index.html paper-lab/index.html
+          test ! -d private-result-capture
+          echo 'No live source network calls, betting, private raw artifact, or website deployment'
