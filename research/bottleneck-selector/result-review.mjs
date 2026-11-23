@@ -51,7 +51,11 @@ export function buildReviewWorklist({bridge,identity,ledger,results,review,prima
   for(const p of ledger.records){
     assert(typeof p?.prediction_id==='string'&&!preds.has(p.prediction_id)&&
       Validation.validatePrediction(p)===null&&
-      p.research_only===true&&p.model_validated===false,
+      p.research_only===true&&p.model_validated===false&&
+      goodTime(p.source_observed_at_utc)&&
+      Date.parse(p.source_observed_at_utc)<=Date.parse(p.recorded_at_utc)&&
+      typeof p.training_fingerprint==='string'&&/^[a-f0-9]{64}$/.test(p.training_fingerprint)&&
+      typeof p.source_fingerprint==='string'&&/^[a-f0-9]{64}$/.test(p.source_fingerprint),
       'Invalid or duplicated archived forecast');
     preds.set(p.prediction_id,p);
     const k=eventKey(p.sport,p.event_id,p.event_start_utc);
