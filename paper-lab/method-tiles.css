@@ -27,3 +27,44 @@
 @media(max-width:680px){.engine-switch .engine-method-header{display:block}.engine-switch .engine-method-hint{margin-top:6px}.engine-switch .engine-method-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.engine-switch .engine-method-tile{min-height:56px;padding:10px 9px;gap:8px;font-size:11px}.engine-switch .engine-method-check{width:22px;height:22px}.engine-switch .engine-method-label{flex-wrap:wrap}.engine-switch .engine-mode-panel{padding:10px}}
 @media(max-width:400px){.engine-switch .engine-method-grid{grid-template-columns:1fr}.engine-switch .engine-method-tile{min-height:46px}}
 @media(prefers-reduced-motion:reduce){.engine-switch .engine-method-tile{transition:none}}
+
+
+/* The compact Visual Preview previously positioned a single dropdown in a
+   two-column grid. The new method picker must occupy a full-width block instead:
+   otherwise its second row can fall under the sticky paper slip panel. */
+.engine-switch{min-width:0;max-width:100%}
+.visual-preview .pro-landing > .engine-switch{
+  display:block;
+  grid-template-columns:none;
+  grid-template-rows:none;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+.visual-preview .pro-landing > .engine-switch :is(#engine-heading,#engine-status,#engine-analysis){
+  grid-area:auto;
+}
+.visual-preview .pro-landing > .engine-switch .engine-method-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+html.unified-desk .engine-switch .engine-method-tile[aria-pressed="true"]{
+  background:linear-gradient(145deg,#1252bf,#07317f)!important;
+  border-color:#91beff!important;
+  color:#fff!important;
+}
+html.unified-desk .engine-switch .engine-method-tile[aria-pressed="true"] .engine-method-check{
+  background:#f0f7ff!important;
+  border-color:#f0f7ff!important;
+  color:#0a4eb7!important;
+}
+@media(max-width:1180px){
+  .visual-preview .pro-landing > .engine-switch .engine-method-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:400px){
+  .visual-preview .pro-landing > .engine-switch .engine-method-grid{
+    grid-template-columns:minmax(0,1fr);
+  }
+}
