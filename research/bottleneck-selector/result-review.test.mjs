@@ -72,8 +72,13 @@ test('missing or unapproved observation archive fails closed',()=>{
   }
 });
 test('duplicate review entry is never silently counted twice',()=>{
-  const x=clone(inputs);x.review.items.push(clone(x.review.items[0]));
-  x.review.total_predictions_checked++;x.review.status_counts[x.review.items[0].review_state]++;
+  const x=clone(inputs);
+  // Preserve the total and internally consistent status counts, so the
+  // dedicated duplicate-identity check is the one that must reject this.
+  const removed=x.review.items.pop();
+  x.review.status_counts[removed.review_state]--;
+  x.review.items.push(clone(x.review.items[0]));
+  x.review.status_counts[x.review.items[0].review_state]++;
   assert.throws(()=>build(x),/Duplicate or missing review identity/);
 });
 test('mismatched review count or state counter fails closed',()=>{
