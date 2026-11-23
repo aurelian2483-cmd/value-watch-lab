@@ -1,0 +1,49 @@
+name: Bottleneck raw source receipt audit (read-only)
+on:
+  push:
+    branches:
+      - research/bottleneck-raw-receipts-20261123
+  pull_request:
+    branches:
+      - research/bottleneck-source-verification-20261123
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  private-source-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source code and all Bottleneck tests
+        run: |
+          node --check research/bottleneck-selector/raw-source-evidence.mjs
+          node --check research/bottleneck-selector/raw-source-evidence-cli.mjs
+          node --test research/bottleneck-selector/selector.test.mjs research/bottleneck-selector/evidence-bridge.test.mjs research/bottleneck-selector/method-identity.test.mjs research/bottleneck-selector/result-review.test.mjs research/bottleneck-selector/source-verification.test.mjs research/bottleneck-selector/raw-source-evidence.test.mjs
+      - name: Reconcile the saved read-only source evidence with no private bytes provided
+        run: |
+          node research/bottleneck-selector/result-review-cli.mjs > /tmp/bottleneck-review-worklist.json
+          node research/bottleneck-selector/source-verification-cli.mjs /tmp/bottleneck-review-worklist.json > /tmp/bottleneck-source-dossier.json
+          node research/bottleneck-selector/raw-source-evidence-cli.mjs /tmp/bottleneck-source-dossier.json > /tmp/bottleneck-original-byte-readiness.json
+          node --input-type=module -e '
+            import fs from "node:fs";
+            import assert from "node:assert/strict";
+            const r=JSON.parse(fs.readFileSync("/tmp/bottleneck-original-byte-readiness.json","utf8"));
+            assert.equal(r.kind,"BOTTLENECK_RAW_SOURCE_EVIDENCE_AUDIT_V1");
+            assert.equal(r.publication_gate,"BLOCKED");
+            assert.equal(r.private_raw_sources_supplied,0);
+            assert.equal(r.raw_sources_missing,r.source_receipts_expected);
+            assert.equal(r.independently_verified_results_added,0);
+            assert.equal(r.selected_method,null);
+            assert.equal(r.scoring_authorised,false);
+            assert.equal(r.raw_bytes_retained_in_output,false);
+            console.log("Read-only original-byte readiness:",r.inspected_review_packets,
+              "result review packets, expected raw-source receipts:",r.source_receipts_expected,
+              "privately preserved original bytes supplied:",r.private_raw_sources_supplied,
+              "verified outcomes added:",r.independently_verified_results_added);
+          '
