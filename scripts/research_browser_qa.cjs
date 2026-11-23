@@ -71,8 +71,8 @@ async function audit(page,label){const result=await new AxeBuilder({page}).withT
   assert.equal(await method('experimental').getAttribute('aria-pressed'),'true');
   assert((await p.locator('#engine-status').textContent()).includes('frozen recent-form'));
   await method('experimental').click();await method('hybrid').click();
-  await p.locator('.engine-hybrid-result').getByText(/HOME · 2\\.50 Sky Bet/).waitFor();
-  assert.match(await p.locator('.engine-hybrid-result').innerText(), /Home \\/ draw \\/ away · 47\\.9%/);
+  await p.locator('.engine-hybrid-result').getByText(/HOME · 2\.50 Sky Bet/).waitFor();
+  assert.match(await p.locator('.engine-hybrid-result').innerText(), /Home \/ draw \/ away · 47\.9%/);
   await method('hybrid').click();await method('compare').click();
   assert((await p.locator('#engine-status').textContent()).includes('Compare the saved estimate'));
   await method('experimental').click();await method('bottleneck').click();
