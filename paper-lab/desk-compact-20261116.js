@@ -1455,19 +1455,25 @@
       const lab = window.ValueWatchBottleneckLab;
       write($('engine-status'), 'Bottleneck Lab · sport-specific research readiness · no active betting output.');
       make(root, 'h3', state.sport === 'all' ? 'Cross-sport Bottleneck readiness' : (sports[state.sport] || state.sport) + ' · Bottleneck readiness');
-      make(root, 'p', 'Football’s experimental adjustment is not a universal model. Each sport needs its own compatible inputs, chronological experiment and evidence review. No cross-sport Bottleneck forecasts are currently deployed.', 'small');
-      const choices = state.sport === 'all' ? Object.keys(lab?.sports || {}) : [state.sport];
+      make(root, 'p', 'Each lane has its own market definition and evidence requirements. Bookmaker prices and existing model values stay on the fixture board.', 'small');
+      const rows = lab?.forSelection(state.sport, filtered(state), E.statusOf) || [];
       const list = make(root, 'div', undefined, 'bottleneck-readiness-list');
-      for (const sport of choices) {
-        const row = lab?.forSport(sport, state.events) || {label:sports[sport] || sport, status:'NO_RESEARCH_PATH', baseline:'No connected model', bottleneck:'Not available', evidence:'No sport-specific research path is connected.', next:'Connect permitted event and result data before modelling.', eventCount:0, currentEstimateCount:0, disclaimer:'Research only · UNVALIDATED.'};
+      if (!rows.length) make(list, 'p', 'Bottleneck evidence is unavailable for this view.', 'small');
+      for (const row of rows) {
         const card = make(list, 'section', undefined, 'bottleneck-readiness-card');
+        card.dataset.bottleneckLane = row.key;
         make(card, 'h4', row.label + ' · ' + row.status.replaceAll('_', ' '));
-        make(card, 'p', 'Current path: ' + row.baseline + ' · event estimates in this feed: ' + row.currentEstimateCount + '/' + row.eventCount, 'small');
-        make(card, 'p', 'Bottleneck candidate: ' + row.bottleneck, 'small');
+        make(card, 'p', 'Baseline path: ' + row.baseline + (row.baselineEstimateCount ?
+          ' · ' + row.baselineEstimateCount + ' fresh estimates in the filtered desk feed' :
+          ' · no fresh estimate counted in the filtered desk feed'), 'small');
+        make(card, 'p', 'Bottleneck estimate: unavailable for current events. Second star withheld.', 'small');
+        make(card, 'p', 'Research candidate: ' + row.bottleneck, 'small');
         make(card, 'p', row.evidence, 'small');
         make(card, 'p', 'Next: ' + row.next, 'small');
       }
-      make(root, 'p', 'All current model outputs remain UNVALIDATED. The mathematical library has 286 of the 1,000 planned entries; 0 entries have empirical qualification. Candidate comparison and activation remain gated.', 'small');
+      make(root, 'p', 'Research only · UNVALIDATED · Publication BLOCKED.', 'small');
+      const evidence = make(root, 'a', 'Open the pinned data inventory (JSON)');
+      evidence.href = new URL('research/bottleneck/inventory.json', rootURL).href;
       return;
     }
     if (engineView === 'reliability') {

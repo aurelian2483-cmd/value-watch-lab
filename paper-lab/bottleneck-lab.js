@@ -16,8 +16,8 @@
     },
     racing: {
       label: 'Horse racing', baseline: 'Context/form runner model',
-      bottleneck: 'Runner-field rank adjustment', status: 'NOT_IMPLEMENTED',
-      evidence: 'Experimental source forecasts exist, but the recovered 81-setting comparison did not run on historical race outcomes.',
+      bottleneck: 'Field-conditional runner research', status: 'BLOCKED_VALIDATION_DATA',
+      evidence: 'The prospective A/B endpoint has no scored pairs. The 76-race historical replay has already been inspected.',
       next: 'Build a field-matched, chronological experiment with confirmed runners and independently checked placings.'
     },
     tennis: {
@@ -38,11 +38,17 @@
       evidence: 'An experimental rating path exists, but many result times are delayed or uncorroborated and the timed fixture crosswalk is limited.',
       next: 'Establish exact match IDs, format and pre-event result histories before comparing a challenger.'
     },
-    rugby: {
-      label: 'Rugby', baseline: 'Pro D2 Elo only',
-      bottleneck: 'Competition-specific margin adjustment', status: 'NOT_IMPLEMENTED',
-      evidence: 'A limited Pro D2 research path exists. Rugby Union coverage is partial; Rugby League has no connected model path.',
-      next: 'Keep Union and League separate, then build chronological results and feature histories for each competition.'
+    rugby_union: {
+      label: 'Rugby Union · Pro D2', baseline: 'Pro D2 Elo · regulation result',
+      bottleneck: 'Capped prior points-margin adjustment', status: 'RETROSPECTIVE_ONLY',
+      evidence: 'The 24-match retrospective screen covers one season and one source. The paired log-loss interval crosses zero, and the challenger was worse in one of three rounds. With no time-matched bookmaker benchmark, incremental value is unproven.',
+      next: 'Freeze a new window with timestamped inputs and independently checked finals. Other Union competitions have no connected challenger.'
+    },
+    rugby_league: {
+      label: 'Rugby League', baseline: 'No connected model · NRL schedule only',
+      bottleneck: 'Not available', status: 'BLOCKED_NO_DATA',
+      evidence: 'The NRL replay requires an external result CSV. The calendar cannot supply training or settlement outcomes.',
+      next: 'Establish auditable League-specific results, timing and event IDs.'
     },
     basketball: {
       label: 'Basketball', baseline: 'No connected model',
@@ -64,16 +70,26 @@
     }
   });
 
-  function forSport(sport, events = []) {
-    const plan = sports[sport];
-    if (!plan) return null;
-    const matches = events.filter(event => event?.sport === sport);
-    const modelled = matches.filter(event => Array.isArray(event.choices) &&
-      event.choices.some(choice => Number.isFinite(choice?.probability)) &&
-      typeof event.model?.name === 'string' && event.model.name.trim());
-    return Object.freeze({ ...plan, eventCount: matches.length, currentEstimateCount: modelled.length,
-      disclaimer: 'Research only · UNVALIDATED · no Bottleneck output is active for betting, EV or qualification.' });
+  function forSelection(selection, events = [], statusOf = () => ({code: 'UNAVAILABLE'})) {
+    const keys = selection === 'all' ? Object.keys(sports) :
+      selection === 'rugby' ? ['rugby_union', 'rugby_league'] :
+      Object.hasOwn(sports, selection) ? [selection] : [];
+    return keys.map(key => {
+      const matches = events.filter(event => {
+        if (key === 'rugby_league') return false;
+        if (key === 'rugby_union') return event?.sport === 'rugby' && event.model?.name === 'Pro D2 Elo';
+        return event?.sport === key;
+      });
+      const estimates = new Set(matches.filter(event => {
+        const probabilities = Array.isArray(event.choices) ? event.choices.map(choice => choice?.probability) : [];
+        return event.id && event.model?.name && event.model.validation === 'UNVALIDATED' && statusOf(event)?.code === 'READY' &&
+          probabilities.length >= 2 && probabilities.every(p => Number.isFinite(p) && p >= 0 && p <= 1) &&
+          Math.abs(probabilities.reduce((sum, p) => sum + p, 0) - 1) < 0.001;
+      }).map(event => event.id));
+      return { ...sports[key], key, baselineEstimateCount: estimates.size,
+        bottleneckEstimate: null, bottleneckStar: false };
+    });
   }
 
-  return Object.freeze({ sports, forSport });
+  return Object.freeze({ forSelection });
 });
