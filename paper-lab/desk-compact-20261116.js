@@ -508,10 +508,10 @@
       !event.choices.some(choice => Number.isFinite(choice.quote?.decimal) || Number.isFinite(choice.forecastPrice?.decimal));
     record.market.classList.toggle('desk-market-empty', emptyMarket);
     const note = record.market.querySelector('.desk-market-note');
-    if (emptyMarket && !note) record.market.prepend(make(null, 'p', 'No verified prices or model estimates', 'desk-market-note'));
+    if (emptyMarket && !note) record.market.prepend(make(null, 'p', 'No bookmaker odds are loaded for this fixture · no model estimate is available', 'desk-market-note'));
     else if (!emptyMarket) note?.remove();
     if (marketRow && !currentOdds && !emptyMarket && record.choices.size)
-      make(quickSignals, 'span', 'No verified price', 'compact-evidence-note');
+      make(quickSignals, 'span', 'No current bookmaker price is loaded', 'compact-evidence-note');
     const compactRunners = event.sport === 'racing' && record.choices.size > 0 &&
       event.choices.every(choice => !Number.isFinite(choice.probability) &&
         !Number.isFinite(choice.quote?.decimal) && !Number.isFinite(choice.forecastPrice?.decimal));
@@ -544,7 +544,7 @@
         view.comparison.title = comparison.length && model ? model.name + ' · UNVALIDATED' : '';
         if (!hasLivePrice && acceptedProbability != null) write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + 'Model estimate');
       }
-      write(view.odds, hasLivePrice ? 'Sky Bet '+livePrice.toFixed(2)+' · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK · checked '+dateText(new Date(currentOdds.checked).toISOString())+' UK · EV withheld' : priced ? estimated ? 'Source odds ' + quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'No matched bookmaker price in this snapshot');
+      write(view.odds, hasLivePrice ? 'Sky Bet '+livePrice.toFixed(2)+' · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK · checked '+dateText(new Date(currentOdds.checked).toISOString())+' UK · EV withheld' : priced ? estimated ? 'Source odds ' + quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'Bookmaker odds are not loaded in this page snapshot');
       write(view.method, event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' + (contextWeight ? ' · context weight, not win probability' : '') : 'Method: unavailable · no validated forecast');
       const leader = leaders.find(leader => leader.id === choice.id);
       const racingPick = event.sport === 'racing' ? racingPicks.find(pick => pick.choice.id === choice.id) : null;
@@ -1273,7 +1273,7 @@
       (leg.evidenceStatus || 'capture status unavailable') + '. PASS for qualification; no verified bookmaker value.','slip-selection-meta');
     const state = E.statusOf(liveEvent);
     if (archived) make(record.node,'span',started?'Past event · saved research':!liveEvent?'Not in current snapshots · saved research':'Unavailable for current selection · saved research','slip-archive-status');
-    make(record.node, 'span', !leg.currentStatus?.selectable ? leg.currentStatus?.label || state.label : leg.quote?.decimal ? leg.quote.decimal.toFixed(2) + ' · unverified source price' : (typeof leg.probability === 'number' ? pct(leg.probability) + (leg.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' context weight' : ' model win estimate') + ' · UNVALIDATED · odds not connected' : 'No model estimate · odds not connected'), 'leg-state' + (!leg.currentStatus?.selectable ? ' is-warning' : ''));
+    make(record.node, 'span', !leg.currentStatus?.selectable ? leg.currentStatus?.label || state.label : leg.quote?.decimal ? leg.quote.decimal.toFixed(2) + ' · unverified source price' : (typeof leg.probability === 'number' ? pct(leg.probability) + (leg.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT' ? ' context weight' : ' model win estimate') + ' · UNVALIDATED · bookmaker odds not loaded' : 'No model estimate · bookmaker odds not loaded'), 'leg-state' + (!leg.currentStatus?.selectable ? ' is-warning' : ''));
     if(leg.provisionalEntry)make(record.node,'p','Provisional paper entry · final declarations unverified','warning-line');
     // Mathematical hurdle only: this is not an estimated probability or positive-EV claim.
     if (Number.isFinite(leg.quote?.decimal) && leg.quote.decimal > 1) {
