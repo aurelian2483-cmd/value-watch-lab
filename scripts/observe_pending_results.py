@@ -30,6 +30,7 @@ def safe_url(value,sport):
 def fetch(url):
     request=urllib.request.Request(url,headers={'User-Agent':'ValueWatchResearch/1.0','Accept':'application/json'})
     with urllib.request.urlopen(request,timeout=20) as response:
+        if response.geturl()!=url:raise ValueError('Redirected provider response not accepted')
         raw=response.read(MAX_RESPONSE+1)
     if len(raw)>MAX_RESPONSE:raise ValueError('Source too large')
     # Timestamp refers to completed receipt of these exact bytes, not the
