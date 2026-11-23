@@ -109,13 +109,11 @@ test('wrong input sequence or later observation invalidates all packets',()=>{
   const x=clone(inputs);x.secondary.generated_at_utc='2099-01-01T12:00:00Z';
   assert.throws(()=>build(x),/review chronology/);
 });
-test('forecast duplication and swapped immutable event fail closed',()=>{
+test('forecast duplication and changed source observation time fail closed',()=>{
   const x=clone(inputs);x.ledger.records.push(clone(x.ledger.records[0]));
   assert.throws(()=>build(x),/Invalid or duplicated archived forecast/);
   const y=clone(inputs);y.ledger.records[0].source_observed_at_utc='2099-01-01T12:00:00Z';
-  // Existing preflight checks ensure source evidence was available by the forecast cutoff;
-  // the review layer keeps the original frozen identity and refuses an invalid time record.
-  assert.equal(y.ledger.records[0].prediction_id,inputs.ledger.records[0].prediction_id);
+  assert.throws(()=>build(y),/Invalid or duplicated archived forecast/);
 });
 test('unverified engine identity cannot be promoted by review matches',()=>{
   const x=clone(inputs);x.identity.dropdown_methods[0].verified_engine_version='fake';
