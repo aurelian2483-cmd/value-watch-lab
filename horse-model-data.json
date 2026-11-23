@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-23T15:41:18.896228+00:00",
+  "generated_at_utc": "2026-11-23T16:08:14.717146+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -9,8 +9,8 @@
   "secondary_source_audit": {
     "provider": "The Racing API",
     "connection_status": "CONNECTED",
-    "schedule_matches": 17,
-    "result_rows_cached": 729,
+    "schedule_matches": 16,
+    "result_rows_cached": 734,
     "errors": [],
     "verification_scope": "Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established."
   },
@@ -22,17 +22,17 @@
     "superseded_racecards": [],
     "active_runner_observations": 349,
     "non_runner_observations": 17,
-    "pre_event_races": 17,
+    "pre_event_races": 16,
     "errors": [],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED",
-    "collection_completed_at_utc": "2026-11-23T15:41:15.318819+00:00"
+    "collection_completed_at_utc": "2026-11-23T16:08:10.457415+00:00"
   },
   "race_count": 38,
   "reference_baseline_audit": {
     "status": "REFERENCE_BENCHMARKS_ONLY",
     "model": "EQUAL_CHANCE_REFERENCE_V1",
-    "available_references": 17,
+    "available_references": 16,
     "new_archived_records": 0,
     "skipped": [
       {
@@ -117,6 +117,10 @@
       },
       {
         "race_id": "949842",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "949829",
         "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
       }
     ],
@@ -7770,7 +7774,7 @@
       },
       {
         "race_id": "949829",
-        "reason": "INSUFFICIENT_FORM_FOR_FULL_FIELD"
+        "reason": "NOT_PRE_EVENT_WITH_BUFFER"
       },
       {
         "race_id": "950462",
@@ -7797,15 +7801,15 @@
     "model_validation": "UNVALIDATED"
   },
   "performance": {
-    "scored_forecasts": 95,
+    "scored_forecasts": 96,
     "independently_verified_results": 0,
     "verification": "SINGLE_SOURCE_PROVISIONAL",
     "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
     "metrics": {
-      "mean_multiclass_brier_score": 0.8935879253310345,
-      "mean_log_loss": 2.3116031266310495,
-      "mean_equal_chance_brier_score": 0.9012803278592753,
-      "mean_equal_chance_log_loss": 2.3526457601494424
+      "mean_multiclass_brier_score": 0.8939069933890184,
+      "mean_log_loss": 2.3132778643615497,
+      "mean_equal_chance_brier_score": 0.901361688080438,
+      "mean_equal_chance_log_loss": 2.3531171092395353
     },
     "entries": [
       {
@@ -10087,13 +10091,33 @@
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
         "result_last_checked_at_utc": "2026-11-23T12:59:51.920054+00:00"
+      },
+      {
+        "record_sha256": "e5d07d8e25ed6e0ea446c43373652d877caa689f680870e45eded485093c1a7e",
+        "race_id": "949828",
+        "racecourse": "Newcastle",
+        "startUTC": "2026-11-23T15:30:00+00:00",
+        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+        "winner_horse_id": "1183731",
+        "scored_at_utc": "2026-11-23T16:08:14.717146+00:00",
+        "multiclass_brier_score": 0.9242184588974841,
+        "log_loss": 2.4723779487590973,
+        "equal_chance_brier_score": 0.9090909090909091,
+        "equal_chance_log_loss": 2.3978952727983707,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-23/newcastle/racecard/949828/midnite-a-next-generation-betting-app-apprentice-handicap",
+          "sha256": "50cd21fae7a2a3f6f50aa67aa0347c35c9447926dcbc72d23c5b515b3c508fb2",
+          "observed_at_utc": "2026-11-23T16:08:14.717146+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
       }
     ],
     "pending": [
-      {
-        "race_id": "949828",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
       {
         "race_id": "949830",
         "reason": "WAITING_FOR_FINAL_RESULT"
@@ -10192,7 +10216,7 @@
     },
     "source_unavailable_rechecks": 0,
     "selection_policy": "Latest archived forecast per race/model, captured at least five minutes before scheduled start.",
-    "cross_source_verified_results": 78,
+    "cross_source_verified_results": 79,
     "cross_source_entries": [
       {
         "record_sha256": "61e99fd669a27075ca5ddab4ada773b0f088313bd469e31d3304ef25a34ad009",
@@ -13547,6 +13571,49 @@
           "publication_gate": "BLOCKED",
           "challenge_eligible": 0
         }
+      },
+      {
+        "record_sha256": "e5d07d8e25ed6e0ea446c43373652d877caa689f680870e45eded485093c1a7e",
+        "race_id": "949828",
+        "racecourse": "Newcastle",
+        "startUTC": "2026-11-23T15:30:00+00:00",
+        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+        "winner_horse_id": "1183731",
+        "scored_at_utc": "2026-11-23T16:08:14.717146+00:00",
+        "multiclass_brier_score": 0.9242184588974841,
+        "log_loss": 2.4723779487590973,
+        "equal_chance_brier_score": 0.9090909090909091,
+        "equal_chance_log_loss": 2.3978952727983707,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-23/newcastle/racecard/949828/midnite-a-next-generation-betting-app-apprentice-handicap",
+          "sha256": "50cd21fae7a2a3f6f50aa67aa0347c35c9447926dcbc72d23c5b515b3c508fb2",
+          "observed_at_utc": "2026-11-23T16:08:14.717146+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-23T16:08:14.717146+00:00",
+        "cross_source_evidence": {
+          "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
+          "record_sha256": "e5d07d8e25ed6e0ea446c43373652d877caa689f680870e45eded485093c1a7e",
+          "primary_receipt": {
+            "url": "https://www.sportinglife.com/racing/racecards/2026-11-23/newcastle/racecard/949828/midnite-a-next-generation-betting-app-apprentice-handicap",
+            "sha256": "50cd21fae7a2a3f6f50aa67aa0347c35c9447926dcbc72d23c5b515b3c508fb2",
+            "observed_at_utc": "2026-11-23T16:08:14.717146+00:00"
+          },
+          "secondary_receipt": {
+            "url": "https://api.theracingapi.com/v1/results/today/free?region=gb&region=ire&limit=100&skip=0",
+            "sha256": "23cda5f8f0cbef420e3cd491271212e589e2cf5cba534b6419e84b8e8ba2098c",
+            "observed_at_utc": "2026-11-23T16:08:14.403816+00:00",
+            "rate_limit_retries": 0
+          },
+          "secondary_race_id": "rac_32305256373",
+          "winner_horse_id": "1183731",
+          "publication_gate": "BLOCKED",
+          "challenge_eligible": 0
+        }
       }
     ],
     "cross_source_pending": [
@@ -13625,19 +13692,19 @@
         "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1": {
           "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
           "parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "scored_races": 95,
+          "scored_races": 96,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.007692402528240754,
-          "mean_log_loss_delta_vs_equal_chance": -0.04104263351839317,
+          "mean_brier_delta_vs_equal_chance": -0.007454694691419756,
+          "mean_log_loss_delta_vs_equal_chance": -0.03983924487798567,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.012344010116985094,
-            "upper": -0.0030222405249935615,
+            "lower": -0.012424208387887525,
+            "upper": -0.002864697406342636,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.06451454533506391,
-            "upper": -0.01974377084126612,
+            "lower": -0.0649498516994075,
+            "upper": -0.015546071837621793,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -13652,16 +13719,16 @@
             {
               "lower": 0.05,
               "upper": 0.1,
-              "runner_observations": 727,
-              "mean_model_probability": 0.07897403416734126,
-              "observed_win_frequency": 0.07152682255845942
+              "runner_observations": 734,
+              "mean_model_probability": 0.07899988782054813,
+              "observed_win_frequency": 0.07220708446866485
             },
             {
               "lower": 0.1,
               "upper": 0.15,
-              "runner_observations": 264,
-              "mean_model_probability": 0.11538723715771132,
-              "observed_win_frequency": 0.14015151515151514
+              "runner_observations": 268,
+              "mean_model_probability": 0.11526282010824833,
+              "observed_win_frequency": 0.13805970149253732
             },
             {
               "lower": 0.15,
@@ -13693,19 +13760,19 @@
         "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1": {
           "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
           "parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "scored_races": 78,
+          "scored_races": 79,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.007597333546272608,
-          "mean_log_loss_delta_vs_equal_chance": -0.04254271098678618,
+          "mean_brier_delta_vs_equal_chance": -0.007309676794970739,
+          "mean_log_loss_delta_vs_equal_chance": -0.04106137697479235,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.013302776517102504,
-            "upper": -0.0025165997768547823,
+            "lower": -0.012680115046205063,
+            "upper": -0.001598708226104722,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.06885963927754989,
-            "upper": -0.015908662116793197,
+            "lower": -0.06595843261160009,
+            "upper": -0.016221322975135764,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -13720,16 +13787,16 @@
             {
               "lower": 0.05,
               "upper": 0.1,
-              "runner_observations": 599,
-              "mean_model_probability": 0.07953703622575728,
-              "observed_win_frequency": 0.07345575959933222
+              "runner_observations": 606,
+              "mean_model_probability": 0.0795618473924981,
+              "observed_win_frequency": 0.07425742574257425
             },
             {
               "lower": 0.1,
               "upper": 0.15,
-              "runner_observations": 215,
-              "mean_model_probability": 0.11520633300417475,
-              "observed_win_frequency": 0.13953488372093023
+              "runner_observations": 219,
+              "mean_model_probability": 0.11505738253549011,
+              "observed_win_frequency": 0.136986301369863
             },
             {
               "lower": 0.15,
@@ -13760,7 +13827,7 @@
   "current_field_checks": {
     "4611505625c2d3156e5f5e7c955f9b50a597894d2230f9eee2c73d89dfce8eba": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:09.788499+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:06.773632+00:00",
       "active_runner_ids": [
         "1219744",
         "1219891",
@@ -13771,11 +13838,11 @@
         "1237321"
       ],
       "active_runner_count": 7,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     },
     "1d7407e5eda766f40af138391f3fa88237033cc107202c4d5b384bbe7590fa97": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:11.120168+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:07.465452+00:00",
       "active_runner_ids": [
         "1057928",
         "1097107",
@@ -13789,11 +13856,11 @@
         "1198728"
       ],
       "active_runner_count": 10,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     },
     "c781a7fe3476e766c1e273490e6317c01dc5e51c9b3674edc388defc500b860e": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:11.801010+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:07.906777+00:00",
       "active_runner_ids": [
         "1019371",
         "1041122",
@@ -13807,11 +13874,11 @@
         "1195455"
       ],
       "active_runner_count": 10,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     },
     "07f2dd652e5b98d58a52b0400b0062e8ddf54f2d67a7d7e57ad9a17aff1130e8": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:11.870740+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:08.019462+00:00",
       "active_runner_ids": [
         "1009615",
         "1061490",
@@ -13824,11 +13891,11 @@
         "947111"
       ],
       "active_runner_count": 9,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     },
     "5862cb86bd46e76da67e35c2e28121ba1851f45c272ac920092f622f6704cb5f": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:12.325801+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:08.501048+00:00",
       "active_runner_ids": [
         "1006260",
         "1079319",
@@ -13843,11 +13910,11 @@
         "983714"
       ],
       "active_runner_count": 11,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     },
     "02eab85fd255fbd91de7012a7ed8522516b4aa05385e0e2cbc6a742fea750ff1": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:12.962683+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:08.577976+00:00",
       "active_runner_ids": [
         "1039908",
         "1062181",
@@ -13865,11 +13932,11 @@
         "987752"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     },
     "1042476c95d04c17c0136f214888468c964ec836130c4bbb569bee9147d3b49c": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:13.135526+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:09.040843+00:00",
       "active_runner_ids": [
         "1024584",
         "1108363",
@@ -13884,11 +13951,11 @@
         "940433"
       ],
       "active_runner_count": 11,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     },
     "ee6ffda6c73f02c62d4582baf55779b2484563eb29fce52be818c5838acd06fe": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:13.914009+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:09.182538+00:00",
       "active_runner_ids": [
         "1080600",
         "1084889",
@@ -13905,11 +13972,11 @@
         "981278"
       ],
       "active_runner_count": 13,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     },
     "e5cf70962cec9362165b5979579b1e50504025130c62528fe0d5844094d9b225": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:13.887220+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:09.865258+00:00",
       "active_runner_ids": [
         "1016722",
         "1063170",
@@ -13924,11 +13991,11 @@
         "988370"
       ],
       "active_runner_count": 11,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     },
     "950cd8ff3ce0b924fb7144e859070d8dbfeaad62ec0ad53e21782620f3b744a3": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:15.304457+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:09.817059+00:00",
       "active_runner_ids": [
         "1018538",
         "1064778",
@@ -13946,11 +14013,11 @@
         "1215770"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     },
     "92423dee481038c983a89a9fe559ddf40583ffab27c8d20f5b688e9b557742dd": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-23T15:41:14.973106+00:00",
+      "runner_observed_at_utc": "2026-11-23T16:08:10.439521+00:00",
       "active_runner_ids": [
         "1020443",
         "1052921",
@@ -13964,10 +14031,94 @@
         "1214273"
       ],
       "active_runner_count": 10,
-      "checked_at_utc": "2026-11-23T15:41:18.896228+00:00"
+      "checked_at_utc": "2026-11-23T16:08:14.717146+00:00"
     }
   },
   "settled_forecasts": [
+    {
+      "record_sha256": "e5d07d8e25ed6e0ea446c43373652d877caa689f680870e45eded485093c1a7e",
+      "race_id": "949828",
+      "racecourse": "Newcastle",
+      "race_name": "Midnite A Next Generation Betting App Apprentice Handicap",
+      "startUTC": "2026-11-23T15:30:00+00:00",
+      "generated_at_utc": "2026-11-23T12:59:51.920054+00:00",
+      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+      "runners": [
+        {
+          "horse_id": "1020902",
+          "name": "Alpine Sierra",
+          "model_probability": 0.08529952014283297,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1064206",
+          "name": "Jaminoz",
+          "model_probability": 0.09123384561922208,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1098886",
+          "name": "Golspie",
+          "model_probability": 0.11263877605202277,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1102347",
+          "name": "Project Geofin",
+          "model_probability": 0.06997141024589176,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1139655",
+          "name": "Lone Piper",
+          "model_probability": 0.07392758255173161,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1155934",
+          "name": "Koko Blue",
+          "model_probability": 0.11118788550726637,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1159958",
+          "name": "Uncle Liam",
+          "model_probability": 0.10205352154270486,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1165942",
+          "name": "Rory's Gold",
+          "model_probability": 0.10232499627276913,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1183731",
+          "name": "Tommo's Ginjaninja",
+          "model_probability": 0.08438395950009148,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "980378",
+          "name": "Titian",
+          "model_probability": 0.07972489178374577,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "991483",
+          "name": "Alpine Stroll",
+          "model_probability": 0.0872536107817212,
+          "equal_chance_reference": 0.09090909090909091
+        }
+      ],
+      "winner_horse_id": "1183731",
+      "result_verification": "TWO_PUBLISHER_CORROBORATED",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-23T16:08:14.717146+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
     {
       "record_sha256": "2afe750014b1868a7f1bb9dd6506fe3c26f9193294e48c6eaa48bc6f4fb5b88b",
       "race_id": "949641",
@@ -15593,76 +15744,16 @@
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
-    },
-    {
-      "record_sha256": "9e60dfb1c1b2ba36d5b358a68ed7c19939d408f83c72339fe298ba0109f03ab4",
-      "race_id": "949599",
-      "racecourse": "Dundalk",
-      "race_name": "Dundalk Stadium Nursery Handicap",
-      "startUTC": "2026-11-20T17:45:00+00:00",
-      "generated_at_utc": "2026-11-20T03:00:28.930419+00:00",
-      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
-      "runners": [
-        {
-          "horse_id": "1216500",
-          "name": "Bull Shark",
-          "model_probability": 0.13143067783534773,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1227069",
-          "name": "Cloughleagh Bridge",
-          "model_probability": 0.12239719346194405,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1227578",
-          "name": "Dear Theodosia",
-          "model_probability": 0.14211436883348855,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1228374",
-          "name": "Closefield Beau",
-          "model_probability": 0.16288062752304572,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1228555",
-          "name": "Prince Of Peppard",
-          "model_probability": 0.164534632939231,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1230983",
-          "name": "Marcescence",
-          "model_probability": 0.164433306642967,
-          "equal_chance_reference": 0.14285714285714285
-        },
-        {
-          "horse_id": "1240509",
-          "name": "Angel Invincible",
-          "model_probability": 0.11220919276397598,
-          "equal_chance_reference": 0.14285714285714285
-        }
-      ],
-      "winner_horse_id": "1228555",
-      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-22T15:26:37.910474+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
     }
   ],
   "settled_history_limit": 20,
   "race_cycle_audit": {
-    "checked_at_utc": "2026-11-23T15:41:18.896228+00:00",
+    "checked_at_utc": "2026-11-23T16:08:14.717146+00:00",
     "race_date_uk": "2026-11-23",
     "collection_scope": "CURRENT_UK_DAY_ONLY",
-    "upcoming_observed_races": 17,
+    "upcoming_observed_races": 16,
     "upcoming_form_forecasts": 11,
-    "next_observed_start_utc": "2026-11-23T16:05:00+00:00",
+    "next_observed_start_utc": "2026-11-23T16:30:00+00:00",
     "status": "UPCOMING_FORECASTS_AVAILABLE"
   },
   "limitations": [
