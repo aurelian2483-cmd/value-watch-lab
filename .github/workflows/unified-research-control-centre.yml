@@ -1,0 +1,78 @@
+name: Unified research control centre
+on:
+  pull_request:
+    paths:
+      - 'research/unified-control-centre/**'
+      - '.github/workflows/unified-research-control-centre.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  overview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test read-only summary contracts
+        run: node --test research/unified-control-centre/*.test.mjs
+      - name: Prepare pinned catalogue summary
+        run: |
+          mkdir -p "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/unified-output"
+          git fetch --no-tags --depth=1 origin ed0186d09b269e21d70035d997ce41b5a001b574
+          git show ed0186d09b269e21d70035d997ce41b5a001b574:research/mathematical-library/progress.v1.json > "$RUNNER_TEMP/unified-input/catalogue.json"
+      - name: Download pinned data summary bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: central-data-integrity-manifest
+          run-id: '45458157425'
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/unified-data
+      - name: Download pinned lab summary bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: synthetic-mathematical-benchmarks
+          run-id: '45477172383'
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/unified-lab
+      - name: Download pinned compute summary bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: scientific-compute-smoke-ubuntu-24.04
+          run-id: '45484239839'
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/unified-compute
+      - name: Download pinned supervisor summary bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: research-supervisor-diagnostics
+          run-id: '45492015309'
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/unified-supervisor
+      - name: Download pinned references summary bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: scientific-reference-provenance
+          run-id: '45500459471'
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/unified-references
+      - name: Render consolidated read-only website
+        run: |
+          cp "$RUNNER_TEMP/unified-data/integrated-status.json" "$RUNNER_TEMP/unified-input/data.json"
+          cp "$RUNNER_TEMP/unified-lab/lab-status.json" "$RUNNER_TEMP/unified-input/lab.json"
+          cp "$RUNNER_TEMP/unified-compute/compute-status.json" "$RUNNER_TEMP/unified-input/compute.json"
+          cp "$RUNNER_TEMP/unified-supervisor/supervisor-dashboard.json" "$RUNNER_TEMP/unified-input/supervisor.json"
+          cp "$RUNNER_TEMP/unified-references/dashboard.json" "$RUNNER_TEMP/unified-input/references.json"
+          node research/unified-control-centre/overview.mjs "$RUNNER_TEMP/unified-input" > "$RUNNER_TEMP/unified-output/overview.json"
+          node research/unified-control-centre/website.mjs "$RUNNER_TEMP/unified-output/overview.json" > "$RUNNER_TEMP/unified-output/index.html"
+          node -e 'const r=require(process.argv[1]); if(r.counts.available!==6 || r.publicationGate!=="BLOCKED" || r.executionAuthorized!==false) {console.error(JSON.stringify(r.modules.map(m=>({id:m.id,state:m.evidenceState}))));process.exit(1)}' "$RUNNER_TEMP/unified-output/overview.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unified-research-control-centre
+          path: ${{ runner.temp }}/unified-output/
+          retention-days: 7
+          if-no-files-found: error
