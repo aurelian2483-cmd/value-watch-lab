@@ -13,10 +13,19 @@ assert.match(page, /Alpha Hunt is a proposed Bayesian edge-validation framework/
 assert.match(page, /P\(Real Edge \| Evidence\)/);
 assert.match(page, /not itself a betting model/);
 assert.match(page, /Separate from Value Watch and Bottleneck Lab/);
-for (const id of ['purpose', 'architecture', 'research-status', 'decisions']) {
+for (const id of ['purpose', 'roles', 'architecture', 'research-status', 'decisions']) {
   assert.match(page, new RegExp('id="' + id + '"'));
   assert.match(page, new RegExp('href="#' + id + '"'));
 }
+assert.match(page, /Three distinct responsibilities/);
+assert.match(page, /Value Watch/);
+assert.match(page, /Develop mathematical methods for predicting sports outcomes/);
+assert.match(page, /Bottleneck Lab/);
+assert.match(page, /Investigate weaknesses in those methods/);
+assert.match(page, /Alpha Hunt/);
+assert.match(page, /Independently investigate whether apparent betting advantages are genuine/);
+assert.match(decision, /Audit Issue 2/);
+assert.match(decision, /read-only/);
 assert.match(page, /Data|historical/i);
 assert.match(page, /Undecided/);
 assert.match(page, /Agreed · read-only/);

@@ -9,6 +9,13 @@
 - A standalone website research workspace at \`alpha-hunt/\` is an informational entry point, not an assertion that the Bayesian model, collectors or decisions are implemented.
 - Keep all existing Value Watch and Bottleneck methods unchanged; do not imply that Alpha Hunt is already connected to a live dataset or used to grade betting opportunities.
 
+## Audit Issue 2 — agreed system responsibilities
+- **Value Watch:** Continue developing mathematical methods to predict sports outcomes.
+- **Bottleneck Lab:** Investigate weaknesses and possible improvements in the methods.
+- **Alpha Hunt:** Independently investigate whether apparent betting advantages are genuine, using Value Watch's historical results, bookmaker odds and model predictions **read-only**.
+- These are agreed purpose boundaries, not acceptance of model accuracy or evidence that Alpha Hunt's data-sharing interface has been implemented.
+- Future architecture, data-access controls, specific methods, validation criteria, ownership and delivery remain subject to the remaining audit decisions.
+
 ## Still undecided — do not infer approval
 - Which specific historical result fields, odds markets and model-output formats should be exposed through the approved read-only interface.
 - Whether Alpha Hunt will own independent data collectors and models.
