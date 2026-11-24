@@ -16,6 +16,13 @@
 - These are agreed purpose boundaries, not acceptance of model accuracy or evidence that Alpha Hunt's data-sharing interface has been implemented.
 - Future architecture, data-access controls, specific methods, validation criteria, ownership and delivery remain subject to the remaining audit decisions.
 
+## Audit Issue 3 — approved research architecture
+- The user explicitly agreed that **Alpha Hunt v5** is the architecture going forward.
+- **ACME (initial architecture)** and **Zero-Based Reconstruction** are retained as historical research designs, not alternative active blueprints.
+- The approved v5 sequence from the supplied research handover is: **Market Data → Prediction Model → Calibration → Disagreement Detection → False Edge Laboratory → Bayesian Posterior Engine → PEP → Decision Layer → Capital Allocation**.
+- "Approved" applies to the **design direction only**. It does **not** establish deployed code, data integration, training, probability calibration, model validity, decision thresholds, or authority to allocate capital or place bets.
+- Still to be decided: the canonical PEP evidence features and definitions, dependencies, input and output contracts, ethical and technical controls, model validation methodology, operational ownership and implementation schedule.
+
 ## Still undecided — do not infer approval
 - Which specific historical result fields, odds markets and model-output formats should be exposed through the approved read-only interface.
 - Whether Alpha Hunt will own independent data collectors and models.
