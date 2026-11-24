@@ -28,6 +28,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/scientific-compute"
           python -B research/scientific-compute/compute.py cpu > "$RUNNER_TEMP/scientific-compute/cpu-smoke.json"
           python -B research/scientific-compute/supervisor.py cpu > "$RUNNER_TEMP/scientific-compute/process-report.json"
+          python -B research/scientific-compute/benchmark.py cpu > "$RUNNER_TEMP/scientific-compute/repeated-benchmark.json"
           test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
