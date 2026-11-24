@@ -7,7 +7,7 @@ import {tmpdir} from 'node:os'
 import {synchronise,status} from '../unified-live/sync.mjs'
 import {digest} from '../scientific-reference/digest.mjs'
 import {signedSynchronise,signatureMessage} from '../unified-live/producer-intake.mjs'
-import {inspect,advance} from './registry.mjs'
+import {inspect,advance,setReviewControl} from './registry.mjs'
 import {startDashboard} from './dashboard.mjs'
 import {request} from 'node:http'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
@@ -182,4 +182,63 @@ test('dashboard fails closed on missing pinned evidence and rejects forged host'
  assert.equal(code,403)
  rmSync(join(f.state,'current.json'))
  assert.equal((await fetch('http://127.0.0.1:'+port+'/status')).status,503)
+})
+
+const control=(f,action,registry,anchor,now=T)=>setReviewControl(...args(f),action,registry,anchor,{now})
+test('operator pause and explicit resume persist across reload and require both anchors',t=>{
+ const f=planFixture(t),s=step(f,null),before=readFileSync(join(f.registry,'registry.json'))
+ const paused=control(f,'PAUSE',s.registrySha256,null)
+ assert.equal(paused.control.status,'REVIEW_HOLD')
+ assert.equal(read(f).control.controlSha256,paused.control.controlSha256)
+ assert.throws(()=>step(f,s.registrySha256),/Control external anchor mismatch/)
+ assert.throws(()=>advance(...args(f),s.registrySha256,{now:T,trustedControlSha256:paused.control.controlSha256}),/on hold/)
+ assert.throws(()=>control(f,'RESUME',s.registrySha256,null),/Previous control anchor/)
+ assert.deepEqual(readFileSync(join(f.registry,'registry.json')),before)
+ const resumed=control(f,'RESUME',s.registrySha256,paused.control.controlSha256)
+ assert.equal(resumed.control.status,'METADATA_REVIEW_AVAILABLE')
+ assert.equal(resumed.control.events,2)
+ assert.equal(resumed.executionAuthorized,false)
+ const next=advance(...args(f),s.registrySha256,{now:T,trustedControlSha256:resumed.control.controlSha256})
+ assert.equal(next.reviewed,2)
+ assert.deepEqual(stored(f),f.before)
+})
+test('rejected advance records redacted persistent incident and holds further reviews',t=>{
+ const f=planFixture(t),s=step(f,null),before=readFileSync(join(f.registry,'registry.json'))
+ assert.throws(()=>step(f,null),/Previous registry anchor mismatch/)
+ const observed=read(f),c=observed.control
+ assert.equal(c.status,'REVIEW_HOLD');assert.equal(c.incidents,1)
+ assert.equal(c.lastEvent.stage,'PREVIOUS_ANCHOR')
+ assert.equal(c.lastEvent.registrySha256,s.registrySha256)
+ assert.deepEqual(readFileSync(join(f.registry,'registry.json')),before)
+ assert.doesNotMatch(readFileSync(join(f.registry,'control.json'),'utf8'),/Previous registry anchor mismatch|live-sync-test/)
+ assert.throws(()=>advance(...args(f),s.registrySha256,{now:T,trustedControlSha256:c.controlSha256}),/on hold/)
+ assert.equal(read(f).control.events,1)
+ const resumed=control(f,'RESUME',s.registrySha256,c.controlSha256)
+ assert.equal(resumed.control.incidents,1)
+ assert.equal(resumed.control.events,2)
+ assert.equal(resumed.publicationGate,'BLOCKED')
+})
+test('control tampering, removed ledger with external anchor and forged gate fail closed',t=>{
+ const f=planFixture(t),s=step(f,null),p=control(f,'PAUSE',s.registrySha256,null)
+ const path=join(f.registry,'control.json'),original=readFileSync(path),v=JSON.parse(original)
+ v.executionAuthorized=true;delete v.controlSha256;v.controlSha256=digest(v)
+ writeFileSync(path,JSON.stringify(v))
+ assert.throws(()=>read(f),/Control ledger fingerprint or contract mismatch/)
+ assert.throws(()=>advance(...args(f),s.registrySha256,{now:T,trustedControlSha256:p.control.controlSha256}))
+ rmSync(path)
+ assert.throws(()=>inspect(...args(f),{now:T,trustedControlSha256:p.control.controlSha256}),/Control external anchor mismatch/)
+ assert.throws(()=>advance(...args(f),s.registrySha256,{now:T,trustedControlSha256:p.control.controlSha256}),/Control external anchor mismatch/)
+ writeFileSync(path,original)
+ assert.equal(read(f).control.status,'REVIEW_HOLD')
+ assert.deepEqual(stored(f),f.before)
+})
+test('control ledger capacity stops further review without silently discarding history',t=>{
+ const f=planFixture(t),s=step(f,null)
+ let c=null
+ for(let i=0;i<64;i++)c=control(f,i%2===0?'PAUSE':'RESUME',s.registrySha256,c?.control.controlSha256??null)
+ assert.equal(c.control.capacityRemaining,0)
+ assert.equal(c.control.events,64)
+ assert.throws(()=>advance(...args(f),s.registrySha256,{now:T,trustedControlSha256:c.control.controlSha256}),/capacity reached/)
+ assert.throws(()=>control(f,'PAUSE',s.registrySha256,c.control.controlSha256),/capacity reached/)
+ assert.equal(read(f).control.events,64)
 })
