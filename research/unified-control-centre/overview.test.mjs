@@ -36,3 +36,34 @@ test('symlink summary is never followed',t=>{
  symlinkSync(join(outside,'record.json'),join(p,'catalogue.json'))
  assert.equal(build(p).modules[0].evidenceState,'UNSAFE')
 })
+
+test('rehashed snapshots cannot promote missing evidence or falsify coverage',async t=>{
+ const {digest}=await import('../scientific-reference/digest.mjs')
+ const p=fixture(t),r=build(p)
+ const changes=[
+  x=>{x.status='READY'},
+  x=>{x.counts.available=6;x.counts.unavailable=0},
+  x=>{x.modules.pop()},
+  x=>{x.modules[1]=structuredClone(x.modules[0])},
+  x=>{x.modules[0].source.head='0'.repeat(40)},
+  x=>{x.modules[0].status='VALIDATED'},
+  x=>{x.modules[0].metrics=[{label:'Qualified',value:1000}]},
+  x=>{x.modules[0].notes=['Publication authorised']},
+  x=>{x.limitations=[]}
+ ]
+ for(const change of changes){
+  const copy=structuredClone(r);change(copy)
+  delete copy.snapshotSha256;copy.snapshotSha256=digest(copy)
+  assert.throws(()=>verifySnapshot(copy));assert.throws(()=>render(copy))
+ }
+})
+test('rehashed available catalogue cannot display contradictory counts or arbitrary labels',async t=>{
+ const {digest}=await import('../scientific-reference/digest.mjs')
+ const p=fixture(t)
+ writeFileSync(join(p,'catalogue.json'),JSON.stringify({registered:10,target:1000,remaining:990,qualified:0,byClassification:{synthetic:10}}))
+ const r=build(p);assert.equal(verifySnapshot(r),true)
+ for(const change of [m=>{m.metrics[3].value=10},m=>{m.metrics[2].value=989},m=>{m.metrics[0].label='Qualified winners'},m=>{m.status='VALIDATED'},m=>{m.receiptSha256=null}]){
+  const copy=structuredClone(r);change(copy.modules[0]);delete copy.snapshotSha256;copy.snapshotSha256=digest(copy)
+  assert.throws(()=>verifySnapshot(copy))
+ }
+})
