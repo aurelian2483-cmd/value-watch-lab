@@ -1,0 +1,301 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised historical development records; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "024",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "bfgs-inverse-hessian",
+    "name": "BFGS inverse-Hessian update",
+    "definition": "Given s=x_(k+1)−x_k, y=∇f(x_(k+1))−∇f(x_k), ρ=1/(yᵀs), update H_(k+1)=(I−ρsyᵀ)H_k(I−ρysᵀ)+ρssᵀ; choose direction d_k=−H_k∇f(x_k).",
+    "variables": "f differentiable objective; H positive-definite inverse-Hessian approximation; s displacement; y gradient change; ρ reciprocal curvature",
+    "assumptions": "Smooth objective, positive-definite starting approximation, positive curvature yᵀs>0; safeguarded line search for convergence.",
+    "limitations": "Dense storage and updates scale quadratically; noisy gradients or nonconvex curvature can invalidate the update.",
+    "failure_conditions": [
+      "Nonpositive or numerically negligible curvature"
+    ],
+    "computation": "Calculate gradient difference and rank-two inverse-Hessian update; use a suitable line search and stop rule.",
+    "source": {
+      "kind": "literature",
+      "citation": "Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 6; SciPy BFGS documentation. https://docs.scipy.org/doc/scipy/reference/optimize.minimize-bfgs.html"
+    },
+    "application": "General smooth numerical objective minimization in authorised development analyses.",
+    "required_inputs": "Prespecified differentiable objective, gradients, initial point and numerical stopping rules.",
+    "compatible_methods": [
+      "gradient-descent",
+      "newton-root"
+    ],
+    "incompatible_methods": [
+      "Unqualified updates using nonpositive curvature"
+    ],
+    "relationships": [
+      {
+        "target": "gradient-descent",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised historical development records; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "024",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "gauss-newton-least-squares",
+    "name": "Gauss–Newton nonlinear least squares",
+    "definition": "For f(x)=0.5||r(x)||₂² with residual Jacobian J, choose d_k=argmin_d ||J(x_k)d+r(x_k)||₂² and update x_(k+1)=x_k+α_k d_k.",
+    "variables": "r residual vector; J residual Jacobian; d linearized least-squares step; α step length",
+    "assumptions": "Differentiable residuals, a well-conditioned full-column-rank Jacobian for unique unregularized step, suitable initialization and globalization.",
+    "limitations": "Neglects residual-weighted second derivatives; large residuals or singular Jacobians can lead to unreliable steps.",
+    "failure_conditions": [
+      "Rank deficiency or failed descent without an appropriate safeguard"
+    ],
+    "computation": "Solve the linearized least-squares problem with QR or SVD, then apply a safeguarded step.",
+    "source": {
+      "kind": "literature",
+      "citation": "Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 10, Gauss–Newton method."
+    },
+    "application": "General nonlinear least-squares fitting of authorised development measurements.",
+    "required_inputs": "Specified residual function, Jacobian, initialization and stopping rule.",
+    "compatible_methods": [
+      "svd-least-squares",
+      "householder-qr"
+    ],
+    "incompatible_methods": [
+      "Blindly inverting singular normal equations"
+    ],
+    "relationships": [
+      {
+        "target": "svd-least-squares",
+        "type": "related"
+      },
+      {
+        "target": "gradient-descent",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised historical development records; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "024",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "levenberg-marquardt-damped-step",
+    "name": "Levenberg–Marquardt damped least-squares step",
+    "definition": "For f(x)=0.5||r(x)||₂² choose d solving (JᵀJ+λI)d=−Jᵀr, λ>0; update x only when a prespecified actual-versus-model reduction safeguard accepts the step.",
+    "variables": "r residual vector; J residual Jacobian; λ positive damping; d damped direction",
+    "assumptions": "Differentiable residuals, finite quantities, adaptive damping and convergence criteria specified; positive λ makes the stated system positive definite in exact arithmetic.",
+    "limitations": "Damping and scaling affect convergence; may stall at poor local minima; stated isotropic damping is one convention.",
+    "failure_conditions": [
+      "Nonfinite Jacobian, inconsistent scaling or absent damping acceptance policy"
+    ],
+    "computation": "Solve the damped least-squares system, preferably as augmented least squares, and adjust damping using the accepted reduction policy.",
+    "source": {
+      "kind": "literature",
+      "citation": "Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 10; SciPy nonlinear least-squares documentation. https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html"
+    },
+    "application": "General regularized step for nonlinear residual fitting on authorised development records.",
+    "required_inputs": "Defined residuals, Jacobian, damping policy, initial point and stop criteria.",
+    "compatible_methods": [
+      "gauss-newton-least-squares",
+      "svd-least-squares"
+    ],
+    "incompatible_methods": [
+      "Interpreting local convergence as global optimality"
+    ],
+    "relationships": [
+      {
+        "target": "gauss-newton-least-squares",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Positive damping changes the linearized subproblem and step control, not just its solver."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised historical development records; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "024",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "cyclic-exact-coordinate-minimization",
+    "name": "Cyclic exact coordinate minimization",
+    "definition": "For coordinate j_k=1+(k mod d), choose t_k∈argmin_t f(x_k+t e_(j_k)), then x_(k+1)=x_k+t_k e_(j_k).",
+    "variables": "f objective; d dimension; e_j coordinate unit vector; t exact scalar minimizer",
+    "assumptions": "Each coordinate subproblem has an attained minimizer; cyclic coverage; convergence requires additional objective regularity and boundedness conditions.",
+    "limitations": "May progress slowly along strongly coupled coordinates; nonconvex or nonsmooth objectives need specific convergence analysis.",
+    "failure_conditions": [
+      "Unbounded coordinate subproblem or nonattained minimum"
+    ],
+    "computation": "Solve each scalar coordinate subproblem in cyclic order, specify ties and stopping criteria.",
+    "source": {
+      "kind": "literature",
+      "citation": "Wright, S. J. (2015), Coordinate descent algorithms, Mathematical Programming 151, 3–34. https://doi.org/10.1007/s10107-015-0892-3"
+    },
+    "application": "General coordinate-wise optimization of an authorised analysis objective.",
+    "required_inputs": "Defined objective, coordinate domain, scalar minimization and stop rules.",
+    "compatible_methods": [
+      "golden-section",
+      "gradient-descent"
+    ],
+    "incompatible_methods": [
+      "Claiming global convergence without objective-specific conditions"
+    ],
+    "relationships": [
+      {
+        "target": "gradient-descent",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised historical development records; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "024",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "trust-region-dogleg",
+    "name": "Trust-region dogleg step",
+    "definition": "For positive-definite B, g≠0 and radius Δ>0, let p_U=−(gᵀg)/(gᵀBg) g and p_B=−B^(−1)g. If ||p_B||≤Δ use p_B; if ||p_U||≥Δ use −Δg/||g||; otherwise choose p=p_U+τ(p_B−p_U), τ∈(0,1), ||p||=Δ.",
+    "variables": "g gradient; B positive-definite model Hessian; Δ radius; p_U unconstrained Cauchy-line minimizer; p_B Newton step",
+    "assumptions": "Positive-definite quadratic model and positive trust radius; actual/predicted reduction acceptance and radius policy for iterative algorithm.",
+    "limitations": "Positive-definite model required for standard dogleg; approximate rather than exact general trust-region solution.",
+    "failure_conditions": [
+      "Indefinite model or invalid radius"
+    ],
+    "computation": "Compute both directions, check boundary cases, solve scalar quadratic for segment intersection and apply a documented trust-region update.",
+    "source": {
+      "kind": "literature",
+      "citation": "Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 4, dogleg method. https://docs.scipy.org/doc/scipy/reference/optimize.minimize-dogleg.html"
+    },
+    "application": "General smooth optimization with a bounded local quadratic model.",
+    "required_inputs": "Specified differentiable objective, gradient, positive-definite model and trust-region policy.",
+    "compatible_methods": [
+      "cholesky-solve",
+      "bfgs-inverse-hessian"
+    ],
+    "incompatible_methods": [
+      "Using indefinite B as though the standard dogleg construction applies"
+    ],
+    "relationships": [
+      {
+        "target": "bfgs-inverse-hessian",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised historical development records; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "024",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "armijo-backtracking",
+    "name": "Armijo backtracking line search",
+    "definition": "Given gᵀd<0, α_0>0, β∈(0,1), c∈(0,1), choose smallest j≥0 satisfying f(x+α_0β^j d)≤f(x)+c α_0β^j gᵀd; set α=α_0β^j.",
+    "variables": "f objective; x current point; g gradient; d descent direction; α trial length; β contraction; c sufficient-decrease constant",
+    "assumptions": "Differentiability near x and strict descent direction for finite termination in exact arithmetic; finite feasible trial evaluations.",
+    "limitations": "Only sufficient decrease, not curvature control; very small accepted steps or numerical precision may impede progress.",
+    "failure_conditions": [
+      "Non-descent direction or nonfinite evaluations without a safe trial limit"
+    ],
+    "computation": "Evaluate geometric trial lengths until the Armijo inequality holds, otherwise report failure at a prespecified bound.",
+    "source": {
+      "kind": "literature",
+      "citation": "Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 3, backtracking line search and sufficient decrease."
+    },
+    "application": "General safeguarded step selection for smooth objective minimization.",
+    "required_inputs": "Objective, gradient, descent direction, trial constants and evaluation bound.",
+    "compatible_methods": [
+      "gradient-descent",
+      "bfgs-inverse-hessian"
+    ],
+    "incompatible_methods": [
+      "Assuming Armijo alone enforces the BFGS curvature condition"
+    ],
+    "relationships": [
+      {
+        "target": "gradient-descent",
+        "type": "related"
+      }
+    ]
+  }
+]

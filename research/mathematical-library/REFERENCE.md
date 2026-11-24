@@ -4447,3 +4447,89 @@ Assumptions — Multivariate normal independent observations; n>p, positive defi
 Limitations — Sensitive to departures from normality and large sample sizes; rejects global identity, not a specific association or factor model..
 
 Source — Factor Analyzer documentation, calculate_bartlett_sphericity; Bartlett (1950). https://factor-analyzer.readthedocs.io/en/latest/factor_analyzer.html
+
+## BFGS inverse-Hessian update (bfgs-inverse-hessian)
+
+> Given s=x_(k+1)−x_k, y=∇f(x_(k+1))−∇f(x_k), ρ=1/(yᵀs), update H_(k+1)=(I−ρsyᵀ)H_k(I−ρysᵀ)+ρssᵀ; choose direction d_k=−H_k∇f(x_k).
+
+f differentiable objective; H positive-definite inverse-Hessian approximation; s displacement; y gradient change; ρ reciprocal curvature.
+
+General smooth numerical objective minimization in authorised development analyses.
+
+Assumptions — Smooth objective, positive-definite starting approximation, positive curvature yᵀs>0; safeguarded line search for convergence..
+
+Limitations — Dense storage and updates scale quadratically; noisy gradients or nonconvex curvature can invalidate the update..
+
+Source — Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 6; SciPy BFGS documentation. https://docs.scipy.org/doc/scipy/reference/optimize.minimize-bfgs.html
+
+## Gauss–Newton nonlinear least squares (gauss-newton-least-squares)
+
+> For f(x)=0.5||r(x)||₂² with residual Jacobian J, choose d_k=argmin_d ||J(x_k)d+r(x_k)||₂² and update x_(k+1)=x_k+α_k d_k.
+
+r residual vector; J residual Jacobian; d linearized least-squares step; α step length.
+
+General nonlinear least-squares fitting of authorised development measurements.
+
+Assumptions — Differentiable residuals, a well-conditioned full-column-rank Jacobian for unique unregularized step, suitable initialization and globalization..
+
+Limitations — Neglects residual-weighted second derivatives; large residuals or singular Jacobians can lead to unreliable steps..
+
+Source — Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 10, Gauss–Newton method.
+
+## Levenberg–Marquardt damped least-squares step (levenberg-marquardt-damped-step)
+
+> For f(x)=0.5||r(x)||₂² choose d solving (JᵀJ+λI)d=−Jᵀr, λ>0; update x only when a prespecified actual-versus-model reduction safeguard accepts the step.
+
+r residual vector; J residual Jacobian; λ positive damping; d damped direction.
+
+General regularized step for nonlinear residual fitting on authorised development records.
+
+Assumptions — Differentiable residuals, finite quantities, adaptive damping and convergence criteria specified; positive λ makes the stated system positive definite in exact arithmetic..
+
+Limitations — Damping and scaling affect convergence; may stall at poor local minima; stated isotropic damping is one convention..
+
+Mechanism — Positive damping changes the linearized subproblem and step control, not just its solver.
+
+Source — Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 10; SciPy nonlinear least-squares documentation. https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html
+
+## Cyclic exact coordinate minimization (cyclic-exact-coordinate-minimization)
+
+> For coordinate j_k=1+(k mod d), choose t_k∈argmin_t f(x_k+t e_(j_k)), then x_(k+1)=x_k+t_k e_(j_k).
+
+f objective; d dimension; e_j coordinate unit vector; t exact scalar minimizer.
+
+General coordinate-wise optimization of an authorised analysis objective.
+
+Assumptions — Each coordinate subproblem has an attained minimizer; cyclic coverage; convergence requires additional objective regularity and boundedness conditions..
+
+Limitations — May progress slowly along strongly coupled coordinates; nonconvex or nonsmooth objectives need specific convergence analysis..
+
+Source — Wright, S. J. (2015), Coordinate descent algorithms, Mathematical Programming 151, 3–34. https://doi.org/10.1007/s10107-015-0892-3
+
+## Trust-region dogleg step (trust-region-dogleg)
+
+> For positive-definite B, g≠0 and radius Δ>0, let p_U=−(gᵀg)/(gᵀBg) g and p_B=−B^(−1)g. If ||p_B||≤Δ use p_B; if ||p_U||≥Δ use −Δg/||g||; otherwise choose p=p_U+τ(p_B−p_U), τ∈(0,1), ||p||=Δ.
+
+g gradient; B positive-definite model Hessian; Δ radius; p_U unconstrained Cauchy-line minimizer; p_B Newton step.
+
+General smooth optimization with a bounded local quadratic model.
+
+Assumptions — Positive-definite quadratic model and positive trust radius; actual/predicted reduction acceptance and radius policy for iterative algorithm..
+
+Limitations — Positive-definite model required for standard dogleg; approximate rather than exact general trust-region solution..
+
+Source — Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 4, dogleg method. https://docs.scipy.org/doc/scipy/reference/optimize.minimize-dogleg.html
+
+## Armijo backtracking line search (armijo-backtracking)
+
+> Given gᵀd<0, α_0>0, β∈(0,1), c∈(0,1), choose smallest j≥0 satisfying f(x+α_0β^j d)≤f(x)+c α_0β^j gᵀd; set α=α_0β^j.
+
+f objective; x current point; g gradient; d descent direction; α trial length; β contraction; c sufficient-decrease constant.
+
+General safeguarded step selection for smooth objective minimization.
+
+Assumptions — Differentiability near x and strict descent direction for finite termination in exact arithmetic; finite feasible trial evaluations..
+
+Limitations — Only sufficient decrease, not curvature control; very small accepted steps or numerical precision may impede progress..
+
+Source — Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 3, backtracking line search and sufficient decrease.

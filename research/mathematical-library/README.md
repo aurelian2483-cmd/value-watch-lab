@@ -1,10 +1,10 @@
 # Sky Universal Mathematical Research Library
 
-Research catalogue v1 registers **311 specifications** across six sports, including 16 preserved v0 records and 295 entries added in batches. The 1,000-entry milestone remains open with **689 entries outstanding**.
+Research catalogue v1 registers **317 specifications** across six sports, including 16 preserved v0 records and 301 entries added in batches. The 1,000-entry milestone remains open with **683 entries outstanding**.
 
 | Classification | Count |
 | --- | ---: |
-| Distinct algorithms | 106 |
+| Distinct algorithms | 112 |
 | Distinct models | 33 |
 | Distributions | 29 |
 | Frameworks | 4 |
@@ -98,3 +98,7 @@ Four assessment-only dependence diagnostics admitted after structural and source
 ## Batch 023 admission
 
 Two dependence diagnostics admitted; one derivative diagnostic withheld as a direct reuse of Pearson correlation on lagged inputs. Original candidates retained with explicit disposition. Current catalogue: 311 specifications. Six new numerical optimisation candidates are staged and unregistered. See [review](BATCH-023-ADMISSION.md). No empirical qualification claimed.
+
+## Batch 024 admission
+
+Six general numerical optimisation specifications admitted after source-definition and overlap review. Catalogue: 317 entries; three provisional numerical eigenvalue candidates staged. No empirical qualification claimed. See [review](BATCH-024-ADMISSION.md).
