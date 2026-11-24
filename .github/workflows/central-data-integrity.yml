@@ -1,0 +1,32 @@
+name: Central data integrity validation
+on:
+  pull_request:
+    paths:
+      - 'research/central-data-intelligence/**'
+      - '.github/workflows/central-data-integrity.yml'
+      - 'research/mathematical-library/experiment-registry-*-evidence.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test manifests and source reconciliation
+        run: node --test research/central-data-intelligence/manifest.test.mjs
+      - name: Generate read-only manifest from checked-out source
+        run: |
+          mkdir -p "$RUNNER_TEMP/central-data-integrity"
+          node research/central-data-intelligence/manifest.mjs "$GITHUB_WORKSPACE" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/central-data-integrity/manifest.json"
+          git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        with:
+          name: central-data-integrity-manifest
+          path: ${{ runner.temp }}/central-data-integrity/manifest.json
+          retention-days: 7
+          if-no-files-found: error
