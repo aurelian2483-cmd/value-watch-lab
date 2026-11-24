@@ -4653,3 +4653,51 @@ Assumptions — Real full-column-rank matrix; positive residual norms; finite-pr
 Limitations — Loss of orthogonality on ill-conditioned matrices; not rank-revealing by itself..
 
 Source — Zhang, Z. (2023), QR and least square, 17 March, p. 2, Algorithm 2. https://www.math.cmu.edu/~zechengz/spring_2023_nla/0317.pdf
+
+## Jacobi plane-rotation symmetric eigensolver (jacobi-symmetric-eigensolver)
+
+> Initialize V=I and A=A₀. While the off-diagonal Frobenius norm exceeds tolerance, choose p≠q maximizing |A_pq| and orthogonal plane rotation G with (GᵀAG)_pq=0; set A←GᵀAG, V←VG. Return diag(A) and V only after convergence.
+
+A real symmetric matrix; G plane rotation; V accumulated orthogonal transformations.
+
+General symmetric matrix diagonalization for numerical analysis.
+
+Assumptions — Real symmetric input; maximal off-diagonal pivot; stable rotation computation; bounded iterations and finite-precision residual checks..
+
+Limitations — Repeated rotations can be costly for large dense matrices; clustered eigenvalues make individual eigenvectors nonunique or sensitive..
+
+Mechanism — Repeated two-sided orthogonal similarity transforms differ from one-sided Givens QR elimination and the QR eigenvalue iteration.
+
+Source — University of Texas at Austin, Advanced Linear Algebra: Foundations to Frontiers, §11.3.2 Jacobi's method for computing the Spectral Decomposition. https://www.cs.utexas.edu/~flame/laff/alaff/chapter11-Jacobi-method-spectral-decomposition.html
+
+## Golub–Kahan bidiagonalization recurrence (bidiagonal-golub-kahan-recurrence)
+
+> Start unit v₁, u₀=0, β₁=0. For j≥1 set w=Av_j−β_j u_(j−1), α_j=||w||₂; stop if α_j vanishes, otherwise u_j=w/α_j. Then z=Aᵀu_j−α_j v_j, β_(j+1)=||z||₂; stop if β_(j+1) vanishes, otherwise v_(j+1)=z/β_(j+1).
+
+A real rectangular matrix; u,v left and right basis vectors; α,β bidiagonal coefficients.
+
+General reduced numerical representation of rectangular linear operators.
+
+Assumptions — Real rectangular operator with consistent transpose; unit starting vector; positive normalization factors until termination; finite-precision orthogonality monitored..
+
+Limitations — Loss of orthogonality and near-zero norms require safeguards; projected singular values are approximations..
+
+Mechanism — Alternating rectangular-operator and transpose Krylov recurrence, related to Lanczos on an augmented symmetric operator; differs computationally from dense two-sided Householder reduction. Not independent scientific evidence.
+
+Source — Netlib, Templates for the Solution of Algebraic Eigenvalue Problems, Golub-Kahan-Lanczos Bidiagonalization Procedure, equations (112)–(116); beta indices shifted by one in this specification. https://www.netlib.org/utk/people/JackDongarra/etemplates/node198.html
+
+## BiCGSTAB nonsymmetric linear-system iteration (bicgstab-linear-system)
+
+> Initialize r=b−Ax; stop if converged. Fix r̂=r, p=v=0, ρ_old=α=ω=1. At each step set ρ=r̂ᵀr, β=(ρ/ρ_old)(α/ω), p=r+β(p−ωv), v=Ap, α=ρ/(r̂ᵀv), s=r−αv. If s meets tolerance, set x←x+αp and check true residual; otherwise t=As, ω=(tᵀs)/(tᵀt), x←x+αp+ωs, r←s−ωt, ρ_old←ρ. Check convergence before another step; guard all divisions.
+
+A square matrix; b right side; x solution iterate; r,r̂ residual and shadow; α,β,ρ,ω scalars.
+
+General iterative solution of a nonsymmetric numerical system.
+
+Assumptions — Real nonsingular square system, identity preconditioner, fixed initial shadow residual, finite quantities, nonzero denominators, bounded iterations and a declared absolute/relative residual criterion..
+
+Limitations — Irregular convergence and breakdown possible; residual alone may not imply small forward error..
+
+Mechanism — Short stabilized biconjugate-gradient recurrence differs from Arnoldi-based GMRES and symmetric positive-definite CG; no convergence guarantee for every nonsingular system.
+
+Source — Barrett et al., Templates for the Solution of Linear Systems (1993), Netlib BiCGSTAB reverse-communication routine, lines 249–385, specialized to the identity preconditioner. https://netlib.org/templates/double/BiCGSTABREVCOM.f

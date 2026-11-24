@@ -1,0 +1,9 @@
+# Batch 027 admission review
+
+Date: 2026-11-24. Pinned base: 53ce0b33d88e547cccc78796f34a2668b2669074. Full research regression 45467328809 and experiment registry validation 45467328981 both reported success. Draft PR 171 only.
+
+- Jacobi eigensolver: checked UT Austin ALAFF §11.3.2; explicitly initialize V and use maximum off-diagonal pivot, bounded stopping. Distinct two-sided similarity iteration, not Jacobi stationary solve or one-sided QR rotation.
+- Golub–Kahan: checked Netlib equations (112)–(116), with beta index shifted one position. Explicit termination before division by zero. Related to symmetric Lanczos, distinct coupled rectangular recurrence versus dense Householder bidiagonalization; not independent scientific evidence.
+- BiCGSTAB: checked Netlib 1993 reverse-communication routine, identity-preconditioner specialization; fixed initial residual as shadow, initial and intermediate residual stopping and guarded divisions. Distinct short recurrence from GMRES and CG. True residual check is a conservative specification requirement, not a claim about the source implementation.
+
+Reviewed all 325 IDs via the complete reference and ledger, examined relevant definitions for semantic overlap, and checked normalized names/equations against reference. Preserved original candidate file, all prior IDs and all historical snapshots' existing records; regenerated all four snapshots by appending reviewed reference/ledger records and updating affected index and count lines according to the catalogue generator. Full repository validator and byte-for-byte snapshot tests are pending CI; no local Node execution claimed. Source passages checked, original cited textbooks/papers not independently read. Existing sport tags are schema metadata only, not evidence of applicability. No experiments, implementation, protected data, empirical evidence, or qualification. 1000-entry gate and independent review remain closed. Next batch remains provisional.

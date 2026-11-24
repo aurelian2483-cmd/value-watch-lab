@@ -6723,5 +6723,71 @@
       "darts"
     ],
     "applicability_profile": "multifeature"
+  },
+  {
+    "id": "jacobi-symmetric-eigensolver",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Texas at Austin, Advanced Linear Algebra: Foundations to Frontiers, §11.3.2 Jacobi's method for computing the Spectral Decomposition. https://www.cs.utexas.edu/~flame/laff/alaff/chapter11-Jacobi-method-spectral-decomposition.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Repeated two-sided orthogonal similarity transforms differ from one-sided Givens QR elimination and the QR eigenvalue iteration."
+  },
+  {
+    "id": "bidiagonal-golub-kahan-recurrence",
+    "source": {
+      "kind": "literature",
+      "citation": "Netlib, Templates for the Solution of Algebraic Eigenvalue Problems, Golub-Kahan-Lanczos Bidiagonalization Procedure, equations (112)–(116); beta indices shifted by one in this specification. https://www.netlib.org/utk/people/JackDongarra/etemplates/node198.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Alternating rectangular-operator and transpose Krylov recurrence, related to Lanczos on an augmented symmetric operator; differs computationally from dense two-sided Householder reduction. Not independent scientific evidence."
+  },
+  {
+    "id": "bicgstab-linear-system",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems (1993), Netlib BiCGSTAB reverse-communication routine, lines 249–385, specialized to the identity preconditioner. https://netlib.org/templates/double/BiCGSTABREVCOM.f"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Short stabilized biconjugate-gradient recurrence differs from Arnoldi-based GMRES and symmetric positive-definite CG; no convergence guarantee for every nonsingular system."
   }
 ]
