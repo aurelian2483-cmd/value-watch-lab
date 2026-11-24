@@ -15,7 +15,7 @@ const utc=x=>typeof x==='string'&&Number.isFinite(Date.parse(x))&&new Date(x).to
 const keys=(o,a)=>o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).length===a.length&&a.every(k=>Object.hasOwn(o,k))
 const root=p=>{const q=resolve(p);need(realpathSync(q)===q&&lstatSync(q).isDirectory(),'Unsafe directory');return q}
 const within=(a,b)=>{const p=relative(a,b);return p===''||(!isAbsolute(p)&&p!=='..'&&!p.startsWith('..'+sep))}
-export function signedSynchronise(inboxDir,stateDir,trustPath,trustedTrustSha256,trustedApprovalSha256,{now=new Date().toISOString()}={}){
+export function signedSynchronise(inboxDir,stateDir,trustPath,trustedTrustSha256,trustedApprovalSha256,{now=new Date().toISOString(),expectedPreviousStateSha256=undefined}={}){
  const inbox=root(inboxDir),state=root(stateDir),trustFile=resolve(trustPath)
  need(!within(inbox,state)&&!within(state,inbox),'Input and state must be separate')
  need(!within(inbox,trustFile)&&!within(state,trustFile)&&realpathSync(trustFile)===trustFile,'Trust registry must be separate')
@@ -40,7 +40,7 @@ export function signedSynchronise(inboxDir,stateDir,trustPath,trustedTrustSha256
   }
   need(readBounded(trustFile,65536).equals(trustBytes)&&readBounded(join(inbox,'approval.json'),65536).equals(aBytes)&&readBounded(join(inbox,'producer-signatures.json'),65536).equals(sigBytes),'Input metadata changed')
   for(let i=0;i<pins.length;i++)need(sha(readBounded(join(inbox,pins[i].file)))===a.sources[i].summarySha256,'Input report changed')
-  const result=synchronise(stage,state,trustedApprovalSha256,{now,authentication})
+  const result=synchronise(stage,state,trustedApprovalSha256,{now,authentication,expectedPreviousStateSha256})
   return {kind:'SIGNED_LOCAL_INTAKE_RECEIPT',status:result.status,sequence:result.state.sequence,stateSha256:result.state.stateSha256,trustSha256:trustedTrustSha256,approvalSha256:trustedApprovalSha256,signatureBundleSha256:sha(sigBytes),producers:receipts,measurementFreshness:'UNKNOWN',modelValidation:'UNVALIDATED',publicationGate:'BLOCKED',executionAuthorized:false,repairAuthorized:false,limitations:['Authenticates possession of separately trusted local signing keys, not source accuracy or original GitHub artifact identity.','Public proof retained atomically with accepted state; no independent trust recheck or automatic approval or producer service.']}
  }finally{if(stage)rmSync(stage,{recursive:true,force:true})}
 }
