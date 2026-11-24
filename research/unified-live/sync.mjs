@@ -192,15 +192,19 @@ export function recover(backupDir,stateDir,expected,sequence){
   return {kind:'CONTROLLED_ISOLATED_RECOVERY',sequence:s.sequence,checkpointSha256:expected,stateSha256:s.stateSha256,acceptedAt:s.acceptedAt,...flags}
  })
 }
-export function status(stateDir,{now=new Date().toISOString(),maxAgeSeconds=3600}={}){
+export function status(stateDir,{now=new Date().toISOString(),maxAgeSeconds=3600,trustedTrustSha256=null,trustedStateSha256=null}={}){
  need(utc(now)&&Number.isSafeInteger(maxAgeSeconds)&&maxAgeSeconds>0&&maxAgeSeconds<=86400,'Invalid freshness configuration')
+ need(trustedTrustSha256===null||hex(trustedTrustSha256),'Invalid external trust anchor')
+ need(trustedStateSha256===null||(hex(trustedStateSha256)&&trustedTrustSha256!==null),'Invalid external state anchor')
  const root=safeRoot(stateDir),s=load(root)
+ if(trustedTrustSha256!==null)need(s?.authentication?.trustSha256===trustedTrustSha256,'External trust anchor mismatch or signed state unavailable')
+ if(trustedStateSha256!==null)need(s?.stateSha256===trustedStateSha256,'External state anchor mismatch')
  const age=at=>Math.floor((Date.parse(now)-Date.parse(at))/1000)
  const freshness=at=>age(at)<0?'CLOCK_UNCERTAIN':age(at)>maxAgeSeconds?'STALE':'RECENTLY_RECEIVED'
  return {kind:'CONTROLLED_SUMMARY_STATUS',...flags,sequence:s?.sequence??null,acceptedAt:s?.acceptedAt??null,
   syncStatus:s?freshness(s.acceptedAt):'NO_ACCEPTED_BATCH',measurementFreshness:'UNKNOWN',
   sources:pins.map((p,i)=>({id:p.id,receiptStatus:s?freshness(s.firstSeen[i].at):'MISSING',firstSeen:s?.firstSeen[i].at??null,measurementFreshness:'UNKNOWN'})),
-  authentication:{mode:!s?'NO_ACCEPTED_BATCH':s.authentication?'SIGNATURES_REVERIFIED_AT_ACCEPTANCE':'MANUAL_DIGEST_APPROVAL',trustSha256:s?.authentication?.trustSha256??null,independentTrustRechecked:false},
+  authentication:{mode:!s?'NO_ACCEPTED_BATCH':s.authentication?'SIGNATURES_REVERIFIED_AT_ACCEPTANCE':'MANUAL_DIGEST_APPROVAL',trustSha256:s?.authentication?.trustSha256??null,independentTrustRechecked:trustedTrustSha256!==null,independentStateRechecked:trustedStateSha256!==null},
   lastRejection:incidentStatus(root,s,now),
   snapshot:s?.snapshot??null,limitations:['Receipt age is not measurement age or producer health.','Explicit digest approval; no independent source authenticity or scientific validation.','No producer, scheduler or network service started.']}
 }
@@ -208,9 +212,9 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).hr
  try{
   const [cmd,...args]=process.argv.slice(2)
   if(cmd==='sync'&&args.length===3){const r=synchronise(...args);console.log(JSON.stringify({status:r.status,sequence:r.state.sequence,stateSha256:r.state.stateSha256,...flags},null,2))}
-  else if(cmd==='status'&&args.length===1)console.log(JSON.stringify(status(args[0]),null,2))
+  else if(cmd==='status'&&args.length>=1&&args.length<=3)console.log(JSON.stringify(status(args[0],{trustedTrustSha256:args[1]??null,trustedStateSha256:args[2]??null}),null,2))
   else if(cmd==='checkpoint'&&args.length===2)console.log(JSON.stringify(checkpoint(...args),null,2))
   else if(cmd==='recover'&&args.length===4)console.log(JSON.stringify(recover(args[0],args[1],args[2],Number(args[3])),null,2))
-  else throw Error('Usage: sync.mjs sync <inbox> <state-dir> <trusted-approval-sha256> | status <state-dir> | checkpoint <state-dir> <backup-dir> | recover <backup-dir> <empty-state-dir> <trusted-checkpoint-sha256> <sequence>')
+  else throw Error('Usage: sync.mjs sync <inbox> <state-dir> <trusted-approval-sha256> | status <state-dir> [trusted-trust-sha256 [trusted-state-sha256]] | checkpoint <state-dir> <backup-dir> | recover <backup-dir> <empty-state-dir> <trusted-checkpoint-sha256> <sequence>')
  }catch(e){console.error(e.message);process.exitCode=1}
 }
