@@ -1,11 +1,12 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {createHash} from 'node:crypto'
+import {createHash,generateKeyPairSync,sign} from 'node:crypto'
 import {mkdtempSync,mkdirSync,realpathSync,rmSync,writeFileSync,readFileSync,symlinkSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
 import {synchronise,status,checkpoint,recover} from './sync.mjs'
 import {digest} from '../scientific-reference/digest.mjs'
+import {signedSynchronise,signatureMessage} from './producer-intake.mjs'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
 const hash=x=>createHash('sha256').update(x).digest('hex')
 const T='2026-11-24T22:00:00.000Z',T2='2026-11-24T23:00:00.000Z',T3='2026-11-25T00:00:01.000Z'
@@ -209,4 +210,76 @@ test('incident record tampering and rehashed unapproved action cannot authorize 
  assert.equal(s.lastRejection.status,'INCIDENT_EVIDENCE_UNAVAILABLE')
  assert.equal(s.repairAuthorized,false)
  assert.equal(s.lastRejection.automaticRepair,false)
+})
+
+function signedFixture(f,{sequence=1,approvedAt=T,signedAt=T,expiresAt=T2,privateKeys=null}={}){
+ const approvalSha=approve(f.inbox,sequence,approvedAt)
+ const a=JSON.parse(readFileSync(join(f.inbox,'approval.json'),'utf8'))
+ const pairs=privateKeys??pins.map(()=>generateKeyPairSync('ed25519'))
+ const producers=pins.map((p,i)=>{
+  const der=pairs[i].publicKey.export({format:'der',type:'spki'})
+  return {id:p.id,publicKeyDer:der.toString('base64'),keySha256:hash(der)}
+ })
+ const trust={kind:'TRUSTED_RESEARCH_PRODUCERS',schemaVersion:1,producers}
+ const trustPath=join(f.root,'trust.json'),trustRaw=JSON.stringify(trust)
+ writeFileSync(trustPath,trustRaw)
+ const bundle={kind:'SIGNED_RESEARCH_SUMMARIES',schemaVersion:1,signatures:a.sources.map((s,i)=>{
+  const keySha256=producers[i].keySha256
+  const signature=sign(null,signatureMessage({...s,approvalSha256:approvalSha,sequence,signedAt,expiresAt,keySha256}),pairs[i].privateKey).toString('base64')
+  return {id:s.id,keySha256,signedAt,expiresAt,signature}
+ })}
+ const sigPath=join(f.inbox,'producer-signatures.json')
+ writeFileSync(sigPath,JSON.stringify(bundle))
+ return {approvalSha,trustPath,trustSha:hash(trustRaw),sigPath,bundle,pairs,trust}
+}
+const signed=(f,s,now=T)=>signedSynchronise(f.inbox,f.state,s.trustPath,s.trustSha,s.approvalSha,{now})
+test('six distinct trusted signing keys authenticate approved reports; replay is idempotent',t=>{
+ const f=setup(t),s=signedFixture(f)
+ const receipt=signed(f,s)
+ assert.equal(receipt.status,'ACCEPTED')
+ assert.equal(receipt.producers.length,6)
+ assert.equal(receipt.measurementFreshness,'UNKNOWN')
+ assert.equal(receipt.publicationGate,'BLOCKED')
+ const before=stored(f)
+ assert.equal(signed(f,s,'2026-11-24T22:30:00.000Z').status,'UNCHANGED')
+ assert.deepEqual(stored(f),before)
+ assert.equal(status(f.state,{now:T}).snapshot.counts.available,6)
+})
+test('producer signature alteration or source substitution preserves accepted state',t=>{
+ const f=setup(t),s=signedFixture(f);signed(f,s);const before=stored(f)
+ const changed=structuredClone(s.bundle);changed.signatures[0].signature=Buffer.alloc(64).toString('base64')
+ writeFileSync(s.sigPath,JSON.stringify(changed))
+ assert.throws(()=>signed(f,s),/signature verification failed/)
+ writeFileSync(s.sigPath,JSON.stringify(s.bundle))
+ writeFileSync(join(f.inbox,'catalogue.json'),JSON.stringify({registered:1,target:1000,remaining:999,qualified:0,byClassification:{synthetic:1}}))
+ assert.throws(()=>signed(f,s),/fingerprint mismatch/)
+ assert.deepEqual(stored(f),before)
+})
+test('expired, future and incomplete signatures never create accepted state',t=>{
+ const f=setup(t),s=signedFixture(f)
+ assert.throws(()=>signed(f,s,T2),/time window/)
+ const future=signedFixture(f,{signedAt:T2,expiresAt:'2026-11-25T00:00:00.000Z'})
+ assert.throws(()=>signed(f,future),/time window/)
+ future.bundle.signatures.pop()
+ writeFileSync(future.sigPath,JSON.stringify(future.bundle))
+ assert.throws(()=>signed(f,future),/Incomplete signatures/)
+ assert.equal(status(f.state,{now:T}).snapshot,null)
+})
+test('trust registry substitution and duplicate producer keys are rejected',t=>{
+ const f=setup(t),s=signedFixture(f)
+ assert.throws(()=>signed(f,{...s,trustSha:'0'.repeat(64)}),/Trust registry fingerprint/)
+ s.trust.producers[1]={...s.trust.producers[0],id:pins[1].id}
+ const raw=JSON.stringify(s.trust);writeFileSync(s.trustPath,raw)
+ assert.throws(()=>signed(f,{...s,trustSha:hash(raw)}),/duplicated producer key/)
+ assert.equal(status(f.state,{now:T}).snapshot,null)
+})
+test('old signatures cannot authorize a different approval generation',t=>{
+ const f=setup(t),s=signedFixture(f);signed(f,s);const before=stored(f)
+ const h=approve(f.inbox,2,T)
+ assert.throws(()=>signed(f,{...s,approvalSha:h}),/signature verification failed/)
+ assert.deepEqual(stored(f),before)
+ const next=signedFixture(f,{sequence:2,privateKeys:s.pairs})
+ const result=signed(f,next)
+ assert.equal(result.sequence,2)
+ assert.equal(status(f.state,{now:T}).sequence,2)
 })
