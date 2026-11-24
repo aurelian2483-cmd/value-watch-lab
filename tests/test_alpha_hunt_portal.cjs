@@ -11,7 +11,7 @@ assert.match(page, /<html lang="en-GB">/);
 assert.match(page, /<main id="main">/);
 assert.match(page, /Alpha Hunt is a proposed Bayesian edge-validation framework/);
 assert.match(page, /P\(Real Edge \| Evidence\)/);
-assert.match(page, /not a betting model/);
+assert.match(page, /not itself a betting model/);
 assert.match(page, /Separate from Value Watch and Bottleneck Lab/);
 for (const id of ['purpose', 'architecture', 'research-status', 'decisions']) {
   assert.match(page, new RegExp('id="' + id + '"'));
