@@ -1,0 +1,40 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const page = fs.readFileSync('alpha-hunt/index.html', 'utf8');
+const css = fs.readFileSync('alpha-hunt/style.css', 'utf8');
+const main = fs.readFileSync('index.html', 'utf8');
+const standalone = fs.readFileSync('paper-lab/index.html', 'utf8');
+const decision = fs.readFileSync('docs/alpha-hunt-scope-decision.md', 'utf8');
+
+assert.match(page, /<html lang="en-GB">/);
+assert.match(page, /<main id="main">/);
+assert.match(page, /Alpha Hunt is a proposed Bayesian edge-validation framework/);
+assert.match(page, /P\(Real Edge \| Evidence\)/);
+assert.match(page, /not a betting model/);
+assert.match(page, /Separate from Value Watch and Bottleneck Lab/);
+for (const id of ['purpose', 'architecture', 'research-status', 'decisions']) {
+  assert.match(page, new RegExp('id="' + id + '"'));
+  assert.match(page, new RegExp('href="#' + id + '"'));
+}
+assert.match(page, /Data|historical/i);
+assert.match(page, /Undecided/);
+assert.match(page, /Not implemented here/);
+assert.match(page, /UNVALIDATED/);
+assert.match(page, /BLOCKED/);
+assert.match(page, /href="\.\.\/"/);
+assert.match(page, /style\.css\?v=1/);
+assert.doesNotMatch(page, /<script\b|<form\b|<iframe\b|apiKey|THE_ODDS_API_KEY/);
+assert.match(css, /@media\(max-width:650px\)/);
+assert.match(css, /a:focus-visible/);
+assert.match(main, /href="\.\/alpha-hunt\/"/);
+assert.match(standalone, /href="\.\.\/alpha-hunt\/"/);
+assert.match(decision, /Still undecided/);
+assert.match(decision, /separate system/);
+assert.match(decision, /do not infer approval/);
+// Website odds publisher stores sections in an expiring HTML template, never in the Alpha Hunt page.
+assert.match(main, /<template id="vw-published-prices">/);
+const template = main.match(/<template id="vw-published-prices">([\s\S]*?)<\/template>/);
+assert(template, 'Existing bookmaker price template must remain intact');
+assert.doesNotMatch(page, /vw-published-prices|engine-methods|bookmaker API integration/);
+console.log('PASS: Alpha Hunt independent page, clear unresolved scope, mobile stylesheet, both navigation entrypoints and preserved odds template');
