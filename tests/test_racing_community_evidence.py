@@ -73,9 +73,19 @@ class CommunityEvidenceTests(unittest.TestCase):
                     self.assertEqual(e.get('extraction_method'),'explicit_headline')
     def test_explicit_headline_selection_rules(self):
         import importlib.util
-        spec=importlib.util.spec_from_file_location('racing_collector',ROOT/'scripts/collect_racing_community.py')
-        module=importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        import sys
+        # The scheduler executes scripts/collect_racing_community.py directly, so
+        # Python includes scripts/ in sys.path. Importing by absolute filename
+        # under unittest does not. Mirror that module search path for this test
+        # rather than weakening or changing the production collector.
+        scripts_dir=str(ROOT/'scripts')
+        sys.path.insert(0,scripts_dir)
+        try:
+            spec=importlib.util.spec_from_file_location('racing_collector',ROOT/'scripts/collect_racing_community.py')
+            module=importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        finally:
+            sys.path.remove(scripts_dir)
         positive=('NAP: The Mourne Rambler','The Mourne Rambler - Tip','Pick: Low Kick')
         for headline in positive:
             horse='Low Kick' if 'Low Kick' in headline else 'The Mourne Rambler'
