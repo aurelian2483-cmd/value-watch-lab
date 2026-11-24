@@ -1529,6 +1529,9 @@
 
     make(root, 'h3', 'Selected paper slip · ' + state.plan.slots[state.slot].name);
     make(root, 'p', 'UNVALIDATED · Paper research only', 'small');
+    make(root, 'p', 'Saved bookmaker prices are historical observations, not live odds. Open a match to inspect model and source evidence.', 'small');
+    const marketArchive = make(root, 'a', 'Browse recorded football prices', 'text-link');
+    marketArchive.href = new URL('market-intelligence/', rootURL).href;
     if (!evaluation.legs.length) make(root, 'p', 'Choose an outcome to compare its evidence.');
     if (evaluation.legs.length) {
       const glossary = details(root, 'How the methods differ');
@@ -1539,7 +1542,11 @@
       const key = JSON.stringify([leg.eventId, leg.startUTC, leg.choiceId]);
       disclosure.dataset.comparison = key;
       disclosure.open = openComparisons.has(key);
-      const summary = make(disclosure, 'summary', leg.event + ' · ' + leg.label);
+      const storedDecimal = leg.quote?.decimal;
+      const shownPrice = typeof storedDecimal === 'number' && Number.isFinite(storedDecimal) && storedDecimal > 1
+        ? ' · recorded ' + storedDecimal.toFixed(2) + ' (unverified, not live)'
+        : ' · no recorded odds';
+      const summary = make(disclosure, 'summary', leg.event + ' · ' + leg.label + shownPrice);
       if (focusedComparison === key) summary.focus({preventScroll:true});
       const row = make(disclosure, 'div', undefined, 'engine-comparison' + (entry ? ' engine-comparison-three' : ' engine-comparison-single'));
       const fixture = state.events.find(item => item.id === leg.eventId && item.startUTC === leg.startUTC);
