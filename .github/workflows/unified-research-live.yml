@@ -92,6 +92,15 @@ jobs:
           node research/unified-live/sync.mjs sync "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/live-state" "$(cat "$RUNNER_TEMP/approval.sha256")" > "$RUNNER_TEMP/unified-output/replay-receipt.json"
           node -e 'const a=require(process.argv[1]),b=require(process.argv[2]); if(b.status!=="UNCHANGED"||a.stateSha256!==b.stateSha256)process.exit(1)' "$RUNNER_TEMP/unified-output/sync-receipt.json" "$RUNNER_TEMP/unified-output/replay-receipt.json"
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Verify isolated recovery of actual accepted summary batch
+        run: |
+          mkdir "$RUNNER_TEMP/live-backup" "$RUNNER_TEMP/live-recovered"
+          node research/unified-live/sync.mjs checkpoint "$RUNNER_TEMP/live-state" "$RUNNER_TEMP/live-backup" > "$RUNNER_TEMP/unified-output/checkpoint-receipt.json"
+          digest=$(node -p 'require(process.argv[1]).checkpointSha256' "$RUNNER_TEMP/unified-output/checkpoint-receipt.json")
+          node research/unified-live/sync.mjs recover "$RUNNER_TEMP/live-backup" "$RUNNER_TEMP/live-recovered" "$digest" 1 > "$RUNNER_TEMP/unified-output/recovery-receipt.json"
+          cmp "$RUNNER_TEMP/live-state/current.json" "$RUNNER_TEMP/live-recovered/current.json"
+          node -e 'const a=require(process.argv[1]),b=require(process.argv[2]); if(a.stateSha256!==b.stateSha256||a.checkpointSha256!==b.checkpointSha256||b.publicationGate!=="BLOCKED")process.exit(1)' "$RUNNER_TEMP/unified-output/checkpoint-receipt.json" "$RUNNER_TEMP/unified-output/recovery-receipt.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
       - name: Live browser acceptance and timed refresh
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
