@@ -16,7 +16,7 @@ const utc=x=>typeof x==='string'&&Number.isFinite(Date.parse(x))&&new Date(x).to
 const keys=(o,a)=>o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).length===a.length&&a.every(k=>Object.hasOwn(o,k))
 const safeRoot=p=>{const q=resolve(p);need(realpathSync(q)===q&&lstatSync(q).isDirectory(),'Unsafe directory');return q}
 const within=(a,b)=>{const q=relative(a,b);return q===''||(!isAbsolute(q)&&q!=='..'&&!q.startsWith('..'+(process.platform==='win32'?'\\':'/')))}
-function readBounded(path,max=MAX){
+export function readBounded(path,max=MAX){
  const a=lstatSync(path)
  need(a.isFile()&&!a.isSymbolicLink()&&a.size>0&&a.size<=max,'Unsafe file')
  const fd=openSync(path,constants.O_RDONLY|(constants.O_NOFOLLOW??0)|(constants.O_NONBLOCK??0))
