@@ -276,6 +276,8 @@
     const prediction = make(article, 'div', '', 'prediction-summary'); prediction.setAttribute('aria-live', 'polite');
     const racingDisclosure = details(article, 'Horse racing · research evidence & source audit', 'compact-evidence-disclosure');
     const racingPanel = make(racingDisclosure, 'section', undefined, 'racing-highlights'); racingPanel.setAttribute('aria-label', 'Horse racing research highlights');
+    const methodConsensus = make(article, 'div', undefined, 'method-agreement-summary');
+    methodConsensus.hidden = true;
     const market = make(article, 'div', undefined, 'market-grid');
     const choiceDisclosure = details(article, 'Runner / outcome source and model information', 'compact-evidence-disclosure compact-choice-disclosure');
     const choiceInformation = make(choiceDisclosure, 'div', undefined, 'compact-choice-information');
@@ -306,7 +308,7 @@
     const advancedGroup = details(disclosures, 'Advanced Analysis', 'research-main-disclosure');
     researchGroup.append(conditions, explanation, racingDisclosure, choiceDisclosure, evidence, tools);
     advancedGroup.append(prediction, seasonDisclosure, estimates, notes, matchView);
-    return { node: article, watch, signals, meta, time, date, clock, title, status, conditions, prediction, market, racingPanel, racingDisclosure, researchGroup, advancedGroup, seasonPanel, seasonDisclosure, choiceInformation, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
+    return { node: article, watch, signals, meta, time, date, clock, title, status, conditions, prediction, methodConsensus, market, racingPanel, racingDisclosure, researchGroup, advancedGroup, seasonPanel, seasonDisclosure, choiceInformation, explanation, evidence, panel, buttons, check, modelPanel, notes, notesPanel, matchView, matchPanel, choices: new Map(), structural: '' };
   }
   function preferredStats(event) { return event?.stats?.h2h ? 'h2h' : Array.isArray(event?.stats?.recent) && event.stats.recent.length ? 'recent' : event?.stats?.rankings ? 'rankings' : 'sources'; }
   function patchCard(record, event) {
@@ -477,7 +479,24 @@
     if (marketRow && (currentOdds || model || hasModelEstimate)) make(quickSignals, 'span', 'EV withheld', 'compact-evidence-note');
     const review = E.footballEvidenceReview(event);
     record.market.classList.toggle('desk-three-way',event.sport==='football'&&event.choices.length===3);
-    const leaders = E.modelLeaders(event), ordered = event.sport === 'racing' ? [...leaders.map(leader => event.choices.find(choice => choice.id === leader.id)), ...event.choices.filter(choice => !leaders.some(leader => leader.id === choice.id))] : event.choices;
+    const leaders = E.modelLeaders(event);
+    const methodSignal = ValueWatchMethodStars.evaluate(event, {
+      selected: selectedMethods,
+      leaderId: leaders.find(leader=>leader.rank===1)?.id ?? null,
+      reliability: selectedMethods.includes('reliability') ? currentHistoryStatus(event) : null,
+      hybrid: selectedMethods.includes('hybrid') && hybridEvidence && !hybridEvidence.pending &&
+        Date.now()-hybridEvidence.at<60000 ? hybridResult(event,hybridEvidence) : null
+    });
+    record.methodConsensus.replaceChildren();
+    for(const overlap of methodSignal.overlaps){
+      const title = event.choices.find(choice=>choice.id===overlap.choice)?.label || overlap.choice;
+      const names = overlap.methods.map(id=>ValueWatchMethodStars.byId.get(id)?.name||id);
+      const chip=make(record.methodConsensus,'span','★ '+overlap.methods.length+' methods favour '+title+' · directional overlap only','method-agreement-chip');
+      chip.title=names.join(' + ')+' · UNVALIDATED; may share data and modelling assumptions';
+      chip.setAttribute('aria-label',names.join(' and ')+' indicate the same '+title+' direction; not independently validated');
+    }
+    record.methodConsensus.hidden=!methodSignal.overlaps.length;
+    const ordered = event.sport === 'racing' ? [...leaders.map(leader => event.choices.find(choice => choice.id === leader.id)), ...event.choices.filter(choice => !leaders.some(leader => leader.id === choice.id))] : event.choices;
     const structural = JSON.stringify([status.code === 'STARTED',event.futureScheduleOnly,event.provisionalEntry, ordered.map(choice => [choice.id, choice.label]), leaders.map(leader => leader.id), racingPicks.map(pick => pick.choice.id)]);
     if (record.structural !== structural) {
       record.structural = structural; record.market.replaceChildren(); record.choices.clear();
@@ -499,7 +518,7 @@
       else {
         if(event.provisionalEntry)make(record.market,'p','Provisional entries · final declarations and prices unverified.','provisional-entry-note small');
         const shown = ordered; // All participants visible for comparison across all sports.
-        const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), caption = make(b, 'small', '', 'selection-caption'), method = make(b, 'small', '', 'selection-methodology'), odds = make(b, 'small', '', 'selection-odds'), comparison = make(b, 'small', '', 'desk-market-comparison'); record.choices.set(choice.id, { element: b, modelBadge, name, price, caption, method, odds, comparison, previous: null }); };
+        const append = (parent, choice) => { const b = button(parent, '', () => select(event.id, choice.id), 'selection-button'); b.dataset.choiceId = choice.id; const modelBadge = make(b, 'span', '', 'model-pick-badge'), name = make(b, 'span', choice.label, 'selection-name'), price = make(b, 'strong', '—', 'selection-price'), methodStars = make(b, 'span', undefined, 'method-star-row'), caption = make(b, 'small', '', 'selection-caption'), method = make(b, 'small', '', 'selection-methodology'), odds = make(b, 'small', '', 'selection-odds'), comparison = make(b, 'small', '', 'desk-market-comparison'); record.choices.set(choice.id, { element: b, modelBadge, name, price, methodStars, caption, method, odds, comparison, previous: null }); };
         for (const choice of shown) append(record.market, choice);
         if (shown.length < event.choices.length) { const rest = details(record.market, 'Show all ' + event.choices.length + ' runners', 'runner-disclosure'); const grid = make(rest, 'div', undefined, 'market-grid'); for (const choice of ordered.slice(shown.length)) append(grid, choice); }
       }
@@ -582,6 +601,19 @@
       }
       view.previous = priced ? quote.decimal : null;
       view.previousSource = priceSource;
+      const starring=methodSignal.byChoice[choice.id]||[];
+      view.methodStars.replaceChildren();
+      for(const m of starring){
+        const star=make(view.methodStars,'span','★','method-direction-star');
+        star.dataset.methodStar=m.id;
+        star.title=m.name+' · experimental direction only; not a verified betting edge';
+        star.setAttribute('aria-label',m.name+' research direction');
+      }
+      if(starring.length>1){
+        const agreement=make(view.methodStars,'span',starring.length+' methods align','method-direction-alignment');
+        agreement.title='Same outcome direction only; these methods may use shared evidence and are not independent endorsements';
+      }
+      view.methodStars.hidden=!starring.length;
     }
     // Preserve detailed per-choice source information in an expandable panel rather than repeating it on every card.
     record.choiceInformation.replaceChildren();
@@ -1337,6 +1369,35 @@
   }
   const X = ResearchExperimental;
   const M = ValueWatchEngineMethodSelection;
+  const methodStarRegistry = ValueWatchMethodStars;
+  function mountMethodStarGuide(){
+    const picker=$('engine-methods'), status=$('engine-status');
+    if(!picker||!status||status.previousElementSibling?.classList.contains('method-star-guide'))return;
+    for(const tile of picker.querySelectorAll('button[data-method]')){
+      const star=make(null,'span','★','method-identity-star');
+      star.dataset.methodStar=tile.dataset.method;
+      star.setAttribute('aria-hidden','true');
+      tile.querySelector('.engine-method-name')?.before(star);
+    }
+    const guide=make(null,'div',undefined,'method-star-guide');
+    guide.setAttribute('aria-label','Permanent method star colours and status');
+    const heading=make(guide,'strong','Method star key · each colour identifies a different method');
+    const chips=make(guide,'div',undefined,'method-star-legend');
+    for(const method of methodStarRegistry.methods){
+      const chip=make(chips,'span',undefined,'method-star-key');
+      chip.dataset.methodStar=method.id;
+      make(chip,'span','★','method-key-symbol');
+      make(chip,'span',method.name);
+      if(['tool','readiness','place-model','separate-unconnected'].includes(method.kind)){
+        make(chip,'small',method.kind==='tool'?'comparison tool':method.kind==='readiness'?'no forecast':method.kind==='place-model'?'top-4 market; separate':'separate / not connected','method-unavailable');
+      }
+    }
+    const alpha=make(guide,'a','Open Alpha Hunt · separate research','method-alpha-link');
+    alpha.href=new URL('alpha-hunt/',rootURL).href;
+    make(guide,'p','Stars beside outcomes appear only when a selected method supplies a usable matching direction. Several stars on one outcome mean directions coincide — NOT independent agreement, validated accuracy or betting value. Racing top-four is a different market.','method-star-disclosure');
+    status.before(guide);
+  }
+  mountMethodStarGuide();
   const sportsMethods = typeof ValueWatchSportMethods === 'undefined' ? null : ValueWatchSportMethods;
   const methodModes = sportsMethods?.modes || {};
   const researchMode = value => Object.hasOwn(methodModes, value) ? value : X.mode(value);
@@ -1372,7 +1433,10 @@
       .catch(() => {})
       .finally(() => {
         entry.pending = false;
-        if (hybridEvidence === entry && ['compare','hybrid'].some(mode => selectedMethods.includes(mode))) safely(renderSlip);
+        if (hybridEvidence === entry && ['compare','hybrid'].some(mode => selectedMethods.includes(mode))) {
+          safely(renderSlip);
+          safely(renderEvents);
+        }
       });
     return entry;
   }
