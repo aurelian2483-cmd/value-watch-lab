@@ -27,3 +27,7 @@ Run `node research/central-data-intelligence/source-audit.mjs .` for nine allowl
 ## Phase 4 — static quality report
 
 The CI artifact now includes `index.html` and `quality-report.json`, consolidating the four structurally reconciled inputs, nine source receipts, archived comparisons and outstanding verification requirements. Shared receipt disagreements suppress structural counts. This is a static review report, not a browser-tested deployed dashboard, live collection service or certification mechanism. No new record data is exposed.
+
+## Phase 5 — provenance and data-rights review register
+
+The new fixed-path register starts with zero documentary claims. Its metadata contract binds each future claim to an allowlisted source content hash, provider namespace, origin and rights evidence digests, claimed scopes, recording time and expiration. Missing, duplicate, stale, future or malformed claims remain blocked. Even a current claim is not legal authorization or independent verification; actual documents and source relationships must be reviewed separately. The quality report displays source-level review status without exposing claim document contents. No licences, reviewer approvals or permissions have been invented.
