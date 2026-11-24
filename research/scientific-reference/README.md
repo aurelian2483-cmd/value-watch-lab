@@ -15,3 +15,7 @@ Run `node research/scientific-reference/compare-claims.mjs 2026-11-24`. Manually
 ## Phase 4 — citation metadata export
 
 Run `node research/scientific-reference/citation-export.mjs 2026-11-24 json` or replace `json` with `markdown`. The exports preserve registered titles, publishers, identifiers, versions, locators, claim scope and the as-of review state derived from the version-bound ledger. Missing dedicated author and publication-date fields remain null; a publisher or access date is never substituted for those fields. This is a provenance handoff, not a style-certified bibliography. Metadata hashes bind the export and review reports, not external document bytes. No source downloads, new claims, rights review or independent verification performed in this phase. CI emits JSON and Markdown metadata reports.
+
+## Phase 5 — static reference dashboard
+
+`node research/scientific-reference/dashboard.mjs 2026-11-24 json|html` consolidates the reference export, review ledger and structured comparison report from the same inputs. The view identifies unassessed comparisons and missing reviews, keeps provenance fingerprints visible and never starts external retrieval or execution. CI renders the HTML from the exact JSON snapshot. Browser acceptance, independent review, live source monitoring and integration into a deployed control centre remain outstanding. No new source claims were added.
