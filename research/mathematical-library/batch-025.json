@@ -1,0 +1,154 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "025",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "power-iteration-eigenvector",
+    "name": "Power iteration for a dominant eigenvector",
+    "definition": "For real symmetric A and nonzero x₀, iterate x_(k+1)=Ax_k/||Ax_k||₂; estimate λ_k=x_kᵀAx_k/(x_kᵀx_k).",
+    "variables": "A symmetric matrix; x_k iterate; λ_k Rayleigh quotient",
+    "assumptions": "Unique eigenvalue of strictly largest nonzero magnitude, nonzero initial projection onto its eigenspace, direction convergence up to sign.",
+    "limitations": "Slow for close eigenvalue magnitudes; does not determine the full spectrum.",
+    "failure_conditions": [
+      "Zero matrix-vector product or absent dominant component"
+    ],
+    "computation": "Normalize matrix-vector products and check eigenpair residual.",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Illinois CS 357, Eigenvalues and Eigenvectors; power, shifted inverse and Rayleigh quotient iteration sections. https://cs357.cs.illinois.edu/textbook/notes/eigen.html"
+    },
+    "application": "General numerical eigenvector approximation on a synthetic or authorised matrix.",
+    "required_inputs": "Symmetric matrix, starting vector, residual tolerance and iteration bound.",
+    "compatible_methods": [
+      "symmetric-tridiagonal-reduction"
+    ],
+    "incompatible_methods": [
+      "Claiming unique dominant direction with tied magnitudes"
+    ],
+    "relationships": [
+      {
+        "target": "symmetric-tridiagonal-reduction",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "025",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "shifted-inverse-iteration-eigenvector",
+    "name": "Fixed-shift inverse iteration",
+    "definition": "For real symmetric A and fixed shift μ outside its spectrum, solve (A−μI)y_k=x_k and set x_(k+1)=y_k/||y_k||₂.",
+    "variables": "A symmetric matrix; μ fixed shift; x_k normalized iterate; y_k intermediate solve",
+    "assumptions": "Unique closest eigenvalue to μ, nonzero starting projection, stable shifted linear solve.",
+    "limitations": "Potentially ill-conditioned shifted system; direction may change sign.",
+    "failure_conditions": [
+      "Singular shifted matrix or absent target component"
+    ],
+    "computation": "Factor shifted matrix once, solve repeatedly, normalize and check eigenpair residual.",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Illinois CS 357, Eigenvalues and Eigenvectors; power, shifted inverse and Rayleigh quotient iteration sections. https://cs357.cs.illinois.edu/textbook/notes/eigen.html"
+    },
+    "application": "General approximate eigenvector computation near a shift.",
+    "required_inputs": "Symmetric matrix, fixed shift, initial vector and stop criteria.",
+    "compatible_methods": [
+      "power-iteration-eigenvector",
+      "pivoted-lu"
+    ],
+    "incompatible_methods": [
+      "Treating a singular shifted system as a regular solve"
+    ],
+    "relationships": [
+      {
+        "target": "power-iteration-eigenvector",
+        "type": "related"
+      },
+      {
+        "target": "pivoted-lu",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Power iteration on the resolvent; review derivative/equivalence classification before admission."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "025",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "rayleigh-quotient-iteration",
+    "name": "Rayleigh quotient iteration",
+    "definition": "For unit x_k and real symmetric A, let μ_k=x_kᵀAx_k; solve (A−μ_k I)y_k=x_k and set x_(k+1)=y_k/||y_k||₂ unless an eigenpair residual stop condition holds.",
+    "variables": "A symmetric matrix; μ_k adaptive shift; y_k shifted solution; x_k normalized iterate",
+    "assumptions": "Local convergence near a simple eigenvector, nonsingular shifted system unless already converged.",
+    "limitations": "Repeated factorization; near singularity requires careful residual and solve handling; no guarantee of selecting prescribed eigenpair.",
+    "failure_conditions": [
+      "Singular shift before residual convergence"
+    ],
+    "computation": "Evaluate Rayleigh quotient and residual; solve shifted system and normalize if not converged.",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Illinois CS 357, Eigenvalues and Eigenvectors; power, shifted inverse and Rayleigh quotient iteration sections. https://cs357.cs.illinois.edu/textbook/notes/eigen.html"
+    },
+    "application": "General adaptive eigenpair refinement on synthetic or authorised matrices.",
+    "required_inputs": "Symmetric matrix, normalized initial vector, residual and iteration limits.",
+    "compatible_methods": [
+      "shifted-inverse-iteration-eigenvector",
+      "pivoted-lu"
+    ],
+    "incompatible_methods": [
+      "Guaranteeing global convergence to a selected eigenpair"
+    ],
+    "relationships": [
+      {
+        "target": "shifted-inverse-iteration-eigenvector",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Adaptive shift instead of a fixed inverse operator; review overlap and classification before admission."
+  }
+]

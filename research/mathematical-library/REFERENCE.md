@@ -4533,3 +4533,49 @@ Assumptions — Differentiability near x and strict descent direction for finite
 Limitations — Only sufficient decrease, not curvature control; very small accepted steps or numerical precision may impede progress..
 
 Source — Nocedal and Wright, Numerical Optimization, 2nd ed., chapter 3, backtracking line search and sufficient decrease.
+
+## Power iteration for a dominant eigenvector (power-iteration-eigenvector)
+
+> For real symmetric A and nonzero x₀, iterate x_(k+1)=Ax_k/||Ax_k||₂; estimate λ_k=x_kᵀAx_k/(x_kᵀx_k).
+
+A symmetric matrix; x_k iterate; λ_k Rayleigh quotient.
+
+General numerical eigenvector approximation on a synthetic or authorised matrix.
+
+Assumptions — Unique eigenvalue of strictly largest nonzero magnitude, nonzero initial projection onto its eigenspace, direction convergence up to sign..
+
+Limitations — Slow for close eigenvalue magnitudes; does not determine the full spectrum..
+
+Source — University of Illinois CS 357, Eigenvalues and Eigenvectors; power, shifted inverse and Rayleigh quotient iteration sections. https://cs357.cs.illinois.edu/textbook/notes/eigen.html
+
+## Fixed-shift inverse iteration (shifted-inverse-iteration-eigenvector)
+
+> For real symmetric A and fixed shift μ outside its spectrum, solve (A−μI)y_k=x_k and set x_(k+1)=y_k/||y_k||₂.
+
+A symmetric matrix; μ fixed shift; x_k normalized iterate; y_k intermediate solve.
+
+General approximate eigenvector computation near a shift.
+
+Assumptions — Unique closest eigenvalue to μ, nonzero starting projection, stable shifted linear solve..
+
+Limitations — Potentially ill-conditioned shifted system; direction may change sign..
+
+Mechanism — Power iteration on the resolvent; review derivative/equivalence classification before admission.
+
+Source — University of Illinois CS 357, Eigenvalues and Eigenvectors; power, shifted inverse and Rayleigh quotient iteration sections. https://cs357.cs.illinois.edu/textbook/notes/eigen.html
+
+## Rayleigh quotient iteration (rayleigh-quotient-iteration)
+
+> For unit x_k and real symmetric A, let μ_k=x_kᵀAx_k; solve (A−μ_k I)y_k=x_k and set x_(k+1)=y_k/||y_k||₂ unless an eigenpair residual stop condition holds.
+
+A symmetric matrix; μ_k adaptive shift; y_k shifted solution; x_k normalized iterate.
+
+General adaptive eigenpair refinement on synthetic or authorised matrices.
+
+Assumptions — Local convergence near a simple eigenvector, nonsingular shifted system unless already converged..
+
+Limitations — Repeated factorization; near singularity requires careful residual and solve handling; no guarantee of selecting prescribed eigenpair..
+
+Mechanism — Adaptive shift instead of a fixed inverse operator; review overlap and classification before admission.
+
+Source — University of Illinois CS 357, Eigenvalues and Eigenvectors; power, shifted inverse and Rayleigh quotient iteration sections. https://cs357.cs.illinois.edu/textbook/notes/eigen.html
