@@ -5,6 +5,7 @@ import {resolve,relative,isAbsolute,sep,join} from 'node:path'
 import {pathToFileURL} from 'node:url'
 import {readBounded,status as phase2Status} from '../unified-live/sync.mjs'
 import {digest} from '../scientific-reference/digest.mjs'
+import {readControl,controlView,appendControl} from './control-ledger.mjs'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
 const BASE='79379e17c448f17404d0df70d76b87fcb4f51504'
 const flags=Object.freeze({researchOnly:true,modelValidation:'UNVALIDATED',publicationGate:'BLOCKED',executionAuthorized:false,repairAuthorized:false,accessAuthorized:false,sourceMutationAuthorized:false,validationAuthorized:false,measurementFreshness:'UNKNOWN'})
@@ -45,7 +46,7 @@ function context(phase2Dir,registryDir,planPath,expected,now){
   need(readBounded(file,65536).equals(raw),'External plan changed')
   return s
  }
- return {registry,plan,expected,verify,evidence:verify()}
+ return {registry,plan,expected,verify,now,evidence:verify()}
 }
 function observation(task,s){
  if(task.source===null)return {source:null,summarySha256:null,contractStatus:'RESEARCH_NOT_READY',decision:'EXECUTION_BLOCKED'}
@@ -88,44 +89,75 @@ function withLock(root,fn){
  mkdirSync(lock,{mode:0o700})
  try{return fn()}finally{rmSync(lock,{recursive:true,force:true})}
 }
-function view(ctx,r){
+function view(ctx,r,ledger=readControl(ctx.registry,ctx.expected,ctx.now)){
  const done=new Set(r?.events.map(e=>e.taskId)??[])
  return {kind:'ORCHESTRATION_STATUS',registrySha256:r?.registrySha256??null,planSha256:ctx.expected,evidenceStateSha256:ctx.plan.stateSha256,mode:ctx.plan.mode,receiptFreshness:ctx.evidence.syncStatus,
   status:!r?'NOT_INITIALIZED':done.size===tasks.length?'METADATA_REVIEW_COMPLETE_EXECUTION_BLOCKED':'REVIEW_PENDING',
-  reviewed:done.size,total:tasks.length,tasks:tasks.map(t=>({...t,requires:[...t.requires],status:done.has(t.id)?'REVIEW_RECORDED':t.requires.every(x=>done.has(x))?'READY_FOR_METADATA_REVIEW':'WAITING_FOR_DEPENDENCIES'})),...flags,
+  control:controlView(ledger),reviewed:done.size,total:tasks.length,tasks:tasks.map(t=>({...t,requires:[...t.requires],status:done.has(t.id)?'REVIEW_RECORDED':t.requires.every(x=>done.has(x))?'READY_FOR_METADATA_REVIEW':'WAITING_FOR_DEPENDENCIES'})),...flags,
   limitations:['Metadata reviews are not executed experiments or scientific qualification.','Pinned historical or signed summary state only; no producer access, scheduler, network or execution.','Registry self-hash is not independent authentication; retain the latest fingerprint separately.']}
 }
-export function inspect(phase2Dir,registryDir,planPath,expected,{now=new Date().toISOString(),trustedRegistrySha256=undefined}={}){
+export function inspect(phase2Dir,registryDir,planPath,expected,{now=new Date().toISOString(),trustedRegistrySha256=undefined,trustedControlSha256=undefined}={}){
  const ctx=context(phase2Dir,registryDir,planPath,expected,now),r=load(ctx)
  if(r)need(Date.parse(now)>=Date.parse(r.events.at(-1)?.observedAt??r.createdAt),'Registry clock moved backwards')
  if(trustedRegistrySha256!==undefined)need(hex(trustedRegistrySha256)&&r?.registrySha256===trustedRegistrySha256,'Registry external anchor mismatch')
- return view(ctx,r)
+ const ledger=readControl(ctx.registry,ctx.expected,now)
+ if(trustedControlSha256!==undefined)need(hex(trustedControlSha256)&&ledger?.controlSha256===trustedControlSha256,'Control external anchor mismatch')
+ return view(ctx,r,ledger)
 }
-export function advance(phase2Dir,registryDir,planPath,expected,previous,{now=new Date().toISOString()}={}){
+export function advance(phase2Dir,registryDir,planPath,expected,previous,{now=new Date().toISOString(),trustedControlSha256=undefined}={}){
  const ctx=context(phase2Dir,registryDir,planPath,expected,now)
  need(previous===null||hex(previous),'Explicit previous registry fingerprint required')
  return withLock(ctx.registry,()=>{
+  const ledger=readControl(ctx.registry,ctx.expected,now),control=controlView(ledger)
+  need((ledger===null&&trustedControlSha256===undefined)||(hex(trustedControlSha256)&&ledger?.controlSha256===trustedControlSha256),'Control external anchor mismatch')
+  need(control.status!=='REVIEW_HOLD','Metadata review is on hold; explicit resume required')
+  need(control.capacityRemaining>0,'Control ledger capacity reached; manual review required')
+  let r=null,stage='EVIDENCE_RECHECK',committed=false
+  try{
+   ctx.evidence=ctx.verify()
+   stage='REGISTRY_REVIEW';r=load(ctx)
+   stage='PREVIOUS_ANCHOR';need((r?.registrySha256??null)===previous,'Previous registry anchor mismatch')
+   const last=r?.events.at(-1),createdAt=r?.createdAt??now
+   stage='CLOCK';need(Date.parse(now)>=Date.parse(last?.observedAt??createdAt),'Registry clock moved backwards')
+   const events=r?.events??[]
+   if(events.length===tasks.length)return view(ctx,r,ledger)
+   stage='DEPENDENCIES'
+   const t=tasks[events.length],done=new Set(events.map(e=>e.taskId))
+   need(t.requires.every(x=>done.has(x)),'Task dependencies incomplete')
+   const payload={sequence:events.length+1,taskId:t.id,observedAt:now,previousEventSha256:last?.eventSha256??null,evidenceStateSha256:ctx.plan.stateSha256,outcome:observation(t,ctx.evidence)}
+   const next=envelope(ctx,[...events,{...payload,eventSha256:digest(payload)}],createdAt)
+   stage='EVIDENCE_RECHECK';ctx.verify()
+   stage='PERSISTENCE';atomic(ctx.registry,next);committed=true
+   return view(ctx,load(ctx),ledger)
+  }catch(error){
+   // Never describe a possibly committed review as rejected. Preserve original error for operator.
+   if(!committed){
+    try{appendControl(ctx.registry,ctx.expected,ledger,'REVIEW_REJECTED',stage,now,r?.registrySha256??null)}
+    catch{throw new Error('Review failed; incident receipt could not be persisted',{cause:error})}
+   }
+   throw error
+  }
+ })
+}
+export function setReviewControl(phase2Dir,registryDir,planPath,expected,action,previousRegistry,previousControl,{now=new Date().toISOString()}={}){
+ const ctx=context(phase2Dir,registryDir,planPath,expected,now)
+ need(['PAUSE','RESUME'].includes(action)&&(previousRegistry===null||hex(previousRegistry))&&(previousControl===null||hex(previousControl)),'Invalid explicit control request')
+ return withLock(ctx.registry,()=>{
   ctx.evidence=ctx.verify()
-  const r=load(ctx)
-  need((r?.registrySha256??null)===previous,'Previous registry anchor mismatch')
-  const last=r?.events.at(-1),createdAt=r?.createdAt??now
-  need(Date.parse(now)>=Date.parse(last?.observedAt??createdAt),'Registry clock moved backwards')
-  const events=r?.events??[]
-  if(events.length===tasks.length)return view(ctx,r)
-  const t=tasks[events.length],done=new Set(events.map(e=>e.taskId))
-  need(t.requires.every(x=>done.has(x)),'Task dependencies incomplete')
-  const payload={sequence:events.length+1,taskId:t.id,observedAt:now,previousEventSha256:last?.eventSha256??null,evidenceStateSha256:ctx.plan.stateSha256,outcome:observation(t,ctx.evidence)}
-  const next=envelope(ctx,[...events,{...payload,eventSha256:digest(payload)}],createdAt)
-  ctx.verify()
-  atomic(ctx.registry,next)
-  return view(ctx,load(ctx))
+  const r=load(ctx),ledger=readControl(ctx.registry,ctx.expected,now)
+  need((r?.registrySha256??null)===previousRegistry,'Previous registry anchor mismatch')
+  need((ledger?.controlSha256??null)===previousControl,'Previous control anchor mismatch')
+  if(r)need(Date.parse(now)>=Date.parse(r.events.at(-1)?.observedAt??r.createdAt),'Registry clock moved backwards')
+  const next=appendControl(ctx.registry,ctx.expected,ledger,action,null,now,previousRegistry)
+  return view(ctx,r,next)
  })
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
  try{
   const [cmd,...args]=process.argv.slice(2)
-  if(cmd==='status'&&(args.length===4||args.length===5))console.log(JSON.stringify(inspect(...args.slice(0,4),{trustedRegistrySha256:args[4]}),null,2))
-  else if(cmd==='advance'&&args.length===5)console.log(JSON.stringify(advance(...args.slice(0,4),args[4]==='NEW'?null:args[4]),null,2))
-  else throw Error('Usage: registry.mjs status <phase2-state-dir> <registry-dir> <plan> <trusted-plan-sha256> [trusted-registry-sha256] | advance <phase2-state-dir> <registry-dir> <plan> <trusted-plan-sha256> <NEW-or-previous-registry-sha256>')
+  if(cmd==='status'&&args.length>=4&&args.length<=6)console.log(JSON.stringify(inspect(...args.slice(0,4),{trustedRegistrySha256:args[4]==='NEW'?undefined:args[4],trustedControlSha256:args[5]}),null,2))
+  else if(cmd==='advance'&&(args.length===5||args.length===6))console.log(JSON.stringify(advance(...args.slice(0,4),args[4]==='NEW'?null:args[4],{trustedControlSha256:args[5]}),null,2))
+  else if(cmd==='control'&&args.length===7)console.log(JSON.stringify(setReviewControl(...args.slice(0,4),args[4],args[5]==='NEW'?null:args[5],args[6]==='NEW'?null:args[6]),null,2))
+  else throw Error('Usage: registry.mjs status <phase2-state-dir> <registry-dir> <plan> <trusted-plan-sha256> [trusted-registry-sha256] | advance <phase2-state-dir> <registry-dir> <plan> <trusted-plan-sha256> <NEW-or-previous-registry-sha256> [trusted-control-sha256] | control <phase2-state-dir> <registry-dir> <plan> <trusted-plan-sha256> <PAUSE-or-RESUME> <NEW-or-registry-sha256> <NEW-or-control-sha256>')
  }catch(e){console.error(e.message);process.exitCode=1}
 }
