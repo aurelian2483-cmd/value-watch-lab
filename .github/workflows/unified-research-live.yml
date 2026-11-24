@@ -204,6 +204,68 @@ jobs:
           npx playwright install --with-deps chromium
           node research/unified-live/browser-acceptance.mjs "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/live-state" "$RUNNER_TEMP/unified-output"
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Build and verify extracted Phase 2 local preview
+        run: |
+          python3 research/unified-live/release.py "$RUNNER_TEMP/live-state/current.json" "$RUNNER_TEMP/unified-output"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, zipfile
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          out = root / 'unified-output'
+          raw = (out / 'phase2-local-preview.zip').read_bytes()
+          receipt = json.loads((out / 'phase2-release-receipt.json').read_text())
+          assert hashlib.sha256(raw).hexdigest() == receipt['archiveSha256']
+          target = root / 'phase2-extracted'
+          target.mkdir()
+          with zipfile.ZipFile(out / 'phase2-local-preview.zip') as z:
+              z.extractall(target)
+          PY
+          node "$RUNNER_TEMP/phase2-extracted/research/unified-live/sync.mjs" status "$RUNNER_TEMP/phase2-extracted/state" > "$RUNNER_TEMP/extracted-status.json"
+          cmp "$RUNNER_TEMP/live-state/current.json" "$RUNNER_TEMP/phase2-extracted/state/current.json"
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {readFileSync,writeFileSync} from 'node:fs'
+          import {join} from 'node:path'
+          import {pathToFileURL} from 'node:url'
+          import {chromium} from 'playwright'
+          const root=process.env.RUNNER_TEMP,target=join(root,'phase2-extracted')
+          const baseline=JSON.parse(readFileSync(join(root,'unified-output','live-status.json')))
+          const extracted=JSON.parse(readFileSync(join(root,'extracted-status.json')))
+          assert.deepEqual(extracted.snapshot,baseline.snapshot)
+          const {startViewer}=await import(pathToFileURL(join(target,'research','unified-live','viewer.mjs')).href)
+          const server=await startViewer(join(target,'state'),{port:0})
+          const url='http://127.0.0.1:'+server.address().port
+          let browser
+          const results=[]
+          try{
+            browser=await chromium.launch({headless:true})
+            for(const width of [1440,390,320]){
+              const page=await browser.newPage({viewport:{width,height:900}})
+              const external=[]
+              await page.route('**/*',route=>{
+                if(route.request().url().startsWith(url+'/'))return route.continue()
+                external.push(route.request().url());return route.abort()
+              })
+              const res=await page.goto(url+'/')
+              assert.equal(res.status(),200)
+              const body=await page.locator('body').innerText()
+              assert.match(body,/UNVALIDATED/)
+              assert.match(body,/PUBLICATION BLOCKED/)
+              assert.match(body,/MANUAL_DIGEST_APPROVAL/)
+              assert.match(body,/Measurement freshness: UNKNOWN/)
+              assert.equal(await page.locator('section').count(),6)
+              assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth))
+              assert.deepEqual(external,[])
+              results.push({width,status:'PASS'})
+              await page.close()
+            }
+            writeFileSync(join(root,'unified-output','extracted-preview-ci.json'),JSON.stringify({results,source:'HISTORICAL_CI_STATE',modelValidation:'UNVALIDATED',publicationGate:'BLOCKED'},null,2)+'\n')
+            console.log('PASS extracted Phase 2 preview in three loopback Chromium viewports')
+          }finally{
+            if(browser)await browser.close()
+            await new Promise(ok=>server.close(ok))
+          }
+          JS
+          test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
           name: unified-research-live-evidence
