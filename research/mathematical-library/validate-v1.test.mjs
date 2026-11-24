@@ -12,8 +12,9 @@ const profiles = readJson('./sport-profiles.v1.json')
 const { entries } = loadCatalogue()
 
 test('all preserved records and registered specifications pass', () => {
-  assert.equal(entries.length, 286)
-  const sortedIds = entries.map(entry => entry.id).sort().join('\n')
+  const preserved = entries.filter(entry => entry.batch === 'legacy' || /^(00[1-9]|01[0-5])$/.test(entry.batch))
+  assert.equal(preserved.length, 286)
+  const sortedIds = preserved.map(entry => entry.id).sort().join('\n')
   assert.equal(createHash('sha256').update(sortedIds).digest('hex'),
     '12d632689dd56edd27a7c52d8369d5bc0bad2978823e40907175d0f6c7062ac3')
   assert.equal(entries.filter(entry => entry.legacy_id !== null).length, 16)
@@ -116,7 +117,9 @@ test('recorded equivalence and qualification totals stay distinct from registry 
   assert.equal(ledger.find(row => row.id === 'ista').equivalence, undefined)
   assert.equal(ledger.find(row => row.id === 'fista').equivalence, undefined)
   assert.equal(ledger.filter(row => row.test_evidence !== null).length, 0)
-  assert.equal(readJson('./progress.v1.json').distinctAlgorithmsAfterRecordedEquivalences, 104)
+  assert.equal(readJson('./progress.v1.json').distinctAlgorithmsAfterRecordedEquivalences,
+    entries.filter(entry => entry.classification === 'distinct-algorithm' &&
+      !entry.relationships.some(link => link.type === 'equivalent-to')).length)
 })
 
 test('prox-l1 and constant-step ISTA agree with the same penalty mask', () => {
