@@ -47,3 +47,10 @@ test('missing index does not fabricate archived receipts; symlinks rejected',t=>
  assert.equal(r.archive.declaredEntries,null)
  assert.equal(r.validationAuthorized,false)
 })
+
+test('explicit null archive receipt is invalid, not absent',t=>{
+ const d=setup(t),p=sourcePaths[0]
+ put(d,p,'{}')
+ put(d,index,JSON.stringify({input_revision:rev,datasets:{[p]:null}}))
+ assert.equal(auditSources(d).rows[0].comparison,'ARCHIVE_RECEIPT_INVALID')
+})

@@ -1,6 +1,6 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtempSync,rmSync,readdirSync} from 'node:fs'
+import {mkdtempSync,rmSync,readdirSync,mkdirSync,symlinkSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {fileURLToPath} from 'node:url'
@@ -43,4 +43,16 @@ test('missing inputs cannot become zero or a successful reconciliation',t=>{
  assert.equal(r.dataQuality.prospective,null)
  assert.equal(r.status,'RESEARCH_NOT_READY')
  assert.deepEqual(readdirSync(d),[])
+})
+
+test('inherited reader source paths reject symlinks before any integrated read',t=>{
+ const d=fixture(t)
+ mkdirSync(join(d,'paper-lab'))
+ symlinkSync(join(root,'paper-lab/hybrid-market-data.json'),join(d,'paper-lab/hybrid-market-data.json'))
+ assert.throws(()=>integratedStatus(d,join(d,'missing'),rev),/Unsafe inherited source path/)
+})
+test('inherited reader refuses a symlinked parent directory',t=>{
+ const d=fixture(t)
+ symlinkSync(join(root,'research'),join(d,'research'),'dir')
+ assert.throws(()=>integratedStatus(d,join(d,'missing'),rev),/Unsafe inherited source path/)
 })

@@ -32,10 +32,11 @@ export function auditSources(root){
   typeof d.datasets==='object'&&!Array.isArray(d.datasets)
  const rows=sourcePaths.map(path=>{
   const receipt=inspect(root,path)
-  const archived=valid&&Object.hasOwn(d.datasets,path)?d.datasets[path]:null
+  const indexed=!!(valid&&Object.hasOwn(d.datasets,path))
+  const archived=indexed?d.datasets[path]:null
   const archiveValid=archived&&archived.path===path&&isSha(archived.sha256)&&isRevision(archived.revision)
   const comparison=receipt.status!=='PRESENT'?'CURRENT_UNAVAILABLE':
-   !valid?'ARCHIVE_UNAVAILABLE':!archived?'NOT_INDEXED':
+   !valid?'ARCHIVE_UNAVAILABLE':!indexed?'NOT_INDEXED':
    !archiveValid?'ARCHIVE_RECEIPT_INVALID':receipt.sha256===archived.sha256?'MATCHES_ARCHIVED_BYTES':'DIFFERS_FROM_ARCHIVED_BYTES'
   return {...receipt,archiveSha256:archiveValid?archived.sha256:null,
    archiveRevision:archiveValid?archived.revision:null,comparison}

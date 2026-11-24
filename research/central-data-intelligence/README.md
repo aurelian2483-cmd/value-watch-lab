@@ -39,3 +39,7 @@ The new fixed-path register starts with zero documentary claims. Its metadata co
 ## Phase 7 — documentary review handoff
 
 `review-packet.mjs` emits a source-by-source checklist bound to the current source receipts, declared checkout revision and manifest fingerprint. CI includes `documentary-review-packet.json`. Missing inputs retain an unavailable status. A changed receipt produces a new task identity; earlier review material must not silently carry forward. No evidence documents, individual records, permissions or signed reviewer attestations are created or inspected. Independent verification remains an external review task and is not completed by software tests. This packet is for provenance and data rights only; the existing result review queue is unchanged.
+
+## Integration and quality audit
+
+See [audit findings](QUALITY-AUDIT-20261124.md). CI now checks generated bundle consistency and both static previews in Chromium. This is a review checkpoint, not source certification or a release authorization.

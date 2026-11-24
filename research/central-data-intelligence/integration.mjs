@@ -2,6 +2,30 @@
 import {qualityReport} from './quality-report.mjs'
 import {controlCentre} from '../mathematical-library/experiment-registry-control-centre.mjs'
 import {pathToFileURL} from 'node:url'
+import {lstatSync,realpathSync} from 'node:fs'
+import {join} from 'node:path'
+import {sourcePaths} from './source-audit.mjs'
+// Fixed dependency paths of the inherited control-centre readers at the audited revision.
+// This is preflight defense for a stable local checkout, not an OS sandbox.
+const inheritedPaths=Object.freeze([...new Set([...sourcePaths,
+ 'research/bottleneck/inventory.json','research/performance-report-latest.json',
+ 'paper-lab/hybrid-market-data.json','research-dashboard-data.json'])])
+function guardInheritedInputs(root){
+ const base=realpathSync(root)
+ for(const path of inheritedPaths){
+  let current=base
+  const pieces=path.split('/')
+  for(let i=0;i<pieces.length;i++){
+   current=join(current,pieces[i])
+   let s
+   try{s=lstatSync(current)}catch(e){if(e.code==='ENOENT')break;throw e}
+   if(s.isSymbolicLink()||(i===pieces.length-1?!s.isFile():!s.isDirectory()))
+    throw Error('Unsafe inherited source path: '+path)
+  }
+ }
+ return base
+}
+
 const natural=n=>Number.isSafeInteger(n)&&n>=0
 const sameCounts=(a,b)=>!!a&&!!b&&Object.keys(a).length>0&&Object.keys(a).length===Object.keys(b).length&&
  Object.keys(a).every(k=>Object.hasOwn(b,k)&&natural(a[k])&&a[k]===b[k])
@@ -39,7 +63,15 @@ export function integrateReports(quality,control){
    'No source review grants permission or certifies individual records. No live deployment.']}
 }
 export function integratedStatus(root,directory,revision){
- return integrateReports(qualityReport(root,revision),controlCentre(root,directory))
+ const safeRoot=guardInheritedInputs(root)
+ const quality=qualityReport(safeRoot,revision)
+ guardInheritedInputs(safeRoot)
+ const control=controlCentre(safeRoot,directory)
+ guardInheritedInputs(safeRoot)
+ const after=qualityReport(safeRoot,revision)
+ const stable=quality.manifestSha256===after.manifestSha256&&quality.inspectionConsistent===true&&after.inspectionConsistent===true&&
+  JSON.stringify(quality.sources)===JSON.stringify(after.sources)&&JSON.stringify(quality.archive)===JSON.stringify(after.archive)
+ return integrateReports(stable?quality:{...quality,inspectionConsistent:false,gaps:[...quality.gaps,'SOURCE_CHANGED_BETWEEN_REPORTS']},control)
 }
 const esc=x=>String(x??'Unavailable').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 export function renderIntegratedStatus(root,directory,revision){

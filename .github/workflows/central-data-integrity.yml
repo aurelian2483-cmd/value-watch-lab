@@ -11,7 +11,7 @@ permissions:
 jobs:
   integrity:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,6 +30,14 @@ jobs:
           node research/central-data-intelligence/integration.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/unavailable-local-registry" "$(git rev-parse HEAD)" html > "$RUNNER_TEMP/central-data-integrity/integrated-status.html"
           node research/central-data-intelligence/review-packet.mjs "$GITHUB_WORKSPACE" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/central-data-integrity/documentary-review-packet.json"
           git diff --exit-code
+      - name: Install pinned Chromium for acceptance
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Verify cross-report and browser acceptance
+        run: |
+          node research/central-data-intelligence/acceptance.mjs "$RUNNER_TEMP/central-data-integrity"
+          test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
           name: central-data-integrity-manifest
