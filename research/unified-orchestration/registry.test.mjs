@@ -8,6 +8,8 @@ import {synchronise,status} from '../unified-live/sync.mjs'
 import {digest} from '../scientific-reference/digest.mjs'
 import {signedSynchronise,signatureMessage} from '../unified-live/producer-intake.mjs'
 import {inspect,advance} from './registry.mjs'
+import {startDashboard} from './dashboard.mjs'
+import {request} from 'node:http'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
 const hash=x=>createHash('sha256').update(x).digest('hex')
 const T='2026-11-24T22:00:00.000Z',T2='2026-11-24T23:00:00.000Z',T3='2026-11-25T00:00:01.000Z'
@@ -131,4 +133,53 @@ test('status cannot mutate dependency rules and historical receipt remains stale
  assert.equal(later.tasks[3].requires.length,3)
  assert.equal(later.receiptFreshness,'STALE')
  assert.equal(later.measurementFreshness,'UNKNOWN')
+})
+
+test('dashboard exposes dependency lifecycle without mutating source or registry',async t=>{
+ const f=planFixture(t),server=await startDashboard(...args(f),{port:0})
+ t.after(async()=>{await new Promise(ok=>server.close(ok))})
+ assert.equal(server.address().address,'127.0.0.1')
+ const url='http://127.0.0.1:'+server.address().port
+ const first=await fetch(url+'/status'),initial=await first.json()
+ assert.equal(initial.reviewed,0);assert.equal(initial.externalRegistryAnchorMatched,false)
+ assert.equal(first.headers.get('cache-control'),'no-store')
+ assert.match(first.headers.get('content-security-policy'),/default-src 'none'/)
+ let s=step(f,null)
+ for(let i=1;i<7;i++)s=step(f,s.registrySha256)
+ const before=readFileSync(join(f.registry,'registry.json'))
+ const page=await fetch(url+'/')
+ assert.match(await page.text(),/7 \/ 7 metadata reviews recorded/)
+ assert.equal((await (await fetch(url+'/status')).json()).status,'METADATA_REVIEW_COMPLETE_EXECUTION_BLOCKED')
+ assert.equal((await fetch(url+'/',{method:'HEAD'})).status,200)
+ assert.equal((await fetch(url+'/',{method:'POST'})).status,405)
+ assert.equal((await fetch(url+'/advance')).status,404)
+ assert.equal((await fetch(url+'/',{headers:{Origin:'https://untrusted.example'}})).status,403)
+ assert.deepEqual(readFileSync(join(f.registry,'registry.json')),before)
+ assert.deepEqual(stored(f),f.before)
+})
+test('exact external registry anchor prevents display of later or corrupt registry states',async t=>{
+ const f=planFixture(t),s=step(f,null)
+ await assert.rejects(startDashboard(...args(f),{port:0,trustedRegistrySha256:'0'.repeat(64)}),/anchor mismatch/)
+ const server=await startDashboard(...args(f),{port:0,trustedRegistrySha256:s.registrySha256})
+ t.after(async()=>{await new Promise(ok=>server.close(ok))})
+ const url='http://127.0.0.1:'+server.address().port
+ assert.equal((await (await fetch(url+'/status')).json()).externalRegistryAnchorMatched,true)
+ step(f,s.registrySha256)
+ const res=await fetch(url+'/')
+ assert.equal(res.status,503);assert.match(await res.text(),/EXECUTION BLOCKED/)
+ writeFileSync(join(f.registry,'registry.json'),'{corrupt')
+ assert.equal((await fetch(url+'/status')).status,503)
+ assert.deepEqual(stored(f),f.before)
+})
+test('dashboard fails closed on missing pinned evidence and rejects forged host',async t=>{
+ const f=planFixture(t),server=await startDashboard(...args(f),{port:0})
+ t.after(async()=>{await new Promise(ok=>server.close(ok))})
+ const port=server.address().port
+ const code=await new Promise((ok,fail)=>{
+  const req=request({host:'127.0.0.1',port,path:'/',headers:{Host:'untrusted.example'}},res=>{res.resume();res.on('end',()=>ok(res.statusCode))})
+  req.on('error',fail);req.end()
+ })
+ assert.equal(code,403)
+ rmSync(join(f.state,'current.json'))
+ assert.equal((await fetch('http://127.0.0.1:'+port+'/status')).status,503)
 })
