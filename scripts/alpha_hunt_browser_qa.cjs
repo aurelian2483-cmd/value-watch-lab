@@ -43,7 +43,13 @@ const server=http.createServer(async(req,res)=>{
       await page.getByRole('link',{name:'Value Watch home'}).click();
       assert.equal(new URL(page.url()).pathname,'/');
       assert((await page.locator('a[href="./alpha-hunt/"]').count())>=4,'Homepage must offer independent Alpha Hunt route');
-      assert((await page.locator('#vw-published-prices').count())===1,'Original live-price template retained');
+      // The normal homepage script consumes the price template during start-up.
+      // Verify source HTML before script hydration rather than testing for a node
+      // that the production display intentionally removes.
+      const served=await page.request.get(base+'/');
+      assert.equal(served.status(),200);
+      assert((await served.text()).includes('<template id="vw-published-prices">'),
+        'Original served price template retained');
       assert.deepEqual(errors,[],'Alpha Hunt should not throw script errors');
       await page.close();
     }
