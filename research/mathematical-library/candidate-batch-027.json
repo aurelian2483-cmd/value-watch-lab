@@ -20,9 +20,9 @@
     "classification": "distinct-algorithm",
     "id": "jacobi-symmetric-eigensolver",
     "name": "Jacobi plane-rotation symmetric eigensolver",
-    "definition": "Choose p≠q with A_pq≠0 and orthogonal plane rotation G such that (GᵀAG)_pq=0; update A←GᵀAG and eigenvector accumulator V←VG until off-diagonal norm is small.",
+    "definition": "Initialize V=I and A=A₀. While the off-diagonal Frobenius norm exceeds tolerance, choose p≠q maximizing |A_pq| and orthogonal plane rotation G with (GᵀAG)_pq=0; set A←GᵀAG, V←VG. Return diag(A) and V only after convergence.",
     "variables": "A real symmetric matrix; G plane rotation; V accumulated orthogonal transformations",
-    "assumptions": "Symmetry; systematic or maximal-element pivot selection and appropriate rotation signs; finite precision requires tolerance and iteration bound.",
+    "assumptions": "Real symmetric input; maximal off-diagonal pivot; stable rotation computation; bounded iterations and finite-precision residual checks.",
     "limitations": "Repeated rotations can be costly for large dense matrices; clustered eigenvalues make individual eigenvectors nonunique or sensitive.",
     "failure_conditions": [
       "Nonsymmetric matrix or unconverged off-diagonal residual"
@@ -30,7 +30,7 @@
     "computation": "Compute stable annihilating plane rotation, update symmetric entries and optional eigenvector accumulator.",
     "source": {
       "kind": "literature",
-      "citation": "Golub and Van Loan, Matrix Computations, 4th ed., symmetric eigenvalue problem, Jacobi method; verify source before admission."
+      "citation": "University of Texas at Austin, Advanced Linear Algebra: Foundations to Frontiers, §11.3.2 Jacobi's method for computing the Spectral Decomposition. https://www.cs.utexas.edu/~flame/laff/alaff/chapter11-Jacobi-method-spectral-decomposition.html"
     },
     "application": "General symmetric matrix diagonalization for numerical analysis.",
     "required_inputs": "Real symmetric matrix, pivot schedule, convergence threshold, iteration bound.",
@@ -46,7 +46,8 @@
         "target": "givens-qr-elimination",
         "type": "related"
       }
-    ]
+    ],
+    "mechanism_note": "Repeated two-sided orthogonal similarity transforms differ from one-sided Givens QR elimination and the QR eigenvalue iteration."
   },
   {
     "profile": "multifeature",
@@ -69,9 +70,9 @@
     "classification": "distinct-algorithm",
     "id": "bidiagonal-golub-kahan-recurrence",
     "name": "Golub–Kahan bidiagonalization recurrence",
-    "definition": "Start unit v₁, u₀=0, β₁=0. For j≥1 set w=Av_j−β_j u_(j−1), α_j=||w||₂, u_j=w/α_j; z=Aᵀu_j−α_j v_j, β_(j+1)=||z||₂, v_(j+1)=z/β_(j+1) when norms are positive.",
+    "definition": "Start unit v₁, u₀=0, β₁=0. For j≥1 set w=Av_j−β_j u_(j−1), α_j=||w||₂; stop if α_j vanishes, otherwise u_j=w/α_j. Then z=Aᵀu_j−α_j v_j, β_(j+1)=||z||₂; stop if β_(j+1) vanishes, otherwise v_(j+1)=z/β_(j+1).",
     "variables": "A real rectangular matrix; u,v left and right basis vectors; α,β bidiagonal coefficients",
-    "assumptions": "Nonzero starting vector; exact-arithmetic orthogonality with finite-precision monitoring; stop on breakdown.",
+    "assumptions": "Real rectangular operator with consistent transpose; unit starting vector; positive normalization factors until termination; finite-precision orthogonality monitored.",
     "limitations": "Loss of orthogonality and near-zero norms require safeguards; projected singular values are approximations.",
     "failure_conditions": [
       "Unhandled zero norm or incompatible adjoint operator"
@@ -79,7 +80,7 @@
     "computation": "Alternate products by A and A transpose with coupled short recurrences.",
     "source": {
       "kind": "literature",
-      "citation": "Paige and Saunders, LSQR: An Algorithm for Sparse Linear Equations and Sparse Least Squares, ACM TOMS 8 (1982), Golub–Kahan process; verify source before admission."
+      "citation": "Netlib, Templates for the Solution of Algebraic Eigenvalue Problems, Golub-Kahan-Lanczos Bidiagonalization Procedure, equations (112)–(116); beta indices shifted by one in this specification. https://www.netlib.org/utk/people/JackDongarra/etemplates/node198.html"
     },
     "application": "General reduced numerical representation of rectangular linear operators.",
     "required_inputs": "Linear operator, transpose operator, initial vector, dimension and stopping policy.",
@@ -96,7 +97,7 @@
         "type": "related"
       }
     ],
-    "mechanism_note": "Krylov recurrence rather than dense Householder bidiagonal reduction."
+    "mechanism_note": "Alternating rectangular-operator and transpose Krylov recurrence, related to Lanczos on an augmented symmetric operator; differs computationally from dense two-sided Householder reduction. Not independent scientific evidence."
   },
   {
     "profile": "multifeature",
@@ -119,17 +120,17 @@
     "classification": "distinct-algorithm",
     "id": "bicgstab-linear-system",
     "name": "BiCGSTAB nonsymmetric linear-system iteration",
-    "definition": "With r=b−Ax, fixed shadow r̂, ρ=r̂ᵀr, β=(ρ/ρ_old)(α/ω), set p=r+β(p−ωv), v=Ap, α=ρ/(r̂ᵀv), s=r−αv, t=As, ω=(tᵀs)/(tᵀt), x←x+αp+ωs, r←s−ωt. Set ρ_old←ρ at each completed step. Initialize p=v=0, ρ_old=α=ω=1; stop early with x←x+αp if s converges.",
+    "definition": "Initialize r=b−Ax; stop if converged. Fix r̂=r, p=v=0, ρ_old=α=ω=1. At each step set ρ=r̂ᵀr, β=(ρ/ρ_old)(α/ω), p=r+β(p−ωv), v=Ap, α=ρ/(r̂ᵀv), s=r−αv. If s meets tolerance, set x←x+αp and check true residual; otherwise t=As, ω=(tᵀs)/(tᵀt), x←x+αp+ωs, r←s−ωt, ρ_old←ρ. Check convergence before another step; guard all divisions.",
     "variables": "A square matrix; b right side; x solution iterate; r,r̂ residual and shadow; α,β,ρ,ω scalars",
-    "assumptions": "Nonsingular system; nonzero denominators and bounded iterations; residual checks and breakdown policy.",
+    "assumptions": "Real nonsingular square system, identity preconditioner, fixed initial shadow residual, finite quantities, nonzero denominators, bounded iterations and a declared absolute/relative residual criterion.",
     "limitations": "Irregular convergence and breakdown possible; residual alone may not imply small forward error.",
     "failure_conditions": [
-      "Zero or near-zero denominator, stagnation or nonfinite iterate"
+      "Zero or near-zero rho, omega or other required denominator before convergence; stagnation, failed true-residual check or nonfinite iterate"
     ],
     "computation": "Matrix-vector products, dot products and short recurrences; verify true residual before accepting convergence.",
     "source": {
       "kind": "literature",
-      "citation": "Van der Vorst (1992), Bi-CGSTAB: A Fast and Smoothly Converging Variant of Bi-CG, SIAM J Sci Stat Comput 13, 631–644; verify source before admission."
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems (1993), Netlib BiCGSTAB reverse-communication routine, lines 249–385, specialized to the identity preconditioner. https://netlib.org/templates/double/BiCGSTABREVCOM.f"
     },
     "application": "General iterative solution of a nonsymmetric numerical system.",
     "required_inputs": "Matrix or operator, right-hand side, initial point, tolerance and iteration bound.",
@@ -145,6 +146,7 @@
         "target": "gmres-linear-solve",
         "type": "related"
       }
-    ]
+    ],
+    "mechanism_note": "Short stabilized biconjugate-gradient recurrence differs from Arnoldi-based GMRES and symmetric positive-definite CG; no convergence guarantee for every nonsingular system."
   }
 ]
