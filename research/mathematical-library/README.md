@@ -1,6 +1,6 @@
 # Sky Universal Mathematical Research Library
 
-Research catalogue v1 registers **297 specifications** across six sports, including 16 preserved v0 records and 281 entries added in batches. The 1,000-entry milestone remains open with **703 entries outstanding**.
+Research catalogue v1 registers **302 specifications** across six sports, including 16 preserved v0 records and 286 entries added in batches. The 1,000-entry milestone remains open with **698 entries outstanding**.
 
 | Classification | Count |
 | --- | ---: |
@@ -11,7 +11,7 @@ Research catalogue v1 registers **297 specifications** across six sports, includ
 | Model variants | 25 |
 | Parameter configurations | 1 |
 | Feature transformations | 13 |
-| Diagnostics | 62 |
+| Diagnostics | 67 |
 | Calibration methods | 7 |
 | Ensembles | 8 |
 | Decision rules | 9 |
@@ -77,6 +77,12 @@ Three assessment-only specifications admitted after structural intake and source
 
 ## Batch 019 admission
 
-Three assessment-only specifications admitted after structural intake and source-definition review. The catalogue now contains 297 entries. Five batch 020 candidates are staged, not registered. No empirical qualification claimed. See [admission review](BATCH-019-ADMISSION.md).
+Three assessment-only specifications admitted after structural intake and source-definition review. At the end of batch 019 the catalogue contained 297 entries. Five batch 020 candidates were staged. No empirical qualification claimed. See [admission review](BATCH-019-ADMISSION.md).
 
 The intake CLI supports `--next` to identify the staged batch from the current manifest; it does not admit entries automatically.
+
+## Batch 020 admission
+
+Five assessment-only specifications admitted after structural and source-definition review. The catalogue now contains 302 entries; three batch 021 candidates are staged, not registered. No empirical qualification claimed. See [admission review](BATCH-020-ADMISSION.md).
+
+The snapshot checker can verify the generated index, reference, summary and ledger against their committed counterparts without writing files.

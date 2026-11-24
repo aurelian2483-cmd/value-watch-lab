@@ -4245,3 +4245,73 @@ Assumptions — Pairs correctly matched; differences independent across pairs an
 Limitations — Serial or clustered differences require dependence-aware inference; extreme differences can dominate the mean..
 
 Source — SciPy maintainers, ttest_rel API, statistic and degrees of freedom. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_rel.html
+
+## Exact paired sign test (paired-exact-sign-test)
+
+> Discard exact zero differences under a prespecified policy. For n nonzero paired differences let K=Σ_i 1(d_i>0); under independent signs with probability 1/2, K∼Binomial(n,1/2).
+
+d_i matched difference; n positive number of nonzero differences; K positive-sign count.
+
+Assess directional differences between matched authorised development measurements.
+
+Assumptions — Independent matched-pair differences; under the null, positive and negative signs equally probable conditional on being nonzero..
+
+Limitations — Discards magnitude information; cannot infer equality of means; zero differences require transparent handling..
+
+Source — NIST Dataplot reference, SIGN TEST; SciPy binomtest API for exact binomial reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binomtest.html
+
+## Pearson chi-square test of independence (pearson-contingency-independence)
+
+> For a contingency table with r rows, c columns and N total observations, E_ij=R_i C_j/N and X²=Σ_iΣ_j (O_ij−E_ij)²/E_ij.
+
+O observed counts; R,C marginal counts; E expected counts under independence; N>0; r,c≥2.
+
+Investigate association between comparable categorical variables in authorised development records.
+
+Assumptions — Independent observational units, positive marginal totals, sufficient expected counts for the asymptotic chi-square reference with (r−1)(c−1) degrees of freedom..
+
+Limitations — Sparse cells may invalidate approximation; dependence between repeated observations is not accounted for..
+
+Source — SciPy maintainers, chi2_contingency API; Pearson statistic with correction=False and lambda_=None. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2_contingency.html
+
+## Fisher exact test for 2×2 contingency tables (fisher-exact-two-by-two)
+
+> Conditional on fixed margins, P(A=a)=C(R_1,a)C(R_2,C_1−a)/C(N,C_1). A two-sided probability-ordering p-value sums probabilities of feasible tables no more probable than the observed table.
+
+A top-left count; R_1,R_2 row totals; C_1 first-column total; N=R_1+R_2; C binomial coefficient.
+
+Assess association in small two-by-two tables of independent development observations.
+
+Assumptions — Independent observational units and valid conditioning on margins under the null odds ratio of one..
+
+Limitations — Discrete p-values can be conservative; two-sided conventions differ; does not estimate causal effects..
+
+Source — SciPy maintainers, fisher_exact API and Notes for a 2×2 table. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html
+
+## Classical one-way fixed-effects ANOVA (one-way-fixed-effects-anova)
+
+> For k groups, F=[Σ_i n_i(mean_i−grand_mean)²/(k−1)]/[Σ_iΣ_j(x_ij−mean_i)²/(N−k)].
+
+k≥2 groups; n_i group sizes; N total observations; mean_i group means; grand_mean pooled mean.
+
+Compare means of comparable independent groups of historical development measurements.
+
+Assumptions — Independent normal observations within and across groups, common positive population variance, N>k; null equal group means..
+
+Limitations — Sensitive to unequal variances in unbalanced samples; rejection does not identify which groups differ..
+
+Source — SciPy maintainers, f_oneway API, equal_var=True, and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f_oneway.html
+
+## Cochran Q test for matched binary measurements (cochran-q-matched-binary)
+
+> For n independent blocks and k≥3 binary conditions, let C_j=Σ_i x_ij, R_i=Σ_j x_ij, T=Σ_j C_j. Q=(k−1)[kΣ_j C_j²−T²]/[kT−Σ_i R_i²].
+
+x_ij∈{0,1}; n blocks; k conditions; C_j column totals; R_i row totals; T overall total.
+
+Compare binary measurement rates across matched conditions on authorised development observations.
+
+Assumptions — Correctly matched binary observations within blocks; independent blocks; nonzero denominator; exchangeable conditions under the classical null and adequate asymptotic reference..
+
+Limitations — Approximate chi-square reference with k−1 degrees of freedom may be poor with few informative blocks; does not identify which conditions differ..
+
+Source — Statsmodels maintainers, cochrans_q API and references. https://www.statsmodels.org/stable/generated/statsmodels.stats.contingency_tables.cochrans_q.html
