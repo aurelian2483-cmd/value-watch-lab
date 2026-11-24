@@ -39,6 +39,15 @@ const server=http.createServer(async(req,res)=>{
         const box=id=>picker.locator('button[data-method="'+id+'"]');
         await box('current').waitFor();
         assert.equal(await picker.locator('button').count(),7);
+        const legend=page.locator('.method-star-guide');
+        await legend.waitFor();
+        assert.equal(await legend.locator('.method-star-key').count(),8);
+        assert.equal(await picker.locator('.method-identity-star').count(),7);
+        assert.equal(await legend.getByText('Alpha Hunt',{exact:true}).count(),1);
+        assert.equal(await legend.locator('a[href$="/alpha-hunt/"]').count(),1);
+        const shade=async id=>box(id).locator('.method-identity-star').evaluate(node=>getComputedStyle(node).color);
+        assert.notEqual(await shade('current'),await shade('experimental'));
+        assert.notEqual(await shade('experimental'),await shade('hybrid'));
         assert.equal(await box('current').getAttribute('aria-pressed'),'true');
         await box('current').click();
         assert.equal(await box('current').getAttribute('aria-pressed'),'false');
@@ -79,6 +88,7 @@ const server=http.createServer(async(req,res)=>{
         await box('hybrid').click();
         await box('bottleneck').click();
         assert.equal(await page.locator('#engine-analysis').isHidden(),true);
+        assert.equal(await legend.locator('.method-star-key').count(),8,'Coloured method identity remains visible without any selections');
         assert((await page.locator('#engine-status').textContent()).includes('Select one or more'));
         await box('compare').click();
         assert.equal(await page.locator('#engine-analysis .engine-mode-panel').count(),1);
