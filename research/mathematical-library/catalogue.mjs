@@ -18,7 +18,7 @@ switch (command) {
       target: 1000,
       registered: entries.length,
       remaining: Math.max(0, 1000 - entries.length),
-      qualified: entries.filter(entry => entry.test_evidence !== null).length,
+      qualified: entries.filter(entry => entry.status === 'VALIDATED' && entry.test_evidence !== null).length,
       distinctAlgorithmsAfterRecordedEquivalences: entries.filter(entry =>
         entry.classification === 'distinct-algorithm' &&
         !entry.relationships.some(link => link.type === 'equivalent-to')).length,
