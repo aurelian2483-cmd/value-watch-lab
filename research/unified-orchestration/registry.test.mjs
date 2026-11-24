@@ -8,6 +8,7 @@ import {synchronise,status} from '../unified-live/sync.mjs'
 import {digest} from '../scientific-reference/digest.mjs'
 import {signedSynchronise,signatureMessage} from '../unified-live/producer-intake.mjs'
 import {inspect,advance,setReviewControl} from './registry.mjs'
+import {inspectQueue,reviewQueue} from './producer-queue.mjs'
 import {startDashboard} from './dashboard.mjs'
 import {request} from 'node:http'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
@@ -241,4 +242,82 @@ test('control ledger capacity stops further review without silently discarding h
  assert.throws(()=>advance(...args(f),s.registrySha256,{now:T,trustedControlSha256:c.control.controlSha256}),/capacity reached/)
  assert.throws(()=>control(f,'PAUSE',s.registrySha256,c.control.controlSha256),/capacity reached/)
  assert.equal(read(f).control.events,64)
+})
+
+function queueFixture(t){
+ const f=planFixture(t)
+ let s=read(f)
+ for(let i=0;i<7;i++)s=step(f,s.registrySha256)
+ const queue=join(f.root,'queue'),qp=join(f.root,'queue-plan.json')
+ mkdirSync(queue)
+ const source=status(f.state,{now:T})
+ const plan={kind:'APPROVED_SYNTHETIC_CONTRACT_QUEUE',schemaVersion:1,orchestrationPlanSha256:f.sha,evidenceStateSha256:s.evidenceStateSha256,registrySha256:s.registrySha256,controlSha256:s.control.controlSha256,requests:source.snapshot.modules.map(m=>({producerId:m.id,sourceHead:m.source.head,summarySha256:m.receiptSha256,operation:'SYNTHETIC_CONTRACT_CHECK',declaredBudget:{cpuSlots:1,memoryMiB:64,maxSeconds:5,gpu:false,network:false}}))}
+ const raw=JSON.stringify(plan);writeFileSync(qp,raw)
+ return {...f,queue,qp,queuePlan:plan,queuePlanSha:hash(raw),registryBefore:readFileSync(join(f.registry,'registry.json'))}
+}
+const qargs=f=>[...args(f),f.queue,f.qp,f.queuePlanSha]
+const qread=f=>inspectQueue(...qargs(f),{now:T})
+const qstep=(f,previous,id,action)=>reviewQueue(...qargs(f),previous,id,action,{now:T})
+test('six producer contracts support explicit review and cancellation without dispatch',t=>{
+ const f=queueFixture(t)
+ let v=qread(f)
+ assert.equal(v.pending,6);assert.equal(v.queueSha256,null)
+ for(const [i,request] of f.queuePlan.requests.entries()){
+  v=qstep(f,v.queueSha256,request.producerId,i===1?'CANCEL':'REVIEW')
+  assert.equal(v.pending,5-i)
+  assert.equal(v.dispatchAuthorized,false);assert.equal(v.executionAuthorized,false)
+  assert.deepEqual(inspectQueue(...qargs(f),{now:T,trustedQueueSha256:v.queueSha256}),v)
+ }
+ assert.equal(v.reviewed,5);assert.equal(v.cancelled,1)
+ assert.deepEqual(stored(f),f.before)
+ assert.deepEqual(readFileSync(join(f.registry,'registry.json')),f.registryBefore)
+})
+test('producer queue rejects unapproved operation, extra fields, wrong revision and excessive resources',t=>{
+ const f=queueFixture(t)
+ for(const change of [
+  r=>{r.operation='RUN_COMMAND'},
+  r=>{r.command='unapproved'},
+  r=>{r.sourceHead='0'.repeat(40)},
+  r=>{r.summarySha256='0'.repeat(64)},
+  r=>{r.declaredBudget.gpu=true},
+  r=>{r.declaredBudget.memoryMiB=9999}
+ ]){
+  const p=structuredClone(f.queuePlan);change(p.requests[0])
+  const raw=JSON.stringify(p);writeFileSync(f.qp,raw)
+  assert.throws(()=>inspectQueue(...qargs({...f,queuePlanSha:hash(raw)}),{now:T}),/Unsupported, duplicate or unbound/)
+ }
+ const p=structuredClone(f.queuePlan);p.requests[1]=p.requests[0]
+ const raw=JSON.stringify(p);writeFileSync(f.qp,raw)
+ assert.throws(()=>inspectQueue(...qargs({...f,queuePlanSha:hash(raw)}),{now:T}),/duplicate/)
+ assert.throws(()=>readFileSync(join(f.queue,'queue.json')),/ENOENT/)
+})
+test('queue rejects stale anchors, replay and held or changed control state',t=>{
+ const f=queueFixture(t),v=qstep(f,null,'catalogue','REVIEW')
+ const before=readFileSync(join(f.queue,'queue.json'))
+ assert.throws(()=>qstep(f,null,'data','REVIEW'),/Previous queue anchor/)
+ assert.throws(()=>qstep(f,v.queueSha256,'catalogue','REVIEW'),/already resolved/)
+ assert.throws(()=>inspectQueue(...qargs(f),{now:T,trustedQueueSha256:'0'.repeat(64)}),/Queue external anchor/)
+ const s=read(f),held=control(f,'PAUSE',s.registrySha256,null)
+ assert.equal(held.control.status,'REVIEW_HOLD')
+ assert.throws(()=>qstep(f,v.queueSha256,'data','REVIEW'),/control anchor mismatch/)
+ assert.deepEqual(readFileSync(join(f.queue,'queue.json')),before)
+ assert.deepEqual(stored(f),f.before)
+})
+test('queue enforces complete metadata reviews and independent storage paths',t=>{
+ const f=queueFixture(t)
+ rmSync(join(f.registry,'registry.json'))
+ assert.throws(()=>qread(f),/Registry external anchor mismatch/)
+ assert.throws(()=>inspectQueue(...qargs({...f,queue:f.state}),{now:T}),/must be separate/)
+ assert.throws(()=>readFileSync(join(f.queue,'queue.json')),/ENOENT/)
+})
+test('queue corruption and rehashed forged dispatch outcome fail closed',t=>{
+ const f=queueFixture(t),v=qstep(f,null,'catalogue','REVIEW')
+ const file=join(f.queue,'queue.json'),q=JSON.parse(readFileSync(file))
+ q.events[0].outcome='DISPATCH_AUTHORIZED'
+ delete q.events[0].eventSha256;q.events[0].eventSha256=digest(q.events[0])
+ delete q.queueSha256;q.queueSha256=digest(q)
+ writeFileSync(file,JSON.stringify(q))
+ assert.throws(()=>qread(f),/Queue event integrity mismatch/)
+ assert.throws(()=>qstep(f,v.queueSha256,'data','REVIEW'),/Queue event integrity mismatch/)
+ assert.deepEqual(stored(f),f.before)
 })
