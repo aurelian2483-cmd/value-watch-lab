@@ -38,6 +38,9 @@ jobs:
           python -B research/scientific-compute/status.py "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/supervisor-report/compute-status.json"
           node research/research-supervisor/report-monitor.mjs "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/supervisor-report/report-monitor.json"
           node -e 'const r=require(process.argv[1]); if(r.status!=="REVIEW_REQUIRED" || r.systems.map(x=>x.status).join(",")!=="RECORDED_SYNTHETIC_PASS,RECORDED_SYNTHETIC_PASS,EVIDENCE_MISSING")process.exit(1)' "$RUNNER_TEMP/supervisor-report/report-monitor.json"
+          mkdir "$RUNNER_TEMP/supervisor-history"
+          node research/research-supervisor/incident-history.mjs "$RUNNER_TEMP/supervisor-history" "$RUNNER_TEMP/supervisor-registry" "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/supervisor-report/incident-history.json"
+          node -e 'const r=require(process.argv[1]); if(r.observations!==1 || r.incidents.length!==1 || r.incidents[0].code!=="EVIDENCE_MISSING")process.exit(1)' "$RUNNER_TEMP/supervisor-report/incident-history.json"
           test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
