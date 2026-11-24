@@ -126,9 +126,56 @@ export function build(directory){
    'No source data collection, execution, repair, capital allocation or publication.']}
  return {...payload,snapshotSha256:canonicalDigest(payload)}
 }
+// A self-hash detects corruption, not semantic forgery or source authenticity.
+const snapshotContracts={
+ catalogue:[['CATALOGUE_REGISTERED_UNVALIDATED'],['Registered specifications','Target','Remaining','Empirically qualified'],'Pinned catalogue metadata snapshot; specifications are not empirical evidence.'],
+ data:[['INDEPENDENT_SOURCE_REVIEW_REQUIRED'],['Allowlisted files','Files present','Sources requiring review','Aggregate counts agree'],'Separate sibling branch snapshot. Source rights and record authenticity remain unverified.'],
+ lab:[['SYNTHETIC_QA_PASSED','SYNTHETIC_QA_FAILED','EVIDENCE_INCOMPLETE_OR_INCONSISTENT'],['Expected fixtures','Known answers passed','Reference checks passed','Persisted fixtures passed'],'Fixed synthetic fixtures only. No real-world qualification.'],
+ compute:[['CPU_LOCAL_EVIDENCE_AVAILABLE','CPU_EVIDENCE_INCOMPLETE'],['CPU evidence','GPU evidence','CPU benchmark rows','GPU benchmark rows'],'Hosted Linux CPU report; no independent physical GPU or user-PC acceptance.'],
+ supervisor:[['BLOCKED_PENDING_REVIEW','REVIEW_REQUIRED','NO_INCIDENTS_OBSERVED'],['Blocking incidents','Review incidents','Completed registry entries','Monitoring service'],'Point-in-time synthetic registry inspection. No automatic recovery.'],
+ references:[['REVIEW_REQUIRED'],['Registered sources','Scientific claims','Locator reviews recorded','Potential conflicts'],'Metadata-bound review only; source content, rights and independence not certified.']
+}
+const snapshotLimitations=['Pinned summaries are from different revisions and times, not a synchronized live system.',
+ 'Local input byte receipts and summary checks do not authenticate source origin or revalidate raw evidence.',
+ 'Software acceptance is distinct from research qualification. Missing and invalid summaries remain unknown.',
+ 'No source data collection, execution, repair, capital allocation or publication.']
+const same=(a,b)=>canonicalDigest(a)===canonicalDigest(b)
+const exactKeys=(o,keys)=>o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).length===keys.length&&keys.every(k=>Object.hasOwn(o,k))
+const optionalNum=x=>x===null||num(x)
+function verifyMetrics(m){
+ const v=m.metrics.map(x=>x.value),[a,b,c,d]=v
+ switch(m.id){
+ case 'catalogue':return num(a)&&b===1000&&num(c)&&a+c===1000&&d===0
+ case 'data':return [a,b,c].every(optionalNum)&&(a===null||[b,c].every(x=>x===null||x<=a))&&['Yes — aggregate only','No or unresolved'].includes(d)
+ case 'lab':return a===5&&(m.status==='EVIDENCE_INCOMPLETE_OR_INCONSISTENT'?[b,c,d].every(x=>x===null):[b,c,d].every(x=>num(x)&&x<=5)&&(m.status!=='SYNTHETIC_QA_PASSED'||[b,c,d].every(x=>x===5)))
+ case 'compute':{
+  const states=['RECORDED_LOCAL_PASS','RECORDED_LOCAL_FAILURE','NOT_SUPPLIED','INVALID_RECEIPT','UNSAFE_RECEIPT','MODE_OR_REVISION_MISMATCH']
+  return states.includes(a)&&states.includes(b)&&c===(a==='RECORDED_LOCAL_PASS'?4:null)&&d===(b==='RECORDED_LOCAL_PASS'?12:null)&&m.status===(a==='RECORDED_LOCAL_PASS'?'CPU_LOCAL_EVIDENCE_AVAILABLE':'CPU_EVIDENCE_INCOMPLETE')
+ }
+ case 'supervisor':return num(a)&&num(b)&&optionalNum(c)&&d==='Not started by dashboard'&&m.status===(a?'BLOCKED_PENDING_REVIEW':b?'REVIEW_REQUIRED':'NO_INCIDENTS_OBSERVED')
+ case 'references':return [a,b,c].every(num)&&(d==='Unassessed'||num(d))
+ default:return false
+ }
+}
 export function verifySnapshot(r){
- if(!r||r.kind!=='UNIFIED_RESEARCH_CONTROL_CENTRE'||r.schemaVersion!==1||!Object.entries(flags).every(([k,v])=>r[k]===v)||r.repairAuthorized!==false||r.accessAuthorized!==false||r.sourceMutationAuthorized!==false||r.modelValidation!=='UNVALIDATED')throw Error('Invalid dashboard snapshot')
+ check(r&&r.kind==='UNIFIED_RESEARCH_CONTROL_CENTRE'&&r.schemaVersion===1&&r.status==='RESEARCH_NOT_READY'&&Object.entries(flags).every(([k,v])=>r[k]===v)&&r.repairAuthorized===false&&r.accessAuthorized===false&&r.sourceMutationAuthorized===false&&r.modelValidation==='UNVALIDATED','Invalid dashboard snapshot')
  verifySelfHash(r,'snapshotSha256',true)
+ check(Array.isArray(r.modules)&&r.modules.length===pins.length&&same(r.limitations,snapshotLimitations),'Invalid module coverage or limitations')
+ let available=0
+ for(let i=0;i<pins.length;i++){
+  const p=pins[i],m=r.modules[i]
+  check(exactKeys(m,['id','name','source','evidenceState','receiptSha256','status','metrics','notes'])&&m.id===p.id&&m.name===p.name,'Invalid module identity')
+  check(same(m.source,{pr:p.pr,head:p.head,reportRevision:p.reportRevision,run:p.run,artifact:p.artifact,provenance:'DECLARED_PINNED_SOURCE_NOT_AUTHENTICATED_BY_VIEWER'}),'Invalid source pin')
+  check(Array.isArray(m.metrics),'Invalid metrics')
+  if(m.evidenceState==='SUMMARY_CONTRACT_CHECKED'){
+   available++
+   const [states,labels,note]=snapshotContracts[m.id]
+   check(sha(m.receiptSha256)&&states.includes(m.status)&&same(m.notes,[note])&&m.metrics.length===labels.length&&m.metrics.every((x,j)=>exactKeys(x,['label','value'])&&x.label===labels[j])&&verifyMetrics(m),'Invalid projected metrics or status')
+  }else{
+   check(['MISSING','UNREADABLE','UNSAFE','UNSTABLE','INVALID_CONTRACT'].includes(m.evidenceState)&&m.status==='UNKNOWN'&&m.receiptSha256===null&&m.metrics.length===0&&same(m.notes,['Supply the original matching summary artifact; no values inferred.']),'Unavailable evidence must remain unknown')
+  }
+ }
+ check(same(r.counts,{modules:pins.length,available,unavailable:pins.length-available}),'Invalid coverage counts')
  return true
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
