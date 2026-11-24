@@ -4701,3 +4701,35 @@ Limitations — Irregular convergence and breakdown possible; residual alone may
 Mechanism — Short stabilized biconjugate-gradient recurrence differs from Arnoldi-based GMRES and symmetric positive-definite CG; no convergence guarantee for every nonsingular system.
 
 Source — Barrett et al., Templates for the Solution of Linear Systems (1993), Netlib BiCGSTAB reverse-communication routine, lines 249–385, specialized to the identity preconditioner. https://netlib.org/templates/double/BiCGSTABREVCOM.f
+
+## Residual-based iterative refinement (linear-system-iterative-refinement)
+
+> Given an approximate solution x to Ax=b, compute r=b−Ax, solve Aδ=r using the existing factorization, then update x←x+δ; repeat subject to residual and iteration limits.
+
+A square matrix; b right side; x approximation; r residual; δ correction.
+
+General numerical linear-system correction on authorised or synthetic matrices.
+
+Assumptions — Nonsingular A; sufficiently accurate residual computation and correction solve; explicit stopping criteria..
+
+Limitations — May stagnate or diverge for ill-conditioned systems or inaccurate solves; mixed precision requires separate assumptions..
+
+Mechanism — Reuses a factorization for residual correction rather than repeating a direct factorization or using Jacobi/Gauss–Seidel coordinate updates. Exact correction would terminate in one step; finite-precision improvement is conditional.
+
+Source — Nicholas J. Higham (2023), What Is Iterative Refinement?, basic algorithm and discussion of residual precision. https://nhigham.com/2023/03/13/what-is-iterative-refinement/
+
+## Spectral condition number of a nonsingular matrix (matrix-two-norm-condition-number)
+
+> For nonsingular real square A, κ₂(A)=||A||₂||A⁻¹||₂=σ_max(A)/σ_min(A).
+
+A square matrix; σ_max and σ_min extreme singular values; κ₂ condition number.
+
+General sensitivity diagnostic for a numerical linear system.
+
+Assumptions — Nonsingular finite matrix and consistently defined spectral norm; handle singular matrices separately..
+
+Limitations — Worst-case sensitivity, not an observed numerical error or a guarantee of actual error magnitude..
+
+Mechanism — Sensitivity diagnostic derived from extreme singular values, not another SVD algorithm or measured backward error. A certified singular square matrix has infinite condition number.
+
+Source — University of Illinois CS 357, Singular Value Decompositions, 2-Norm Condition Number. https://courses.physics.illinois.edu/cs357/sp2021/notes/ref-16-svd.html

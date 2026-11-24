@@ -6789,5 +6789,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Short stabilized biconjugate-gradient recurrence differs from Arnoldi-based GMRES and symmetric positive-definite CG; no convergence guarantee for every nonsingular system."
+  },
+  {
+    "id": "linear-system-iterative-refinement",
+    "source": {
+      "kind": "literature",
+      "citation": "Nicholas J. Higham (2023), What Is Iterative Refinement?, basic algorithm and discussion of residual precision. https://nhigham.com/2023/03/13/what-is-iterative-refinement/"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Reuses a factorization for residual correction rather than repeating a direct factorization or using Jacobi/Gauss–Seidel coordinate updates. Exact correction would terminate in one step; finite-precision improvement is conditional."
+  },
+  {
+    "id": "matrix-two-norm-condition-number",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Illinois CS 357, Singular Value Decompositions, 2-Norm Condition Number. https://courses.physics.illinois.edu/cs357/sp2021/notes/ref-16-svd.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Sensitivity diagnostic derived from extreme singular values, not another SVD algorithm or measured backward error. A certified singular square matrix has infinite condition number."
   }
 ]

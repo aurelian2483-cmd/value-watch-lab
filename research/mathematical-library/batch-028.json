@@ -1,0 +1,102 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "028",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "linear-system-iterative-refinement",
+    "name": "Residual-based iterative refinement",
+    "definition": "Given an approximate solution x to Ax=b, compute r=b−Ax, solve Aδ=r using the existing factorization, then update x←x+δ; repeat subject to residual and iteration limits.",
+    "variables": "A square matrix; b right side; x approximation; r residual; δ correction",
+    "assumptions": "Nonsingular A; sufficiently accurate residual computation and correction solve; explicit stopping criteria.",
+    "limitations": "May stagnate or diverge for ill-conditioned systems or inaccurate solves; mixed precision requires separate assumptions.",
+    "failure_conditions": [
+      "Nonfinite correction, stalled residual or singular factorization"
+    ],
+    "computation": "Evaluate residual, solve correction, update, check true residual.",
+    "source": {
+      "kind": "literature",
+      "citation": "Nicholas J. Higham (2023), What Is Iterative Refinement?, basic algorithm and discussion of residual precision. https://nhigham.com/2023/03/13/what-is-iterative-refinement/"
+    },
+    "application": "General numerical linear-system correction on authorised or synthetic matrices.",
+    "required_inputs": "Matrix, right-hand side, factorization, approximation, tolerances and iteration bound.",
+    "compatible_methods": [
+      "pivoted-lu",
+      "linear-solve-backward-error"
+    ],
+    "incompatible_methods": [
+      "Assuming refinement guarantees accuracy for every matrix"
+    ],
+    "relationships": [
+      {
+        "target": "pivoted-lu",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Reuses a factorization for residual correction rather than repeating a direct factorization or using Jacobi/Gauss–Seidel coordinate updates. Exact correction would terminate in one step; finite-precision improvement is conditional."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "028",
+    "family": "numerical-linear-algebra",
+    "classification": "diagnostic",
+    "id": "matrix-two-norm-condition-number",
+    "name": "Spectral condition number of a nonsingular matrix",
+    "definition": "For nonsingular real square A, κ₂(A)=||A||₂||A⁻¹||₂=σ_max(A)/σ_min(A).",
+    "variables": "A square matrix; σ_max and σ_min extreme singular values; κ₂ condition number",
+    "assumptions": "Nonsingular finite matrix and consistently defined spectral norm; handle singular matrices separately.",
+    "limitations": "Worst-case sensitivity, not an observed numerical error or a guarantee of actual error magnitude.",
+    "failure_conditions": [
+      "Zero smallest singular value or unreliable singular value estimates"
+    ],
+    "computation": "Estimate extreme singular values and their ratio; report singular or unresolved if denominator is zero or uncertain.",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Illinois CS 357, Singular Value Decompositions, 2-Norm Condition Number. https://courses.physics.illinois.edu/cs357/sp2021/notes/ref-16-svd.html"
+    },
+    "application": "General sensitivity diagnostic for a numerical linear system.",
+    "required_inputs": "Matrix or reliable estimates of its extreme singular values.",
+    "compatible_methods": [
+      "svd-bidiagonal-reduction",
+      "linear-solve-backward-error"
+    ],
+    "incompatible_methods": [
+      "Confusing a condition bound with measured forward error"
+    ],
+    "relationships": [
+      {
+        "target": "linear-solve-backward-error",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Sensitivity diagnostic derived from extreme singular values, not another SVD algorithm or measured backward error. A certified singular square matrix has infinite condition number."
+  }
+]

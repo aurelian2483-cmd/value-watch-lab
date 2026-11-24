@@ -30,7 +30,7 @@
     "computation": "Evaluate residual, solve correction, update, check true residual.",
     "source": {
       "kind": "literature",
-      "citation": "Higham, Accuracy and Stability of Numerical Algorithms, iterative refinement; verify passage before admission."
+      "citation": "Nicholas J. Higham (2023), What Is Iterative Refinement?, basic algorithm and discussion of residual precision. https://nhigham.com/2023/03/13/what-is-iterative-refinement/"
     },
     "application": "General numerical linear-system correction on authorised or synthetic matrices.",
     "required_inputs": "Matrix, right-hand side, factorization, approximation, tolerances and iteration bound.",
@@ -46,7 +46,8 @@
         "target": "pivoted-lu",
         "type": "related"
       }
-    ]
+    ],
+    "mechanism_note": "Reuses a factorization for residual correction rather than repeating a direct factorization or using Jacobi/Gauss–Seidel coordinate updates. Exact correction would terminate in one step; finite-precision improvement is conditional."
   },
   {
     "profile": "multifeature",
@@ -79,7 +80,7 @@
     "computation": "Estimate extreme singular values and their ratio; report singular or unresolved if denominator is zero or uncertain.",
     "source": {
       "kind": "literature",
-      "citation": "Higham, Accuracy and Stability of Numerical Algorithms, matrix condition numbers; verify passage before admission."
+      "citation": "University of Illinois CS 357, Singular Value Decompositions, 2-Norm Condition Number. https://courses.physics.illinois.edu/cs357/sp2021/notes/ref-16-svd.html"
     },
     "application": "General sensitivity diagnostic for a numerical linear system.",
     "required_inputs": "Matrix or reliable estimates of its extreme singular values.",
@@ -95,6 +96,7 @@
         "target": "linear-solve-backward-error",
         "type": "related"
       }
-    ]
+    ],
+    "mechanism_note": "Sensitivity diagnostic derived from extreme singular values, not another SVD algorithm or measured backward error. A certified singular square matrix has infinite condition number."
   }
 ]
