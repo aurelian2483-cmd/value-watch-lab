@@ -27,7 +27,14 @@ const server=http.createServer(async(req,res)=>{
         const page=await browser.newPage({viewport:{width,height:870}});
         const errors=[];
         page.on('pageerror',e=>errors.push(e.message));
-        await page.goto(url+entry,{waitUntil:'domcontentloaded'});
+        await page.goto(url+entry,{waitUntil:'load'});
+        // Unified Desk intentionally moves Engine View into the collapsed
+        // Research tools disclosure on narrow mobile screens. Open it first.
+        const revealPicker=async()=>{
+          const collapsed=page.locator('details.dashboard-slip-tools:not([open]) > summary');
+          if(await collapsed.count()) await collapsed.click();
+        };
+        await revealPicker();
         const picker=page.locator('#engine-methods');
         const box=id=>picker.locator('button[data-method="'+id+'"]');
         await box('current').waitFor();
@@ -62,7 +69,8 @@ const server=http.createServer(async(req,res)=>{
         assert.notEqual(selectedStyle,unselectedStyle,'Selected boxes need visibly different blue backgrounds');
         assert.equal(await page.locator('#engine-select').evaluate(e=>e.getAttribute('aria-hidden')),'true');
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'No mobile overflow');
-        await page.reload({waitUntil:'domcontentloaded'});
+        await page.reload({waitUntil:'load'});
+        await revealPicker();
         await box('hybrid').waitFor();
         assert.equal(await box('hybrid').getAttribute('aria-pressed'),'true');
         assert.equal(await box('bottleneck').getAttribute('aria-pressed'),'true');
