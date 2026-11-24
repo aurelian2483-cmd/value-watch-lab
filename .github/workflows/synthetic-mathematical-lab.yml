@@ -4,7 +4,7 @@ on:
     paths:
       - 'research/mathematical-testing-lab/**'
       - '.github/workflows/synthetic-mathematical-lab.yml'
-      - 'research/mathematical-library/experiment-registry.mjs'
+      - 'research/mathematical-library/experiment-registry*.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,6 +33,12 @@ jobs:
         run: |
           python -B -m unittest discover -s research/mathematical-testing-lab -p 'test_reference_check.py'
           python -B research/mathematical-testing-lab/reference_check.py "$RUNNER_TEMP/synthetic-math/report.json" > "$RUNNER_TEMP/synthetic-math/reference-check.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Verify persistent synthetic fixture lifecycle
+        run: |
+          mkdir "$RUNNER_TEMP/synthetic-math-registry"
+          node research/mathematical-testing-lab/persistence.mjs "$RUNNER_TEMP/synthetic-math-registry" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/synthetic-math/persistence.json"
+          node research/mathematical-testing-lab/persistence.mjs "$RUNNER_TEMP/synthetic-math-registry" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/synthetic-math/persistence-repeat.json"
           test -z "$(git status --porcelain --untracked-files=all)"
       - name: Archive synthetic results
         if: always()

@@ -21,10 +21,14 @@ export function evaluateKnownAnswer({expected,tolerance,value,converged}){
  const absoluteError=Number.isFinite(value)?Math.abs(value-expected):null
  return {absoluteError,status:converged===true&&absoluteError!==null&&Number.isFinite(absoluteError)&&absoluteError<=tolerance?'PASS':'FAIL'}
 }
+function caseSpec(c,codeRevision){
+ const fixture={id:c.id,input:c.input,expected:c.expected,tolerance:c.tolerance}
+ return {formulaId:c.formulaId,codeRevision,datasetHash:hash(fixture),configuration:{suite:'synthetic-math-v1',fixtureId:c.id,absoluteTolerance:c.tolerance},seed:0,primaryMetric:'absolute-error',partition:'development'}
+}
+export function suiteSpecifications(codeRevision){return cases.map(c=>caseSpec(c,codeRevision))}
 export function runSuite(codeRevision){
  const results=cases.map(c=>{
-  const fixture={id:c.id,input:c.input,expected:c.expected,tolerance:c.tolerance}
-  const identity=manifest({formulaId:c.formulaId,codeRevision,datasetHash:hash(fixture),configuration:{suite:'synthetic-math-v1',fixtureId:c.id,absoluteTolerance:c.tolerance},seed:0,primaryMetric:'absolute-error',partition:'development'})
+  const identity=manifest(caseSpec(c,codeRevision))
   const base={id:c.id,formulaId:c.formulaId,experimentId:identity.experimentId,fixtureSha256:identity.datasetHash,expected:c.expected,tolerance:c.tolerance}
   try{
    const observed=c.run(c.input),verdict=evaluateKnownAnswer({...observed,expected:c.expected,tolerance:c.tolerance})
