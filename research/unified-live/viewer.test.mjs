@@ -1,10 +1,11 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtempSync,rmSync,realpathSync} from 'node:fs'
+import {mkdtempSync,rmSync,realpathSync,mkdirSync,writeFileSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
 import {request} from 'node:http'
 import {startViewer} from './viewer.mjs'
+import {synchronise} from './sync.mjs'
 function call(port,path='/',method='GET',headers={}){
  return new Promise((ok,fail)=>{
   const req=request({host:'127.0.0.1',port,path,method,headers},res=>{
@@ -29,4 +30,26 @@ test('viewer is loopback-only, no accepted evidence stays unknown, read-only rou
  assert.equal((await call(port,'/status','GET',{Origin:'https://untrusted.example'})).code,403)
  assert.equal((await call(port,'/status','GET',{'Sec-Fetch-Site':'cross-site'})).code,403)
  assert.equal((await call(port,'/unknown')).code,404)
+})
+
+test('rejected update appears in HTTP and HTML without exposing raw input or granting repair',async t=>{
+ const root=realpathSync(mkdtempSync(join(tmpdir(),'live-incident-viewer-')))
+ const inbox=join(root,'inbox'),state=join(root,'state')
+ mkdirSync(inbox);mkdirSync(state)
+ const server=await startViewer(state,{port:0})
+ t.after(async()=>{await new Promise(ok=>server.close(ok));rmSync(root,{recursive:true,force:true})})
+ const port=server.address().port
+ assert.match((await call(port)).body,/NO_REJECTION_RECORDED/)
+ writeFileSync(join(inbox,'approval.json'),'private test payload')
+ assert.throws(()=>synchronise(inbox,state,'0'.repeat(64)))
+ const home=await call(port),json=JSON.parse((await call(port,'/status')).body)
+ assert.equal(home.code,200)
+ assert.match(home.body,/Latest rejected update/)
+ assert.match(home.body,/REVIEW_REQUIRED/)
+ assert.match(home.body,/Manual review only/)
+ assert.doesNotMatch(home.body,/private test payload/)
+ assert.equal(json.lastRejection.stage,'APPROVAL')
+ assert.equal(json.lastRejection.automaticRepair,false)
+ assert.equal(json.snapshot,null)
+ assert.equal(json.publicationGate,'BLOCKED')
 })
