@@ -21,6 +21,12 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/alpha-hunt-preview"
           node research/mathematical-library/experiment-registry-alpha-preview.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/unavailable-local-registry" > "$RUNNER_TEMP/alpha-hunt-preview/index.html"
+      - name: Install Chromium for preview acceptance
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Verify generated preview in Chromium
+        run: node research/mathematical-library/experiment-registry-alpha-preview-browser.mjs "$RUNNER_TEMP/alpha-hunt-preview/index.html"
       - name: Archive preview for review
         uses: actions/upload-artifact@v4
         with:
