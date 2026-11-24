@@ -93,7 +93,7 @@ function incidentStatus(root,s,now){
   return {status:e.code==='ENOENT'?'NO_REJECTION_RECORDED':'INCIDENT_EVIDENCE_UNAVAILABLE',stage:null,observedAt:null,previousSequence:null,automaticRepair:false}
  }
 }
-export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOString(),authentication=null}={}){
+export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOString(),authentication=null,expectedPreviousStateSha256=undefined}={}){
  const inbox=safeRoot(inboxDir),root=safeRoot(stateDir)
  need(!within(inbox,root)&&!within(root,inbox),'Input and state must be separate directories')
  need(utc(now),'Invalid clock')
@@ -102,8 +102,9 @@ export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOStri
  let stage,previous=null,phase='STORED_STATE'
  try{
   previous=load(root)
+  if(expectedPreviousStateSha256!==undefined)need((expectedPreviousStateSha256===null||hex(expectedPreviousStateSha256))&&(previous?.stateSha256??null)===expectedPreviousStateSha256,'Previous state anchor mismatch')
   phase='APPROVAL'
-  const raw=readBounded(join(inbox,'approval.json')),a=approval(raw,expected)
+  const raw=readBounded(join(inbox,'approval.json'),65536),a=approval(raw,expected)
   need(Date.parse(a.approvedAt)<=Date.parse(now),'Future approval')
   phase='APPROVAL'
   if(authentication!==null)verifyAuthentication(authentication,a,expected,now)
@@ -149,7 +150,7 @@ export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOStri
  }catch(error){
   try{recordRejection(root,phase,now,previous)}catch{throw new Error('Sync failed; incident receipt could not be recorded',{cause:error})}
   throw error
- }finally{if(stage)rmSync(stage,{recursive:true,force:true});rmSync(lock,{recursive:true,force:true})}
+ }finally{try{if(stage)rmSync(stage,{recursive:true,force:true})}finally{rmSync(lock,{recursive:true,force:true})}}
 }
 // Operator-controlled checkpoint and isolated recovery. Never rolls back active state.
 const STATE_LIMIT=16*1024*1024
@@ -201,7 +202,7 @@ export function status(stateDir,{now=new Date().toISOString(),maxAgeSeconds=3600
  if(trustedStateSha256!==null)need(s?.stateSha256===trustedStateSha256,'External state anchor mismatch')
  const age=at=>Math.floor((Date.parse(now)-Date.parse(at))/1000)
  const freshness=at=>age(at)<0?'CLOCK_UNCERTAIN':age(at)>maxAgeSeconds?'STALE':'RECENTLY_RECEIVED'
- return {kind:'CONTROLLED_SUMMARY_STATUS',...flags,sequence:s?.sequence??null,acceptedAt:s?.acceptedAt??null,
+ return {kind:'CONTROLLED_SUMMARY_STATUS',...flags,sequence:s?.sequence??null,stateSha256:s?.stateSha256??null,acceptedAt:s?.acceptedAt??null,
   syncStatus:s?freshness(s.acceptedAt):'NO_ACCEPTED_BATCH',measurementFreshness:'UNKNOWN',
   sources:pins.map((p,i)=>({id:p.id,receiptStatus:s?freshness(s.firstSeen[i].at):'MISSING',firstSeen:s?.firstSeen[i].at??null,measurementFreshness:'UNKNOWN'})),
   authentication:{mode:!s?'NO_ACCEPTED_BATCH':s.authentication?'SIGNATURES_REVERIFIED_AT_ACCEPTANCE':'MANUAL_DIGEST_APPROVAL',trustSha256:s?.authentication?.trustSha256??null,independentTrustRechecked:trustedTrustSha256!==null,independentStateRechecked:trustedStateSha256!==null},
