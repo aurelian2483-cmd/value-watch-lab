@@ -4419,3 +4419,31 @@ Assumptions — Aligned finite observations; population interpretation needs fin
 Limitations — Quadratic naive memory and time cost; finite sample dependence estimate not a standalone significance test; sensitive to feature scaling..
 
 Source — dcor theory documentation and Székely, Rizzo and Bakirov (2007). https://dcor.readthedocs.io/en/latest/theory.html
+
+## First-order partial correlation (partial-correlation-one-control)
+
+> r_xy·z=(r_xy−r_xz r_yz)/√[(1−r_xz²)(1−r_yz²)], for sample Pearson correlations on a common set of observations.
+
+r_xy,r_xz,r_yz sample Pearson correlations; z control variable; r_xy·z residual linear correlation.
+
+Describe remaining linear association after accounting for a prespecified measured covariate in development data.
+
+Assumptions — Aligned observations, nonconstant variables, nonsingular residual variances; inferential use requires a separately justified sampling model..
+
+Limitations — Controls only linear association with the specified covariate; does not establish causal effects or general conditional independence..
+
+Source — NIST Dataplot, Partial Correlation. https://www.itl.nist.gov/div898/software/dataplot/refman2/auxillar/partcorr.htm
+
+## Bartlett correlation-matrix sphericity test (bartlett-sphericity)
+
+> For p≥2 variables and n independent observations, B=−[n−1−(2p+5)/6] ln det(R), where R is the sample correlation matrix.
+
+n sample size; p variable count; R positive-definite sample correlation matrix; B approximate chi-square statistic.
+
+Assess global linear dependence structure in a prespecified set of development measurements.
+
+Assumptions — Multivariate normal independent observations; n>p, positive definite R, adequately large sample; null population correlation matrix equals identity..
+
+Limitations — Sensitive to departures from normality and large sample sizes; rejects global identity, not a specific association or factor model..
+
+Source — Factor Analyzer documentation, calculate_bartlett_sphericity; Bartlett (1950). https://factor-analyzer.readthedocs.io/en/latest/factor_analyzer.html

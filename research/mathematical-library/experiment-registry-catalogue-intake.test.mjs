@@ -28,8 +28,17 @@ test('duplicate and unsupported lifecycle claims fail closed',()=>{
 
 test('admitted batch preserves all reviewed specifications',()=>{
  const entries=loadCatalogue().entries
+ const dispositions=JSON.parse(readFileSync(new URL('./candidate-dispositions.json',import.meta.url),'utf8'))
  for(const batch of loadCatalogue().manifest.batches.slice(16).map(name=>name.match(/^batch-(\d{3})\.json$/)[1])){
   const archived=JSON.parse(readFileSync(new URL('./candidate-batch-'+batch+'.json',import.meta.url),'utf8'))
-  assert.deepEqual(entries.filter(e=>e.batch===batch),archived)
+  const withheld=dispositions[batch]??[]
+  assert.equal(new Set(withheld.map(x=>x.id)).size,withheld.length)
+  for(const x of withheld){
+   assert.ok(archived.some(e=>e.id===x.id))
+   assert.equal(x.disposition,'WITHHELD_DERIVATIVE')
+   assert.ok(typeof x.reason==='string'&&x.reason.trim().length>0)
+   assert.ok(!entries.some(e=>e.id===x.id))
+  }
+  assert.deepEqual(entries.filter(e=>e.batch===batch),archived.filter(e=>!withheld.some(x=>x.id===e.id)))
  }
 })
