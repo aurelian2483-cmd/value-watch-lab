@@ -23,3 +23,7 @@ Run `node research/central-data-intelligence/source-audit.mjs .` for nine allowl
 ## Phase 3 — synthetic identity contract
 
 `identity-review.mjs` exercises exact provider namespaces, explicit one-to-one crosswalks, ordered participant identities, collection/domain, contract and millisecond-precision timestamps. Missing mappings and ambiguous records are not linked. All outcomes are aggregate synthetic QA; there is no real-provider crosswalk adapter or authenticated approval mechanism. Existing `scripts/reconcile_result_evidence.py` remains the authority for its existing review queue; this module does not replace it or promote outcomes. No real data or protected partitions are loaded by this module.
+
+## Phase 4 — static quality report
+
+The CI artifact now includes `index.html` and `quality-report.json`, consolidating the four structurally reconciled inputs, nine source receipts, archived comparisons and outstanding verification requirements. Shared receipt disagreements suppress structural counts. This is a static review report, not a browser-tested deployed dashboard, live collection service or certification mechanism. No new record data is exposed.
