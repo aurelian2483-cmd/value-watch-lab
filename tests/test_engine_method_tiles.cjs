@@ -42,4 +42,7 @@ assert(desk.includes('renderEngineMode(evaluation,view,content'));
 assert(desk.includes('M.toggle(selectedMethods,tile.dataset.method)'));
 assert(desk.includes('selectedMethods.length === 1'));
 assert(desk.includes('M.preferenceKey'));
+assert(desk.includes("storedDecimal.toFixed(2) + ' (unverified, not live)'"),'Saved prices must be visibly labelled historical');
+assert(desk.includes("' · no recorded odds'"),'Missing quotes must be shown as unavailable');
+assert(desk.includes("new URL('market-intelligence/', rootURL)"),'Existing market archive must remain discoverable');
 console.log('PASS: 7 method tiles, multiselect transitions, persistence, both entrypoints and safe mode rendering contracts');
