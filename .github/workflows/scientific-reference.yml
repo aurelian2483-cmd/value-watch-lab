@@ -23,6 +23,8 @@ jobs:
           node research/scientific-reference/library.mjs summary > "$RUNNER_TEMP/scientific-reference/summary.json"
           node research/scientific-reference/library.mjs summary > "$RUNNER_TEMP/scientific-reference/repeated.json"
           cmp "$RUNNER_TEMP/scientific-reference/summary.json" "$RUNNER_TEMP/scientific-reference/repeated.json"
+          node research/scientific-reference/review-history.mjs 2026-11-24 > "$RUNNER_TEMP/scientific-reference/review-status.json"
+          node -e 'const r=require(process.argv[1]); if(r.counts.CURRENT_RECORDED_LOCATOR_REVIEW!==2 || r.counts.CURRENT_RECORDED_METADATA_REVIEW!==1 || r.rows.some(x=>x.independentReview||x.contentVerified||x.rightsVerified))process.exit(1)' "$RUNNER_TEMP/scientific-reference/review-status.json"
           test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
