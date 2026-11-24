@@ -4579,3 +4579,77 @@ Limitations — Repeated factorization; near singularity requires careful residu
 Mechanism — Adaptive shift instead of a fixed inverse operator; review overlap and classification before admission.
 
 Source — University of Illinois CS 357, Eigenvalues and Eigenvectors; power, shifted inverse and Rayleigh quotient iteration sections. https://cs357.cs.illinois.edu/textbook/notes/eigen.html
+
+## Arnoldi Krylov basis construction (arnoldi-orthogonalization)
+
+> Start with unit q₁. For j=1,…,m form w=Aq_j, h_ij=q_i* w and w←w−h_ij q_i successively for i≤j; h_(j+1,j)=||w||₂, q_(j+1)=w/h_(j+1,j) if nonzero. In exact arithmetic A Q_m=Q_(m+1) H̄_m.
+
+A square real or complex matrix; * adjoint; q_i orthonormal basis vectors; H̄ upper Hessenberg projection with one extra row.
+
+Construct a reduced subspace for a general numerical matrix analysis.
+
+Assumptions — Nonzero initial vector, consistent inner product; stop at exact invariant-subspace breakdown or use a documented finite-precision policy..
+
+Limitations — Growing basis storage and loss of orthogonality; Ritz values are approximations, not necessarily certified eigenvalues..
+
+Source — Bindel, D. (2025), Cornell CS 6210, Lanczos and Arnoldi, 17 November, Arnoldi section. https://www.cs.cornell.edu/courses/cs6210/2025fa/lec/2025-11-17.html
+
+## Symmetric Lanczos three-term recurrence (symmetric-lanczos-krylov)
+
+> For real symmetric A, q₀=0, β₀=0 and unit q₁, form w=Aq_j−β_(j−1)q_(j−1), α_j=q_jᵀw, w←w−α_j q_j, β_j=||w||₂, q_(j+1)=w/β_j when β_j>0.
+
+A symmetric matrix; q_j basis vectors; α_j and β_j tridiagonal coefficients.
+
+Build a compact projection of a symmetric numerical operator.
+
+Assumptions — Symmetry, unit initial vector, exact-arithmetic orthogonality; finite precision requires a monitored reorthogonalization or restart policy..
+
+Limitations — Loss of orthogonality can cause repeated spurious Ritz values; stop safely on breakdown..
+
+Mechanism — Symmetric specialization of Arnoldi; three-term recurrence materially changes computational storage and operations, not independent mathematical evidence.
+
+Source — Bindel, D. (2026), Cornell CS 4220, Krylov subspace iterations, 16 March, three-term recurrence. https://www.cs.cornell.edu/courses/cs4220/2026sp/lec/2026-03-16.html
+
+## Unshifted QR eigenvalue iteration (unshifted-qr-eigeniteration)
+
+> Factor A_k=Q_k R_k with orthogonal Q_k and triangular R_k; set A_(k+1)=R_k Q_k=Q_kᵀ A_k Q_k.
+
+A_k real square matrix; Q_k orthogonal factor; R_k triangular factor.
+
+General numerical study of orthogonal eigenvalue iteration.
+
+Assumptions — Consistent QR factorization; convergence to diagonal form for real symmetric matrices requires appropriate spectral and initialization conditions; repeated or opposite equal magnitudes may stall..
+
+Limitations — Unshifted convergence can be slow or fail to separate equal-magnitude eigenvalues; not a complete modern eigensolver..
+
+Source — Bindel, D. (2026), Cornell CS 4220, From power methods to QR iteration, 6 March. https://www.cs.cornell.edu/courses/cs4220/2026sp/lec/2026-03-06.html
+
+## Givens-rotation QR elimination (givens-qr-elimination)
+
+> For a,b not both zero let r=√(a²+b²), c=a/r, s=b/r; G=[[c,s],[−s,c]] maps (a,b)ᵀ to (r,0)ᵀ. Apply embedded rotations to eliminate subdiagonal matrix entries.
+
+a,b entries to rotate; c,s cosine and sine; G orthogonal plane rotation.
+
+General sparse or incremental numerical factorization.
+
+Assumptions — Finite real matrix, stable hypotenuse computation, identity or declared sign convention for zero pair..
+
+Limitations — Dense matrices often favor Householder transformations; repeated updates require stable numerical implementation..
+
+Mechanism — Local plane-rotation elimination instead of full-column reflections.
+
+Source — Bindel, D. (2026), Cornell CS 4220, Least squares and QR, 23 February, Givens rotations section. https://www.cs.cornell.edu/courses/cs4220/2026sp/lec/2026-02-23.html
+
+## Modified Gram–Schmidt QR factorization (modified-gram-schmidt-qr)
+
+> For columns a_j set v_j=a_j. For i=1,…,n set r_ii=||v_i||₂, q_i=v_i/r_ii; for j>i set r_ij=q_iᵀv_j, v_j←v_j−r_ij q_i.
+
+a_j input columns; v_j residuals; q_i orthonormal columns; R upper triangular.
+
+General orthonormal basis construction for numerical linear algebra.
+
+Assumptions — Real full-column-rank matrix; positive residual norms; finite-precision orthogonality monitored..
+
+Limitations — Loss of orthogonality on ill-conditioned matrices; not rank-revealing by itself..
+
+Source — Zhang, Z. (2023), QR and least square, 17 March, p. 2, Algorithm 2. https://www.math.cmu.edu/~zechengz/spring_2023_nla/0317.pdf
