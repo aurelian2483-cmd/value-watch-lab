@@ -1,0 +1,64 @@
+name: Research supervisor diagnostics
+on:
+  pull_request:
+    paths:
+      - 'research/research-supervisor/**'
+      - 'research/mathematical-library/experiment-registry*.mjs'
+      - 'research/mathematical-testing-lab/**'
+      - 'research/scientific-compute/**'
+      - '.github/workflows/research-supervisor.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test read-only incident detection
+        run: node --test research/research-supervisor/*.test.mjs
+      - name: Inspect a disposable synthetic registry
+        run: |
+          mkdir "$RUNNER_TEMP/supervisor-registry" "$RUNNER_TEMP/supervisor-report"
+          node research/mathematical-testing-lab/persistence.mjs "$RUNNER_TEMP/supervisor-registry" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/supervisor-report/persistence.json"
+          node research/research-supervisor/supervisor.mjs "$RUNNER_TEMP/supervisor-registry" > "$RUNNER_TEMP/supervisor-report/status.json"
+          node research/mathematical-testing-lab/suite.mjs "$(git rev-parse HEAD)" > "$RUNNER_TEMP/supervisor-report/report.json"
+          python -B research/mathematical-testing-lab/reference_check.py "$RUNNER_TEMP/supervisor-report/report.json" > "$RUNNER_TEMP/supervisor-report/reference-check.json"
+          node research/mathematical-testing-lab/persistence.mjs "$RUNNER_TEMP/supervisor-registry" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/supervisor-report/persistence-repeat.json"
+          node research/mathematical-testing-lab/parallel.mjs "$(git rev-parse HEAD)" 2 > "$RUNNER_TEMP/supervisor-report/cpu-resource-report.json"
+          node research/mathematical-testing-lab/status.mjs "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/supervisor-report/lab-status.json"
+          python -B research/scientific-compute/acceptance_receipt.py cpu "$(git rev-parse HEAD)" > "$RUNNER_TEMP/supervisor-report/local-cpu-receipt.json"
+          python -B research/scientific-compute/status.py "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/supervisor-report/compute-status.json"
+          node research/research-supervisor/report-monitor.mjs "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/supervisor-report/report-monitor.json"
+          node -e 'const r=require(process.argv[1]); if(r.status!=="REVIEW_REQUIRED" || r.systems.map(x=>x.status).join(",")!=="RECORDED_SYNTHETIC_PASS,RECORDED_SYNTHETIC_PASS,EVIDENCE_MISSING")process.exit(1)' "$RUNNER_TEMP/supervisor-report/report-monitor.json"
+          mkdir "$RUNNER_TEMP/supervisor-history"
+          node research/research-supervisor/incident-history.mjs "$RUNNER_TEMP/supervisor-history" "$RUNNER_TEMP/supervisor-registry" "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/supervisor-report/incident-history.json"
+          node -e 'const r=require(process.argv[1]); if(r.observations!==1 || r.incidents.length!==1 || r.incidents[0].code!=="EVIDENCE_MISSING")process.exit(1)' "$RUNNER_TEMP/supervisor-report/incident-history.json"
+          node research/research-supervisor/recovery-plan.mjs "$RUNNER_TEMP/supervisor-registry" "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/supervisor-report/recovery-plan.json"
+          node -e 'const r=require(process.argv[1]); if(r.status!=="REVIEW_REQUIRED" || r.steps.length!==1 || r.steps[0].subject!=="scientific-gpu" || r.steps[0].automaticAction!==null || r.repairAuthorized!==false)process.exit(1)' "$RUNNER_TEMP/supervisor-report/recovery-plan.json"
+          mkdir "$RUNNER_TEMP/supervisor-loop-history"
+          node research/research-supervisor/monitor-loop.mjs "$RUNNER_TEMP/supervisor-loop-history" "$RUNNER_TEMP/supervisor-registry" "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" 1 2 > "$RUNNER_TEMP/supervisor-report/monitor-loop.json"
+          node -e 'const r=require(process.argv[1]); if(r.reason!=="CYCLE_LIMIT" || r.cycles!==2 || r.alerts!==1 || r.suppressed!==1 || r.repairAuthorized!==false)process.exit(1)' "$RUNNER_TEMP/supervisor-report/monitor-loop.json"
+          node research/research-supervisor/dashboard.mjs "$RUNNER_TEMP/supervisor-registry" "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/supervisor-report/supervisor-dashboard.json"
+          node --input-type=module -e 'import {readFileSync} from "node:fs"; import {renderDashboard} from "./research/research-supervisor/dashboard.mjs"; process.stdout.write(renderDashboard(JSON.parse(readFileSync(process.argv[1],"utf8"))))' "$RUNNER_TEMP/supervisor-report/supervisor-dashboard.json" > "$RUNNER_TEMP/supervisor-report/supervisor-dashboard.html"
+          node -e 'const r=require(process.argv[1]); if(r.status!=="REVIEW_REQUIRED" || r.incidentCounts.blocking!==0 || r.incidentCounts.review!==1 || r.registryCounts.COMPLETED!==5 || r.recommendations[0].subject!=="scientific-gpu" || r.repairAuthorized!==false)process.exit(1)' "$RUNNER_TEMP/supervisor-report/supervisor-dashboard.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Browser and stored evidence acceptance
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node research/research-supervisor/acceptance.mjs "$RUNNER_TEMP/supervisor-registry" "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: research-supervisor-diagnostics
+          path: ${{ runner.temp }}/supervisor-report/
+          retention-days: 7
+          if-no-files-found: error
