@@ -108,6 +108,47 @@ export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOStri
   return {status:'ACCEPTED',state:s}
  }finally{if(stage)rmSync(stage,{recursive:true,force:true});rmSync(lock,{recursive:true,force:true})}
 }
+// Operator-controlled checkpoint and isolated recovery. Never rolls back active state.
+const STATE_LIMIT=16*1024*1024
+function separate(a,b){need(!within(a,b)&&!within(b,a),'State and checkpoint directories must be separate')}
+function lockRoot(root,operation){
+ const lock=join(root,'.sync-lock')
+ mkdirSync(lock,{mode:0o700})
+ try{return operation()}finally{rmSync(lock,{recursive:true,force:true})}
+}
+function checkedBytes(raw){return checkState(JSON.parse(raw.toString('utf8')))}
+export function checkpoint(stateDir,backupDir){
+ const root=safeRoot(stateDir),backup=safeRoot(backupDir)
+ separate(root,backup)
+ return lockRoot(root,()=>{
+  const raw=readBounded(join(root,'current.json'),STATE_LIMIT),s=checkedBytes(raw),fingerprint=sha(raw)
+  const name='checkpoint-'+s.sequence+'-'+fingerprint+'.json',target=join(backup,name)
+  // Exclusive creation never overwrites an earlier checkpoint. Interrupted files fail hash validation.
+  const fd=openSync(target,'wx',0o600)
+  try{writeFileSync(fd,raw);fsyncSync(fd)}finally{closeSync(fd)}
+  need(readBounded(target,STATE_LIMIT).equals(raw),'Checkpoint verification failed')
+  return {kind:'CONTROLLED_CHECKPOINT',file:name,sequence:s.sequence,checkpointSha256:fingerprint,stateSha256:s.stateSha256,...flags}
+ })
+}
+export function recover(backupDir,stateDir,expected,sequence){
+ const backup=safeRoot(backupDir),root=safeRoot(stateDir)
+ separate(backup,root)
+ need(hex(expected)&&Number.isSafeInteger(sequence)&&sequence>0,'Invalid trusted checkpoint receipt')
+ return lockRoot(root,()=>{
+  // Never replace an existing generation, including corrupt files or dangling links.
+  let exists=true
+  try{lstatSync(join(root,'current.json'))}catch(e){if(e.code==='ENOENT')exists=false;else throw e}
+  need(!exists,'Recovery requires an empty state directory')
+  const raw=readBounded(join(backup,'checkpoint-'+sequence+'-'+expected+'.json'),STATE_LIMIT)
+  need(sha(raw)===expected,'Checkpoint fingerprint mismatch')
+  const s=checkedBytes(raw);need(s.sequence===sequence,'Checkpoint sequence mismatch')
+  // Preserve the original timestamps and approval chain exactly; recovery is not new evidence.
+  atomic(root,s)
+  const saved=load(root)
+  need(saved.stateSha256===s.stateSha256,'Recovered state verification failed')
+  return {kind:'CONTROLLED_ISOLATED_RECOVERY',sequence:s.sequence,checkpointSha256:expected,stateSha256:s.stateSha256,acceptedAt:s.acceptedAt,...flags}
+ })
+}
 export function status(stateDir,{now=new Date().toISOString(),maxAgeSeconds=3600}={}){
  need(utc(now)&&Number.isSafeInteger(maxAgeSeconds)&&maxAgeSeconds>0&&maxAgeSeconds<=86400,'Invalid freshness configuration')
  const s=load(safeRoot(stateDir))
@@ -123,6 +164,8 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).hr
   const [cmd,...args]=process.argv.slice(2)
   if(cmd==='sync'&&args.length===3){const r=synchronise(...args);console.log(JSON.stringify({status:r.status,sequence:r.state.sequence,stateSha256:r.state.stateSha256,...flags},null,2))}
   else if(cmd==='status'&&args.length===1)console.log(JSON.stringify(status(args[0]),null,2))
-  else throw Error('Usage: sync.mjs sync <inbox> <state-dir> <trusted-approval-sha256> | status <state-dir>')
+  else if(cmd==='checkpoint'&&args.length===2)console.log(JSON.stringify(checkpoint(...args),null,2))
+  else if(cmd==='recover'&&args.length===4)console.log(JSON.stringify(recover(args[0],args[1],args[2],Number(args[3])),null,2))
+  else throw Error('Usage: sync.mjs sync <inbox> <state-dir> <trusted-approval-sha256> | status <state-dir> | checkpoint <state-dir> <backup-dir> | recover <backup-dir> <empty-state-dir> <trusted-checkpoint-sha256> <sequence>')
  }catch(e){console.error(e.message);process.exitCode=1}
 }
