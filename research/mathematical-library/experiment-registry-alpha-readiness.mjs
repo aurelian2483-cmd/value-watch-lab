@@ -36,6 +36,7 @@ export function alphaReadiness(root,directory){
   estimands:estimands.map(x=>({...x})),
   decision,
   estimates:decision.estimates,
+  catalogue:view.operations.available?view.operations.data.catalogue:null,
   evidence:{
    historical:historical?{counts:historical.counts,sourceSha256:historical.sourceSha256,evidenceTier:historical.evidenceTier}:null,
    prospective:prospective?{counts:prospective.counts,reviewStatusCounts:prospective.reviewStatusCounts,sources:prospective.sources}:null,
