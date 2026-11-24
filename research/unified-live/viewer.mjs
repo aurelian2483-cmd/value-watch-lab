@@ -5,7 +5,8 @@ import {pathToFileURL} from 'node:url'
 import {status} from './sync.mjs'
 import {render} from '../unified-control-centre/website.mjs'
 const esc=x=>String(x??'Unknown').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
-const banner=s=>'<aside class="overview"><h2>Controlled report synchronisation</h2><p>Receipt status: '+esc(s.syncStatus)+' · Last accepted: '+esc(s.acceptedAt)+' · Sequence: '+esc(s.sequence)+'</p><p>Measurement freshness: UNKNOWN. Not live producer health.</p><ul>'+s.sources.map(x=>'<li>'+esc(x.id)+': '+esc(x.receiptStatus)+'; first received '+esc(x.firstSeen)+'</li>').join('')+'</ul><p>Refreshes every 15 seconds while this viewer is open. No execution or publication authorised.</p></aside>'
+const incident=s=>'<div class="overview" aria-label="Latest rejected update"><h3>Latest rejected update</h3><p>Incident status: '+esc(s.lastRejection.status)+' · Stage: '+esc(s.lastRejection.stage)+' · Observed: '+esc(s.lastRejection.observedAt)+'</p><p>Previous sequence: '+esc(s.lastRejection.previousSequence)+' · No automatic repair. Manual review only.</p></div>'
+const banner=s=>'<aside class="overview"><h2>Controlled report synchronisation</h2><p>Receipt status: '+esc(s.syncStatus)+' · Last accepted: '+esc(s.acceptedAt)+' · Sequence: '+esc(s.sequence)+'</p><p>Measurement freshness: UNKNOWN. Not live producer health.</p><ul>'+s.sources.map(x=>'<li>'+esc(x.id)+': '+esc(x.receiptStatus)+'; first received '+esc(x.firstSeen)+'</li>').join('')+'</ul><p>Refreshes every 15 seconds while this viewer is open. No execution or publication authorised.</p>'+incident(s)+'</aside>'
 export function page(s){
  const head='<meta http-equiv="refresh" content="15">'
  if(s.snapshot)return render(s.snapshot).replace('</head>',head+'</head>').replace('<main>','<main>'+banner(s))
