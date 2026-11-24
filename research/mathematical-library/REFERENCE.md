@@ -4315,3 +4315,47 @@ Assumptions — Correctly matched binary observations within blocks; independent
 Limitations — Approximate chi-square reference with k−1 degrees of freedom may be poor with few informative blocks; does not identify which conditions differ..
 
 Source — Statsmodels maintainers, cochrans_q API and references. https://www.statsmodels.org/stable/generated/statsmodels.stats.contingency_tables.cochrans_q.html
+
+## Jarque–Bera normality diagnostic (jarque-bera-normality)
+
+> JB=n[g_1²/6+(g_2−3)²/24], where g_1=m_3/m_2^(3/2), g_2=m_4/m_2² and m_j=n^(−1)Σ_i(x_i−mean(x))^j.
+
+n sample size; m_j empirical central moments; g_1 skewness; g_2 non-excess kurtosis.
+
+Diagnose distributional assumptions of comparable residual measurements on authorised development data.
+
+Assumptions — Independent observations, nonzero sample variance, sufficiently large sample for the asymptotic chi-square(2) reference under normality..
+
+Limitations — Tests selected moment departures; non-rejection does not demonstrate normality. Small-sample asymptotics can be inaccurate..
+
+Source — SciPy maintainers, jarque_bera API and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.jarque_bera.html
+
+## Wald–Wolfowitz binary runs diagnostic (binary-runs-randomness)
+
+> For n_1,n_2 counts of two binary symbols, n=n_1+n_2, let R=1+Σ_(i=2)^n 1(s_i≠s_(i−1)), μ_R=1+2n_1n_2/n, σ_R²=2n_1n_2(2n_1n_2−n)/(n²(n−1)); Z=(R−μ_R)/σ_R.
+
+Ordered binary sequence s; n_1,n_2 symbol counts; R run count; μ_R and σ_R² conditional null moments.
+
+Assess order dependence in a prespecified binary encoding of historical residual measurements.
+
+Assumptions — Null exchangeability of the ordering conditional on counts; both symbols observed, positive null variance, prespecified binary encoding..
+
+Limitations — Normal approximation requires sufficient counts; use an exact conditional reference for small samples. Detects only some departures from randomness..
+
+Source — NIST Engineering Statistics Handbook, Runs Test for Detecting Non-randomness. https://www.itl.nist.gov/div898/handbook/eda/section3/eda35d.htm
+
+## Exact paired mean sign-flip permutation test (paired-mean-sign-permutation)
+
+> For n paired differences d_i, T=Σ_i d_i/n. Under independent uniform sign flips conditional on magnitudes, p=2^(−n)Σ_(s∈{−1,+1}^n)1(|Σ_i s_i d_i/n|≥|T|).
+
+n matched pairs; d_i difference; s sign vector; T mean difference; p two-sided exact tail probability.
+
+Compare matched development measurements while retaining magnitudes under a justified sign-exchangeable null.
+
+Assumptions — Joint null invariance under independent sign reversals (for example independent symmetric differences); correct matching and prespecified two-sided statistic..
+
+Limitations — Exponential enumeration cost; does not test a zero mean under arbitrary asymmetric or dependent distributions..
+
+Mechanism — Uses magnitudes in the test statistic rather than merely counting positive signs.
+
+Source — SciPy maintainers, permutation_test API, permutation_type='samples' for a single paired-difference sample. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.permutation_test.html

@@ -1,6 +1,6 @@
 # Sky Universal Mathematical Research Library
 
-Research catalogue v1 registers **302 specifications** across six sports, including 16 preserved v0 records and 286 entries added in batches. The 1,000-entry milestone remains open with **698 entries outstanding**.
+Research catalogue v1 registers **305 specifications** across six sports, including 16 preserved v0 records and 289 entries added in batches. The 1,000-entry milestone remains open with **695 entries outstanding**.
 
 | Classification | Count |
 | --- | ---: |
@@ -11,7 +11,7 @@ Research catalogue v1 registers **302 specifications** across six sports, includ
 | Model variants | 25 |
 | Parameter configurations | 1 |
 | Feature transformations | 13 |
-| Diagnostics | 67 |
+| Diagnostics | 70 |
 | Calibration methods | 7 |
 | Ensembles | 8 |
 | Decision rules | 9 |
@@ -83,6 +83,10 @@ The intake CLI supports `--next` to identify the staged batch from the current m
 
 ## Batch 020 admission
 
-Five assessment-only specifications admitted after structural and source-definition review. The catalogue now contains 302 entries; three batch 021 candidates are staged, not registered. No empirical qualification claimed. See [admission review](BATCH-020-ADMISSION.md).
+Five assessment-only specifications admitted after structural and source-definition review. At the end of batch 020 the catalogue contained 302 entries; three batch 021 candidates were staged. No empirical qualification claimed. See [admission review](BATCH-020-ADMISSION.md).
 
 The snapshot checker can verify the generated index, reference, summary and ledger against their committed counterparts without writing files.
+
+## Batch 021 admission
+
+Three assessment-only specifications admitted after structural and source review. The catalogue now contains 305 entries; four batch 022 dependence diagnostics are staged, not registered. See [admission review](BATCH-021-ADMISSION.md). No empirical qualification claimed.
