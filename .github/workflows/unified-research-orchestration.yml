@@ -95,6 +95,12 @@ jobs:
           console.log('PASS seven metadata reviews, anchored persistence and unchanged Phase 2 state')
           JS
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Read-only orchestration browser acceptance
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node research/unified-orchestration/browser-acceptance.mjs "$RUNNER_TEMP/orchestration-evidence" "$RUNNER_TEMP/orchestration-output"
+          test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
           name: unified-research-orchestration-evidence
