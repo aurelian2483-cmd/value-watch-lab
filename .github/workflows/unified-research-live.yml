@@ -101,6 +101,43 @@ jobs:
           cmp "$RUNNER_TEMP/live-state/current.json" "$RUNNER_TEMP/live-recovered/current.json"
           node -e 'const a=require(process.argv[1]),b=require(process.argv[2]); if(a.stateSha256!==b.stateSha256||a.checkpointSha256!==b.checkpointSha256||b.publicationGate!=="BLOCKED")process.exit(1)' "$RUNNER_TEMP/unified-output/checkpoint-receipt.json" "$RUNNER_TEMP/unified-output/recovery-receipt.json"
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Authenticate six historical reports with isolated CI-only signing keys
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {createHash,generateKeyPairSync,sign} from 'node:crypto'
+          import {readFileSync,writeFileSync,mkdirSync,copyFileSync} from 'node:fs'
+          import {join} from 'node:path'
+          import {signedSynchronise,signatureMessage} from './research/unified-live/producer-intake.mjs'
+          const root=process.env.RUNNER_TEMP,inbox=join(root,'signed-inbox'),state=join(root,'signed-state')
+          mkdirSync(inbox);mkdirSync(state)
+          const hash=x=>createHash('sha256').update(x).digest('hex')
+          const raw=readFileSync(join(root,'unified-input','approval.json'))
+          const a=JSON.parse(raw),approvalSha=hash(raw)
+          writeFileSync(join(inbox,'approval.json'),raw)
+          const pairs=a.sources.map(()=>generateKeyPairSync('ed25519'))
+          const producers=a.sources.map((s,i)=>{
+            copyFileSync(join(root,'unified-input',s.id+'.json'),join(inbox,s.id+'.json'))
+            const der=pairs[i].publicKey.export({type:'spki',format:'der'})
+            return {id:s.id,publicKeyDer:der.toString('base64'),keySha256:hash(der)}
+          })
+          const trustRaw=JSON.stringify({kind:'TRUSTED_RESEARCH_PRODUCERS',schemaVersion:1,producers}),trust=join(root,'ci-trust.json')
+          writeFileSync(trust,trustRaw)
+          const signedAt=new Date().toISOString(),expiresAt=new Date(Date.parse(signedAt)+600000).toISOString()
+          const signatures=a.sources.map((s,i)=>{
+            const keySha256=producers[i].keySha256
+            return {id:s.id,keySha256,signedAt,expiresAt,signature:sign(null,signatureMessage({...s,approvalSha256:approvalSha,sequence:a.sequence,signedAt,expiresAt,keySha256}),pairs[i].privateKey).toString('base64')}
+          })
+          writeFileSync(join(inbox,'producer-signatures.json'),JSON.stringify({kind:'SIGNED_RESEARCH_SUMMARIES',schemaVersion:1,signatures}))
+          const receipt=signedSynchronise(inbox,state,trust,hash(trustRaw),approvalSha,{now:signedAt})
+          assert.equal(receipt.status,'ACCEPTED');assert.equal(receipt.producers.length,6)
+          const actual=JSON.parse(readFileSync(join(state,'current.json')))
+          const baseline=JSON.parse(readFileSync(join(root,'live-state','current.json')))
+          assert.deepEqual(actual.snapshot,baseline.snapshot)
+          writeFileSync(join(root,'unified-output','signed-intake-ci.json'),JSON.stringify({keyScope:'EPHEMERAL_CI_TEST_ONLY',...receipt},null,2)+'\n')
+          console.log('PASS six historical reports through signed intake with ephemeral test keys')
+          JS
+          test -z "$(git status --porcelain --untracked-files=all)"
       - name: Live browser acceptance and timed refresh
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
