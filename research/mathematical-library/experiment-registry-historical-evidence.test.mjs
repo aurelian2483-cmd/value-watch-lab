@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {mkdtempSync,rmSync,writeFileSync,readFileSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
+import {fileURLToPath} from 'node:url'
 import {createHash} from 'node:crypto'
 import {inventoryHistorical} from './experiment-registry-historical-evidence.mjs'
 const row={competition:'Example',home:'A',away:'B',kickoff_utc:'2026-08-28T23:59:59Z',actual_outcome:'H',score_home:2,score_away:1,source_url:'https://example.org/results.csv',upstream_provider:'example',time_precision:'DATE_ONLY_END_OF_DAY'}
@@ -32,7 +33,7 @@ test('rejects unsupported headers and malformed timestamp precision',t=>{
  assert.equal(inventoryHistorical(b.dir).counts.rejected,2)
 })
 test('inventories checked-in source without promoting evidence',()=>{
- const r=inventoryHistorical(new URL('../../..',import.meta.url).pathname)
+ const r=inventoryHistorical(fileURLToPath(new URL('../../',import.meta.url)))
  assert.equal(r.counts.input,r.counts.accepted+r.counts.duplicates+r.counts.conflicting+r.counts.rejected)
  assert.equal(r.evidenceTier,'SINGLE_SOURCE_UNVERIFIED')
  assert.equal(r.publicationGate,'BLOCKED')
