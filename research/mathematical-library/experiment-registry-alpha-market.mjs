@@ -2,6 +2,7 @@ import {readFileSync} from 'node:fs'
 import {join} from 'node:path'
 import {createHash} from 'node:crypto'
 import FootballMatchEvidence from '../../football-match/core.js'
+import {summarizeDisagreement} from './experiment-registry-alpha-disagreement.mjs'
 
 const paths=['paper-lab/hybrid-market-data.json','research-dashboard-data.json','football-expanded-data.json']
 const unavailable=reason=>({available:false,reason,counts:null,sources:[],researchOnly:true,publicationGate:'BLOCKED',executionAuthorized:false})
@@ -25,6 +26,7 @@ export function alphaMarket(root,asOf=Date.now()){
   const sourceCounts=Object.create(null)
   for(const h of histories) sourceCounts[h.sourceId]=(sourceCounts[h.sourceId]??0)+h.observationCount
   return {available:true,reason:histories.length?'ARCHIVED_OBSERVATIONS_ONLY':'NO_MATCHED_OBSERVATIONS',
+   disagreement:summarizeDisagreement(matches,asOf),
    counts:{archiveRows:market.data.records.length,matchedFixtures:matches.length,
     sourceHistories:histories.length,observations:histories.reduce((sum,h)=>sum+h.observationCount,0),
     withheldItems:result.withheld},sourceCounts,
@@ -34,6 +36,6 @@ export function alphaMarket(root,asOf=Date.now()){
    limitations:['Football regulation-time archive only; current fixture coverage may exclude older captures.',
     'Existing verifier checks stored evidence metadata, not independent provider authenticity.',
     'Source counts are observations, not unique events; withheld items are not archive-row counts.',
-    'No price values, market comparisons, executable quotes or selection recommendations are exposed.']}
+    'Only unsigned aggregate distribution distances are exposed; no price values, executable quotes or selections.']}
  }catch(e){return unavailable(e.code==='ENOENT'?'SOURCE_MISSING':'SOURCE_UNREADABLE_OR_INVALID')}
 }
