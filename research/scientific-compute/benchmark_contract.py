@@ -1,7 +1,7 @@
 """Structural checks for the fixed repeated benchmark contract; not hardware attestation."""
 import math
 import statistics
-from benchmark import cases, fingerprint, REPEATS, WARMUPS
+from benchmark import cases, fingerprint, REPEATS, WARMUPS, TOLERANCES
 
 def finite_nonnegative(value):
     return type(value) in (int,float) and math.isfinite(value) and value>=0
@@ -18,12 +18,15 @@ def verify_benchmark(report, mode):
     if not isinstance(gpu,dict) or gpu.get("status")!=("MEASURED" if mode=="gpu" else "NOT_REQUESTED"):
         return False
     expected={}
+    max_error={}
     for name,n,a,b,e in cases():
         digest=fingerprint(a,b,e)
         expected[(name,n,"PYTHON_FSUM","float64")]=digest
+        max_error[(name,n,"PYTHON_FSUM","float64")]=max(TOLERANCES["float64"][0]+TOLERANCES["float64"][1]*abs(x) for row in e for x in row)
         if mode=="gpu":
             for precision in ("float32","float64"):
                 expected[(name,n,"CUPY",precision)]=digest
+                max_error[(name,n,"CUPY",precision)]=max(TOLERANCES[precision][0]+TOLERANCES[precision][1]*abs(x) for row in e for x in row)
     rows=report.get("results")
     if not isinstance(rows,list) or len(rows)!=len(expected) or report.get("expectedRows")!=len(expected):
         return False
@@ -52,6 +55,7 @@ def verify_benchmark(report, mode):
             if (not isinstance(check,dict) or check.get("status")!="PASS"
                 or not finite_nonnegative(check.get("maxAbsoluteError"))
                 or not finite_nonnegative(check.get("maxScaledError"))
-                or check["maxScaledError"]>1):
+                or check["maxScaledError"]>1
+                or check["maxAbsoluteError"]>max_error[key]*check["maxScaledError"]+1e-15):
                 return False
     return seen==set(expected)

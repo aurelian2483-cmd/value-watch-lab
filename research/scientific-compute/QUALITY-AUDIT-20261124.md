@@ -1,0 +1,5 @@
+# Integration and quality audit — 24 November 2026
+
+Baseline PR #174 head `3c8ca6d9382f079d0c869895a9ba87da114a4ee3`: full regression run 45483702212 and scientific compute run 45483702553 passed. Windows and Linux each passed 31 tests. Hosted CPU only; GPU backend is not physically verified.
+
+Corrections in this audit: bind smoke fixture hashes and timing fields; require GPU not requested in CPU mode; check consistency of benchmark absolute and scaled error summaries; distinguish requested Linux limits from child-reported applied limits; check receipt policy consistency and JSON-type-sensitive integrity; browser acceptance at 1440, 390 and 320 pixels, no external requests or execution controls. These checks establish structural consistency, not proof of physical hardware identity. No changes to earlier PRs or source datasets. Remaining limitations: unsigned receipts, no hostile-code sandbox, output capture cap checked after capture, direct child deadline only, no Windows OS memory cap, no GPU resource ceilings, no actual hardware/GPU run, no optimized CPU comparison or production integration. New tests pending.

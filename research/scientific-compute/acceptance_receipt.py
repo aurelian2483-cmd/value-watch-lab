@@ -16,7 +16,10 @@ def make_receipt(mode,revision,smoke,benchmark):
     for workload,report,verify in (("smoke",smoke,verify_report),("benchmark",benchmark,verify_benchmark)):
         valid=(isinstance(report,dict) and report.get("kind")=="SCIENTIFIC_COMPUTE_PROCESS_REPORT"
                and report.get("schemaVersion")==1 and report.get("mode")==mode and report.get("workload")==workload
-               and report.get("status")=="PASS" and report.get("exitCode")==0
+               and report.get("status")=="PASS" and type(report.get("exitCode")) is int and report.get("exitCode")==0
+               and isinstance(report.get("appliedResourcePolicy"),dict)
+               and isinstance(report.get("report"),dict)
+               and report["appliedResourcePolicy"]==report["report"].get("appliedResourcePolicy")
                and report.get("researchOnly") is True and report.get("publicationGate")=="BLOCKED"
                and report.get("executionAuthorized") is False and report.get("validationAuthorized") is False
                and verify(report.get("report"),mode))
@@ -35,7 +38,7 @@ def verify_receipt(receipt):
         return False
     try:
         expected=make_receipt(receipt["mode"],receipt["declaredRevision"],receipt["reports"]["smoke"],receipt["reports"]["benchmark"])
-        return receipt==expected
+        return digest(receipt)==digest(expected)
     except (KeyError,TypeError,ValueError,OverflowError):
         return False
 

@@ -1,5 +1,6 @@
 """Fixed synthetic compute subprocess supervisor. No arbitrary commands or datasets."""
 import json
+import hashlib
 import math
 import os
 import platform
@@ -23,27 +24,34 @@ def limits():
 
 def apply_cpu_limits():
     import resource
-    for key, value in ((resource.RLIMIT_CPU,10),(resource.RLIMIT_AS,512*1024*1024)):
+    actual={}
+    for name,key, value in (("cpuSeconds",resource.RLIMIT_CPU,10),("addressSpaceBytes",resource.RLIMIT_AS,512*1024*1024)):
         old_soft, old_hard = resource.getrlimit(key)
         cap = min(v for v in (value,old_soft,old_hard) if v != resource.RLIM_INFINITY)
         resource.setrlimit(key,(cap,cap))
+        actual[name]=resource.getrlimit(key)[0]
+    return {"status":"LINUX_RLIMIT_APPLIED",**actual}
 
 def valid_rows(rows):
+    from compute import fixture
+    expected={size:hashlib.sha256(json.dumps(fixture(size),separators=(',',':')).encode()).hexdigest() for size in SHAPES}
     return isinstance(rows,list) and len(rows)==len(SHAPES) and all(
         isinstance(row,dict) and row.get("size")==size and row.get("precision")=="float64"
+        and row.get("fixtureSha256")==expected[size]
+        and type(row.get("elapsedSeconds")) in (int,float) and math.isfinite(row["elapsedSeconds"]) and row["elapsedSeconds"]>=0
         and row.get("status")=="PASS" and type(row.get("maxAbsoluteError")) in (int,float)
         and math.isfinite(row["maxAbsoluteError"]) and 0<=row["maxAbsoluteError"]<=1e-10
         for row,size in zip(rows,SHAPES))
 
 def verify_report(report,mode):
-    if not isinstance(report,dict) or report.get("kind")!="GENERAL_SCIENTIFIC_COMPUTE_SMOKE" or report.get("schemaVersion")!=1:
+    if mode not in ("cpu","gpu") or not isinstance(report,dict) or report.get("kind")!="GENERAL_SCIENTIFIC_COMPUTE_SMOKE" or report.get("schemaVersion")!=1:
         return False
     if report.get("requestedMode")!=mode or report.get("researchOnly") is not True or report.get("publicationGate")!="BLOCKED" or report.get("executionAuthorized") is not False or report.get("validationAuthorized") is not False:
         return False
     gpu=report.get("gpu")
     return (report.get("status")=="PASS" and valid_rows(report.get("cpu"))
             and isinstance(gpu,dict) and
-            (gpu.get("status")=="NOT_REQUESTED" if mode=="cpu" else
+            (gpu.get("status")=="NOT_REQUESTED" and gpu.get("results")==[] and gpu.get("deviceCount") is None if mode=="cpu" else
              gpu.get("status")=="SYNTHETIC_GPU_SMOKE_PASSED" and valid_rows(gpu.get("results"))
              and type(gpu.get("deviceCount")) is int and gpu["deviceCount"]>0))
 
@@ -72,11 +80,17 @@ def supervise(mode="cpu",timeout=30,workload="smoke"):
                     valid=verify_benchmark(report,mode)
                 else:
                     valid=verify_report(report,mode)
+                applied=report.get("appliedResourcePolicy") if isinstance(report,dict) else None
+                if policy["status"]=="LINUX_RLIMIT_REQUESTED":
+                    valid=valid and isinstance(applied,dict) and applied.get("status")=="LINUX_RLIMIT_APPLIED" and all(
+                        type(applied.get(k)) is int and 0<applied[k]<=policy[k] for k in ("cpuSeconds","addressSpaceBytes"))
+                else:
+                    valid=valid and applied==policy
                 if result.returncode==0 and valid:
                     outcome.update(status="PASS",reason="FIXED_SMOKE_PASSED" if workload=="smoke" else "FIXED_BENCHMARK_PASSED")
                 else:
                     outcome["reason"]="CHILD_FAILED_OR_INVALID_EVIDENCE"
-            except (ValueError,UnicodeError):
+            except (ValueError,UnicodeError,TypeError,OverflowError,RecursionError):
                 outcome["reason"]="INVALID_CHILD_OUTPUT"
     except subprocess.TimeoutExpired:
         outcome["reason"]="TIMEOUT"
@@ -84,7 +98,7 @@ def supervise(mode="cpu",timeout=30,workload="smoke"):
         outcome["reason"]="PROCESS_START_FAILED"
     return {"kind":"SCIENTIFIC_COMPUTE_PROCESS_REPORT","schemaVersion":1,"mode":mode,"workload":workload,
             "timeoutSeconds":timeout,"elapsedSeconds":time.monotonic()-started,
-            "resourcePolicy":policy,**outcome,"researchOnly":True,"publicationGate":"BLOCKED",
+            "resourcePolicy":policy,"appliedResourcePolicy":outcome["report"].get("appliedResourcePolicy") if isinstance(outcome["report"],dict) else None,**outcome,"researchOnly":True,"publicationGate":"BLOCKED",
             "executionAuthorized":False,"validationAuthorized":False,
             "limitations":["Separate process is not a security sandbox; timeout controls direct child only.",
                            "Linux CPU mode applies address-space and CPU-time limits; GPU and other platforms do not.",
@@ -96,8 +110,9 @@ def child(mode,workload="smoke"):
         raise ValueError("Unsupported workload")
     if mode not in ("cpu","gpu"):
         raise ValueError("Invalid child mode")
-    if mode=="cpu" and limits()["status"]=="LINUX_RLIMIT_REQUESTED":
-        apply_cpu_limits()
+    policy=limits() if mode=="cpu" else {"status":"NOT_APPLIED_GPU_RUNTIME","cpuSeconds":None,"addressSpaceBytes":None}
+    if policy["status"]=="LINUX_RLIMIT_REQUESTED":
+        policy=apply_cpu_limits()
     # Isolated interpreter omits script directory; explicitly load this trusted local module.
     sys.path.insert(0,str(ROOT))
     if workload=="benchmark":
@@ -105,6 +120,7 @@ def child(mode,workload="smoke"):
     else:
         from compute import run
     report=run(mode)
+    report["appliedResourcePolicy"]=policy
     print(json.dumps(report,allow_nan=False))
     return 0 if report["status"]=="PASS" else 1
 

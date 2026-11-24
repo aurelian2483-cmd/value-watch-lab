@@ -38,3 +38,7 @@ The supervisor now accepts the fixed `smoke` or `benchmark` workload, with exist
 ## Phase 6 — read-only control-centre reporting
 
 `python -B research/scientific-compute/status.py <artifact-directory> <expected-revision> json|html` reads the fixed optional `local-cpu-receipt.json` and `local-gpu-receipt.json` names only. It checks revision, mode, receipt integrity and existing report contracts; missing values remain unavailable. No workloads are started. CPU and GPU claims are displayed separately, with no comparison across hosts and no independent hardware verification claim. CI emits compute-status.json and compute-status.html using actual CPU receipts. This is a standalone reporting adapter, not an integrated deployed control centre. Browser acceptance, GPU runtime execution and final quality audit remain outstanding.
+
+## Quality audit
+
+See [quality audit](QUALITY-AUDIT-20261124.md). Additional evidence-contract checks and Linux child-reported resource limits are covered by regression tests. Chromium acceptance is configured for the static dashboard on hosted Linux. Physical GPU acceptance remains outstanding.
