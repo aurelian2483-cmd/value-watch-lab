@@ -4079,3 +4079,49 @@ Assumptions — Aligned series share latent factors; choose loading identificati
 Limitations — Rotations preserve observational likelihood absent identifying constraints, and omitted correlated noise can mimic a factor.
 
 Source — statsmodels maintainers’ API reference, DynamicFactor. https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.dynamic_factor.DynamicFactor.html
+
+## Benjamini–Yekutieli false discovery control (benjamini-yekutieli)
+
+> For ordered valid p-values p_(1)≤…≤p_(m), let H_m=Σ_(j=1)^m 1/j and q∈(0,1). Set k=max({0}∪{i:p_(i)≤i q/(m H_m)}); reject the first k hypotheses.
+
+m positive number of hypotheses; p_(i) sorted p-values; H_m harmonic sum; q target false discovery rate; k rejection count.
+
+Audit multiplicity in a prespecified family of scientific comparisons on permitted development data
+
+Assumptions — Prespecified family of valid super-uniform null p-values; arbitrary dependence allowed under the theorem.
+
+Limitations — Conservative for large families; invalid or adaptively selected p-values can invalidate guarantees.
+
+Mechanism — Harmonic adjustment changes the rejection threshold under arbitrary dependence; not an additional independent test of the same hypothesis.
+
+Source — Benjamini and Yekutieli (2001), The control of the false discovery rate in multiple testing under dependency, Theorem 1.3; SciPy false_discovery_control documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.false_discovery_control.html
+
+## One-dimensional energy distance (energy-distance-1d)
+
+> D(P,Q)=[2E|X−Y|−E|X−X′|−E|Y−Y′|]^(1/2), where X,X′ independently follow P and Y,Y′ independently follow Q, with all four draws independent.
+
+P,Q real-valued distributions; X,X′,Y,Y′ independent draws; D nonnegative distance.
+
+Describe distribution changes between comparable historical measurements or residuals
+
+Assumptions — Finite first absolute moments; comparable measurement units; empirical plug-in uses empirical product distributions.
+
+Limitations — Magnitude depends on measurement scale; distance alone is not a significance test and does not establish causality.
+
+Source — SciPy maintainers, energy_distance API, mathematical definition and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.energy_distance.html
+
+## Two-sample Cramér–von Mises test (cvm-two-sample)
+
+> T=(nm/(n+m))∫[F_n(x)−G_m(x)]² dH_(n+m)(x), with H_(n+m)=(nF_n+mG_m)/(n+m), evaluated for continuous distributions without ties.
+
+F_n,G_m empirical distribution functions, n,m positive sample sizes, H pooled empirical CDF, T discrepancy statistic.
+
+Investigate whether comparable independent historical samples have the same distribution
+
+Assumptions — Independent samples and independent observations within samples from continuous distributions under the usual null; the stated statistic assumes no ties.
+
+Limitations — Dependent sequences require a separately justified test; discrete data and ties need an appropriate rank and null-distribution treatment.
+
+Mechanism — Two empirical distributions are compared, unlike the one-sample test against a specified theoretical CDF.
+
+Source — SciPy maintainers, cramervonmises_2samp API and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cramervonmises_2samp.html

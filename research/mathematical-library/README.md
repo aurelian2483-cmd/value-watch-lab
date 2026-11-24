@@ -1,17 +1,17 @@
 # Sky Universal Mathematical Research Library
 
-Research catalogue v1 registers **286 specifications** across six sports, including 16 preserved v0 records and 270 entries added in batches. The 1,000-entry milestone remains open with **714 entries outstanding**.
+Research catalogue v1 registers **289 specifications** across six sports, including 16 preserved v0 records and 273 entries added in batches. The 1,000-entry milestone remains open with **711 entries outstanding**.
 
 | Classification | Count |
 | --- | ---: |
-| Distinct algorithms | 105 |
+| Distinct algorithms | 106 |
 | Distinct models | 33 |
 | Distributions | 29 |
 | Frameworks | 4 |
 | Model variants | 25 |
 | Parameter configurations | 1 |
 | Feature transformations | 13 |
-| Diagnostics | 52 |
+| Diagnostics | 54 |
 | Calibration methods | 7 |
 | Ensembles | 8 |
 | Decision rules | 9 |
@@ -40,7 +40,7 @@ For any future forecasting experiment, record a prediction cutoff and verify whe
 
 ## Audit corrections
 
-The [evidence audit](EVIDENCE-AUDIT-2026-11-20.md) records the original findings. All 286 IDs remain registered. The 105 records classified as distinct algorithms represent 104 after the recorded `prox-l1` → `ista` equivalence. Their iterates agree for the same smooth loss, L₁ penalty, penalty mask and initialization at constant step η=1/L. An exempt intercept receives the ordinary gradient step. FISTA adds extrapolation. This count reflects the recorded equivalence and remains subject to further review. [Beck and Teboulle, §§3–4](https://www.ceremade.dauphine.fr/~carlier/FISTA)
+The [evidence audit](EVIDENCE-AUDIT-2026-11-20.md) records the original findings. All original 286 IDs remain registered. Before batch 016, the 105 records classified as distinct algorithms represented 104 after the recorded `prox-l1` → `ista` equivalence. Their iterates agree for the same smooth loss, L₁ penalty, penalty mask and initialization at constant step η=1/L. An exempt intercept receives the ordinary gradient step. FISTA adds extrapolation. This count reflects the recorded equivalence and remains subject to further review. [Beck and Teboulle, §§3–4](https://www.ceremade.dauphine.fr/~carlier/FISTA)
 
 Every sport tag depends on the conditions in its [applicability profile](sport-profiles.v1.json). Assessment and causal methods use authorized development or historical study records with settled outcomes. IPW and AIPW require pre-treatment covariates and settled outcomes for effect estimation. At-cutoff methods use the data version and fitted parameters available at each origin. Locating a historical breakpoint or decoded state using a full prefix gives it the availability time of that calculation.
 
@@ -62,3 +62,7 @@ Source checks included the Glicko update and separate game expectation, the run-
 The five review perspectives are recorded in the audit. Next intake needs deeper sources and method coverage for control, physics, deep learning, evolutionary computation, causal inference, numerical analysis, and sport-specific modelling.
 
 The review gate remains closed for tournaments and promotion. The original 608-match replay, existing predictions, website, production branches and deployment configuration are outside this PR’s diff.
+
+## Batch 016 admission
+
+Three assessment-only specifications were admitted after structural intake and source-definition review. The current catalogue has 289 entries, including 106 distinct-algorithm classifications (105 after recorded equivalences). The two batch 017 candidates remain unregistered. No empirical qualification is claimed. See [admission review](BATCH-016-ADMISSION.md).

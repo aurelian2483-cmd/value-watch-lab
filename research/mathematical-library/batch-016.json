@@ -1,0 +1,151 @@
+[
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "016",
+    "id": "benjamini-yekutieli",
+    "name": "Benjamini–Yekutieli false discovery control",
+    "family": "forecast-verification",
+    "classification": "distinct-algorithm",
+    "definition": "For ordered valid p-values p_(1)≤…≤p_(m), let H_m=Σ_(j=1)^m 1/j and q∈(0,1). Set k=max({0}∪{i:p_(i)≤i q/(m H_m)}); reject the first k hypotheses.",
+    "variables": "m positive number of hypotheses; p_(i) sorted p-values; H_m harmonic sum; q target false discovery rate; k rejection count",
+    "assumptions": "Prespecified family of valid super-uniform null p-values; arbitrary dependence allowed under the theorem",
+    "limitations": "Conservative for large families; invalid or adaptively selected p-values can invalidate guarantees",
+    "failure_conditions": [
+      "Incomplete test family or invalid null p-values"
+    ],
+    "computation": "Sort p-values and scan the harmonic-adjusted thresholds; O(m log m)",
+    "source": {
+      "kind": "literature",
+      "citation": "Benjamini and Yekutieli (2001), The control of the false discovery rate in multiple testing under dependency, Theorem 1.3; SciPy false_discovery_control documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.false_discovery_control.html"
+    },
+    "application": "Audit multiplicity in a prespecified family of scientific comparisons on permitted development data",
+    "required_inputs": "Complete prespecified family of valid hypothesis-test p-values and target q",
+    "compatible_methods": [
+      "benjamini-hochberg",
+      "holm"
+    ],
+    "incompatible_methods": [
+      "Post hoc omission of unsuccessful tests"
+    ],
+    "relationships": [
+      {
+        "target": "benjamini-hochberg",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Harmonic adjustment changes the rejection threshold under arbitrary dependence; not an additional independent test of the same hypothesis."
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "016",
+    "id": "energy-distance-1d",
+    "name": "One-dimensional energy distance",
+    "family": "multivariate-statistics",
+    "classification": "diagnostic",
+    "definition": "D(P,Q)=[2E|X−Y|−E|X−X′|−E|Y−Y′|]^(1/2), where X,X′ independently follow P and Y,Y′ independently follow Q, with all four draws independent.",
+    "variables": "P,Q real-valued distributions; X,X′,Y,Y′ independent draws; D nonnegative distance",
+    "assumptions": "Finite first absolute moments; comparable measurement units; empirical plug-in uses empirical product distributions",
+    "limitations": "Magnitude depends on measurement scale; distance alone is not a significance test and does not establish causality",
+    "failure_conditions": [
+      "Incompatible measurement scales or undefined first moments"
+    ],
+    "computation": "Compute weighted pairwise absolute differences under empirical distributions, including within-sample diagonal terms",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, energy_distance API, mathematical definition and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.energy_distance.html"
+    },
+    "application": "Describe distribution changes between comparable historical measurements or residuals",
+    "required_inputs": "Two authorised samples of the same real-valued measurement in consistent units",
+    "compatible_methods": [
+      "ecdf",
+      "population-stability-index"
+    ],
+    "incompatible_methods": [
+      "Unmatched measurement units or interpreting distance as a p-value"
+    ],
+    "relationships": [
+      {
+        "target": "cvm",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "016",
+    "id": "cvm-two-sample",
+    "name": "Two-sample Cramér–von Mises test",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "definition": "T=(nm/(n+m))∫[F_n(x)−G_m(x)]² dH_(n+m)(x), with H_(n+m)=(nF_n+mG_m)/(n+m), evaluated for continuous distributions without ties.",
+    "variables": "F_n,G_m empirical distribution functions, n,m positive sample sizes, H pooled empirical CDF, T discrepancy statistic",
+    "assumptions": "Independent samples and independent observations within samples from continuous distributions under the usual null; the stated statistic assumes no ties",
+    "limitations": "Dependent sequences require a separately justified test; discrete data and ties need an appropriate rank and null-distribution treatment",
+    "failure_conditions": [
+      "Unmodelled repeated or dependent observations"
+    ],
+    "computation": "Sort pooled observations and sum squared CDF differences weighted by pooled empirical mass; compute a valid null reference separately",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, cramervonmises_2samp API and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cramervonmises_2samp.html"
+    },
+    "application": "Investigate whether comparable independent historical samples have the same distribution",
+    "required_inputs": "Two independent authorised development samples of a comparable continuous measurement",
+    "compatible_methods": [
+      "cvm",
+      "ks-one-sample"
+    ],
+    "incompatible_methods": [
+      "Treating time-correlated observations as independent"
+    ],
+    "relationships": [
+      {
+        "target": "cvm",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Two empirical distributions are compared, unlike the one-sample test against a specified theoretical CDF."
+  }
+]
