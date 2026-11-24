@@ -26,7 +26,7 @@ const actions={
  STORE_LOCK_PRESENT:'Wait for the owner or review the lock manually.'
 }
 function snapshot(root){
- const receipts=[],manifests=[],folders=[]
+ const receipts=[],manifests=[],folders=[],artifactIdentities=new Map()
  let total=0
  const read=(path,relative)=>{
   const s=lstatSync(path)
@@ -36,6 +36,10 @@ function snapshot(root){
   const b=readFileSync(path)
   if(b.length!==s.size)throw Error('File changed')
   receipts.push({path:relative,sha256:hash(b),bytes:b.length})
+  if(relative.startsWith('artifacts/')){
+   try{const a=JSON.parse(b);artifactIdentities.set(relative,{schemaVersion:a?.schemaVersion,experimentId:a?.experimentId,stateObject:!!a?.state&&Object.getPrototypeOf(a.state)===Object.prototype})}
+   catch{artifactIdentities.set(relative,null)}
+  }
  }
  const names=readdirSync(root).sort()
  if(names.length>maxEntries)throw Error('Too many entries')
@@ -57,7 +61,7 @@ function snapshot(root){
    read(p,name)
   }else throw Error('Unexpected registry entry')
  }
- return {receipts,manifests,folders,fingerprint:hash(JSON.stringify({receipts,manifests,folders}))}
+ return {receipts,manifests,folders,artifactIdentities,fingerprint:hash(JSON.stringify({receipts,manifests,folders}))}
 }
 export function inspectRegistry(directory,{asOf=new Date().toISOString(),runningAgeSeconds=3600}={}){
  if(typeof asOf!=='string'||!Number.isFinite(Date.parse(asOf))||new Date(asOf).toISOString()!==asOf||
@@ -85,7 +89,7 @@ export function inspectRegistry(directory,{asOf=new Date().toISOString(),running
     let previous=-Infinity
     for(const event of h.events){
      const t=Date.parse(event.recordedAt)
-     if(!Number.isFinite(t)||t<previous||t>Date.parse(asOf)+60000)add('INVALID_EVENT_TIME','BLOCK',row.experimentId)
+     if(typeof event.recordedAt!=='string'||!Number.isFinite(t)||new Date(t).toISOString()!==event.recordedAt||t<previous||t>Date.parse(asOf)+60000)add('INVALID_EVENT_TIME','BLOCK',row.experimentId)
      previous=t
     }
     if(row.status==='RUNNING'&&last&&Date.parse(asOf)-Date.parse(last.recordedAt)>runningAgeSeconds*1000)
@@ -95,12 +99,13 @@ export function inspectRegistry(directory,{asOf=new Date().toISOString(),running
     for(const event of h.events.filter(e=>['CHECKPOINTED','COMPLETED'].includes(e.status)||(e.status==='FAILED'&&e.details?.artifactHash!==undefined))){
      const digest=event.details?.artifactHash
      const evidence=typeof digest==='string'&&idPattern.test(digest)&&before.receipts.find(r=>r.path==='artifacts/'+digest+'.json')
-     if(!evidence||evidence.sha256!==digest)add(event.status==='CHECKPOINTED'?'CHECKPOINT_UNAVAILABLE_OR_INVALID':'TERMINAL_EVIDENCE_MISSING_OR_INVALID','BLOCK',row.experimentId)
+     const identity=evidence&&before.artifactIdentities.get(evidence.path)
+     if(!evidence||evidence.sha256!==digest||identity?.schemaVersion!==1||identity.experimentId!==row.experimentId||!identity.stateObject)add(event.status==='CHECKPOINTED'?'CHECKPOINT_UNAVAILABLE_OR_INVALID':'TERMINAL_EVIDENCE_MISSING_OR_INVALID','BLOCK',row.experimentId)
     }
    }
    const after=snapshot(root)
    stable=before.fingerprint===after.fingerprint
-   if(stable){counts=old.snapshot.statuses;receipt=before.fingerprint}
+   if(stable){counts=old.snapshot.errors.length===0?old.snapshot.statuses:null;receipt=before.fingerprint}
    else add('STORE_CHANGED_DURING_INSPECTION','BLOCK')
   }
  }catch(e){add(e?.code==='ENOENT'?'STORE_UNAVAILABLE':'UNSAFE_OR_OVERSIZED_STORE','BLOCK')}

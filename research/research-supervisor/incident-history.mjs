@@ -9,7 +9,7 @@ const hash=x=>createHash('sha256').update(x).digest('hex')
 const sha=x=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x)
 const rev=x=>typeof x==='string'&&/^[a-f0-9]{40}$/.test(x)
 const utc=x=>typeof x==='string'&&Number.isFinite(Date.parse(x))&&new Date(x).toISOString()===x
-const lock='.incident-history-lock',limit=1000,maxBytes=2*1024*1024
+const lock='.incident-history-lock',limit=1000,maxBytes=2*1024*1024,maxTotalBytes=32*1024*1024
 const flags={researchOnly:true,publicationGate:'BLOCKED',executionAuthorized:false,validationAuthorized:false,repairAuthorized:false}
 function rootPath(directory){
  const root=resolve(directory)
@@ -32,7 +32,7 @@ function derive(registry,reports,revision){
  }
  const incidents=[...registry.incidents.map(i=>safeIncident(i,'registry')),...reports.incidents.map(i=>safeIncident(i,'reports'))].sort((a,b)=>a.id.localeCompare(b.id))
  if(new Set(incidents.map(i=>i.id)).size!==incidents.length)throw Error('Duplicate incident identity')
- return {incidents,coverage:{registry:registry.inspectionStable===true&&registry.counts!==null,reports:reports.inspectionStable===true&&reports.systems?.every(s=>!['EVIDENCE_MISSING','EVIDENCE_INCOMPLETE','INVALID_CONTRACT','INSPECTION_UNSTABLE'].includes(s.status))===true},
+ return {incidents,coverage:{registry:registry.inspectionStable===true&&registry.counts!==null&&!registry.incidents.some(i=>i.severity==='BLOCK'),reports:reports.inspectionStable===true&&reports.systems?.every(s=>!['EVIDENCE_MISSING','EVIDENCE_INCOMPLETE','INVALID_CONTRACT','INSPECTION_UNSTABLE'].includes(s.status))===true},
   registryReportSha256:hash(JSON.stringify(registry)),monitorReportSha256:hash(JSON.stringify(reports))}
 }
 function verifyEntry(entry,sequence,previous,revision){
@@ -52,9 +52,12 @@ function load(root,revision){
  const names=readdirSync(root).filter(n=>n!==lock).sort()
  if(names.length>limit||names.some((n,i)=>n!==String(i+1).padStart(8,'0')+'.json'))throw Error('Unexpected incident history entry or sequence gap')
  const entries=[]
+ let totalBytes=0
  for(const name of names){
   const p=join(root,name),s=lstatSync(p)
   if(!s.isFile()||s.isSymbolicLink()||s.size>maxBytes)throw Error('Unsafe history entry')
+  totalBytes+=s.size
+  if(totalBytes>maxTotalBytes)throw Error('History cumulative size limit exceeded')
   const bytes=readFileSync(p)
   if(bytes.length!==s.size)throw Error('History changed during read')
   const entry=JSON.parse(bytes)
@@ -62,7 +65,7 @@ function load(root,revision){
   if(entries.length&&entry.observedAt<=entries.at(-1).observedAt)throw Error('Non-increasing observation time')
   entries.push(entry)
  }
- return entries
+ return {entries,totalBytes}
 }
 export function summarizeHistory(entries){
  const known=new Map()
@@ -74,7 +77,7 @@ export function summarizeHistory(entries){
   for(const incident of entry.incidents){
    const old=known.get(incident.id)
    known.set(incident.id,{...incident,firstObservedAt:old?.firstObservedAt??entry.observedAt,lastObservedAt:entry.observedAt,
-    observations:(old?.observations??0)+1,state:!old?'NEW':old.state==='NOT_OBSERVED'?'RECURRING':'OBSERVED_AGAIN'})
+    observations:(old?.observations??0)+1,state:!old?'NEW':['NOT_OBSERVED','UNKNOWN_COVERAGE'].includes(old.state)?'RECURRING':'OBSERVED_AGAIN'})
   }
  }
  return [...known.values()].sort((a,b)=>a.id.localeCompare(b.id))
@@ -86,14 +89,14 @@ export function recordObservation(historyDirectory,registryDirectory,artifactDir
  const lockPath=join(root,lock),fd=openSync(lockPath,'wx',0o600)
  closeSync(fd)
  try{
-  const entries=load(root,revision)
+  const {entries,totalBytes}=load(root,revision)
   if(entries.length>=limit)throw Error('History limit reached; retain this history and begin a new explicitly scoped directory')
   if(entries.length&&observedAt<=entries.at(-1).observedAt)throw Error('Observation time must increase')
   const observation=derive(inspectRegistry(registry,{asOf:observedAt}),inspectReports(artifacts,revision),revision)
   const payload={kind:'RESEARCH_INCIDENT_OBSERVATION',schemaVersion:1,sequence:entries.length+1,previous:entries.at(-1)?.entrySha256??null,declaredRevision:revision,observedAt,...observation,...flags}
   const entry={...payload,entrySha256:hash(JSON.stringify(payload))}
   const data=JSON.stringify(entry)
-  if(Buffer.byteLength(data)>maxBytes)throw Error('Observation exceeds history size limit')
+  if(Buffer.byteLength(data)>maxBytes||totalBytes+Buffer.byteLength(data)>maxTotalBytes)throw Error('Observation exceeds history size limit')
   const target=join(root,String(entry.sequence).padStart(8,'0')+'.json'),temp=target+'.'+randomUUID()+'.tmp'
   try{writeFileSync(temp,data,{flag:'wx',mode:0o600,flush:true});linkSync(temp,target)}
   finally{try{unlinkSync(temp)}catch(e){if(e.code!=='ENOENT')throw e}}

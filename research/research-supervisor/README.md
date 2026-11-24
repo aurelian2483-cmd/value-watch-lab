@@ -21,3 +21,7 @@ Run `node research/research-supervisor/monitor-loop.mjs <history-directory> <reg
 ## Phase 6 — supervisor dashboard
 
 `node research/research-supervisor/dashboard.mjs <registry-directory> <artifact-directory> <revision> json|html` performs a fresh pair of inspections and derives the recovery plan from those same reports. The static dashboard presents the registry counts (unknown when unavailable), subsystem states, blocking/review counts, recommended manual actions and required evidence. It never starts monitoring, modifies source evidence or executes repairs. CI generates JSON and HTML from the actual disposable synthetic fixture bundle. The page is a standalone preview; browser acceptance, integration with a deployed control centre and final audit remain outstanding. JSON and HTML CLI runs are separate observations and may have different timestamps and fingerprints.
+
+## Quality audit
+
+See [quality audit](QUALITY-AUDIT-20261124.md). CI now renders HTML directly from the exact JSON dashboard snapshot and checks actual stored synthetic evidence and responsive browser acceptance. History also has a cumulative 32 MiB ceiling; an incident observed again after an unknown coverage period emits a new alert, without claiming it had resolved. Ordinary summary inspection remains limited to existing report contracts, not independent validation. No deployment.

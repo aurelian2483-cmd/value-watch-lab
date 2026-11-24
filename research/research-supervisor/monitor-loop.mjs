@@ -1,6 +1,7 @@
 // Explicitly started, bounded local observation loop. No network notifications or automatic repair.
 import {setTimeout as delay} from 'node:timers/promises'
 import {pathToFileURL} from 'node:url'
+import {performance} from 'node:perf_hooks'
 import {recordObservation} from './incident-history.mjs'
 const flags={researchOnly:true,publicationGate:'BLOCKED',executionAuthorized:false,validationAuthorized:false,repairAuthorized:false}
 const active=new Set(['NEW','RECURRING','OBSERVED_AGAIN'])
@@ -20,10 +21,10 @@ export async function monitorBounded(history,registry,artifacts,revision,{interv
    (maxCycles-1)*intervalSeconds>3600||typeof stopOnBlock!=='boolean'||typeof onObservation!=='function')
   throw Error('Invalid bounded monitoring policy')
  let cycles=0,alerts=0,suppressed=0,lastObservation=null,reason='CYCLE_LIMIT',failure=null
- const started=Date.now(),deadline=started+3600000
+ const deadline=performance.now()+3600000
  while(cycles<maxCycles){
   if(signal?.aborted){reason='STOP_REQUESTED';break}
-  if(Date.now()>=deadline){reason='TIME_BUDGET';break}
+  if(performance.now()>=deadline){reason='TIME_BUDGET';break}
   try{
    const summary=recordObservation(history,registry,artifacts,revision)
    const detected=alertsFor(summary)
@@ -34,7 +35,7 @@ export async function monitorBounded(history,registry,artifacts,revision,{interv
   }catch(e){reason='OBSERVATION_FAILED';failure=e?.code==='EEXIST'?'STORE_LOCK_OR_CONFLICT':'INSPECTION_OR_OUTPUT_FAILED';break}
   if(cycles>=maxCycles)break
   if(signal?.aborted){reason='STOP_REQUESTED';break}
-  const remaining=deadline-Date.now()
+  const remaining=deadline-performance.now()
   if(remaining<=0){reason='TIME_BUDGET';break}
   try{await delay(Math.min(intervalSeconds*1000,remaining),undefined,{signal})}
   catch(e){if(signal?.aborted){reason='STOP_REQUESTED';break}reason='OBSERVATION_FAILED';failure='WAIT_FAILED';break}
