@@ -89,6 +89,12 @@ jobs:
           python3 research/unified-control-centre/release.py build "$RUNNER_TEMP/unified-output"
           python3 research/unified-control-centre/release.py verify "$RUNNER_TEMP/unified-output/local-preview.zip"
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Verify extracted preview in offline local browser
+        run: |
+          mkdir "$RUNNER_TEMP/unified-extracted"
+          python3 -m zipfile -e "$RUNNER_TEMP/unified-output/local-preview.zip" "$RUNNER_TEMP/unified-extracted"
+          node research/unified-control-centre/local-preview-acceptance.mjs "$RUNNER_TEMP/unified-extracted" "$RUNNER_TEMP/unified-output"
+          test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
           name: unified-research-control-centre
