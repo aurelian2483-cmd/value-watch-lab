@@ -35,3 +35,7 @@ The new fixed-path register starts with zero documentary claims. Its metadata co
 ## Phase 6 — combined control-centre preview
 
 `integration.mjs` reuses the existing Research Control Centre and Central Data quality reports without changing catalogue code. It compares shared aggregate counts and suppresses those counts if the two inspections disagree. Count agreement is not record-level agreement or atomic snapshot verification. CI emits integrated-status.json and integrated-status.html. Catalogue figures are explicitly local checkout figures, not live remote counts. The independent review gate remains closed.
+
+## Phase 7 — documentary review handoff
+
+`review-packet.mjs` emits a source-by-source checklist bound to the current source receipts, declared checkout revision and manifest fingerprint. CI includes `documentary-review-packet.json`. Missing inputs retain an unavailable status. A changed receipt produces a new task identity; earlier review material must not silently carry forward. No evidence documents, individual records, permissions or signed reviewer attestations are created or inspected. Independent verification remains an external review task and is not completed by software tests. This packet is for provenance and data rights only; the existing result review queue is unchanged.
