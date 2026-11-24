@@ -8,6 +8,7 @@ import {synchronise,status,checkpoint,recover} from './sync.mjs'
 import {digest} from '../scientific-reference/digest.mjs'
 import {signedSynchronise,signatureMessage} from './producer-intake.mjs'
 import {createCollector,collect} from './collector.mjs'
+import {reviewRevision} from './revision-review.mjs'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
 const hash=x=>createHash('sha256').update(x).digest('hex')
 const T='2026-11-24T22:00:00.000Z',T2='2026-11-24T23:00:00.000Z',T3='2026-11-25T00:00:01.000Z'
@@ -434,4 +435,52 @@ test('bounded collection lifecycle obeys cycle limit, stop signal and trust chan
  assert.equal(halted.reason,'TRUSTED_CONFIGURATION_STOP');assert.equal(halted.cycles,1)
  await assert.rejects(collect(collector,{intervalMs:1}),/Invalid polling bounds/)
  await assert.rejects(collect(collector,{intervalMs:60000,maxCycles:240}),/Invalid polling bounds/)
+})
+
+function revisionManifest(f,change=a=>a){
+ const raw=JSON.stringify(change({kind:'SOURCE_REVISION_REVIEW',schemaVersion:1,
+ baselinePinsSha256:hash(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url))),
+ sources:pins.map(({id,head,reportRevision,run,artifact,file})=>({id,head,reportRevision,run,artifact,summarySha256:hash(readFileSync(join(f.inbox,file)))}))}))
+ const path=join(f.root,'revision-review.json');writeFileSync(path,raw)
+ return {path,sha:hash(raw)}
+}
+test('isolated revision review validates unchanged baseline without writing accepted state',t=>{
+ const f=setup(t);sync(f,approve(f.inbox));const before=stored(f)
+ const m=revisionManifest(f),r=reviewRevision(f.inbox,m.path,m.sha)
+ assert.equal(r.status,'NO_REVISION_CHANGE');assert.equal(r.changedSources,0)
+ assert.equal(r.rows.length,6);assert.equal(r.promotionAuthorized,false)
+ assert.equal(r.activePinsModified,false);assert.equal(r.publicationGate,'BLOCKED')
+ assert.deepEqual(reviewRevision(f.inbox,m.path,m.sha),r)
+ assert.deepEqual(stored(f),before)
+})
+test('candidate revision is reviewed in isolation without changing current pins or approval state',t=>{
+ const f=setup(t);sync(f,approve(f.inbox));const before=stored(f)
+ const candidate=fixtures().data;candidate.declaredSourceRevision='b'.repeat(40)
+ writeFileSync(join(f.inbox,'data.json'),JSON.stringify(candidate))
+ const m=revisionManifest(f,a=>{
+  Object.assign(a.sources[1],{head:'a'.repeat(40),reportRevision:'b'.repeat(40),run:111,artifact:222});return a
+ })
+ const result=reviewRevision(f.inbox,m.path,m.sha)
+ assert.equal(result.status,'COMPATIBLE_CANDIDATE_REQUIRES_INDEPENDENT_REVIEW')
+ assert.equal(result.changedSources,1);assert.equal(result.rows[1].originStatus,'DECLARED_REVIEW_INPUT_NOT_INDEPENDENTLY_VERIFIED')
+ assert.equal(result.promotionAuthorized,false)
+ assert.throws(()=>sync(f,approve(f.inbox,2,T2),T2))
+ assert.deepEqual(stored(f),before)
+})
+test('revision review rejects stale workflow identity, wrong contract, wrong hashes and unsafe paths',t=>{
+ const f=setup(t)
+ let m=revisionManifest(f,a=>{a.sources[1].head='a'.repeat(40);return a})
+ assert.throws(()=>reviewRevision(f.inbox,m.path,m.sha),/distinct workflow/)
+ m=revisionManifest(f,a=>{a.sources[1].run=a.sources[2].run;return a})
+ assert.throws(()=>reviewRevision(f.inbox,m.path,m.sha))
+ m=revisionManifest(f,a=>{a.baselinePinsSha256='0'.repeat(64);return a})
+ assert.throws(()=>reviewRevision(f.inbox,m.path,m.sha),/baseline/)
+ m=revisionManifest(f)
+ assert.throws(()=>reviewRevision(f.inbox,m.path,'0'.repeat(64)),/fingerprint mismatch/)
+ writeFileSync(join(f.inbox,'lab.json'),'{invalid')
+ assert.throws(()=>reviewRevision(f.inbox,m.path,m.sha),/fingerprint mismatch/)
+ m=revisionManifest(f)
+ assert.throws(()=>reviewRevision(f.inbox,m.path,m.sha),/contract rejected/)
+ const unsafe=join(f.inbox,'review.json');writeFileSync(unsafe,readFileSync(m.path))
+ assert.throws(()=>reviewRevision(f.inbox,unsafe,hash(readFileSync(unsafe))),/separate/)
 })
