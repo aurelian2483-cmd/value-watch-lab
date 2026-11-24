@@ -19,6 +19,13 @@ for (const id of ['purpose', 'architecture', 'research-status', 'decisions']) {
 }
 assert.match(page, /Data|historical/i);
 assert.match(page, /Undecided/);
+assert.match(page, /Agreed · read-only/);
+assert.match(page, /historical results, bookmaker odds and model predictions/);
+assert.match(page, /no data interface is implemented or verified yet/);
+assert.match(page, /no write-back or modification/);
+assert.match(page, /How read-only access is enforced/);
+assert.match(decision, /may \*\*read only\*\*/);
+assert.match(decision, /read-only data boundary/);
 assert.match(page, /Not implemented here/);
 assert.match(page, /UNVALIDATED/);
 assert.match(page, /BLOCKED/);
