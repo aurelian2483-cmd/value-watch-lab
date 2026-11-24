@@ -1,5 +1,6 @@
 import { evidenceView } from './experiment-registry-evidence-view.mjs'
 import { alphaPerformance } from './experiment-registry-alpha-performance.mjs'
+import { alphaMarket } from './experiment-registry-alpha-market.mjs'
 import { pathToFileURL } from 'node:url'
 
 const checks=Object.freeze(['randomness','overfitting','sample-size','data-leakage','bookmaker-margin','selection-bias','market-drift','multiple-testing','data-quality','variable-correlation'])
@@ -7,11 +8,12 @@ const checks=Object.freeze(['randomness','overfitting','sample-size','data-leaka
 export function alphaReadiness(root,directory){
  const view=evidenceView(root,directory,'alpha-hunt')
  const performance=alphaPerformance(root)
+ const market=alphaMarket(root)
  const historical=view.historical.available?view.historical.data:null
  const prospective=view.prospective.available?view.prospective.data:null
  const stage=(id,name,status,reason)=>({id,name,status,reason,executionAuthorized:false})
  const stages=[
-  stage('market-data','Market data','NOT_CONNECTED','No event-matched price evidence is exposed by the combined inventory.'),
+  stage('market-data','Market data',market.available?'INVENTORY_ONLY':'EVIDENCE_UNAVAILABLE',market.available?'Existing football market archive inspected; '+market.counts.observations+' structurally matched source observations. No live or executable prices exposed.':'Market source inventory unavailable: '+market.reason+'.'),
   stage('prediction-model','Prediction model',prospective?.counts.structurallyAccepted>0?'INVENTORY_ONLY':'EVIDENCE_UNAVAILABLE','Frozen prediction inventory; no individual model vectors or protected partitions exposed.'),
   stage('calibration','Calibration','NOT_EVALUATED',performance.available?(performance.matchedPairs===0?'Source-matched performance report has zero contract-matched pairs.':'Source-matched descriptive performance report exists; independent calibration is not established.'):'Performance report unavailable or not matched to current source records.'),
   stage('disagreement','Disagreement detection','NOT_EVALUATED','No aligned model and market evidence is available through this interface.'),
@@ -31,6 +33,7 @@ export function alphaReadiness(root,directory){
    historical:historical?{counts:historical.counts,sourceSha256:historical.sourceSha256,evidenceTier:historical.evidenceTier}:null,
    prospective:prospective?{counts:prospective.counts,reviewStatusCounts:prospective.reviewStatusCounts,sources:prospective.sources}:null,
    performance,
+   market,
    operations:view.operations.available?view.operations.data.operational:null
   },
   limitations:['Readiness reporting only; not an implemented posterior model.',
