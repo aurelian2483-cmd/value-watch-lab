@@ -1,6 +1,9 @@
 name: Existing-key odds preview and bounded website refresh
 
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/odds-website-refresh.yml']
   pull_request:
     branches: [main]
     paths:
@@ -29,6 +32,7 @@ jobs:
       github.repository == 'aurelian2483-cmd/value-watch-lab' &&
       (github.event_name == 'schedule' ||
        github.event_name == 'workflow_dispatch' ||
+       github.event_name == 'push' ||
        (github.event_name == 'pull_request' &&
         github.event.pull_request.head.repo.full_name == github.repository &&
         github.event.pull_request.head.ref == 'integration/odds-api-existing-key-20261124'))
@@ -94,7 +98,7 @@ jobs:
       - name: Verify captured quotes against served fixture cards
         run: node scripts/current_odds_browser_qa.cjs --live
       - name: Publish only rendered on-page prices after review branch is merged
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = "refs/heads/main"
