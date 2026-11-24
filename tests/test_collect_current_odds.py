@@ -71,3 +71,27 @@ class CollectorTests(unittest.TestCase):
                 'x-requests-used': 100 + odds, 'x-requests-remaining': 400 - odds, 'x-requests-last': int(odds)}, 'a'*64
         snapshot, _ = collect('secret', mock, lambda: NOW)
         self.assertEqual(snapshot['records'], [])
+
+    def test_one_request_scope_preserves_quota(self):
+        requests = []
+        def mock(path, params, key):
+            requests.append(path)
+            used = 1 if path else 0
+            payload = [event()] if path else [{'key': s, 'active': True} for s in SPORTS]
+            headers = {'x-requests-used': used, 'x-requests-remaining': 500 - used,
+                       'x-requests-last': used}
+            return payload, headers, 'a' * 64
+        snapshot, report = collect('existing-key', mock, lambda: NOW,
+                                   sports=('soccer_epl', 'soccer_efl_champ'), max_requests=1)
+        self.assertEqual(requests, ['', '/soccer_epl/odds'])
+        self.assertEqual(len(snapshot['records']), 1)
+        self.assertEqual(len(report['requests']), 1)
+
+    def test_invalid_scope_does_not_make_provider_calls(self):
+        def must_not_call(*args):
+            self.fail('No provider call is permitted for an invalid scope')
+        for kwargs in ({'sports': ('not-allowlisted',)}, {'sports': ('soccer_epl', 'soccer_epl')},
+                       {'sports': ()}, {'max_requests': 0}, {'max_requests': 99}):
+            with self.subTest(kwargs=kwargs), self.assertRaises(CollectionError):
+                collect('existing-key', must_not_call, lambda: NOW, **kwargs)
+

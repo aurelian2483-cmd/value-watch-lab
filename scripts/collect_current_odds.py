@@ -117,7 +117,11 @@ def clean_event(event, sport, checked, digest):
                 receipt_sha256=digest, prices=prices)
 
 
-def collect(key, request=request_json, clock=lambda: datetime.now(timezone.utc)):
+def collect(key, request=request_json, clock=lambda: datetime.now(timezone.utc),
+            sports=SPORTS, max_requests=len(SPORTS)):
+    if (not sports or any(sport not in SPORTS for sport in sports)
+            or len(set(sports)) != len(sports) or not 1 <= max_requests <= len(SPORTS)):
+        raise CollectionError('Invalid permitted sports or request budget. No requests were made.')
     catalogue, headers, _ = request('', {}, key)
     used, remaining, cost = quota(headers)
     if cost != 0 or not isinstance(catalogue, list):
@@ -126,8 +130,10 @@ def collect(key, request=request_json, clock=lambda: datetime.now(timezone.utc))
               and isinstance(row.get('key'), str)}
     rows, stats = [], []
     event_counts = Counter()
-    for sport in SPORTS:
-        if sport not in active or used >= MAX_USED or remaining <= RESERVE:
+    for sport in sports:
+        if len(stats) >= max_requests or used >= MAX_USED or remaining <= RESERVE:
+            break
+        if sport not in active:
             continue
         payload, headers, digest = request(f'/{sport}/odds', PARAMS, key)
         previous, previous_remaining = used, remaining
@@ -153,13 +159,17 @@ def collect(key, request=request_json, clock=lambda: datetime.now(timezone.utc))
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', default='work/current-odds.json')
+    parser.add_argument('--sports', nargs='+', choices=SPORTS, default=list(SPORTS),
+                        help='Allowed sport keys to check, in priority order')
+    parser.add_argument('--max-requests', type=int, default=len(SPORTS),
+                        help='Maximum paid odds endpoints, excluding free sport discovery')
     args = parser.parse_args()
     key = os.environ.get('THE_ODDS_API_KEY', '')
     if not key:
         print('THE_ODDS_API_KEY is unavailable. No provider requests were made.', file=sys.stderr)
         return 2
     try:
-        snapshot, report = collect(key)
+        snapshot, report = collect(key, sports=args.sports, max_requests=args.max_requests)
         output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)
         temporary = output.with_suffix('.tmp')
