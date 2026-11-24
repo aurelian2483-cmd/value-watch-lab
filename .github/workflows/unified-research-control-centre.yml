@@ -1,0 +1,103 @@
+name: Unified research control centre
+on:
+  pull_request:
+    paths:
+      - 'research/unified-control-centre/**'
+      - '.github/workflows/unified-research-control-centre.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  overview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test read-only summary contracts
+        run: node --test research/unified-control-centre/*.test.mjs
+      - name: Prepare pinned catalogue summary
+        run: |
+          mkdir -p "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/unified-output"
+          git fetch --no-tags --depth=1 origin ed0186d09b269e21d70035d997ce41b5a001b574
+          git show ed0186d09b269e21d70035d997ce41b5a001b574:research/mathematical-library/progress.v1.json > "$RUNNER_TEMP/unified-input/catalogue.json"
+      - name: Verify and extract exact pinned archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, io, json, os, pathlib, subprocess, zipfile
+          pins = json.loads(pathlib.Path('research/unified-control-centre/source-pins.json').read_text())
+          repo = os.environ['GITHUB_REPOSITORY']
+          repo_id = int(os.environ['GITHUB_REPOSITORY_ID'])
+          dest = pathlib.Path(os.environ['RUNNER_TEMP']) / 'unified-input'
+          digests = {
+              'data': 'a7bbd094720c3c3daf1c3ce0759563ffee2802f1da001b6259f355c6e9d6ce34',
+              'lab': '4de0f1d584e6ecd4c851182b6a01e3d0b47fc03bdc7af8475a018747d2ddde56',
+              'compute': '362ee374b24f928813f93b143cc6d38e33818e82d2977f9cffcd8dd6feb54f19',
+              'supervisor': '247dd221a23484e543da66dfad438de8fd3534c7abd59697ccc3f0952adb45eb',
+              'references': 'ac954d44e92b6d1f9d48d22d4ee1973f39b7794e1ffa8bf1efdc89978ec809ef',
+          }
+          def require(condition, message):
+              if not condition:
+                  raise RuntimeError(message)
+          require(len(pins) == 6 and {p['id'] for p in pins} == set(digests) | {'catalogue'}, 'Unexpected source set')
+          evidence = []
+          for p in pins:
+              if p['id'] == 'catalogue':
+                  require(p['artifact'] is None, 'Catalogue must come from pinned Git revision')
+                  continue
+              endpoint = f"repos/{repo}/actions/artifacts/{p['artifact']}"
+              a = json.loads(subprocess.check_output(['gh', 'api', endpoint]))
+              w = a.get('workflow_run') or {}
+              expected = digests[p['id']]
+              require(a['id'] == p['artifact'] and a['name'] == p['artifactName'] and a['expired'] is False, 'Artifact identity or expiry mismatch')
+              require(w.get('id') == p['run'] and w.get('head_sha') == p['head'] and w.get('repository_id') == repo_id and w.get('head_repository_id') == repo_id, 'Artifact provenance mismatch')
+              run = json.loads(subprocess.check_output(['gh', 'api', f"repos/{repo}/actions/runs/{p['run']}"]))
+              require(run.get('id') == p['run'] and run.get('head_sha') == p['head'] and run.get('status') == 'completed' and run.get('conclusion') == 'success', 'Source run not accepted')
+              require(a.get('digest') == 'sha256:' + expected and 0 < a['size_in_bytes'] <= 32 * 1024 * 1024, 'Archive metadata mismatch')
+              archive = subprocess.check_output(['gh', 'api', endpoint + '/zip'])
+              require(len(archive) == a['size_in_bytes'] and hashlib.sha256(archive).hexdigest() == expected, 'Downloaded archive fingerprint mismatch')
+              with zipfile.ZipFile(io.BytesIO(archive)) as z:
+                  matches = [i for i in z.infolist() if i.filename == p['artifactFile']]
+                  require(len(matches) == 1 and not matches[0].is_dir() and 0 < matches[0].file_size <= 4 * 1024 * 1024, 'Missing, duplicate or oversized summary')
+                  raw = z.read(matches[0])
+              require(p['file'] == p['id'] + '.json', 'Unexpected output name')
+              (dest / p['file']).write_bytes(raw)
+              evidence.append({'id': p['id'], 'artifactId': p['artifact'], 'runId': p['run'], 'head': p['head'], 'archiveSha256': expected, 'summarySha256': hashlib.sha256(raw).hexdigest(), 'expiresAt': a['expires_at']})
+              print('Verified pinned archive:', p['id'])
+          output = pathlib.Path(os.environ['RUNNER_TEMP']) / 'unified-output' / 'archive-receipts.json'
+          output.write_text(json.dumps({'kind': 'PINNED_ARCHIVE_VERIFICATION', 'researchValidation': 'UNVALIDATED', 'publicationGate': 'BLOCKED', 'archives': evidence}, indent=2) + '\n')
+          PY
+      - name: Render consolidated read-only website
+        run: |
+          node research/unified-control-centre/overview.mjs "$RUNNER_TEMP/unified-input" > "$RUNNER_TEMP/unified-output/overview.json"
+          node research/unified-control-centre/website.mjs "$RUNNER_TEMP/unified-output/overview.json" > "$RUNNER_TEMP/unified-output/index.html"
+          node -e 'const r=require(process.argv[1]); if(r.counts.available!==6 || r.publicationGate!=="BLOCKED" || r.executionAuthorized!==false) {console.error(JSON.stringify(r.modules.map(m=>({id:m.id,state:m.evidenceState}))));process.exit(1)}' "$RUNNER_TEMP/unified-output/overview.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Reconcile source receipts and run Chromium acceptance
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node research/unified-control-centre/acceptance.mjs "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/unified-output"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Build and verify portable local preview
+        run: |
+          python3 research/unified-control-centre/release.py build "$RUNNER_TEMP/unified-output"
+          python3 research/unified-control-centre/release.py verify "$RUNNER_TEMP/unified-output/local-preview.zip"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Verify extracted preview in offline local browser
+        run: |
+          mkdir "$RUNNER_TEMP/unified-extracted"
+          python3 -m zipfile -e "$RUNNER_TEMP/unified-output/local-preview.zip" "$RUNNER_TEMP/unified-extracted"
+          node research/unified-control-centre/local-preview-acceptance.mjs "$RUNNER_TEMP/unified-extracted" "$RUNNER_TEMP/unified-output"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unified-research-control-centre
+          path: ${{ runner.temp }}/unified-output/
+          retention-days: 7
+          if-no-files-found: error
