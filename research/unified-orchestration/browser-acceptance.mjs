@@ -6,7 +6,7 @@ import {tmpdir} from 'node:os'
 import {createHash} from 'node:crypto'
 import {chromium} from 'playwright'
 import {status} from '../unified-live/sync.mjs'
-import {inspect,advance} from './registry.mjs'
+import {inspect,advance,setReviewControl} from './registry.mjs'
 import {startDashboard} from './dashboard.mjs'
 const [evidence,out]=process.argv.slice(2)
 assert.ok(evidence&&out&&process.argv.length===4,'Usage: browser-acceptance.mjs evidence-dir output-dir')
@@ -27,6 +27,7 @@ try{
  browser=await chromium.launch({headless:true})
  for(const width of [1440,390,320,280]){
   rmSync(join(registry,'registry.json'),{force:true})
+  rmSync(join(registry,'control.json'),{force:true})
   const page=await browser.newPage({viewport:{width,height:900}})
   const external=[],errors=[]
   page.on('pageerror',e=>errors.push(e.message))
@@ -69,7 +70,16 @@ try{
    await check('empty',0,0,3,4)
    let s=advance(...args,null)
    await check('partial',1,1,2,4)
-   for(let i=1;i<7;i++)s=advance(...args,s.registrySha256)
+   const paused=setReviewControl(...args,'PAUSE',s.registrySha256,null)
+   await check('held',1,1,2,4)
+   assert.equal(await page.locator('[data-control]').getAttribute('data-control'),'REVIEW_HOLD')
+   assert.equal(await page.getByText('Next explicit review',{exact:true}).count(),0)
+   assert.throws(()=>advance(...args,s.registrySha256,{trustedControlSha256:paused.control.controlSha256}),/on hold/)
+   const resumed=setReviewControl(...args,'RESUME',s.registrySha256,paused.control.controlSha256)
+   const controlAnchor=resumed.control.controlSha256
+   await check('resumed',1,1,2,4)
+   assert.equal(await page.locator('[data-control]').getAttribute('data-control'),'METADATA_REVIEW_AVAILABLE')
+   for(let i=1;i<7;i++)s=advance(...args,s.registrySha256,{trustedControlSha256:controlAnchor})
    await check('complete',7,7,0,0)
    writeFileSync(join(registry,'registry.json'),'{corrupt')
    const response=await page.goto(url+'/')
@@ -80,6 +90,7 @@ try{
   }finally{await page.close()}
  }
  rmSync(join(registry,'registry.json'),{force:true})
+ rmSync(join(registry,'control.json'),{force:true})
  const page=await browser.newPage({viewport:{width:390,height:900}})
  try{
   await page.goto(url+'/')
@@ -91,7 +102,7 @@ try{
  assert.deepEqual(readFileSync(join(evidence,'current.json')),baseline)
  assert.deepEqual(readFileSync(join(local,'current.json')),baseline)
  writeFileSync(join(out,'orchestration-browser-acceptance.json'),JSON.stringify({checks,source:'PINNED_HISTORICAL_PHASE2_STATE',executionAuthorized:false,modelValidation:'UNVALIDATED',publicationGate:'BLOCKED'},null,2)+'\n')
- console.log('PASS sixteen orchestration browser scenarios and timed refresh')
+ console.log('PASS twenty-four orchestration browser scenarios and timed refresh')
 }finally{
  if(browser)await browser.close()
  if(server)await new Promise(ok=>server.close(ok))
