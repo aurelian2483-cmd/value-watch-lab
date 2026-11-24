@@ -131,6 +131,19 @@ jobs:
           console.log('PASS six producer contract queue reviews with dispatch blocked')
           JS
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Fixed synthetic resource limit QA (Linux only)
+        run: |
+          python3 research/unified-orchestration/synthetic-resource-qa.py > "$RUNNER_TEMP/orchestration-output/synthetic-resource-qa.json"
+          python3 - <<'PY'
+          import json, os, pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'orchestration-output/synthetic-resource-qa.json'
+          r=json.loads(p.read_text())
+          assert r['passed']==4 and len(r['checks'])==4 and all(x['status']=='PASS' for x in r['checks'])
+          assert r['executionAuthorized'] is False and r['dispatchAuthorized'] is False
+          assert r['publicationGate']=='BLOCKED' and r['modelValidation']=='UNVALIDATED'
+          print('PASS four fixed Linux resource probes; research dispatch blocked')
+          PY
+          test -z "$(git status --porcelain --untracked-files=all)"
       - name: Read-only orchestration browser acceptance
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
