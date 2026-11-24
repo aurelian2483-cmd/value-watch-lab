@@ -40,7 +40,7 @@ const dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0)
 const norm=x=>Math.hypot(...x)
 export function powerIteration(matrix,start,{tolerance=1e-10,maxIterations=200}={}){
  if(!Array.isArray(matrix)||!boundedInt(matrix.length,64)||!Array.isArray(start)||start.length!==matrix.length||
-  !start.every(finite)||!matrix.every(r=>Array.isArray(r)&&r.length===matrix.length&&r.every(finite))||
+  !Array.from(start).every(finite)||!Array.from(matrix).every(r=>Array.isArray(r)&&r.length===matrix.length&&Array.from(r).every(finite))||
   !matrix.every((r,i)=>r.every((x,j)=>x===matrix[j][i]))||
   !finite(tolerance)||tolerance<=0||!boundedInt(maxIterations,10000))throw RangeError('Invalid symmetric eigenproblem')
  const size=norm(start);if(!finite(size)||size===0)throw RangeError('Invalid starting norm')

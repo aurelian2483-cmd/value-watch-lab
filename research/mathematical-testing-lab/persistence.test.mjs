@@ -3,7 +3,8 @@ import assert from 'node:assert/strict'
 import {mkdtempSync,rmSync,writeFileSync,readFileSync,realpathSync,symlinkSync,readdirSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
-import {persistSuite} from './persistence.mjs'
+import {persistSuite,verifyStoredSuite} from './persistence.mjs'
+import {runSuite} from './suite.mjs'
 import {history} from '../mathematical-library/experiment-registry-lifecycle.mjs'
 const rev='405c5496bedf4bea081d48413742cf4847e2c686'
 function fixture(t){const d=realpathSync(mkdtempSync(join(tmpdir(),'synthetic-persistence-')));t.after(()=>rmSync(d,{recursive:true,force:true}));return d}
@@ -48,4 +49,13 @@ test('symlinked result artifact is refused',t=>{
  const path=join(d,'artifacts',r.records[0].artifactHash+'.json'),outside=join(e,'original')
  writeFileSync(outside,readFileSync(path));rmSync(path);symlinkSync(outside,path)
  assert.throws(()=>persistSuite(d,rev),/Unsafe registry path/)
+})
+
+test('read-only evidence verification checks terminal artifacts and detects deletion',t=>{
+ const d=fixture(t),p=persistSuite(d,rev),b=runSuite(rev)
+ const before=p.records.map(r=>history(d,r.experimentId))
+ assert.equal(verifyStoredSuite(d,b,p).verified,5)
+ assert.deepEqual(p.records.map(r=>history(d,r.experimentId)),before)
+ rmSync(join(d,'artifacts',p.records[0].artifactHash+'.json'))
+ assert.throws(()=>verifyStoredSuite(d,b,p),/Missing result artifact/)
 })

@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto'
 import {pathToFileURL} from 'node:url'
 import {isDeepStrictEqual} from 'node:util'
 import {manifest} from '../mathematical-library/experiment-registry.mjs'
-import {suiteSpecifications} from './suite.mjs'
+import {suiteSpecifications,fixtureCriteria,evaluateKnownAnswer} from './suite.mjs'
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex')
 const sha=x=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x)
 const revision=x=>typeof x==='string'&&/^[a-f0-9]{40}$/.test(x)
@@ -18,17 +18,17 @@ const validRows=(rows,ids,key)=>Array.isArray(rows)&&rows.length===ids.length&&i
 export function consolidate(reports,expectedRevision){
  if(!revision(expectedRevision))throw Error('Full expected revision required')
  const issues=[]
- const specs=suiteSpecifications(expectedRevision),ids=specs.map(s=>s.configuration.fixtureId)
- const [benchmark,reference,persistence,cpu]=reports
+ const specs=suiteSpecifications(expectedRevision),criteria=fixtureCriteria(),ids=specs.map(s=>s.configuration.fixtureId)
  const base={kind:'SYNTHETIC_LAB_CONTROL_CENTRE_STATUS',schemaVersion:1,declaredCodeRevision:expectedRevision,
   expectedFixtures:ids.length,researchOnly:true,modelValidation:'UNVALIDATED',publicationGate:'BLOCKED',executionAuthorized:false,validationAuthorized:false,
   limitations:['Static evidence adapter, not a running service or an authenticated source.',
    'Report fingerprints are not signatures. Secondary reports are reconciled with the benchmark, not independently authenticated.',
    'Five fixed synthetic fixtures only; no real-world validation, GPU testing, or performance qualification.']}
  const unavailable=()=>({...base,status:'EVIDENCE_INCOMPLETE_OR_INCONSISTENT',checks:null,issues})
- if(!Array.isArray(reports)||reports.length!==kinds.length||reports.some((r,i)=>!validFlags(r)||r.kind!==kinds[i]||r.declaredCodeRevision!==expectedRevision)){
+ if(!Array.isArray(reports)||reports.length!==kinds.length||kinds.some((kind,i)=>!validFlags(reports[i])||reports[i].kind!==kind||reports[i].declaredCodeRevision!==expectedRevision)){
   issues.push('MISSING_OR_INVALID_REPORT_CONTRACT');return unavailable()
  }
+ const [benchmark,reference,persistence,cpu]=reports
  const {reportSha256,...payload}=benchmark
  if(!sha(reportSha256)||hash(payload)!==reportSha256||[reference,persistence,cpu].some(r=>r.benchmarkReportSha256!==reportSha256)){
   issues.push('BENCHMARK_FINGERPRINT_MISMATCH');return unavailable()
@@ -39,15 +39,17 @@ export function consolidate(reports,expectedRevision){
  }
  for(const [i,id] of ids.entries()){
   const spec=specs[i],r=benchmark.results.find(x=>x.id===id),p=persistence.records.find(x=>x.fixtureId===id),c=cpu.results.find(x=>x.fixtureId===id)
-  if(r.experimentId!==manifest(spec).experimentId||r.fixtureSha256!==spec.datasetHash||r.formulaId!==spec.formulaId||r.tolerance!==spec.configuration.absoluteTolerance||
-    p.experimentId!==r.experimentId||p.verdict!==r.status||!sha(p.artifactHash)||c.index!==i||!isDeepStrictEqual(c.observed,r)||c.serialAgreement!==true||
+  const criterion=criteria[i],verdict=evaluateKnownAnswer({expected:criterion.expected,tolerance:criterion.tolerance,value:r.observed,converged:r.converged})
+  if(r.expected!==criterion.expected||r.status!==verdict.status||r.absoluteError!==verdict.absoluteError||
+    r.experimentId!==manifest(spec).experimentId||r.fixtureSha256!==spec.datasetHash||r.formulaId!==spec.formulaId||r.tolerance!==spec.configuration.absoluteTolerance||
+    p.experimentId!==r.experimentId||p.verdict!==r.status||!sha(p.artifactHash)||c.index!==i||!isDeepStrictEqual(c.observed,r)||c.serialAgreement!==true||c.workerStatus!=='RETURNED'||c.status!==r.status||
     !['PASS','FAIL'].includes(r.status)||!['PASS','FAIL'].includes(reference.results.find(x=>x.id===id).status)||!['PASS','FAIL'].includes(c.status)){
    issues.push('FIXTURE_EVIDENCE_MISMATCH');return unavailable()
   }
  }
  if(![benchmark,reference,cpu].every(r=>isDeepStrictEqual(r.counts,count(r.results)))||
     persistence.expectedFixtures!==ids.length||persistence.complete!==true||!persistence.records.every(r=>r.lifecycle===(r.verdict==='PASS'?'COMPLETED':'FAILED'))||
-    !Number.isSafeInteger(cpu.plan?.workers)||cpu.plan.workers<1||cpu.plan.workers>4||
+    cpu.plan?.backend!=='CPU_NODE_WORKER'||!Number.isSafeInteger(cpu.plan?.workers)||cpu.plan.workers<1||cpu.plan.workers>4||!Number.isSafeInteger(cpu.plan.availableCpuSlots)||cpu.plan.workers>cpu.plan.availableCpuSlots||
     !Number.isSafeInteger(cpu.peakActiveWorkers)||cpu.peakActiveWorkers<1||cpu.peakActiveWorkers>cpu.plan.workers||cpu.plan.gpu?.status!=='DISABLED_NOT_VALIDATED'){
   issues.push('REPORT_COUNTS_OR_RESOURCE_CONTRACT_MISMATCH');return unavailable()
  }

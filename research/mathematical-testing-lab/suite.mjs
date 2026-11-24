@@ -25,6 +25,7 @@ function caseSpec(c,codeRevision){
  const fixture={id:c.id,input:c.input,expected:c.expected,tolerance:c.tolerance}
  return {formulaId:c.formulaId,codeRevision,datasetHash:hash(fixture),configuration:{suite:'synthetic-math-v1',fixtureId:c.id,absoluteTolerance:c.tolerance},seed:0,primaryMetric:'absolute-error',partition:'development'}
 }
+export function fixtureCriteria(){return cases.map(c=>({id:c.id,expected:c.expected,tolerance:c.tolerance}))}
 export function suiteSpecifications(codeRevision){return cases.map(c=>caseSpec(c,codeRevision))}
 export function runFixture(codeRevision,index){
  if(!Number.isSafeInteger(index)||index<0||index>=cases.length)throw RangeError('Unknown fixed fixture')

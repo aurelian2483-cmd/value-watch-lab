@@ -48,3 +48,9 @@ test('symmetric power iteration reports residual and refuses malformed systems',
  assert.equal(nondominant.eigenvalue,2)
  assert.equal(nondominant.converged,true)
 })
+
+test('sparse numerical inputs are rejected before arithmetic',()=>{
+ assert.throws(()=>powerIteration(new Array(2),[1,1]),/Invalid symmetric eigenproblem/)
+ assert.throws(()=>powerIteration([[1,0],[0,2]],new Array(2)),/Invalid symmetric eigenproblem/)
+ assert.throws(()=>powerIteration([[1,,],[0,2]],[1,1]),/Invalid symmetric eigenproblem/)
+})

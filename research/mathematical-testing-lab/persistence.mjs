@@ -58,12 +58,35 @@ function checkArtifact(root,id,artifactHash,row){
  if(typeof artifactHash!=='string'||!/^[a-f0-9]{64}$/.test(artifactHash))throw Error('Invalid result artifact reference')
  const file=join(root,'artifacts',artifactHash+'.json')
  if(!inspect(file,'file'))throw Error('Missing result artifact')
+ if(lstatSync(file).size>4*1024*1024)throw Error('Result artifact size limit exceeded')
  const bytes=readFileSync(file)
  if(bytes.length>4*1024*1024||sha(bytes)!==artifactHash)throw Error('Result artifact integrity failure')
  const a=JSON.parse(bytes)
  if(a.schemaVersion!==1||a.experimentId!==id||a.state?.kind!=='SYNTHETIC_FIXTURE_RESULT'||
   JSON.stringify(a.state.result)!==JSON.stringify(row))throw Error('Stored result differs from current fixed fixture')
  return artifactHash
+}
+export function verifyStoredSuite(directory,benchmark,persistence){
+ const root=resolve(directory)
+ if(realpathSync(root)!==root||!inspect(root,'directory'))throw Error('Unsafe registry directory')
+ if(inspect(join(root,lock),'file'))throw Error('Registry is locked')
+ checkTree(root)
+ if(!inspect(join(root,marker),'file')||readFileSync(join(root,marker),'utf8')!==markerText)throw Error('Invalid dedicated registry marker')
+ if(persistence?.benchmarkReportSha256!==benchmark?.reportSha256||!Array.isArray(benchmark.results)||!Array.isArray(persistence.records)||
+   persistence.complete!==true||benchmark.results.length!==5||persistence.records.length!==5)throw Error('Invalid evidence bundle')
+ const {reportSha256,...payload}=benchmark
+ if(sha(JSON.stringify(payload))!==reportSha256)throw Error('Benchmark fingerprint mismatch')
+ const specs=suiteSpecifications(benchmark.declaredCodeRevision)
+ const records=specs.map((spec,i)=>{
+  const id=manifest(spec).experimentId,row=benchmark.results.find(r=>r.experimentId===id),record=persistence.records.find(r=>r.experimentId===id)
+  if(!row||!record||record.fixtureId!==spec.configuration.fixtureId||row.id!==record.fixtureId||record.verdict!==row.status)throw Error('Stored fixture identity mismatch')
+  const h=history(root,id)
+  if(h.status!==(row.status==='PASS'?'COMPLETED':'FAILED')||record.lifecycle!==h.status||h.events.at(-1)?.details.artifactHash!==record.artifactHash)throw Error('Terminal history mismatch')
+  checkArtifact(root,id,record.artifactHash,row)
+  return {experimentId:id,artifactHash:record.artifactHash,lifecycle:h.status}
+ })
+ if(inspect(join(root,lock),'file'))throw Error('Registry locked during inspection')
+ return {kind:'SYNTHETIC_STORED_EVIDENCE_CHECK',records,verified:records.length,researchOnly:true,publicationGate:'BLOCKED',executionAuthorized:false,validationAuthorized:false}
 }
 export function persistSuite(directory,revision,{recover=false,pauseAfterCheckpoint=false}={}){
  // The five inexpensive fixed benchmarks are recomputed to cross-check any existing evidence.

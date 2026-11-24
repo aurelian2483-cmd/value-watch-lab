@@ -11,7 +11,7 @@ permissions:
 jobs:
   synthetic:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,6 +48,14 @@ jobs:
         run: |
           node research/mathematical-testing-lab/status.mjs "$RUNNER_TEMP/synthetic-math" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/synthetic-math/lab-status.json"
           node research/mathematical-testing-lab/status.mjs "$RUNNER_TEMP/synthetic-math" "$(git rev-parse HEAD)" html > "$RUNNER_TEMP/synthetic-math/lab-status.html"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Install pinned browser tooling
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Audit generated reports, saved evidence and browser rendering
+        run: |
+          node research/mathematical-testing-lab/acceptance.mjs "$RUNNER_TEMP/synthetic-math" "$RUNNER_TEMP/synthetic-math-registry" "$(git rev-parse HEAD)"
           test -z "$(git status --porcelain --untracked-files=all)"
       - name: Archive synthetic results
         if: always()

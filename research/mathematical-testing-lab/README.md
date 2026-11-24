@@ -30,3 +30,7 @@ Run `node parallel.mjs <full-revision> [workers]`. The fixed five fixtures run i
 ## Phase 5 — read-only control-centre adapter
 
 `status.mjs <artifact-directory> <full-revision> <json|html>` reconciles the four fixed reports by expected checkout label, benchmark fingerprint, fixture identity, terminal verdict, counts and worker limits. Secondary reports carry the benchmark fingerprint; this is not a signature or authentication. Missing or inconsistent evidence suppresses aggregate success counts. The adapter does not execute solvers, read external datasets or change registry state. CI produces lab-status.json and lab-status.html; actual Python output is included in the end-to-end check. The adapter is a standalone static control-centre preview, not yet wired into the existing deployed UI or another draft branch. Browser acceptance and broader audit remain pending.
+
+## Quality audit
+
+See [audit findings](QUALITY-AUDIT-20261124.md). The expanded workflow checks actual terminal artifacts, a copied dedicated store, and the static report in Chromium. No changes to the catalogue or publication gate.
