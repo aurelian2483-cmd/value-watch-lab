@@ -25,7 +25,7 @@ try{
  server=await startDashboard(...args,{port:0})
  const url='http://127.0.0.1:'+server.address().port
  browser=await chromium.launch({headless:true})
- for(const width of [1440,390,320]){
+ for(const width of [1440,390,320,280]){
   rmSync(join(registry,'registry.json'),{force:true})
   const page=await browser.newPage({viewport:{width,height:900}})
   const external=[],errors=[]
@@ -45,7 +45,23 @@ try{
    const text=await page.locator('body').innerText()
    for(const value of ['UNVALIDATED','PUBLICATION BLOCKED','EXECUTION BLOCKED','Measurement freshness: UNKNOWN'])assert.ok(text.includes(value))
    assert.equal(await page.locator('script,form,button,input,iframe').count(),0)
-   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth))
+   const layout=await page.evaluate(()=>{
+    const viewport=document.documentElement.clientWidth
+    const overflow=[...document.querySelectorAll('main,main *')].filter(el=>{
+     const rect=el.getBoundingClientRect()
+     return rect.right>viewport+1||rect.left< -1||el.scrollWidth>el.clientWidth+1&&getComputedStyle(el).overflowX==='visible'
+    }).map(el=>({tag:el.tagName,className:el.className,text:el.innerText?.slice(0,80)}))
+    return {viewport,scrollWidth:document.documentElement.scrollWidth,overflow}
+   })
+   assert.ok(layout.scrollWidth<=layout.viewport&&layout.overflow.length===0,JSON.stringify({scenario:name,width,...layout}))
+   const expectedLifecycle=reviewed===0?'NOT_INITIALIZED':reviewed===7?'METADATA_REVIEW_COMPLETE_EXECUTION_BLOCKED':'REVIEW_PENDING'
+   assert.equal(await page.locator('[data-lifecycle]').getAttribute('data-lifecycle'),expectedLifecycle)
+   if(reviewed===7)assert.match(await page.locator('[data-lifecycle]').innerText(),/Metadata review complete — execution remains blocked/)
+   for(const fingerprint of await page.locator('dd code').all()){
+    assert.ok(await fingerprint.isVisible())
+    const value=await fingerprint.innerText()
+    assert.match(value,/^(?:[a-f0-9]{64}|Not initialized)$/)
+   }
    checks.push({scenario:name,width,status:'PASS'})
    await page.screenshot({path:join(out,'orchestration-'+name+'-'+width+'.png'),fullPage:true})
   }
@@ -75,7 +91,7 @@ try{
  assert.deepEqual(readFileSync(join(evidence,'current.json')),baseline)
  assert.deepEqual(readFileSync(join(local,'current.json')),baseline)
  writeFileSync(join(out,'orchestration-browser-acceptance.json'),JSON.stringify({checks,source:'PINNED_HISTORICAL_PHASE2_STATE',executionAuthorized:false,modelValidation:'UNVALIDATED',publicationGate:'BLOCKED'},null,2)+'\n')
- console.log('PASS twelve orchestration browser scenarios and timed refresh')
+ console.log('PASS sixteen orchestration browser scenarios and timed refresh')
 }finally{
  if(browser)await browser.close()
  if(server)await new Promise(ok=>server.close(ok))
