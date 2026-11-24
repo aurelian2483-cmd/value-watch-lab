@@ -40,6 +40,10 @@ jobs:
           node research/mathematical-testing-lab/persistence.mjs "$RUNNER_TEMP/synthetic-math-registry" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/synthetic-math/persistence.json"
           node research/mathematical-testing-lab/persistence.mjs "$RUNNER_TEMP/synthetic-math-registry" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/synthetic-math/persistence-repeat.json"
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Run bounded CPU worker acceptance
+        run: |
+          node research/mathematical-testing-lab/parallel.mjs "$(git rev-parse HEAD)" 2 > "$RUNNER_TEMP/synthetic-math/cpu-resource-report.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
       - name: Archive synthetic results
         if: always()
         uses: actions/upload-artifact@v4

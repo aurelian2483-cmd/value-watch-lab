@@ -26,15 +26,20 @@ function caseSpec(c,codeRevision){
  return {formulaId:c.formulaId,codeRevision,datasetHash:hash(fixture),configuration:{suite:'synthetic-math-v1',fixtureId:c.id,absoluteTolerance:c.tolerance},seed:0,primaryMetric:'absolute-error',partition:'development'}
 }
 export function suiteSpecifications(codeRevision){return cases.map(c=>caseSpec(c,codeRevision))}
-export function runSuite(codeRevision){
- const results=cases.map(c=>{
+export function runFixture(codeRevision,index){
+ if(!Number.isSafeInteger(index)||index<0||index>=cases.length)throw RangeError('Unknown fixed fixture')
+ const c=cases[index]
+ {
   const identity=manifest(caseSpec(c,codeRevision))
   const base={id:c.id,formulaId:c.formulaId,experimentId:identity.experimentId,fixtureSha256:identity.datasetHash,expected:c.expected,tolerance:c.tolerance}
   try{
    const observed=c.run(c.input),verdict=evaluateKnownAnswer({...observed,expected:c.expected,tolerance:c.tolerance})
    return {...base,observed:observed.value,diagnostics:observed.diagnostics,converged:observed.converged,...verdict}
   }catch(e){return {...base,observed:null,diagnostics:null,converged:false,absoluteError:null,status:'FAIL',reason:e instanceof Error?e.message:'Unknown failure'}}
- })
+ }
+}
+export function runSuite(codeRevision){
+ const results=cases.map((_,index)=>runFixture(codeRevision,index))
  const report={kind:'SYNTHETIC_MATHEMATICAL_BENCHMARKS',schemaVersion:1,suite:'synthetic-math-v1',declaredCodeRevision:codeRevision,
   results,counts:{total:results.length,passed:results.filter(r=>r.status==='PASS').length,failed:results.filter(r=>r.status==='FAIL').length},
   researchOnly:true,modelValidation:'UNVALIDATED',publicationGate:'BLOCKED',executionAuthorized:false,validationAuthorized:false,
