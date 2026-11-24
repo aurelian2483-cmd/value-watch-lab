@@ -7,6 +7,7 @@ import {tmpdir} from 'node:os'
 import {synchronise,status,checkpoint,recover} from './sync.mjs'
 import {digest} from '../scientific-reference/digest.mjs'
 import {signedSynchronise,signatureMessage} from './producer-intake.mjs'
+import {createCollector,collect} from './collector.mjs'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
 const hash=x=>createHash('sha256').update(x).digest('hex')
 const T='2026-11-24T22:00:00.000Z',T2='2026-11-24T23:00:00.000Z',T3='2026-11-25T00:00:01.000Z'
@@ -377,4 +378,60 @@ test('anchored viewer refuses mismatched startup and fails closed when accepted 
  const rejected=await fetch(url+'/status')
  assert.equal(rejected.status,503)
  assert.match(await rejected.text(),/PUBLICATION BLOCKED/)
+})
+
+function collectionPlan(f,s,digests=[s.approvalSha]){
+ const path=join(f.root,'collection-plan.json')
+ const raw=JSON.stringify({kind:'APPROVED_COLLECTION_PLAN',schemaVersion:1,trustSha256:s.trustSha,approvedDigests:digests})
+ writeFileSync(path,raw)
+ return {path,sha:hash(raw)}
+}
+test('collector accepts only separately approved signed batches and skips processed approval',t=>{
+ const f=setup(t),s=signedFixture(f)
+ const plan=collectionPlan(f,s,['0'.repeat(64)])
+ const waiting=createCollector(f.inbox,f.state,s.trustPath,plan.path,plan.sha)
+ assert.equal(waiting.tick({now:T}).status,'WAITING_FOR_EXPLICIT_APPROVAL')
+ assert.equal(status(f.state,{now:T}).snapshot,null)
+ const approved=collectionPlan(f,s)
+ const collector=createCollector(f.inbox,f.state,s.trustPath,approved.path,approved.sha)
+ assert.equal(collector.tick({now:T}).status,'ACCEPTED')
+ const before=stored(f)
+ assert.equal(collector.tick({now:T2}).status,'ALREADY_PROCESSED')
+ assert.deepEqual(stored(f),before)
+ assert.equal(status(f.state,{now:T3}).syncStatus,'STALE')
+})
+test('collector retries a rejected batch only after valid inputs arrive and stops on changed trust',t=>{
+ const f=setup(t),s=signedFixture(f),plan=collectionPlan(f,s)
+ const collector=createCollector(f.inbox,f.state,s.trustPath,plan.path,plan.sha)
+ const original=readFileSync(s.sigPath)
+ writeFileSync(s.sigPath,'{invalid')
+ assert.equal(collector.tick({now:T}).status,'SIGNED_BATCH_REJECTED')
+ assert.equal(status(f.state,{now:T}).snapshot,null)
+ writeFileSync(s.sigPath,original)
+ assert.equal(collector.tick({now:T}).status,'ACCEPTED')
+ const before=stored(f)
+ writeFileSync(s.trustPath,'{}')
+ assert.equal(collector.tick({now:T}).status,'TRUSTED_CONFIGURATION_CHANGED')
+ assert.deepEqual(stored(f),before)
+})
+test('collector rejects untrusted or duplicate plans and separates control records',t=>{
+ const f=setup(t),s=signedFixture(f),plan=collectionPlan(f,s)
+ assert.throws(()=>createCollector(f.inbox,f.state,s.trustPath,plan.path,'f'.repeat(64)),/fingerprint mismatch/)
+ const duplicates=collectionPlan(f,s,[s.approvalSha,s.approvalSha])
+ assert.throws(()=>createCollector(f.inbox,f.state,s.trustPath,duplicates.path,duplicates.sha),/Invalid collection plan/)
+ const unsafe=join(f.inbox,'plan.json');writeFileSync(unsafe,readFileSync(plan.path))
+ assert.throws(()=>createCollector(f.inbox,f.state,s.trustPath,unsafe,hash(readFileSync(unsafe))),/separate/)
+})
+test('bounded collection lifecycle obeys cycle limit, stop signal and trust changes',async()=>{
+ let ticks=0
+ const collector={tick(){ticks++;return {status:'WAITING_FOR_EXPLICIT_APPROVAL'}}}
+ assert.equal((await collect(collector,{maxCycles:1})).reason,'CYCLE_LIMIT')
+ assert.equal(ticks,1)
+ const ac=new AbortController()
+ const stopped=await collect(collector,{maxCycles:3,signal:ac.signal,onReceipt:()=>ac.abort()})
+ assert.equal(stopped.reason,'STOP_REQUESTED');assert.equal(stopped.cycles,1)
+ const halted=await collect({tick:()=>({status:'TRUSTED_CONFIGURATION_CHANGED'})},{maxCycles:3})
+ assert.equal(halted.reason,'TRUSTED_CONFIGURATION_STOP');assert.equal(halted.cycles,1)
+ await assert.rejects(collect(collector,{intervalMs:1}),/Invalid polling bounds/)
+ await assert.rejects(collect(collector,{intervalMs:60000,maxCycles:240}),/Invalid polling bounds/)
 })
