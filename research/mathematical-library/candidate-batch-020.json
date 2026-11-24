@@ -1,0 +1,255 @@
+[
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "020",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "paired-exact-sign-test",
+    "name": "Exact paired sign test",
+    "definition": "Discard exact zero differences under a prespecified policy. For n nonzero paired differences let K=Σ_i 1(d_i>0); under independent signs with probability 1/2, K∼Binomial(n,1/2).",
+    "variables": "d_i matched difference; n positive number of nonzero differences; K positive-sign count",
+    "assumptions": "Independent matched-pair differences; under the null, positive and negative signs equally probable conditional on being nonzero.",
+    "limitations": "Discards magnitude information; cannot infer equality of means; zero differences require transparent handling.",
+    "failure_conditions": [
+      "No nonzero pairs or dependent signs"
+    ],
+    "computation": "Count nonzero signs and evaluate an exact binomial tail under the stated null; use prespecified alternative.",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Dataplot reference, SIGN TEST; SciPy binomtest API for exact binomial reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.binomtest.html"
+    },
+    "application": "Assess directional differences between matched authorised development measurements.",
+    "required_inputs": "Correctly matched pairs with nonzero differences and a predefined zero handling and testing policy.",
+    "compatible_methods": [
+      "paired-student-t",
+      "wilcoxon-signed-rank"
+    ],
+    "incompatible_methods": [
+      "Ignoring clustering or interpreting signs as magnitudes"
+    ],
+    "relationships": [
+      {
+        "target": "wilcoxon-signed-rank",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "020",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "pearson-contingency-independence",
+    "name": "Pearson chi-square test of independence",
+    "definition": "For a contingency table with r rows, c columns and N total observations, E_ij=R_i C_j/N and X²=Σ_iΣ_j (O_ij−E_ij)²/E_ij.",
+    "variables": "O observed counts; R,C marginal counts; E expected counts under independence; N>0; r,c≥2",
+    "assumptions": "Independent observational units, positive marginal totals, sufficient expected counts for the asymptotic chi-square reference with (r−1)(c−1) degrees of freedom.",
+    "limitations": "Sparse cells may invalidate approximation; dependence between repeated observations is not accounted for.",
+    "failure_conditions": [
+      "Zero expected cells or repeated observations treated as independent"
+    ],
+    "computation": "Calculate marginals, expected counts and Pearson discrepancy; apply a justified asymptotic or resampling null reference.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, chi2_contingency API; Pearson statistic with correction=False and lambda_=None. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2_contingency.html"
+    },
+    "application": "Investigate association between comparable categorical variables in authorised development records.",
+    "required_inputs": "Independent units cross-classified into mutually exclusive categories.",
+    "compatible_methods": [
+      "chi-square-law",
+      "mcnemar"
+    ],
+    "incompatible_methods": [
+      "Using an independent-count reference for paired categorical observations"
+    ],
+    "relationships": [
+      {
+        "target": "chi-square-law",
+        "type": "related"
+      },
+      {
+        "target": "mcnemar",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "020",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "fisher-exact-two-by-two",
+    "name": "Fisher exact test for 2×2 contingency tables",
+    "definition": "Conditional on fixed margins, P(A=a)=C(R_1,a)C(R_2,C_1−a)/C(N,C_1). A two-sided probability-ordering p-value sums probabilities of feasible tables no more probable than the observed table.",
+    "variables": "A top-left count; R_1,R_2 row totals; C_1 first-column total; N=R_1+R_2; C binomial coefficient",
+    "assumptions": "Independent observational units and valid conditioning on margins under the null odds ratio of one.",
+    "limitations": "Discrete p-values can be conservative; two-sided conventions differ; does not estimate causal effects.",
+    "failure_conditions": [
+      "Invalid margins or unmodelled pairing"
+    ],
+    "computation": "Enumerate feasible top-left counts and sum the hypergeometric probabilities for the prespecified alternative.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, fisher_exact API and Notes for a 2×2 table. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fisher_exact.html"
+    },
+    "application": "Assess association in small two-by-two tables of independent development observations.",
+    "required_inputs": "A two-by-two table of nonnegative integer counts with meaningful margins.",
+    "compatible_methods": [
+      "hypergeometric",
+      "pearson-contingency-independence"
+    ],
+    "incompatible_methods": [
+      "Paired binary observations treated as independent"
+    ],
+    "relationships": [
+      {
+        "target": "hypergeometric",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "020",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "one-way-fixed-effects-anova",
+    "name": "Classical one-way fixed-effects ANOVA",
+    "definition": "For k groups, F=[Σ_i n_i(mean_i−grand_mean)²/(k−1)]/[Σ_iΣ_j(x_ij−mean_i)²/(N−k)].",
+    "variables": "k≥2 groups; n_i group sizes; N total observations; mean_i group means; grand_mean pooled mean",
+    "assumptions": "Independent normal observations within and across groups, common positive population variance, N>k; null equal group means.",
+    "limitations": "Sensitive to unequal variances in unbalanced samples; rejection does not identify which groups differ.",
+    "failure_conditions": [
+      "Zero within-group mean square or unmodelled dependence"
+    ],
+    "computation": "Compute between- and within-group sums of squares and compare F against F_(k−1,N−k) under the stated assumptions.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, f_oneway API, equal_var=True, and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f_oneway.html"
+    },
+    "application": "Compare means of comparable independent groups of historical development measurements.",
+    "required_inputs": "Authorised independent groups with a comparable continuous measurement and prespecified group definitions.",
+    "compatible_methods": [
+      "f-reference-law",
+      "kruskal-wallis"
+    ],
+    "incompatible_methods": [
+      "Repeated observations treated as independent groups"
+    ],
+    "relationships": [
+      {
+        "target": "kruskal-wallis",
+        "type": "related"
+      },
+      {
+        "target": "f-reference-law",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "020",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "cochran-q-matched-binary",
+    "name": "Cochran Q test for matched binary measurements",
+    "definition": "For n independent blocks and k≥3 binary conditions, let C_j=Σ_i x_ij, R_i=Σ_j x_ij, T=Σ_j C_j. Q=(k−1)[kΣ_j C_j²−T²]/[kT−Σ_i R_i²].",
+    "variables": "x_ij∈{0,1}; n blocks; k conditions; C_j column totals; R_i row totals; T overall total",
+    "assumptions": "Correctly matched binary observations within blocks; independent blocks; nonzero denominator; exchangeable conditions under the classical null and adequate asymptotic reference.",
+    "limitations": "Approximate chi-square reference with k−1 degrees of freedom may be poor with few informative blocks; does not identify which conditions differ.",
+    "failure_conditions": [
+      "No discordant blocks or invalid matching"
+    ],
+    "computation": "Compute row and column totals and Q; obtain an appropriate null reference and prespecify follow-up comparisons.",
+    "source": {
+      "kind": "literature",
+      "citation": "Statsmodels maintainers, cochrans_q API and references. https://www.statsmodels.org/stable/generated/statsmodels.stats.contingency_tables.cochrans_q.html"
+    },
+    "application": "Compare binary measurement rates across matched conditions on authorised development observations.",
+    "required_inputs": "Independent matched blocks of complete binary measurements under comparable conditions.",
+    "compatible_methods": [
+      "mcnemar",
+      "friedman-rank-test"
+    ],
+    "incompatible_methods": [
+      "Missing matched observations silently recoded as zero"
+    ],
+    "relationships": [
+      {
+        "target": "mcnemar",
+        "type": "related"
+      }
+    ]
+  }
+]

@@ -4,6 +4,10 @@ import {readFileSync} from 'node:fs'
 import {createHash} from 'node:crypto'
 import {pathToFileURL} from 'node:url'
 const json=name=>JSON.parse(readFileSync(new URL(name,import.meta.url),'utf8'))
+export function nextCandidateName(){
+ const {manifest}=loadCatalogue()
+ return 'candidate-batch-'+String(manifest.batches.length).padStart(3,'0')+'.json'
+}
 export function assessCandidates(candidates){
  const {entries,manifest}=loadCatalogue()
  if(!Array.isArray(candidates)||candidates.length<1||candidates.length>100)throw new Error('Candidate batch must contain 1–100 entries')
@@ -20,6 +24,6 @@ export function assessCandidates(candidates){
    'No experiments, protected data or empirical qualification accessed.']}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
- if(process.argv.length!==3){console.error('Usage: node experiment-registry-catalogue-intake.mjs <candidate-json>');process.exitCode=2}
- else{try{console.log(JSON.stringify(assessCandidates(JSON.parse(readFileSync(process.argv[2],'utf8'))),null,2))}catch(e){console.error(e.message);process.exitCode=1}}
+ if(process.argv.length!==3){console.error('Usage: node experiment-registry-catalogue-intake.mjs <candidate-json|--next>');process.exitCode=2}
+ else{try{console.log(JSON.stringify(assessCandidates((process.argv[2]==='--next'?json(nextCandidateName()):JSON.parse(readFileSync(process.argv[2],'utf8')))),null,2))}catch(e){console.error(e.message);process.exitCode=1}}
 }

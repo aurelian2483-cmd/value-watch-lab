@@ -4201,3 +4201,47 @@ Assumptions — Independent groups and observations, nonzero within-group deviat
 Limitations — Approximate F reference can be poor under severe skew, heavy tails or small samples; no proof of equal variances from non-rejection..
 
 Source — SciPy maintainers, levene API, center='mean', and Levene (1960). https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.levene.html
+
+## Brunner–Munzel relative-effect test (brunner-munzel-test)
+
+> Let h(x,y)=1(x<y)+0.5·1(x=y), p̂=Σ_iΣ_j h(X_i,Y_j)/(nm), A_i=Σ_j h(X_i,Y_j)/m, B_j=Σ_i h(X_i,Y_j)/n. W=(p̂−0.5)/√(s_A²/n+s_B²/m), with sample variances of A and B.
+
+X,Y independent groups; n,m≥2; p̂ relative-effect estimate; s_A²,s_B² unbiased sample variances; W studentized statistic.
+
+Compare relative ordering between comparable independent measurements in development samples.
+
+Assumptions — Independent samples and independent observations within each group; nonzero estimated standard error; approximate reference distribution justified..
+
+Limitations — Small samples and zero variance may make the approximation unreliable; tests relative effect, not general equality of distributions..
+
+Mechanism — Studentizes a relative-effect estimate with separate group placement variances; unlike the equal-distribution Mann–Whitney null.
+
+Source — SciPy maintainers, brunnermunzel API and references to Brunner and Munzel (2000). https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.brunnermunzel.html
+
+## Bartlett homogeneity-of-variance test (bartlett-variance-test)
+
+> Let v_i=n_i−1, V=Σ_i v_i, s_p²=Σ_i v_i s_i²/V. B=[V ln(s_p²)−Σ_i v_i ln(s_i²)]/[1+(Σ_i 1/v_i−1/V)/(3(k−1))].
+
+k≥2 independent groups; n_i≥2 sizes; s_i² positive unbiased sample variances; B corrected likelihood-ratio statistic.
+
+Assess variability across comparable independent groups when normality is defensible.
+
+Assumptions — Independent normally distributed observations and groups; positive variances; chi-square approximation with k−1 degrees of freedom under equal variances..
+
+Limitations — Sensitive to non-normality; does not prove equality when non-significant..
+
+Source — SciPy maintainers, bartlett API and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bartlett.html
+
+## Paired Student t-test (paired-student-t)
+
+> For matched observations let d_i=x_i−y_i, T=mean(d)/(s_d/√n); under independent normally distributed differences with zero mean, T∼t_(n−1).
+
+n≥2 matched pairs; d_i difference; s_d positive unbiased sample standard deviation; T statistic.
+
+Assess mean differences on matched development observations when pairwise independence is defensible.
+
+Assumptions — Pairs correctly matched; differences independent across pairs and normally distributed for exact reference, or an adequate asymptotic approximation..
+
+Limitations — Serial or clustered differences require dependence-aware inference; extreme differences can dominate the mean..
+
+Source — SciPy maintainers, ttest_rel API, statistic and degrees of freedom. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_rel.html

@@ -20,7 +20,7 @@ jobs:
       - name: Registry unit and lifecycle tests
         run: node --test research/mathematical-library/experiment-registry*.test.mjs
       - name: Check staged mathematical catalogue intake
-        run: node research/mathematical-library/experiment-registry-catalogue-intake.mjs research/mathematical-library/candidate-batch-019.json
+        run: node research/mathematical-library/experiment-registry-catalogue-intake.mjs --next
       - name: Generate static Alpha Hunt preview
         run: |
           mkdir -p "$RUNNER_TEMP/alpha-hunt-preview"
