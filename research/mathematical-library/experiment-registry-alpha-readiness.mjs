@@ -19,7 +19,7 @@ export function alphaReadiness(root,directory){
   stage('calibration','Calibration','NOT_EVALUATED',performance.available?(performance.matchedPairs===0?'Source-matched performance report has zero contract-matched pairs.':'Source-matched descriptive performance report exists; independent calibration is not established.'):'Performance report unavailable or not matched to current source records.'),
   stage('disagreement','Disagreement detection','NOT_EVALUATED','No aligned model and market evidence is available through this interface.'),
   stage('false-edge','False Edge Laboratory','UNCERTAIN','All ten mandatory investigations lack evaluated evidence.'),
-  stage('bayesian','Bayesian posterior engine','NOT_EVALUATED','No approved and independently tested prior/likelihood model.'),
+  stage('bayesian','Bayesian posterior engine','SYNTHETIC_MATH_COMPONENT','Numerical Bayes update component exists for synthetic identity tests only; no approved fitted prior/likelihood model or real-data estimates.'),
   stage('pep','Posterior Edge Probability (PEP)','NOT_EVALUATED','No defensible posterior estimate; persistence is a separate estimand.'),
   stage('decision','Decision layer','BLOCKED','Research evidence is insufficient for advancement.'),
   stage('capital','Capital allocation','BLOCKED','No real-money execution or paper simulation is performed by this interface.')
