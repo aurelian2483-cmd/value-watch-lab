@@ -46,6 +46,9 @@ jobs:
           mkdir "$RUNNER_TEMP/supervisor-loop-history"
           node research/research-supervisor/monitor-loop.mjs "$RUNNER_TEMP/supervisor-loop-history" "$RUNNER_TEMP/supervisor-registry" "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" 1 2 > "$RUNNER_TEMP/supervisor-report/monitor-loop.json"
           node -e 'const r=require(process.argv[1]); if(r.reason!=="CYCLE_LIMIT" || r.cycles!==2 || r.alerts!==1 || r.suppressed!==1 || r.repairAuthorized!==false)process.exit(1)' "$RUNNER_TEMP/supervisor-report/monitor-loop.json"
+          node research/research-supervisor/dashboard.mjs "$RUNNER_TEMP/supervisor-registry" "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/supervisor-report/supervisor-dashboard.json"
+          node research/research-supervisor/dashboard.mjs "$RUNNER_TEMP/supervisor-registry" "$RUNNER_TEMP/supervisor-report" "$(git rev-parse HEAD)" html > "$RUNNER_TEMP/supervisor-report/supervisor-dashboard.html"
+          node -e 'const r=require(process.argv[1]); if(r.status!=="REVIEW_REQUIRED" || r.incidentCounts.blocking!==0 || r.incidentCounts.review!==1 || r.registryCounts.COMPLETED!==5 || r.recommendations[0].subject!=="scientific-gpu" || r.repairAuthorized!==false)process.exit(1)' "$RUNNER_TEMP/supervisor-report/supervisor-dashboard.json"
           test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
