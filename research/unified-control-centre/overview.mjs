@@ -21,7 +21,7 @@ function verifySelfHash(r,key,canonical=false){
 function standard(r,kind){
  check(r?.kind===kind&&r.schemaVersion===1&&Object.entries(flags).every(([k,v])=>r[k]===v),'Unsafe report contract')
 }
-function project(pin,r){
+export function project(pin,r){
  let status,metrics,notes=[]
  switch(pin.id){
  case 'catalogue':
