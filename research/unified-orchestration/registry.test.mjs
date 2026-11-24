@@ -321,3 +321,38 @@ test('queue corruption and rehashed forged dispatch outcome fail closed',t=>{
  assert.throws(()=>qstep(f,v.queueSha256,'data','REVIEW'),/Queue event integrity mismatch/)
  assert.deepEqual(stored(f),f.before)
 })
+
+test('dashboard presents the verified queue and does not expose a dispatch endpoint',async t=>{
+ const f=queueFixture(t)
+ const q=qstep(f,null,'catalogue','REVIEW')
+ const server=await startDashboard(...args(f),{port:0,queueConfig:{directory:f.queue,planPath:f.qp,planSha256:f.queuePlanSha,trustedQueueSha256:q.queueSha256}})
+ t.after(async()=>{await new Promise(ok=>server.close(ok))})
+ const url='http://127.0.0.1:'+server.address().port
+ const v=await (await fetch(url+'/status')).json()
+ assert.equal(v.queue.status,'AVAILABLE');assert.equal(v.queue.anchored,true)
+ assert.equal(v.queue.view.pending,5);assert.equal(v.queue.view.reviewed,1)
+ assert.equal(v.queue.view.dispatchAuthorized,false)
+ const html=await (await fetch(url+'/')).text()
+ assert.match(html,/5 pending · 1 reviewed · 0 cancelled/)
+ assert.match(html,/Dispatch blocked/)
+ assert.equal((await fetch(url+'/dispatch',{method:'POST'})).status,405)
+ assert.equal((await fetch(url+'/queue')).status,404)
+ qstep(f,q.queueSha256,'data','CANCEL')
+ const changed=await (await fetch(url+'/status')).json()
+ assert.deepEqual(changed.queue,{status:'UNAVAILABLE'})
+ assert.match(await (await fetch(url+'/')).text(),/Queue unavailable or changed/)
+ assert.deepEqual(stored(f),f.before)
+})
+test('dashboard suppresses queue rows on changed control and absent configuration',async t=>{
+ const f=queueFixture(t),cfg={directory:f.queue,planPath:f.qp,planSha256:f.queuePlanSha}
+ const server=await startDashboard(...args(f),{port:0,queueConfig:cfg})
+ t.after(async()=>{await new Promise(ok=>server.close(ok))})
+ const url='http://127.0.0.1:'+server.address().port
+ assert.equal((await (await fetch(url+'/status')).json()).queue.view.pending,6)
+ const s=read(f);control(f,'PAUSE',s.registrySha256,null)
+ const v=await (await fetch(url+'/status')).json()
+ assert.equal(v.control.status,'REVIEW_HOLD');assert.deepEqual(v.queue,{status:'UNAVAILABLE'})
+ const html=await (await fetch(url+'/')).text()
+ assert.doesNotMatch(html,/data-producer=/)
+ assert.match(html,/Metadata review on hold/)
+})
