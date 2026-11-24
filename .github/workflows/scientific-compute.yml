@@ -9,7 +9,11 @@ permissions:
   contents: read
 jobs:
   cpu-smoke:
-    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +23,7 @@ jobs:
       - name: Test fixed compute contract
         run: python -B -m unittest discover -s research/scientific-compute -p 'test_*.py'
       - name: Run CPU-only known-answer smoke
+        shell: bash
         run: |
           mkdir -p "$RUNNER_TEMP/scientific-compute"
           python -B research/scientific-compute/compute.py cpu > "$RUNNER_TEMP/scientific-compute/cpu-smoke.json"
@@ -26,7 +31,7 @@ jobs:
           test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
-          name: scientific-compute-smoke
+          name: scientific-compute-smoke-${{ matrix.os }}
           path: ${{ runner.temp }}/scientific-compute/
           retention-days: 7
           if-no-files-found: error

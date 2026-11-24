@@ -2,21 +2,16 @@
 import hashlib
 import json
 import math
-import os
-import platform
 import sys
 import time
+from hardware_inventory import cpu_inventory, gpu_inventory
 
 MAX_N = 128
 SHAPES = (8, 32, 64)
 TOLERANCE = 1e-10
 
 def hardware():
-    affinity = getattr(os, "sched_getaffinity", None)
-    slots = len(affinity(0)) if affinity else os.cpu_count()
-    return {"platform": platform.system(), "architecture": platform.machine(),
-            "python": platform.python_version(), "reportedCpuSlots": slots,
-            "gpu": {"status": "NOT_PROBED", "devices": None}}
+    return cpu_inventory()
 
 def fixture(n):
     if type(n) is not int or n not in SHAPES or n > MAX_N:
@@ -71,6 +66,7 @@ def gpu_suite():
             return {"status":"NO_DEVICE","deviceCount":count,"results":[]}
         rows=[]
         with cp.cuda.Device(0):
+            device_before=gpu_inventory(cp.cuda.runtime)
             for n in SHAPES:
                 a,b,expected=fixture(n)
                 started=time.perf_counter()
@@ -80,25 +76,29 @@ def gpu_suite():
                 cp.cuda.get_current_stream().synchronize()
                 elapsed=time.perf_counter()-started
                 rows.append({"size":n,"precision":"float64","elapsedSeconds":elapsed,
+                             "fixtureSha256":hashlib.sha256(json.dumps([a,b,expected],separators=(",",":")).encode()).hexdigest(),
                              **check_result(result,expected)})
+            device_after=gpu_inventory(cp.cuda.runtime)
         return {"status":"SYNTHETIC_GPU_SMOKE_PASSED" if all(r["status"]=="PASS" for r in rows) else "SYNTHETIC_GPU_SMOKE_FAILED",
-                "deviceCount":count,"results":rows,"backendVersion":str(cp.__version__)}
+                "deviceCount":count,"results":rows,"backendVersion":str(cp.__version__),
+                "deviceBefore":device_before,"deviceAfter":device_after}
     except Exception as error:
         return {"status":"BACKEND_ERROR","errorType":type(error).__name__,"deviceCount":None,"results":[]}
 
 def run(mode):
     if mode not in ("cpu","gpu"):
         raise ValueError("Choose cpu or explicit gpu mode")
+    before=hardware()
     cpu=cpu_suite()
     gpu=gpu_suite() if mode=="gpu" else {"status":"NOT_REQUESTED","deviceCount":None,"results":[]}
     passed=all(r["status"]=="PASS" for r in cpu) and (mode=="cpu" or gpu["status"]=="SYNTHETIC_GPU_SMOKE_PASSED")
     return {"kind":"GENERAL_SCIENTIFIC_COMPUTE_SMOKE","schemaVersion":1,"requestedMode":mode,
-            "hardware":hardware(),"cpu":cpu,"gpu":gpu,"status":"PASS" if passed else "FAIL",
+            "hardware":before,"hardwareAfter":hardware(),"cpu":cpu,"gpu":gpu,"status":"PASS" if passed else "FAIL",
             "researchOnly":True,"publicationGate":"BLOCKED","validationAuthorized":False,"executionAuthorized":False,
             "limitations":["Fixed small synthetic matrices only; no predictive or real-data jobs.",
                            "GPU status is a local smoke result, not authorization for other workloads.",
                            "Elapsed times include different overheads; not a fair speed comparison.",
-                           "No process memory quota, GPU memory quota, or driver compatibility certification."]}
+                           "Hardware memory samples are snapshots, not reservations, peak readings or driver compatibility certification."]}
 
 if __name__=="__main__":
     if len(sys.argv)!=2 or sys.argv[1] not in ("cpu","gpu"):
