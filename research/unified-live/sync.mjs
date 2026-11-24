@@ -6,6 +6,7 @@ import {tmpdir} from 'node:os'
 import {pathToFileURL} from 'node:url'
 import {build,verifySnapshot} from '../unified-control-centre/overview.mjs'
 import {digest} from '../scientific-reference/digest.mjs'
+import {verifyAuthentication} from './authentication.mjs'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
 const MAX=4*1024*1024
 const flags={modelValidation:'UNVALIDATED',publicationGate:'BLOCKED',executionAuthorized:false,repairAuthorized:false,accessAuthorized:false,sourceMutationAuthorized:false,validationAuthorized:false,researchOnly:true}
@@ -52,6 +53,7 @@ function checkState(s){
  const raw=Buffer.from(s.approvalBytes,'base64')
  const a=approval(raw,s.approvalSha256)
  need(digest(a)===digest(s.approval),'Stored approval mismatch')
+ if(s.authentication!=null)verifyAuthentication(s.authentication,a,s.approvalSha256,s.acceptedAt)
  verifySnapshot(s.snapshot)
  need(s.snapshot.counts.available===6&&s.snapshot.modules.every((m,i)=>m.receiptSha256===a.sources[i].summarySha256),'Stored snapshot not bound to approval')
  need(Array.isArray(s.firstSeen)&&s.firstSeen.length===6&&s.firstSeen.every((x,i)=>x.id===pins[i].id&&utc(x.at)&&Date.parse(x.at)<=Date.parse(s.acceptedAt)),'Invalid freshness receipt')
@@ -91,7 +93,7 @@ function incidentStatus(root,s,now){
   return {status:e.code==='ENOENT'?'NO_REJECTION_RECORDED':'INCIDENT_EVIDENCE_UNAVAILABLE',stage:null,observedAt:null,previousSequence:null,automaticRepair:false}
  }
 }
-export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOString()}={}){
+export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOString(),authentication=null}={}){
  const inbox=safeRoot(inboxDir),root=safeRoot(stateDir)
  need(!within(inbox,root)&&!within(root,inbox),'Input and state must be separate directories')
  need(utc(now),'Invalid clock')
@@ -103,10 +105,19 @@ export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOStri
   phase='APPROVAL'
   const raw=readBounded(join(inbox,'approval.json')),a=approval(raw,expected)
   need(Date.parse(a.approvedAt)<=Date.parse(now),'Future approval')
+  phase='APPROVAL'
+  if(authentication!==null)verifyAuthentication(authentication,a,expected,now)
+  // Once signed intake is adopted, the state cannot silently downgrade or rotate keys.
+  if(previous?.authentication!=null){
+   need(authentication!==null,'Signed state requires signed intake')
+   need(authentication.trustSha256===previous.authentication.trustSha256,'Trust registry rotation requires separate reviewed migration')
+  }
   phase='SEQUENCE'
   if(previous){
    need(Date.parse(now)>=Date.parse(previous.acceptedAt),'Clock moved backwards')
    if(previous.approvalSha256===expected){
+    need((previous.authentication!=null)===(authentication!==null),'Replay cannot change authentication mode')
+    if(authentication!==null)need(digest(previous.authentication)===digest(authentication),'Replay cannot change authentication evidence')
     phase='INPUT'
     for(let i=0;i<pins.length;i++)need(sha(readBounded(join(inbox,pins[i].file)))===a.sources[i].summarySha256,'Replay input mismatch')
     need(readBounded(join(inbox,'approval.json')).equals(raw),'Unstable approval')
@@ -129,7 +140,7 @@ export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOStri
   need(readBounded(join(inbox,'approval.json')).equals(raw),'Unstable approval')
   for(let i=0;i<pins.length;i++)need(sha(readBounded(join(inbox,pins[i].file)))===a.sources[i].summarySha256,'Input changed during sync')
   const payload={kind:'CONTROLLED_SUMMARY_STATE',schemaVersion:1,...flags,sequence:a.sequence,acceptedAt:now,
-   approvalSha256:expected,approvalBytes:raw.toString('base64'),approval:a,previousApprovalSha256:previous?.approvalSha256??null,snapshot,
+   approvalSha256:expected,approvalBytes:raw.toString('base64'),approval:a,previousApprovalSha256:previous?.approvalSha256??null,snapshot,authentication,
    firstSeen:a.sources.map((x,i)=>({id:x.id,at:previous?.approval.sources[i].summarySha256===x.summarySha256?previous.firstSeen[i].at:now}))}
   const s={...payload,stateSha256:digest(payload)}
   phase='PERSISTENCE'
@@ -189,6 +200,7 @@ export function status(stateDir,{now=new Date().toISOString(),maxAgeSeconds=3600
  return {kind:'CONTROLLED_SUMMARY_STATUS',...flags,sequence:s?.sequence??null,acceptedAt:s?.acceptedAt??null,
   syncStatus:s?freshness(s.acceptedAt):'NO_ACCEPTED_BATCH',measurementFreshness:'UNKNOWN',
   sources:pins.map((p,i)=>({id:p.id,receiptStatus:s?freshness(s.firstSeen[i].at):'MISSING',firstSeen:s?.firstSeen[i].at??null,measurementFreshness:'UNKNOWN'})),
+  authentication:{mode:!s?'NO_ACCEPTED_BATCH':s.authentication?'SIGNATURES_REVERIFIED_AT_ACCEPTANCE':'MANUAL_DIGEST_APPROVAL',trustSha256:s?.authentication?.trustSha256??null,independentTrustRechecked:false},
   lastRejection:incidentStatus(root,s,now),
   snapshot:s?.snapshot??null,limitations:['Receipt age is not measurement age or producer health.','Explicit digest approval; no independent source authenticity or scientific validation.','No producer, scheduler or network service started.']}
 }
