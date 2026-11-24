@@ -480,13 +480,13 @@
     const review = E.footballEvidenceReview(event);
     record.market.classList.toggle('desk-three-way',event.sport==='football'&&event.choices.length===3);
     const leaders = E.modelLeaders(event);
-    const methodSignal = ValueWatchMethodStars.evaluate(event, {
+    const methodSignal = status.selectable ? ValueWatchMethodStars.evaluate(event, {
       selected: selectedMethods,
       leaderId: leaders.find(leader=>leader.rank===1)?.id ?? null,
       reliability: selectedMethods.includes('reliability') ? currentHistoryStatus(event) : null,
       hybrid: selectedMethods.includes('hybrid') && hybridEvidence && !hybridEvidence.pending &&
         Date.now()-hybridEvidence.at<60000 ? hybridResult(event,hybridEvidence) : null
-    });
+    }) : {byChoice:{},overlaps:[]};
     record.methodConsensus.replaceChildren();
     for(const overlap of methodSignal.overlaps){
       const title = event.choices.find(choice=>choice.id===overlap.choice)?.label || overlap.choice;
