@@ -31,3 +31,7 @@ The CI artifact now includes `index.html` and `quality-report.json`, consolidati
 ## Phase 5 — provenance and data-rights review register
 
 The new fixed-path register starts with zero documentary claims. Its metadata contract binds each future claim to an allowlisted source content hash, provider namespace, origin and rights evidence digests, claimed scopes, recording time and expiration. Missing, duplicate, stale, future or malformed claims remain blocked. Even a current claim is not legal authorization or independent verification; actual documents and source relationships must be reviewed separately. The quality report displays source-level review status without exposing claim document contents. No licences, reviewer approvals or permissions have been invented.
+
+## Phase 6 — combined control-centre preview
+
+`integration.mjs` reuses the existing Research Control Centre and Central Data quality reports without changing catalogue code. It compares shared aggregate counts and suppresses those counts if the two inspections disagree. Count agreement is not record-level agreement or atomic snapshot verification. CI emits integrated-status.json and integrated-status.html. Catalogue figures are explicitly local checkout figures, not live remote counts. The independent review gate remains closed.

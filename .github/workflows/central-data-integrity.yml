@@ -26,6 +26,8 @@ jobs:
           node research/central-data-intelligence/source-audit.mjs "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/central-data-integrity/source-audit.json"
           node research/central-data-intelligence/quality-report.mjs "$GITHUB_WORKSPACE" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/central-data-integrity/quality-report.json"
           node research/central-data-intelligence/quality-report.mjs "$GITHUB_WORKSPACE" "$(git rev-parse HEAD)" html > "$RUNNER_TEMP/central-data-integrity/index.html"
+          node research/central-data-intelligence/integration.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/unavailable-local-registry" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/central-data-integrity/integrated-status.json"
+          node research/central-data-intelligence/integration.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/unavailable-local-registry" "$(git rev-parse HEAD)" html > "$RUNNER_TEMP/central-data-integrity/integrated-status.html"
           git diff --exit-code
       - uses: actions/upload-artifact@v4
         with:
