@@ -25,7 +25,7 @@ export function alphaReadiness(root,directory){
   stage('bayesian','Bayesian posterior engine','SYNTHETIC_MATH_COMPONENT','Numerical Bayes update component exists for synthetic identity tests only; no approved fitted prior/likelihood model or real-data estimates.'),
   stage('pep','Posterior Edge Probability (PEP)','PROTOCOL_COMPONENT_ONLY','Research design fingerprinting and distinct estimands are implemented; no fitted posterior or probability estimate.'),
   stage('decision','Decision layer',decision.status,'Research advancement blocked: '+decision.blockers.join('; ')+'.'),
-  stage('capital','Capital allocation','BLOCKED','No real-money execution or paper simulation is performed by this interface.')
+  stage('capital','Capital allocation','SYNTHETIC_ACCOUNTING_COMPONENT','Virtual accounting and drawdown arithmetic implemented for supplied fictional entries only. No sports simulation, stake sizing or capital allocation authorised.')
  ]
  return {schemaVersion:1,kind:'ALPHA_HUNT_V5_READINESS',generatedAt:view.generatedAt,
   system:'alpha-hunt',researchOnly:true,modelValidation:'UNVALIDATED',publicationGate:'BLOCKED',
