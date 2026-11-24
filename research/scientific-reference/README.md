@@ -1,0 +1,25 @@
+# Scientific Reference and Provenance Library — Phase 1
+
+Separate stacked draft based on accepted supervisor revision 7d77fe8f3f2c2edb1d91dd92e0c67c1f9b211854. This bibliography is distinct from the existing mathematical catalogue and Central Data Intelligence data-rights register (separate sibling branch); neither is modified or imported. It contains three public reference metadata records and three bounded claim notes checked on 2026-11-24 using publisher webpages. NIST DLMF §3.2(i) and Python math.fsum locators were inspected; NIST TN 1297 was inspected at bibliographic-record level only. No document bytes are archived, no rights granted, no independent review completed and no empirical qualification claimed.
+
+Run `node --test research/scientific-reference/*.test.mjs`, `node research/scientific-reference/library.mjs summary`, or `node research/scientific-reference/library.mjs search "floating-point"`. Strict schema, unique source IDs/URLs/DOIs, linked claim IDs, explicit version/locator/scope, and immutable read-only reporting. Hashes bind register metadata, not publisher bytes. Initial records: [DLMF](https://dlmf.nist.gov/3.2), [Python math](https://docs.python.org/3.12/library/math.html), [NIST TN 1297](https://www.nist.gov/publications/guidelines-evaluating-and-expressing-uncertainty-nist-measurement-results-1994-edition). No full source reproduction or automated retrieval. Future: review events, source version changes, claim conflicts, citation export, read-only dashboard and integration audit. No prediction, external data acquisition, empirical qualification, deployment or publication authorization.
+
+## Phase 2 — version-bound review observations
+
+Reopened the three publisher pages on 2026-11-24. The ledger records two locator observations and one bibliographic observation; Python displayed documentation version 3.12.16. Run `node research/scientific-reference/review-history.mjs 2026-11-24`. Each hash-linked observation binds complete source and claim metadata using canonical JSON. Changed metadata makes the latest review stale; removed claims retain historical events; future observations do not count. The register is unchanged. Current recorded review means metadata match only, not live-page equivalence. No archived bytes, authenticated independent reviewer, rights verification or automatic access. Hashes are not signatures. CI validates seeded observations and synthetic change/tamper scenarios.
+
+## Phase 3 — structured comparison and potential conflict detection
+
+Run `node research/scientific-reference/compare-claims.mjs 2026-11-24`. Manually supplied annotations must bind the full source and claim metadata fingerprints and have a current recorded locator review before comparison. Exact concept, conditions, value type and units are required; boolean disagreement or disjoint closed intervals are flagged for manual review, not adjudicated. Overlapping intervals do not establish agreement in scientific conclusions. The real annotation register intentionally starts empty: no comparable structured pairs have been established. Tests use invented annotations in memory only, with no fabricated real scientific conflicts persisted. The report explicitly counts unannotated claims and comparable pairs. No text inference, source independence certification, unit conversion, rights grants or empirical qualification.
+
+## Phase 4 — citation metadata export
+
+Run `node research/scientific-reference/citation-export.mjs 2026-11-24 json` or replace `json` with `markdown`. The exports preserve registered titles, publishers, identifiers, versions, locators, claim scope and the as-of review state derived from the version-bound ledger. Missing dedicated author and publication-date fields remain null; a publisher or access date is never substituted for those fields. This is a provenance handoff, not a style-certified bibliography. Metadata hashes bind the export and review reports, not external document bytes. No source downloads, new claims, rights review or independent verification performed in this phase. CI emits JSON and Markdown metadata reports.
+
+## Phase 5 — static reference dashboard
+
+`node research/scientific-reference/dashboard.mjs 2026-11-24 json|html` consolidates the reference export, review ledger and structured comparison report from the same inputs. The view identifies unassessed comparisons and missing reviews, keeps provenance fingerprints visible and never starts external retrieval or execution. CI renders the HTML from the exact JSON snapshot. Browser acceptance, independent review, live source monitoring and integration into a deployed control centre remain outstanding. No new source claims were added.
+
+## Integration and quality audit
+
+See [audit findings](QUALITY-AUDIT-20261124.md). Publisher locators were rechecked; canonical fingerprints now reconcile across reports, review coverage is explicit and browser acceptance is configured. The summary counts are registered historical labels, not current review status. No scientific or legal qualification or deployment is implied.

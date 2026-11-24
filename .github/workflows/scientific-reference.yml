@@ -1,0 +1,48 @@
+name: Scientific reference provenance
+on:
+  pull_request:
+    paths:
+      - 'research/scientific-reference/**'
+      - '.github/workflows/scientific-reference.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  references:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test research/scientific-reference/*.test.mjs
+      - name: Generate deterministic metadata report
+        run: |
+          mkdir "$RUNNER_TEMP/scientific-reference"
+          node research/scientific-reference/library.mjs summary > "$RUNNER_TEMP/scientific-reference/summary.json"
+          node research/scientific-reference/library.mjs summary > "$RUNNER_TEMP/scientific-reference/repeated.json"
+          cmp "$RUNNER_TEMP/scientific-reference/summary.json" "$RUNNER_TEMP/scientific-reference/repeated.json"
+          node research/scientific-reference/review-history.mjs 2026-11-24 > "$RUNNER_TEMP/scientific-reference/review-status.json"
+          node -e 'const r=require(process.argv[1]); if(r.counts.CURRENT_RECORDED_LOCATOR_REVIEW!==2 || r.counts.CURRENT_RECORDED_METADATA_REVIEW!==1 || r.rows.some(x=>x.independentReview||x.contentVerified||x.rightsVerified))process.exit(1)' "$RUNNER_TEMP/scientific-reference/review-status.json"
+          node research/scientific-reference/compare-claims.mjs 2026-11-24 > "$RUNNER_TEMP/scientific-reference/comparison-report.json"
+          node -e 'const r=require(process.argv[1]); if(r.counts.unannotatedClaims!==3 || r.counts.comparablePairs!==0 || r.counts.confirmedContradictions!==0 || r.validationAuthorized!==false)process.exit(1)' "$RUNNER_TEMP/scientific-reference/comparison-report.json"
+          node research/scientific-reference/citation-export.mjs 2026-11-24 json > "$RUNNER_TEMP/scientific-reference/reference-export.json"
+          node research/scientific-reference/citation-export.mjs 2026-11-24 markdown > "$RUNNER_TEMP/scientific-reference/reference-notes.md"
+          node -e 'const r=require(process.argv[1]); if(r.counts.sources!==3 || r.counts.claims!==3 || r.publicationGate!=="BLOCKED" || r.entries.some(s=>s.authors!==null||s.publicationDate!==null))process.exit(1)' "$RUNNER_TEMP/scientific-reference/reference-export.json"
+          node research/scientific-reference/dashboard.mjs 2026-11-24 json > "$RUNNER_TEMP/scientific-reference/dashboard.json"
+          node --input-type=module -e 'import {readFileSync} from "node:fs"; import {renderDashboard} from "./research/scientific-reference/dashboard.mjs"; process.stdout.write(renderDashboard(JSON.parse(readFileSync(process.argv[1],"utf8"))))' "$RUNNER_TEMP/scientific-reference/dashboard.json" > "$RUNNER_TEMP/scientific-reference/dashboard.html"
+          node -e 'const r=require(process.argv[1]); if(r.counts.sources!==3 || r.counts.claims!==3 || r.comparisonCoverage!=="NO_COMPARABLE_PAIRS" || r.publicationGate!=="BLOCKED")process.exit(1)' "$RUNNER_TEMP/scientific-reference/dashboard.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Reference bundle and browser acceptance
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node research/scientific-reference/acceptance.mjs "$RUNNER_TEMP/scientific-reference"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scientific-reference-provenance
+          path: ${{ runner.temp }}/scientific-reference/
+          retention-days: 7
+          if-no-files-found: error
