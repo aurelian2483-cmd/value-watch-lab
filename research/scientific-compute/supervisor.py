@@ -47,11 +47,13 @@ def verify_report(report,mode):
              gpu.get("status")=="SYNTHETIC_GPU_SMOKE_PASSED" and valid_rows(gpu.get("results"))
              and type(gpu.get("deviceCount")) is int and gpu["deviceCount"]>0))
 
-def supervise(mode="cpu",timeout=30):
+def supervise(mode="cpu",timeout=30,workload="smoke"):
+    if workload not in ("smoke","benchmark"):
+        raise ValueError("Unsupported workload")
     if mode not in ("cpu","gpu") or type(timeout) not in (int,float) or not math.isfinite(timeout) or not 1<=timeout<=120:
         raise ValueError("Invalid fixed workload or timeout")
     policy=limits() if mode=="cpu" else {"status":"NOT_APPLIED_GPU_RUNTIME","cpuSeconds":None,"addressSpaceBytes":None}
-    command=[sys.executable,"-I","-B",str(ROOT/"supervisor.py"),"--child",mode]
+    command=[sys.executable,"-I","-B",str(ROOT/"supervisor.py"),"--child",mode,workload]
     started=time.monotonic()
     outcome={"status":"FAIL","reason":"UNKNOWN","report":None,"exitCode":None}
     try:
@@ -65,8 +67,13 @@ def supervise(mode="cpu",timeout=30):
             try:
                 report=json.loads(result.stdout)
                 outcome["report"]=report if isinstance(report,dict) else None
-                if result.returncode==0 and verify_report(report,mode):
-                    outcome.update(status="PASS",reason="FIXED_SMOKE_PASSED")
+                if workload=="benchmark":
+                    from benchmark_contract import verify_benchmark
+                    valid=verify_benchmark(report,mode)
+                else:
+                    valid=verify_report(report,mode)
+                if result.returncode==0 and valid:
+                    outcome.update(status="PASS",reason="FIXED_SMOKE_PASSED" if workload=="smoke" else "FIXED_BENCHMARK_PASSED")
                 else:
                     outcome["reason"]="CHILD_FAILED_OR_INVALID_EVIDENCE"
             except (ValueError,UnicodeError):
@@ -75,32 +82,37 @@ def supervise(mode="cpu",timeout=30):
         outcome["reason"]="TIMEOUT"
     except OSError:
         outcome["reason"]="PROCESS_START_FAILED"
-    return {"kind":"SCIENTIFIC_COMPUTE_PROCESS_REPORT","schemaVersion":1,"mode":mode,
+    return {"kind":"SCIENTIFIC_COMPUTE_PROCESS_REPORT","schemaVersion":1,"mode":mode,"workload":workload,
             "timeoutSeconds":timeout,"elapsedSeconds":time.monotonic()-started,
             "resourcePolicy":policy,**outcome,"researchOnly":True,"publicationGate":"BLOCKED",
             "executionAuthorized":False,"validationAuthorized":False,
             "limitations":["Separate process is not a security sandbox; timeout controls direct child only.",
                            "Linux CPU mode applies address-space and CPU-time limits; GPU and other platforms do not.",
                            "Output length is checked after capture, not a streaming memory quota.",
-                           "Only fixed synthetic smoke workloads; no GPU or production qualification."]}
+                           "Only fixed synthetic smoke and repeated benchmarks; no GPU or production qualification."]}
 
-def child(mode):
+def child(mode,workload="smoke"):
+    if workload not in ("smoke","benchmark"):
+        raise ValueError("Unsupported workload")
     if mode not in ("cpu","gpu"):
         raise ValueError("Invalid child mode")
     if mode=="cpu" and limits()["status"]=="LINUX_RLIMIT_REQUESTED":
         apply_cpu_limits()
     # Isolated interpreter omits script directory; explicitly load this trusted local module.
     sys.path.insert(0,str(ROOT))
-    from compute import run
+    if workload=="benchmark":
+        from benchmark import run
+    else:
+        from compute import run
     report=run(mode)
     print(json.dumps(report,allow_nan=False))
     return 0 if report["status"]=="PASS" else 1
 
 if __name__=="__main__":
-    if len(sys.argv)==3 and sys.argv[1]=="--child":
-        sys.exit(child(sys.argv[2]))
-    if len(sys.argv)!=2 or sys.argv[1] not in ("cpu","gpu"):
-        sys.exit("Usage: python -B supervisor.py cpu|gpu")
-    report=supervise(sys.argv[1])
+    if len(sys.argv)==4 and sys.argv[1]=="--child":
+        sys.exit(child(sys.argv[2],sys.argv[3]))
+    if len(sys.argv) not in (2,3) or sys.argv[1] not in ("cpu","gpu"):
+        sys.exit("Usage: python -B supervisor.py cpu|gpu [smoke|benchmark]")
+    report=supervise(sys.argv[1],workload=sys.argv[2] if len(sys.argv)==3 else "smoke")
     print(json.dumps(report,indent=2,allow_nan=False))
     sys.exit(0 if report["status"]=="PASS" else 1)
