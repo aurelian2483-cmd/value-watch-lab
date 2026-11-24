@@ -17,3 +17,14 @@ jobs:
           node-version: '22'
       - name: Registry unit and lifecycle tests
         run: node --test research/mathematical-library/experiment-registry*.test.mjs
+      - name: Generate static Alpha Hunt preview
+        run: |
+          mkdir -p "$RUNNER_TEMP/alpha-hunt-preview"
+          node research/mathematical-library/experiment-registry-alpha-preview.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/unavailable-local-registry" > "$RUNNER_TEMP/alpha-hunt-preview/index.html"
+      - name: Archive preview for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: alpha-hunt-readiness-preview
+          path: ${{ runner.temp }}/alpha-hunt-preview/index.html
+          retention-days: 7
+          if-no-files-found: error
