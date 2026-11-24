@@ -1,0 +1,274 @@
+name: Unified research live integration
+on:
+  pull_request:
+    paths:
+      - 'research/unified-live/**'
+      - '.github/workflows/unified-research-live.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  overview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test synchronisation and inherited contracts
+        run: node --test research/unified-live/*.test.mjs research/unified-control-centre/*.test.mjs
+      - name: Prepare pinned catalogue summary
+        run: |
+          mkdir -p "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/unified-output"
+          git fetch --no-tags --depth=1 origin ed0186d09b269e21d70035d997ce41b5a001b574
+          git show ed0186d09b269e21d70035d997ce41b5a001b574:research/mathematical-library/progress.v1.json > "$RUNNER_TEMP/unified-input/catalogue.json"
+      - name: Verify and extract exact pinned archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, io, json, os, pathlib, subprocess, zipfile
+          pins = json.loads(pathlib.Path('research/unified-control-centre/source-pins.json').read_text())
+          repo = os.environ['GITHUB_REPOSITORY']
+          repo_id = int(os.environ['GITHUB_REPOSITORY_ID'])
+          dest = pathlib.Path(os.environ['RUNNER_TEMP']) / 'unified-input'
+          digests = {
+              'data': 'a7bbd094720c3c3daf1c3ce0759563ffee2802f1da001b6259f355c6e9d6ce34',
+              'lab': '4de0f1d584e6ecd4c851182b6a01e3d0b47fc03bdc7af8475a018747d2ddde56',
+              'compute': '362ee374b24f928813f93b143cc6d38e33818e82d2977f9cffcd8dd6feb54f19',
+              'supervisor': '247dd221a23484e543da66dfad438de8fd3534c7abd59697ccc3f0952adb45eb',
+              'references': 'ac954d44e92b6d1f9d48d22d4ee1973f39b7794e1ffa8bf1efdc89978ec809ef',
+          }
+          def require(condition, message):
+              if not condition:
+                  raise RuntimeError(message)
+          require(len(pins) == 6 and {p['id'] for p in pins} == set(digests) | {'catalogue'}, 'Unexpected source set')
+          evidence = []
+          for p in pins:
+              if p['id'] == 'catalogue':
+                  require(p['artifact'] is None, 'Catalogue must come from pinned Git revision')
+                  continue
+              endpoint = f"repos/{repo}/actions/artifacts/{p['artifact']}"
+              a = json.loads(subprocess.check_output(['gh', 'api', endpoint]))
+              w = a.get('workflow_run') or {}
+              expected = digests[p['id']]
+              require(a['id'] == p['artifact'] and a['name'] == p['artifactName'] and a['expired'] is False, 'Artifact identity or expiry mismatch')
+              require(w.get('id') == p['run'] and w.get('head_sha') == p['head'] and w.get('repository_id') == repo_id and w.get('head_repository_id') == repo_id, 'Artifact provenance mismatch')
+              run = json.loads(subprocess.check_output(['gh', 'api', f"repos/{repo}/actions/runs/{p['run']}"]))
+              require(run.get('id') == p['run'] and run.get('head_sha') == p['head'] and run.get('status') == 'completed' and run.get('conclusion') == 'success', 'Source run not accepted')
+              require(a.get('digest') == 'sha256:' + expected and 0 < a['size_in_bytes'] <= 32 * 1024 * 1024, 'Archive metadata mismatch')
+              archive = subprocess.check_output(['gh', 'api', endpoint + '/zip'])
+              require(len(archive) == a['size_in_bytes'] and hashlib.sha256(archive).hexdigest() == expected, 'Downloaded archive fingerprint mismatch')
+              with zipfile.ZipFile(io.BytesIO(archive)) as z:
+                  matches = [i for i in z.infolist() if i.filename == p['artifactFile']]
+                  require(len(matches) == 1 and not matches[0].is_dir() and 0 < matches[0].file_size <= 4 * 1024 * 1024, 'Missing, duplicate or oversized summary')
+                  raw = z.read(matches[0])
+              require(p['file'] == p['id'] + '.json', 'Unexpected output name')
+              (dest / p['file']).write_bytes(raw)
+              evidence.append({'id': p['id'], 'artifactId': p['artifact'], 'runId': p['run'], 'head': p['head'], 'archiveSha256': expected, 'summarySha256': hashlib.sha256(raw).hexdigest(), 'expiresAt': a['expires_at']})
+              print('Verified pinned archive:', p['id'])
+          output = pathlib.Path(os.environ['RUNNER_TEMP']) / 'unified-output' / 'archive-receipts.json'
+          output.write_text(json.dumps({'kind': 'PINNED_ARCHIVE_VERIFICATION', 'researchValidation': 'UNVALIDATED', 'publicationGate': 'BLOCKED', 'archives': evidence}, indent=2) + '\n')
+          PY
+      - name: Reconcile actual verified historical reports through Phase 2
+        run: |
+          mkdir "$RUNNER_TEMP/live-state"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, datetime
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          inbox = root / 'unified-input'
+          pins = json.loads(pathlib.Path('research/unified-control-centre/source-pins.json').read_text())
+          sources = [{**{k:p[k] for k in ('id','head','reportRevision','run','artifact')}, 'summarySha256':hashlib.sha256((inbox/p['file']).read_bytes()).hexdigest()} for p in pins]
+          a = {'kind':'APPROVED_SUMMARY_BATCH','schemaVersion':1,'sequence':1,'approvedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='milliseconds').replace('+00:00','Z'),'sources':sources}
+          raw = json.dumps(a).encode()
+          (inbox/'approval.json').write_bytes(raw)
+          (root/'approval.sha256').write_text(hashlib.sha256(raw).hexdigest())
+          PY
+          node research/unified-live/sync.mjs sync "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/live-state" "$(cat "$RUNNER_TEMP/approval.sha256")" > "$RUNNER_TEMP/unified-output/sync-receipt.json"
+          node research/unified-live/sync.mjs status "$RUNNER_TEMP/live-state" > "$RUNNER_TEMP/unified-output/live-status.json"
+          node -e 'const r=require(process.argv[1]); if(r.snapshot.counts.available!==6||r.measurementFreshness!=="UNKNOWN"||r.publicationGate!=="BLOCKED"||r.executionAuthorized!==false)process.exit(1)' "$RUNNER_TEMP/unified-output/live-status.json"
+          node research/unified-live/sync.mjs sync "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/live-state" "$(cat "$RUNNER_TEMP/approval.sha256")" > "$RUNNER_TEMP/unified-output/replay-receipt.json"
+          node -e 'const a=require(process.argv[1]),b=require(process.argv[2]); if(b.status!=="UNCHANGED"||a.stateSha256!==b.stateSha256)process.exit(1)' "$RUNNER_TEMP/unified-output/sync-receipt.json" "$RUNNER_TEMP/unified-output/replay-receipt.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Review actual baseline source compatibility without promotion
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {createHash} from 'node:crypto'
+          import {readFileSync,writeFileSync} from 'node:fs'
+          import {join} from 'node:path'
+          import {reviewRevision} from './research/unified-live/revision-review.mjs'
+          const root=process.env.RUNNER_TEMP,inbox=join(root,'unified-input')
+          const hash=x=>createHash('sha256').update(x).digest('hex')
+          const pinsRaw=readFileSync('research/unified-control-centre/source-pins.json')
+          const sources=JSON.parse(pinsRaw).map(({id,head,reportRevision,run,artifact,file})=>({id,head,reportRevision,run,artifact,summarySha256:hash(readFileSync(join(inbox,file)))}))
+          const raw=JSON.stringify({kind:'SOURCE_REVISION_REVIEW',schemaVersion:1,baselinePinsSha256:hash(pinsRaw),sources})
+          const path=join(root,'ci-revision-review.json')
+          writeFileSync(path,raw)
+          const active=join(root,'live-state','current.json'),before=readFileSync(active)
+          const result=reviewRevision(inbox,path,hash(raw))
+          assert.equal(result.status,'NO_REVISION_CHANGE')
+          assert.equal(result.rows.length,6)
+          assert.equal(result.promotionAuthorized,false)
+          assert.deepEqual(readFileSync(active),before)
+          writeFileSync(join(root,'unified-output','revision-review-ci.json'),JSON.stringify(result,null,2)+'\n')
+          console.log('PASS isolated review of all six baseline source contracts')
+          JS
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Verify isolated recovery of actual accepted summary batch
+        run: |
+          mkdir "$RUNNER_TEMP/live-backup" "$RUNNER_TEMP/live-recovered"
+          node research/unified-live/sync.mjs checkpoint "$RUNNER_TEMP/live-state" "$RUNNER_TEMP/live-backup" > "$RUNNER_TEMP/unified-output/checkpoint-receipt.json"
+          digest=$(node -p 'require(process.argv[1]).checkpointSha256' "$RUNNER_TEMP/unified-output/checkpoint-receipt.json")
+          node research/unified-live/sync.mjs recover "$RUNNER_TEMP/live-backup" "$RUNNER_TEMP/live-recovered" "$digest" 1 > "$RUNNER_TEMP/unified-output/recovery-receipt.json"
+          cmp "$RUNNER_TEMP/live-state/current.json" "$RUNNER_TEMP/live-recovered/current.json"
+          node -e 'const a=require(process.argv[1]),b=require(process.argv[2]); if(a.stateSha256!==b.stateSha256||a.checkpointSha256!==b.checkpointSha256||b.publicationGate!=="BLOCKED")process.exit(1)' "$RUNNER_TEMP/unified-output/checkpoint-receipt.json" "$RUNNER_TEMP/unified-output/recovery-receipt.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Authenticate six historical reports with isolated CI-only signing keys
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {createHash,generateKeyPairSync,sign} from 'node:crypto'
+          import {readFileSync,writeFileSync,mkdirSync,copyFileSync} from 'node:fs'
+          import {join} from 'node:path'
+          import {signedSynchronise,signatureMessage} from './research/unified-live/producer-intake.mjs'
+          const root=process.env.RUNNER_TEMP,inbox=join(root,'signed-inbox'),state=join(root,'signed-state')
+          mkdirSync(inbox);mkdirSync(state)
+          const hash=x=>createHash('sha256').update(x).digest('hex')
+          const raw=readFileSync(join(root,'unified-input','approval.json'))
+          const a=JSON.parse(raw),approvalSha=hash(raw)
+          writeFileSync(join(inbox,'approval.json'),raw)
+          const pairs=a.sources.map(()=>generateKeyPairSync('ed25519'))
+          const producers=a.sources.map((s,i)=>{
+            copyFileSync(join(root,'unified-input',s.id+'.json'),join(inbox,s.id+'.json'))
+            const der=pairs[i].publicKey.export({type:'spki',format:'der'})
+            return {id:s.id,publicKeyDer:der.toString('base64'),keySha256:hash(der)}
+          })
+          const trustRaw=JSON.stringify({kind:'TRUSTED_RESEARCH_PRODUCERS',schemaVersion:1,producers}),trust=join(root,'ci-trust.json')
+          writeFileSync(trust,trustRaw)
+          const signedAt=new Date().toISOString(),expiresAt=new Date(Date.parse(signedAt)+600000).toISOString()
+          const signatures=a.sources.map((s,i)=>{
+            const keySha256=producers[i].keySha256
+            return {id:s.id,keySha256,signedAt,expiresAt,signature:sign(null,signatureMessage({...s,approvalSha256:approvalSha,sequence:a.sequence,signedAt,expiresAt,keySha256}),pairs[i].privateKey).toString('base64')}
+          })
+          writeFileSync(join(inbox,'producer-signatures.json'),JSON.stringify({kind:'SIGNED_RESEARCH_SUMMARIES',schemaVersion:1,signatures}))
+          const receipt=signedSynchronise(inbox,state,trust,hash(trustRaw),approvalSha,{now:signedAt})
+          assert.equal(receipt.status,'ACCEPTED');assert.equal(receipt.producers.length,6)
+          const actual=JSON.parse(readFileSync(join(state,'current.json')))
+          const baseline=JSON.parse(readFileSync(join(root,'live-state','current.json')))
+          assert.deepEqual(actual.snapshot,baseline.snapshot)
+          assert.equal(actual.authentication.kind,'SIGNED_LOCAL_ACCEPTANCE_V1')
+          assert.equal(actual.authentication.trustSha256,hash(trustRaw))
+          const {status,checkpoint,recover}=await import('./research/unified-live/sync.mjs')
+          const verified=status(state)
+          assert.equal(verified.authentication.mode,'SIGNATURES_REVERIFIED_AT_ACCEPTANCE')
+          assert.equal(verified.authentication.independentTrustRechecked,false)
+          const backup=join(root,'signed-backup'),recovered=join(root,'signed-recovered')
+          mkdirSync(backup);mkdirSync(recovered)
+          const cp=checkpoint(state,backup)
+          recover(backup,recovered,cp.checkpointSha256,cp.sequence)
+          assert.deepEqual(readFileSync(join(state,'current.json')),readFileSync(join(recovered,'current.json')))
+          assert.equal(status(recovered).authentication.mode,'SIGNATURES_REVERIFIED_AT_ACCEPTANCE')
+          const anchored=status(recovered,{trustedTrustSha256:hash(trustRaw),trustedStateSha256:receipt.stateSha256})
+          assert.equal(anchored.authentication.independentTrustRechecked,true)
+          assert.equal(anchored.authentication.independentStateRechecked,true)
+          assert.equal(anchored.measurementFreshness,'UNKNOWN')
+          assert.throws(()=>status(recovered,{trustedTrustSha256:'0'.repeat(64)}),/trust anchor mismatch/)
+          writeFileSync(join(root,'unified-output','external-anchor-ci.json'),JSON.stringify({kind:'EXTERNAL_ANCHOR_TEST',keyScope:'EPHEMERAL_CI_TEST_ONLY',authentication:anchored.authentication,measurementFreshness:anchored.measurementFreshness,modelValidation:anchored.modelValidation,publicationGate:anchored.publicationGate},null,2)+'\n')
+          console.log('PASS external trust and exact state anchor verification on recovered signed reports')
+          const {createCollector,collect}=await import('./research/unified-live/collector.mjs')
+          const collectState=join(root,'collected-state'),planPath=join(root,'ci-collection-plan.json')
+          mkdirSync(collectState)
+          const planRaw=JSON.stringify({kind:'APPROVED_COLLECTION_PLAN',schemaVersion:1,trustSha256:hash(trustRaw),approvedDigests:[approvalSha]})
+          writeFileSync(planPath,planRaw)
+          const collector=createCollector(inbox,collectState,trust,planPath,hash(planRaw))
+          const collected=collector.tick({now:signedAt})
+          assert.equal(collected.status,'ACCEPTED')
+          assert.equal(collector.tick({now:signedAt}).status,'ALREADY_PROCESSED')
+          assert.deepEqual(JSON.parse(readFileSync(join(collectState,'current.json'))).snapshot,baseline.snapshot)
+          const stop=await collect(collector,{maxCycles:1})
+          assert.equal(stop.reason,'CYCLE_LIMIT')
+          writeFileSync(join(root,'unified-output','collection-ci.json'),JSON.stringify({keyScope:'EPHEMERAL_CI_TEST_ONLY',collected,stop},null,2)+'\n')
+          console.log('PASS bounded approved collection of six historical reports')
+
+          console.log('PASS persisted signed evidence and isolated signed recovery')
+          writeFileSync(join(root,'unified-output','signed-intake-ci.json'),JSON.stringify({keyScope:'EPHEMERAL_CI_TEST_ONLY',...receipt},null,2)+'\n')
+          console.log('PASS six historical reports through signed intake with ephemeral test keys')
+          JS
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Live browser acceptance and timed refresh
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node research/unified-live/browser-acceptance.mjs "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/live-state" "$RUNNER_TEMP/unified-output"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Build and verify extracted Phase 2 local preview
+        run: |
+          python3 research/unified-live/release.py "$RUNNER_TEMP/live-state/current.json" "$RUNNER_TEMP/unified-output"
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, zipfile
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          out = root / 'unified-output'
+          raw = (out / 'phase2-local-preview.zip').read_bytes()
+          receipt = json.loads((out / 'phase2-release-receipt.json').read_text())
+          assert hashlib.sha256(raw).hexdigest() == receipt['archiveSha256']
+          target = root / 'phase2-extracted'
+          target.mkdir()
+          with zipfile.ZipFile(out / 'phase2-local-preview.zip') as z:
+              z.extractall(target)
+          PY
+          node "$RUNNER_TEMP/phase2-extracted/research/unified-live/sync.mjs" status "$RUNNER_TEMP/phase2-extracted/state" > "$RUNNER_TEMP/extracted-status.json"
+          cmp "$RUNNER_TEMP/live-state/current.json" "$RUNNER_TEMP/phase2-extracted/state/current.json"
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {readFileSync,writeFileSync} from 'node:fs'
+          import {join} from 'node:path'
+          import {pathToFileURL} from 'node:url'
+          import {chromium} from 'playwright'
+          const root=process.env.RUNNER_TEMP,target=join(root,'phase2-extracted')
+          const baseline=JSON.parse(readFileSync(join(root,'unified-output','live-status.json')))
+          const extracted=JSON.parse(readFileSync(join(root,'extracted-status.json')))
+          assert.deepEqual(extracted.snapshot,baseline.snapshot)
+          const {startViewer}=await import(pathToFileURL(join(target,'research','unified-live','viewer.mjs')).href)
+          const server=await startViewer(join(target,'state'),{port:0})
+          const url='http://127.0.0.1:'+server.address().port
+          let browser
+          const results=[]
+          try{
+            browser=await chromium.launch({headless:true})
+            for(const width of [1440,390,320]){
+              const page=await browser.newPage({viewport:{width,height:900}})
+              const external=[]
+              await page.route('**/*',route=>{
+                if(route.request().url().startsWith(url+'/'))return route.continue()
+                external.push(route.request().url());return route.abort()
+              })
+              const res=await page.goto(url+'/')
+              assert.equal(res.status(),200)
+              const body=await page.locator('body').innerText()
+              assert.match(body,/UNVALIDATED/)
+              assert.match(body,/PUBLICATION BLOCKED/)
+              assert.match(body,/MANUAL_DIGEST_APPROVAL/)
+              assert.match(body,/Measurement freshness: UNKNOWN/)
+              assert.equal(await page.locator('section').count(),6)
+              assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth))
+              assert.deepEqual(external,[])
+              results.push({width,status:'PASS'})
+              await page.close()
+            }
+            writeFileSync(join(root,'unified-output','extracted-preview-ci.json'),JSON.stringify({results,source:'HISTORICAL_CI_STATE',modelValidation:'UNVALIDATED',publicationGate:'BLOCKED'},null,2)+'\n')
+            console.log('PASS extracted Phase 2 preview in three loopback Chromium viewports')
+          }finally{
+            if(browser)await browser.close()
+            await new Promise(ok=>server.close(ok))
+          }
+          JS
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unified-research-live-evidence
+          path: ${{ runner.temp }}/unified-output/
+          retention-days: 7
+          if-no-files-found: error
