@@ -1,0 +1,99 @@
+import {test} from 'node:test'
+import assert from 'node:assert/strict'
+import {createHash} from 'node:crypto'
+import {mkdtempSync,mkdirSync,realpathSync,rmSync,writeFileSync,readFileSync,symlinkSync} from 'node:fs'
+import {join} from 'node:path'
+import {tmpdir} from 'node:os'
+import {synchronise,status} from './sync.mjs'
+import {digest} from '../scientific-reference/digest.mjs'
+const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
+const hash=x=>createHash('sha256').update(x).digest('hex')
+const T='2026-11-24T22:00:00.000Z',T2='2026-11-24T23:00:00.000Z',T3='2026-11-25T00:00:01.000Z'
+const gate={schemaVersion:1,researchOnly:true,publicationGate:'BLOCKED',executionAuthorized:false,validationAuthorized:false}
+const pin=id=>pins.find(p=>p.id===id)
+const withHash=(r,canonical=false)=>({...r,dashboardSha256:canonical?digest(r):hash(JSON.stringify(r))})
+function fixtures(){
+ const checks=Object.fromEntries(['knownAnswer','analyticalReference','persisted','parallel'].map(k=>[k,{total:5,passed:5,failed:0}]))
+ const cpu={mode:'cpu',hardwareIndependentlyVerified:false,status:'RECORDED_LOCAL_PASS',receiptSha256:'a'.repeat(64),passedWorkloads:2,benchmarkRows:4}
+ const gpu={mode:'gpu',hardwareIndependentlyVerified:false,status:'NOT_SUPPLIED',receiptSha256:null,passedWorkloads:null,benchmarkRows:null}
+ return {
+ catalogue:{registered:10,target:1000,remaining:990,qualified:0,byClassification:{synthetic:10}},
+ data:{...gate,kind:'INTEGRATED_RESEARCH_DATA_STATUS',declaredSourceRevision:pin('data').reportRevision,modelValidation:'UNVALIDATED',sourceMutationAuthorized:false,accessAuthorized:false,dataQuality:{sourceCount:9,filesPresent:9,sourcesRequiringReview:9,aggregateCountsAgree:true}},
+ lab:{...gate,kind:'SYNTHETIC_LAB_CONTROL_CENTRE_STATUS',declaredCodeRevision:pin('lab').reportRevision,modelValidation:'UNVALIDATED',expectedFixtures:5,status:'SYNTHETIC_QA_PASSED',checks},
+ compute:{...gate,kind:'SCIENTIFIC_COMPUTE_CONTROL_CENTRE_STATUS',declaredRevision:pin('compute').reportRevision,hardwareIndependentlyVerified:false,cpu,gpu,status:'CPU_LOCAL_EVIDENCE_AVAILABLE'},
+ supervisor:withHash({...gate,kind:'RESEARCH_SUPERVISOR_DASHBOARD',declaredRevision:pin('supervisor').reportRevision,repairAuthorized:false,observedAt:T,monitoringService:'NOT_STARTED_BY_DASHBOARD',incidentCounts:{blocking:0,review:0},recommendations:[],registryCounts:{COMPLETED:0},status:'NO_INCIDENTS_OBSERVED'}),
+ references:withHash({...gate,kind:'SCIENTIFIC_REFERENCE_DASHBOARD',asOf:'2026-11-24',status:'REVIEW_REQUIRED',counts:{sources:1,claims:1,recordedLocatorReviews:1,recordedMetadataReviews:0,comparablePairs:0,potentialConflicts:0,independentlyReviewed:0,rightsVerified:0,empiricallyQualified:0},sources:[{claims:[{}]}],comparisonCoverage:'NO_COMPARABLE_PAIRS'},true)
+ }
+}
+function setup(t){
+ const root=realpathSync(mkdtempSync(join(tmpdir(),'live-sync-test-'))),inbox=join(root,'inbox'),state=join(root,'state')
+ mkdirSync(inbox);mkdirSync(state);t.after(()=>rmSync(root,{recursive:true,force:true}))
+ for(const [id,r] of Object.entries(fixtures()))writeFileSync(join(inbox,id+'.json'),JSON.stringify(r))
+ return {root,inbox,state}
+}
+function approve(inbox,sequence=1,approvedAt=T,change=a=>a){
+ const a=change({kind:'APPROVED_SUMMARY_BATCH',schemaVersion:1,sequence,approvedAt,sources:pins.map(({id,head,reportRevision,run,artifact,file})=>({id,head,reportRevision,run,artifact,summarySha256:hash(readFileSync(join(inbox,file)))}))})
+ const b=JSON.stringify(a);writeFileSync(join(inbox,'approval.json'),b);return hash(b)
+}
+const sync=(f,h,now=T)=>synchronise(f.inbox,f.state,h,{now})
+const stored=f=>readFileSync(join(f.state,'current.json'))
+test('six approved summaries commit as one generation; source files unchanged',t=>{
+ const f=setup(t),h=approve(f.inbox),before=pins.map(p=>readFileSync(join(f.inbox,p.file)))
+ assert.equal(status(f.state,{now:T}).syncStatus,'NO_ACCEPTED_BATCH')
+ const r=sync(f,h)
+ assert.equal(r.status,'ACCEPTED');assert.equal(r.state.snapshot.counts.available,6)
+ assert.equal(status(f.state,{now:T}).measurementFreshness,'UNKNOWN')
+ assert.equal(r.state.publicationGate,'BLOCKED')
+ pins.forEach((p,i)=>assert.deepEqual(readFileSync(join(f.inbox,p.file)),before[i]))
+})
+test('exact replay does not refresh receipt age or change bytes',t=>{
+ const f=setup(t),h=approve(f.inbox);sync(f,h);const before=stored(f)
+ assert.equal(sync(f,h,T2).status,'UNCHANGED')
+ assert.deepEqual(stored(f),before)
+ assert.equal(status(f.state,{now:T3}).syncStatus,'STALE')
+ assert.ok(status(f.state,{now:T3}).sources.every(x=>x.receiptStatus==='STALE'))
+})
+test('explicit next approval preserves unchanged source receipt age',t=>{
+ const f=setup(t);sync(f,approve(f.inbox))
+ const cat=fixtures().catalogue;cat.registered=11;cat.remaining=989;cat.byClassification.synthetic=11
+ writeFileSync(join(f.inbox,'catalogue.json'),JSON.stringify(cat))
+ sync(f,approve(f.inbox,2,T2),T2)
+ const s=status(f.state,{now:T3,maxAgeSeconds:4000})
+ assert.equal(s.sequence,2);assert.equal(s.snapshot.modules[0].metrics[0].value,11)
+ assert.equal(s.sources[0].receiptStatus,'RECENTLY_RECEIVED')
+ assert.ok(s.sources.slice(1).every(x=>x.receiptStatus==='STALE'))
+ assert.equal(s.measurementFreshness,'UNKNOWN')
+})
+test('corrupted, missing or unapproved inputs never overwrite accepted generation',t=>{
+ const f=setup(t);sync(f,approve(f.inbox));const before=stored(f)
+ const h=approve(f.inbox,2,T2)
+ writeFileSync(join(f.inbox,'lab.json'),'{broken')
+ assert.throws(()=>sync(f,h,T2));assert.deepEqual(stored(f),before)
+ assert.throws(()=>sync(f,approve(f.inbox,2,T2),T2));assert.deepEqual(stored(f),before)
+ rmSync(join(f.inbox,'compute.json'))
+ assert.throws(()=>sync(f,h,T2));assert.deepEqual(stored(f),before)
+})
+test('wrong approval digest, source identity, sequence and chronology fail closed',t=>{
+ const f=setup(t),h=approve(f.inbox)
+ assert.throws(()=>sync(f,'0'.repeat(64)))
+ sync(f,h);const before=stored(f)
+ for(const [sequence,at,mutate] of [[3,T2,a=>a],[2,T3,a=>a],[2,T2,a=>{a.sources[0].head='0'.repeat(40);return a}]]){
+  assert.throws(()=>sync(f,approve(f.inbox,sequence,at,mutate),T2));assert.deepEqual(stored(f),before)
+ }
+})
+test('symlinks and concurrent writers rejected, last generation remains readable',t=>{
+ const f=setup(t),h=approve(f.inbox);sync(f,h);const before=stored(f)
+ mkdirSync(join(f.state,'.sync-lock'));assert.throws(()=>sync(f,h,T2));rmSync(join(f.state,'.sync-lock'),{recursive:true})
+ const target=join(f.inbox,'catalogue.json'),outside=join(f.root,'outside.json')
+ writeFileSync(outside,readFileSync(target));rmSync(target);symlinkSync(outside,target)
+ assert.throws(()=>sync(f,h,T2));assert.deepEqual(stored(f),before)
+ assert.throws(()=>synchronise(f.inbox,f.inbox,h,{now:T2}))
+})
+test('stored corruption or clock reversal never silently promotes evidence',t=>{
+ const f=setup(t),h=approve(f.inbox);sync(f,h)
+ assert.equal(status(f.state,{now:'2026-11-24T21:00:00.000Z'}).syncStatus,'CLOCK_UNCERTAIN')
+ assert.throws(()=>sync(f,h,'2026-11-24T21:00:00.000Z'))
+ const s=JSON.parse(stored(f));s.snapshot.publicationGate='OPEN'
+ writeFileSync(join(f.state,'current.json'),JSON.stringify(s))
+ assert.throws(()=>status(f.state,{now:T2}));assert.throws(()=>sync(f,h,T2))
+})
