@@ -92,6 +92,12 @@ jobs:
           node research/unified-live/sync.mjs sync "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/live-state" "$(cat "$RUNNER_TEMP/approval.sha256")" > "$RUNNER_TEMP/unified-output/replay-receipt.json"
           node -e 'const a=require(process.argv[1]),b=require(process.argv[2]); if(b.status!=="UNCHANGED"||a.stateSha256!==b.stateSha256)process.exit(1)' "$RUNNER_TEMP/unified-output/sync-receipt.json" "$RUNNER_TEMP/unified-output/replay-receipt.json"
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Live browser acceptance and timed refresh
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node research/unified-live/browser-acceptance.mjs "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/live-state" "$RUNNER_TEMP/unified-output"
+          test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
           name: unified-research-live-evidence
