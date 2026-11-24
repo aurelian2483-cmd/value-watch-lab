@@ -19,3 +19,7 @@ Next phases, not yet implemented: broader allowlisted source catalogue, source-r
 ## Phase 2 — extended byte-integrity inventory
 
 Run `node research/central-data-intelligence/source-audit.mjs .` for nine allowlisted source receipts and comparisons with the existing pinned Bottleneck archive index. The archive declares 25 entries; the audit does not read every indexed path, protected files or arbitrary supplied paths. A change in bytes is not an error by itself. These are byte receipts, not schema validation or evidence certification. The four Phase 1 sources retain their structural reconciliation; the five additional files have byte-level checks only. CI emits both reports.
+
+## Phase 3 — synthetic identity contract
+
+`identity-review.mjs` exercises exact provider namespaces, explicit one-to-one crosswalks, ordered participant identities, collection/domain, contract and millisecond-precision timestamps. Missing mappings and ambiguous records are not linked. All outcomes are aggregate synthetic QA; there is no real-provider crosswalk adapter or authenticated approval mechanism. Existing `scripts/reconcile_result_evidence.py` remains the authority for its existing review queue; this module does not replace it or promote outcomes. No real data or protected partitions are loaded by this module.
