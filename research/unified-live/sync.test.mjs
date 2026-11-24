@@ -10,6 +10,7 @@ import {signedSynchronise,signatureMessage} from './producer-intake.mjs'
 import {createCollector,collect} from './collector.mjs'
 import {reviewRevision} from './revision-review.mjs'
 import {activateRevision} from './revision-activate.mjs'
+import {verifyActivation} from './activation-verify.mjs'
 import {pathToFileURL} from 'node:url'
 import {lstatSync} from 'node:fs'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
@@ -550,5 +551,43 @@ test('invalid candidate signatures remove only newly created isolated runtime',a
  assert.deepEqual(stored(f),a.before)
  assert.throws(()=>lstatSync(a.target),/ENOENT/)
  await assert.rejects(activate(f,{...a,target:f.state}),/separate/)
+ assert.deepEqual(stored(f),a.before)
+})
+
+test('isolated activation inventory verifies against independently retained receipt without executing code',async t=>{
+ const f=setup(t),a=activationFixture(f),receipt=await activate(f,a)
+ const result=verifyActivation(a.target,receipt.activationSha256)
+ assert.equal(result.status,'MATCHED_TRUSTED_ACTIVATION')
+ assert.equal(result.runtimeFilesVerified,9)
+ assert.equal(result.candidateStateSha256,receipt.candidateStateSha256)
+ assert.equal(result.productionPromotionAuthorized,false)
+ assert.deepEqual(stored(f),a.before)
+ assert.throws(()=>verifyActivation(a.target,'0'.repeat(64)),/receipt fingerprint mismatch/)
+})
+test('activation verifier rejects changed executable, extra file and unsafe link',async t=>{
+ const f=setup(t),a=activationFixture(f),receipt=await activate(f,a)
+ const verify=()=>verifyActivation(a.target,receipt.activationSha256)
+ const path=join(a.target,'runtime','unified-live','sync.mjs'),original=readFileSync(path)
+ writeFileSync(path,Buffer.concat([original,Buffer.from('\nthrow Error("must not execute")')]))
+ assert.throws(verify,/Runtime fingerprint mismatch/)
+ writeFileSync(path,original)
+ const extra=join(a.target,'runtime','unified-live','extra.mjs')
+ writeFileSync(extra,'throw Error("must not execute")')
+ assert.throws(verify,/Unexpected runtime file/)
+ rmSync(extra)
+ rmSync(path);symlinkSync(join(f.root,'outside.mjs'),path)
+ assert.throws(verify,/Unsafe runtime link/)
+ assert.deepEqual(stored(f),a.before)
+})
+test('activation verifier rejects altered state and incomplete layout without replacing baseline',async t=>{
+ const f=setup(t),a=activationFixture(f),receipt=await activate(f,a)
+ const verify=()=>verifyActivation(a.target,receipt.activationSha256)
+ const path=join(a.target,'state','current.json'),raw=readFileSync(path),v=JSON.parse(raw)
+ v.firstSeen[0].at='2026-11-24T21:00:00.000Z';delete v.stateSha256;v.stateSha256=digest(v)
+ writeFileSync(path,JSON.stringify(v))
+ assert.throws(verify,/Candidate state fingerprint mismatch/)
+ writeFileSync(path,raw)
+ mkdirSync(join(a.target,'candidate-inbox'))
+ assert.throws(verify,/Incomplete or unexpected activation layout/)
  assert.deepEqual(stored(f),a.before)
 })
