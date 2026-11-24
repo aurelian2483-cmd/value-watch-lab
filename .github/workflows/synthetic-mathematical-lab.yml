@@ -1,0 +1,36 @@
+name: Synthetic mathematical laboratory
+on:
+  pull_request:
+    paths:
+      - 'research/mathematical-testing-lab/**'
+      - '.github/workflows/synthetic-mathematical-lab.yml'
+      - 'research/mathematical-library/experiment-registry.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run bounded synthetic unit tests
+        run: node --test research/mathematical-testing-lab/*.test.mjs
+      - name: Generate reproducible known-answer results
+        run: |
+          mkdir -p "$RUNNER_TEMP/synthetic-math"
+          node research/mathematical-testing-lab/suite.mjs "$(git rev-parse HEAD)" > "$RUNNER_TEMP/synthetic-math/report.json"
+          node research/mathematical-testing-lab/suite.mjs "$(git rev-parse HEAD)" > "$RUNNER_TEMP/synthetic-math/repeat.json"
+          cmp "$RUNNER_TEMP/synthetic-math/report.json" "$RUNNER_TEMP/synthetic-math/repeat.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Archive synthetic results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-mathematical-benchmarks
+          path: ${{ runner.temp }}/synthetic-math/
+          retention-days: 7
+          if-no-files-found: warn
