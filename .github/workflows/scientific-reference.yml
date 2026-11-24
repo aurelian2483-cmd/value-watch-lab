@@ -1,0 +1,32 @@
+name: Scientific reference provenance
+on:
+  pull_request:
+    paths:
+      - 'research/scientific-reference/**'
+      - '.github/workflows/scientific-reference.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  references:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test research/scientific-reference/*.test.mjs
+      - name: Generate deterministic metadata report
+        run: |
+          mkdir "$RUNNER_TEMP/scientific-reference"
+          node research/scientific-reference/library.mjs summary > "$RUNNER_TEMP/scientific-reference/summary.json"
+          node research/scientific-reference/library.mjs summary > "$RUNNER_TEMP/scientific-reference/repeated.json"
+          cmp "$RUNNER_TEMP/scientific-reference/summary.json" "$RUNNER_TEMP/scientific-reference/repeated.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scientific-reference-provenance
+          path: ${{ runner.temp }}/scientific-reference/
+          retention-days: 7
+          if-no-files-found: error

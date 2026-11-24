@@ -1,0 +1,90 @@
+{
+  "kind": "SCIENTIFIC_REFERENCE_REGISTER",
+  "schemaVersion": 1,
+  "scope": "GENERAL_SCIENTIFIC_REFERENCE_ONLY",
+  "sources": [
+    {
+      "id": "nist-dlmf-3-2",
+      "title": "Digital Library of Mathematical Functions, §3.2 Linear Algebra",
+      "publisher": "National Institute of Standards and Technology",
+      "kind": "institutional-reference",
+      "url": "https://dlmf.nist.gov/3.2",
+      "version": "Live web section; exact release not pinned",
+      "doi": null,
+      "accessedOn": "2026-11-24",
+      "rightsStatus": "NOT_REVIEWED",
+      "contentSha256": null,
+      "topics": [
+        "linear-algebra",
+        "numerical-methods"
+      ]
+    },
+    {
+      "id": "python-math-312",
+      "title": "Python 3.12 documentation — math: Mathematical functions",
+      "publisher": "Python Software Foundation",
+      "kind": "official-technical-documentation",
+      "url": "https://docs.python.org/3.12/library/math.html",
+      "version": "3.12 documentation series",
+      "doi": null,
+      "accessedOn": "2026-11-24",
+      "rightsStatus": "NOT_REVIEWED",
+      "contentSha256": null,
+      "topics": [
+        "floating-point",
+        "numerical-methods"
+      ]
+    },
+    {
+      "id": "nist-tn-1297",
+      "title": "Guidelines for Evaluating and Expressing the Uncertainty of NIST Measurement Results, 1994 Edition",
+      "publisher": "National Institute of Standards and Technology",
+      "kind": "technical-report",
+      "url": "https://www.nist.gov/publications/guidelines-evaluating-and-expressing-uncertainty-nist-measurement-results-1994-edition",
+      "version": "1994 edition",
+      "doi": "10.6028/NIST.tn.1297",
+      "accessedOn": "2026-11-24",
+      "rightsStatus": "NOT_REVIEWED",
+      "contentSha256": null,
+      "topics": [
+        "measurement-uncertainty"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "id": "lu-factorization",
+      "sourceId": "nist-dlmf-3-2",
+      "locator": "§3.2(i), equations 3.2.4–3.2.5",
+      "statement": "The elimination procedure described in this section produces triangular factors L and U with A = LU, under the stated conditions.",
+      "scope": "General linear algebra definition; pivoting and existence conditions must be considered separately.",
+      "reviewStatus": "LOCATOR_INSPECTED",
+      "independentReview": false,
+      "empiricalEvidence": false
+    },
+    {
+      "id": "accurate-summation",
+      "sourceId": "python-math-312",
+      "locator": "math.fsum(iterable)",
+      "statement": "The documented floating-point summation function uses intermediate partial sums to reduce precision loss.",
+      "scope": "Python 3.12 documentation; accuracy depends on arithmetic and rounding conditions. Does not establish accuracy of arbitrary numerical algorithms.",
+      "reviewStatus": "LOCATOR_INSPECTED",
+      "independentReview": false,
+      "empiricalEvidence": false
+    },
+    {
+      "id": "uncertainty-report-bibliography",
+      "sourceId": "nist-tn-1297",
+      "locator": "NIST publication record, authors, publication date and DOI",
+      "statement": "The 1994 NIST Technical Note 1297 by Taylor and Kuyatt concerns evaluation and expression of measurement uncertainty.",
+      "scope": "Bibliographic scope only; no individual uncertainty procedure verified.",
+      "reviewStatus": "METADATA_INSPECTED",
+      "independentReview": false,
+      "empiricalEvidence": false
+    }
+  ],
+  "researchOnly": true,
+  "publicationGate": "BLOCKED",
+  "executionAuthorized": false,
+  "validationAuthorized": false
+}
