@@ -18,6 +18,12 @@ for (const id of ['purpose', 'roles', 'architecture', 'research-status', 'decisi
   assert.match(page, new RegExp('href="#' + id + '"'));
 }
 assert.match(page, /Three distinct responsibilities/);
+assert.match(page, /Alpha Hunt v5 is the agreed research architecture/);
+assert.match(page, /ACME and Zero-Based Reconstruction designs are retained as historical versions/);
+assert.match(page, /Posterior Edge Probability \(PEP\)/);
+assert.equal((page.match(/<li><span class="step">/g)||[]).length, 9);
+assert.match(decision, /Audit Issue 3/);
+assert.match(decision, /Market Data → Prediction Model → Calibration → Disagreement Detection → False Edge Laboratory → Bayesian Posterior Engine → PEP → Decision Layer → Capital Allocation/);
 assert.match(page, /Value Watch/);
 assert.match(page, /Develop mathematical methods for predicting sports outcomes/);
 assert.match(page, /Bottleneck Lab/);
