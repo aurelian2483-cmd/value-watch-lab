@@ -1,0 +1,106 @@
+[
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "017",
+    "id": "wasserstein-one-dimensional",
+    "name": "One-dimensional Wasserstein-1 distance",
+    "family": "multivariate-statistics",
+    "classification": "diagnostic",
+    "definition": "W_1(P,Q)=∫_ℝ |F_P(x)−F_Q(x)| dx, equivalently the minimum expected absolute transport cost over couplings of P and Q.",
+    "variables": "P,Q real-valued probability distributions; F_P,F_Q cumulative distribution functions; W_1 nonnegative distance",
+    "assumptions": "Both distributions have finite first absolute moments and use the same measurement scale.",
+    "limitations": "Sensitive to the measurement scale; this distance alone is not a significance test.",
+    "failure_conditions": [
+      "Incompatible measurement units or undefined first moments"
+    ],
+    "computation": "Sort pooled support values and sum interval lengths times the absolute empirical CDF difference; O((n+m) log(n+m)).",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, wasserstein_distance API, definition and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html"
+    },
+    "application": "Describe shifts between distributions of comparable measurements in authorised historical samples.",
+    "required_inputs": "Two authorised samples or weighted empirical distributions with comparable units and valid masses.",
+    "compatible_methods": [
+      "ecdf",
+      "energy-distance-1d"
+    ],
+    "incompatible_methods": [
+      "Treating an unsigned descriptive distance as a statistical significance result"
+    ],
+    "relationships": [
+      {
+        "target": "energy-distance-1d",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Integrates absolute CDF difference rather than the squared CDF difference used in the one-dimensional energy distance identity."
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "017",
+    "id": "ks-two-sample",
+    "name": "Two-sample Kolmogorov–Smirnov test",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "definition": "D_(n,m)=sup_x |F_n(x)−G_m(x)| for the two-sided test of equality of continuous distributions.",
+    "variables": "F_n,G_m empirical cumulative distribution functions; n,m sample sizes; D statistic in [0,1]",
+    "assumptions": "Independent samples with independent observations within each sample; usual distribution-free reference assumes continuous null distribution.",
+    "limitations": "Dependent or discrete observations need a separately justified null reference; a small statistic does not prove equality.",
+    "failure_conditions": [
+      "Unmodelled dependence or applying a continuous null reference to discrete data"
+    ],
+    "computation": "Sort pooled observations, update both empirical CDFs at each distinct support point, and retain maximum absolute difference; obtain valid null probability separately.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, ks_2samp API, two-sided statistic and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ks_2samp.html"
+    },
+    "application": "Assess distribution differences between two comparable independent authorised historical samples.",
+    "required_inputs": "Two independent samples of the same measurement under a prespecified testing protocol.",
+    "compatible_methods": [
+      "ks-one-sample",
+      "cvm-two-sample"
+    ],
+    "incompatible_methods": [
+      "Treating paired or serially dependent data as independent"
+    ],
+    "relationships": [
+      {
+        "target": "ks-one-sample",
+        "type": "related"
+      },
+      {
+        "target": "cvm-two-sample",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Maximum empirical CDF separation, distinct from the integrated squared CDF discrepancy."
+  }
+]

@@ -5955,5 +5955,49 @@
     ],
     "applicability_profile": "assessment",
     "mechanism_note": "Two empirical distributions are compared, unlike the one-sample test against a specified theoretical CDF."
+  },
+  {
+    "id": "wasserstein-one-dimensional",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, wasserstein_distance API, definition and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment",
+    "mechanism_note": "Integrates absolute CDF difference rather than the squared CDF difference used in the one-dimensional energy distance identity."
+  },
+  {
+    "id": "ks-two-sample",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, ks_2samp API, two-sided statistic and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ks_2samp.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment",
+    "mechanism_note": "Maximum empirical CDF separation, distinct from the integrated squared CDF discrepancy."
   }
 ]

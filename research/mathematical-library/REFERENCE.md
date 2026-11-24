@@ -4125,3 +4125,35 @@ Limitations — Dependent sequences require a separately justified test; discret
 Mechanism — Two empirical distributions are compared, unlike the one-sample test against a specified theoretical CDF.
 
 Source — SciPy maintainers, cramervonmises_2samp API and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.cramervonmises_2samp.html
+
+## One-dimensional Wasserstein-1 distance (wasserstein-one-dimensional)
+
+> W_1(P,Q)=∫_ℝ |F_P(x)−F_Q(x)| dx, equivalently the minimum expected absolute transport cost over couplings of P and Q.
+
+P,Q real-valued probability distributions; F_P,F_Q cumulative distribution functions; W_1 nonnegative distance.
+
+Describe shifts between distributions of comparable measurements in authorised historical samples.
+
+Assumptions — Both distributions have finite first absolute moments and use the same measurement scale..
+
+Limitations — Sensitive to the measurement scale; this distance alone is not a significance test..
+
+Mechanism — Integrates absolute CDF difference rather than the squared CDF difference used in the one-dimensional energy distance identity.
+
+Source — SciPy maintainers, wasserstein_distance API, definition and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
+
+## Two-sample Kolmogorov–Smirnov test (ks-two-sample)
+
+> D_(n,m)=sup_x |F_n(x)−G_m(x)| for the two-sided test of equality of continuous distributions.
+
+F_n,G_m empirical cumulative distribution functions; n,m sample sizes; D statistic in [0,1].
+
+Assess distribution differences between two comparable independent authorised historical samples.
+
+Assumptions — Independent samples with independent observations within each sample; usual distribution-free reference assumes continuous null distribution..
+
+Limitations — Dependent or discrete observations need a separately justified null reference; a small statistic does not prove equality..
+
+Mechanism — Maximum empirical CDF separation, distinct from the integrated squared CDF discrepancy.
+
+Source — SciPy maintainers, ks_2samp API, two-sided statistic and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ks_2samp.html
