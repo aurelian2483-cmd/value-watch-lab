@@ -40,7 +40,17 @@ jobs:
           const catalogue = JSON.parse(fs.readFileSync('/tmp/sky-catalogue-summary.json', 'utf8'));
           const grid = JSON.parse(fs.readFileSync('/tmp/sky81-configurations.json', 'utf8'));
           const replay = JSON.parse(fs.readFileSync('/tmp/sky81-phase3-replay.json', 'utf8'));
-          assert.equal(catalogue.registered, 286);
+          // The original 286 IDs are pinned by validate-v1.test.mjs above.
+          // Allow reviewed additions while verifying the generated catalogue and ledger.
+          const expected = JSON.parse(fs.readFileSync('research/mathematical-library/progress.v1.json', 'utf8'));
+          const ledger = JSON.parse(fs.readFileSync('/tmp/sky-catalogue-ledger.json', 'utf8'));
+          const expectedLedger = JSON.parse(fs.readFileSync('research/mathematical-library/evidence-ledger.v1.json', 'utf8'));
+          assert.ok(Number.isSafeInteger(catalogue.registered) && catalogue.registered >= 286);
+          assert.deepEqual(catalogue, expected);
+          assert.deepEqual(ledger, expectedLedger);
+          assert.equal(ledger.length, catalogue.registered);
+          assert.equal(new Set(ledger.map(row => row.id)).size, catalogue.registered);
+          assert.equal(catalogue.remaining, Math.max(0, catalogue.target - catalogue.registered));
           assert.equal(catalogue.qualified, 0);
           assert.equal(grid.gridSettings, 100);
           assert.equal(grid.uniqueConfigurations, 81);
