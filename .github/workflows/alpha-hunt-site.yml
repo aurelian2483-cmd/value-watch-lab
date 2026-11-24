@@ -1,0 +1,37 @@
+name: Independent Alpha Hunt website acceptance
+on:
+  push:
+    branches: [feature/alpha-hunt-independent-portal-20261124]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'alpha-hunt/**'
+      - 'index.html'
+      - 'paper-lab/index.html'
+      - 'docs/alpha-hunt-scope-decision.md'
+      - 'tests/test_alpha_hunt_portal.cjs'
+      - 'scripts/alpha_hunt_browser_qa.cjs'
+      - '.github/workflows/alpha-hunt-site.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  alpha-hunt-portal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify independent scope, non-executable page and retained live-price template
+        run: |
+          node --check tests/test_alpha_hunt_portal.cjs
+          node --check scripts/alpha_hunt_browser_qa.cjs
+          node tests/test_alpha_hunt_portal.cjs
+      - name: Install browser QA
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Test standalone page and homepage navigation in Chromium
+        run: node scripts/alpha_hunt_browser_qa.cjs
