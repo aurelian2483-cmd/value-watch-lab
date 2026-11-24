@@ -4,7 +4,7 @@ import {lstatSync,realpathSync} from 'node:fs'
 import {resolve,join,relative,isAbsolute,sep} from 'node:path'
 import {pathToFileURL} from 'node:url'
 import {setTimeout as delay} from 'node:timers/promises'
-import {readBounded} from './sync.mjs'
+import {readBounded,status as readStatus} from './sync.mjs'
 import {signedSynchronise} from './producer-intake.mjs'
 const need=(x,m)=>{if(!x)throw Error(m)}
 const hex=x=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x)
@@ -24,20 +24,28 @@ export function createCollector(inboxDir,stateDir,trustPath,planPath,trustedPlan
  need(keys(plan,['kind','schemaVersion','trustSha256','approvedDigests'])&&plan.kind==='APPROVED_COLLECTION_PLAN'&&plan.schemaVersion===1&&hex(plan.trustSha256)&&Array.isArray(plan.approvedDigests)&&plan.approvedDigests.length>=1&&plan.approvedDigests.length<=100&&plan.approvedDigests.every(hex)&&new Set(plan.approvedDigests).size===plan.approvedDigests.length,'Invalid collection plan')
  // Recheck separate trusted records every cycle. No new digest is learned from inbox contents.
  const allowed=new Set(plan.approvedDigests),seen=new Set()
- let running=false
+ let running=false,expectedState=undefined
  const result=(status,extra={})=>({kind:'CONTROLLED_COLLECTION_RECEIPT',status,...extra,...flags})
  function tick({now=new Date().toISOString()}={}){
   need(!running,'Collector cycle already active')
   running=true
   try{
    if(!readBounded(planFile,65536).equals(raw)||sha(readBounded(trust,65536))!==plan.trustSha256)return result('TRUSTED_CONFIGURATION_CHANGED')
+   let current
+   try{
+    current=readStatus(state,{now})
+    if(current.authentication.mode==='SIGNATURES_REVERIFIED_AT_ACCEPTANCE'&&current.authentication.trustSha256!==plan.trustSha256)return result('STATE_INTEGRITY_STOP')
+    if(expectedState!==undefined&&current.stateSha256!==expectedState)return result('STATE_INTEGRITY_STOP')
+    expectedState=current.stateSha256
+   }catch{return result('STATE_INTEGRITY_STOP')}
    let approval
    try{approval=sha(readBounded(join(inbox,'approval.json'),65536))}
    catch(e){return result(e.code==='ENOENT'?'WAITING_FOR_APPROVAL':'INPUT_UNAVAILABLE')}
    if(!allowed.has(approval))return result('WAITING_FOR_EXPLICIT_APPROVAL')
    if(seen.has(approval))return result('ALREADY_PROCESSED',{approvalSha256:approval})
    try{
-    const receipt=signedSynchronise(inbox,state,trust,plan.trustSha256,approval,{now})
+    const receipt=signedSynchronise(inbox,state,trust,plan.trustSha256,approval,{now,expectedPreviousStateSha256:expectedState})
+    expectedState=receipt.stateSha256
     seen.add(approval)
     return result(receipt.status,{sequence:receipt.sequence,approvalSha256:approval,stateSha256:receipt.stateSha256})
    }catch{return result('SIGNED_BATCH_REJECTED',{approvalSha256:approval})}
@@ -54,6 +62,7 @@ export async function collect(collector,{intervalMs=15000,maxCycles=20,signal,on
   const receipt=collector.tick();cycles++
   onReceipt(receipt)
   if(['TRUSTED_CONFIGURATION_CHANGED','TRUSTED_CONFIGURATION_UNAVAILABLE'].includes(receipt.status)){reason='TRUSTED_CONFIGURATION_STOP';break}
+  if(receipt.status==='STATE_INTEGRITY_STOP'){reason='STATE_INTEGRITY_STOP';break}
   if(signal?.aborted){reason='STOP_REQUESTED';break}
   if(cycles<maxCycles){
    try{await delay(intervalMs,undefined,{signal})}
@@ -72,7 +81,7 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).hr
   try{
    const r=await collect(collector,{intervalMs:args[5]===undefined?15000:Number(args[5]),maxCycles:args[6]===undefined?20:Number(args[6]),signal:controller.signal,onReceipt:r=>console.log(JSON.stringify(r))})
    console.log(JSON.stringify(r))
-   if(r.reason==='TRUSTED_CONFIGURATION_STOP')process.exitCode=1
+   if(['TRUSTED_CONFIGURATION_STOP','STATE_INTEGRITY_STOP'].includes(r.reason))process.exitCode=1
   }finally{process.removeListener('SIGINT',stop);process.removeListener('SIGTERM',stop)}
  }catch(e){console.error(e.message);process.exitCode=1}
 }
