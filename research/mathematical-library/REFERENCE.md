@@ -4359,3 +4359,63 @@ Limitations — Exponential enumeration cost; does not test a zero mean under ar
 Mechanism — Uses magnitudes in the test statistic rather than merely counting positive signs.
 
 Source — SciPy maintainers, permutation_test API, permutation_type='samples' for a single paired-difference sample. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.permutation_test.html
+
+## Pearson product-moment correlation (pearson-linear-correlation)
+
+> r=Σ_i(x_i−mean(x))(y_i−mean(y))/√[Σ_i(x_i−mean(x))² Σ_i(y_i−mean(y))²].
+
+n matched observations of x and y; r sample linear correlation in [−1,1].
+
+Describe linear association between comparable historical measurements.
+
+Assumptions — Comparable aligned observations and positive centered sums of squares; classical inferential reference needs independent pairs and bivariate normality..
+
+Limitations — Zero linear correlation does not establish independence; sensitive to outliers and nonlinear association..
+
+Source — SciPy pearsonr API, definition and assumptions. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html
+
+## Empirical discrete mutual information (discrete-empirical-mutual-information)
+
+> I(X;Y)=Σ_(i,j:p_ij>0) p_ij ln[p_ij/(p_i·p_j)], using empirical joint and marginal category frequencies.
+
+p_ij empirical joint proportions; p_i,p_j marginal proportions; I information in nats.
+
+Describe categorical dependence in authorised development data.
+
+Assumptions — Aligned finite categorical observations and nonempty sample; positive joint cells have positive marginals; categories defined consistently..
+
+Limitations — Finite-sample upward bias, especially with sparse cells; no causal or inferential conclusion from the descriptive value alone..
+
+Mechanism — KL divergence of the joint distribution from its product of marginals; a specific dependence functional, not a new independent source of evidence.
+
+Source — Scikit-learn mutual_info_score API, mathematical definition. https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mutual_info_score.html
+
+## Cramér V categorical association (cramer-v-effect-size)
+
+> V=√[X²/(N·min(r−1,c−1))], where X² is the uncorrected Pearson contingency statistic.
+
+N sample size; r,c numbers of categories; X² Pearson statistic; V∈[0,1].
+
+Summarize categorical association magnitude on aligned development observations.
+
+Assumptions — Valid nonempty contingency table with at least two positive-margin categories on each axis..
+
+Limitations — Unsigned descriptive association, potentially upward biased in sparse tables; not an independent significance test..
+
+Mechanism — Deterministic normalization of Pearson X² given dimensions and sample size; descriptive effect size only.
+
+Source — SciPy contingency.association API, method='cramer', correction=False. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.contingency.association.html
+
+## Double-centred sample distance correlation (biased-sample-distance-correlation)
+
+> For paired vectors define A_ij=a_ij−mean_row_i(a)−mean_col_j(a)+mean(a), a_ij=||x_i−x_j||₂, and B similarly for y. V²_xy=n^(−2)Σ_ij A_ij B_ij; R²=V²_xy/√(V²_xx V²_yy) when denominator>0, otherwise 0.
+
+n paired vectors; A,B doubly centered Euclidean distance matrices; V²_xy empirical squared distance covariance; R² empirical squared distance correlation.
+
+Assess nonlinear dependence among aligned historical measurements on authorised development records.
+
+Assumptions — Aligned finite observations; population interpretation needs finite first moments and suitable independent sampling; stated version is biased empirical statistic..
+
+Limitations — Quadratic naive memory and time cost; finite sample dependence estimate not a standalone significance test; sensitive to feature scaling..
+
+Source — dcor theory documentation and Székely, Rizzo and Bakirov (2007). https://dcor.readthedocs.io/en/latest/theory.html

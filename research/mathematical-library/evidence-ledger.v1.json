@@ -6296,5 +6296,91 @@
     ],
     "applicability_profile": "assessment",
     "mechanism_note": "Uses magnitudes in the test statistic rather than merely counting positive signs."
+  },
+  {
+    "id": "pearson-linear-correlation",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy pearsonr API, definition and assumptions. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
+  },
+  {
+    "id": "discrete-empirical-mutual-information",
+    "source": {
+      "kind": "literature",
+      "citation": "Scikit-learn mutual_info_score API, mathematical definition. https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mutual_info_score.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment",
+    "mechanism_note": "KL divergence of the joint distribution from its product of marginals; a specific dependence functional, not a new independent source of evidence."
+  },
+  {
+    "id": "cramer-v-effect-size",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy contingency.association API, method='cramer', correction=False. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.contingency.association.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment",
+    "mechanism_note": "Deterministic normalization of Pearson X² given dimensions and sample size; descriptive effect size only."
+  },
+  {
+    "id": "biased-sample-distance-correlation",
+    "source": {
+      "kind": "literature",
+      "citation": "dcor theory documentation and Székely, Rizzo and Bakirov (2007). https://dcor.readthedocs.io/en/latest/theory.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "assessment-only",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "assessment"
   }
 ]

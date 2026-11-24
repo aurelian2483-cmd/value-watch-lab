@@ -1,6 +1,6 @@
 # Sky Universal Mathematical Research Library
 
-Research catalogue v1 registers **305 specifications** across six sports, including 16 preserved v0 records and 289 entries added in batches. The 1,000-entry milestone remains open with **695 entries outstanding**.
+Research catalogue v1 registers **309 specifications** across six sports, including 16 preserved v0 records and 293 entries added in batches. The 1,000-entry milestone remains open with **691 entries outstanding**.
 
 | Classification | Count |
 | --- | ---: |
@@ -11,7 +11,7 @@ Research catalogue v1 registers **305 specifications** across six sports, includ
 | Model variants | 25 |
 | Parameter configurations | 1 |
 | Feature transformations | 13 |
-| Diagnostics | 70 |
+| Diagnostics | 74 |
 | Calibration methods | 7 |
 | Ensembles | 8 |
 | Decision rules | 9 |
@@ -89,4 +89,8 @@ The snapshot checker can verify the generated index, reference, summary and ledg
 
 ## Batch 021 admission
 
-Three assessment-only specifications admitted after structural and source review. The catalogue now contains 305 entries; four batch 022 dependence diagnostics are staged, not registered. See [admission review](BATCH-021-ADMISSION.md). No empirical qualification claimed.
+Three assessment-only specifications admitted after structural and source review. At the end of batch 021 the catalogue contained 305 entries; four batch 022 dependence diagnostics were staged. See [admission review](BATCH-021-ADMISSION.md). No empirical qualification claimed.
+
+## Batch 022 admission
+
+Four assessment-only dependence diagnostics admitted after structural and source review. The catalogue now contains 309 entries; three batch 023 candidates remain unregistered. See [admission review](BATCH-022-ADMISSION.md). No empirical qualification claimed.
