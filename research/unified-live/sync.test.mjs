@@ -9,6 +9,9 @@ import {digest} from '../scientific-reference/digest.mjs'
 import {signedSynchronise,signatureMessage} from './producer-intake.mjs'
 import {createCollector,collect} from './collector.mjs'
 import {reviewRevision} from './revision-review.mjs'
+import {activateRevision} from './revision-activate.mjs'
+import {pathToFileURL} from 'node:url'
+import {lstatSync} from 'node:fs'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
 const hash=x=>createHash('sha256').update(x).digest('hex')
 const T='2026-11-24T22:00:00.000Z',T2='2026-11-24T23:00:00.000Z',T3='2026-11-25T00:00:01.000Z'
@@ -483,4 +486,69 @@ test('revision review rejects stale workflow identity, wrong contract, wrong has
  assert.throws(()=>reviewRevision(f.inbox,m.path,m.sha),/contract rejected/)
  const unsafe=join(f.inbox,'review.json');writeFileSync(unsafe,readFileSync(m.path))
  assert.throws(()=>reviewRevision(f.inbox,unsafe,hash(readFileSync(unsafe))),/separate/)
+})
+
+function activationFixture(f){
+ const s=signedFixture(f);signed(f,s)
+ const baseline=JSON.parse(stored(f)),before=stored(f)
+ const report=fixtures().data;report.declaredSourceRevision='b'.repeat(40)
+ writeFileSync(join(f.inbox,'data.json'),JSON.stringify(report))
+ const m=revisionManifest(f,a=>{
+  Object.assign(a.sources[1],{head:'a'.repeat(40),reportRevision:'b'.repeat(40),run:111,artifact:222});return a
+ })
+ const review=reviewRevision(f.inbox,m.path,m.sha)
+ const approvalSha=approve(f.inbox,1,T,a=>{
+  Object.assign(a.sources[1],{head:'a'.repeat(40),reportRevision:'b'.repeat(40),run:111,artifact:222});return a
+ })
+ const a=JSON.parse(readFileSync(join(f.inbox,'approval.json'),'utf8'))
+ const signatures=a.sources.map((source,i)=>{
+  const keySha256=s.trust.producers[i].keySha256,signedAt=T,expiresAt=T2
+  return {id:source.id,keySha256,signedAt,expiresAt,signature:sign(null,signatureMessage({...source,approvalSha256:approvalSha,sequence:1,signedAt,expiresAt,keySha256}),s.pairs[i].privateKey).toString('base64')}
+ })
+ writeFileSync(s.sigPath,JSON.stringify({kind:'SIGNED_RESEARCH_SUMMARIES',schemaVersion:1,signatures}))
+ const plan={kind:'APPROVED_ISOLATED_REVISION_ACTIVATION',schemaVersion:1,manifestSha256:m.sha,reviewSha256:review.reviewSha256,baselineStateSha256:baseline.stateSha256,trustSha256:s.trustSha,approvalSha256:approvalSha}
+ const planPath=join(f.root,'activation-plan.json'),raw=JSON.stringify(plan)
+ writeFileSync(planPath,raw)
+ return {s,m,plan,planPath,planSha:hash(raw),before,target:join(f.root,'candidate-runtime')}
+}
+const activate=(f,a,opts={})=>activateRevision(f.inbox,f.state,a.s.trustPath,a.m.path,a.planPath,a.planSha,a.target,{now:T,...opts})
+test('reviewed signed candidate activates in separate runtime and baseline remains intact',async t=>{
+ const f=setup(t),a=activationFixture(f)
+ const result=await activate(f,a)
+ assert.equal(result.status,'ISOLATED_CANDIDATE_ACCEPTED')
+ assert.equal(result.changedSources,1);assert.equal(result.productionPromotionAuthorized,false)
+ assert.equal(result.runtimeFiles.length,9);assert.equal(result.activeStateModified,false)
+ assert.deepEqual(stored(f),a.before)
+ const {status:isolated}=await import(pathToFileURL(join(a.target,'runtime','unified-live','sync.mjs')).href)
+ const view=isolated(join(a.target,'state'),{now:T,trustedTrustSha256:a.s.trustSha,trustedStateSha256:result.candidateStateSha256})
+ assert.equal(view.snapshot.modules[1].source.head,'a'.repeat(40))
+ assert.equal(view.snapshot.counts.available,6)
+ assert.equal(view.measurementFreshness,'UNKNOWN');assert.equal(view.publicationGate,'BLOCKED')
+ assert.throws(()=>status(join(a.target,'state'),{now:T}))
+ assert.deepEqual(JSON.parse(readFileSync(join(a.target,'activation-receipt.json'))),result)
+ await assert.rejects(activate(f,a),/EEXIST/)
+ assert.deepEqual(stored(f),a.before)
+})
+test('isolated activation requires exact review plan and unchanged anchored baseline',async t=>{
+ const f=setup(t),a=activationFixture(f)
+ await assert.rejects(activate(f,{...a,planSha:'0'.repeat(64)}),/plan fingerprint mismatch/)
+ const altered={...a.plan,reviewSha256:'0'.repeat(64)},raw=JSON.stringify(altered)
+ writeFileSync(a.planPath,raw)
+ await assert.rejects(activate(f,{...a,planSha:hash(raw)}),/Reviewed changed revision required/)
+ const wrong={...a.plan,baselineStateSha256:'0'.repeat(64)},wrongRaw=JSON.stringify(wrong)
+ writeFileSync(a.planPath,wrongRaw)
+ await assert.rejects(activate(f,{...a,planSha:hash(wrongRaw)}),/state anchor mismatch/)
+ assert.deepEqual(stored(f),a.before)
+ assert.throws(()=>readFileSync(join(a.target,'activation-receipt.json')))
+})
+test('invalid candidate signatures remove only newly created isolated runtime',async t=>{
+ const f=setup(t),a=activationFixture(f)
+ const bundle=JSON.parse(readFileSync(a.s.sigPath))
+ bundle.signatures[0].signature=Buffer.alloc(64).toString('base64')
+ writeFileSync(a.s.sigPath,JSON.stringify(bundle))
+ await assert.rejects(activate(f,a),/signature verification failed/)
+ assert.deepEqual(stored(f),a.before)
+ assert.throws(()=>lstatSync(a.target),/ENOENT/)
+ await assert.rejects(activate(f,{...a,target:f.state}),/separate/)
+ assert.deepEqual(stored(f),a.before)
 })
