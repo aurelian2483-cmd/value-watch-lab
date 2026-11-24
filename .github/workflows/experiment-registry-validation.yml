@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'research/mathematical-library/experiment-registry*.mjs'
+      - 'research/mathematical-library/candidate-batch-*.json'
       - '.github/workflows/experiment-registry-validation.yml'
   workflow_dispatch:
 permissions:
@@ -18,6 +19,8 @@ jobs:
           node-version: '22'
       - name: Registry unit and lifecycle tests
         run: node --test research/mathematical-library/experiment-registry*.test.mjs
+      - name: Check staged mathematical catalogue intake
+        run: node research/mathematical-library/experiment-registry-catalogue-intake.mjs research/mathematical-library/candidate-batch-016.json
       - name: Generate static Alpha Hunt preview
         run: |
           mkdir -p "$RUNNER_TEMP/alpha-hunt-preview"
