@@ -1,9 +1,8 @@
 // Bibliographic provenance only; no downloads, inference, experiments or rights grants.
-import {createHash} from 'node:crypto'
+import {digest as hash} from './digest.mjs'
 import {readFileSync,lstatSync,realpathSync} from 'node:fs'
 import {fileURLToPath,pathToFileURL} from 'node:url'
 import {resolve} from 'node:path'
-const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex')
 const id=x=>typeof x==='string'&&/^[a-z0-9][a-z0-9-]{0,79}$/.test(x)
 const str=(x,max=500)=>typeof x==='string'&&x.trim()===x&&x.length>0&&x.length<=max&&!/[\x00-\x1f\x7f]/.test(x)
 const date=x=>typeof x==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x)&&Number.isFinite(Date.parse(x))&&new Date(x).toISOString().slice(0,10)===x
@@ -43,8 +42,8 @@ export function summarize(register){
  const sources=register.sources.map(s=>({...s,claimCount:register.claims.filter(c=>c.sourceId===s.id).length}))
  const counts={sources:sources.length,claims:register.claims.length,locatorInspected:register.claims.filter(c=>c.reviewStatus==='LOCATOR_INSPECTED').length,
   metadataInspected:register.claims.filter(c=>c.reviewStatus==='METADATA_INSPECTED').length,independentlyReviewed:0,empiricallyQualified:0,rightsVerified:0}
- const payload={kind:'SCIENTIFIC_REFERENCE_PROVENANCE_SUMMARY',schemaVersion:1,registerSha256:hash(register),counts,sources,claims:register.claims,
-  ...flags,limitations:['Recorded source metadata and locator checks are not independent peer review or empirical qualification.',
+ const payload={kind:'SCIENTIFIC_REFERENCE_PROVENANCE_SUMMARY',schemaVersion:1,registerSha256:hash(register),counts,sources,claims:register.claims,reviewLabelMeaning:'REGISTERED_LABELS_ONLY_USE_REVIEW_LEDGER_FOR_CURRENT_STATE',
+  ...flags,limitations:['Registered review labels are historical declarations, not current review assessment. Use review-history for version-bound status. They are not independent peer review or empirical qualification.',
    'No source bytes archived; content digests are unavailable. Rights remain unreviewed.',
    'Register digest identifies metadata only, not external source content. No automatic access, execution or publication.']}
  return {...payload,summarySha256:hash(payload)}

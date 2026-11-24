@@ -19,3 +19,7 @@ Run `node research/scientific-reference/citation-export.mjs 2026-11-24 json` or 
 ## Phase 5 — static reference dashboard
 
 `node research/scientific-reference/dashboard.mjs 2026-11-24 json|html` consolidates the reference export, review ledger and structured comparison report from the same inputs. The view identifies unassessed comparisons and missing reviews, keeps provenance fingerprints visible and never starts external retrieval or execution. CI renders the HTML from the exact JSON snapshot. Browser acceptance, independent review, live source monitoring and integration into a deployed control centre remain outstanding. No new source claims were added.
+
+## Integration and quality audit
+
+See [audit findings](QUALITY-AUDIT-20261124.md). Publisher locators were rechecked; canonical fingerprints now reconcile across reports, review coverage is explicit and browser acceptance is configured. The summary counts are registered historical labels, not current review status. No scientific or legal qualification or deployment is implied.

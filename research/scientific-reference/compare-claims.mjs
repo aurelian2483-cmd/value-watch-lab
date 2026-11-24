@@ -25,6 +25,7 @@ export function validateAnnotations(registry){
  return true
 }
 export function compareValues(a,b){
+ if(!a||!b||!id(a.concept)||!id(b.concept)||!text(a.conditions)||!text(b.conditions)||!validValue(a.value)||!validValue(b.value))throw Error('Invalid comparison operands')
  if(a.concept!==b.concept)return 'DIFFERENT_CONCEPT'
  if(a.conditions!==b.conditions)return 'CONDITIONS_DIFFER'
  if(a.value.type!==b.value.type)return 'VALUE_TYPES_DIFFER'
@@ -51,7 +52,7 @@ export function compareClaims(register,ledger,annotations,asOf){
   if(a.concept!==b.concept)continue
   const status=compareValues(a,b)
   const claimIds=[a.claimId,b.claimId].sort()
-  pairs.push({claimIds,comparisonId:digest(claimIds),status,sameSource:a.sourceId===b.sourceId,independenceVerified:false,truthDetermined:false})
+  pairs.push({claimIds,comparisonId:digest(claimIds),status,comparisonEvidenceSha256:digest([a,b].sort((x,y)=>x.claimId.localeCompare(y.claimId))),sameSource:a.sourceId===b.sourceId,independenceVerified:false,truthDetermined:false})
  }
  pairs.sort((a,b)=>a.comparisonId.localeCompare(b.comparisonId))
  const annotated=new Set(rows.map(r=>r.claimId))

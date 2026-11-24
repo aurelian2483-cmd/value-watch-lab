@@ -1,11 +1,10 @@
 // Version-bound review observations, not authenticated review or source-content archives.
-import {createHash} from 'node:crypto'
+import {digest} from './digest.mjs'
+export {digest} from './digest.mjs'
 import {readFileSync,lstatSync,realpathSync} from 'node:fs'
 import {fileURLToPath,pathToFileURL} from 'node:url'
 import {resolve} from 'node:path'
 import {validate,load} from './library.mjs'
-const canonical=x=>Array.isArray(x)?x.map(canonical):x!==null&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x
-export const digest=x=>createHash('sha256').update(JSON.stringify(canonical(x))).digest('hex')
 const sha=x=>typeof x==='string'&&/^[a-f0-9]{64}$/.test(x)
 const day=x=>typeof x==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x)&&Number.isFinite(Date.parse(x))&&new Date(x).toISOString().slice(0,10)===x
 const id=x=>typeof x==='string'&&/^[a-z0-9][a-z0-9-]{0,79}$/.test(x)
@@ -37,7 +36,7 @@ export function assessReviews(register,ledger,asOf){
  const rows=register.claims.map(c=>{
   const s=register.sources.find(s=>s.id===c.sourceId),binding=reviewBinding(s,c)
   const latest=ledger.events.filter(e=>e.claimId===c.id&&e.sourceId===s.id&&e.observedOn<=asOf).at(-1)
-  const matched=latest&&latest.sourceMetadataSha256===binding.sourceMetadataSha256&&latest.claimMetadataSha256===binding.claimMetadataSha256
+  const matched=latest&&latest.sourceMetadataSha256===binding.sourceMetadataSha256&&latest.claimMetadataSha256===binding.claimMetadataSha256&&latest.observedOn>=s.accessedOn&&latest.reviewType===c.reviewStatus
   const state=!latest?'NO_REVIEW_RECORDED':!matched?'METADATA_CHANGED_REVIEW_REQUIRED':latest.reviewType==='LOCATOR_INSPECTED'?'CURRENT_RECORDED_LOCATOR_REVIEW':'CURRENT_RECORDED_METADATA_REVIEW'
   return {claimId:c.id,sourceId:s.id,...binding,state,latestReviewSha256:latest?.eventSha256??null,observedOn:latest?.observedOn??null,observedVersion:latest?.observedVersion??null,independentReview:false,contentVerified:false,rightsVerified:false}
  })
