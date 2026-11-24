@@ -92,6 +92,31 @@ jobs:
           node research/unified-live/sync.mjs sync "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/live-state" "$(cat "$RUNNER_TEMP/approval.sha256")" > "$RUNNER_TEMP/unified-output/replay-receipt.json"
           node -e 'const a=require(process.argv[1]),b=require(process.argv[2]); if(b.status!=="UNCHANGED"||a.stateSha256!==b.stateSha256)process.exit(1)' "$RUNNER_TEMP/unified-output/sync-receipt.json" "$RUNNER_TEMP/unified-output/replay-receipt.json"
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Review actual baseline source compatibility without promotion
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {createHash} from 'node:crypto'
+          import {readFileSync,writeFileSync} from 'node:fs'
+          import {join} from 'node:path'
+          import {reviewRevision} from './research/unified-live/revision-review.mjs'
+          const root=process.env.RUNNER_TEMP,inbox=join(root,'unified-input')
+          const hash=x=>createHash('sha256').update(x).digest('hex')
+          const pinsRaw=readFileSync('research/unified-control-centre/source-pins.json')
+          const sources=JSON.parse(pinsRaw).map(({id,head,reportRevision,run,artifact,file})=>({id,head,reportRevision,run,artifact,summarySha256:hash(readFileSync(join(inbox,file)))}))
+          const raw=JSON.stringify({kind:'SOURCE_REVISION_REVIEW',schemaVersion:1,baselinePinsSha256:hash(pinsRaw),sources})
+          const path=join(root,'ci-revision-review.json')
+          writeFileSync(path,raw)
+          const active=join(root,'live-state','current.json'),before=readFileSync(active)
+          const result=reviewRevision(inbox,path,hash(raw))
+          assert.equal(result.status,'NO_REVISION_CHANGE')
+          assert.equal(result.rows.length,6)
+          assert.equal(result.promotionAuthorized,false)
+          assert.deepEqual(readFileSync(active),before)
+          writeFileSync(join(root,'unified-output','revision-review-ci.json'),JSON.stringify(result,null,2)+'\n')
+          console.log('PASS isolated review of all six baseline source contracts')
+          JS
+          test -z "$(git status --porcelain --untracked-files=all)"
       - name: Verify isolated recovery of actual accepted summary batch
         run: |
           mkdir "$RUNNER_TEMP/live-backup" "$RUNNER_TEMP/live-recovered"
