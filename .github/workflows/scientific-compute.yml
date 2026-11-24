@@ -1,0 +1,52 @@
+name: General scientific compute smoke
+on:
+  pull_request:
+    paths:
+      - 'research/scientific-compute/**'
+      - '.github/workflows/scientific-compute.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cpu-smoke:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test fixed compute contract
+        run: python -B -m unittest discover -s research/scientific-compute -p 'test_*.py'
+      - name: Run CPU-only known-answer smoke
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/scientific-compute"
+          python -B research/scientific-compute/compute.py cpu > "$RUNNER_TEMP/scientific-compute/cpu-smoke.json"
+          python -B research/scientific-compute/supervisor.py cpu > "$RUNNER_TEMP/scientific-compute/process-report.json"
+          python -B research/scientific-compute/benchmark.py cpu > "$RUNNER_TEMP/scientific-compute/repeated-benchmark.json"
+          python -B research/scientific-compute/acceptance_receipt.py cpu "$(git rev-parse HEAD)" > "$RUNNER_TEMP/scientific-compute/local-cpu-receipt.json"
+          python -B research/scientific-compute/status.py "$RUNNER_TEMP/scientific-compute" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/scientific-compute/compute-status.json"
+          python -B research/scientific-compute/status.py "$RUNNER_TEMP/scientific-compute" "$(git rev-parse HEAD)" html > "$RUNNER_TEMP/scientific-compute/compute-status.html"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/setup-node@v4
+        if: matrix.os == 'ubuntu-24.04'
+        with:
+          node-version: '22'
+      - name: Browser acceptance (Linux)
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node research/scientific-compute/browser-acceptance.mjs "$RUNNER_TEMP/scientific-compute"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scientific-compute-smoke-${{ matrix.os }}
+          path: ${{ runner.temp }}/scientific-compute/
+          retention-days: 7
+          if-no-files-found: error
