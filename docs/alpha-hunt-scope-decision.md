@@ -4,14 +4,15 @@
 
 ## Agreed
 - The user explicitly chose **Alpha Hunt as a separate system**, not a method inside Bottleneck Lab.
+- The user subsequently agreed Alpha Hunt may **read only** Value Watch's historical results, bookmaker odds and model predictions for separate research. This is approval for a future read-only data boundary, not evidence that such a link has been built, tested or activated. Value Watch's records must not be altered by Alpha Hunt.
 - The user asked to add that decision to the live Value Watch website before continuing the audit issue-by-issue.
 - A standalone website research workspace at \`alpha-hunt/\` is an informational entry point, not an assertion that the Bayesian model, collectors or decisions are implemented.
 - Keep all existing Value Watch and Bottleneck methods unchanged; do not imply that Alpha Hunt is already connected to a live dataset or used to grade betting opportunities.
 
 ## Still undecided — do not infer approval
-- Whether Alpha Hunt should ingest Value Watch's historical results, models or prices at all.
+- Which specific historical result fields, odds markets and model-output formats should be exposed through the approved read-only interface.
 - Whether Alpha Hunt will own independent data collectors and models.
-- The API/interface, permissions, data ownership and refresh requirements for any future optional integration.
+- How read-only access will be technically enforced and independently tested: interfaces, identity/access controls, authentication, audit logs, provenance, refresh, retention and failure behaviour. No credential or data access is granted merely by publishing this decision.
 - Which of the multiple proposed PEP feature vectors is canonical.
 - Research validation rules, posterior thresholds, priors, owners, budget and delivery milestones.
 
