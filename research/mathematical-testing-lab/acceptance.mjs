@@ -6,7 +6,7 @@ import {tmpdir} from 'node:os'
 import {pathToFileURL} from 'node:url'
 import {createHash} from 'node:crypto'
 import {chromium} from 'playwright'
-import {readStatus} from './status.mjs'
+import {readStatus,renderStatus,consolidate} from './status.mjs'
 import {verifyStoredSuite} from './persistence.mjs'
 if(process.argv.length!==5)throw Error('Usage: acceptance.mjs <artifact-dir> <registry-dir> <revision>')
 const [dir,store,revision]=process.argv.slice(2),root=resolve(dir)
@@ -43,7 +43,16 @@ try{
   assert.match(await page.locator('body').innerText(),/SYNTHETIC_QA_PASSED/)
   assert.match(await page.locator('body').innerText(),/PUBLICATION BLOCKED/)
   assert.equal(await page.locator('script,form,iframe,button').count(),0)
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true)
+  const checkWidth=async label=>{
+   const sizes=await page.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('main *')].filter(e=>e.getBoundingClientRect().right>innerWidth+1).map(e=>e.tagName+': '+e.textContent.slice(0,80)).slice(0,8)}))
+   assert.ok(sizes.document<=sizes.viewport+1,label+' at '+width+'px: '+JSON.stringify(sizes))
+  }
+  await checkWidth('Complete report')
+  await page.setContent(renderStatus(consolidate([],revision)))
+  assert.match(await page.locator('body').innerText(),/EVIDENCE_INCOMPLETE_OR_INCONSISTENT/)
+  assert.match(await page.locator('body').innerText(),/Unavailable/)
+  await checkWidth('Incomplete report')
+  assert.equal(await page.locator('script,form,iframe,button').count(),0)
   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);await page.close()
  }
 }finally{await browser.close()}
