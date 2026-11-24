@@ -1,9 +1,9 @@
 import { evidenceView } from './experiment-registry-evidence-view.mjs'
 import { alphaPerformance } from './experiment-registry-alpha-performance.mjs'
 import { alphaMarket } from './experiment-registry-alpha-market.mjs'
+import { falseEdgeReadiness } from './experiment-registry-alpha-false-edge.mjs'
 import { pathToFileURL } from 'node:url'
 
-const checks=Object.freeze(['randomness','overfitting','sample-size','data-leakage','bookmaker-margin','selection-bias','market-drift','multiple-testing','data-quality','variable-correlation'])
 
 export function alphaReadiness(root,directory){
  const view=evidenceView(root,directory,'alpha-hunt')
@@ -11,6 +11,7 @@ export function alphaReadiness(root,directory){
  const market=alphaMarket(root)
  const historical=view.historical.available?view.historical.data:null
  const prospective=view.prospective.available?view.prospective.data:null
+ const falseEdge=falseEdgeReadiness({historical,prospective,performance,market})
  const stage=(id,name,status,reason)=>({id,name,status,reason,executionAuthorized:false})
  const stages=[
   stage('market-data','Market data',market.available?'INVENTORY_ONLY':'EVIDENCE_UNAVAILABLE',market.available?'Existing football market archive inspected; '+market.counts.observations+' structurally matched source observations. No live or executable prices exposed.':'Market source inventory unavailable: '+market.reason+'.'),
@@ -27,7 +28,8 @@ export function alphaReadiness(root,directory){
   system:'alpha-hunt',researchOnly:true,modelValidation:'UNVALIDATED',publicationGate:'BLOCKED',
   executionAuthorized:false,validationAuthorized:false,sourceMutationAuthorized:false,
   status:'RESEARCH_NOT_READY',inventoryStatus:view.status,stages,
-  falseEdgeChecks:checks.map(id=>({id,status:'UNCERTAIN',evidence:null})),
+  falseEdgeChecks:falseEdge.checks,
+  falseEdge,
   estimates:{outcomeProbability:null,genuineEdgeProbability:null,persistenceProbability:null},
   evidence:{
    historical:historical?{counts:historical.counts,sourceSha256:historical.sourceSha256,evidenceTier:historical.evidenceTier}:null,
