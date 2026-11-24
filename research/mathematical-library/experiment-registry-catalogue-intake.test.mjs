@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
 import {assessCandidates} from './experiment-registry-catalogue-intake.mjs'
 import {loadCatalogue} from './validate-v1.mjs'
-const url=new URL('./candidate-batch-018.json',import.meta.url)
+const url=new URL('./candidate-batch-019.json',import.meta.url)
 const candidates=JSON.parse(readFileSync(url,'utf8'))
 test('staged candidates pass structural intake without inflating registered counts',()=>{
  const manifestUrl=new URL('./catalogue.v1.json',import.meta.url)
@@ -28,7 +28,7 @@ test('duplicate and unsupported lifecycle claims fail closed',()=>{
 
 test('admitted batch preserves all reviewed specifications',()=>{
  const entries=loadCatalogue().entries
- for(const batch of ['016','017']){
+ for(const batch of ['016','017','018']){
   const archived=JSON.parse(readFileSync(new URL('./candidate-batch-'+batch+'.json',import.meta.url),'utf8'))
   assert.deepEqual(entries.filter(e=>e.batch===batch),archived)
  }

@@ -1,0 +1,150 @@
+[
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "018",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "mann-whitney-u",
+    "name": "Mann–Whitney U rank statistic and test",
+    "definition": "U_X=Σ_i Σ_j [1(X_i>Y_j)+0.5·1(X_i=Y_j)]; under the equal-distribution independent-sample null E[U_X]=nm/2.",
+    "variables": "X_i and Y_j observations, n and m sample sizes, 1 indicator function; U_X pairwise rank statistic",
+    "assumptions": "Independent groups and independent observations; use a null reference appropriate to ties and sample size.",
+    "limitations": "Not generally a test of median equality; paired or serially dependent observations require a different design.",
+    "failure_conditions": [
+      "Using an exact continuous no-ties null reference with tied data"
+    ],
+    "computation": "Rank the pooled sample with midranks and subtract n(n+1)/2 from the X rank sum; select a justified null reference separately.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, mannwhitneyu API and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html"
+    },
+    "application": "Compare distributions of independent, comparable measurements in permitted development samples.",
+    "required_inputs": "Two independent samples with comparable measurement meaning and prespecified hypothesis.",
+    "compatible_methods": [
+      "ks-two-sample",
+      "cvm-two-sample"
+    ],
+    "incompatible_methods": [
+      "Paired forecast errors treated as independent samples"
+    ],
+    "relationships": [
+      {
+        "target": "wilcoxon-signed-rank",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Distinct from signed-rank test for paired observations."
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "018",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "welch-two-sample-t",
+    "name": "Welch two-sample t-test",
+    "definition": "T=(mean_X−mean_Y)/√(s_X²/n+s_Y²/m); ν=(a+b)²/[a²/(n−1)+b²/(m−1)], a=s_X²/n, b=s_Y²/m.",
+    "variables": "n,m≥2 sample sizes; sample means mean_X,mean_Y; unbiased sample variances s_X²,s_Y²; ν approximate degrees of freedom",
+    "assumptions": "Independent observations and independent samples, positive combined standard error, normality or adequate large-sample approximation; equal population variances not required.",
+    "limitations": "Heavy tails and small skewed samples can impair approximation; not suited to paired forecast errors.",
+    "failure_conditions": [
+      "Zero combined standard error or unmodelled dependence"
+    ],
+    "computation": "Compute sample moments, t statistic and Welch–Satterthwaite degrees of freedom; use approximate t reference for the mean-equality null.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, ttest_ind API, equal_var=False, and Welch reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html"
+    },
+    "application": "Assess differences in mean comparable measurements across genuinely independent historical groups.",
+    "required_inputs": "Two authorised independent groups with sample sizes, means and sample variances.",
+    "compatible_methods": [
+      "mann-whitney-u",
+      "bootstrap-iid"
+    ],
+    "incompatible_methods": [
+      "Applying independent-sample standard errors to paired event observations"
+    ],
+    "relationships": [
+      {
+        "target": "wilcoxon-signed-rank",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "018",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "levene-mean-center",
+    "name": "Mean-centred Levene variance test",
+    "definition": "Let z_ij=|x_ij−mean_i(x)|. W=((N−k)/(k−1))·[Σ_i n_i(mean_i(z)−mean(z))²]/[Σ_iΣ_j(z_ij−mean_i(z))²].",
+    "variables": "k≥2 groups, n_i group sizes, N total size, z absolute deviations from group mean, W approximate F statistic",
+    "assumptions": "Independent groups and observations, nonzero within-group deviation sum of squares, N>k; mean-centred version appropriate mainly for symmetric moderately tailed samples.",
+    "limitations": "Approximate F reference can be poor under severe skew, heavy tails or small samples; no proof of equal variances from non-rejection.",
+    "failure_conditions": [
+      "Zero denominator or dependent observations"
+    ],
+    "computation": "Compute absolute deviations from group means then apply one-way ANOVA statistic; use approximate F(k−1,N−k) reference.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, levene API, center='mean', and Levene (1960). https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.levene.html"
+    },
+    "application": "Investigate variation differences between comparable independent development samples.",
+    "required_inputs": "Authorised independent groups of observations in comparable units with known group membership.",
+    "compatible_methods": [
+      "fligner-killeen",
+      "welch-two-sample-t"
+    ],
+    "incompatible_methods": [
+      "Using paired or clustered observations as independent without adjustment"
+    ],
+    "relationships": [
+      {
+        "target": "fligner-killeen",
+        "type": "related"
+      }
+    ]
+  }
+]

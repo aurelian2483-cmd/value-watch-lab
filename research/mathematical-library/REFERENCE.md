@@ -4157,3 +4157,47 @@ Limitations — Dependent or discrete observations need a separately justified n
 Mechanism — Maximum empirical CDF separation, distinct from the integrated squared CDF discrepancy.
 
 Source — SciPy maintainers, ks_2samp API, two-sided statistic and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ks_2samp.html
+
+## Mann–Whitney U rank statistic and test (mann-whitney-u)
+
+> U_X=Σ_i Σ_j [1(X_i>Y_j)+0.5·1(X_i=Y_j)]; under the equal-distribution independent-sample null E[U_X]=nm/2.
+
+X_i and Y_j observations, n and m sample sizes, 1 indicator function; U_X pairwise rank statistic.
+
+Compare distributions of independent, comparable measurements in permitted development samples.
+
+Assumptions — Independent groups and independent observations; use a null reference appropriate to ties and sample size..
+
+Limitations — Not generally a test of median equality; paired or serially dependent observations require a different design..
+
+Mechanism — Distinct from signed-rank test for paired observations.
+
+Source — SciPy maintainers, mannwhitneyu API and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html
+
+## Welch two-sample t-test (welch-two-sample-t)
+
+> T=(mean_X−mean_Y)/√(s_X²/n+s_Y²/m); ν=(a+b)²/[a²/(n−1)+b²/(m−1)], a=s_X²/n, b=s_Y²/m.
+
+n,m≥2 sample sizes; sample means mean_X,mean_Y; unbiased sample variances s_X²,s_Y²; ν approximate degrees of freedom.
+
+Assess differences in mean comparable measurements across genuinely independent historical groups.
+
+Assumptions — Independent observations and independent samples, positive combined standard error, normality or adequate large-sample approximation; equal population variances not required..
+
+Limitations — Heavy tails and small skewed samples can impair approximation; not suited to paired forecast errors..
+
+Source — SciPy maintainers, ttest_ind API, equal_var=False, and Welch reference. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html
+
+## Mean-centred Levene variance test (levene-mean-center)
+
+> Let z_ij=|x_ij−mean_i(x)|. W=((N−k)/(k−1))·[Σ_i n_i(mean_i(z)−mean(z))²]/[Σ_iΣ_j(z_ij−mean_i(z))²].
+
+k≥2 groups, n_i group sizes, N total size, z absolute deviations from group mean, W approximate F statistic.
+
+Investigate variation differences between comparable independent development samples.
+
+Assumptions — Independent groups and observations, nonzero within-group deviation sum of squares, N>k; mean-centred version appropriate mainly for symmetric moderately tailed samples..
+
+Limitations — Approximate F reference can be poor under severe skew, heavy tails or small samples; no proof of equal variances from non-rejection..
+
+Source — SciPy maintainers, levene API, center='mean', and Levene (1960). https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.levene.html
