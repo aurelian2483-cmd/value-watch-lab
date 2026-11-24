@@ -32,7 +32,11 @@ const server=http.createServer(async(req,res)=>{
       const decision=page.getByRole('heading',{name:'Confirmed boundary and unanswered requirements'});
       await decision.waitFor();
       assert.equal(await page.locator('ol.pipeline > li').count(),8);
-      assert.equal(await page.locator('#decisions tbody tr').count(),5);
+      assert.equal(await page.locator('#decisions tbody tr').count(),6);
+      const dataSharing=page.locator('#decisions tbody tr').filter({hasText:'Alpha Hunt may read Value Watch historical results, bookmaker odds and model predictions.'});
+      assert.equal(await dataSharing.count(),1);
+      assert.match(await dataSharing.textContent(),/Agreed · read-only/);
+      assert.match(await dataSharing.textContent(),/no data interface is implemented or verified yet/);
       assert.equal(await page.locator('script').count(),0,'No sportsbook or model execution scripts on Alpha Hunt page');
       assert.equal(await page.locator('link[rel="stylesheet"]').count(),1);
       const style=await page.locator('body').evaluate(e=>getComputedStyle(e).backgroundColor);
