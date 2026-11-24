@@ -8,6 +8,7 @@ import {chromium} from 'playwright'
 import {status} from '../unified-live/sync.mjs'
 import {inspect,advance,setReviewControl} from './registry.mjs'
 import {startDashboard} from './dashboard.mjs'
+import {inspectQueue,reviewQueue} from './producer-queue.mjs'
 const [evidence,out]=process.argv.slice(2)
 assert.ok(evidence&&out&&process.argv.length===4,'Usage: browser-acceptance.mjs evidence-dir output-dir')
 const baseline=readFileSync(join(evidence,'current.json'))
@@ -99,10 +100,49 @@ try{
   await page.locator('[data-reviewed="1"]').waitFor({timeout:25000})
   checks.push({scenario:'timed-refresh',width:390,status:'PASS'})
  }finally{await page.close()}
+ // Verify the queue in a separate namespace; no stale display after an operator hold.
+ const qroot=join(root,'queue-review'),qregistry=join(root,'queue-registry'),qplan=join(root,'queue-plan.json')
+ mkdirSync(qroot);mkdirSync(qregistry)
+ const rargs=[local,qregistry,plan,args[3]]
+ let rv=inspect(...rargs)
+ for(let i=0;i<7;i++)rv=advance(...rargs,rv.registrySha256)
+ const qraw=JSON.stringify({kind:'APPROVED_SYNTHETIC_CONTRACT_QUEUE',schemaVersion:1,orchestrationPlanSha256:args[3],evidenceStateSha256:rv.evidenceStateSha256,registrySha256:rv.registrySha256,controlSha256:null,requests:state.snapshot.modules.map(m=>({producerId:m.id,sourceHead:m.source.head,summarySha256:m.receiptSha256,operation:'SYNTHETIC_CONTRACT_CHECK',declaredBudget:{cpuSlots:1,memoryMiB:64,maxSeconds:5,gpu:false,network:false}}))})
+ writeFileSync(qplan,qraw)
+ const qhash=createHash('sha256').update(qraw).digest('hex'),qa=[...rargs,qroot,qplan,qhash]
+ const qserver=await startDashboard(...rargs,{port:0,queueConfig:{directory:qroot,planPath:qplan,planSha256:qhash}})
+ const qurl='http://127.0.0.1:'+qserver.address().port
+ try{
+  for(const width of [1440,390,320,280]){
+   rmSync(join(qroot,'queue.json'),{force:true});rmSync(join(qregistry,'control.json'),{force:true})
+   const page=await browser.newPage({viewport:{width,height:900}})
+   const external=[]
+   try{
+    await page.route('**/*',route=>{if(route.request().url().startsWith(qurl+'/'))return route.continue();external.push(route.request().url());return route.abort()})
+    async function qcheck(name,counts){
+     const res=await page.goto(qurl+'/');assert.equal(res.status(),200)
+     assert.equal(await page.locator('[data-queue]').getAttribute('data-queue'),counts===null?'UNAVAILABLE':'AVAILABLE')
+     assert.equal(await page.locator('[data-producer]').count(),counts===null?0:6)
+     if(counts!==null)assert.equal(await page.locator('[data-queue-counts]').getAttribute('data-queue-counts'),counts)
+     assert.match(await page.locator('body').innerText(),/dispatch blocked/i)
+     assert.equal(await page.locator('script,form,button,input,iframe').count(),0)
+     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth),name+' overflow at '+width)
+     checks.push({scenario:name,width,status:'PASS'})
+     await page.screenshot({path:join(out,'orchestration-'+name+'-'+width+'.png'),fullPage:true})
+    }
+    await qcheck('queue-pending','6:0:0')
+    let qv=reviewQueue(...qa,null,'catalogue','REVIEW')
+    qv=reviewQueue(...qa,qv.queueSha256,'data','CANCEL')
+    await qcheck('queue-partial','4:1:1')
+    setReviewControl(...rargs,'PAUSE',rv.registrySha256,null)
+    await qcheck('queue-hold',null)
+    assert.deepEqual(external,[])
+   }finally{await page.close()}
+  }
+ }finally{await new Promise(ok=>qserver.close(ok))}
  assert.deepEqual(readFileSync(join(evidence,'current.json')),baseline)
  assert.deepEqual(readFileSync(join(local,'current.json')),baseline)
  writeFileSync(join(out,'orchestration-browser-acceptance.json'),JSON.stringify({checks,source:'PINNED_HISTORICAL_PHASE2_STATE',executionAuthorized:false,modelValidation:'UNVALIDATED',publicationGate:'BLOCKED'},null,2)+'\n')
- console.log('PASS twenty-four orchestration browser scenarios and timed refresh')
+ console.log('PASS thirty-six orchestration browser scenarios and timed refresh')
 }finally{
  if(browser)await browser.close()
  if(server)await new Promise(ok=>server.close(ok))
