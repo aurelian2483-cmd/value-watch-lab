@@ -92,11 +92,12 @@ function view(ctx,r){
  const done=new Set(r?.events.map(e=>e.taskId)??[])
  return {kind:'ORCHESTRATION_STATUS',registrySha256:r?.registrySha256??null,planSha256:ctx.expected,evidenceStateSha256:ctx.plan.stateSha256,mode:ctx.plan.mode,receiptFreshness:ctx.evidence.syncStatus,
   status:!r?'NOT_INITIALIZED':done.size===tasks.length?'METADATA_REVIEW_COMPLETE_EXECUTION_BLOCKED':'REVIEW_PENDING',
-  reviewed:done.size,total:tasks.length,tasks:tasks.map(t=>({...t,status:done.has(t.id)?'REVIEW_RECORDED':t.requires.every(x=>done.has(x))?'READY_FOR_METADATA_REVIEW':'WAITING_FOR_DEPENDENCIES'})),...flags,
+  reviewed:done.size,total:tasks.length,tasks:tasks.map(t=>({...t,requires:[...t.requires],status:done.has(t.id)?'REVIEW_RECORDED':t.requires.every(x=>done.has(x))?'READY_FOR_METADATA_REVIEW':'WAITING_FOR_DEPENDENCIES'})),...flags,
   limitations:['Metadata reviews are not executed experiments or scientific qualification.','Pinned historical or signed summary state only; no producer access, scheduler, network or execution.','Registry self-hash is not independent authentication; retain the latest fingerprint separately.']}
 }
 export function inspect(phase2Dir,registryDir,planPath,expected,{now=new Date().toISOString(),trustedRegistrySha256=undefined}={}){
  const ctx=context(phase2Dir,registryDir,planPath,expected,now),r=load(ctx)
+ if(r)need(Date.parse(now)>=Date.parse(r.events.at(-1)?.observedAt??r.createdAt),'Registry clock moved backwards')
  if(trustedRegistrySha256!==undefined)need(hex(trustedRegistrySha256)&&r?.registrySha256===trustedRegistrySha256,'Registry external anchor mismatch')
  return view(ctx,r)
 }
