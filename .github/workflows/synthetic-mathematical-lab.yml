@@ -44,6 +44,11 @@ jobs:
         run: |
           node research/mathematical-testing-lab/parallel.mjs "$(git rev-parse HEAD)" 2 > "$RUNNER_TEMP/synthetic-math/cpu-resource-report.json"
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Reconcile laboratory evidence for read-only control centre
+        run: |
+          node research/mathematical-testing-lab/status.mjs "$RUNNER_TEMP/synthetic-math" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/synthetic-math/lab-status.json"
+          node research/mathematical-testing-lab/status.mjs "$RUNNER_TEMP/synthetic-math" "$(git rev-parse HEAD)" html > "$RUNNER_TEMP/synthetic-math/lab-status.html"
+          test -z "$(git status --porcelain --untracked-files=all)"
       - name: Archive synthetic results
         if: always()
         uses: actions/upload-artifact@v4

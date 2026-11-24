@@ -78,7 +78,7 @@ def check_report(report):
     declared_pass = sum(r.get("status") == "PASS" for r in rows)
     require(report.get("counts") == {"total":len(rows),"passed":declared_pass,"failed":len(rows)-declared_pass}, "Reported counts inconsistent")
     return {"kind":"INDEPENDENT_SYNTHETIC_REFERENCE_CHECK", "schemaVersion":1,
-            "declaredCodeRevision":report["declaredCodeRevision"], "results":output, "counts":counts,
+            "declaredCodeRevision":report["declaredCodeRevision"], "benchmarkReportSha256":report["reportSha256"], "results":output, "counts":counts,
             "researchOnly":True,"publicationGate":"BLOCKED","executionAuthorized":False,"validationAuthorized":False,
             "limitations":["Independent analytical checks of five fixed numerical cases, not general correctness or empirical qualification.",
                            "Report identity hashes are format checked here, not independently reconstructed."]}

@@ -104,7 +104,7 @@ export function persistSuite(directory,revision,{recover=false,pauseAfterCheckpo
    records.push({experimentId:id,fixtureId:row.id,lifecycle:terminal,action,artifactHash,verdict:row.status})
   }
   return {kind:'SYNTHETIC_PERSISTENCE_REPORT',schemaVersion:1,declaredCodeRevision:revision,
-   records,expectedFixtures:specs.length,complete:records.length===specs.length&&records.every(r=>['COMPLETED','FAILED'].includes(r.lifecycle)),
+   benchmarkReportSha256:report.reportSha256,records,expectedFixtures:specs.length,complete:records.length===specs.length&&records.every(r=>['COMPLETED','FAILED'].includes(r.lifecycle)),
    researchOnly:true,publicationGate:'BLOCKED',executionAuthorized:false,validationAuthorized:false,
    limitations:['Local dedicated store; no authenticated owner or OS isolation. A stale lock requires explicit operator review.',
     'Recovery finalizes verified fixture-level checkpoints, not solver iterations. Fixed fixtures are recomputed for evidence comparison.',

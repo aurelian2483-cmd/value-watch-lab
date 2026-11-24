@@ -59,7 +59,7 @@ export async function runParallel(revision,options={}){
    workerStatus:r.status,serialAgreement:match,observed:row??null,wallMs:r.wallMs,
    workerElapsedMs:r.result?.elapsedMs??null,heapUsedBytes:r.result?.heapUsedBytes??null,heapTotalBytes:r.result?.heapTotalBytes??null}
  })
- return {kind:'SYNTHETIC_CPU_RESOURCE_REPORT',schemaVersion:1,declaredCodeRevision:revision,plan,peakActiveWorkers:peakActive,
+ return {kind:'SYNTHETIC_CPU_RESOURCE_REPORT',schemaVersion:1,declaredCodeRevision:revision,benchmarkReportSha256:baseline.reportSha256,plan,peakActiveWorkers:peakActive,
   elapsedMs:performance.now()-started,results,counts:{total:results.length,passed:results.filter(r=>r.status==='PASS').length,failed:results.filter(r=>r.status==='FAIL').length},
   researchOnly:true,publicationGate:'BLOCKED',executionAuthorized:false,validationAuthorized:false,
   limitations:['Worker V8 heap/stack limits do not cap process RSS, native allocations or all memory.',
