@@ -327,3 +327,54 @@ test('rehashed stored state with altered cryptographic evidence fails verificati
  writeFileSync(join(f.state,'current.json'),JSON.stringify(current))
  assert.throws(()=>status(f.state,{now:T}),/signature verification failed/)
 })
+
+test('external trust and exact state anchors are opt-in and independently matched',t=>{
+ const f=setup(t),s=signedFixture(f);signed(f,s)
+ const current=JSON.parse(stored(f)),anchor={trustedTrustSha256:s.trustSha,trustedStateSha256:current.stateSha256}
+ const view=status(f.state,{now:T3,...anchor})
+ assert.equal(view.authentication.independentTrustRechecked,true)
+ assert.equal(view.authentication.independentStateRechecked,true)
+ assert.equal(view.measurementFreshness,'UNKNOWN')
+ assert.equal(view.syncStatus,'STALE')
+ assert.equal(status(f.state,{now:T3,trustedTrustSha256:s.trustSha}).authentication.independentStateRechecked,false)
+ assert.throws(()=>status(f.state,{now:T,...anchor,trustedTrustSha256:'0'.repeat(64)}),/trust anchor mismatch/)
+ assert.throws(()=>status(f.state,{now:T,...anchor,trustedStateSha256:'0'.repeat(64)}),/state anchor mismatch/)
+ assert.throws(()=>status(f.state,{now:T,trustedStateSha256:current.stateSha256}),/Invalid external state anchor/)
+ assert.throws(()=>status(f.state,{now:T,trustedTrustSha256:'bad'}),/Invalid external trust anchor/)
+})
+test('external anchor rejects valid substituted trust registry, stripped proof and changed state',t=>{
+ const f=setup(t),s=signedFixture(f);signed(f,s)
+ const original=JSON.parse(stored(f)),path=join(f.state,'current.json')
+ const substitute=signedFixture(f)
+ const replacement={...original.authentication,trustSha256:substitute.trustSha,trustBytes:readFileSync(substitute.trustPath).toString('base64'),signatureBundleSha256:hash(readFileSync(substitute.sigPath)),signatureBundleBytes:readFileSync(substitute.sigPath).toString('base64')}
+ function rewrite(change){
+  const v=structuredClone(original);change(v);delete v.stateSha256;v.stateSha256=digest(v)
+  writeFileSync(path,JSON.stringify(v))
+ }
+ rewrite(v=>{v.authentication=replacement})
+ assert.equal(status(f.state,{now:T}).authentication.independentTrustRechecked,false)
+ assert.throws(()=>status(f.state,{now:T,trustedTrustSha256:s.trustSha}),/trust anchor mismatch/)
+ rewrite(v=>{v.authentication=null})
+ assert.throws(()=>status(f.state,{now:T,trustedTrustSha256:s.trustSha}),/signed state unavailable/)
+ rewrite(v=>{v.firstSeen[0].at='2026-11-24T21:00:00.000Z'})
+ assert.throws(()=>status(f.state,{now:T,trustedTrustSha256:s.trustSha,trustedStateSha256:original.stateSha256}),/state anchor mismatch/)
+})
+test('anchored viewer refuses mismatched startup and fails closed when accepted state changes',async t=>{
+ const {startViewer}=await import('./viewer.mjs')
+ const f=setup(t),s=signedFixture(f);signed(f,s)
+ const original=JSON.parse(stored(f)),anchor={trustedTrustSha256:s.trustSha,trustedStateSha256:original.stateSha256}
+ await assert.rejects(startViewer(f.state,{port:0,...anchor,trustedTrustSha256:'0'.repeat(64)}),/trust anchor mismatch/)
+ const server=await startViewer(f.state,{port:0,...anchor})
+ t.after(async()=>{await new Promise(ok=>server.close(ok))})
+ const url='http://127.0.0.1:'+server.address().port
+ const response=await fetch(url+'/status')
+ assert.equal(response.status,200)
+ assert.equal((await response.json()).authentication.independentStateRechecked,true)
+ const home=await fetch(url+'/')
+ assert.match(await home.text(),/External trust anchor: matched · External state anchor: matched/)
+ const next=signedFixture(f,{sequence:2,privateKeys:s.pairs})
+ signed(f,next)
+ const rejected=await fetch(url+'/status')
+ assert.equal(rejected.status,503)
+ assert.match(await rejected.text(),/PUBLICATION BLOCKED/)
+})
