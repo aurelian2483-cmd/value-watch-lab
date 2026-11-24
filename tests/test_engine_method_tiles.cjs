@@ -31,7 +31,7 @@ for(const page of ['index.html','paper-lab/index.html']){
   assert(html.includes('Select one or more methods'));
   for(const id of ids)assert(html.includes('data-method="'+id+'"'),id+' missing from '+page);
   assert(html.includes('method-selection.js?v=1'));
-  assert(html.includes('method-tiles.css?v=multiselect-1'));
+  assert(html.includes('method-tiles.css?v=multiselect-2'));
   assert(html.includes('id="engine-select"'),'backward compatible preference select');
   assert(html.indexOf('method-selection.js') < html.indexOf('desk-compact-20261116.js'));
   assert(!html.includes('data-engine="'));
