@@ -78,9 +78,9 @@
 
     <section id="architecture" class="section" aria-labelledby="architecture-heading">
       <div class="section-heading">
-        <p class="eyebrow">02 / Proposed architecture · Version 5 in supplied handover</p>
+        <p class="eyebrow">Audit Issue 3 / Architecture v5 · Approved as research design</p>
         <h2 id="architecture-heading">Research workflow</h2>
-        <p>The stages below are <strong>design components</strong>, not a claim that these engines are running.</p>
+        <p><strong>Alpha Hunt v5 is the agreed research architecture.</strong> The stages below are proposed design components, not evidence that the system has been implemented or validated. Earlier ACME and Zero-Based Reconstruction designs are retained as historical versions, not competing current architectures.</p>
       </div>
       <ol class="pipeline">
         <li><span class="step">01</span><div><h3>Market data</h3><p>Capture prices and their source, timing and market definitions.</p></div></li>
@@ -88,9 +88,10 @@
         <li><span class="step">03</span><div><h3>Calibration</h3><p>Measure how reliable forecasts have been on historical data.</p></div></li>
         <li><span class="step">04</span><div><h3>Disagreement detection</h3><p>Record model-versus-market differences without treating them as verified edges.</p></div></li>
         <li><span class="step">05</span><div><h3>False Edge Laboratory</h3><p>Investigate the causes and frequency of misleading apparent edges.</p></div></li>
-        <li><span class="step">06</span><div><h3>Bayesian posterior engine</h3><p>Research PEP = P(Real Edge | Evidence).</p></div></li>
-        <li><span class="step">07</span><div><h3>Decision layer</h3><p>Proposed only: thresholds and operational validation are not agreed.</p></div></li>
-        <li><span class="step">08</span><div><h3>Capital allocation</h3><p>Not active; do not interpret the proposed design as authorisation to wager.</p></div></li>
+        <li><span class="step">06</span><div><h3>Bayesian posterior engine</h3><p>Proposed estimation component; the underlying probability model remains unvalidated.</p></div></li>
+        <li><span class="step">07</span><div><h3>Posterior Edge Probability (PEP)</h3><p>The proposed output, P(Real Edge | Evidence); not a calculated or proven value on this site.</p></div></li>
+        <li><span class="step">08</span><div><h3>Decision layer</h3><p>Proposed only: thresholds and operational validation are not agreed.</p></div></li>
+        <li><span class="step">09</span><div><h3>Capital allocation</h3><p>Not active; do not interpret the proposed design as authorisation to wager.</p></div></li>
       </ol>
     </section>
 
@@ -121,7 +122,7 @@
 
     <section id="roles" class="section" aria-labelledby="roles-heading">
       <div class="section-heading">
-        <p class="eyebrow">02 / Agreed project responsibilities · Audit Issue 2</p>
+        <p class="eyebrow">Audit Issue 2 / Agreed project responsibilities</p>
         <h2 id="roles-heading">Three distinct responsibilities</h2>
         <p>The responsibilities below were agreed during the project audit. They define project purpose, not completed implementation or validated performance.</p>
       </div>
@@ -152,6 +153,7 @@
         <table>
           <thead><tr><th>Decision or requirement</th><th>Status</th><th>Evidence / next question</th></tr></thead>
           <tbody>
+            <tr><td>Alpha Hunt v5 is the agreed research architecture; ACME and Zero-Based Reconstruction are historical designs.</td><td><span class="state agreed">Agreed · design only</span></td><td>Approved in Audit Issue 3. No claim of implementation, independent validation or real-money execution.</td></tr>
             <tr><td>Alpha Hunt is a separate system from Value Watch and Bottleneck Lab.</td><td><span class="state agreed">Agreed</span></td><td>Confirmed in the project audit discussion.</td></tr>
             <tr><td>Alpha Hunt may read Value Watch historical results, bookmaker odds and model predictions.</td><td><span class="state agreed">Agreed · read-only</span></td><td>Scope decision: permitted for research, but no data interface is implemented or verified yet. Value Watch remains the source of truth; no write-back or modification of its records.</td></tr>
             <tr><td>How read-only access is enforced (credentials, interfaces, scope, provenance, refresh and audit logs).</td><td><span class="state pending">Not implemented</span></td><td>Define and test technical controls before connecting Alpha Hunt to Value Watch data. Reading permission is not an approval to change source records or trade.</td></tr>

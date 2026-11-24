@@ -31,8 +31,11 @@ const server=http.createServer(async(req,res)=>{
       await page.getByRole('heading',{name:'Research workflow'}).waitFor();
       const decision=page.getByRole('heading',{name:'Confirmed boundary and unanswered requirements'});
       await decision.waitFor();
-      assert.equal(await page.locator('ol.pipeline > li').count(),8);
-      assert.equal(await page.locator('#decisions tbody tr').count(),6);
+      assert.equal(await page.locator('ol.pipeline > li').count(),9);
+      assert.equal(await page.locator('#decisions tbody tr').count(),7);
+      const v5=page.locator('#decisions tbody tr').filter({hasText:'Alpha Hunt v5 is the agreed research architecture'});
+      assert.equal(await v5.count(),1);
+      assert.match(await v5.textContent(),/Agreed · design only/);
       const dataSharing=page.locator('#decisions tbody tr').filter({hasText:'Alpha Hunt may read Value Watch historical results, bookmaker odds and model predictions.'});
       assert.equal(await dataSharing.count(),1);
       assert.match(await dataSharing.textContent(),/Agreed · read-only/);
