@@ -24,48 +24,56 @@ jobs:
           mkdir -p "$RUNNER_TEMP/unified-input" "$RUNNER_TEMP/unified-output"
           git fetch --no-tags --depth=1 origin ed0186d09b269e21d70035d997ce41b5a001b574
           git show ed0186d09b269e21d70035d997ce41b5a001b574:research/mathematical-library/progress.v1.json > "$RUNNER_TEMP/unified-input/catalogue.json"
-      - name: Download pinned data summary bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: central-data-integrity-manifest
-          run-id: '45458157425'
-          github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/unified-data
-      - name: Download pinned lab summary bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: synthetic-mathematical-benchmarks
-          run-id: '45477172383'
-          github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/unified-lab
-      - name: Download pinned compute summary bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: scientific-compute-smoke-ubuntu-24.04
-          run-id: '45484239839'
-          github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/unified-compute
-      - name: Download pinned supervisor summary bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: research-supervisor-diagnostics
-          run-id: '45492015309'
-          github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/unified-supervisor
-      - name: Download pinned references summary bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: scientific-reference-provenance
-          run-id: '45500459471'
-          github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/unified-references
+      - name: Verify and extract exact pinned archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, io, json, os, pathlib, subprocess, zipfile
+          pins = json.loads(pathlib.Path('research/unified-control-centre/source-pins.json').read_text())
+          repo = os.environ['GITHUB_REPOSITORY']
+          repo_id = int(os.environ['GITHUB_REPOSITORY_ID'])
+          dest = pathlib.Path(os.environ['RUNNER_TEMP']) / 'unified-input'
+          digests = {
+              'data': 'a7bbd094720c3c3daf1c3ce0759563ffee2802f1da001b6259f355c6e9d6ce34',
+              'lab': '4de0f1d584e6ecd4c851182b6a01e3d0b47fc03bdc7af8475a018747d2ddde56',
+              'compute': '362ee374b24f928813f93b143cc6d38e33818e82d2977f9cffcd8dd6feb54f19',
+              'supervisor': '247dd221a23484e543da66dfad438de8fd3534c7abd59697ccc3f0952adb45eb',
+              'references': 'ac954d44e92b6d1f9d48d22d4ee1973f39b7794e1ffa8bf1efdc89978ec809ef',
+          }
+          def require(condition, message):
+              if not condition:
+                  raise RuntimeError(message)
+          require(len(pins) == 6 and {p['id'] for p in pins} == set(digests) | {'catalogue'}, 'Unexpected source set')
+          evidence = []
+          for p in pins:
+              if p['id'] == 'catalogue':
+                  require(p['artifact'] is None, 'Catalogue must come from pinned Git revision')
+                  continue
+              endpoint = f"repos/{repo}/actions/artifacts/{p['artifact']}"
+              a = json.loads(subprocess.check_output(['gh', 'api', endpoint]))
+              w = a.get('workflow_run') or {}
+              expected = digests[p['id']]
+              require(a['id'] == p['artifact'] and a['name'] == p['artifactName'] and a['expired'] is False, 'Artifact identity or expiry mismatch')
+              require(w.get('id') == p['run'] and w.get('head_sha') == p['head'] and w.get('repository_id') == repo_id and w.get('head_repository_id') == repo_id, 'Artifact provenance mismatch')
+              run = json.loads(subprocess.check_output(['gh', 'api', f"repos/{repo}/actions/runs/{p['run']}"]))
+              require(run.get('id') == p['run'] and run.get('head_sha') == p['head'] and run.get('status') == 'completed' and run.get('conclusion') == 'success', 'Source run not accepted')
+              require(a.get('digest') == 'sha256:' + expected and 0 < a['size_in_bytes'] <= 32 * 1024 * 1024, 'Archive metadata mismatch')
+              archive = subprocess.check_output(['gh', 'api', endpoint + '/zip'])
+              require(len(archive) == a['size_in_bytes'] and hashlib.sha256(archive).hexdigest() == expected, 'Downloaded archive fingerprint mismatch')
+              with zipfile.ZipFile(io.BytesIO(archive)) as z:
+                  matches = [i for i in z.infolist() if i.filename == p['artifactFile']]
+                  require(len(matches) == 1 and not matches[0].is_dir() and 0 < matches[0].file_size <= 4 * 1024 * 1024, 'Missing, duplicate or oversized summary')
+                  raw = z.read(matches[0])
+              require(p['file'] == p['id'] + '.json', 'Unexpected output name')
+              (dest / p['file']).write_bytes(raw)
+              evidence.append({'id': p['id'], 'artifactId': p['artifact'], 'runId': p['run'], 'head': p['head'], 'archiveSha256': expected, 'summarySha256': hashlib.sha256(raw).hexdigest(), 'expiresAt': a['expires_at']})
+              print('Verified pinned archive:', p['id'])
+          output = pathlib.Path(os.environ['RUNNER_TEMP']) / 'unified-output' / 'archive-receipts.json'
+          output.write_text(json.dumps({'kind': 'PINNED_ARCHIVE_VERIFICATION', 'researchValidation': 'UNVALIDATED', 'publicationGate': 'BLOCKED', 'archives': evidence}, indent=2) + '\n')
+          PY
       - name: Render consolidated read-only website
         run: |
-          cp "$RUNNER_TEMP/unified-data/integrated-status.json" "$RUNNER_TEMP/unified-input/data.json"
-          cp "$RUNNER_TEMP/unified-lab/lab-status.json" "$RUNNER_TEMP/unified-input/lab.json"
-          cp "$RUNNER_TEMP/unified-compute/compute-status.json" "$RUNNER_TEMP/unified-input/compute.json"
-          cp "$RUNNER_TEMP/unified-supervisor/supervisor-dashboard.json" "$RUNNER_TEMP/unified-input/supervisor.json"
-          cp "$RUNNER_TEMP/unified-references/dashboard.json" "$RUNNER_TEMP/unified-input/references.json"
           node research/unified-control-centre/overview.mjs "$RUNNER_TEMP/unified-input" > "$RUNNER_TEMP/unified-output/overview.json"
           node research/unified-control-centre/website.mjs "$RUNNER_TEMP/unified-output/overview.json" > "$RUNNER_TEMP/unified-output/index.html"
           node -e 'const r=require(process.argv[1]); if(r.counts.available!==6 || r.publicationGate!=="BLOCKED" || r.executionAuthorized!==false) {console.error(JSON.stringify(r.modules.map(m=>({id:m.id,state:m.evidenceState}))));process.exit(1)}' "$RUNNER_TEMP/unified-output/overview.json"
