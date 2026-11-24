@@ -3359,6 +3359,66 @@
       "verification": "TWO_SOURCE_REGULATION_TIME_FINAL",
       "publication_gate": "BLOCKED",
       "challenge_eligible": 0
+    },
+    {
+      "league": "I1",
+      "home": "Monza",
+      "away": "Fiorentina",
+      "kickoff_utc": "2026-11-23T19:45:00Z",
+      "model": "LEAGUE_POISSON_SHRINKAGE_V1_I1_CURRENT_SEASON_SMALL_SAMPLE",
+      "record_sha256": "4e9d6d86b7cd73a81e1b63fb3a52cc724842b3d44f001e363f699f7063e16547",
+      "selected_forecast_generated_at_utc": "2026-11-09T19:07:43.268067Z",
+      "selection_reason": "LATEST_FROZEN_PREMATCH_REVISION_AT_FIRST_SETTLEMENT",
+      "revision_of": "acb8938892d8b1eb7b76b555da4d892fb184d6f921c6d1bbcd6116117219d67c",
+      "score_home": 3,
+      "score_away": 0,
+      "multiclass_brier_score": 0.48872673377633574,
+      "log_loss": 0.8296762333417744,
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/scoreboard?dates=20261123&limit=100",
+          "sha256": "759c772bd3eb70249606ead7cca7658af0c604ef64a577d703fb1e304129802c",
+          "observed_at_utc": "2026-11-24T04:05:35.520297Z"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/I1.csv",
+          "sha256": "e9e3989f88836484bb76067f2e6a4467698952e567c2fd6f1ecb3c9fb4234fca",
+          "observed_at_utc": "2026-11-24T04:05:23.919045Z"
+        }
+      ],
+      "verification": "TWO_SOURCE_REGULATION_TIME_FINAL",
+      "publication_gate": "BLOCKED",
+      "challenge_eligible": 0
+    },
+    {
+      "league": "SP1",
+      "home": "Levante",
+      "away": "Elche",
+      "kickoff_utc": "2026-11-23T20:00:00Z",
+      "model": "LEAGUE_POISSON_SHRINKAGE_V1_SP1_PRIOR_SEASON",
+      "record_sha256": "428f81206ff9c096e12f9674b1d627edff46fb46883a8f7c7bad8d824882cbf3",
+      "selected_forecast_generated_at_utc": "2026-11-03T04:01:03.848332Z",
+      "selection_reason": "LATEST_FROZEN_PREMATCH_REVISION_AT_FIRST_SETTLEMENT",
+      "revision_of": null,
+      "score_home": 1,
+      "score_away": 1,
+      "multiclass_brier_score": 0.8908561198728582,
+      "log_loss": 1.4390971620903794,
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=20261123&limit=100",
+          "sha256": "6a45b2ead2e5859da9fddf317227a3a5b863f4e9ca3134f91d4b1a6b56a8ceb2",
+          "observed_at_utc": "2026-11-24T04:05:35.637028Z"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/SP1.csv",
+          "sha256": "40e33e66b8a2d1564050d644704296040a679e2907483181d41a3c072c00e942",
+          "observed_at_utc": "2026-11-24T04:05:05.592637Z"
+        }
+      ],
+      "verification": "TWO_SOURCE_REGULATION_TIME_FINAL",
+      "publication_gate": "BLOCKED",
+      "challenge_eligible": 0
     }
   ]
 }
