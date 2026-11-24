@@ -61,13 +61,35 @@ function load(root){
  try{return checkState(JSON.parse(readBounded(join(root,'current.json'),16*1024*1024).toString('utf8')))}
  catch(e){if(e.code==='ENOENT')return null;throw e}
 }
-function atomic(root,s){
- const temp=join(root,'.pending-'+randomUUID()),target=join(root,'current.json')
+function atomic(root,s,file='current.json'){
+ const temp=join(root,'.pending-'+randomUUID()),target=join(root,file)
  try{
   const fd=openSync(temp,'wx',0o600)
   try{writeFileSync(fd,JSON.stringify(s,null,2)+'\n');fsyncSync(fd)}finally{closeSync(fd)}
   renameSync(temp,target)
  }finally{rmSync(temp,{force:true})}
+}
+// Bounded latest rejected attempt, not a full audit log or producer health monitor.
+const rejectionStages=['STORED_STATE','APPROVAL','SEQUENCE','INPUT','CONTRACT','STABILITY','PERSISTENCE']
+function recordRejection(root,stage,now,previous){
+ const payload={kind:'CONTROLLED_SYNC_REJECTION',schemaVersion:1,stage,observedAt:now,
+  previousStateSha256:previous?.stateSha256??null,previousSequence:previous?.sequence??null,
+  action:'MANUAL_REVIEW_REQUIRED',automaticRepair:false}
+ atomic(root,{...payload,incidentSha256:digest(payload)},'last-rejection.json')
+}
+function incidentStatus(root,s,now){
+ try{
+  const raw=readBounded(join(root,'last-rejection.json'),8192),r=JSON.parse(raw.toString('utf8'))
+  need(keys(r,['kind','schemaVersion','stage','observedAt','previousStateSha256','previousSequence','action','automaticRepair','incidentSha256']),'Invalid incident shape')
+  const {incidentSha256,...payload}=r
+  need(hex(incidentSha256)&&digest(payload)===incidentSha256&&r.kind==='CONTROLLED_SYNC_REJECTION'&&r.schemaVersion===1&&rejectionStages.includes(r.stage)&&utc(r.observedAt)&&r.action==='MANUAL_REVIEW_REQUIRED'&&r.automaticRepair===false,'Invalid incident')
+  need((r.previousStateSha256===null&&r.previousSequence===null)||(hex(r.previousStateSha256)&&Number.isSafeInteger(r.previousSequence)&&r.previousSequence>0),'Invalid incident binding')
+  const sameState=r.previousStateSha256===(s?.stateSha256??null)&&r.previousSequence===(s?.sequence??null)
+  const superseded=s&&Date.parse(s.acceptedAt)>=Date.parse(r.observedAt)&&(r.previousSequence===null||s.sequence>r.previousSequence)
+  return {status:Date.parse(r.observedAt)>Date.parse(now)?'CLOCK_UNCERTAIN':sameState?'REVIEW_REQUIRED':superseded?'HISTORICAL_REJECTION':'REVIEW_REQUIRED_UNRECONCILED',stage:r.stage,observedAt:r.observedAt,previousSequence:r.previousSequence,automaticRepair:false}
+ }catch(e){
+  return {status:e.code==='ENOENT'?'NO_REJECTION_RECORDED':'INCIDENT_EVIDENCE_UNAVAILABLE',stage:null,observedAt:null,previousSequence:null,automaticRepair:false}
+ }
 }
 export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOString()}={}){
  const inbox=safeRoot(inboxDir),root=safeRoot(stateDir)
@@ -75,37 +97,47 @@ export function synchronise(inboxDir,stateDir,expected,{now=new Date().toISOStri
  need(utc(now),'Invalid clock')
  const lock=join(root,'.sync-lock')
  mkdirSync(lock,{mode:0o700}) // Fail closed on concurrent writer or interrupted lock; manual recovery only.
- let stage
+ let stage,previous=null,phase='STORED_STATE'
  try{
-  const previous=load(root)
+  previous=load(root)
+  phase='APPROVAL'
   const raw=readBounded(join(inbox,'approval.json')),a=approval(raw,expected)
   need(Date.parse(a.approvedAt)<=Date.parse(now),'Future approval')
+  phase='SEQUENCE'
   if(previous){
    need(Date.parse(now)>=Date.parse(previous.acceptedAt),'Clock moved backwards')
    if(previous.approvalSha256===expected){
+    phase='INPUT'
     for(let i=0;i<pins.length;i++)need(sha(readBounded(join(inbox,pins[i].file)))===a.sources[i].summarySha256,'Replay input mismatch')
     need(readBounded(join(inbox,'approval.json')).equals(raw),'Unstable approval')
     return {status:'UNCHANGED',state:previous}
    }
    need(a.sequence===previous.sequence+1&&Date.parse(a.approvedAt)>=Date.parse(previous.approval.approvedAt),'Out-of-order approval')
   }else need(a.sequence===1,'First approval sequence must be one')
+  phase='INPUT'
   stage=mkdtempSync(join(tmpdir(),'research-sync-'))
   for(let i=0;i<pins.length;i++){
    const bytes=readBounded(join(inbox,pins[i].file))
    need(sha(bytes)===a.sources[i].summarySha256,'Summary fingerprint mismatch: '+pins[i].id)
    writeFileSync(join(stage,pins[i].file),bytes,{flag:'wx',mode:0o600})
   }
+  phase='CONTRACT'
   const snapshot=build(realpathSync(stage))
   verifySnapshot(snapshot)
   need(snapshot.counts.available===6&&snapshot.modules.every((m,i)=>m.receiptSha256===a.sources[i].summarySha256),'Incomplete or invalid summary batch')
+  phase='STABILITY'
   need(readBounded(join(inbox,'approval.json')).equals(raw),'Unstable approval')
   for(let i=0;i<pins.length;i++)need(sha(readBounded(join(inbox,pins[i].file)))===a.sources[i].summarySha256,'Input changed during sync')
   const payload={kind:'CONTROLLED_SUMMARY_STATE',schemaVersion:1,...flags,sequence:a.sequence,acceptedAt:now,
    approvalSha256:expected,approvalBytes:raw.toString('base64'),approval:a,previousApprovalSha256:previous?.approvalSha256??null,snapshot,
    firstSeen:a.sources.map((x,i)=>({id:x.id,at:previous?.approval.sources[i].summarySha256===x.summarySha256?previous.firstSeen[i].at:now}))}
   const s={...payload,stateSha256:digest(payload)}
+  phase='PERSISTENCE'
   checkState(s);atomic(root,s)
   return {status:'ACCEPTED',state:s}
+ }catch(error){
+  try{recordRejection(root,phase,now,previous)}catch{throw new Error('Sync failed; incident receipt could not be recorded',{cause:error})}
+  throw error
  }finally{if(stage)rmSync(stage,{recursive:true,force:true});rmSync(lock,{recursive:true,force:true})}
 }
 // Operator-controlled checkpoint and isolated recovery. Never rolls back active state.
@@ -151,12 +183,13 @@ export function recover(backupDir,stateDir,expected,sequence){
 }
 export function status(stateDir,{now=new Date().toISOString(),maxAgeSeconds=3600}={}){
  need(utc(now)&&Number.isSafeInteger(maxAgeSeconds)&&maxAgeSeconds>0&&maxAgeSeconds<=86400,'Invalid freshness configuration')
- const s=load(safeRoot(stateDir))
+ const root=safeRoot(stateDir),s=load(root)
  const age=at=>Math.floor((Date.parse(now)-Date.parse(at))/1000)
  const freshness=at=>age(at)<0?'CLOCK_UNCERTAIN':age(at)>maxAgeSeconds?'STALE':'RECENTLY_RECEIVED'
  return {kind:'CONTROLLED_SUMMARY_STATUS',...flags,sequence:s?.sequence??null,acceptedAt:s?.acceptedAt??null,
   syncStatus:s?freshness(s.acceptedAt):'NO_ACCEPTED_BATCH',measurementFreshness:'UNKNOWN',
   sources:pins.map((p,i)=>({id:p.id,receiptStatus:s?freshness(s.firstSeen[i].at):'MISSING',firstSeen:s?.firstSeen[i].at??null,measurementFreshness:'UNKNOWN'})),
+  lastRejection:incidentStatus(root,s,now),
   snapshot:s?.snapshot??null,limitations:['Receipt age is not measurement age or producer health.','Explicit digest approval; no independent source authenticity or scientific validation.','No producer, scheduler or network service started.']}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
