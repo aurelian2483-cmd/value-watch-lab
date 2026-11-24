@@ -18,15 +18,16 @@ jobs:
         with:
           node-version: '22'
       - name: Test manifests and source reconciliation
-        run: node --test research/central-data-intelligence/manifest.test.mjs
+        run: node --test research/central-data-intelligence/*.test.mjs
       - name: Generate read-only manifest from checked-out source
         run: |
           mkdir -p "$RUNNER_TEMP/central-data-integrity"
           node research/central-data-intelligence/manifest.mjs "$GITHUB_WORKSPACE" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/central-data-integrity/manifest.json"
+          node research/central-data-intelligence/source-audit.mjs "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/central-data-integrity/source-audit.json"
           git diff --exit-code
       - uses: actions/upload-artifact@v4
         with:
           name: central-data-integrity-manifest
-          path: ${{ runner.temp }}/central-data-integrity/manifest.json
+          path: ${{ runner.temp }}/central-data-integrity/
           retention-days: 7
           if-no-files-found: error

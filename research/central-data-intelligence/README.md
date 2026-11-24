@@ -15,3 +15,7 @@ The declared revision is a label supplied by the caller, not verified membership
 No individual source records are exposed. Missing files are unknown, not zero. Historical and prospective evidence remain separate; no summed unique event count. The module does not create source files, change existing files, run models, access protected partitions, make financial decisions or publish anything.
 
 Next phases, not yet implemented: broader allowlisted source catalogue, source-rights review, identity crosswalk review, independent provenance checks, and operational access-control design. Do not duplicate existing collectors.
+
+## Phase 2 — extended byte-integrity inventory
+
+Run `node research/central-data-intelligence/source-audit.mjs .` for nine allowlisted source receipts and comparisons with the existing pinned Bottleneck archive index. The archive declares 25 entries; the audit does not read every indexed path, protected files or arbitrary supplied paths. A change in bytes is not an error by itself. These are byte receipts, not schema validation or evidence certification. The four Phase 1 sources retain their structural reconciliation; the five additional files have byte-level checks only. CI emits both reports.
