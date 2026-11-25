@@ -1,0 +1,100 @@
+name: Automated mathematical research QA
+on:
+  pull_request:
+    paths:
+      - 'research/automated-mathematical-research/**'
+      - '.github/workflows/automated-mathematical-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  campaign:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Existing numerical laboratory and campaign contracts
+        run: node --test research/mathematical-testing-lab/*.test.mjs research/automated-mathematical-research/*.test.mjs
+      - name: Run the 250 fixed mathematical cases and independent rational references
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/mathematical-campaign"
+          mkdir -p "$out" "$RUNNER_TEMP/campaign-store"
+          revision="$(git rev-parse HEAD)"
+          node research/automated-mathematical-research/campaign.mjs "$revision" > "$out/campaign.json"
+          node research/automated-mathematical-research/campaign.mjs "$revision" > "$RUNNER_TEMP/campaign-repeated.json"
+          cmp "$out/campaign.json" "$RUNNER_TEMP/campaign-repeated.json"
+          python -B research/automated-mathematical-research/reference.py "$out/campaign.json" > "$out/reference.json"
+          python -B - <<'PY'
+          import copy,importlib.util,json,os,pathlib
+          p=pathlib.Path('research/automated-mathematical-research/reference.py')
+          spec=importlib.util.spec_from_file_location('independent_reference',p)
+          ref=importlib.util.module_from_spec(spec);spec.loader.exec_module(ref)
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'mathematical-campaign'
+          report=json.loads((root/'campaign.json').read_text())
+          review=json.loads((root/'reference.json').read_text())
+          assert review['counts']=={'total':250,'passed':250,'failed':0,'distinctMethods':4}
+          assert sum(x['total'] for x in review['byMethod'].values())==250
+          for mutation in ('tolerance','input','flags','count'):
+              v=copy.deepcopy(report)
+              if mutation=='tolerance':v['rows'][0]['tolerance']=1
+              elif mutation=='input':v['rows'][0]['input']['k']=99
+              elif mutation=='flags':v['executionAuthorized']=True
+              else:v['counts']['total']=251
+              try:ref.check(v)
+              except ValueError:pass
+              else:raise AssertionError('Mutation accepted: '+mutation)
+          v=copy.deepcopy(report);v['rows'][0]['value']+=0.25
+          v['rows'][0]['absoluteError']=abs(v['rows'][0]['value']-v['rows'][0]['expected'])
+          assert ref.check(v)['counts']['failed']==1
+          print('PASS 250 independent rational reference checks; five mutation checks')
+          PY
+          csha="$(sha256sum "$out/campaign.json" | cut -d' ' -f1)"
+          rsha="$(sha256sum "$out/reference.json" | cut -d' ' -f1)"
+          node research/automated-mathematical-research/record.mjs "$out/campaign.json" "$out/reference.json" "$RUNNER_TEMP/campaign-store" "$csha" "$rsha" > "$out/record.json"
+          node research/automated-mathematical-research/record.mjs "$out/campaign.json" "$out/reference.json" "$RUNNER_TEMP/campaign-store" "$csha" "$rsha" > "$RUNNER_TEMP/record-replayed.json"
+          cmp "$out/record.json" "$RUNNER_TEMP/record-replayed.json"
+          test "$(find "$RUNNER_TEMP/campaign-store" -type f | wc -l)" -eq 1
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {readFileSync,writeFileSync,mkdirSync} from 'node:fs'
+          import {join} from 'node:path'
+          import {createHash} from 'node:crypto'
+          import {recordCampaign,validateCampaign} from './research/automated-mathematical-research/record.mjs'
+          import {digest} from './research/scientific-reference/digest.mjs'
+          const root=process.env.RUNNER_TEMP,out=join(root,'mathematical-campaign'),store=join(root,'campaign-store')
+          const c=join(out,'campaign.json'),r=join(out,'reference.json')
+          const sha=p=>createHash('sha256').update(readFileSync(p)).digest('hex')
+          const result=JSON.parse(readFileSync(join(out,'record.json')))
+          assert.equal(result.status,'SYNTHETIC_CAMPAIGN_PASSED')
+          assert.equal(result.executionAuthorized,false)
+          assert.equal(result.publicationGate,'BLOCKED')
+          assert.throws(()=>recordCampaign(c,r,store,'0'.repeat(64),sha(r)),/fingerprint mismatch/)
+          const original=JSON.parse(readFileSync(c)),reference=JSON.parse(readFileSync(r))
+          const altered=structuredClone(original);altered.rows[0].value+=1;delete altered.campaignSha256;altered.campaignSha256=digest(altered)
+          assert.throws(()=>validateCampaign(altered,reference),/deterministic re-execution/)
+          const wrong=structuredClone(reference);wrong.rows[0].id='UNKNOWN'
+          assert.throws(()=>validateCampaign(original,wrong),/identity or verdict/)
+          const path=join(store,result.recordSha256+'.json'),before=readFileSync(path)
+          writeFileSync(path,'{corrupt')
+          assert.throws(()=>recordCampaign(c,r,store,sha(c),sha(r)),/Existing record integrity mismatch/)
+          assert.equal(readFileSync(path,'utf8'),'{corrupt')
+          writeFileSync(path,before)
+          assert.equal(recordCampaign(c,r,store,sha(c),sha(r)).recordSha256,result.recordSha256)
+          console.log('PASS deterministic campaign replay, immutable receipt and tamper rejection')
+          JS
+          cp research/automated-mathematical-research/local-hardware-review.json "$out/local-hardware-review.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fixed-mathematical-campaign-evidence
+          path: ${{ runner.temp }}/mathematical-campaign/
+          retention-days: 7
+          if-no-files-found: warn
