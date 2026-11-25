@@ -5034,7 +5034,7 @@ Assumptions — Well-posed IVPs on the whole interval for slopes considered, con
 
 Limitations — Repeated IVP solves may be expensive or unstable; near-zero endpoint sensitivity can amplify slope error and growing modes can amplify integration errors; multiple or absent roots are possible; small residual does not certify trajectory accuracy or uniqueness.
 
-Mechanism — A global endpoint equation selects an unknown initial state; IVP integration and scalar root solvers are constituent procedures, not duplicate definitions of the BVP algorithm. Local slope perturbations scale as residual perturbation divided by R′(s*) when that derivative is nonzero..
+Mechanism — A global endpoint equation selects an unknown initial state; IVP integration and scalar root solvers are constituent procedures, not duplicate definitions of the BVP algorithm. Local slope perturbations scale as residual perturbation divided by R′(s*) when that derivative is nonzero.
 
 Source — University of Bielefeld, Computational Physics SoSe 2026, Boundary Value Problems, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/08_boundary_value_problems.html; Shooting Method: Nonlinear Case; sensitivity equation independently differentiated.
 
@@ -5050,6 +5050,6 @@ Assumptions — Uniform grid, exact Dirichlet boundary values, continuous c≥0 
 
 Limitations — Second-order nodal discretization under the stated regularity; layers may require fine grids, negative c or other boundary types require separate analysis; linear solve and rounding errors are not included in the exact-arithmetic bound.
 
-Mechanism — Unlike derivative weights alone, solves a coupled global boundary-constrained linear system. For zero-boundary vectors the scaled matrix quadratic form is Σ_(i=1)^N (v_i−v_(i−1))²+h²Σ_(i=1)^(N−1)c_i v_i²>0 for nonzero v. The discrete barrier q(t)=(t−a)(b−t)/2 gives max nodal error ≤(b−a)²h² max|y⁽⁴⁾|/96 in exact arithmetic..
+Mechanism — Unlike derivative weights alone, solves a coupled global boundary-constrained linear system. For zero-boundary vectors the scaled matrix quadratic form is Σ_(i=1)^N (v_i−v_(i−1))²+h²Σ_(i=1)^(N−1)c_i v_i²>0 for nonzero v. The discrete barrier q(t)=(t−a)(b−t)/2 gives max nodal error ≤(b−a)²h² max|y⁽⁴⁾|/96 in exact arithmetic.
 
 Source — James M. Ortega, Numerical Analysis: A Second Course, §6.1, equations (6.1)–(6.2), https://doi.org/10.1137/1.9781611971323.ch6 (public abstract); University of Bielefeld, Computational Physics SoSe 2026, Boundary Value Problems, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/08_boundary_value_problems.html; finite-difference section. Energy and maximum-norm bound independently derived.
