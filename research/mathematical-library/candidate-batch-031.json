@@ -22,15 +22,15 @@
     "name": "Sherman–Morrison rank-one linear-system update",
     "definition": "Given invertible A and A+uvᵀ, solve Ay=b and Az=u; x=y−z(vᵀy)/(1+vᵀz).",
     "variables": "A base matrix; u,v update vectors; b right side; y,z base solves",
-    "assumptions": "Nonsingular A and nonzero update denominator; check finite precision.",
-    "limitations": "Near-zero denominator can amplify error; existing factorization required for efficiency.",
+    "assumptions": "Real nonsingular square A; conforming vectors; d=1+vᵀz nonzero; accurate base solves and finite arithmetic.",
+    "limitations": "Cancellation or small update denominator can amplify numerical error; reuse of a factorization is needed for the usual cost advantage.",
     "failure_conditions": [
       "Zero or near-zero denominator; failed residual check"
     ],
-    "computation": "Reuse base solves; verify updated-system residual.",
+    "computation": "Solve using existing factors without explicitly forming an inverse; reject a numerically unsafe denominator and check the updated-system residual.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional: Eric Darve, Numerical Linear Algebra, The Sherman-Morrison-Woodbury Formula. Verify exact source before admission. https://ericdarve.github.io/NLA/"
+      "citation": "Nicholas J. Higham (2020), What Is the Sherman–Morrison–Woodbury Formula?, rank-one identity and factorization discussion. https://nhigham.com/2020/09/29/what-is-the-sherman-morrison-woodbury-formula/"
     },
     "application": "General rank-one modified linear system.",
     "required_inputs": "Base matrix or factorization, right side and update vectors.",
@@ -47,7 +47,7 @@
         "type": "related"
       }
     ],
-    "mechanism_note": "Provisional; independent review required before admission."
+    "mechanism_note": "The rank-one correction reuses base solves instead of factoring the modified matrix. In exact arithmetic, substituting the formula yields (A+uvᵀ)x=b whenever the denominator is nonzero."
   },
   {
     "profile": "multifeature",
@@ -70,17 +70,17 @@
     "classification": "model-variant",
     "id": "block-orthogonal-eigeniteration",
     "name": "Block orthogonal eigeniteration",
-    "definition": "For an n by p initial orthonormal Q₀, compute Z=AQ_k then thin QR Z=Q_(k+1)R_(k+1). Approximate the invariant subspace using Q_k.",
+    "definition": "For n by p orthonormal Q₀ and 1<p<n, compute Z=AQ_k and thin QR Z=Q_(k+1)R_(k+1). Set H_k=Q_kᵀAQ_k and monitor ||AQ_k−Q_kH_k||; return a basis for the target invariant subspace only after convergence checks.",
     "variables": "A matrix; p block dimension; Q orthonormal basis; R triangular factor",
-    "assumptions": "Symmetric A, dominant magnitude spectral gap, initial subspace with nonzero full-rank projection onto target; p>1.",
-    "limitations": "Clustered eigenvalues and insufficient initial overlap slow or prevent convergence.",
+    "assumptions": "Real symmetric A; strict gap |λ_p|>|λ_(p+1)| in descending magnitude; nonsingular projection of Q₀ onto the leading p eigenvectors; rank-preserving QR and finite iteration limit.",
+    "limitations": "A small invariant-subspace residual alone cannot certify that the subspace is dominant; a narrow spectral gap slows convergence.",
     "failure_conditions": [
       "Rank loss or invariant-subspace residual failure"
     ],
     "computation": "Alternate block multiplication and QR; check invariant-subspace residual.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional: Eric Darve, Numerical Linear Algebra, The Orthogonal Iteration Algorithm. Verify before admission. https://ericdarve.github.io/NLA/"
+      "citation": "David Bindel (2025), Cornell CS 6210 Matrix Computations, Power method and subspace iteration, 27 October, section Subspaces and orthogonal iteration. https://www.cs.cornell.edu/courses/cs6210/2025fa/lec/2025-10-27.html"
     },
     "application": "General dominant invariant-subspace approximation.",
     "required_inputs": "Matrix, starting orthonormal block, tolerance and iteration limit.",
@@ -95,8 +95,12 @@
       {
         "target": "power-iteration-eigenvector",
         "type": "variant-of"
+      },
+      {
+        "target": "unshifted-qr-eigeniteration",
+        "type": "related"
       }
     ],
-    "mechanism_note": "Provisional; independent review required before admission."
+    "mechanism_note": "Block generalization of power iteration: spans are those of A^kQ₀ in exact arithmetic. p=1 is power iteration; full square orthogonal iteration is related to unshifted QR. Restrict to 1<p<n and count only as a variant."
   }
 ]

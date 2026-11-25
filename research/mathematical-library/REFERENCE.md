@@ -4781,3 +4781,35 @@ Limitations — Poor bounds degrade convergence; no guarantee for general nonsym
 Mechanism — Spectral-bound-dependent varying coefficients yield a predetermined minimax error polynomial, unlike constant-step gradient descent, adaptive CG or FISTA extrapolation. Not independent empirical evidence.
 
 Source — Eric Darve, Numerical Linear Algebra, The Chebyshev Iteration Method, normalized minimax polynomial and Chebyshev recurrence; ratio form obtained algebraically from the polynomial normalization. https://ericdarve.github.io/NLA/content/chebyshev_acceleration.html
+
+## Sherman–Morrison rank-one linear-system update (sherman-morrison-rank-one-solve)
+
+> Given invertible A and A+uvᵀ, solve Ay=b and Az=u; x=y−z(vᵀy)/(1+vᵀz).
+
+A base matrix; u,v update vectors; b right side; y,z base solves.
+
+General rank-one modified linear system.
+
+Assumptions — Real nonsingular square A; conforming vectors; d=1+vᵀz nonzero; accurate base solves and finite arithmetic..
+
+Limitations — Cancellation or small update denominator can amplify numerical error; reuse of a factorization is needed for the usual cost advantage..
+
+Mechanism — The rank-one correction reuses base solves instead of factoring the modified matrix. In exact arithmetic, substituting the formula yields (A+uvᵀ)x=b whenever the denominator is nonzero.
+
+Source — Nicholas J. Higham (2020), What Is the Sherman–Morrison–Woodbury Formula?, rank-one identity and factorization discussion. https://nhigham.com/2020/09/29/what-is-the-sherman-morrison-woodbury-formula/
+
+## Block orthogonal eigeniteration (block-orthogonal-eigeniteration)
+
+> For n by p orthonormal Q₀ and 1<p<n, compute Z=AQ_k and thin QR Z=Q_(k+1)R_(k+1). Set H_k=Q_kᵀAQ_k and monitor ||AQ_k−Q_kH_k||; return a basis for the target invariant subspace only after convergence checks.
+
+A matrix; p block dimension; Q orthonormal basis; R triangular factor.
+
+General dominant invariant-subspace approximation.
+
+Assumptions — Real symmetric A; strict gap |λ_p|>|λ_(p+1)| in descending magnitude; nonsingular projection of Q₀ onto the leading p eigenvectors; rank-preserving QR and finite iteration limit..
+
+Limitations — A small invariant-subspace residual alone cannot certify that the subspace is dominant; a narrow spectral gap slows convergence..
+
+Mechanism — Block generalization of power iteration: spans are those of A^kQ₀ in exact arithmetic. p=1 is power iteration; full square orthogonal iteration is related to unshifted QR. Restrict to 1<p<n and count only as a variant.
+
+Source — David Bindel (2025), Cornell CS 6210 Matrix Computations, Power method and subspace iteration, 27 October, section Subspaces and orthogonal iteration. https://www.cs.cornell.edu/courses/cs6210/2025fa/lec/2025-10-27.html

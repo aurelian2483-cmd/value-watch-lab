@@ -1,0 +1,102 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "031",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "sherman-morrison-rank-one-solve",
+    "name": "Sherman–Morrison rank-one linear-system update",
+    "definition": "Given invertible A and A+uvᵀ, solve Ay=b and Az=u; x=y−z(vᵀy)/(1+vᵀz).",
+    "variables": "A base matrix; u,v update vectors; b right side; y,z base solves",
+    "assumptions": "Nonsingular A and nonzero update denominator; check finite precision.",
+    "limitations": "Near-zero denominator can amplify error; existing factorization required for efficiency.",
+    "failure_conditions": [
+      "Zero or near-zero denominator; failed residual check"
+    ],
+    "computation": "Reuse base solves; verify updated-system residual.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: Eric Darve, Numerical Linear Algebra, The Sherman-Morrison-Woodbury Formula. Verify exact source before admission. https://ericdarve.github.io/NLA/"
+    },
+    "application": "General rank-one modified linear system.",
+    "required_inputs": "Base matrix or factorization, right side and update vectors.",
+    "compatible_methods": [
+      "pivoted-lu",
+      "linear-solve-backward-error"
+    ],
+    "incompatible_methods": [
+      "Ignoring singularity of the updated matrix"
+    ],
+    "relationships": [
+      {
+        "target": "pivoted-lu",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional; independent review required before admission."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "031",
+    "family": "numerical-linear-algebra",
+    "classification": "model-variant",
+    "id": "block-orthogonal-eigeniteration",
+    "name": "Block orthogonal eigeniteration",
+    "definition": "For an n by p initial orthonormal Q₀, compute Z=AQ_k then thin QR Z=Q_(k+1)R_(k+1). Approximate the invariant subspace using Q_k.",
+    "variables": "A matrix; p block dimension; Q orthonormal basis; R triangular factor",
+    "assumptions": "Symmetric A, dominant magnitude spectral gap, initial subspace with nonzero full-rank projection onto target; p>1.",
+    "limitations": "Clustered eigenvalues and insufficient initial overlap slow or prevent convergence.",
+    "failure_conditions": [
+      "Rank loss or invariant-subspace residual failure"
+    ],
+    "computation": "Alternate block multiplication and QR; check invariant-subspace residual.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: Eric Darve, Numerical Linear Algebra, The Orthogonal Iteration Algorithm. Verify before admission. https://ericdarve.github.io/NLA/"
+    },
+    "application": "General dominant invariant-subspace approximation.",
+    "required_inputs": "Matrix, starting orthonormal block, tolerance and iteration limit.",
+    "compatible_methods": [
+      "power-iteration-eigenvector",
+      "householder-qr"
+    ],
+    "incompatible_methods": [
+      "Claiming individual eigenvector convergence without appropriate gaps"
+    ],
+    "relationships": [
+      {
+        "target": "power-iteration-eigenvector",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional; independent review required before admission."
+  }
+]

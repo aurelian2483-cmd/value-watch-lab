@@ -6899,5 +6899,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Spectral-bound-dependent varying coefficients yield a predetermined minimax error polynomial, unlike constant-step gradient descent, adaptive CG or FISTA extrapolation. Not independent empirical evidence."
+  },
+  {
+    "id": "sherman-morrison-rank-one-solve",
+    "source": {
+      "kind": "literature",
+      "citation": "Nicholas J. Higham (2020), What Is the Sherman–Morrison–Woodbury Formula?, rank-one identity and factorization discussion. https://nhigham.com/2020/09/29/what-is-the-sherman-morrison-woodbury-formula/"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The rank-one correction reuses base solves instead of factoring the modified matrix. In exact arithmetic, substituting the formula yields (A+uvᵀ)x=b whenever the denominator is nonzero."
+  },
+  {
+    "id": "block-orthogonal-eigeniteration",
+    "source": {
+      "kind": "literature",
+      "citation": "David Bindel (2025), Cornell CS 6210 Matrix Computations, Power method and subspace iteration, 27 October, section Subspaces and orthogonal iteration. https://www.cs.cornell.edu/courses/cs6210/2025fa/lec/2025-10-27.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Block generalization of power iteration: spans are those of A^kQ₀ in exact arithmetic. p=1 is power iteration; full square orthogonal iteration is related to unshifted QR. Restrict to 1<p<n and count only as a variant."
   }
 ]
