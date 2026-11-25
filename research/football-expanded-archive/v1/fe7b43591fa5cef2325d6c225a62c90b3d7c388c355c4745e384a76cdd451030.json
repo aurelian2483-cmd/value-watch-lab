@@ -1,0 +1,75 @@
+{
+  "league": "F1",
+  "home": "Le Mans",
+  "away": "Lille",
+  "kickoff_utc": "2026-11-28T19:45:00Z",
+  "espn_event_id": "401876390",
+  "league_name": "Ligue 1",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/fra.1/scoreboard?dates=20261128&limit=100",
+      "sha256": "0e4fc76b8e1fe97985282f4a1c6a5b2f9edeabcc6490f2692820ab82cb9f9c40",
+      "observed_at_utc": "2026-11-25T18:49:34.756273Z"
+    },
+    {
+      "url": "https://www.skysports.com/ligue-1-scores-fixtures/2026-11-01",
+      "sha256": "9e737c60d3efa55542534bd2bab509bea6f7966fa576cade92539626404359ab",
+      "observed_at_utc": "2026-11-25T18:50:12.574128Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_F1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.26753366994809713,
+  "prob_draw": 0.24787701544196178,
+  "prob_away": 0.48458931460994115,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 5,
+    "away_matches": 5,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 99,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/F1.csv",
+        "sha256": "42337dff4909c58212558bf19e6efc0bd5369d883c2c96521058ca7e173b8c4b",
+        "observed_at_utc": "2026-11-25T18:50:17.570596Z"
+      }
+    ],
+    "training_sha256": "033dfe06f80adcf293985116a085296f7e3746296d92013725290fbfd2d708d4",
+    "lambda_home": 1.1287395696091347,
+    "lambda_away": 1.6069149510370881,
+    "home_venue_inputs": {
+      "hgf": 7,
+      "hga": 9,
+      "hn": 5,
+      "agf": 8,
+      "aga": 12,
+      "an": 6
+    },
+    "away_venue_inputs": {
+      "hgf": 7,
+      "hga": 4,
+      "hn": 6,
+      "agf": 7,
+      "aga": 4,
+      "an": 5
+    },
+    "league_home_mean": 1.6262626262626263,
+    "league_away_mean": 1.3232323232323233
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-25T18:50:18.694326Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "8a6e8dd1333da2d287c7176c8ea54ee61ae6af446fd5f654284fec0e23180287",
+  "record_sha256": "fe7b43591fa5cef2325d6c225a62c90b3d7c388c355c4745e384a76cdd451030"
+}

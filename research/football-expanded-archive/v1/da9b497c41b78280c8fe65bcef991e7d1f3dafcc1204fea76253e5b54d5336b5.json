@@ -1,0 +1,74 @@
+{
+  "league": "D1",
+  "home": "Hamburg SV",
+  "away": "Schalke 04",
+  "kickoff_utc": "2026-12-11T19:30:00Z",
+  "espn_event_id": "401884704",
+  "league_name": "Bundesliga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=20261211&limit=100",
+      "sha256": "5f0b18b6fcaee9efcc62abc76c1d75aac8914bc7d27013178b8dfac86028e6c8",
+      "observed_at_utc": "2026-11-25T18:49:33.860037Z"
+    },
+    {
+      "url": "https://www.skysports.com/bundesliga-scores-fixtures/2026-12-01",
+      "sha256": "4c5138b00dcb48ffcf0d1f0f6d664fc9f8ae681fcaf920b97b0acc0d1d517916",
+      "observed_at_utc": "2026-11-25T18:49:57.893142Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_D1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.4407428380089187,
+  "prob_draw": 0.243249166879098,
+  "prob_away": 0.3160079951119833,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 4,
+    "away_matches": 5,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 90,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/D1.csv",
+        "sha256": "aae45cd9821fc60b95ddad05c96fb27da024101661d232b4f103aff480ef69a0",
+        "observed_at_utc": "2026-11-25T18:50:02.919355Z"
+      }
+    ],
+    "training_sha256": "aa597fd335d7c17df2f502b116538046cba6489afb8ec57e5a2eba3467c31851",
+    "lambda_home": 1.6099163679808843,
+    "lambda_away": 1.3280682643427741,
+    "home_venue_inputs": {
+      "hgf": 6,
+      "hga": 7,
+      "hn": 4,
+      "agf": 4,
+      "aga": 17,
+      "an": 6
+    },
+    "away_venue_inputs": {
+      "hgf": 0,
+      "hga": 3,
+      "hn": 5,
+      "agf": 5,
+      "aga": 8,
+      "an": 5
+    },
+    "league_home_mean": 2.066666666666667,
+    "league_away_mean": 1.3222222222222222
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-25T18:50:18.694326Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "da9b497c41b78280c8fe65bcef991e7d1f3dafcc1204fea76253e5b54d5336b5"
+}

@@ -1,0 +1,74 @@
+{
+  "league": "SP1",
+  "home": "M\u00e1laga",
+  "away": "Barcelona",
+  "kickoff_utc": "2026-12-12T17:30:00Z",
+  "espn_event_id": "401882770",
+  "league_name": "La Liga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=20261212&limit=100",
+      "sha256": "817028655192decad75e05d04fdeeae12260d6d5feb94ee538ae8b943917efa4",
+      "observed_at_utc": "2026-11-25T18:49:32.880173Z"
+    },
+    {
+      "url": "https://www.skysports.com/la-liga-scores-fixtures/2026-12-01",
+      "sha256": "0950a837cb10eb7c935c47c64e90673f8e1903f0f4a944ea8a5a8c82b6b745d8",
+      "observed_at_utc": "2026-11-25T18:49:49.307231Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_SP1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.06293560004492141,
+  "prob_draw": 0.09532005893183419,
+  "prob_away": 0.8417443410232444,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 6,
+    "away_matches": 6,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 129,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/SP1.csv",
+        "sha256": "40e33e66b8a2d1564050d644704296040a679e2907483181d41a3c072c00e942",
+        "observed_at_utc": "2026-11-25T18:49:55.145497Z"
+      }
+    ],
+    "training_sha256": "e081edd917dcdf7b6539848b5e3df217ec075a2d5fc0393f4da917a7a1202253",
+    "lambda_home": 1.0121171069466397,
+    "lambda_away": 3.612730417765975,
+    "home_venue_inputs": {
+      "hgf": 6,
+      "hga": 12,
+      "hn": 6,
+      "agf": 3,
+      "aga": 12,
+      "an": 7
+    },
+    "away_venue_inputs": {
+      "hgf": 27,
+      "hga": 9,
+      "hn": 7,
+      "agf": 24,
+      "aga": 6,
+      "an": 6
+    },
+    "league_home_mean": 1.5968992248062015,
+    "league_away_mean": 1.2790697674418605
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-25T18:50:18.694326Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "684773cb7cd592e2e86be3c6ff03d87d7d9f4efd83ff7ab1eb65c2c1c9171dfd"
+}

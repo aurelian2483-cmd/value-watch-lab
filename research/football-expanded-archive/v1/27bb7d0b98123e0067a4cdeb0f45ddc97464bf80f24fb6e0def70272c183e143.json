@@ -1,0 +1,75 @@
+{
+  "league": "SP1",
+  "home": "M\u00e1laga",
+  "away": "Athletic Club",
+  "kickoff_utc": "2026-11-28T15:15:00Z",
+  "espn_event_id": "401882790",
+  "league_name": "La Liga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=20261128&limit=100",
+      "sha256": "448ca5af3f6f79ee994d08a7bc4e88c2864cb350af2ad45a139253e7c4b8fd76",
+      "observed_at_utc": "2026-11-25T18:49:32.379829Z"
+    },
+    {
+      "url": "https://www.skysports.com/la-liga-scores-fixtures/2026-11-01",
+      "sha256": "a024eed8086d5af91b2bfd39dfb75e352a528885c4d6a0ce2310f6c3b0a46aac",
+      "observed_at_utc": "2026-11-25T18:49:48.489132Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_SP1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.30665200058649367,
+  "prob_draw": 0.26928867838491866,
+  "prob_away": 0.42405932102858773,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 6,
+    "away_matches": 5,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 129,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/SP1.csv",
+        "sha256": "40e33e66b8a2d1564050d644704296040a679e2907483181d41a3c072c00e942",
+        "observed_at_utc": "2026-11-25T18:49:55.145497Z"
+      }
+    ],
+    "training_sha256": "e081edd917dcdf7b6539848b5e3df217ec075a2d5fc0393f4da917a7a1202253",
+    "lambda_home": 1.1133288176413036,
+    "lambda_away": 1.3591274264847208,
+    "home_venue_inputs": {
+      "hgf": 6,
+      "hga": 12,
+      "hn": 6,
+      "agf": 3,
+      "aga": 12,
+      "an": 7
+    },
+    "away_venue_inputs": {
+      "hgf": 11,
+      "hga": 6,
+      "hn": 7,
+      "agf": 4,
+      "aga": 6,
+      "an": 5
+    },
+    "league_home_mean": 1.5968992248062015,
+    "league_away_mean": 1.2790697674418605
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-25T18:50:18.694326Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "10db37aeab60b4a588a2f6f9cfdda6207f1730f0ae11e2004ce89a0f153840ee",
+  "record_sha256": "27bb7d0b98123e0067a4cdeb0f45ddc97464bf80f24fb6e0def70272c183e143"
+}

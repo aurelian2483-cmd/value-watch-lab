@@ -1,0 +1,75 @@
+{
+  "league": "SP1",
+  "home": "Racing Santander",
+  "away": "Deportivo",
+  "kickoff_utc": "2026-12-05T13:00:00Z",
+  "espn_event_id": "401882780",
+  "league_name": "La Liga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=20261205&limit=100",
+      "sha256": "48668f109b1d9eaa25f16695ce631e2efc5af27a2070effd10369e09732afbf1",
+      "observed_at_utc": "2026-11-25T18:49:32.550401Z"
+    },
+    {
+      "url": "https://www.skysports.com/la-liga-scores-fixtures/2026-12-01",
+      "sha256": "0950a837cb10eb7c935c47c64e90673f8e1903f0f4a944ea8a5a8c82b6b745d8",
+      "observed_at_utc": "2026-11-25T18:49:49.307231Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_SP1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.44929569230380334,
+  "prob_draw": 0.22650051470649507,
+  "prob_away": 0.3242037929897016,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 7,
+    "away_matches": 7,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 129,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/SP1.csv",
+        "sha256": "40e33e66b8a2d1564050d644704296040a679e2907483181d41a3c072c00e942",
+        "observed_at_utc": "2026-11-25T18:49:55.145497Z"
+      }
+    ],
+    "training_sha256": "e081edd917dcdf7b6539848b5e3df217ec075a2d5fc0393f4da917a7a1202253",
+    "lambda_home": 1.8149956515558232,
+    "lambda_away": 1.5158738548273434,
+    "home_venue_inputs": {
+      "hgf": 14,
+      "hga": 13,
+      "hn": 7,
+      "agf": 6,
+      "aga": 19,
+      "an": 6
+    },
+    "away_venue_inputs": {
+      "hgf": 8,
+      "hga": 6,
+      "hn": 6,
+      "agf": 8,
+      "aga": 11,
+      "an": 7
+    },
+    "league_home_mean": 1.5968992248062015,
+    "league_away_mean": 1.2790697674418605
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-25T18:50:18.694326Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "f23103e42545e8a84023597a8a6a616b5381dfe6bcb84244bd42c07b069a0093",
+  "record_sha256": "a5bb13e84478444bd8c0ca6eb32aff7d864470dfed77a5ba16680d4aee86d4a9"
+}

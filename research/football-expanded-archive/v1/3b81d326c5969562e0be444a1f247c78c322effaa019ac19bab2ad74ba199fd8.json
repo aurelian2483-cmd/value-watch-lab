@@ -1,0 +1,74 @@
+{
+  "league": "SP1",
+  "home": "Real Betis",
+  "away": "Racing Santander",
+  "kickoff_utc": "2026-12-12T20:00:00Z",
+  "espn_event_id": "401882775",
+  "league_name": "La Liga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=20261212&limit=100",
+      "sha256": "817028655192decad75e05d04fdeeae12260d6d5feb94ee538ae8b943917efa4",
+      "observed_at_utc": "2026-11-25T18:49:32.880173Z"
+    },
+    {
+      "url": "https://www.skysports.com/la-liga-scores-fixtures/2026-12-01",
+      "sha256": "0950a837cb10eb7c935c47c64e90673f8e1903f0f4a944ea8a5a8c82b6b745d8",
+      "observed_at_utc": "2026-11-25T18:49:49.307231Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_SP1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.7150683458253572,
+  "prob_draw": 0.15390934782856097,
+  "prob_away": 0.1310223063460818,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 6,
+    "away_matches": 6,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 129,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/SP1.csv",
+        "sha256": "40e33e66b8a2d1564050d644704296040a679e2907483181d41a3c072c00e942",
+        "observed_at_utc": "2026-11-25T18:49:55.145497Z"
+      }
+    ],
+    "training_sha256": "e081edd917dcdf7b6539848b5e3df217ec075a2d5fc0393f4da917a7a1202253",
+    "lambda_home": 2.790902311151085,
+    "lambda_away": 1.1529257596142088,
+    "home_venue_inputs": {
+      "hgf": 12,
+      "hga": 8,
+      "hn": 6,
+      "agf": 9,
+      "aga": 8,
+      "an": 7
+    },
+    "away_venue_inputs": {
+      "hgf": 14,
+      "hga": 13,
+      "hn": 7,
+      "agf": 6,
+      "aga": 19,
+      "an": 6
+    },
+    "league_home_mean": 1.5968992248062015,
+    "league_away_mean": 1.2790697674418605
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-25T18:50:18.694326Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "3b81d326c5969562e0be444a1f247c78c322effaa019ac19bab2ad74ba199fd8"
+}
