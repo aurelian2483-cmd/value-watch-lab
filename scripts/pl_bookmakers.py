@@ -14,7 +14,7 @@ DEFAULT = Path(__file__).with_name('pl-bookmakers.json')
 RULES = {'period': 'REGULATION', 'minutes': 90, 'stoppage_time': True,
          'extra_time': False, 'penalties': False, 'line': None,
          'outcomes': ['home', 'draw', 'away']}
-PROVIDER_KEYS = {'skybet'}
+PROVIDER_KEYS = {'skybet', 'williamhill', 'paddypower', 'betfred_uk', 'sport888', 'betvictor'}
 TEST_KEYS = {'skybet', 'other_book', 'synthetic_book', 'second'}
 
 
