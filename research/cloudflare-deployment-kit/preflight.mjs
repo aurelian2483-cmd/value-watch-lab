@@ -83,7 +83,7 @@ export async function runPreflight({accountId,packageDir=process.cwd(),run=defau
   if(identity.status!==0)fail('Cloudflare authentication or account membership could not be verified');
   const scratch=await mkdtemp(join(tmpdir(),'sky-cloudflare-preflight-'));
   try {
-    for(const name of MEMBERS)await writeFile(join(scratch,name),files[name],{flag:'wx'});
+    for(const name of MEMBERS)if(name!=='wrangler.json')await writeFile(join(scratch,name),files[name],{flag:'wx'});
     const accountConfig={...config,account_id:accountId};
     await writeFile(join(scratch,'wrangler.json'),JSON.stringify(accountConfig,null,2)+'\n',{flag:'wx'});
     const deployments=run(['deployments','list','--name',WORKER,'--json','--config','wrangler.json'],scratch);
