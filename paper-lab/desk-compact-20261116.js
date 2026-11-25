@@ -40,7 +40,7 @@
       if (Number.isSafeInteger(expires) && expires > 0 && expires <= now)
         return 'Last bookmaker observation expired';
     }
-    if (!['PL', 'E1'].includes(league)) return 'Competition outside the scheduled bookmaker refresh';
+    if (league !== 'PL') return 'Competition outside the scheduled bookmaker refresh';
     return 'No current bookmaker observation matched this fixture';
   }
   const make = (parent, tag, text, className) => {
