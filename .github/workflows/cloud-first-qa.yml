@@ -1,0 +1,41 @@
+name: Cloud-first hosted QA
+on:
+  pull_request:
+    paths:
+      - 'research/cloud-first-dispatch/**'
+      - '.github/workflows/cloud-first-qa.yml'
+permissions:
+  contents: read
+concurrency:
+  group: cloud-first-fixed-qa-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+jobs:
+  hosted-cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline receipt and dispatch tests
+        run: |
+          python -B -m unittest discover -s research/cloud-first-dispatch -p 'test_*.py' -v
+          python -B -m unittest discover -s research/approved-dispatch -p 'test_*.py' -v
+      - name: Hosted CPU queue without a local PC
+        run: |
+          python -B research/cloud-first-dispatch/hosted.py "$RUNNER_TEMP/cloud-qa" "$GITHUB_RUN_ID"
+          python -B research/cloud-first-dispatch/receipt.py "$RUNNER_TEMP/cloud-qa/hosted-receipt.json" "$(sha256sum "$RUNNER_TEMP/cloud-qa/hosted-receipt.json" | cut -d' ' -f1)" "$RUNNER_TEMP/cloud-qa/cloud-status.html"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cloud-first-hosted-qa
+          path: ${{ runner.temp }}/cloud-qa/
+          retention-days: 14
+          if-no-files-found: error
