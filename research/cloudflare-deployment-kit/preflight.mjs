@@ -14,7 +14,7 @@ const fail=(message)=>{throw new Error(message)};
 const sha=(bytes)=>createHash('sha256').update(bytes).digest('hex');
 const isHex=(v,n)=>typeof v==='string'&&new RegExp('^[a-f0-9]{'+n+'}$').test(v);
 
-function defaultRunner(args,cwd) {
+export function defaultRunner(args,cwd) {
   const executable=process.platform==='win32'?'npx.cmd':'npx';
   const r=spawnSync(executable,['--yes','wrangler@'+WRANGLER,...args],{
     cwd,encoding:'utf8',timeout:180000,windowsHide:true,
