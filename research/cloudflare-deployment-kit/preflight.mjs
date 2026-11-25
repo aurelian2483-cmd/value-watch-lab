@@ -36,10 +36,11 @@ function deploymentCount(value) {
   }
   return 0;
 }
-async function verifyPackage(dir) {
+async function verifyPackage(dir,accountId) {
   const expected=new Set([...MEMBERS,'manifest.json']);
+  const allowed=new Set([...expected,'wrangler.account.json']);
   const names=await readdir(dir);
-  if(names.length!==expected.size||names.some(n=>!expected.has(n)))fail('Package inventory mismatch');
+  if(names.length<expected.size||names.length>expected.size+1||names.some(n=>!allowed.has(n)))fail('Package inventory mismatch');
   const files={};
   for(const name of expected) {
     const path=join(dir,name),info=await lstat(path);
@@ -70,13 +71,20 @@ async function verifyPackage(dir) {
   if(Object.keys(vars).sort().join('|')!=='SKY_APPROVED_HOST|SKY_APPROVED_REVISION|SKY_MODE|SKY_PROVISION_ENABLED|SKY_QUEUE_ENABLED'||
      vars.SKY_MODE!=='DISABLED'||vars.SKY_PROVISION_ENABLED!=='false'||vars.SKY_QUEUE_ENABLED!=='false'||
      vars.SKY_APPROVED_HOST!==HOST||vars.SKY_APPROVED_REVISION!==REVISION)fail('Disabled environment policy mismatch');
-  return {files,config};
+  const hasAccountConfig=names.includes('wrangler.account.json');
+  if(hasAccountConfig) {
+    const path=join(dir,'wrangler.account.json'),info=await lstat(path);
+    if(!info.isFile()||info.isSymbolicLink()||info.nlink!==1||info.size>65536)fail('Local account config is not a regular file');
+    let saved;try{saved=JSON.parse(await readFile(path,'utf8'));}catch{fail('Local account config is invalid');}
+    if(JSON.stringify(saved)!==JSON.stringify({...config,account_id:accountId}))fail('Local account config is bound to a different account or policy');
+  }
+  return {files,config,hasAccountConfig};
 }
 
 export async function runPreflight({accountId,packageDir=process.cwd(),run=defaultRunner,fetchImpl=fetch}={}) {
   if(!isHex(accountId,32))fail('Expected Cloudflare account ID must be 32 lowercase hexadecimal characters');
   const dir=resolve(packageDir);
-  const {files,config}=await verifyPackage(dir);
+  const {files,config,hasAccountConfig}=await verifyPackage(dir,accountId);
   const version=run(['--version'],dir);
   if(version.status!==0||!version.stdout.includes(WRANGLER))fail('Required Wrangler version is not available');
   const identity=run(['whoami','--account',accountId,'--json'],dir);
@@ -111,7 +119,11 @@ export async function runPreflight({accountId,packageDir=process.cwd(),run=defau
       if(bundleBytes>10*1024*1024)fail('Dry-run bundle exceeds review size limit');
     }
     if(bundleBytes<1)fail('Dry-run bundle is empty');
+    if(!hasAccountConfig) {
+      await writeFile(join(dir,'wrangler.account.json'),JSON.stringify({...config,account_id:accountId},null,2)+'\\n',{flag:'wx',mode:0o600});
+    }
     return {kind:'CLOUDFLARE_DISABLED_DEPLOYMENT_PREFLIGHT',wrangler:WRANGLER,accountMembershipVerified:true,
+      accountConfigFile:'wrangler.account.json',accountConfigCreated:!hasAccountConfig,
       accountIdSuffix:accountId.slice(-6),target:HOST,targetDeploymentCount:count,helloWorldConfirmed:true,
       dryRunPassed:true,bundleFileCount:entries.length,bundleBytes,mode:'DISABLED',
       provisioning:false,queue:false,liveDeploymentPerformed:false};
