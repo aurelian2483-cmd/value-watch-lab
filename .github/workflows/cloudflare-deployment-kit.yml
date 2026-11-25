@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - run: node --check research/cloudflare-deployment-kit/preflight.mjs
+      - run: node --test research/cloudflare-deployment-kit/test_preflight.mjs
       - run: python -B -m unittest discover -s research/cloudflare-deployment-kit -p 'test_*.py' -v
       - run: python -B research/cloudflare-deployment-kit/package.py "$RUNNER_TEMP/cloudflare-kit"
       - run: npm install --prefix "$RUNNER_TEMP/sky-wrangler" --no-audit --no-fund wrangler@4.165.0
