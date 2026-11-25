@@ -17,7 +17,9 @@ OWNER ACTION ONLY, after acceptance:
    The script verifies account membership, lists deployments for the exact
    Worker under that account, confirms the public Hello World response,
    checks every package digest and runs Wrangler's dry-run bundle build.
-   It writes only to a temporary directory and never deploys.
+   The dry-run bundle is temporary. After success, the script writes a
+   non-secret wrangler.account.json pinned to the verified account. It
+   never deploys.
    If authentication, account membership, Worker inventory or Hello World
    verification fails, STOP. Do not create another account or Worker.
 4. Inspect the existing Worker in the Cloudflare dashboard. Confirm it is
