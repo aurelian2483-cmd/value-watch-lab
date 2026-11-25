@@ -70,6 +70,7 @@ class Handler(BaseHTTPRequestHandler):
             elif self.path=="/qa/pc-heartbeat":
                 result=self.server.presence.heartbeat(token,payload["sequence"],payload["gpu"])
             elif self.path=="/qa/pc-status":
+                service.status(token)  # Honor durable observer revocation before reading presence.
                 result=self.server.presence.status(token)
             else:
                 need(isinstance(payload["job"],str) and ID.fullmatch(payload["job"]),"Invalid job")
