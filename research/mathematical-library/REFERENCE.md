@@ -4749,3 +4749,35 @@ Limitations — Ordering and relaxation affect convergence; ω=1 reduces to Gaus
 Mechanism — A fixed relaxation of the ordered Gauss–Seidel sweep; ω=1 gives the parent iteration exactly. Counted as a variant, not a new distinct algorithm.
 
 Source — Barrett et al., Templates for the Solution of Linear Systems, §2.2.3, equation (2.7) and Fig. 2.3; lower and upper parts here have opposite signs to the book's convention. https://netlib.org/templates/templates.html
+
+## Symmetric successive relaxation sweep (ssor-symmetric-relaxation-sweep)
+
+> For A=D+L+U, solve (D+ωL)y=ωb+[(1−ω)D−ωU]x_k, then (D+ωU)x_(k+1)=ωb+[(1−ω)D−ωL]y.
+
+A symmetric matrix; D,L,U splitting; ω fixed relaxation; y forward sweep.
+
+General numerical symmetric linear-system solution.
+
+Assumptions — Real symmetric positive definite A, nonzero diagonal, 0<ω<2, fixed ordering, finite-precision residual checks and bounded iterations..
+
+Limitations — Two sequential sweeps; not necessarily faster than forward SOR..
+
+Mechanism — Forward SOR followed by a reverse-order SOR sweep changes the iteration operator and is a material SOR variant. It is not a new distinct algorithm or independent evidence.
+
+Source — Barrett et al., Templates for the Solution of Linear Systems, §2.2.4, equation (2.9); signs translated to A=D+L+U. https://netlib.org/templates/templates.html
+
+## Chebyshev polynomial linear iteration (chebyshev-polynomial-linear-iteration)
+
+> For real SPD A with eigenvalues enclosed by [a,h], 0<a<h, set d=(a+h)/2, c=(h−a)/2, t=d/c, r_k=b−Ax_k. Set x₁=x₀+r₀/d and ρ₁=1/t. For k≥1 set ρ_(k+1)=1/(2t−ρ_k), α_k=2ρ_(k+1)/c, β_k=ρ_(k+1)ρ_k, x_(k+1)=x_k+α_k r_k+β_k(x_k−x_(k−1)). In exact arithmetic e_k=T_k((dI−A)/c)e₀/T_k(t).
+
+a,h spectral bounds; b right-hand side; d,c interval center and half-width; ρ normalization ratio; e_k=x_k−x*; T_k first-kind Chebyshev polynomial.
+
+General numerical SPD linear-system approximation.
+
+Assumptions — Real SPD operator, valid finite positive enclosing spectral interval of nonzero width, safe scalar arithmetic, explicit residual tolerance and iteration bound..
+
+Limitations — Poor bounds degrade convergence; no guarantee for general nonsymmetric matrices..
+
+Mechanism — Spectral-bound-dependent varying coefficients yield a predetermined minimax error polynomial, unlike constant-step gradient descent, adaptive CG or FISTA extrapolation. Not independent empirical evidence.
+
+Source — Eric Darve, Numerical Linear Algebra, The Chebyshev Iteration Method, normalized minimax polynomial and Chebyshev recurrence; ratio form obtained algebraically from the polynomial normalization. https://ericdarve.github.io/NLA/content/chebyshev_acceleration.html

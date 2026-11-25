@@ -6855,5 +6855,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "A fixed relaxation of the ordered Gauss–Seidel sweep; ω=1 gives the parent iteration exactly. Counted as a variant, not a new distinct algorithm."
+  },
+  {
+    "id": "ssor-symmetric-relaxation-sweep",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, §2.2.4, equation (2.9); signs translated to A=D+L+U. https://netlib.org/templates/templates.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Forward SOR followed by a reverse-order SOR sweep changes the iteration operator and is a material SOR variant. It is not a new distinct algorithm or independent evidence."
+  },
+  {
+    "id": "chebyshev-polynomial-linear-iteration",
+    "source": {
+      "kind": "literature",
+      "citation": "Eric Darve, Numerical Linear Algebra, The Chebyshev Iteration Method, normalized minimax polynomial and Chebyshev recurrence; ratio form obtained algebraically from the polynomial normalization. https://ericdarve.github.io/NLA/content/chebyshev_acceleration.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Spectral-bound-dependent varying coefficients yield a predetermined minimax error polynomial, unlike constant-step gradient descent, adaptive CG or FISTA extrapolation. Not independent empirical evidence."
   }
 ]

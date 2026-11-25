@@ -1,0 +1,101 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "030",
+    "family": "numerical-linear-algebra",
+    "classification": "model-variant",
+    "id": "ssor-symmetric-relaxation-sweep",
+    "name": "Symmetric successive relaxation sweep",
+    "definition": "For A=D+L+U, solve (D+ωL)y=ωb+[(1−ω)D−ωU]x_k, then (D+ωU)x_(k+1)=ωb+[(1−ω)D−ωL]y.",
+    "variables": "A symmetric matrix; D,L,U splitting; ω fixed relaxation; y forward sweep",
+    "assumptions": "Real symmetric positive definite A, nonzero diagonal, 0<ω<2, fixed ordering, finite-precision residual checks and bounded iterations.",
+    "limitations": "Two sequential sweeps; not necessarily faster than forward SOR.",
+    "failure_conditions": [
+      "Zero diagonal, invalid relaxation or residual stagnation"
+    ],
+    "computation": "Apply forward and reversed relaxed triangular sweeps; check true residual.",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, §2.2.4, equation (2.9); signs translated to A=D+L+U. https://netlib.org/templates/templates.html"
+    },
+    "application": "General numerical symmetric linear-system solution.",
+    "required_inputs": "Symmetric matrix, right side, initial iterate, relaxation, stop criteria.",
+    "compatible_methods": [
+      "sor-stationary-linear-solve"
+    ],
+    "incompatible_methods": [
+      "Treating two sweeps as independently validated evidence"
+    ],
+    "relationships": [
+      {
+        "target": "sor-stationary-linear-solve",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Forward SOR followed by a reverse-order SOR sweep changes the iteration operator and is a material SOR variant. It is not a new distinct algorithm or independent evidence."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "030",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "chebyshev-polynomial-linear-iteration",
+    "name": "Chebyshev polynomial linear iteration",
+    "definition": "For real SPD A with eigenvalues enclosed by [a,h], 0<a<h, set d=(a+h)/2, c=(h−a)/2, t=d/c, r_k=b−Ax_k. Set x₁=x₀+r₀/d and ρ₁=1/t. For k≥1 set ρ_(k+1)=1/(2t−ρ_k), α_k=2ρ_(k+1)/c, β_k=ρ_(k+1)ρ_k, x_(k+1)=x_k+α_k r_k+β_k(x_k−x_(k−1)). In exact arithmetic e_k=T_k((dI−A)/c)e₀/T_k(t).",
+    "variables": "a,h spectral bounds; b right-hand side; d,c interval center and half-width; ρ normalization ratio; e_k=x_k−x*; T_k first-kind Chebyshev polynomial",
+    "assumptions": "Real SPD operator, valid finite positive enclosing spectral interval of nonzero width, safe scalar arithmetic, explicit residual tolerance and iteration bound.",
+    "limitations": "Poor bounds degrade convergence; no guarantee for general nonsymmetric matrices.",
+    "failure_conditions": [
+      "Invalid interval, nonfinite recurrence or residual tolerance failure"
+    ],
+    "computation": "Start by checking the initial true residual; compute normalized scalar ratios, matrix-vector products and two-vector recurrence; stop on true residual tolerance or declared failure. No exact solution is required.",
+    "source": {
+      "kind": "literature",
+      "citation": "Eric Darve, Numerical Linear Algebra, The Chebyshev Iteration Method, normalized minimax polynomial and Chebyshev recurrence; ratio form obtained algebraically from the polynomial normalization. https://ericdarve.github.io/NLA/content/chebyshev_acceleration.html"
+    },
+    "application": "General numerical SPD linear-system approximation.",
+    "required_inputs": "Operator, right side, initial vector, spectral bounds, stopping criteria.",
+    "compatible_methods": [
+      "conjugate-gradient",
+      "matrix-two-norm-condition-number"
+    ],
+    "incompatible_methods": [
+      "Using unverified spectral bounds as guaranteed"
+    ],
+    "relationships": [
+      {
+        "target": "conjugate-gradient",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Spectral-bound-dependent varying coefficients yield a predetermined minimax error polynomial, unlike constant-step gradient descent, adaptive CG or FISTA extrapolation. Not independent empirical evidence."
+  }
+]
