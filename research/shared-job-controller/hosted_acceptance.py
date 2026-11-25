@@ -55,7 +55,7 @@ def run_lease(root,lease,revision):
         need(report["producers"][1]["metrics"]["passed"]==250 and report["producers"][2]["metrics"]["passed"]==250,"Fixed checks mismatch")
     return sha(result)
 
-def main():
+def main(admit=None):
     need(sys.platform=="linux" and os.environ.get("GITHUB_ACTIONS")=="true" and os.environ.get("GITHUB_REPOSITORY")=="aurelian2483-cmd/value-watch-lab","Hosted QA context required")
     revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
     need(not subprocess.check_output(["git","status","--porcelain","--untracked-files=all"],cwd=ROOT),"Clean checkout required")
@@ -65,9 +65,12 @@ def main():
         subprocess.run(["openssl","req","-x509","-newkey","rsa:2048","-nodes","-keyout",str(key),"-out",str(cert),"-days","1","-subj","/CN=localhost","-addext","subjectAltName=IP:127.0.0.1"],check=True,capture_output=True,timeout=20)
         tokens={r:secrets.token_hex(32) for r in ("operator","hosted-qa","observer")}
         service=Service(Controller(root/"queue.db"),{k:sha(v.encode()) for k,v in tokens.items()},revision)
-        for job,(kind,_) in FIXED.items():
-            service.enqueue(tokens["operator"],job,kind)
-        service.enqueue(tokens["operator"],"gpu","gpu-qa")
+        if admit is None:
+            for job,(kind,_) in FIXED.items():
+                service.enqueue(tokens["operator"],job,kind)
+            service.enqueue(tokens["operator"],"gpu","gpu-qa")
+        else:
+            admit(service,tokens,revision)
         server=LoopbackServer(service,cert,key)
         thread=threading.Thread(target=server.serve_forever,kwargs={"poll_interval":0.02},daemon=True)
         thread.start()
