@@ -5213,3 +5213,51 @@ Limitations — Dimension needed depends on spectrum, nonnormality and time; an 
 Mechanism — Galerkin projection of y′=Ay yields z′=H_m z, z(0)=βe₁. The Arnoldi relation AV_m=V_mH_m+h_(m+1,m)v_(m+1)e_m* gives defect y_m′−Ay_m=−βh_(m+1,m)v_(m+1)e_m*exp(tH_m)e₁. Variation of constants bounds the error by the integral of the defect norm times ||exp((t−τ)A)||; contractivity is an additional condition, not automatic. Exact breakdown means the Krylov subspace is invariant and the lifted solution is exact. Unlike basis construction alone, this specifies a reduced matrix-function computation and full-space reconstruction.
 
 Source — Saad, Y. (1992), Analysis of Some Krylov Subspace Approximations to the Matrix Exponential Operator, https://doi.org/10.1137/0729014 (public abstract); Jawecki, Auzinger and Koch, Computable upper error bounds for Krylov approximations to matrix exponentials and associated phi-functions, https://arxiv.org/abs/1809.03369 (abstract); projection and defect identities independently derived from Arnoldi relation.
+
+## Denman–Beavers matrix square root iteration (denman-beavers-matrix-square-root)
+
+> For Hermitian positive definite A, set Y₀=A, Z₀=I and simultaneously update Y_(k+1)=(Y_k+Z_k^(-1))/2, Z_(k+1)=(Z_k+Y_k^(-1))/2; return Y≈A^(1/2), Z≈A^(−1/2).
+
+A input matrix; Y,Z coupled iterates; I identity.
+
+General numerical computation of a positive definite square root and its inverse.
+
+Assumptions — Finite Hermitian positive definite matrix; accurate linear solves; exact arithmetic for the convergence proof; no extension to singular or indefinite inputs claimed.
+
+Limitations — Two dense inverse actions per iteration; ill-conditioned inputs and finite precision may impair accuracy; small product residual alone does not establish the correct square-root branch.
+
+Mechanism — Induction gives Y_k=AZ_k and both iterates are positive definite functions of A. For eigenvalue a>0, y_next=(y+a/y)/2 and y_next−√a=(y−√a)²/(2y), yielding positive iterates, monotone convergence after the first step and quadratic local convergence. Z follows by Z=A^(-1)Y. Applying Newton sign iteration to [[0,A],[I,0]] produces exactly the two coupled blocks; retain this useful structured variant, not a separate distinct algorithm. Cholesky factors generally do not square to A.
+
+Source — Higham, N. J. (2006), Computing Matrix Functions by Iteration, University of Manchester, slide 19, https://www.maths.manchester.ac.uk/~higham/talks/lille06.pdf ; Higham (2020), What Is the Matrix Sign Function?, https://nhigham.com/2020/12/15/what-is-the-matrix-sign-function/ (block relation); positive-definite specialization independently derived.
+
+## Newton iteration for a matrix polar factor (newton-matrix-polar-factor)
+
+> For nonsingular square A, set X₀=A and X_(k+1)=(X_k+(X_k*)^(-1))/2; return U≈X_k and H≈U*A in the polar factorization A=UH.
+
+A nonsingular square matrix; X iterate; U unitary factor; H positive definite Hermitian factor; * conjugate transpose.
+
+General numerical computation of a square matrix polar factorization.
+
+Assumptions — Finite real or complex nonsingular square matrix, accurate inverse actions; exact arithmetic for singular-value convergence; no rank-deficient or rectangular guarantee.
+
+Limitations — Extreme singular values may slow initial progress; dense solves are costly; scaling and backward stability require separate analysis; near-unitarity alone is not a complete factorization certificate.
+
+Mechanism — Write A=PΣQ* with all σ_i>0. The iterates preserve P,Q and update each positive singular value by σ_next=(σ+1/σ)/2, with σ_next−1=(σ−1)²/(2σ). Thus U=PQ* and H=QΣQ* in the limit, with local quadratic convergence. Newton sign iteration on [[0,A],[A*,0]] preserves the adjoint block structure and gives exactly this update. Count as a structured sign-iteration variant; it does not compute a least-squares solution.
+
+Source — Higham, N. J. (1986), Computing the Polar Decomposition—with Applications, SIAM J. Sci. Stat. Comput. 7(4), 1160–1174, https://eprints.maths.manchester.ac.uk/694/ (abstract); Higham (2020), What Is the Polar Decomposition?, https://nhigham.com/2020/07/28/what-is-the-polar-decomposition/ (formula and SVD relation).
+
+## Newton iteration for the matrix sign function (newton-matrix-sign-iteration)
+
+> For square A with no eigenvalues on the imaginary axis, set X₀=A and X_(k+1)=(X_k+X_k^(-1))/2; the target S=sign(A) acts as +I on the right-half-plane generalized eigenspace and −I on the left-half-plane generalized eigenspace.
+
+A input matrix; X iterate; S matrix sign; I identity.
+
+General numerical spectral splitting and matrix-function evaluation.
+
+Assumptions — Finite square matrix with spectrum disjoint from the imaginary axis; accurate inverse actions; exact arithmetic for the convergence proof.
+
+Limitations — Potentially slow initial progress for extreme eigenvalue magnitudes; nonnormality and eigenvalues near the imaginary axis can amplify numerical error; ||X²−I|| alone cannot verify the chosen invariant subspaces.
+
+Mechanism — S commutes with A and S²=I. Define G_k=(X_k−S)(X_k+S)^(-1). Direct substitution using commutation gives G_(k+1)=G_k². Each eigenvalue of G₀ is (λ−s)/(λ+s), with s=+1 or −1 chosen by the half-plane, so its modulus is less than one. Hence G₀^(2^k)→0 even for finite Jordan blocks, and X_k=(I−G_k)^(-1)(I+G_k)S→S. The identity X_next−S=X_k^(-1)(X_k−S)²/2 gives quadratic local convergence. Distinct matrix-function recurrence, not the scalar Newton root solver or the matrix exponential.
+
+Source — Higham, N. J. (2020), What Is the Matrix Sign Function?, https://nhigham.com/2020/12/15/what-is-the-matrix-sign-function/ (definition, Newton recurrence and block identities); convergence argument independently derived.

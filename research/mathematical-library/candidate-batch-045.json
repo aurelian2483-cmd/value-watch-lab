@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "045",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "radix-two-cooley-tukey-fft",
+    "name": "Radix-two Cooley–Tukey discrete Fourier transform",
+    "definition": "Provisional: X_k=Σ_(j=0)^(N−1) x_j exp(−2πijk/N); split even and odd indices recursively for N a power of two.",
+    "variables": "N transform length; x_j input; X_k transform",
+    "assumptions": "Provisional: power-of-two length; normalization and numerical accuracy require review",
+    "limitations": "Provisional: finite precision, twiddle evaluation and memory require review",
+    "failure_conditions": [
+      "Unsupported length or unresolved numerical accuracy"
+    ],
+    "computation": "Provisional: recursively evaluate even and odd transforms and combine with twiddle factors.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: discrete Fourier transform algorithm literature; independent review pending."
+    },
+    "application": "General numerical Fourier transformation.",
+    "required_inputs": "Finite input vector and transform convention",
+    "compatible_methods": [
+      "haar-wavelet"
+    ],
+    "incompatible_methods": [
+      "Unreviewed length or normalization"
+    ],
+    "relationships": [
+      {
+        "target": "haar-wavelet",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: divide-and-conquer Fourier recurrence; novelty and accuracy pending review."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "045",
+    "family": "numerical-linear-algebra",
+    "classification": "model-variant",
+    "id": "bluestein-chirp-dft",
+    "name": "Bluestein chirp convolution discrete Fourier transform",
+    "definition": "Provisional: exp(−2πijk/N)=exp(−πij²/N)exp(−πik²/N)exp(πi(j−k)²/N); reduce DFT to chirp convolution.",
+    "variables": "N length; j,k sample and frequency indices; i imaginary unit",
+    "assumptions": "Provisional: zero padding and indexing require review",
+    "limitations": "Provisional: convolution length, roundoff and normalization require review",
+    "failure_conditions": [
+      "Unresolved indexing or padding"
+    ],
+    "computation": "Provisional: form chirp sequences, compute linear convolution and apply output chirp.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: chirp transform literature; independent source review pending."
+    },
+    "application": "General arbitrary-length discrete Fourier transformation.",
+    "required_inputs": "Finite input vector, convolution and transform convention",
+    "compatible_methods": [
+      "radix-two-cooley-tukey-fft"
+    ],
+    "incompatible_methods": [
+      "Unresolved convolution padding"
+    ],
+    "relationships": [
+      {
+        "target": "radix-two-cooley-tukey-fft",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional: materially different reduction of the DFT; classification and source review pending."
+  }
+]

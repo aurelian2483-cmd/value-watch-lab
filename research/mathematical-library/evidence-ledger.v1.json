@@ -7493,5 +7493,71 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Galerkin projection of y′=Ay yields z′=H_m z, z(0)=βe₁. The Arnoldi relation AV_m=V_mH_m+h_(m+1,m)v_(m+1)e_m* gives defect y_m′−Ay_m=−βh_(m+1,m)v_(m+1)e_m*exp(tH_m)e₁. Variation of constants bounds the error by the integral of the defect norm times ||exp((t−τ)A)||; contractivity is an additional condition, not automatic. Exact breakdown means the Krylov subspace is invariant and the lifted solution is exact. Unlike basis construction alone, this specifies a reduced matrix-function computation and full-space reconstruction."
+  },
+  {
+    "id": "denman-beavers-matrix-square-root",
+    "source": {
+      "kind": "literature",
+      "citation": "Higham, N. J. (2006), Computing Matrix Functions by Iteration, University of Manchester, slide 19, https://www.maths.manchester.ac.uk/~higham/talks/lille06.pdf ; Higham (2020), What Is the Matrix Sign Function?, https://nhigham.com/2020/12/15/what-is-the-matrix-sign-function/ (block relation); positive-definite specialization independently derived."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Induction gives Y_k=AZ_k and both iterates are positive definite functions of A. For eigenvalue a>0, y_next=(y+a/y)/2 and y_next−√a=(y−√a)²/(2y), yielding positive iterates, monotone convergence after the first step and quadratic local convergence. Z follows by Z=A^(-1)Y. Applying Newton sign iteration to [[0,A],[I,0]] produces exactly the two coupled blocks; retain this useful structured variant, not a separate distinct algorithm. Cholesky factors generally do not square to A."
+  },
+  {
+    "id": "newton-matrix-polar-factor",
+    "source": {
+      "kind": "literature",
+      "citation": "Higham, N. J. (1986), Computing the Polar Decomposition—with Applications, SIAM J. Sci. Stat. Comput. 7(4), 1160–1174, https://eprints.maths.manchester.ac.uk/694/ (abstract); Higham (2020), What Is the Polar Decomposition?, https://nhigham.com/2020/07/28/what-is-the-polar-decomposition/ (formula and SVD relation)."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Write A=PΣQ* with all σ_i>0. The iterates preserve P,Q and update each positive singular value by σ_next=(σ+1/σ)/2, with σ_next−1=(σ−1)²/(2σ). Thus U=PQ* and H=QΣQ* in the limit, with local quadratic convergence. Newton sign iteration on [[0,A],[A*,0]] preserves the adjoint block structure and gives exactly this update. Count as a structured sign-iteration variant; it does not compute a least-squares solution."
+  },
+  {
+    "id": "newton-matrix-sign-iteration",
+    "source": {
+      "kind": "literature",
+      "citation": "Higham, N. J. (2020), What Is the Matrix Sign Function?, https://nhigham.com/2020/12/15/what-is-the-matrix-sign-function/ (definition, Newton recurrence and block identities); convergence argument independently derived."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "S commutes with A and S²=I. Define G_k=(X_k−S)(X_k+S)^(-1). Direct substitution using commutation gives G_(k+1)=G_k². Each eigenvalue of G₀ is (λ−s)/(λ+s), with s=+1 or −1 chosen by the half-plane, so its modulus is less than one. Hence G₀^(2^k)→0 even for finite Jordan blocks, and X_k=(I−G_k)^(-1)(I+G_k)S→S. The identity X_next−S=X_k^(-1)(X_k−S)²/2 gives quadratic local convergence. Distinct matrix-function recurrence, not the scalar Newton root solver or the matrix exponential."
   }
 ]
