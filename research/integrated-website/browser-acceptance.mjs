@@ -9,7 +9,7 @@ import {createServer} from 'node:http'
 import {chromium} from 'playwright'
 import {project,verifyProjection} from './build.mjs'
 import {render} from './render.mjs'
-const [prepared,site,out]=process.argv.slice(2).map(resolve)
+const [prepared,site,out]=process.argv.slice(2).map(x=>resolve(x))
 assert.equal(process.argv.length,5)
 const s=JSON.parse(readFileSync(join(site,'status.json'))),html=readFileSync(join(site,'index.html'))
 verifyProjection(s)
