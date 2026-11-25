@@ -28,11 +28,11 @@
       "Inconsistent normalization",
       "Incorrect sine sign"
     ],
-    "computation": "Evaluate real kernel sums directly; inverse uses the same kernel.",
+    "computation": "Evaluate the real kernel sums in O(N²) arithmetic; inverse uses the same normalized kernel. Alternatively recover from a consistently normalized real-input DFT.",
     "source": {
       "kind": "literature",
-      "citation": "Bracewell, R. N. (1983). Discrete Hartley transform. Journal of the Optical Society of America 73(12), 1832–1835. https://doi.org/10.1364/JOSA.73.001832",
-      "url": "https://doi.org/10.1364/JOSA.73.001832"
+      "citation": "FFTW 3.3.11 documentation, The Discrete Hartley Transform, section 2.5.3. https://ns.fftw.org/doc/The-Discrete-Hartley-Transform.html",
+      "url": "https://ns.fftw.org/doc/The-Discrete-Hartley-Transform.html"
     },
     "application": "General real-valued orthogonal transformation; no forecasting benefit claimed.",
     "required_inputs": "Finite real vector",
@@ -48,7 +48,7 @@
         "type": "related"
       }
     ],
-    "mechanism_note": "Provisional: real Fourier-related basis; source and equivalence review pending."
+    "mechanism_note": "With unitary negative-exponent DFT F, H_k=Re(F_k)−Im(F_k) for real x; F_k=(H_k+H_(−k))/2+i(H_(−k)−H_k)/2 with indices modulo N. The symmetric real kernel is orthogonal and involutory under the stated normalization. A feature transformation, not another distinct Fourier algorithm."
   },
   {
     "profile": "multifeature",
@@ -74,12 +74,12 @@
     "definition": "For prime p and N dividing p−1, choose ω of exact order N in F_p; X_k=Σ_(n=0)^(N−1)x_n ω^(nk) mod p; x_n=N^(−1) Σ_(k=0)^(N−1)X_k ω^(−nk) mod p.",
     "variables": "p prime modulus; N positive integer length; ω primitive Nth root; N^(−1) modular inverse",
     "assumptions": "Finite-field inputs; N divides p−1; exact order N verified",
-    "limitations": "Modular residues do not directly recover unrestricted integer coefficients; requires appropriate modulus and arithmetic",
+    "limitations": "Direct evaluation uses O(N²) field operations with precomputed powers; modular residues alone do not recover unrestricted integer coefficients; exact arithmetic and suitable modulus are required.",
     "failure_conditions": [
       "Root has smaller order",
       "Modular arithmetic overflow in implementation"
     ],
-    "computation": "Evaluate modular sums and inverse using modular exponentiation; no fast implementation claimed.",
+    "computation": "Verify p prime, ω^N=1 and ω^(N/q)≠1 for each prime divisor q of N (empty set for N=1); evaluate modular sums directly and invert N modulo p. No fast implementation claimed.",
     "source": {
       "kind": "literature",
       "citation": "Wolfram Function Repository. NumberTheoreticTransform. https://resources.wolframcloud.com/FunctionRepository/resources/NumberTheoreticTransform",
@@ -99,6 +99,6 @@
         "type": "related"
       }
     ],
-    "mechanism_note": "Provisional: finite-field analogue of DFT; mathematical and source review pending."
+    "mechanism_note": "The prime-field multiplicative group is cyclic of order p−1. Summing ω^(k(n−m)) over k yields N for n=m and zero otherwise by the geometric-series identity in the field; N is invertible since N divides p−1. A finite-field Fourier analogue with different scalar domain, classified as a feature transformation rather than a new fast algorithm."
   }
 ]

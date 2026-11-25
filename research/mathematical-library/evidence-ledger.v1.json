@@ -7789,5 +7789,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Generalizes the Bluestein chirp convolution to geometric contours; A=1, M=N and W=e^(−2πi/N) recover the ordinary DFT. Classified as a variant of the existing convolution mechanism."
+  },
+  {
+    "id": "orthonormal-discrete-hartley-transform",
+    "source": {
+      "kind": "literature",
+      "citation": "FFTW 3.3.11 documentation, The Discrete Hartley Transform, section 2.5.3. https://ns.fftw.org/doc/The-Discrete-Hartley-Transform.html",
+      "url": "https://ns.fftw.org/doc/The-Discrete-Hartley-Transform.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "With unitary negative-exponent DFT F, H_k=Re(F_k)−Im(F_k) for real x; F_k=(H_k+H_(−k))/2+i(H_(−k)−H_k)/2 with indices modulo N. The symmetric real kernel is orthogonal and involutory under the stated normalization. A feature transformation, not another distinct Fourier algorithm."
+  },
+  {
+    "id": "prime-field-number-theoretic-transform",
+    "source": {
+      "kind": "literature",
+      "citation": "Wolfram Function Repository. NumberTheoreticTransform. https://resources.wolframcloud.com/FunctionRepository/resources/NumberTheoreticTransform",
+      "url": "https://resources.wolframcloud.com/FunctionRepository/resources/NumberTheoreticTransform"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The prime-field multiplicative group is cyclic of order p−1. Summing ω^(k(n−m)) over k yields N for n=m and zero otherwise by the geometric-series identity in the field; N is invertible since N divides p−1. A finite-field Fourier analogue with different scalar domain, classified as a feature transformation rather than a new fast algorithm."
   }
 ]

@@ -5421,3 +5421,35 @@ Limitations — Off-unit-circle powers may overflow or underflow; conditioning c
 Mechanism — Generalizes the Bluestein chirp convolution to geometric contours; A=1, M=N and W=e^(−2πi/N) recover the ordinary DFT. Classified as a variant of the existing convolution mechanism.
 
 Source — Rabiner, L. R., Schafer, R. W. and Rader, C. M. (1969). The chirp z-transform algorithm and its application. Bell System Technical Journal 48(5), 1249–1292. https://doi.org/10.1002/j.1538-7305.1969.tb04268.x
+
+## Orthonormal discrete Hartley transform (orthonormal-discrete-hartley-transform)
+
+> H_k=N^(−1/2) Σ_(n=0)^(N−1) x_n [cos(2πkn/N)+sin(2πkn/N)]; x_n=N^(−1/2) Σ_(k=0)^(N−1) H_k [cos(2πkn/N)+sin(2πkn/N)].
+
+N positive integer length; n,k indices; x real input and H real coefficients.
+
+General real-valued orthogonal transformation; no forecasting benefit claimed.
+
+Assumptions — Finite real vector and symmetric normalization.
+
+Limitations — Equivalent information to the real-input DFT; direct evaluation is quadratic; not a claim of faster runtime.
+
+Mechanism — With unitary negative-exponent DFT F, H_k=Re(F_k)−Im(F_k) for real x; F_k=(H_k+H_(−k))/2+i(H_(−k)−H_k)/2 with indices modulo N. The symmetric real kernel is orthogonal and involutory under the stated normalization. A feature transformation, not another distinct Fourier algorithm.
+
+Source — FFTW 3.3.11 documentation, The Discrete Hartley Transform, section 2.5.3. https://ns.fftw.org/doc/The-Discrete-Hartley-Transform.html
+
+## Prime-field number theoretic transform (prime-field-number-theoretic-transform)
+
+> For prime p and N dividing p−1, choose ω of exact order N in F_p; X_k=Σ_(n=0)^(N−1)x_n ω^(nk) mod p; x_n=N^(−1) Σ_(k=0)^(N−1)X_k ω^(−nk) mod p.
+
+p prime modulus; N positive integer length; ω primitive Nth root; N^(−1) modular inverse.
+
+General finite-field transformation; no forecasting benefit claimed.
+
+Assumptions — Finite-field inputs; N divides p−1; exact order N verified.
+
+Limitations — Direct evaluation uses O(N²) field operations with precomputed powers; modular residues alone do not recover unrestricted integer coefficients; exact arithmetic and suitable modulus are required..
+
+Mechanism — The prime-field multiplicative group is cyclic of order p−1. Summing ω^(k(n−m)) over k yields N for n=m and zero otherwise by the geometric-series identity in the field; N is invertible since N divides p−1. A finite-field Fourier analogue with different scalar domain, classified as a feature transformation rather than a new fast algorithm.
+
+Source — Wolfram Function Repository. NumberTheoreticTransform. https://resources.wolframcloud.com/FunctionRepository/resources/NumberTheoreticTransform
