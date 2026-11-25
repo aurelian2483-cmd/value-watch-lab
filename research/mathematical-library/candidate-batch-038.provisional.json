@@ -1,0 +1,106 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "038",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "adams-bashforth-two-step-ode",
+    "name": "Constant-step two-step Adams–Bashforth ODE integration",
+    "definition": "Provisional: y_(n+1)=y_n+(h/2)[3f(t_n,y_n)−f(t_(n−1),y_(n−1))].",
+    "variables": "h positive constant step; t_n time; y_n state; f right-hand side",
+    "assumptions": "Smooth nonstiff initial-value problem and an accurate starting pair on a uniform grid",
+    "limitations": "Explicit multistep stability restriction; source, startup and order review pending",
+    "failure_conditions": [
+      "Missing starting pair or invalid uniform spacing"
+    ],
+    "computation": "Provisional integration of a linear extrapolation of previous right-hand-side values; verify the update and stability assumptions.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: LeMesurier, Introduction to Numerical Methods and Analysis with Julia, §7.8 Adams–Bashforth Multistep Methods; specific source verification pending."
+    },
+    "application": "General numerical ODE integration.",
+    "required_inputs": "ODE, initial values or starting procedure, constant step and solve budget",
+    "compatible_methods": [
+      "forward-euler-ode",
+      "bdf2-constant-step-ode"
+    ],
+    "incompatible_methods": [
+      "Unresolved explicit stability restriction"
+    ],
+    "relationships": [
+      {
+        "target": "forward-euler-ode",
+        "type": "related"
+      },
+      {
+        "target": "bdf2-constant-step-ode",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: explicit extrapolation of prior slopes, not backward differentiation."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "038",
+    "family": "numerical-ode",
+    "classification": "model-variant",
+    "id": "adams-moulton-two-step-ode",
+    "name": "Constant-step two-step Adams–Moulton ODE integration",
+    "definition": "Provisional: y_(n+1)=y_n+(h/12)[5f(t_(n+1),y_(n+1))+8f(t_n,y_n)−f(t_(n−1),y_(n−1))].",
+    "variables": "h positive step; t_n time; y_n state; f right-hand side",
+    "assumptions": "Smooth initial-value problem, accurate starting pair on a uniform grid and a solvable implicit step",
+    "limitations": "Requires implicit solve and history; not generally A-stable; source and order review pending",
+    "failure_conditions": [
+      "Unresolved implicit step or missing starting pair"
+    ],
+    "computation": "Provisional integration of interpolated slopes through the new and previous grid points; verify coefficients and order.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: LeMesurier, Introduction to Numerical Methods and Analysis with Julia, §7.9 Implicit Methods: Adams–Moulton; specific source verification pending."
+    },
+    "application": "General numerical ODE integration.",
+    "required_inputs": "ODE right-hand side, starting pair, constant step and nonlinear solve policy",
+    "compatible_methods": [
+      "implicit-trapezoidal-ode",
+      "adams-bashforth-two-step-ode"
+    ],
+    "incompatible_methods": [
+      "Unresolved implicit solve"
+    ],
+    "relationships": [
+      {
+        "target": "implicit-trapezoidal-ode",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional: higher-order implicit slope quadrature relative to the one-step trapezoidal rule; classification subject to review."
+  }
+]

@@ -4989,3 +4989,35 @@ Limitations — Not L-stable since R(z) tends to −1 for large negative real z;
 Mechanism — One-stage implicit Runge–Kutta evaluates the vector field at the midpoint of time and state. It is generally different from averaging endpoint vector fields in trapezoidal integration, although the scalar autonomous linear amplification is identical. Distinct implicit stage mechanism from the existing explicit RK4 and RK23.
 
 Source — LeMesurier, B., Introduction to Numerical Methods and Analysis with Julia (draft), §7.3, implicit midpoint equation and implicit trapezoid comparison, https://lemesurierb.people.charleston.edu/introduction-to-numerical-methods-and-analysis-julia/docs/ODE-IVP-2-Runge-Kutta.html ; order and scalar amplification independently derived. Idaho National Laboratory TMAP8 search result was not used as a verified source because the linked page returned 404.
+
+## Constant-step two-step Adams–Bashforth ODE integration (adams-bashforth-two-step-ode)
+
+> For y′=f(t,y), t_n=t_0+nh, h>0, let F_n=f(t_n,y_n). For n≥1 set y_(n+1)=y_n+h(3F_n−F_(n−1))/2. On y′=λy with z=hλ the characteristic equation is r²−(1+3z/2)r+z/2=0.
+
+h constant positive step; t_n grid time; y_n state; F_n stored slope; λ scalar linear test rate; r characteristic root.
+
+General numerical ODE integration.
+
+Assumptions — Locally Lipschitz dynamics, sufficiently smooth solution with bounded derivatives through order three on a finite interval, and starting states accurate to O(h²) on a uniform grid.
+
+Limitations — Second-order method; explicit stability restrictions apply, including negative-real scalar test interval −1≤z≤0; not a general stiff solver or a variable-step formula.
+
+Mechanism — Integrates a linear extrapolation of two previous slopes; unlike forward Euler, it retains history, and unlike BDF2 it requires no implicit solve. At z=0 the roots are 0 and 1; the local exact-state defect is 5h³y‴(t_n)/12+O(h⁴) with the additional derivative regularity.
+
+Source — LeMesurier, B., Numerical Methods and Analysis with Julia (draft), §6.8, Eq. (6.11), https://lemesurierb.people.charleston.edu/numerical-methods-and-analysis-julia/docs/ODE-IVP-7-multi-step-methods-Adams-Bashforth.html ; characteristic polynomial and real-axis interval independently derived.
+
+## Constant-step two-step Adams–Moulton ODE integration (adams-moulton-two-step-ode)
+
+> For y′=f(t,y), t_n=t_0+nh, h>0, let F_n=f(t_n,y_n). Solve y_(n+1)=y_n+h(5f(t_(n+1),y_(n+1))+8F_n−F_(n−1))/12. On y′=λy with z=hλ the characteristic equation is (1−5z/12)r²−(1+8z/12)r+z/12=0.
+
+h constant positive step; t_n grid time; y_n state; F_n stored slope; λ scalar linear test rate; r characteristic root.
+
+General numerical ODE integration.
+
+Assumptions — Locally Lipschitz dynamics, solution derivatives bounded through order four on a finite interval, starting states accurate to O(h³), and sufficiently accurate locally consistent implicit solves on a uniform grid.
+
+Limitations — Third-order constant-step method, not A-stable; negative-real scalar test interval −6≤z≤0. Implicit solves, startup and history are required; residual alone is not an error certificate.
+
+Mechanism — Quadratic slope interpolation through one future and two past/current grid nodes generalizes the implicit trapezoidal rule; conservatively counted as a variant. At z=0 the characteristic roots are 0 and 1; the local exact-state defect is −h⁴y⁽⁴⁾(t_n)/24+O(h⁵) with additional derivative regularity.
+
+Source — University of Bielefeld, Computational Physics SoSe 2026, Multi-Step Methods, Adams–Moulton table order 3 and implicit equation discussion, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/05_multistep_methods.html ; moments and characteristic polynomial independently derived.

@@ -7185,5 +7185,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "One-stage implicit Runge–Kutta evaluates the vector field at the midpoint of time and state. It is generally different from averaging endpoint vector fields in trapezoidal integration, although the scalar autonomous linear amplification is identical. Distinct implicit stage mechanism from the existing explicit RK4 and RK23."
+  },
+  {
+    "id": "adams-bashforth-two-step-ode",
+    "source": {
+      "kind": "literature",
+      "citation": "LeMesurier, B., Numerical Methods and Analysis with Julia (draft), §6.8, Eq. (6.11), https://lemesurierb.people.charleston.edu/numerical-methods-and-analysis-julia/docs/ODE-IVP-7-multi-step-methods-Adams-Bashforth.html ; characteristic polynomial and real-axis interval independently derived."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Integrates a linear extrapolation of two previous slopes; unlike forward Euler, it retains history, and unlike BDF2 it requires no implicit solve. At z=0 the roots are 0 and 1; the local exact-state defect is 5h³y‴(t_n)/12+O(h⁴) with the additional derivative regularity."
+  },
+  {
+    "id": "adams-moulton-two-step-ode",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Bielefeld, Computational Physics SoSe 2026, Multi-Step Methods, Adams–Moulton table order 3 and implicit equation discussion, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/05_multistep_methods.html ; moments and characteristic polynomial independently derived."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Quadratic slope interpolation through one future and two past/current grid nodes generalizes the implicit trapezoidal rule; conservatively counted as a variant. At z=0 the characteristic roots are 0 and 1; the local exact-state defect is −h⁴y⁽⁴⁾(t_n)/24+O(h⁵) with additional derivative regularity."
   }
 ]

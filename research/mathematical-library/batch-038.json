@@ -1,0 +1,108 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "038",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "adams-bashforth-two-step-ode",
+    "name": "Constant-step two-step Adams–Bashforth ODE integration",
+    "definition": "For y′=f(t,y), t_n=t_0+nh, h>0, let F_n=f(t_n,y_n). For n≥1 set y_(n+1)=y_n+h(3F_n−F_(n−1))/2. On y′=λy with z=hλ the characteristic equation is r²−(1+3z/2)r+z/2=0.",
+    "variables": "h constant positive step; t_n grid time; y_n state; F_n stored slope; λ scalar linear test rate; r characteristic root",
+    "assumptions": "Locally Lipschitz dynamics, sufficiently smooth solution with bounded derivatives through order three on a finite interval, and starting states accurate to O(h²) on a uniform grid",
+    "limitations": "Second-order method; explicit stability restrictions apply, including negative-real scalar test interval −1≤z≤0; not a general stiff solver or a variable-step formula",
+    "failure_conditions": [
+      "Missing or inconsistent starting pair or changed step spacing",
+      "Nonfinite state or derivative, or unresolved stability restriction"
+    ],
+    "computation": "Obtain y_1 with a sufficiently accurate one-step integrator, for example one forward Euler step from exact y_0 has O(h²) state error. Cache F_0 and F_1, compute each new state with the stated recurrence, evaluate its derivative and shift the two stored slopes. Reject invalid grid or nonfinite results; choose steps using problem-dependent accuracy and stability requirements.",
+    "source": {
+      "kind": "literature",
+      "citation": "LeMesurier, B., Numerical Methods and Analysis with Julia (draft), §6.8, Eq. (6.11), https://lemesurierb.people.charleston.edu/numerical-methods-and-analysis-julia/docs/ODE-IVP-7-multi-step-methods-Adams-Bashforth.html ; characteristic polynomial and real-axis interval independently derived."
+    },
+    "application": "General numerical ODE integration.",
+    "required_inputs": "ODE, initial values or starting procedure, constant step and solve budget",
+    "compatible_methods": [
+      "forward-euler-ode",
+      "bdf2-constant-step-ode"
+    ],
+    "incompatible_methods": [
+      "Unresolved explicit stability restriction"
+    ],
+    "relationships": [
+      {
+        "target": "forward-euler-ode",
+        "type": "related"
+      },
+      {
+        "target": "bdf2-constant-step-ode",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Integrates a linear extrapolation of two previous slopes; unlike forward Euler, it retains history, and unlike BDF2 it requires no implicit solve. At z=0 the roots are 0 and 1; the local exact-state defect is 5h³y‴(t_n)/12+O(h⁴) with the additional derivative regularity."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "038",
+    "family": "numerical-ode",
+    "classification": "model-variant",
+    "id": "adams-moulton-two-step-ode",
+    "name": "Constant-step two-step Adams–Moulton ODE integration",
+    "definition": "For y′=f(t,y), t_n=t_0+nh, h>0, let F_n=f(t_n,y_n). Solve y_(n+1)=y_n+h(5f(t_(n+1),y_(n+1))+8F_n−F_(n−1))/12. On y′=λy with z=hλ the characteristic equation is (1−5z/12)r²−(1+8z/12)r+z/12=0.",
+    "variables": "h constant positive step; t_n grid time; y_n state; F_n stored slope; λ scalar linear test rate; r characteristic root",
+    "assumptions": "Locally Lipschitz dynamics, solution derivatives bounded through order four on a finite interval, starting states accurate to O(h³), and sufficiently accurate locally consistent implicit solves on a uniform grid",
+    "limitations": "Third-order constant-step method, not A-stable; negative-real scalar test interval −6≤z≤0. Implicit solves, startup and history are required; residual alone is not an error certificate",
+    "failure_conditions": [
+      "Missing or inconsistent starting pair or changed spacing",
+      "Nonfinite state or unresolved implicit solve, scaled residual or stability restriction"
+    ],
+    "computation": "Obtain y_1 using a sufficiently accurate one-step starter, for example RK4. Store the last two slopes; optionally use AB2 as an initial guess only. Solve R(v)=v−y_n−h(5f(t_(n+1),v)+8F_n−F_(n−1))/12=0 with a declared tolerance and finite solve budget on the locally consistent branch. Require O(h⁴) or smaller per-step state solve error for third-order analysis. Reject unresolved solves; a single predictor substitution is not the same implicit method.",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Bielefeld, Computational Physics SoSe 2026, Multi-Step Methods, Adams–Moulton table order 3 and implicit equation discussion, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/05_multistep_methods.html ; moments and characteristic polynomial independently derived."
+    },
+    "application": "General numerical ODE integration.",
+    "required_inputs": "ODE right-hand side, starting pair, constant step and nonlinear solve policy",
+    "compatible_methods": [
+      "implicit-trapezoidal-ode",
+      "adams-bashforth-two-step-ode"
+    ],
+    "incompatible_methods": [
+      "Unresolved implicit solve"
+    ],
+    "relationships": [
+      {
+        "target": "implicit-trapezoidal-ode",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Quadratic slope interpolation through one future and two past/current grid nodes generalizes the implicit trapezoidal rule; conservatively counted as a variant. At z=0 the characteristic roots are 0 and 1; the local exact-state defect is −h⁴y⁽⁴⁾(t_n)/24+O(h⁵) with additional derivative regularity."
+  }
+]
