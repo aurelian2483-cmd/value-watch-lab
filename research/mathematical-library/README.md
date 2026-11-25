@@ -1,6 +1,6 @@
 # Sky Universal Mathematical Research Library
 
-Research catalogue v1 registers **330 specifications** across six sports, including 16 preserved v0 records and 314 entries added in batches. The 1,000-entry milestone remains open with **670 entries outstanding**.
+Research catalogue v1 registers **331 specifications** across six sports, including 16 preserved v0 records and 315 entries added in batches. The 1,000-entry milestone remains open with **669 entries outstanding**.
 
 | Classification | Count |
 | --- | ---: |
@@ -8,7 +8,7 @@ Research catalogue v1 registers **330 specifications** across six sports, includ
 | Distinct models | 33 |
 | Distributions | 29 |
 | Frameworks | 4 |
-| Model variants | 25 |
+| Model variants | 26 |
 | Parameter configurations | 1 |
 | Feature transformations | 13 |
 | Diagnostics | 77 |
@@ -118,3 +118,7 @@ Three general numerical linear algebra specifications admitted after mathematica
 ## Batch 028 admission
 
 Two general numerical linear algebra specifications admitted: one algorithm and one sensitivity diagnostic. Catalogue: 330 entries. Two provisional candidates staged. No implementation or empirical validation claimed. See [review](BATCH-028-ADMISSION.md).
+
+## Batch 029 admission
+
+One relaxed Gauss–Seidel variant admitted; fixed-step Richardson withheld as a quadratic gradient-descent derivative. Catalogue: 331 specifications. Two provisional batch 030 candidates staged. See [review](BATCH-029-ADMISSION.md). No empirical qualification claimed.

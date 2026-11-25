@@ -4733,3 +4733,19 @@ Limitations — Worst-case sensitivity, not an observed numerical error or a gua
 Mechanism — Sensitivity diagnostic derived from extreme singular values, not another SVD algorithm or measured backward error. A certified singular square matrix has infinite condition number.
 
 Source — University of Illinois CS 357, Singular Value Decompositions, 2-Norm Condition Number. https://courses.physics.illinois.edu/cs357/sp2021/notes/ref-16-svd.html
+
+## Successive overrelaxation stationary solver (sor-stationary-linear-solve)
+
+> For A=D+L+U solve (D+ωL)x_(k+1)=ωb+[(1−ω)D−ωU]x_k with fixed relaxation ω.
+
+D diagonal; L,U strict triangular parts; ω relaxation; x iterate.
+
+General numerical solution of a linear system.
+
+Assumptions — Nonzero diagonal; symmetric positive definite A and 0<ω<2 suffice for convergence in exact arithmetic..
+
+Limitations — Ordering and relaxation affect convergence; ω=1 reduces to Gauss–Seidel..
+
+Mechanism — A fixed relaxation of the ordered Gauss–Seidel sweep; ω=1 gives the parent iteration exactly. Counted as a variant, not a new distinct algorithm.
+
+Source — Barrett et al., Templates for the Solution of Linear Systems, §2.2.3, equation (2.7) and Fig. 2.3; lower and upper parts here have opposite signs to the book's convention. https://netlib.org/templates/templates.html
