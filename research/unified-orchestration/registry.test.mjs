@@ -9,6 +9,7 @@ import {digest} from '../scientific-reference/digest.mjs'
 import {signedSynchronise,signatureMessage} from '../unified-live/producer-intake.mjs'
 import {inspect,advance,setReviewControl} from './registry.mjs'
 import {inspectQueue,reviewQueue} from './producer-queue.mjs'
+import {supervise,saveCheckpoint,restoreCheckpoint} from './operational-review.mjs'
 import {startDashboard} from './dashboard.mjs'
 import {request} from 'node:http'
 const pins=JSON.parse(readFileSync(new URL('../unified-control-centre/source-pins.json',import.meta.url),'utf8'))
@@ -355,4 +356,56 @@ test('dashboard suppresses queue rows on changed control and absent configuratio
  const html=await (await fetch(url+'/')).text()
  assert.doesNotMatch(html,/data-producer=/)
  assert.match(html,/Metadata review on hold/)
+})
+
+const operationalAnchors=(f,q)=>({registrySha256:q.registrySha256,controlSha256:q.controlSha256,queueSha256:q.queueSha256})
+test('supervisor reconciles historical source and queue without granting operational readiness',t=>{
+ const f=queueFixture(t),q=qstep(f,null,'catalogue','REVIEW'),a=operationalAnchors(f,q)
+ const report=supervise(qargs(f),a,{now:T})
+ assert.equal(report.status,'OPERATIONAL_READINESS_BLOCKED')
+ assert.equal(report.metadataReviews,7)
+ assert.equal(report.queue.pending,5)
+ assert.equal(report.historicalSupervisor.liveMonitor,false)
+ assert.ok(report.reasons.includes('CONTRACT_REVIEWS_PENDING'))
+ assert.equal(report.executionAuthorized,false)
+ assert.throws(()=>supervise(qargs(f),{...a,queueSha256:'0'.repeat(64)},{now:T}),/Queue external anchor/)
+ assert.deepEqual(stored(f),f.before)
+})
+test('checkpoint preserves exact accepted state and partial queue in isolated recovery',t=>{
+ const f=queueFixture(t),q=qstep(f,null,'catalogue','REVIEW'),a=operationalAnchors(f,q)
+ const backup=join(f.root,'backup');mkdirSync(backup)
+ const cp=join(backup,'checkpoint.json'),target=join(f.root,'recovered')
+ const receipt=saveCheckpoint(qargs(f),a,cp,{now:T})
+ assert.equal(receipt.files,5)
+ const recovered=restoreCheckpoint(cp,receipt.checkpointSha256,target,{now:T})
+ assert.equal(recovered.queueSha256,q.queueSha256)
+ const ra=[join(target,'evidence'),join(target,'registry'),join(target,'orchestration-plan.json'),f.sha,join(target,'queue'),join(target,'queue-plan.json'),f.queuePlanSha]
+ assert.deepEqual(inspectQueue(...ra,{now:T,trustedQueueSha256:q.queueSha256}),q)
+ const next=reviewQueue(...ra,q.queueSha256,'data','CANCEL',{now:T})
+ assert.equal(next.cancelled,1)
+ assert.equal(qread(f).cancelled,0)
+ assert.deepEqual(stored(f),f.before)
+ assert.throws(()=>restoreCheckpoint(cp,receipt.checkpointSha256,target,{now:T}),/EEXIST/)
+ assert.throws(()=>saveCheckpoint(qargs(f),a,cp,{now:T}),/EEXIST/)
+})
+test('checkpoint rejects tampering, forged gates and unsafe inventory without creating target',t=>{
+ const f=queueFixture(t),q=qstep(f,null,'catalogue','REVIEW'),a=operationalAnchors(f,q)
+ const backup=join(f.root,'backup');mkdirSync(backup)
+ const cp=join(backup,'checkpoint.json'),target=join(f.root,'recovered')
+ const receipt=saveCheckpoint(qargs(f),a,cp,{now:T})
+ const raw=readFileSync(cp)
+ assert.throws(()=>restoreCheckpoint(cp,'0'.repeat(64),target,{now:T}),/fingerprint mismatch/)
+ const v=JSON.parse(raw)
+ v.executionAuthorized=true
+ let altered=JSON.stringify(v);writeFileSync(cp,altered)
+ assert.throws(()=>restoreCheckpoint(cp,hash(altered),target,{now:T}),/Invalid checkpoint contract/)
+ v.executionAuthorized=false;v.files[0].path='../outside.json'
+ altered=JSON.stringify(v);writeFileSync(cp,altered)
+ assert.throws(()=>restoreCheckpoint(cp,hash(altered),target,{now:T}),/Invalid checkpoint inventory/)
+ v.files[0].path='evidence/current.json';v.files[0].base64=Buffer.from('{}').toString('base64')
+ altered=JSON.stringify(v);writeFileSync(cp,altered)
+ assert.throws(()=>restoreCheckpoint(cp,hash(altered),target,{now:T}),/Checkpoint member mismatch/)
+ assert.throws(()=>readFileSync(join(target,'evidence','current.json')),/ENOENT/)
+ writeFileSync(cp,raw)
+ assert.equal(restoreCheckpoint(cp,receipt.checkpointSha256,target,{now:T}).executionAuthorized,false)
 })
