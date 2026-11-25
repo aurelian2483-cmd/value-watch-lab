@@ -2,6 +2,7 @@
 
 const sides = ['home', 'draw', 'away'];
 const market = 'PL:1X2:90_MINUTES_PLUS_STOPPAGE:NO_EXTRA_TIME';
+const exchange = /betfair(?!_sportsbook$)|exchange|betdaq|matchbook|smarkets|betopenly|prophetx|polymarket/;
 const maxAge = 30 * 60 * 1000;
 const aliases = new Map([
   ['man utd', 'manchester united'], ['man united', 'manchester united'],
@@ -66,7 +67,7 @@ function matchPoll(rows, records, asOf, allowedBooks) {
     const checked = numberTime(record.checked_at_utc);
     let reason;
     if (record.sport_key !== 'soccer_epl' || record.market !== 'h2h' ||
-      record.settlement !== market || !allowedBooks.has(record.bookmaker) ||
+      record.settlement !== market || !allowedBooks.has(record.bookmaker) || exchange.test(record.bookmaker) ||
       !/^[a-z0-9]{16,64}$/.test(record.event_id || '') ||
       !/^[a-f0-9]{64}$/.test(record.receipt_sha256 || '') || !complete(record.prices)) reason = 'no_market';
     else if (matches.length !== 1 || providerEvents.get(key).size !== 1 || providerFixtures.get(record.event_id).size !== 1 ||

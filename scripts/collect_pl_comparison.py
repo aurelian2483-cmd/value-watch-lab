@@ -12,11 +12,12 @@ import tempfile
 from collect_current_odds import CollectionError, MAX_EVENTS, MAX_USED, PARAMS, RESERVE, clean_event, quota, request_json
 
 MARKET = 'PL:1X2:90_MINUTES_PLUS_STOPPAGE:NO_EXTRA_TIME'
+EXCHANGE = re.compile(r'betfair(?!_sportsbook$)|exchange|betdaq|matchbook|smarkets|betopenly|prophetx|polymarket')
 
 
 def collect(key, books, request=request_json, clock=lambda: datetime.now(timezone.utc)):
     if (not key or not 1 <= len(books) <= 10 or len(set(books)) != len(books)
-            or any(not re.fullmatch(r'[a-z0-9_]{2,40}', b) for b in books)):
+            or any(not re.fullmatch(r'[a-z0-9_]{2,40}', b) or EXCHANGE.search(b) for b in books)):
         raise CollectionError('An existing key and reviewed bookmaker allowlist are required.')
     catalogue, headers, _ = request('', {}, key)
     used, remaining, cost = quota(headers)

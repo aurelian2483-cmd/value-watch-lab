@@ -33,6 +33,10 @@ class PremierLeagueCollectorTests(unittest.TestCase):
         self.assertTrue(all(r['settlement'] == MARKET for r in poll['records']))
         self.assertNotIn('synthetic-secret', repr(poll))
 
+    def test_exchange_allowlist_stops_before_requests(self):
+        with self.assertRaises(CollectionError):
+            collect('synthetic-secret', ['betfair_ex_uk'], request=lambda *_: self.fail('unexpected request'))
+
     def test_reserve_stops_before_odds_request(self):
         calls = []
 

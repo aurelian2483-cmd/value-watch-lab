@@ -15,6 +15,7 @@ const poll = {status:'ok',checked:iso(now),records:[base,{...base,bookmaker:'oth
 const empty = {observations:[]};
 const accept = (rows,records) => core.matchPoll(rows,records,now,books);
 assert.equal(accept([fixture],poll.records).accepted.length,2);
+assert.equal(core.matchPoll([fixture],[{...base,bookmaker:'betfair_ex_uk'}],now,new Set(['betfair_ex_uk'])).rejects.no_market,1);
 assert.equal(accept([fixture,{...fixture,home:'Man United'}],[base]).rejects.no_match,1);
 assert.equal(accept([fixture],[base,{...base,event_id:'zzzzzzzzzzzzzzzz'}]).rejects.no_match,2);
 assert.equal(accept([fixture],[{...base,prices:{home:2,draw:3}}]).rejects.no_market,1);
