@@ -5149,3 +5149,67 @@ Limitations — Second order in time and space for sufficiently smooth compatibl
 Mechanism — This is implicit trapezoidal integration of the centred semidiscrete diffusion equation. The sine modes of L have eigenvalues −4 sin²(jπ/(2N)), so the amplification is (1−q)/(1+q), q=2r sin²(jπ/(2N))≥0. The left matrix has eigenvalues 1+q>0 and the amplification magnitude is at most one; as q grows it approaches −1, so stiff modes may oscillate. A sufficient smoothness Taylor residual is O(Δt²+h²); the inverse left matrix and update both have Euclidean operator norm at most one, implying the same global order in the grid-weighted Euclidean norm over fixed time. Retain as a variant, not another distinct time integrator.
 
 Source — University of Bielefeld, Computational Physics, Crank–Nicolson, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/08_pde/02_crank_nicolson.html ; homogeneous Dirichlet modal and convergence arguments independently derived.
+
+## Lie–Trotter splitting for linear systems (lie-trotter-linear-splitting)
+
+> For U′=(A+B)U, U(0)=U₀, with fixed square matrices A and B, define S_h=exp(hB)exp(hA), h=T/N>0, and U_(n+1)=S_h U_n for n=0,…,N−1.
+
+A,B component matrices; h step; T final time; N positive integer step count; S_h split update; U_n state.
+
+General numerical integration of split linear differential systems.
+
+Assumptions — Finite-dimensional autonomous linear system with compatible matrix dimensions, fixed finite matrix norms, fixed final time and exact component exponentials for the order argument.
+
+Limitations — Generally first-order global accuracy; noncommuting components introduce splitting error; inaccurate subflow evaluations can reduce order; arbitrary matrices need not generate contractive flows.
+
+Mechanism — Writing [A,B]=AB−BA, direct Taylor multiplication gives S_h−exp(h(A+B))=−h²[A,B]/2+O(h³). In any induced matrix norm both exact and split step norms are at most exp(h(||A||+||B||)); telescoping the difference of their Nth powers yields O(h) error at fixed T. If A and B commute the product is exact in exact arithmetic. Composition of separate exact flows is not an Euler update; retain as a distinct general splitting procedure.
+
+Source — Blanes, S., Casas, F. and Murua, A. (2024), Splitting methods for differential equations, Acta Numerica 33, 1–161, https://doi.org/10.1017/S0962492923000077 (publisher metadata and public formula excerpt); University of Bielefeld, Computational Physics, Operator Splitting, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/08_pde/04_operator_splitting.html ; finite-dimensional error arguments independently derived.
+
+## Strang symmetric splitting for linear systems (strang-linear-splitting)
+
+> For U′=(A+B)U, U(0)=U₀, fixed square A,B and h=T/N>0, define S_h=exp(hA/2)exp(hB)exp(hA/2) and U_(n+1)=S_h U_n for n=0,…,N−1.
+
+A,B component matrices; h step; T final time; N positive integer step count; S_h symmetric split update; U_n state.
+
+General numerical integration of split linear differential systems.
+
+Assumptions — Finite-dimensional autonomous linear system, compatible matrix dimensions, fixed finite matrix norms, fixed final time and exact component exponentials for the order argument.
+
+Limitations — Generally second-order global accuracy; error constants depend on matrices and commutators; unbounded or time-dependent operators require separate analysis; symmetry alone does not guarantee contractivity or accuracy.
+
+Mechanism — Multiplication through degree two gives I+h(A+B)+h²(A+B)²/2, so the exact one-step defect is O(h³). The same exponential norm bound and power telescoping as Lie–Trotter give O(h²) fixed-time error. S_(−h)=S_h^(-1); with P=exp(hA/2), S_h=P[exp(hB)exp(hA)]P^(-1), so it is a conjugate of the first-order step, not identical on the same initial state. Commuting components give exact evolution. Velocity Verlet shares the symmetric composition structure for suitable separable Hamiltonian flows. Count as a splitting variant, not another distinct mechanism.
+
+Source — Blanes, S., Casas, F. and Murua, A. (2024), Splitting methods for differential equations, Acta Numerica 33, 1–161, https://doi.org/10.1017/S0962492923000077 (publisher metadata and public formula excerpt); University of Bielefeld, Computational Physics, Operator Splitting, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/08_pde/04_operator_splitting.html ; finite-dimensional error arguments independently derived.
+
+## Matrix exponential by Padé scaling and squaring (matrix-exponential-pade-scaling-squaring)
+
+> For square A, choose integer s≥0 so B=2^(−s)A satisfies b=||B||≤1/2 in a submultiplicative induced norm. Set P=I+B/2+B²/10+B³/120, Q=I−B/2+B²/10−B³/120, solve QX₀=P and set X_(j+1)=X_j² for j=0,…,s−1; return X_s≈exp(A).
+
+A input matrix; B scaled matrix; s squaring count; b induced norm of B; P,Q diagonal Padé numerator and denominator matrices; X_j intermediate approximation.
+
+General numerical evaluation of a matrix exponential.
+
+Assumptions — Finite real or complex square matrix, consistent induced norm, sufficiently accurate linear solve and matrix multiplications; fixed degree three is an educational specialization, not the optimized variable-degree algorithm.
+
+Limitations — Overscaling can amplify roundoff and increase cost; dense matrix powers and repeated squaring may be expensive; the norm threshold only ensures denominator invertibility here and is not a universal accuracy guarantee.
+
+Mechanism — Direct power series multiplication of Q exp(B) cancels P through degree six, giving local rational error O(||B||⁷). For b≤1/2, ||I−Q||≤b/2+b²/10+b³/120<1, so Q is invertible by the Neumann series. The exponential identity exp(A)=[exp(B)]^(2^s) justifies squaring. For fixed A in exact arithmetic the accumulated approximation error tends to zero as s increases (telescoping powers gives O(2^(−6s)) with an A-dependent bound); finite precision can reverse that benefit. This evaluates a full matrix function rather than composing different operators.
+
+Source — Higham, N. J. (2005), The Scaling and Squaring Method for the Matrix Exponential Revisited, https://doi.org/10.1137/04061101X ; Al-Mohy and Higham (2009), A New Scaling and Squaring Algorithm for the Matrix Exponential, https://doi.org/10.1137/09074721X (public abstracts); fixed degree-three coefficients and denominator bound independently derived.
+
+## Arnoldi Krylov approximation to a matrix exponential action (arnoldi-krylov-exponential-action)
+
+> For square A, vector v≠0, t≥0 and 1≤m≤dim(A), set β=||v||₂ and build an orthonormal Arnoldi basis V_m starting at v/β, with H_m=V_m* A V_m. Approximate exp(tA)v by y_m(t)=β V_m exp(tH_m)e₁; return zero if v=0 and stop at exact invariant-subspace breakdown using the attained dimension.
+
+A matrix; v starting vector; t evolution time; β Euclidean norm; V_m Arnoldi basis; H_m reduced upper Hessenberg matrix; e₁ first coordinate vector; * conjugate transpose.
+
+General matrix exponential action and linear evolution without forming the full exponential.
+
+Assumptions — Finite-dimensional square real or complex matrix, accurate matrix-vector products, controlled orthogonality and reduced exponential evaluation; exact arithmetic for the stated defect identity.
+
+Limitations — Dimension needed depends on spectrum, nonnormality and time; an endpoint residual alone is not a global error certificate; basis storage and orthogonalization grow with m.
+
+Mechanism — Galerkin projection of y′=Ay yields z′=H_m z, z(0)=βe₁. The Arnoldi relation AV_m=V_mH_m+h_(m+1,m)v_(m+1)e_m* gives defect y_m′−Ay_m=−βh_(m+1,m)v_(m+1)e_m*exp(tH_m)e₁. Variation of constants bounds the error by the integral of the defect norm times ||exp((t−τ)A)||; contractivity is an additional condition, not automatic. Exact breakdown means the Krylov subspace is invariant and the lifted solution is exact. Unlike basis construction alone, this specifies a reduced matrix-function computation and full-space reconstruction.
+
+Source — Saad, Y. (1992), Analysis of Some Krylov Subspace Approximations to the Matrix Exponential Operator, https://doi.org/10.1137/0729014 (public abstract); Jawecki, Auzinger and Koch, Computable upper error bounds for Krylov approximations to matrix exponentials and associated phi-functions, https://arxiv.org/abs/1809.03369 (abstract); projection and defect identities independently derived from Arnoldi relation.
