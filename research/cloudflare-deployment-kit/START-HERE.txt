@@ -10,17 +10,23 @@ OWNER ACTION ONLY, after acceptance:
 1. Retain the independent SHA-256 from the accepted GitHub workflow.
    Verify the downloaded ZIP against it, then extract into a new folder.
 2. In PowerShell in the extracted folder, with Node.js 22/npm installed:
-   npx --yes wrangler@4.165.0 login
-   npx --yes wrangler@4.165.0 whoami
-   Confirm the Cloudflare account matches the existing Hello World Worker.
-   If account or Worker differs, STOP. Do not create another account/Worker.
-3. Inspect the exact existing Worker in the Cloudflare dashboard. Confirm
-   it is still the disposable Hello World Worker with no data or bindings.
-   Confirm free plan, SQLite Durable Object support, no paid upgrade.
-4. Dry run (no deployment):
-   npx --yes wrangler@4.165.0 deploy --dry-run --outdir preview
-5. Only with explicit owner approval to replace the Hello World code:
-   npx --yes wrangler@4.165.0 deploy
+   npx --yes wrangler@4.165.0 login --use-keyring
+   Confirm the browser login completes. No token or API key should be copied.
+3. Find the Cloudflare account ID in Dashboard > Account details. Run:
+   node preflight.mjs <EXPECTED_ACCOUNT_ID>
+   The script verifies account membership, lists deployments for the exact
+   Worker under that account, confirms the public Hello World response,
+   checks every package digest and runs Wrangler's dry-run bundle build.
+   The dry-run bundle is temporary. After success, the script writes a
+   non-secret wrangler.account.json pinned to the verified account. It
+   never deploys.
+   If authentication, account membership, Worker inventory or Hello World
+   verification fails, STOP. Do not create another account or Worker.
+4. Inspect the existing Worker in the Cloudflare dashboard. Confirm it is
+   still the disposable Hello World Worker with no data or other bindings.
+   Confirm the free plan and no paid upgrade.
+5. Only with separate explicit owner approval to replace the Hello World code:
+   npx --yes wrangler@4.165.0 deploy --config wrangler.account.json
    Review any prompt. Stop if Wrangler proposes deleting another resource,
    migrating existing data, a paid plan, or a different Worker/account.
 6. Verify the endpoint returns 503:
