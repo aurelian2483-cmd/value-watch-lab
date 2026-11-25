@@ -3,6 +3,7 @@ import hashlib
 import io
 import json
 import stat
+import subprocess
 import sys
 import zipfile
 from pathlib import Path
@@ -17,11 +18,15 @@ def need(ok,msg):
     if not ok: raise ValueError(msg)
 def sha(b): return hashlib.sha256(b).hexdigest()
 def build():
-    data={"client.py":CLIENT.read_bytes()}
+    def tracked(path):
+        rel=path.relative_to(ROOT.parents[1]).as_posix()
+        return subprocess.check_output(["git","show","HEAD:"+rel],cwd=ROOT,timeout=15)
+    data={"client.py":tracked(CLIENT)}
     raw=data["client.py"]
     need(hashlib.sha1(b"blob "+str(len(raw)).encode()+b"\0"+raw).hexdigest()==CLIENT_BLOB,"Accepted client blob changed")
     for name in sorted(FILES-{"client.py"}):
-        data[name]=(ROOT/name).read_bytes()
+        raw=tracked(ROOT/name)
+        data[name]=raw.replace(b"\r\n",b"\n").replace(b"\n",b"\r\n") if name.endswith(".cmd") else raw
     manifest={"kind":"PC_PRESENCE_ENROLLMENT_KIT","schema":1,"acceptedClientRevision":REVISION,"networkDefault":False,
               "gpuDispatchAuthorized":False,"productionDispatchAuthorized":False,"publicationGate":"BLOCKED",
               "files":[{"path":name,"bytes":len(raw),"sha256":sha(raw)} for name,raw in sorted(data.items())]}
