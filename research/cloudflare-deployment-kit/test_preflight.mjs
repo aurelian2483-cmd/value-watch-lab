@@ -22,6 +22,7 @@ function packageFiles(overrides={}) {
   Object.assign(config,overrides.config??{});
   const data={
     'START-HERE.txt':Buffer.from('Disabled test package'),
+    'preflight.mjs':Buffer.from('// preflight tool'),
     'queue.mjs':Buffer.from('export const queueRoutes = new Map();'),
     'worker.mjs':Buffer.from('export default { fetch(){ return new Response("Hello World!") } };'),
     'wrangler.json':encode(config)
