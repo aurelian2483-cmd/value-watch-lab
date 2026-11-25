@@ -1,0 +1,1186 @@
+{
+  "purpose": "Paper pilot only. UNVALIDATED. Publication BLOCKED. Challenge credit 0. No bets, spending or deployment.",
+  "window": "W1 fixed snapshot, UTC starts 2026-11-26 inclusive to 2026-12-03 exclusive. Freeze evidenced by this Git commit before first event. Never replace a row. Append later adjudications keyed to this commit, sport and event ID.",
+  "inputs_git_blob_sha": {
+    "rugby-research-data.json": "2f14864bfb795e2a1d6b8c8c389c78a55e9e0034",
+    "horse-predictions-data.json": "328539e6576781a24eb5624cef0ba57d6a447b07",
+    "research-dashboard-data.json": "347c0bfb0f9460b1fc0a0510e24560216e168bdd",
+    "paper-lab/fixture-evidence.js": "1c95c7af4f8c2d35b6deb39228be89ee19287396",
+    "other-sports-data.json": "67201facda510ab6d791158bb040ccb929021cfd",
+    "darts/analysis.json": "142b423ce371c7163fe51d5386e8df54b0cff2cb",
+    "rugby/pro-d2-results.json": "4bb72993d32fa9147536153012416cc4b9163c22",
+    "darts/feed.json": "66341fb153d883bec2b07233e668e9a6b88c1e64"
+  },
+  "brentford_observation": {
+    "fixture": "Premier League, Brentford v Everton, 2026-11-23T20:00:00Z",
+    "order": [
+      "home",
+      "draw",
+      "away"
+    ],
+    "user_preserved_prematch_probabilities": [
+      0.456,
+      0.272,
+      0.272
+    ],
+    "morning_decimal_prices_third_party_attributed_to_Sky_Bet": [
+      2.2,
+      3.5,
+      3.1
+    ],
+    "prematch_timestamp_independently_attested": false,
+    "regulation_final": [
+      4,
+      0
+    ],
+    "winner": "home",
+    "top_choice": "correct",
+    "brier_sum": 0.443904,
+    "log_loss_natural": 0.7852624694677509,
+    "verified_on": "2026-11-25",
+    "result_sources": [
+      "https://www.brentfordfc.com/en/matches/mens/results/premier-league/20262027-premier-league",
+      "https://www.skysports.com/football/brentford-vs-everton/report/559546"
+    ],
+    "distinct_archived_vector": {
+      "source": "research-dashboard-data.json, paper_forecasts, SHA256 f36f5aff68837e71bdf3c0c25e4825a97e3dbeae1948a4ad1ddaf4ab6262a480",
+      "p": [
+        0.4831032102418838,
+        0.2616421343144291,
+        0.2552546554436871
+      ],
+      "note": "Separate model observation, never overwrite or substitute for supplied forecast."
+    },
+    "paired_window_eligible": false
+  },
+  "protocol": {
+    "universe": "Every eligible row in the pinned inputs in W1. Coverage is relative to those inputs only. Use disjoint seven-day UTC windows anchored 26 November. Freeze new windows before the first included start. No retrospective case additions.",
+    "baseline": "Neutral participant-strength ablation: split decisive probability equally and retain the challenger's draw/tie probability for three-way markets. Two-way baseline 0.5/0.5. This measures the incremental participant-strength signal against a simple benchmark. It does not measure improvement over a prior production model.",
+    "selection": "Highest frozen probability per method. Resolve exact ties by first frozen outcome. Report baseline tie frequency and fractional-credit sensitivity for tied maxima. Keep each sport separate.",
+    "sport_markets": {
+      "football": "Premier League regulation 1X2, exact ordered fixture and kickoff, unique Poisson vector",
+      "tennis": "Completed ATP/WTA singles match winner, fixed K24 Elo; exclude walkovers and retirements with reason",
+      "nfl": "Regular season including overtime and ties, fixed K24 Elo",
+      "rugby": "Pro D2 only, regulation 1X2, repository adapter with five prior matches per side. League separately schedule-only.",
+      "darts": "Completed match winner, exact feed ID, players and start, D1 with eight prior matches each; void on identity or time conflict",
+      "horse_racing": "Win only, declared active field unchanged, complete pre-off matched baseline/challenger vectors; zero forecasts in this snapshot. Existing racing protocol takes precedence.",
+      "basketball": "Completed game winner including OT, require matched pre-start vectors and exact event identity; discovery only",
+      "cricket": "Completed match winner under frozen format, tie and no-result rules required before inclusion; discovery only",
+      "golf": "Tournament outright winner including playoff; complete frozen field and both probability vectors required; directory only"
+    },
+    "settlement": "Require independent corroboration for same event, start and market. Track wins, losses, pending, missing, conflicting, void and postponed separately. Missing stays in coverage denominator. Append result URLs and dates; record any revised result separately.",
+    "analysis": "Report paired correct/incorrect (both, neither and discordant), wins/settled, coverage selected/observed and settled/selected. Report mean sum-of-squares multiclass Brier (primary), natural log loss and top-label reliability in fixed 0.1 confidence bins with bin counts. Paired day-cluster bootstrap 95% intervals only with sufficient independent days; small samples descriptive.",
+    "confirmation": "W1 exploratory. Any candidate improvement must be tested once on a separately frozen nonoverlapping replication, with unchanged models, rules, market and cohort definition. Prespecify replication size from W1 before it starts, minimum 20 independent event days. Require lower Brier in both windows and a paired replication interval excluding zero with family-wise adjustment across tested sports; report other scores, wins and missingness sensitivity. Independent reproduction and source/chronology review required before stopping. Scope limited to that sport/market and comparison."
+  },
+  "observed_coverage": {
+    "football": 19,
+    "tennis": 4,
+    "nfl": 16,
+    "darts": 2,
+    "rugby": 4,
+    "horse_racing": null,
+    "basketball": null,
+    "cricket": null,
+    "golf": null
+  },
+  "coverage_note": "Counts above are pairs frozen. Six darts and six Rugby Union fixtures omitted as listed below. Unavailable sport-wide denominators are unknown. No racing forecasts. No verified paired inputs for basketball, cricket or golf.",
+  "existing_pending_queue": {
+    "tennis": 50,
+    "nfl": 14,
+    "as_of": "2026-11-25T17:35:51.595450Z",
+    "distinct_from_W1": true
+  },
+  "excluded_snapshot_events": [
+    {
+      "sport": "darts",
+      "id": "fx_9ae6b39ce1bad76b",
+      "n": "Aurora Fochesato v Steph Clarke",
+      "t": "2026-11-28T12:30:00Z"
+    },
+    {
+      "sport": "darts",
+      "id": "fx_ed888cbe4cb7c228",
+      "n": "Lorraine Hyde v Mayumi Ouchi",
+      "t": "2026-11-28T13:50:00Z"
+    },
+    {
+      "sport": "darts",
+      "id": "fx_761816a0a11c2c66",
+      "n": "Cali West v Desi Mercer",
+      "t": "2026-11-28T18:50:00Z"
+    },
+    {
+      "sport": "darts",
+      "id": "fx_b938a7a7f175f51d",
+      "n": "Anca Zijlstra v Paula Murphy",
+      "t": "2026-11-28T21:00:00Z"
+    },
+    {
+      "sport": "darts",
+      "id": "fx_ee739db3408a6c3f",
+      "n": "Emine Dursun v Kim Holden",
+      "t": "2026-11-29T12:30:00Z"
+    },
+    {
+      "sport": "darts",
+      "id": "fx_af0e37b6594ba9cb",
+      "n": "Lerena Rietbergen v Sophie McKinlay",
+      "t": "2026-11-29T15:10:00Z"
+    },
+    {
+      "sport": "rugby",
+      "id": "2539409",
+      "n": "Currie vs Glasgow Hawks",
+      "t": "2026-11-28T14:00:00Z"
+    },
+    {
+      "sport": "rugby",
+      "id": "2550430",
+      "n": "Racing Métro 92 vs Section Paloise",
+      "t": "2026-11-28T15:35:00Z"
+    },
+    {
+      "sport": "rugby",
+      "id": "2550431",
+      "n": "Stade Français Paris vs Vannes",
+      "t": "2026-11-28T15:35:00Z"
+    },
+    {
+      "sport": "rugby",
+      "id": "2550434",
+      "n": "ASM Clermont Auvergne vs RC Toulonnais",
+      "t": "2026-11-29T20:05:00Z"
+    },
+    {
+      "sport": "rugby",
+      "id": "2619329",
+      "n": "Leicester Tigers Women vs Sale Sharks Women",
+      "t": "2026-11-29T13:00:00Z"
+    },
+    {
+      "sport": "rugby",
+      "id": "2631026",
+      "n": "Scotland Rugby vs Argentina Rugby",
+      "t": "2026-11-29T13:10:00Z"
+    }
+  ],
+  "matched_cases": [
+    {
+      "sport": "football",
+      "id": "PL|Nottingham Forest|Chelsea|2026-11-27T20:00:00Z",
+      "fixture": "Nottingham Forest v Chelsea",
+      "start_utc": "2026-11-27T20:00:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.37824029616055865,
+        0.24351940767888264,
+        0.37824029616055865
+      ],
+      "challenger": [
+        0.22186153335069206,
+        0.24351940767888264,
+        0.5346190589704253
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Leeds United|Coventry City|2026-11-28T15:00:00Z",
+      "fixture": "Leeds United v Coventry City",
+      "start_utc": "2026-11-28T15:00:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.3820278877892992,
+        0.23594422442140167,
+        0.3820278877892992
+      ],
+      "challenger": [
+        0.6195657382020441,
+        0.23594422442140167,
+        0.1444900373765542
+      ],
+      "challenger_model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Manchester United|Brentford|2026-11-28T15:00:00Z",
+      "fixture": "Manchester United v Brentford",
+      "start_utc": "2026-11-28T15:00:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.39992003029519607,
+        0.2001599394096078,
+        0.39992003029519607
+      ],
+      "challenger": [
+        0.6005423564835783,
+        0.2001599394096078,
+        0.19929770410681386
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Ipswich Town|Aston Villa|2026-11-28T17:30:00Z",
+      "fixture": "Ipswich Town v Aston Villa",
+      "start_utc": "2026-11-28T17:30:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.38069067733560474,
+        0.23861864532879054,
+        0.38069067733560474
+      ],
+      "challenger": [
+        0.39241279601793216,
+        0.23861864532879054,
+        0.3689685586532774
+      ],
+      "challenger_model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Everton|Liverpool|2026-11-29T12:00:00Z",
+      "fixture": "Everton v Liverpool",
+      "start_utc": "2026-11-29T12:00:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.38611421319460837,
+        0.2277715736107832,
+        0.38611421319460837
+      ],
+      "challenger": [
+        0.34101161774085975,
+        0.2277715736107832,
+        0.431216808648357
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Brighton & Hove Albion|Newcastle United|2026-11-29T14:05:00Z",
+      "fixture": "Brighton & Hove Albion v Newcastle United",
+      "start_utc": "2026-11-29T14:05:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.36011664751930295,
+        0.2797667049613941,
+        0.36011664751930295
+      ],
+      "challenger": [
+        0.5085231067761631,
+        0.2797667049613941,
+        0.21171018826244276
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Crystal Palace|Hull City|2026-11-29T14:05:00Z",
+      "fixture": "Crystal Palace v Hull City",
+      "start_utc": "2026-11-29T14:05:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.37736085782241274,
+        0.2452782843551745,
+        0.37736085782241274
+      ],
+      "challenger": [
+        0.3159869530792304,
+        0.2452782843551745,
+        0.43873476256559507
+      ],
+      "challenger_model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Fulham|AFC Bournemouth|2026-11-29T14:05:00Z",
+      "fixture": "Fulham v AFC Bournemouth",
+      "start_utc": "2026-11-29T14:05:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.3864914485219639,
+        0.22701710295607228,
+        0.3864914485219639
+      ],
+      "challenger": [
+        0.5008025679077827,
+        0.22701710295607228,
+        0.27218032913614515
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Sunderland|Tottenham Hotspur|2026-11-29T14:05:00Z",
+      "fixture": "Sunderland v Tottenham Hotspur",
+      "start_utc": "2026-11-29T14:05:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.3601940415734789,
+        0.2796119168530422,
+        0.3601940415734789
+      ],
+      "challenger": [
+        0.36081419019039246,
+        0.2796119168530422,
+        0.35957389295656533
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Arsenal|Manchester City|2026-11-29T16:30:00Z",
+      "fixture": "Arsenal v Manchester City",
+      "start_utc": "2026-11-29T16:30:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.37289913158127835,
+        0.2542017368374433,
+        0.37289913158127835
+      ],
+      "challenger": [
+        0.5551473400099817,
+        0.2542017368374433,
+        0.19065092315257495
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Coventry City|Ipswich Town|2026-12-01T20:00:00Z",
+      "fixture": "Coventry City v Ipswich Town",
+      "start_utc": "2026-12-01T20:00:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.3968326312298608,
+        0.20633473754027842,
+        0.3968326312298608
+      ],
+      "challenger": [
+        0.47000785950633706,
+        0.20633473754027842,
+        0.32365740295338447
+      ],
+      "challenger_model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Chelsea|Crystal Palace|2026-12-02T19:30:00Z",
+      "fixture": "Chelsea v Crystal Palace",
+      "start_utc": "2026-12-02T19:30:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.3671485157229689,
+        0.2657029685540621,
+        0.3671485157229689
+      ],
+      "challenger": [
+        0.38509506494455953,
+        0.2657029685540621,
+        0.3492019665013783
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Hull City|Nottingham Forest|2026-12-02T19:30:00Z",
+      "fixture": "Hull City v Nottingham Forest",
+      "start_utc": "2026-12-02T19:30:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.37862821065742586,
+        0.2427435786851483,
+        0.37862821065742586
+      ],
+      "challenger": [
+        0.5534665517316428,
+        0.2427435786851483,
+        0.20378986958320883
+      ],
+      "challenger_model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Liverpool|Sunderland|2026-12-02T19:30:00Z",
+      "fixture": "Liverpool v Sunderland",
+      "start_utc": "2026-12-02T19:30:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.38301837445480474,
+        0.23396325109039054,
+        0.38301837445480474
+      ],
+      "challenger": [
+        0.6025417276129762,
+        0.23396325109039054,
+        0.16349502129663335
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Manchester City|Leeds United|2026-12-02T19:30:00Z",
+      "fixture": "Manchester City v Leeds United",
+      "start_utc": "2026-12-02T19:30:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.4419069883515792,
+        0.1161860232968416,
+        0.4419069883515792
+      ],
+      "challenger": [
+        0.8278255550454826,
+        0.1161860232968416,
+        0.055988421657675765
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|AFC Bournemouth|Brighton & Hove Albion|2026-12-02T20:15:00Z",
+      "fixture": "AFC Bournemouth v Brighton & Hove Albion",
+      "start_utc": "2026-12-02T20:15:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.3635066600411745,
+        0.2729866799176511,
+        0.3635066600411745
+      ],
+      "challenger": [
+        0.4538443706994254,
+        0.2729866799176511,
+        0.2731689493829235
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Aston Villa|Everton|2026-12-02T20:15:00Z",
+      "fixture": "Aston Villa v Everton",
+      "start_utc": "2026-12-02T20:15:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.36289196219524417,
+        0.27421607560951167,
+        0.36289196219524417
+      ],
+      "challenger": [
+        0.4331788195770862,
+        0.27421607560951167,
+        0.2926051048134021
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Brentford|Arsenal|2026-12-02T20:15:00Z",
+      "fixture": "Brentford v Arsenal",
+      "start_utc": "2026-12-02T20:15:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.3658926993433579,
+        0.2682146013132843,
+        0.3658926993433579
+      ],
+      "challenger": [
+        0.2531951463940036,
+        0.2682146013132843,
+        0.4785902522927122
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "football",
+      "id": "PL|Newcastle United|Manchester United|2026-12-02T20:15:00Z",
+      "fixture": "Newcastle United v Manchester United",
+      "start_utc": "2026-12-02T20:15:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.3939503086926313,
+        0.21209938261473735,
+        0.3939503086926313
+      ],
+      "challenger": [
+        0.32680627544734897,
+        0.21209938261473735,
+        0.46109434193791365
+      ],
+      "challenger_model": "POISSON_BASELINE_2025_26_V1",
+      "result": null
+    },
+    {
+      "sport": "tennis",
+      "id": "wta-186836",
+      "fixture": "Nuria Brancaccio vs Guiomar Maristany Zuleta De Reales",
+      "start_utc": "2026-11-26T18:00:00Z",
+      "outcome_order": [
+        "5168",
+        "12957"
+      ],
+      "baseline": [
+        0.5,
+        0.5
+      ],
+      "challenger": [
+        0.29986063251329265,
+        0.7001393674867074
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "tennis",
+      "id": "wta-186834",
+      "fixture": "Varvara Lepchenko vs Sofia Costoulas",
+      "start_utc": "2026-11-26T18:00:00Z",
+      "outcome_order": [
+        "423",
+        "14562"
+      ],
+      "baseline": [
+        0.5,
+        0.5
+      ],
+      "challenger": [
+        0.4324132905725256,
+        0.5675867094274745
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "tennis",
+      "id": "wta-186833",
+      "fixture": "Laura Samson vs Irene Burillo",
+      "start_utc": "2026-11-26T19:30:00Z",
+      "outcome_order": [
+        "15069",
+        "4546"
+      ],
+      "baseline": [
+        0.5,
+        0.5
+      ],
+      "challenger": [
+        0.5186030704751884,
+        0.4813969295248116
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "tennis",
+      "id": "wta-186835",
+      "fixture": "Nadia Podoroska vs Maria Lourdes Carle",
+      "start_utc": "2026-11-26T21:00:00Z",
+      "outcome_order": [
+        "3256",
+        "3220"
+      ],
+      "baseline": [
+        0.5,
+        0.5
+      ],
+      "challenger": [
+        0.6083370656581661,
+        0.39166293434183386
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873079",
+      "fixture": "Los Angeles Rams vs Green Bay Packers",
+      "start_utc": "2026-11-26T01:00Z",
+      "outcome_order": [
+        "14",
+        "tie",
+        "9"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.5417917515106679,
+        0.005607476635514018,
+        0.4526007718538181
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873081",
+      "fixture": "Detroit Lions vs Chicago Bears",
+      "start_utc": "2026-11-26T18:00Z",
+      "outcome_order": [
+        "8",
+        "tie",
+        "3"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.45321525554268755,
+        0.005607476635514018,
+        0.5411772678217985
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873080",
+      "fixture": "Dallas Cowboys vs Philadelphia Eagles",
+      "start_utc": "2026-11-26T21:30Z",
+      "outcome_order": [
+        "6",
+        "tie",
+        "21"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.47343765593044246,
+        0.005607476635514018,
+        0.5209548674340436
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873082",
+      "fixture": "Buffalo Bills vs Kansas City Chiefs",
+      "start_utc": "2026-11-27T01:20Z",
+      "outcome_order": [
+        "2",
+        "tie",
+        "12"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.647736209378959,
+        0.005607476635514018,
+        0.346656313985527
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873083",
+      "fixture": "Pittsburgh Steelers vs Denver Broncos",
+      "start_utc": "2026-11-27T20:00Z",
+      "outcome_order": [
+        "23",
+        "tie",
+        "7"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.3441767542404431,
+        0.005607476635514018,
+        0.6502157691240429
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873087",
+      "fixture": "Cincinnati Bengals vs New Orleans Saints",
+      "start_utc": "2026-11-29T18:00Z",
+      "outcome_order": [
+        "4",
+        "tie",
+        "18"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.5986778616431471,
+        0.005607476635514018,
+        0.395714661721339
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873088",
+      "fixture": "Indianapolis Colts vs New York Giants",
+      "start_utc": "2026-11-29T18:00Z",
+      "outcome_order": [
+        "11",
+        "tie",
+        "19"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.44586819276613804,
+        0.005607476635514018,
+        0.5485243305983479
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873089",
+      "fixture": "Miami Dolphins vs New York Jets",
+      "start_utc": "2026-11-29T18:00Z",
+      "outcome_order": [
+        "15",
+        "tie",
+        "20"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.5263114646111982,
+        0.005607476635514018,
+        0.46808105875328787
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873084",
+      "fixture": "Minnesota Vikings vs Atlanta Falcons",
+      "start_utc": "2026-11-29T18:00Z",
+      "outcome_order": [
+        "16",
+        "tie",
+        "1"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.6295102201465315,
+        0.005607476635514018,
+        0.36488230321795456
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873090",
+      "fixture": "Jacksonville Jaguars vs Tennessee Titans",
+      "start_utc": "2026-11-29T18:00Z",
+      "outcome_order": [
+        "30",
+        "tie",
+        "10"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.8067104237199753,
+        0.005607476635514018,
+        0.18768209964451077
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873085",
+      "fixture": "Houston Texans vs Baltimore Ravens",
+      "start_utc": "2026-11-29T18:00Z",
+      "outcome_order": [
+        "34",
+        "tie",
+        "33"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.6105937215654548,
+        0.005607476635514018,
+        0.3837988017990313
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873093",
+      "fixture": "Los Angeles Chargers vs New England Patriots",
+      "start_utc": "2026-11-29T21:05Z",
+      "outcome_order": [
+        "24",
+        "tie",
+        "17"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.3274068116900208,
+        0.005607476635514018,
+        0.6669857116744652
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873092",
+      "fixture": "Arizona Cardinals vs Washington Commanders",
+      "start_utc": "2026-11-29T21:25Z",
+      "outcome_order": [
+        "22",
+        "tie",
+        "28"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.40245120010295765,
+        0.005607476635514018,
+        0.5919413232615284
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873091",
+      "fixture": "San Francisco 49ers vs Seattle Seahawks",
+      "start_utc": "2026-11-29T21:25Z",
+      "outcome_order": [
+        "25",
+        "tie",
+        "26"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.5381103030638401,
+        0.005607476635514018,
+        0.45628222030064597
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873086",
+      "fixture": "Cleveland Browns vs Las Vegas Raiders",
+      "start_utc": "2026-11-30T01:20Z",
+      "outcome_order": [
+        "5",
+        "tie",
+        "13"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.5980699655043983,
+        0.005607476635514018,
+        0.3963225578600878
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "nfl",
+      "id": "nfl-401873094",
+      "fixture": "Tampa Bay Buccaneers vs Carolina Panthers",
+      "start_utc": "2026-12-01T01:15Z",
+      "outcome_order": [
+        "27",
+        "tie",
+        "29"
+      ],
+      "baseline": [
+        0.497196261682243,
+        0.005607476635514018,
+        0.497196261682243
+      ],
+      "challenger": [
+        0.43354980770296137,
+        0.005607476635514018,
+        0.5608427156615248
+      ],
+      "challenger_model": "FIXED_ELO_K24_V1",
+      "result": null
+    },
+    {
+      "sport": "darts",
+      "id": "fx_d8dfdbadf3769b98",
+      "fixture": "Irina Armstrong v Chris Richardson",
+      "start_utc": "2026-11-28T15:10:00Z",
+      "outcome_order": [
+        "pl_2G64FQ",
+        "pl_A4H6XZ"
+      ],
+      "baseline": [
+        0.5,
+        0.5
+      ],
+      "challenger": [
+        0.43065134160436436,
+        0.5693486583956356
+      ],
+      "challenger_model": "DARTS_ELO_K24_RESEARCH_V1",
+      "result": null
+    },
+    {
+      "sport": "darts",
+      "id": "fx_8f9e22512abc5d5d",
+      "fixture": "Jitka Císařová v Eve Watson",
+      "start_utc": "2026-11-29T13:50:00Z",
+      "outcome_order": [
+        "pl_9MTREC",
+        "pl_VQZ25E"
+      ],
+      "baseline": [
+        0.5,
+        0.5
+      ],
+      "challenger": [
+        0.5473656752494861,
+        0.4526343247505139
+      ],
+      "challenger_model": "DARTS_ELO_K24_RESEARCH_V1",
+      "result": null
+    },
+    {
+      "sport": "rugby",
+      "id": "2550642",
+      "fixture": "CA Brive vs Biarritz Olympique",
+      "start_utc": "2026-11-26T20:00:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.4819277108433735,
+        0.03614457831325301,
+        0.4819277108433735
+      ],
+      "challenger": [
+        0.5841263717676043,
+        0.03614457831325301,
+        0.37972904991914264
+      ],
+      "challenger_model": "Pro D2 Elo",
+      "result": null
+    },
+    {
+      "sport": "rugby",
+      "id": "2550637",
+      "fixture": "Provence vs US Montauban",
+      "start_utc": "2026-11-27T20:00:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.4819277108433735,
+        0.03614457831325301,
+        0.4819277108433735
+      ],
+      "challenger": [
+        0.6168989898586178,
+        0.03614457831325301,
+        0.3469564318281292
+      ],
+      "challenger_model": "Pro D2 Elo",
+      "result": null
+    },
+    {
+      "sport": "rugby",
+      "id": "2550639",
+      "fixture": "US Dax vs Oyonnax Rugby",
+      "start_utc": "2026-11-27T18:00:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.4819277108433735,
+        0.03614457831325301,
+        0.4819277108433735
+      ],
+      "challenger": [
+        0.4678079984679081,
+        0.03614457831325301,
+        0.49604742321883893
+      ],
+      "challenger_model": "Pro D2 Elo",
+      "result": null
+    },
+    {
+      "sport": "rugby",
+      "id": "2550638",
+      "fixture": "Valence Romans Drôme Rugby vs Aurillac",
+      "start_utc": "2026-11-27T18:30:00Z",
+      "outcome_order": [
+        "home",
+        "draw",
+        "away"
+      ],
+      "baseline": [
+        0.4819277108433735,
+        0.03614457831325301,
+        0.4819277108433735
+      ],
+      "challenger": [
+        0.5239592742349822,
+        0.03614457831325301,
+        0.4398961474517647
+      ],
+      "challenger_model": "Pro D2 Elo",
+      "result": null
+    }
+  ]
+}
