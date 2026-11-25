@@ -77,3 +77,53 @@ jobs:
           path: ${{ runner.temp }}/development-study/
           retention-days: 7
           if-no-files-found: error
+
+  single-source-development:
+    needs: offline
+    if: >-
+      github.repository == 'aurelian2483-cmd/value-watch-lab' &&
+      github.event.action == 'synchronize' &&
+      github.run_attempt == 1 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'development/historical-development-benchmark-20261125' &&
+      github.event.pull_request.base.sha == '6629c9db5c3586ffefe13eefe8fe4fc728b4c643'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pinned CC0 development-only comparison (no OpenLigaDB retry)
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/date-only-study"
+          mkdir "$out"
+          python -B research/historical-development-benchmark/single_source.py --single-source-development-only > "$out/summary.json"
+          python -B - <<'PY'
+          import hashlib,json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'date-only-study'/'summary.json'
+          raw=p.read_bytes();r=json.loads(raw)
+          assert r['network_requests']==1 and r['openligadb_requests']==0
+          assert r['source_structure_accepted']==306 and r['development_cohort']==305
+          assert r['independently_certified_rows']==0 and r['cross_source_agreement_established'] is False
+          assert r['raw_records_published'] is False
+          assert r['modelValidation']=='UNVALIDATED' and r['publicationGate']=='BLOCKED'
+          for k in ('executionAuthorized','validationAuthorized','dispatchAuthorized','protectedEvaluationAuthorized','productionPromotionAuthorized'):
+              assert r[k] is False
+          s=r['comparison']
+          assert s['empirically_qualified_methods']==0 and s['protected_holdout_opened'] is False
+          assert s['paired_targets']+sum(s['excluded_before_scoring'].values())==305
+          print('Single-source aggregate:',json.dumps(s))
+          print('Summary SHA-256:',hashlib.sha256(raw).hexdigest())
+          PY
+          cp research/historical-development-benchmark/PROTOCOL.md "$out/PROTOCOL.md"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: date-only-development-aggregate
+          path: ${{ runner.temp }}/date-only-study/
+          retention-days: 7
+          if-no-files-found: error
