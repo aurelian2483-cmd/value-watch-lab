@@ -208,6 +208,41 @@ def run():
             start()
             status("/qa/queue/status",404,role="observer")
             print("PASS local Cloudflare fixed QA queue: admission, concurrency, durable leases, expiry, revocation, missed window and GPU blocking")
+            stop()
+            # Run real fixed producers using the previously accepted Python dispatch
+            # contract. No remote worker endpoint, no live data and no GPU execution.
+            import sys
+            checkout=ROOT.parents[1]
+            check(os.environ.get("GITHUB_ACTIONS")=="true" and os.environ.get("GITHUB_REPOSITORY")=="aurelian2483-cmd/value-watch-lab","Hosted QA context required")
+            revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=checkout,text=True).strip()
+            check(not subprocess.check_output(["git","status","--porcelain","--untracked-files=all"],cwd=checkout),"Clean checkout required")
+            sys.path.insert(0,str(checkout/"research/shared-job-controller"))
+            from hosted_acceptance import run_lease
+            state=root/"actual-cpu-state"
+            now=int(time.time())
+            actual_plan={"schema":1,"revision":revision,"scope":"FIXED_QA_ONLY","opensAt":now-5,"closesAt":now+600}
+            start(queue_plan=actual_plan,revision=revision)
+            status("/qa/queue/admit",200,role="operator")
+            actual_root=root/"actual-producers"
+            actual_root.mkdir()
+            expected_hashes={}
+            for job in ("probe","local"):
+                lease=status("/qa/queue/claim",200,role="hosted-qa")["result"]
+                check(lease["id"]==job and lease["revision"]==revision,"Fixed job mismatch")
+                receipt=run_lease(actual_root,lease,revision)
+                expected_hashes[job]=receipt
+                payload=submit(job,lease["token"],receipt)
+                check(result(payload) is True,"Actual receipt not recorded")
+                check(result(payload) is False,"Actual receipt replay")
+            check(status("/qa/queue/claim",200,role="hosted-qa")["result"] is None,"Unexpected additional job")
+            snap=status("/qa/queue/status",200,role="observer")["result"]
+            check([r["state"] for r in snap["jobs"]]==["RECEIPT_PENDING_REVIEW","RECEIPT_PENDING_REVIEW","BLOCKED_GPU"],"Actual producer state")
+            check({r["id"]:r["receipt_hash"] for r in snap["jobs"] if r["backend"]=="CPU"}==expected_hashes,"Receipt reconciliation")
+            check(not snap["homePcRequired"] and not snap["gpuDispatchAuthorized"] and not snap["productionDispatchAuthorized"] and snap["publicationGate"]=="BLOCKED","Actual QA gates")
+            stop()
+            start(queue_plan=actual_plan,revision=revision)
+            check(status("/qa/queue/status",200,role="observer")["result"]==snap,"Actual QA persistence")
+            print("PASS Cloudflare queue with actual hosted CPU producers: two fixed jobs and 500 synthetic checks; receipt digests pending review; GPU blocked")
         finally:
             stop()
             # Runtime logs are not uploaded: dev variables and request details stay disposable.
