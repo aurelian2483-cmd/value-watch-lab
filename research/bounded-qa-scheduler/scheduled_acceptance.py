@@ -14,6 +14,7 @@ def admit(service,tokens,revision):
     if len(service.status(tokens["observer"])["events"])!=3:
         raise RuntimeError("Admission must create exactly three queue events")
     print("PASS fixed QA schedule admission: one durable window, no duplicate jobs, GPU blocked")
+    return first
 
 if __name__=="__main__":
     main(admit)
