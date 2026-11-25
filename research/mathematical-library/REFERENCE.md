@@ -5085,3 +5085,35 @@ Limitations — Underintegration changes the equations; nonsmooth solutions may 
 Mechanism — Energy orthogonality gives best approximation in the bilinear-form norm; positivity follows from the derivative term and zero boundary conditions. Interpolation of an H² solution gives O(max h_e) energy error. Uniform mesh with c=0 and constant g gives the centered finite-difference equations after dividing interior rows by h; general consistent reaction and load integrals differ, so the methods are related rather than equivalent.
 
 Source — Per-Olof Persson, The Finite Element Method – Lecture Notes, UC Berkeley, Introduction to FEM and assembly, https://persson.berkeley.edu/math228b/html/fem_notes.html ; reaction matrix, energy orthogonality and finite-difference comparison independently derived.
+
+## Cell-centred finite volume for one-dimensional diffusion (cell-centered-finite-volume-diffusion-1d)
+
+> For −(k u′)′=g on (a,b), u(a)=A, u(b)=B, divide into N cells [s_(i−1),s_i] with centres x_i and constant k_i>0 in each cell. Define T_i=1/[(s_i−x_i)/k_i+(x_(i+1)−s_i)/k_(i+1)] for i=1,…,N−1 and F_i=T_i(U_i−U_(i+1)); F_0=k_1(A−U_1)/(x_1−a), F_N=k_N(U_N−B)/(b−x_N). Solve F_i−F_(i−1)=∫_(s_(i−1))^(s_i) g(t)dt for i=1,…,N.
+
+s_i cell faces; x_i cell centres; k_i cell diffusivity; T_i face transmissibility; F_i rightward flux; U_i centre value; A,B boundary values; g source.
+
+General numerical boundary value problems.
+
+Assumptions — Ordered positive-length cells with strictly interior centres, strictly positive finite piecewise-constant k, integrable g, prescribed Dirichlet endpoints, unit cross-section and a shared flux per face.
+
+Limitations — Two-point flux is exact between centres for source-free piecewise-linear solutions with flux continuity, not for arbitrary forcing; source integration, boundary closure, grid and coefficient approximation affect accuracy; no universal convergence rate claimed.
+
+Mechanism — Shared fluxes telescope to F_N−F_0=∫_a^b g. Eliminating the interface value from two one-sided constant-k flux equations gives the reciprocal sum of resistances. With homogeneous Dirichlet perturbations v, the quadratic form is Σ_i T_i(v_i−v_(i+1))² plus positive endpoint conductances times endpoint-cell squares, hence positive definite. Uniform constant k gives the centered second-difference interior stencil after division by cell length; the cell-centred boundary closure and variable-coefficient conservative balance differ from the existing nodal BVP scheme. Related rather than globally equivalent.
+
+Source — DuMux 3.9 documentation, Cell-centered Finite Volume Methods, https://dumux.org/docs/doxygen/releases/3.9/group___c_c_discretization.html and Two-point flux approximation, https://dumux.org/docs/doxygen/releases/3.9/group___c_c_tpfa_discretization.html ; one-dimensional scalar specialization and boundary terms independently derived.
+
+## Chebyshev spectral collocation for scalar boundary value problems (chebyshev-spectral-collocation-bvp)
+
+> For −u″+c(t)u=g(t), u(a)=A, u(b)=B, take N≥2 and t_j=(a+b)/2+(b−a)cos(jπ/N)/2 for j=0,…,N. Let ℓ_j be the cardinal polynomial for these nodes, D_ij=ℓ_j′(t_i) and U_j approximate u(t_j). Set U_0=B and U_N=A; solve [−D²U]_i+c(t_i)U_i=g(t_i) for i=1,…,N−1. For i≠j, D_ij=w_j/[w_i(t_i−t_j)] with w_j=1/Π_(k≠j)(t_j−t_k); D_ii=−Σ_(j≠i)D_ij.
+
+a,b interval endpoints; N polynomial degree; t_j nodes in descending order; ℓ_j cardinal polynomials; w_j barycentric weights; D physical-coordinate differentiation matrix; U nodal vector; c,g given functions.
+
+General numerical boundary value problems.
+
+Assumptions — Finite interval a<b, distinct mapped nodes, continuous coefficients and forcing, well-posed Dirichlet problem and nonsingular discrete interior system; rapid convergence requires sufficient solution regularity and stable discretization.
+
+Limitations — Dense matrices and increasingly ill-conditioned differentiation can amplify roundoff; nonsmooth solutions or layers can prevent rapid convergence; residuals at collocation nodes alone do not certify accuracy.
+
+Mechanism — Differentiating the unique degree-N interpolant gives the cardinal derivative entries, and differentiation stays in the same polynomial space, so the full D squared evaluates its second derivative. Mapping from [−1,1] multiplies the first derivative matrix by 2/(b−a) and the second by its square. The derivative mechanism overlaps polynomial interpolation and moment weights, but enforcing differential equations and boundary constraints through a dense global polynomial solve is not the local centered BVP stencil or a standalone differentiation operation. No unconditional spectral convergence or stability claim.
+
+Source — Lloyd N. Trefethen, Spectral Methods in MATLAB, chapters 6 and 7, SIAM, https://doi.org/10.1137/1.9780898719598.ch6 and https://doi.org/10.1137/1.9780898719598.ch7 (public excerpts only); cardinal differentiation and affine mapping independently derived.
