@@ -7009,5 +7009,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Same linear intercept as the existing secant method, but retains the opposite-sign endpoint rather than discarding by age. Bracket preservation is a material control-rule change; counted as a variant, not an independent algorithm."
+  },
+  {
+    "id": "clenshaw-curtis-quadrature",
+    "source": {
+      "kind": "literature",
+      "citation": "Nick Trefethen, Chebfun, Gauss and Clenshaw-Curtis quadrature (2010), interpolation definition; coefficient integral derived via x=cos θ. https://www.chebfun.org/examples/quad/GaussClenCurt.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Chebyshev extrema grid and exact polynomial integration rather than equally spaced Newton–Cotes or Gaussian optimal-degree nodes; integration functional rather than interpolation alone."
+  },
+  {
+    "id": "adaptive-gauss-kronrod-quadrature",
+    "source": {
+      "kind": "literature",
+      "citation": "GNU Scientific Library 2.8 Numerical Integration, Introduction and QAG adaptive integration; Netlib QUADPACK QAGE, local-rule choices and global interval subdivision (lines 249–327). https://www.gnu.org/software/gsl/doc/html/integration.html ; https://www.netlib.org/quadpack/qage.f"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Nested higher-order rule reuses Gauss evaluations and drives nonuniform bisection; conservative variant of Gaussian quadrature, not a separate independent algorithm count."
   }
 ]

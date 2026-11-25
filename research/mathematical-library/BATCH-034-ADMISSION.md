@@ -1,0 +1,9 @@
+# Batch 034 admission review
+
+Parent: 48250719b949b921c1fbe5b5ab49c16b5289b9fc. Exact-parent full regression 45545831838 and registry 45545831860 passed.
+
+Clenshaw–Curtis: inspected Nick Trefethen’s Chebfun explanation of integration of the Chebyshev interpolant. Independently integrate T_k by substituting x=cos θ: odd k gives zero by parity; even k gives 2/(1−k²) from integrating cos(kθ)sin θ over [0,π]. Full coefficient convention avoids endpoint halving ambiguity. Affine interval scaling included. Distinct from fixed Gaussian nodes and equally spaced trapezoid/Simpson, but not proof of research novelty.
+
+Gauss–Kronrod: inspected GNU GSL Numerical Integration documentation for the nested m and 2m+1 rules and raw difference, and Netlib QAGE source for largest-error bisection, sum update and stopping criterion. QK15/DQK15 source was inaccessible; no claim to have verified its numerical constants or full error estimator. Specification requires externally validated rule tables and explicitly describes a simplified raw-difference indicator, not a reproduction of full QUADPACK. Retained as a variant rather than a distinct algorithm. Both error indicators are estimates, not rigorous certificates.
+
+Compared 338 ledger IDs and reference headings, normalized single-line equations and quadrature/interpolation-related reference sections. No duplicate identifier or exact equation found. Conceptual overlap review is not exhaustive equivalence proof. Original provisional candidate file preserved verbatim, reviewed archive matches admitted batch. Four snapshots reconstructed incrementally using inspected catalogue renderer and green baseline; automated exact comparison pending. No empirical validation, implementation, experiments, protected data, execution authority or promotion. Both gates remain closed.

@@ -20,17 +20,17 @@
     "classification": "distinct-algorithm",
     "id": "clenshaw-curtis-quadrature",
     "name": "Clenshaw–Curtis quadrature",
-    "definition": "On [−1,1], interpolate f at x_j=cos(jπ/n), j=0,…,n; write p_n(x)=Σ_k a_k T_k(x) and approximate integral by Σ_(even k) 2a_k/(1−k²).",
-    "variables": "n polynomial degree; T_k Chebyshev polynomial; a_k interpolant coefficients",
-    "assumptions": "Finite evaluations on a closed interval; well-defined integrable function",
-    "limitations": "Nonsmooth integrands can converge slowly; endpoint singularities require separate treatment",
+    "definition": "For integer n≥1 and finite a<b set g(x)=f((a+b)/2+(b−a)x/2). At x_j=cos(jπ/n), j=0,…,n, interpolate g by p_n(x)=Σ_(k=0)^n c_k T_k(x), with unprimed full coefficients. Approximate ∫_a^b f(t)dt by (b−a)/2 Σ_(even k=0,…,n) 2c_k/(1−k²).",
+    "variables": "n polynomial degree; T_k first-kind Chebyshev polynomial; c_k full coefficients of the unique interpolant; a,b finite integration endpoints",
+    "assumptions": "Finite endpoint and interior evaluations on a nondegenerate closed interval; integrable function; n≥1",
+    "limitations": "Finite degree alone does not certify an error tolerance; nonsmooth integrands may converge slowly; endpoint singularities require other treatment",
     "failure_conditions": [
       "Nonfinite samples or unresolved quadrature error"
     ],
-    "computation": "Provisional Chebyshev interpolation and exact polynomial integration; verify normalization and source before admission.",
+    "computation": "Obtain full coefficients by solving the interpolation equations or using a correctly normalized cosine transform. Integrate the polynomial exactly. Compare refinement separately if an accuracy estimate is needed.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional: Trefethen, Is Gauss Quadrature Better than Clenshaw–Curtis?, SIAM Review 2008; verify before admission."
+      "citation": "Nick Trefethen, Chebfun, Gauss and Clenshaw-Curtis quadrature (2010), interpolation definition; coefficient integral derived via x=cos θ. https://www.chebfun.org/examples/quad/GaussClenCurt.html"
     },
     "application": "General numerical integration.",
     "required_inputs": "Integrand, interval and polynomial degree",
@@ -46,7 +46,7 @@
         "type": "related"
       }
     ],
-    "mechanism_note": "Provisional cosine-grid polynomial integration; compare existing interpolation and quadrature entries."
+    "mechanism_note": "Chebyshev extrema grid and exact polynomial integration rather than equally spaced Newton–Cotes or Gaussian optimal-degree nodes; integration functional rather than interpolation alone."
   },
   {
     "profile": "multifeature",
@@ -69,17 +69,17 @@
     "classification": "model-variant",
     "id": "adaptive-gauss-kronrod-quadrature",
     "name": "Adaptive Gauss–Kronrod quadrature",
-    "definition": "For each interval I compute nested Gauss and Kronrod estimates G(I), K(I), with local indicator E(I)=|K(I)−G(I)|; subdivide intervals with largest E until summed indicators meet declared tolerance or budget.",
-    "variables": "I subinterval; G,K nested quadrature estimates; E local indicator",
-    "assumptions": "Integrable function and valid nested nodes and weights on the reference interval",
+    "definition": "On each finite subinterval I=[l,r], map a supplied validated nested Gauss m-point and Kronrod (2m+1)-point rule from [−1,1] by t=(l+r)/2+(r−l)x/2; multiply each weighted sum by (r−l)/2 to obtain G(I),K(I). Set E(I)=|K(I)−G(I)|. Start with I=[a,b]; while ΣE>max(ε_abs,ε_rel|ΣK|), bisect an interval of largest E and replace its two estimates, subject to budget and roundoff checks. Return ΣK with estimated error ΣE, or report failure.",
+    "variables": "I subinterval; m Gaussian order; G,K nested estimates; E local indicator; ε_abs,ε_rel tolerances",
+    "assumptions": "Finite a<b, integrable function with finite sampled values; validated nested Gauss–Legendre/Kronrod nodes and weights; nonnegative tolerances with a positive absolute or relative tolerance; positive interval budget",
     "limitations": "Difference indicator is not a guaranteed upper error bound; singular or oscillatory integrands can defeat sampling",
     "failure_conditions": [
       "Nonfinite evaluations, unresolved error, or exhausted subdivisions"
     ],
-    "computation": "Provisional adaptive interval management with nested rules; review exact node/weight and stopping specification before admission.",
+    "computation": "Reuse shared nodes; recompute local estimates after bisection; guard nonfinite sums, indistinguishable midpoint and exhausted budget. This simplified raw-difference indicator is not QUADPACK’s full adjusted error estimator.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional: QUADPACK QAG routine and Gauss–Kronrod rules, Netlib; verify before admission."
+      "citation": "GNU Scientific Library 2.8 Numerical Integration, Introduction and QAG adaptive integration; Netlib QUADPACK QAGE, local-rule choices and global interval subdivision (lines 249–327). https://www.gnu.org/software/gsl/doc/html/integration.html ; https://www.netlib.org/quadpack/qage.f"
     },
     "application": "General numerical integration.",
     "required_inputs": "Integrand, interval, quadrature pair, tolerances and subdivision budget",
@@ -95,6 +95,6 @@
         "type": "variant-of"
       }
     ],
-    "mechanism_note": "Provisional variant using nested quadrature and adaptive subdivision; verify overlap before admission."
+    "mechanism_note": "Nested higher-order rule reuses Gauss evaluations and drives nonuniform bisection; conservative variant of Gaussian quadrature, not a separate independent algorithm count."
   }
 ]

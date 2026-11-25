@@ -4861,3 +4861,35 @@ Limitations — A bracket endpoint may remain fixed indefinitely; a small residu
 Mechanism — Same linear intercept as the existing secant method, but retains the opposite-sign endpoint rather than discarding by age. Bracket preservation is a material control-rule change; counted as a variant, not an independent algorithm.
 
 Source — Vladimir Dobrushkin, Brown University, Mathematica tutorial, Part III Bracketing Methods, section II False Position Method. https://www.cfm.brown.edu/people/dobrush/am33/python/p3/bracket.html
+
+## Clenshaw–Curtis quadrature (clenshaw-curtis-quadrature)
+
+> For integer n≥1 and finite a<b set g(x)=f((a+b)/2+(b−a)x/2). At x_j=cos(jπ/n), j=0,…,n, interpolate g by p_n(x)=Σ_(k=0)^n c_k T_k(x), with unprimed full coefficients. Approximate ∫_a^b f(t)dt by (b−a)/2 Σ_(even k=0,…,n) 2c_k/(1−k²).
+
+n polynomial degree; T_k first-kind Chebyshev polynomial; c_k full coefficients of the unique interpolant; a,b finite integration endpoints.
+
+General numerical integration.
+
+Assumptions — Finite endpoint and interior evaluations on a nondegenerate closed interval; integrable function; n≥1.
+
+Limitations — Finite degree alone does not certify an error tolerance; nonsmooth integrands may converge slowly; endpoint singularities require other treatment.
+
+Mechanism — Chebyshev extrema grid and exact polynomial integration rather than equally spaced Newton–Cotes or Gaussian optimal-degree nodes; integration functional rather than interpolation alone.
+
+Source — Nick Trefethen, Chebfun, Gauss and Clenshaw-Curtis quadrature (2010), interpolation definition; coefficient integral derived via x=cos θ. https://www.chebfun.org/examples/quad/GaussClenCurt.html
+
+## Adaptive Gauss–Kronrod quadrature (adaptive-gauss-kronrod-quadrature)
+
+> On each finite subinterval I=[l,r], map a supplied validated nested Gauss m-point and Kronrod (2m+1)-point rule from [−1,1] by t=(l+r)/2+(r−l)x/2; multiply each weighted sum by (r−l)/2 to obtain G(I),K(I). Set E(I)=|K(I)−G(I)|. Start with I=[a,b]; while ΣE>max(ε_abs,ε_rel|ΣK|), bisect an interval of largest E and replace its two estimates, subject to budget and roundoff checks. Return ΣK with estimated error ΣE, or report failure.
+
+I subinterval; m Gaussian order; G,K nested estimates; E local indicator; ε_abs,ε_rel tolerances.
+
+General numerical integration.
+
+Assumptions — Finite a<b, integrable function with finite sampled values; validated nested Gauss–Legendre/Kronrod nodes and weights; nonnegative tolerances with a positive absolute or relative tolerance; positive interval budget.
+
+Limitations — Difference indicator is not a guaranteed upper error bound; singular or oscillatory integrands can defeat sampling.
+
+Mechanism — Nested higher-order rule reuses Gauss evaluations and drives nonuniform bisection; conservative variant of Gaussian quadrature, not a separate independent algorithm count.
+
+Source — GNU Scientific Library 2.8 Numerical Integration, Introduction and QAG adaptive integration; Netlib QUADPACK QAGE, local-rule choices and global interval subdivision (lines 249–327). https://www.gnu.org/software/gsl/doc/html/integration.html ; https://www.netlib.org/quadpack/qage.f
