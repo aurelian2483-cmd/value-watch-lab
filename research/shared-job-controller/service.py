@@ -39,7 +39,11 @@ class Service:
         return check
 
     def enqueue(self, token, job, kind):
-        return self._controller.enqueue(job,self._revision,kind,self._clock(),guard=self._guard("operator",token,scope=True))
+        auth=self._guard("operator",token,scope=True)
+        def guard(db):
+            auth(db)
+            need(not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='qa_schedule'").fetchone(),"Scheduled queue cannot be populated directly")
+        return self._controller.enqueue(job,self._revision,kind,self._clock(),guard=guard)
 
     def claim(self, token):
         return self._controller.claim("hosted-qa",self._clock(),ttl=240,guard=self._guard("hosted-qa",token,scope=True))
