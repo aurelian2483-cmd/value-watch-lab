@@ -7559,5 +7559,97 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "S commutes with A and S²=I. Define G_k=(X_k−S)(X_k+S)^(-1). Direct substitution using commutation gives G_(k+1)=G_k². Each eigenvalue of G₀ is (λ−s)/(λ+s), with s=+1 or −1 chosen by the half-plane, so its modulus is less than one. Hence G₀^(2^k)→0 even for finite Jordan blocks, and X_k=(I−G_k)^(-1)(I+G_k)S→S. The identity X_next−S=X_k^(-1)(X_k−S)²/2 gives quadratic local convergence. Distinct matrix-function recurrence, not the scalar Newton root solver or the matrix exponential."
+  },
+  {
+    "id": "radix-two-cooley-tukey-fft",
+    "source": {
+      "kind": "literature",
+      "citation": "Cooley, J. W. and Tukey, J. W. (1965). An algorithm for the machine calculation of complex Fourier series. Mathematics of Computation, 19(90), 297–301. https://doi.org/10.1090/S0025-5718-1965-0178586-1",
+      "url": "https://doi.org/10.1090/S0025-5718-1965-0178586-1"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Split the direct DFT sum into even and odd input indices, use W_N²=W_M and W_N^M=−1. The two outputs share their length-M subtransforms. The recurrence T(N)=2T(N/2)+O(N) gives O(N log N). The original paper treats general sparse-factor FFTs and radix two; this is the canonical mechanism here, not a distinct algorithm for each radix."
+  },
+  {
+    "id": "bluestein-chirp-dft",
+    "source": {
+      "kind": "literature",
+      "citation": "Bluestein, L. I. (1970). A linear filtering approach to the computation of discrete Fourier transform. IEEE Transactions on Audio and Electroacoustics, 18(4), 451–455. https://doi.org/10.1109/TAU.1970.1162132",
+      "url": "https://doi.org/10.1109/TAU.1970.1162132"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The quadratic identity 2nk=n²+k²−(k−n)² directly gives the chirp factorization. The length-L embedding represents every required signed difference uniquely modulo L; the first N circular outputs therefore equal the needed linear-convolution values. The original IEEE abstract confirms chirp filtering and O(N log N) for arbitrary length; full paper was not inspected."
+  },
+  {
+    "id": "orthonormal-dct-ii",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy v1.11.4 Manual, Fourier Transforms, Discrete Cosine and Sine Transforms. https://docs.scipy.org/doc/scipy-1.11.4/tutorial/fft.html",
+      "url": "https://docs.scipy.org/doc/scipy-1.11.4/tutorial/fft.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Cosine product-to-sum and the finite sum of cos(π(n+1/2)m/N), which vanishes for integer m from 1 to 2N−1, give row norms N for k=0 and N/2 otherwise before scaling. Thus the matrix is orthogonal. This specifies a basis transformation, not a new FFT implementation."
+  },
+  {
+    "id": "orthonormal-dst-i",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy v1.11.4 Manual, Fourier Transforms, Discrete Cosine and Sine Transforms. https://docs.scipy.org/doc/scipy-1.11.4/tutorial/fft.html",
+      "url": "https://docs.scipy.org/doc/scipy-1.11.4/tutorial/fft.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The sine product-to-sum identity and the finite roots-of-unity sum on 2(N+1) points give Σ_(n=1)^N sin(πnk/(N+1))sin(πnl/(N+1))=(N+1)δ_kl/2. The scaled matrix is symmetric orthogonal and self-inverse. This is a feature transformation with a different boundary basis, not a new FFT algorithm."
   }
 ]

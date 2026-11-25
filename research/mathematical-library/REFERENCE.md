@@ -5261,3 +5261,67 @@ Limitations — Potentially slow initial progress for extreme eigenvalue magnitu
 Mechanism — S commutes with A and S²=I. Define G_k=(X_k−S)(X_k+S)^(-1). Direct substitution using commutation gives G_(k+1)=G_k². Each eigenvalue of G₀ is (λ−s)/(λ+s), with s=+1 or −1 chosen by the half-plane, so its modulus is less than one. Hence G₀^(2^k)→0 even for finite Jordan blocks, and X_k=(I−G_k)^(-1)(I+G_k)S→S. The identity X_next−S=X_k^(-1)(X_k−S)²/2 gives quadratic local convergence. Distinct matrix-function recurrence, not the scalar Newton root solver or the matrix exponential.
 
 Source — Higham, N. J. (2020), What Is the Matrix Sign Function?, https://nhigham.com/2020/12/15/what-is-the-matrix-sign-function/ (definition, Newton recurrence and block identities); convergence argument independently derived.
+
+## Radix-two Cooley–Tukey discrete Fourier transform (radix-two-cooley-tukey-fft)
+
+> For N=2M=2^m (m≥1) and W_N=e^(−2πi/N), E_k=Σ_(n=0)^(M−1)x_(2n)W_M^(nk), O_k=Σ_(n=0)^(M−1)x_(2n+1)W_M^(nk); X_k=E_k+W_N^k O_k and X_(k+M)=E_k−W_N^k O_k for k=0,…,M−1, recursively to length 1.
+
+N=2^m transform length; M=N/2; x_n complex input; k frequency index; W_q=e^(−2πi/q); E_k and O_k even- and odd-index length-M transforms..
+
+Numerical preprocessing or frequency-domain analysis of suitable time-series measurements in sporting contexts. This is a transform algorithm, not a forecast model; no predictive value is claimed.
+
+Assumptions — Positive power-of-two N, with N=1 the identity base case; finite complex input; negative-exponent forward DFT with no forward normalization. The source uses the opposite sign, related by conjugating input and output..
+
+Limitations — This radix-two recurrence applies directly only when N is a power of two. Floating-point round-off, memory layout, bit-reversal order and speed depend on implementation and hardware; no sports forecasting benefit is established..
+
+Mechanism — Split the direct DFT sum into even and odd input indices, use W_N²=W_M and W_N^M=−1. The two outputs share their length-M subtransforms. The recurrence T(N)=2T(N/2)+O(N) gives O(N log N). The original paper treats general sparse-factor FFTs and radix two; this is the canonical mechanism here, not a distinct algorithm for each radix.
+
+Source — Cooley, J. W. and Tukey, J. W. (1965). An algorithm for the machine calculation of complex Fourier series. Mathematics of Computation, 19(90), 297–301. https://doi.org/10.1090/S0025-5718-1965-0178586-1
+
+## Bluestein chirp convolution discrete Fourier transform (bluestein-chirp-dft)
+
+> For X_k=Σ_(n=0)^(N−1)x_n e^(−2πink/N), use 2nk=n²+k²−(k−n)² to obtain X_k=e^(−πik²/N)Σ_(n=0)^(N−1)[x_n e^(−πin²/N)]e^(+πi(k−n)²/N), a chirp-weighted linear convolution.
+
+N positive DFT length; n input index; k output index; x_n input; a_n=x_n e^(−πin²/N); b_r=e^(+πir²/N) for r=−(N−1),…,N−1..
+
+Computing the DFT for arbitrary-length sequences through chirp convolution, including preprocessing or frequency-domain analysis of suitable sporting time series. This is a transform algorithm, not a forecast model; no predictive value is claimed.
+
+Assumptions — N is a positive integer; finite complex input; negative-exponent unnormalized forward DFT. For L≥2N−1 use a length-L circular embedding: a[n]=0 beyond n=N−1, b[0]=1, b[r]=b[L−r]=e^(+πir²/N) for 1≤r≤N−1, and zero otherwise. Use inverse FFT normalization consistently..
+
+Limitations — The convolution implementation requires correct negative-index embedding and padding. Floating-point error, memory use and speed depend on L and the selected FFT; this can cost more than a radix-two FFT when N already has favorable factors. No sports forecasting benefit is established..
+
+Mechanism — The quadratic identity 2nk=n²+k²−(k−n)² directly gives the chirp factorization. The length-L embedding represents every required signed difference uniquely modulo L; the first N circular outputs therefore equal the needed linear-convolution values. The original IEEE abstract confirms chirp filtering and O(N log N) for arbitrary length; full paper was not inspected.
+
+Source — Bluestein, L. I. (1970). A linear filtering approach to the computation of discrete Fourier transform. IEEE Transactions on Audio and Electroacoustics, 18(4), 451–455. https://doi.org/10.1109/TAU.1970.1162132
+
+## Orthonormal discrete cosine transform type II (orthonormal-dct-ii)
+
+> C_k=α_k Σ_(n=0)^(N−1)x_n cos(π(n+1/2)k/N), α_0=1/√N, α_k=√(2/N) for k>0; x_n=Σ_(k=0)^(N−1)α_k C_k cos(π(n+1/2)k/N).
+
+N positive vector length; n input index; k coefficient index; x real vector; C cosine coefficients; α normalization.
+
+General real-valued signal representation or compression; no forecast or predictive benefit is claimed.
+
+Assumptions — Finite real vector with N≥1; all indices run from 0 to N−1; basis corresponds to an even extension about the half-sample boundaries.
+
+Limitations — Full transform is invertible but truncating coefficients loses information. Energy compaction depends on the input; boundaries and sample ordering affect interpretation. No computational speedup or forecasting benefit is guaranteed.
+
+Mechanism — Cosine product-to-sum and the finite sum of cos(π(n+1/2)m/N), which vanishes for integer m from 1 to 2N−1, give row norms N for k=0 and N/2 otherwise before scaling. Thus the matrix is orthogonal. This specifies a basis transformation, not a new FFT implementation.
+
+Source — SciPy v1.11.4 Manual, Fourier Transforms, Discrete Cosine and Sine Transforms. https://docs.scipy.org/doc/scipy-1.11.4/tutorial/fft.html
+
+## Orthonormal discrete sine transform type I (orthonormal-dst-i)
+
+> S_k=√(2/(N+1)) Σ_(n=1)^N x_n sin(πnk/(N+1)), k=1,…,N; x_n=√(2/(N+1)) Σ_(k=1)^N S_k sin(πnk/(N+1)).
+
+N number of interior samples; n and k are one-based indices; x real vector; S sine coefficients.
+
+Represent finite real vectors or discretized functions with homogeneous endpoint conditions; no empirical application is asserted.
+
+Assumptions — Finite real vector with N≥2 for compatibility with the cited implementation; zero boundary values at indices 0 and N+1 describe the odd extension.
+
+Limitations — A nonzero physical boundary requires a suitable lifting or other basis if used for a boundary problem. Dropping coefficients loses information. No forecast benefit is claimed.
+
+Mechanism — The sine product-to-sum identity and the finite roots-of-unity sum on 2(N+1) points give Σ_(n=1)^N sin(πnk/(N+1))sin(πnl/(N+1))=(N+1)δ_kl/2. The scaled matrix is symmetric orthogonal and self-inverse. This is a feature transformation with a different boundary basis, not a new FFT algorithm.
+
+Source — SciPy v1.11.4 Manual, Fourier Transforms, Discrete Cosine and Sine Transforms. https://docs.scipy.org/doc/scipy-1.11.4/tutorial/fft.html
