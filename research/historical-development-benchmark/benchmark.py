@@ -40,7 +40,7 @@ ALIASES = {
     "bremen":("SV Werder Bremen","Werder Bremen","Bremen"),
     "augsburg":("FC Augsburg","Augsburg"),
     "union":("1. FC Union Berlin","FC Union Berlin","Union Berlin"),
-    "stpauli":("FC St. Pauli","St. Pauli","FC Sankt Pauli"),
+    "stpauli":("FC St. Pauli","St. Pauli","FC Sankt Pauli","FC St. Pauli 1910"),
     "hoffenheim":("TSG 1899 Hoffenheim","TSG Hoffenheim","1899 Hoffenheim","Hoffenheim"),
     "heidenheim":("1. FC Heidenheim 1846","1. FC Heidenheim","FC Heidenheim","Heidenheim"),
     "kiel":("Holstein Kiel","KSV Holstein Kiel","Kiel"),
@@ -210,16 +210,20 @@ def loss(p,y):
     ties=[i for i,x in enumerate(p) if abs(x-best)<=1e-15]
     return (-math.log(p[y]),sum((v-int(i==y))**2 for i,v in enumerate(p)),1/len(ties) if y in ties else 0)
 
-def benchmark(rows):
+def benchmark(rows, *, date_only=False):
     need(len(rows)>=290,"Insufficient concordant ordinary fixtures")
-    ordered=sorted(rows,key=lambda r:(r["kickoff"],r["home"],r["away"]))
+    ordered=sorted(rows,key=lambda r:(r["day"] if date_only else r["kickoff"],r["home"],r["away"]))
     totals={m:[0.,0.,0.] for m in METHODS}
     periods=Counter()
     excluded=Counter({"warmup":0,"venue_history":0})
     n=0
     for target in ordered:
-        cutoff=target["kickoff"]-timedelta(hours=48)
-        prior=[r for r in ordered if r["kickoff"]<=cutoff and r["day"]<target["day"]]
+        if date_only:
+            # Date-only records: two complete intervening calendar days. No invented kickoff time.
+            prior=[r for r in ordered if r["day"]<=target["day"]-timedelta(days=3)]
+        else:
+            cutoff=target["kickoff"]-timedelta(hours=48)
+            prior=[r for r in ordered if r["kickoff"]<=cutoff and r["day"]<target["day"]]
         if len(prior)<90:
             excluded["warmup"]+=1;continue
         if sum(x["home"]==target["home"] for x in prior)<3 or sum(x["away"]==target["away"] for x in prior)<3:
