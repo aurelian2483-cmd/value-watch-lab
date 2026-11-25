@@ -66,11 +66,13 @@ class Controller:
             db.execute("UPDATE jobs SET state='QUARANTINED',token_hash=NULL WHERE id=?", (row["id"],))
             self.event(db,row["id"],"LEASE_EXPIRED",now)
 
-    def enqueue(self, job, revision, kind, now):
+    def enqueue(self, job, revision, kind, now, *, guard=None):
         need(isinstance(job,str) and ID.fullmatch(job), "Invalid job ID")
         need(isinstance(revision,str) and REV.fullmatch(revision), "Invalid pinned revision")
         need(isinstance(kind,str) and kind in KINDS, "Unapproved job kind")
         with self.tx() as db:
+            if guard is not None:
+                guard(db)
             self.tick(db,now)
             self.expire(db,now)
             prior=db.execute("SELECT * FROM jobs WHERE id=?", (job,)).fetchone()
@@ -85,10 +87,12 @@ class Controller:
             self.event(db,job,"ENQUEUED",now)
             return state
 
-    def claim(self, worker, now, ttl=60):
+    def claim(self, worker, now, ttl=60, *, guard=None):
         need(worker=="hosted-qa", "Remote/GPU workers not enrolled")
         need(type(ttl) is int and 1<=ttl<=300, "Invalid lease duration")
         with self.tx() as db:
+            if guard is not None:
+                guard(db)
             self.tick(db,now)
             self.expire(db,now)
             if db.execute("SELECT 1 FROM jobs WHERE worker=? AND state='LEASED'",(worker,)).fetchone():
@@ -101,11 +105,13 @@ class Controller:
             self.event(db,row["id"],"LEASED",now)
             return dict(row)|{"token":token,"expires":now+ttl}
 
-    def submit(self, job, worker, token, receipt_hash, now):
+    def submit(self, job, worker, token, receipt_hash, now, *, guard=None):
         need(worker=="hosted-qa", "Worker not enrolled")
         need(isinstance(receipt_hash,str) and HEX.fullmatch(receipt_hash), "Invalid receipt hash")
         hashed=hash_token(token)
         with self.tx() as db:
+            if guard is not None:
+                guard(db)
             self.tick(db,now)
             self.expire(db,now)
             row=db.execute("SELECT * FROM jobs WHERE id=?", (job,)).fetchone()
@@ -125,18 +131,22 @@ class Controller:
         return {"kind":"LOCAL_CONTROLLER_QA_SNAPSHOT","jobs":[dict(r) for r in rows],
                 "events":[dict(r) for r in events],**FLAGS}
 
-    def read_only_status(self):
+    def read_only_status(self, *, guard=None):
         """Stored state only. Expiration is reconciled by a separate trusted operation."""
         db=sqlite3.connect(self.path.resolve().as_uri()+"?mode=ro",uri=True,timeout=10)
         db.row_factory=sqlite3.Row
         try:
             db.execute("BEGIN")
+            if guard is not None:
+                guard(db)
             return self.view(db)|{"freshness":"STORED_STATE_ONLY"}
         finally:
             db.close()
 
-    def snapshot(self, now):
+    def snapshot(self, now, *, guard=None):
         with self.tx() as db:
+            if guard is not None:
+                guard(db)
             self.tick(db,now)
             self.expire(db,now)
             return self.view(db)
