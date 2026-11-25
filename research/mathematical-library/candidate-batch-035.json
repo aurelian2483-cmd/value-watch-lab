@@ -69,7 +69,7 @@
     "classification": "model-variant",
     "id": "adaptive-simpson-quadrature",
     "name": "Adaptive Simpson quadrature",
-    "definition": "Provisional: compare Simpson estimate S on an interval with sum S₂ of Simpson estimates on its two halves; use E≈|S₂−S|/15 under smoothness assumptions, subdividing where tolerance is unmet.",
+    "definition": "Provisional: S(a,b)=(b−a)[f(a)+4f((a+b)/2)+f(b)]/6; m=(a+b)/2; S₂=S(a,m)+S(m,b); E≈|S₂−S(a,b)|/15 under smoothness assumptions. Subdivide when the local error estimate exceeds its allocated tolerance.",
     "variables": "S coarse rule; S₂ refined rule; E local estimated error",
     "assumptions": "Sufficient smoothness for asymptotic Simpson error scaling",
     "limitations": "Error estimate can miss localized structure",
