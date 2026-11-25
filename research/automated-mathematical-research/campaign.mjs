@@ -46,7 +46,7 @@ function evaluate(s){
 export function runCampaign(codeRevision){
  if(!revision(codeRevision))throw Error('Full declared checkout revision required')
  const rows=specs.map(s=>{
-  const base={id:s.id,method:s.method,input:s.input,fixtureSha256:digest(s),tolerance:s.tolerance,backend:'CPU_NODE'}
+  const base={id:s.id,method:s.method,input:structuredClone(s.input),fixtureSha256:digest(s),tolerance:s.tolerance,backend:'CPU_NODE'}
   try{
    const v=evaluate(s),error=Math.abs(v.value-v.expected)
    return {...base,...v,absoluteError:Number.isFinite(error)?error:null,status:v.converged&&Number.isFinite(error)&&error<=s.tolerance?'PASS':'FAIL'}
