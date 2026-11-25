@@ -51,12 +51,13 @@ def child(mode):
     else:
         time.sleep(30)
 
-def run():
+def run(modes=MODES):
     require(sys.platform == "linux", "Linux resource QA required; no fallback")
+    require(isinstance(modes, tuple) and 1 <= len(modes) <= len(MODES) and len(set(modes)) == len(modes) and all(m in MODES for m in modes), "Invalid fixed probes")
     rows = []
     script = str(Path(__file__).resolve())
     with tempfile.TemporaryDirectory(prefix="research-resource-qa-") as work:
-        for mode in MODES:
+        for mode in modes:
             started = time.monotonic()
             limit = 1 if mode == "wall-timeout" else 5
             cmd = [sys.executable, "-I", "-S", "-B", script, "--child", mode]
@@ -84,9 +85,9 @@ def run():
                 raise RuntimeError("Wall-timeout probe exited unexpectedly")
             rows.append({"probe": mode, "status": "PASS", "observed": observed,
                          "elapsedSeconds": round(time.monotonic()-started, 3)})
-    require(len(rows) == 4, "Incomplete resource test coverage")
+    require(len(rows) == len(modes), "Incomplete resource test coverage")
     return {"kind": "FIXED_SYNTHETIC_RESOURCE_QA", "schemaVersion": 1,
-            "platform": "linux", "checks": rows, "passed": 4,
+            "platform": "linux", "checks": rows, "passed": len(rows),
             "limits": {"cpuAffinitySlots": 1, "addressSpaceMiB": 64, "cpuHardSeconds": 2,
                        "maximumParentTimeoutSeconds": 5},
             "limitations": ["Fixed trusted QA subprocesses only; not a sandbox for arbitrary code.",
@@ -97,6 +98,8 @@ def run():
 if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "--child":
         child(sys.argv[2])
+    elif len(sys.argv) == 3 and sys.argv[1] == "--probe" and sys.argv[2] in MODES:
+        print(json.dumps(run((sys.argv[2],)), indent=2))
     elif len(sys.argv) == 1:
         print(json.dumps(run(), indent=2))
     else:
