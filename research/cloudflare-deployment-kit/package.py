@@ -14,7 +14,7 @@ ROOT=Path(__file__).resolve().parents[2]
 REV="c91abd1cd13f03fbf1d71b75c7173a0811b0ccc4"
 BLOBS={"worker.mjs":"77beb99316b7e265caf724256a2a90d36dcf37c5","queue.mjs":"248d273625af62ea59c0d8a45d8b250ae951ad10"}
 HOST="sky-research-controller.aurelian2483.workers.dev"
-FILES={"worker.mjs","queue.mjs","wrangler.json","START-HERE.txt"}
+FILES={"worker.mjs","queue.mjs","wrangler.json","START-HERE.txt","preflight.mjs"}
 def need(ok,msg):
     if not ok: raise ValueError(msg)
 def sha(raw):return hashlib.sha256(raw).hexdigest()
@@ -36,6 +36,7 @@ def build():
         data[name]=raw
     data["wrangler.json"]=encode(config())
     data["START-HERE.txt"]=tracked("research/cloudflare-deployment-kit/START-HERE.txt")
+    data["preflight.mjs"]=tracked("research/cloudflare-deployment-kit/preflight.mjs")
     data["manifest.json"]=encode({"kind":"DISABLED_CLOUDFLARE_DEPLOYMENT_KIT","revision":REV,"host":HOST,
         "activationAuthorized":False,"productionDispatchAuthorized":False,"publicationGate":"BLOCKED",
         "files":[{"path":name,"bytes":len(raw),"sha256":sha(raw)} for name,raw in sorted(data.items())]})
@@ -51,7 +52,7 @@ def build():
 def verify(raw,anchor):
     need(len(raw)<=5*65536 and sha(raw)==anchor,"Archive mismatch")
     with zipfile.ZipFile(io.BytesIO(raw)) as z:
-        need(len(z.infolist())==5 and set(z.namelist())==FILES|{"manifest.json"},"Archive inventory")
+        need(len(z.infolist())==6 and set(z.namelist())==FILES|{"manifest.json"},"Archive inventory")
         for info in z.infolist():
             need(0<info.file_size<=65536 and stat.S_IFMT(info.external_attr>>16)==stat.S_IFREG,"Invalid member")
         m=json.loads(z.read("manifest.json"))
@@ -59,7 +60,7 @@ def verify(raw,anchor):
         need(m["kind"]=="DISABLED_CLOUDFLARE_DEPLOYMENT_KIT" and m["revision"]==REV and m["host"]==HOST,"Manifest identity")
         need(m["activationAuthorized"] is False and m["productionDispatchAuthorized"] is False and m["publicationGate"]=="BLOCKED","Unsafe manifest")
         rows=m["files"]
-        need(len(rows)==4 and {r["path"] for r in rows}==FILES,"Manifest inventory")
+        need(len(rows)==5 and {r["path"] for r in rows}==FILES,"Manifest inventory")
         for r in rows:
             b=z.read(r["path"])
             need(set(r)=={"path","bytes","sha256"} and r["bytes"]==len(b) and r["sha256"]==sha(b),"Member mismatch")
