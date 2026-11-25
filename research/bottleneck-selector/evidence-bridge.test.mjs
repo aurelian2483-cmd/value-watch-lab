@@ -1,0 +1,26 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {buildEvidenceSnapshot,screenEvent} from './evidence-bridge.mjs';
+const make=(id,date,ft,a,b)=>({id:"2024-25|"+date+"|"+id+"|Opponent",date,season:'2024-25',ft,winner_index:ft[0]>ft[1]?0:ft[0]===ft[1]?1:2,p_unadjusted:a,p_recent_form_alpha_0_025:b});
+const rows=[make('A','2024-10-01',[1,0],[.5,.3,.2],[.55,.25,.2]),make('B','2024-10-08',[0,0],[.3,.4,.3],[.25,.45,.3])];
+function score(k){let loss=0,brier=0,hits=0;for(const r of rows){let p=r[k],y=r.winner_index;loss-=Math.log(p[y]);brier+=p.reduce((a,x,i)=>a+(x-(i===y?1:0))**2,0);hits+=+(p.indexOf(Math.max(...p))===y)}return{n:rows.length,log_loss:loss/rows.length,multiclass_brier:brier/rows.length,top1_accuracy:hits/rows.length}}
+const history={meta:{name:'RECONSTRUCTED_POISSON_RESEARCH_V1',research_only:true,validated:false,model_publication_gate:'BLOCKED',outcomes_order:['home','draw','away']},rows,counts:{'2024-25':{eligible:2}},metrics:{unadjusted:score('p_unadjusted'),form:score('p_recent_form_alpha_0_025')}};
+const p={prediction_id:'tennis:test',event_id:'t',model_version:'ELO',sport:'tennis',research_only:true,model_validated:false,recorded_at_utc:'2026-11-16T09:00:00Z',source_observed_at_utc:'2026-11-16T08:00:00Z',event_start_utc:'2026-11-16T10:00:00Z',probabilities:{a:.6,b:.4}};
+const ledger={schemaVersion:1,kind:'PROSPECTIVE_PREDICTION_LEDGER',modelValidated:false,records:[p]};
+const results={schemaVersion:1,kind:'VERIFIED_OUTCOME_FEED',records:[]};
+const report={schema_version:1,kind:'INDEPENDENT_RESEARCH_PERFORMANCE_V1',research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',verified_betting_value:false,verified_roi:false,forecast_records:1,outcome_archive_records:0,contract_matched_pairs:0,paired_model_comparisons:[],verdict:'NO_PAIRED_RESULTS'};
+const progress={target:1000,registered:286,remaining:714,qualified:0};
+const data={history,ledger,results,report,progress};
+const copy=x=>structuredClone(x);
+test('reads and recomputes two real-format historical models without misidentifying live engines',()=>{const r=buildEvidenceSnapshot(data);assert.equal(r.historical.events,2);assert.equal(r.historical.reconstructed_variants.length,2);assert.equal(r.historical.reconstructed_variants[0].identity,'NOT_CURRENT_ENGINE_2_5');assert.equal(r.historical.eligible_for_engine_selection,false)});
+test('reads forecast counts and retains zero verified pairs',()=>{const r=buildEvidenceSnapshot(data);assert.equal(r.prospective.forecasts,1);assert.equal(r.prospective.outcome_archive_rows,0);assert.equal(r.prospective.independent_result_attestations_in_this_bridge,0)});
+test('all six options remain flat; compare cannot be selected as a model',()=>{const r=buildEvidenceSnapshot(data);assert.equal(r.flat_options.length,6);assert.equal(r.flat_options.find(m=>m.id==='compare').kind,'tool');assert.equal(r.selected_method,null)});
+test('event routing is gated and does not choose a method',()=>{const r=buildEvidenceSnapshot(data);const e={id:'e',sport:'football',market:'FOOTBALL_90_MINUTE_1X2',startUTC:'2026-12-01T20:00:00Z'};const result=screenEvent(r,e,'2026-11-30T12:00:00Z');assert.equal(result.selected_method,null);assert.equal(result.status,'CATALOGUE_OR_APPROVAL_GATE_BLOCKED')});
+test('no duplicate historical identities',()=>{const x=copy(data);x.history.rows.push(x.history.rows[0]);assert.throws(()=>buildEvidenceSnapshot(x),/Duplicate historical/)});
+test('no fake outcomes or non-normalized probabilities',()=>{const x=copy(data);x.history.rows[0].winner_index=2;assert.throws(()=>buildEvidenceSnapshot(x),/Result contradiction/);const y=copy(data);y.history.rows[0].p_unadjusted=[.8,.8,.8];assert.throws(()=>buildEvidenceSnapshot(y),/Invalid 1X2/)});
+test('rejects changed historical scoring summary',()=>{const x=copy(data);x.history.metrics.form.log_loss=0;assert.throws(()=>buildEvidenceSnapshot(x),/metric mismatch/)});
+test('rejects late and duplicate forecast receipts',()=>{const x=copy(data);x.ledger.records[0].recorded_at_utc='2026-11-16T11:00:00Z';assert.throws(()=>buildEvidenceSnapshot(x),/not frozen/);const y=copy(data);y.ledger.records.push(y.ledger.records[0]);assert.throws(()=>buildEvidenceSnapshot(y),/Duplicate/)});
+test('rejects weekly report/ledger drift and invented results',()=>{const x=copy(data);x.report.forecast_records=99;assert.throws(()=>buildEvidenceSnapshot(x),/count mismatch/);const y=copy(data);y.report.contract_matched_pairs=2;assert.throws(()=>buildEvidenceSnapshot(y),/Unsupported paired/)});
+test('rejects inconsistent catalogue counts',()=>{const x=copy(data);x.progress.remaining=0;assert.throws(()=>buildEvidenceSnapshot(x),/Invalid catalogue/)});
+test('even 1000 registered methods cannot bypass approvals',()=>{const x=copy(data);x.progress={target:1000,registered:1000,remaining:0,qualified:0};const r=buildEvidenceSnapshot(x);const e={id:'e',sport:'football',market:'FOOTBALL_90_MINUTE_1X2',startUTC:'2026-12-01T20:00:00Z'};assert.equal(screenEvent(r,e,'2026-11-30T12:00:00Z').selected_method,null)});
+test('keeps source immutable',()=>{const before=JSON.stringify(data);buildEvidenceSnapshot(data);assert.equal(JSON.stringify(data),before)});

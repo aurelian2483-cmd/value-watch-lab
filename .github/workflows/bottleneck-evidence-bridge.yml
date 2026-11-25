@@ -1,0 +1,31 @@
+name: Bottleneck evidence bridge (read-only)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'research/bottleneck-selector/**'
+      - '.github/workflows/bottleneck-evidence-bridge.yml'
+permissions:
+  contents: read
+jobs:
+  evidence-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run isolated selector and bridge tests
+        run: node --test research/bottleneck-selector/selector.test.mjs research/bottleneck-selector/evidence-bridge.test.mjs
+      - name: Verify current real archived research records without publishing
+        run: |
+          node research/bottleneck-selector/evidence-bridge.mjs > "$RUNNER_TEMP/bottleneck-evidence.json"
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const p=process.env.RUNNER_TEMP+"/bottleneck-evidence.json";
+            const d=JSON.parse(fs.readFileSync(p,"utf8"));
+            if(d.research_only!==true||d.publication_gate!=="BLOCKED"||d.selection_eligible!==false||d.selected_method!==null) throw Error("Bottleneck gate violated");
+            if(!(d.historical.events>0)||!(d.prospective.forecasts>=0)) throw Error("Missing archived evidence");
+            console.log(JSON.stringify({status:"RESEARCH_ONLY_BLOCKED",historical:d.historical.events,forecasts:d.prospective.forecasts,outcomes:d.prospective.outcome_archive_rows,catalogue:d.catalogue.registered}));
+          '
