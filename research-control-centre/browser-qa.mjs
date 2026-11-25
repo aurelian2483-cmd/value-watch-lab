@@ -12,6 +12,8 @@ mkdirSync(out,{recursive:true})
 const originalSha='f8919ac7209fa9d8b4100d6cb6853e90253746b12718ffe983057c48c66d5826'
 const homeBlob='f0e343322c3aff6c7251d9318c656f4b4b40c906'
 const back='<p class="muted"><a href="../" id="return-research-desk">← Back to Value Watch research desk</a></p><p class="muted" id="measurement-freshness">Measurement freshness: UNKNOWN</p>'
+const operationalLink='<p class="muted"><a id="operational-evidence-link" href="./operational-status/">Hosted CPU and scheduling evidence (historical QA)</a></p>'
+const operationalBack='<p><a id="return-control-centre" href="../">← Back to Research Control Centre</a></p>'
 const links=['<a href="./research-control-centre/">Research Control Centre · Evidence</a>','<a href="./research-control-centre/">Control Centre</a>']
 const bytes=p=>readFileSync(join(root,p))
 const hash=b=>createHash('sha256').update(b).digest('hex')
@@ -21,7 +23,24 @@ let restored=home.toString('utf8')
 for(const link of links){assert.equal(restored.split(link).length,2);restored=restored.replace(link,'')}
 assert.equal(blob(Buffer.from(restored)),homeBlob,'Unrelated homepage bytes changed')
 assert.equal(site.toString('utf8').split(back).length,2)
-assert.equal(hash(Buffer.from(site.toString('utf8').replace(back,''))),originalSha,'Approved website changed beyond return link')
+assert.equal(site.toString('utf8').split(operationalLink).length,2)
+assert.equal(hash(Buffer.from(site.toString('utf8').replace(back,'').replace(operationalLink,''))),originalSha,'Approved website changed beyond reviewed links')
+const op=bytes('research-control-centre/operational-status/index.html'),status=bytes('research-control-centre/operational-status/status.json')
+assert.equal(op.toString('utf8').split(operationalBack).length,2)
+assert.equal(hash(Buffer.from(op.toString('utf8').replace(operationalBack,''))),'27505b9b55c9cf2d8a37fda65193bc9055634dbf3fee6e785231036c6ef0a9d1')
+assert.equal(hash(status),'1f2293bf431e1819fd54f2da297106ec3f0a079b24f2378fef1c9a705db3a25d')
+assert.equal(bytes('research-control-centre/operational-status/status.sha256').toString(),hash(status)+'  status.json\n')
+const statusRecord=JSON.parse(status)
+assert.equal(statusRecord.kind,'HOSTED_SCHEDULED_FIXED_QA_EVIDENCE')
+assert.equal(statusRecord.revision,'ddf3a61edf426cd50c108007ee7461b3a74f4364')
+assert.equal(statusRecord.runId,'45531570259')
+assert.equal(statusRecord.runAttempt,'1')
+for(const key of ['gpuDispatchAuthorized','productionDispatchAuthorized','homePcRequired'])assert.equal(statusRecord[key],false)
+assert.equal(statusRecord.researchStatus,'UNVALIDATED')
+assert.equal(statusRecord.publicationGate,'BLOCKED')
+assert.equal(statusRecord.physicalPc,'NOT_CONNECTED_IN_THIS_TEST')
+assert.equal(statusRecord.measurementFreshness,'UNKNOWN')
+assert.equal(statusRecord.syntheticChecks,500)
 const prefix='/value-watch-lab/'
 const types={'.html':'text/html; charset=utf-8','.js':'application/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.woff2':'font/woff2'}
 const server=createServer((req,res)=>{
@@ -90,6 +109,16 @@ try{
    await detail.focus();await page.keyboard.press('Enter')
    assert.ok(await detail.evaluate(x=>x.parentElement.open),'Keyboard details failed')
    await page.screenshot({path:join(out,'control-centre-'+width+'.png'),fullPage:true})
+   await page.locator('#operational-evidence-link').click()
+   await page.waitForURL(base+'research-control-centre/operational-status/')
+   assert.equal(await page.title(),'Sky Research — operational QA evidence')
+   const opText=await page.locator('main').innerText()
+   for(const value of ['UNVALIDATED','PUBLICATION BLOCKED','PRODUCTION DISPATCH BLOCKED','not live telemetry','500 fixed synthetic checks','Physical PC not connected'])assert.ok(opText.includes(value),value)
+   assert.equal(await page.locator('script,iframe,form,input,button').count(),0)
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth),'Operational evidence overflow at '+width)
+   await page.screenshot({path:join(out,'operational-status-'+width+'.png'),fullPage:true})
+   await page.locator('#return-control-centre').click()
+   await page.waitForURL(base+'research-control-centre/')
    assert.deepEqual(errors,[]);assert.deepEqual(external,[])
    await page.locator('#return-research-desk').click()
    await page.waitForURL(base)
@@ -99,9 +128,12 @@ try{
   }finally{await page.close()}
  }
  assert.equal((await fetch(base+'research-control-centre/',{method:'POST'})).status,405)
+ assert.equal((await fetch(base+'research-control-centre/operational-status/',{method:'POST'})).status,405)
+ assert.equal(hash(bytes('research-control-centre/operational-status/index.html')),hash(op))
+ assert.equal(hash(bytes('research-control-centre/operational-status/status.json')),hash(status))
  assert.equal(hash(bytes('research-control-centre/index.html')),hash(site))
  assert.equal(hash(bytes('index.html')),hash(home))
- writeFileSync(join(out,'integration-receipt.json'),JSON.stringify({kind:'READ_ONLY_SITE_INTEGRATION_ACCEPTANCE',checks,originalHtmlSha256:originalSha,integratedHtmlSha256:hash(site),homeSha256:hash(home),modelValidation:'UNVALIDATED',publicationGate:'BLOCKED',executionAuthorized:false},null,2)+'\n')
+ writeFileSync(join(out,'integration-receipt.json'),JSON.stringify({kind:'READ_ONLY_SITE_INTEGRATION_ACCEPTANCE',checks,originalHtmlSha256:originalSha,integratedHtmlSha256:hash(site),operationalHtmlSha256:hash(op),operationalStatusSha256:hash(status),homeSha256:hash(home),modelValidation:'UNVALIDATED',publicationGate:'BLOCKED',executionAuthorized:false},null,2)+'\n')
  console.log('PASS six responsive integration scenarios, original-byte reconstruction, navigation, keyboard details, no external page requests and read-only HTTP')
 }finally{
  if(browser)await browser.close()
