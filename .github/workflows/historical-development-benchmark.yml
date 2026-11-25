@@ -1,0 +1,79 @@
+name: Historical development benchmark
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'research/historical-development-benchmark/**'
+      - '.github/workflows/historical-development-benchmark.yml'
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Frozen protocol and offline synthetic contracts
+        run: |
+          python -B -m unittest discover -s research/historical-development-benchmark -p 'test_*.py' -v
+          python -B -m unittest discover -s research/historical-evidence-readiness -p 'test_*.py' -v
+          test -z "$(git status --porcelain --untracked-files=all)"
+  authorized-development-study:
+    needs: offline
+    if: >-
+      github.repository == 'aurelian2483-cmd/value-watch-lab' &&
+      github.event.action == 'opened' &&
+      github.run_attempt == 1 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'development/historical-development-benchmark-20261125' &&
+      github.event.pull_request.base.ref == 'development/openligadb-historical-pilot-20261125' &&
+      github.event.pull_request.base.sha == '6629c9db5c3586ffefe13eefe8fe4fc728b4c643'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: One bounded request per source and fixed retrospective comparison
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/development-study"
+          mkdir "$out"
+          python -B research/historical-development-benchmark/benchmark.py --authorized-development-only > "$out/summary.json"
+          python -B - <<'PY'
+          import json,os,pathlib,hashlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'development-study'/'summary.json'
+          raw=p.read_bytes();r=json.loads(raw)
+          assert r['kind']=='HISTORICAL_DEVELOPMENT_BENCHMARK'
+          assert r['network_requests']==2 and r['raw_records_published'] is False
+          assert r['independently_certified_rows']==0
+          assert r['modelValidation']=='UNVALIDATED' and r['publicationGate']=='BLOCKED'
+          for k in ('executionAuthorized','validationAuthorized','dispatchAuthorized','protectedEvaluationAuthorized','productionPromotionAuthorized'):
+              assert r[k] is False
+          c=r['reconciliation'];assert c['total_pairs']==306
+          assert sum(v for k,v in c.items() if k!='total_pairs')==306
+          s=r['comparison'];assert s['empirically_qualified_methods']==0
+          if s['status']=='RETROSPECTIVE_DEVELOPMENT_COMPARISON_COMPLETED':
+              n=s['paired_targets'];assert n>0 and len(s['metrics'])==5
+              assert all(m['n']==n for m in s['metrics'].values())
+              assert n+sum(s['excluded_before_scoring'].values())==c['concordant']
+          print('Aggregate reconciliation:',json.dumps(c))
+          print('Development comparison:',json.dumps(s))
+          print('Summary SHA-256:',hashlib.sha256(raw).hexdigest())
+          PY
+          cp research/historical-development-benchmark/PROTOCOL.md "$out/PROTOCOL.md"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: historical-development-aggregate-evidence
+          path: ${{ runner.temp }}/development-study/
+          retention-days: 7
+          if-no-files-found: error
