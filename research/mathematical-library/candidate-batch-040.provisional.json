@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "040",
+    "family": "numerical-ode",
+    "classification": "model-variant",
+    "id": "multiple-shooting-boundary-value",
+    "name": "Multiple shooting with continuity constraints",
+    "definition": "Provisional: split [a,b] into m intervals, introduce starting states Z_j, and impose Φ_j(Z_j)−Z_(j+1)=0 plus boundary constraints, where Φ_j integrates the jth IVP.",
+    "variables": "m segment count; Z_j segment starting states; Φ_j segment flow map",
+    "assumptions": "Provisional well-posed segment IVPs and compatible boundary and continuity conditions",
+    "limitations": "Provisional nonlinear matching system, conditioning and solve policy require review",
+    "failure_conditions": [
+      "Unresolved segment integration or matching residual"
+    ],
+    "computation": "Provisional solve the coupled continuity and boundary equations; verify dimensions and conditioning before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: standard numerical boundary value problem literature; independent source review pending."
+    },
+    "application": "General numerical boundary value problems.",
+    "required_inputs": "ODE, boundary conditions, mesh and solve policies",
+    "compatible_methods": [
+      "single-shooting-boundary-value"
+    ],
+    "incompatible_methods": [
+      "Unresolved matching constraints"
+    ],
+    "relationships": [
+      {
+        "target": "single-shooting-boundary-value",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional: subdivides the shooting interval and introduces interface unknowns."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "040",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "piecewise-linear-galerkin-elliptic-bvp",
+    "name": "Piecewise-linear Galerkin finite elements for scalar elliptic boundary value problems",
+    "definition": "Provisional: for homogeneous Dirichlet −y″+c y=g, expand U=Σ_j U_j φ_j in interior piecewise-linear hat functions and solve Σ_j U_j ∫(φ_i′φ_j′+c φ_i φ_j)dt=∫g φ_i dt.",
+    "variables": "φ_j piecewise-linear nodal basis; U_j coefficients; c,g given functions",
+    "assumptions": "Provisional coercive weak problem and conforming one-dimensional mesh",
+    "limitations": "Provisional quadrature, regularity, equivalence to finite differences in special cases and convergence require review",
+    "failure_conditions": [
+      "Invalid mesh or unresolved variational linear system"
+    ],
+    "computation": "Provisional assemble element integrals and solve; assess weak formulation and boundary treatment before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: standard numerical boundary value problem literature; independent source review pending."
+    },
+    "application": "General numerical boundary value problems.",
+    "required_inputs": "Interval, coefficients, forcing, mesh, quadrature and solve policy",
+    "compatible_methods": [
+      "centered-finite-difference-linear-bvp"
+    ],
+    "incompatible_methods": [
+      "Unresolved coercivity or linear solve"
+    ],
+    "relationships": [
+      {
+        "target": "centered-finite-difference-linear-bvp",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: test-function integral equations rather than pointwise derivative stencils; special-case equivalence review pending."
+  }
+]

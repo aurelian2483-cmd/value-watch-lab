@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "041",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "cell-centered-finite-volume-diffusion-1d",
+    "name": "Cell-centred finite volume for one-dimensional diffusion",
+    "definition": "Provisional: balance F_(i+1/2)−F_(i−1/2)=∫_(cell i)g dt, with face flux F approximating −k u′ by neighbouring centre differences.",
+    "variables": "F face flux; k diffusion; g source; cell centres and faces",
+    "assumptions": "Provisional positive diffusion, admissible grid and boundary conditions",
+    "limitations": "Provisional flux accuracy and finite-difference equivalence require review",
+    "failure_conditions": [
+      "Invalid geometry or unresolved flux balance"
+    ],
+    "computation": "Provisional assemble flux balances; review boundary closures.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: finite-volume literature; independent source review pending."
+    },
+    "application": "General numerical boundary value problems.",
+    "required_inputs": "Mesh, diffusion, forcing, boundary and solve policies",
+    "compatible_methods": [
+      "centered-finite-difference-linear-bvp"
+    ],
+    "incompatible_methods": [
+      "Unresolved boundary flux treatment"
+    ],
+    "relationships": [
+      {
+        "target": "centered-finite-difference-linear-bvp",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: conservative control-volume balance; special-case equivalence requires review."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "041",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "chebyshev-spectral-collocation-bvp",
+    "name": "Chebyshev spectral collocation for scalar boundary value problems",
+    "definition": "Provisional: on mapped Chebyshev–Lobatto nodes solve −D²U+diag(c)U=g at interior nodes with prescribed endpoints; D is the global polynomial differentiation matrix.",
+    "variables": "D differentiation matrix; U nodal values; c reaction; g forcing",
+    "assumptions": "Provisional smooth solution and well-posed problem",
+    "limitations": "Provisional conditioning and convergence require review",
+    "failure_conditions": [
+      "Invalid nodes or unresolved collocation solve"
+    ],
+    "computation": "Provisional construct global derivative matrix and impose boundary conditions; review scaling and convergence.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: spectral numerical analysis literature; independent source review pending."
+    },
+    "application": "General numerical boundary value problems.",
+    "required_inputs": "Interval, reaction, forcing, nodes, boundary and solve policies",
+    "compatible_methods": [
+      "centered-finite-difference-linear-bvp"
+    ],
+    "incompatible_methods": [
+      "Unresolved global differentiation or solve"
+    ],
+    "relationships": [
+      {
+        "target": "centered-finite-difference-linear-bvp",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: global polynomial collocation rather than local derivative stencils."
+  }
+]

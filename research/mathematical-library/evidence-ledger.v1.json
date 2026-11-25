@@ -7273,5 +7273,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Unlike derivative weights alone, solves a coupled global boundary-constrained linear system. For zero-boundary vectors the scaled matrix quadratic form is Σ_(i=1)^N (v_i−v_(i−1))²+h²Σ_(i=1)^(N−1)c_i v_i²>0 for nonzero v. The discrete barrier q(t)=(t−a)(b−t)/2 gives max nodal error ≤(b−a)²h² max|y⁽⁴⁾|/96 in exact arithmetic."
+  },
+  {
+    "id": "multiple-shooting-boundary-value",
+    "source": {
+      "kind": "literature",
+      "citation": "Michael T. Heath, Scientific Computing: An Introductory Survey, chapter 10, Multiple Shooting, slide 19, University of Illinois, https://relate.cs.illinois.edu/course/cs450-s24/f/lectures/heath/chap10.pdf ; Morrison, Riley and Zancanaro (1962), https://doi.org/10.1145/355580.369128 (public abstract only); dimensions and Jacobian independently derived."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "There are (m+1)d unknowns, md continuity equations and d boundary equations. Exact continuity and unique local IVP solutions concatenate to an original BVP solution; elimination of intermediate states recovers the single-shooting equation. Counted as a shooting variant."
+  },
+  {
+    "id": "piecewise-linear-galerkin-elliptic-bvp",
+    "source": {
+      "kind": "literature",
+      "citation": "Per-Olof Persson, The Finite Element Method – Lecture Notes, UC Berkeley, Introduction to FEM and assembly, https://persson.berkeley.edu/math228b/html/fem_notes.html ; reaction matrix, energy orthogonality and finite-difference comparison independently derived."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Energy orthogonality gives best approximation in the bilinear-form norm; positivity follows from the derivative term and zero boundary conditions. Interpolation of an H² solution gives O(max h_e) energy error. Uniform mesh with c=0 and constant g gives the centered finite-difference equations after dividing interior rows by h; general consistent reaction and load integrals differ, so the methods are related rather than equivalent."
   }
 ]

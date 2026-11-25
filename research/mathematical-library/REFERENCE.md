@@ -5053,3 +5053,35 @@ Limitations — Second-order nodal discretization under the stated regularity; l
 Mechanism — Unlike derivative weights alone, solves a coupled global boundary-constrained linear system. For zero-boundary vectors the scaled matrix quadratic form is Σ_(i=1)^N (v_i−v_(i−1))²+h²Σ_(i=1)^(N−1)c_i v_i²>0 for nonzero v. The discrete barrier q(t)=(t−a)(b−t)/2 gives max nodal error ≤(b−a)²h² max|y⁽⁴⁾|/96 in exact arithmetic.
 
 Source — James M. Ortega, Numerical Analysis: A Second Course, §6.1, equations (6.1)–(6.2), https://doi.org/10.1137/1.9781611971323.ch6 (public abstract); University of Bielefeld, Computational Physics SoSe 2026, Boundary Value Problems, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/08_boundary_value_problems.html; finite-difference section. Energy and maximum-norm bound independently derived.
+
+## Multiple shooting with continuity constraints (multiple-shooting-boundary-value)
+
+> For Y′=F(t,Y) in R^d and boundary equation B(Y(a),Y(b))=0 in R^d, partition a=t₀<⋯<t_m=b. Introduce Z_j∈R^d for j=0,…,m and exact segment flow Φ_j from t_j to t_(j+1). Solve Φ_j(Z_j)−Z_(j+1)=0 for j=0,…,m−1 and B(Z₀,Z_m)=0. In computation replace exact flows with numerical integrations.
+
+d state dimension; m segment count; t_j mesh points; Z_j nodal states; Φ_j flow map; B boundary map.
+
+General numerical boundary value problems.
+
+Assumptions — Increasing mesh, well-posed segment IVPs near a solution, compatible boundary conditions, differentiable flow and boundary maps for Newton iteration, nonsingular full matching Jacobian at a regular local root.
+
+Limitations — Larger nonlinear system than single shooting; shorter intervals can reduce within-segment error amplification but cannot guarantee conditioning, uniqueness or convergence; integration errors remain.
+
+Mechanism — There are (m+1)d unknowns, md continuity equations and d boundary equations. Exact continuity and unique local IVP solutions concatenate to an original BVP solution; elimination of intermediate states recovers the single-shooting equation. Counted as a shooting variant.
+
+Source — Michael T. Heath, Scientific Computing: An Introductory Survey, chapter 10, Multiple Shooting, slide 19, University of Illinois, https://relate.cs.illinois.edu/course/cs450-s24/f/lectures/heath/chap10.pdf ; Morrison, Riley and Zancanaro (1962), https://doi.org/10.1145/355580.369128 (public abstract only); dimensions and Jacobian independently derived.
+
+## Piecewise-linear Galerkin finite elements for scalar elliptic boundary value problems (piecewise-linear-galerkin-elliptic-bvp)
+
+> For −u″+c u=g on (a,b), u(a)=u(b)=0, use continuous piecewise-linear trial and test functions vanishing at endpoints. Set U=Σ_j U_j φ_j in interior nodal hats and solve Σ_j A_ij U_j=b_i, A_ij=∫_a^b(φ_i′φ_j′+c φ_i φ_j)dt, b_i=∫_a^b g φ_i dt. For constant c on an element of length h_e, A_e=(1/h_e)[[1,−1],[−1,1]]+(c h_e/6)[[2,1],[1,2]].
+
+a,b interval endpoints; c reaction coefficient; g forcing; h_e element length; φ_j nodal hats; U_j coefficients; A,b_i assembled matrix and load.
+
+General numerical boundary value problems.
+
+Assumptions — Finite interval, bounded c≥0 almost everywhere, square-integrable g, increasing conforming mesh and exact integration for variational claims; H² solution for first-order energy convergence.
+
+Limitations — Underintegration changes the equations; nonsmooth solutions may reduce rates; mesh conditioning and quadrature affect solves; algebraic residual alone cannot certify discretization error.
+
+Mechanism — Energy orthogonality gives best approximation in the bilinear-form norm; positivity follows from the derivative term and zero boundary conditions. Interpolation of an H² solution gives O(max h_e) energy error. Uniform mesh with c=0 and constant g gives the centered finite-difference equations after dividing interior rows by h; general consistent reaction and load integrals differ, so the methods are related rather than equivalent.
+
+Source — Per-Olof Persson, The Finite Element Method – Lecture Notes, UC Berkeley, Introduction to FEM and assembly, https://persson.berkeley.edu/math228b/html/fem_notes.html ; reaction matrix, energy orthogonality and finite-difference comparison independently derived.
