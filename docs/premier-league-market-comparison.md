@@ -10,6 +10,19 @@ The private collector uses the existing credential and quota checks, one Premier
 
 The provider label `h2h` identifies an API market. Canonical 1X2 identity comes only from reviewed bookmaker rules covering 90 minutes plus stoppage time, exclusion of extra time and penalties, no line, and three distinct outcomes. The private poll carries the review fingerprint. The renderer revalidates it against the current registry and suppresses records if the review changes or expires. The synthetic registry is accepted by mocked tests only and establishes no live authorization. Provider aliases are explicit; a collision, duplicate, missing outcome, period mismatch, or uncertain identity is withheld. Prices checked against these gates are source observations with execution unverified.
 
+## Sky Bet settlement evidence reviewed 25 November 2026
+
+| Official source | What it establishes |
+| --- | --- |
+| [Sky Bet Football Matches – Rules](https://support.skybet.com/app/answers/detail/football-matches-rules/) · General Rules, Match Result and Full Time Result – 2UP | Standard Match Result has team A, draw and team B outcomes. The default football period is 90 minutes including stoppage time, subject to market-specific exceptions and the published rules for shortened matches. Sky Bet describes 2UP early payout as a separate market. |
+| [Sky Bet Bet Settlement Policy](https://support.skybet.com/app/answers/detail/bet-settlement-policy) · football 90-minute rule | The standard period excludes extra time and penalty shootouts. |
+| [The Odds API List of API Betting Markets](https://the-odds-api.com/sports-odds-data/betting-markets.html) and [Bookmaker APIs](https://the-odds-api.com/sports-odds-data/bookmaker-apis.html) | The API calls `h2h` head-to-head or moneyline and includes the draw for soccer. The UK bookmaker directory identifies Sky Bet as `skybet`. These definitions establish outcome shape and the bookmaker identifier. |
+| [The Odds API V4 guide · Get odds](https://the-odds-api.com/liveapi/guides/v4/#get-odds) | The endpoint accepts market and bookmaker keys. Optional `includeLinks` and `includeSids` can return bookmaker market links and source IDs when available. The public guide does not specify the upstream Sky Bet market mapped to EPL `h2h`. |
+
+**Decision:** Keep settlement unverified. The sources are consistent with standard Match Result, but do not explicitly map V4 `soccer_epl` / `skybet` / `h2h` to that exact Sky Bet market or exclude a separate 2UP, promotional, or alternative-settlement market. Obtain a dated provider statement for that tuple, or an existing authorised receipt with a bookmaker market ID or market-level link that independently resolves to the standard 90-minute Match Result and its rules. An event-level link or the presence of three outcomes alone is insufficient.
+
+Before a real poll, independently document the current account's entitlement to that bookmaker and market, its public UI and derived-data display rights for those quotes, and the settlement crosswalk above. Enter the evidence reference, verification date and expiry for each review. Public documentation does not verify this account's permissions. Sky Bet remains disabled in the production registry.
+
 ## Private build
 
 Run from repository root in an authorised environment:
