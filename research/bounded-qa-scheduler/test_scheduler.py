@@ -76,12 +76,27 @@ class SchedulerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.schedule.status(self.tokens["observer"])
     def test_existing_queue_fails_closed(self):
-        self.service.enqueue(self.tokens["operator"],"probe","cpu-probe")
+        with self.assertRaises(ValueError):
+            self.service.enqueue(self.tokens["operator"],"probe","cpu-probe")
+        # Trusted administrative storage bypass is still detected by admission.
+        self.service._controller.enqueue("probe","a"*40,"cpu-probe",self.now)
         self.now=25
         with self.assertRaises(ValueError):
             self.poll()
         self.assertEqual(len(self.service.status(self.tokens["observer"])["jobs"]),1)
         self.assertEqual(self.schedule.status(self.tokens["observer"])["state"],"WAITING")
+    def test_schedule_survives_isolated_restore(self):
+        from recovery import backup,restore_isolated
+        self.now=25
+        self.poll()
+        archived=self.path.with_name("archive.db")
+        restored=self.path.with_name("restored.db")
+        anchor=backup(self.path,archived)
+        restore_isolated(archived,restored,anchor)
+        s=Service(Controller(restored),self.digests,"a"*40,clock=lambda:self.now)
+        q=self.new_scheduler(s)
+        self.assertEqual(q.poll(self.tokens["operator"])["state"],"ADMITTED")
+        self.assertEqual(len(s.status(self.tokens["observer"])["events"]),3)
     def test_no_second_schedule(self):
         self.now=25
         self.poll()
