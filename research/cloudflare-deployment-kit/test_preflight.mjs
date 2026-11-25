@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,writeFile,readFile,rm,stat} from 'node:fs/promises';
-import {mkdirSync,writeFileSync} from 'node:fs';
+import {mkdtemp,writeFile,rm,stat} from 'node:fs/promises';
+import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -45,7 +45,11 @@ function mockRunner({auth=true,deployments=1}={}) {
     calls.push({args:[...args],cwd});
     if(args[0]==='--version')return {status:0,stdout:'wrangler 4.165.0',stderr:''};
     if(args[0]==='whoami')return {status:auth&&args.includes(ACCOUNT)?0:1,stdout:'{}',stderr:''};
-    if(args[0]==='deployments')return {status:0,stdout:JSON.stringify({deployments:Array.from({length:deployments},(_,i)=>({id:'deployment-'+i}))}),stderr:''};
+    if(args[0]==='deployments') {
+      const index=args.indexOf('--config');
+      if(index>=0)calls[calls.length-1].config=JSON.parse(readFileSync(join(cwd,args[index+1]),'utf8'));
+      return {status:0,stdout:JSON.stringify({deployments:Array.from({length:deployments},(_,i)=>({id:'deployment-'+i}))}),stderr:''};
+    }
     if(args[0]==='deploy') {
       assert.ok(args.includes('--dry-run'),'Deployment command must be dry-run only');
       assert.ok(!args.includes('--yes'),'Do not auto-confirm');
@@ -76,9 +80,8 @@ test('validates account, existing worker, Hello World and disabled Wrangler dry-
     assert.ok(calls[2].args.includes('--name')&&calls[2].args.includes('sky-research-controller'));
     assert.ok(calls[3].args.includes('--dry-run'));
     assert.ok(calls.every(x=>!(x.args[0]==='deploy'&&!x.args.includes('--dry-run'))));
-    const config=JSON.parse(await readFile(join(calls[2].cwd,'wrangler.json'),'utf8'));
-    assert.equal(config.account_id,ACCOUNT);
-    assert.equal(config.vars.SKY_MODE,'DISABLED');
+    assert.equal(calls[2].config.account_id,ACCOUNT);
+    assert.equal(calls[2].config.vars.SKY_MODE,'DISABLED');
     await assert.rejects(stat(calls[2].cwd));
   } finally {await rm(f.dir,{recursive:true,force:true});}
 });
