@@ -49,7 +49,7 @@
         "type": "related"
       }
     ],
-    "mechanism_note": "Provisional: multiplicative-group reindexing converts the prime-length transform into cyclic convolution, unlike the chirp identity. Full source and novelty review pending."
+    "mechanism_note": "Multiplicative-group indexing converts a prime-length DFT to a cyclic convolution; the chirp identity is not required. Same DFT output as other DFT algorithms, but a distinct computational reduction. For p=2 the nonzero group has one element; use g=1 or compute directly."
   },
   {
     "profile": "multifeature",
@@ -101,6 +101,115 @@
         "type": "related"
       }
     ],
-    "mechanism_note": "Provisional: CRT input and dual output indexing eliminate interstage twiddle factors. Full source and classification review pending."
+    "mechanism_note": "CRT input and dual output indexing eliminate interstage twiddle factors. This is a distinct computational factorization from the radix-two Cooley–Tukey recurrence; coprimality is essential."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "046",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "goertzel-integer-bin-dft",
+    "name": "Goertzel recurrence for an integer DFT bin",
+    "definition": "For ω=2πk/N, s_(−2)=s_(−1)=0, s_n=x_n+2cos(ω)s_(n−1)−s_(n−2) for n=0,…,N−1; X_k=e^(iω)s_(N−1)−s_(N−2).",
+    "variables": "N positive integer length; k integer with 0≤k<N; ω bin angular frequency; s recurrence state; i imaginary unit",
+    "assumptions": "Finite real or complex vector, exact integer bin and negative-exponent unnormalized DFT",
+    "limitations": "O(N) operations per bin and constant state; repeated evaluation of many bins can be slower than FFT; cancellation and state growth can impair finite-precision accuracy",
+    "failure_conditions": [
+      "Incorrect initialization or output phase",
+      "Noninteger bin without phase correction",
+      "Overflow or severe cancellation"
+    ],
+    "computation": "Advance the two-state recurrence once per sample; compute the complex terminal combination. Repeat independently only for requested bins.",
+    "source": {
+      "kind": "literature",
+      "citation": "MathWorks. goertzel: Discrete-Time Fourier transform with second-order Goertzel algorithm. https://www.mathworks.com/help/signal/ref/goertzel.html",
+      "url": "https://www.mathworks.com/help/signal/ref/goertzel.html"
+    },
+    "application": "General selective Fourier coefficient evaluation; no forecasting benefit claimed.",
+    "required_inputs": "Finite vector and valid integer frequency bin",
+    "compatible_methods": [
+      "radix-two-cooley-tukey-fft",
+      "bluestein-chirp-dft"
+    ],
+    "incompatible_methods": [
+      "Uncorrected terminal phase for noninteger bins"
+    ],
+    "relationships": [
+      {
+        "target": "radix-two-cooley-tukey-fft",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Second-order recurrence evaluates one Fourier coefficient without a full transform. Integer-bin phase follows from e^(−iNω)=1; this is not an FFT butterfly factorization."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "046",
+    "family": "numerical-linear-algebra",
+    "classification": "feature-transformation",
+    "id": "orthonormal-walsh-hadamard-transform",
+    "name": "Orthonormal Walsh–Hadamard transform in natural order",
+    "definition": "For N=2^m, H_1=[1], H_(2r)=[[H_r,H_r],[H_r,−H_r]], y=H_N x/√N, x=H_N y/√N.",
+    "variables": "m nonnegative integer; N vector length; H_r Sylvester Hadamard matrix of order r; x,y input and output",
+    "assumptions": "Finite real or complex vector of power-of-two length; natural Sylvester order and unitary normalization",
+    "limitations": "Ordering and normalization differ among libraries; non-power-of-two lengths require a separately specified embedding; different basis from sinusoidal and localized wavelet bases",
+    "failure_conditions": [
+      "Wrong coefficient ordering or normalization",
+      "Length not a power of two without explicit padding convention"
+    ],
+    "computation": "Apply sum-and-difference butterflies to pairs at each of m bit positions; divide by √N once. O(N log N) additions and O(N) storage for N>1.",
+    "source": {
+      "kind": "literature",
+      "citation": "MathWorks. fwht: Fast Walsh-Hadamard transform. https://www.mathworks.com/help/signal/ref/fwht.html",
+      "url": "https://www.mathworks.com/help/signal/ref/fwht.html"
+    },
+    "application": "General orthogonal transform of finite vectors; no forecasting benefit claimed.",
+    "required_inputs": "Finite vector of power-of-two length and explicit coefficient ordering",
+    "compatible_methods": [
+      "haar-wavelet",
+      "radix-two-cooley-tukey-fft"
+    ],
+    "incompatible_methods": [
+      "Unspecified sequency ordering or implicit padding"
+    ],
+    "relationships": [
+      {
+        "target": "haar-wavelet",
+        "type": "related"
+      },
+      {
+        "target": "radix-two-cooley-tukey-fft",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "A global binary-character basis, not the localized Haar wavelet or sinusoidal Fourier basis. H_N H_N^T=N I follows by block multiplication. Classified as a feature transformation, not an extra distinct FFT algorithm."
   }
 ]

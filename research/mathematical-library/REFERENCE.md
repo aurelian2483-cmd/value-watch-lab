@@ -5325,3 +5325,67 @@ Limitations — A nonzero physical boundary requires a suitable lifting or other
 Mechanism — The sine product-to-sum identity and the finite roots-of-unity sum on 2(N+1) points give Σ_(n=1)^N sin(πnk/(N+1))sin(πnl/(N+1))=(N+1)δ_kl/2. The scaled matrix is symmetric orthogonal and self-inverse. This is a feature transformation with a different boundary basis, not a new FFT algorithm.
 
 Source — SciPy v1.11.4 Manual, Fourier Transforms, Discrete Cosine and Sine Transforms. https://docs.scipy.org/doc/scipy-1.11.4/tutorial/fft.html
+
+## Rader prime-length discrete Fourier transform (rader-prime-length-dft)
+
+> For prime p, primitive root g modulo p and W=e^(−2πi/p), define a_j=x_(g^j mod p), b_l=W^(g^(−l) mod p); X_(g^(−m) mod p)=x_0+Σ_(j=0)^(p−2)a_j b_((m−j) mod (p−1)), X_0=Σ_(n=0)^(p−1)x_n.
+
+p prime length; g primitive root; j,l,m indices modulo p−1; W primitive pth root of unity.
+
+General prime-length Fourier transformation; no forecasting benefit claimed.
+
+Assumptions — Prime p and verified primitive root g; finite complex vector; negative-exponent unnormalized DFT.
+
+Limitations — Modular permutations and convolution length p−1 introduce overhead; cost depends on convolution implementation and factorization.
+
+Mechanism — Multiplicative-group indexing converts a prime-length DFT to a cyclic convolution; the chirp identity is not required. Same DFT output as other DFT algorithms, but a distinct computational reduction. For p=2 the nonzero group has one element; use g=1 or compute directly.
+
+Source — Rader, C. M. (1968). Discrete Fourier transforms when the number of data samples is prime. Proceedings of the IEEE 56(6), 1107–1108. https://doi.org/10.1109/PROC.1968.6477
+
+## Good–Thomas coprime-factor discrete Fourier transform (good-thomas-prime-factor-dft)
+
+> For N=ab with gcd(a,b)=1, u=b^(-1) mod a, v=a^(-1) mod b, n=(n_1bu+n_2av) mod N, k=(k_1b+k_2a) mod N, X_k=Σ_(n_1=0)^(a−1)Σ_(n_2=0)^(b−1)x_n exp(−2πi(n_1k_1/a+n_2k_2/b)).
+
+a,b coprime integer factors; u,v modular inverses; n_1,k_1 indices modulo a; n_2,k_2 indices modulo b.
+
+General composite-length Fourier transformation for coprime factors; no forecast benefit claimed.
+
+Assumptions — a,b>1 and coprime; finite complex inputs; exact modular indexing; unnormalized negative-exponent transform.
+
+Limitations — Only coprime factorization permits the stated twiddle-free mapping. Permutation overhead and subtransform cost depend on implementation.
+
+Mechanism — CRT input and dual output indexing eliminate interstage twiddle factors. This is a distinct computational factorization from the radix-two Cooley–Tukey recurrence; coprimality is essential.
+
+Source — Good, I. J. (1958). The interaction algorithm and practical Fourier analysis. JRSS B 20(2), 361–372. https://doi.org/10.1111/j.2517-6161.1958.tb00300.x
+
+## Goertzel recurrence for an integer DFT bin (goertzel-integer-bin-dft)
+
+> For ω=2πk/N, s_(−2)=s_(−1)=0, s_n=x_n+2cos(ω)s_(n−1)−s_(n−2) for n=0,…,N−1; X_k=e^(iω)s_(N−1)−s_(N−2).
+
+N positive integer length; k integer with 0≤k<N; ω bin angular frequency; s recurrence state; i imaginary unit.
+
+General selective Fourier coefficient evaluation; no forecasting benefit claimed.
+
+Assumptions — Finite real or complex vector, exact integer bin and negative-exponent unnormalized DFT.
+
+Limitations — O(N) operations per bin and constant state; repeated evaluation of many bins can be slower than FFT; cancellation and state growth can impair finite-precision accuracy.
+
+Mechanism — Second-order recurrence evaluates one Fourier coefficient without a full transform. Integer-bin phase follows from e^(−iNω)=1; this is not an FFT butterfly factorization.
+
+Source — MathWorks. goertzel: Discrete-Time Fourier transform with second-order Goertzel algorithm. https://www.mathworks.com/help/signal/ref/goertzel.html
+
+## Orthonormal Walsh–Hadamard transform in natural order (orthonormal-walsh-hadamard-transform)
+
+> For N=2^m, H_1=[1], H_(2r)=[[H_r,H_r],[H_r,−H_r]], y=H_N x/√N, x=H_N y/√N.
+
+m nonnegative integer; N vector length; H_r Sylvester Hadamard matrix of order r; x,y input and output.
+
+General orthogonal transform of finite vectors; no forecasting benefit claimed.
+
+Assumptions — Finite real or complex vector of power-of-two length; natural Sylvester order and unitary normalization.
+
+Limitations — Ordering and normalization differ among libraries; non-power-of-two lengths require a separately specified embedding; different basis from sinusoidal and localized wavelet bases.
+
+Mechanism — A global binary-character basis, not the localized Haar wavelet or sinusoidal Fourier basis. H_N H_N^T=N I follows by block multiplication. Classified as a feature transformation, not an extra distinct FFT algorithm.
+
+Source — MathWorks. fwht: Fast Walsh-Hadamard transform. https://www.mathworks.com/help/signal/ref/fwht.html

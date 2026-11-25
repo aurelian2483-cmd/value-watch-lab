@@ -1,0 +1,215 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "046",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "rader-prime-length-dft",
+    "name": "Rader prime-length discrete Fourier transform",
+    "definition": "For prime p, primitive root g modulo p and W=e^(−2πi/p), define a_j=x_(g^j mod p), b_l=W^(g^(−l) mod p); X_(g^(−m) mod p)=x_0+Σ_(j=0)^(p−2)a_j b_((m−j) mod (p−1)), X_0=Σ_(n=0)^(p−1)x_n.",
+    "variables": "p prime length; g primitive root; j,l,m indices modulo p−1; W primitive pth root of unity",
+    "assumptions": "Prime p and verified primitive root g; finite complex vector; negative-exponent unnormalized DFT",
+    "limitations": "Modular permutations and convolution length p−1 introduce overhead; cost depends on convolution implementation and factorization",
+    "failure_conditions": [
+      "Nonprime p or nonprimitive g",
+      "Incorrect modular permutation or circular convolution normalization"
+    ],
+    "computation": "Permute nonzero indices using g, compute the length-(p−1) circular convolution, add x_0 and scatter outputs; calculate DC separately.",
+    "source": {
+      "kind": "literature",
+      "citation": "Rader, C. M. (1968). Discrete Fourier transforms when the number of data samples is prime. Proceedings of the IEEE 56(6), 1107–1108. https://doi.org/10.1109/PROC.1968.6477",
+      "url": "https://doi.org/10.1109/PROC.1968.6477"
+    },
+    "application": "General prime-length Fourier transformation; no forecasting benefit claimed.",
+    "required_inputs": "Finite complex vector of prime length, primitive root and matching convolution convention",
+    "compatible_methods": [
+      "bluestein-chirp-dft",
+      "radix-two-cooley-tukey-fft"
+    ],
+    "incompatible_methods": [
+      "Composite-length input for this primitive-root permutation"
+    ],
+    "relationships": [
+      {
+        "target": "bluestein-chirp-dft",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Multiplicative-group indexing converts a prime-length DFT to a cyclic convolution; the chirp identity is not required. Same DFT output as other DFT algorithms, but a distinct computational reduction. For p=2 the nonzero group has one element; use g=1 or compute directly."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "046",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "good-thomas-prime-factor-dft",
+    "name": "Good–Thomas coprime-factor discrete Fourier transform",
+    "definition": "For N=ab with gcd(a,b)=1, u=b^(-1) mod a, v=a^(-1) mod b, n=(n_1bu+n_2av) mod N, k=(k_1b+k_2a) mod N, X_k=Σ_(n_1=0)^(a−1)Σ_(n_2=0)^(b−1)x_n exp(−2πi(n_1k_1/a+n_2k_2/b)).",
+    "variables": "a,b coprime integer factors; u,v modular inverses; n_1,k_1 indices modulo a; n_2,k_2 indices modulo b",
+    "assumptions": "a,b>1 and coprime; finite complex inputs; exact modular indexing; unnormalized negative-exponent transform",
+    "limitations": "Only coprime factorization permits the stated twiddle-free mapping. Permutation overhead and subtransform cost depend on implementation",
+    "failure_conditions": [
+      "Noncoprime factors or wrong modular inverses",
+      "Incorrect output permutation or transform convention"
+    ],
+    "computation": "Gather input by the Chinese remainder map, perform length-a and length-b transforms along the two axes, and scatter using the stated output map.",
+    "source": {
+      "kind": "literature",
+      "citation": "Good, I. J. (1958). The interaction algorithm and practical Fourier analysis. JRSS B 20(2), 361–372. https://doi.org/10.1111/j.2517-6161.1958.tb00300.x",
+      "url": "https://doi.org/10.1111/j.2517-6161.1958.tb00300.x"
+    },
+    "application": "General composite-length Fourier transformation for coprime factors; no forecast benefit claimed.",
+    "required_inputs": "Finite complex vector, two coprime factors and modular inverses",
+    "compatible_methods": [
+      "radix-two-cooley-tukey-fft",
+      "bluestein-chirp-dft"
+    ],
+    "incompatible_methods": [
+      "Noncoprime factor pair"
+    ],
+    "relationships": [
+      {
+        "target": "radix-two-cooley-tukey-fft",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "CRT input and dual output indexing eliminate interstage twiddle factors. This is a distinct computational factorization from the radix-two Cooley–Tukey recurrence; coprimality is essential."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "046",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "goertzel-integer-bin-dft",
+    "name": "Goertzel recurrence for an integer DFT bin",
+    "definition": "For ω=2πk/N, s_(−2)=s_(−1)=0, s_n=x_n+2cos(ω)s_(n−1)−s_(n−2) for n=0,…,N−1; X_k=e^(iω)s_(N−1)−s_(N−2).",
+    "variables": "N positive integer length; k integer with 0≤k<N; ω bin angular frequency; s recurrence state; i imaginary unit",
+    "assumptions": "Finite real or complex vector, exact integer bin and negative-exponent unnormalized DFT",
+    "limitations": "O(N) operations per bin and constant state; repeated evaluation of many bins can be slower than FFT; cancellation and state growth can impair finite-precision accuracy",
+    "failure_conditions": [
+      "Incorrect initialization or output phase",
+      "Noninteger bin without phase correction",
+      "Overflow or severe cancellation"
+    ],
+    "computation": "Advance the two-state recurrence once per sample; compute the complex terminal combination. Repeat independently only for requested bins.",
+    "source": {
+      "kind": "literature",
+      "citation": "MathWorks. goertzel: Discrete-Time Fourier transform with second-order Goertzel algorithm. https://www.mathworks.com/help/signal/ref/goertzel.html",
+      "url": "https://www.mathworks.com/help/signal/ref/goertzel.html"
+    },
+    "application": "General selective Fourier coefficient evaluation; no forecasting benefit claimed.",
+    "required_inputs": "Finite vector and valid integer frequency bin",
+    "compatible_methods": [
+      "radix-two-cooley-tukey-fft",
+      "bluestein-chirp-dft"
+    ],
+    "incompatible_methods": [
+      "Uncorrected terminal phase for noninteger bins"
+    ],
+    "relationships": [
+      {
+        "target": "radix-two-cooley-tukey-fft",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Second-order recurrence evaluates one Fourier coefficient without a full transform. Integer-bin phase follows from e^(−iNω)=1; this is not an FFT butterfly factorization."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "046",
+    "family": "numerical-linear-algebra",
+    "classification": "feature-transformation",
+    "id": "orthonormal-walsh-hadamard-transform",
+    "name": "Orthonormal Walsh–Hadamard transform in natural order",
+    "definition": "For N=2^m, H_1=[1], H_(2r)=[[H_r,H_r],[H_r,−H_r]], y=H_N x/√N, x=H_N y/√N.",
+    "variables": "m nonnegative integer; N vector length; H_r Sylvester Hadamard matrix of order r; x,y input and output",
+    "assumptions": "Finite real or complex vector of power-of-two length; natural Sylvester order and unitary normalization",
+    "limitations": "Ordering and normalization differ among libraries; non-power-of-two lengths require a separately specified embedding; different basis from sinusoidal and localized wavelet bases",
+    "failure_conditions": [
+      "Wrong coefficient ordering or normalization",
+      "Length not a power of two without explicit padding convention"
+    ],
+    "computation": "Apply sum-and-difference butterflies to pairs at each of m bit positions; divide by √N once. O(N log N) additions and O(N) storage for N>1.",
+    "source": {
+      "kind": "literature",
+      "citation": "MathWorks. fwht: Fast Walsh-Hadamard transform. https://www.mathworks.com/help/signal/ref/fwht.html",
+      "url": "https://www.mathworks.com/help/signal/ref/fwht.html"
+    },
+    "application": "General orthogonal transform of finite vectors; no forecasting benefit claimed.",
+    "required_inputs": "Finite vector of power-of-two length and explicit coefficient ordering",
+    "compatible_methods": [
+      "haar-wavelet",
+      "radix-two-cooley-tukey-fft"
+    ],
+    "incompatible_methods": [
+      "Unspecified sequency ordering or implicit padding"
+    ],
+    "relationships": [
+      {
+        "target": "haar-wavelet",
+        "type": "related"
+      },
+      {
+        "target": "radix-two-cooley-tukey-fft",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "A global binary-character basis, not the localized Haar wavelet or sinusoidal Fourier basis. H_N H_N^T=N I follows by block multiplication. Classified as a feature transformation, not an extra distinct FFT algorithm."
+  }
+]

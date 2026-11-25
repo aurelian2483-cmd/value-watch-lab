@@ -7651,5 +7651,97 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "The sine product-to-sum identity and the finite roots-of-unity sum on 2(N+1) points give Σ_(n=1)^N sin(πnk/(N+1))sin(πnl/(N+1))=(N+1)δ_kl/2. The scaled matrix is symmetric orthogonal and self-inverse. This is a feature transformation with a different boundary basis, not a new FFT algorithm."
+  },
+  {
+    "id": "rader-prime-length-dft",
+    "source": {
+      "kind": "literature",
+      "citation": "Rader, C. M. (1968). Discrete Fourier transforms when the number of data samples is prime. Proceedings of the IEEE 56(6), 1107–1108. https://doi.org/10.1109/PROC.1968.6477",
+      "url": "https://doi.org/10.1109/PROC.1968.6477"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Multiplicative-group indexing converts a prime-length DFT to a cyclic convolution; the chirp identity is not required. Same DFT output as other DFT algorithms, but a distinct computational reduction. For p=2 the nonzero group has one element; use g=1 or compute directly."
+  },
+  {
+    "id": "good-thomas-prime-factor-dft",
+    "source": {
+      "kind": "literature",
+      "citation": "Good, I. J. (1958). The interaction algorithm and practical Fourier analysis. JRSS B 20(2), 361–372. https://doi.org/10.1111/j.2517-6161.1958.tb00300.x",
+      "url": "https://doi.org/10.1111/j.2517-6161.1958.tb00300.x"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "CRT input and dual output indexing eliminate interstage twiddle factors. This is a distinct computational factorization from the radix-two Cooley–Tukey recurrence; coprimality is essential."
+  },
+  {
+    "id": "goertzel-integer-bin-dft",
+    "source": {
+      "kind": "literature",
+      "citation": "MathWorks. goertzel: Discrete-Time Fourier transform with second-order Goertzel algorithm. https://www.mathworks.com/help/signal/ref/goertzel.html",
+      "url": "https://www.mathworks.com/help/signal/ref/goertzel.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Second-order recurrence evaluates one Fourier coefficient without a full transform. Integer-bin phase follows from e^(−iNω)=1; this is not an FFT butterfly factorization."
+  },
+  {
+    "id": "orthonormal-walsh-hadamard-transform",
+    "source": {
+      "kind": "literature",
+      "citation": "MathWorks. fwht: Fast Walsh-Hadamard transform. https://www.mathworks.com/help/signal/ref/fwht.html",
+      "url": "https://www.mathworks.com/help/signal/ref/fwht.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "A global binary-character basis, not the localized Haar wavelet or sinusoidal Fourier basis. H_N H_N^T=N I follows by block multiplication. Classified as a feature transformation, not an extra distinct FFT algorithm."
   }
 ]
