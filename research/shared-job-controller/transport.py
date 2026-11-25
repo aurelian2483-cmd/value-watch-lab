@@ -8,7 +8,7 @@ from controller import HEX, ID, need
 
 MAX_BODY=4096
 MAX_RESPONSE=1048576
-ROUTES={"/qa/claim":set(),"/qa/submit":{"job","lease","receipt_hash"},"/qa/status":set(),"/qa/pc-heartbeat":{"sequence","gpu"},"/qa/pc-status":set()}
+ROUTES={"/qa/claim":set(),"/qa/submit":{"job","lease","receipt_hash"},"/qa/status":set(),"/qa/pc-heartbeat":{"sequence","gpu"},"/qa/pc-status":set(),"/qa/pc-cursor":set()}
 
 def strict_object(pairs):
     out={}
@@ -42,7 +42,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if self.path not in ROUTES:
                 return self.reply(404,{"error":"unknown route"})
-            if self.path in ("/qa/pc-heartbeat","/qa/pc-status") and self.server.presence is None:
+            if self.path in ("/qa/pc-heartbeat","/qa/pc-status","/qa/pc-cursor") and self.server.presence is None:
                 return self.reply(404,{"error":"unknown route"})
             auth=self.headers.get_all("Authorization",[])
             if len(auth)!=1 or not re.fullmatch(r"Bearer [a-f0-9]{64}",auth[0]):
@@ -69,6 +69,8 @@ class Handler(BaseHTTPRequestHandler):
                 result=service.status(token)
             elif self.path=="/qa/pc-heartbeat":
                 result=self.server.presence.heartbeat(token,payload["sequence"],payload["gpu"])
+            elif self.path=="/qa/pc-cursor":
+                result=self.server.presence.cursor(token)
             elif self.path=="/qa/pc-status":
                 service.status(token)  # Honor durable observer revocation before reading presence.
                 result=self.server.presence.status(token)
