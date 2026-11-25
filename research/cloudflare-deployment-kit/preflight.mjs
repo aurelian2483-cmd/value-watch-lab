@@ -17,10 +17,15 @@ const canonical=value=>Array.isArray(value)?value.map(canonical):value&&typeof v
 const same=(a,b)=>JSON.stringify(canonical(a))===JSON.stringify(canonical(b));
 
 export function defaultRunner(args,cwd) {
-  const executable=process.platform==='win32'?'npx.cmd':'npx';
-  const r=spawnSync(executable,['--yes','wrangler@'+WRANGLER,...args],{
-    cwd,encoding:'utf8',timeout:180000,windowsHide:true,
-    shell:process.platform==='win32',env:{...process.env,WRANGLER_SEND_METRICS:'false'}
+  const commandArgs=['--yes','wrangler@'+WRANGLER,...args];
+  const windows=process.platform==='win32';
+  const executable=windows?(process.env.ComSpec||'cmd.exe'):'npx';
+  const invocation=windows
+    ? ['/d','/s','/c','npx.cmd '+commandArgs.map(a=>'"'+String(a).replace(/"/g,'""')+'"').join(' ')]
+    : commandArgs;
+  const r=spawnSync(executable,invocation,{
+    cwd,encoding:'utf8',timeout:60000,windowsHide:true,shell:false,
+    env:{...process.env,CI:'true',WRANGLER_SEND_METRICS:'false'}
   });
   if(r.error)fail('Wrangler command could not start');
   return {status:r.status,stdout:r.stdout??'',stderr:r.stderr??''};
