@@ -1,0 +1,9 @@
+# Batch 036 admission review (2026-11-25)
+
+Parent 6154dbbb55091ce0cb4d254b9c22048b085bff1a. Branch and open draft PR 171 agreed; commit-associated full regression 45566592113 and registry 45566592133 both returned completed/success.
+
+Complex step: inspected Higham's SIAM News equation (1) and discussion of imaginary rounding. Independently expanded f(x+ih): real Taylor coefficients give Im(f)=hf′−h³f‴/6+O(h⁵); division gives the signed second-order error term. No guarantee for underflow, nonanalytic code or arbitrary tiny steps. Distinct from the existing first-difference feature; no empirical evidence or implementation claimed.
+
+Moment weights: inspected Driscoll and Braun §5.4 and Persson §4.1 on differentiation of interpolants. Independently applied the mth derivative functional at zero to monomials t^k for k<n, yielding m!δ_(km); distinct nodes give a nonsingular Vandermonde matrix. Taylor expansion through degree n−1 gives O(h^(n−m)) for fixed offsets and bounded nth derivative; conditioning and rounding are separate. This computes the derivative of the same interpolating polynomial, so classified conservatively as a variant of existing polynomial interpolation, not another independent algorithm. Fixed first differences are special cases. Not a claim to implement Fornberg recursion.
+
+Compared all 342 prior ledger IDs and reference headings and normalized equations; inspected related derivative, difference, gradient and interpolation definitions. No exact duplicate found; semantic review is not exhaustive. Original intake preserved verbatim; reviewed intake equals admission. Next candidates are provisional only. Four snapshots regenerated incrementally against the inspected renderer and cross-checked for baseline coverage; exact automated verification pending. All prior IDs and gates retained. No experiments, protected data, execution authorization or empirical qualification.

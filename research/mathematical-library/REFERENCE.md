@@ -4925,3 +4925,35 @@ Limitations — Estimator can miss localized or oscillatory structure and is not
 Mechanism — Adaptive subdivision and Richardson correction of composite Simpson; a variant, not an independent algorithm. Unlike Romberg, refinement is local; unlike Gauss–Kronrod, uses Simpson panels.
 
 Source — Per-Olof Persson, UC Berkeley Math 128A, Numerical Differentiation and Integration, §4.6 Adaptive Quadrature Methods, https://persson.berkeley.edu/math128a/lecture_notes/math128a_lecture_notes_chapter_4.html ; signed Richardson correction derived from stated 1/16 error scaling.
+
+## Complex-step first derivative (complex-step-first-derivative)
+
+> For real x and nonzero real h, D_h f(x)=Im(f(x+ih))/h. If f is holomorphic near x and real on the real axis, D_h f(x)=f′(x)−h²f‴(x)/6+O(h⁴) as h→0 in exact arithmetic.
+
+x real evaluation point; i imaginary unit; h real nonzero step; Im imaginary part; f′ and f‴ first and third derivatives.
+
+General numerical differentiation.
+
+Assumptions — A holomorphic extension on a neighborhood containing the perturbed point, real values on the real axis, and an evaluation that preserves the small imaginary perturbation without unrelated imaginary rounding noise.
+
+Limitations — No subtraction of two nearly equal real outputs is needed, but underflow, imaginary noise, nonanalytic operations and complex-unsafe implementations can still invalidate the approximation.
+
+Mechanism — Complex perturbation obtains the derivative from the imaginary component rather than differences of real outputs. Related to first difference, but a distinct derivative approximation.
+
+Source — Higham, N. J. (2018), Differentiation With(out) a Difference, SIAM News 51(5), equation (1) and discussion of imaginary rounding, https://www.siam.org/publications/siam-news/articles/differentiation-without-a-difference ; signed Taylor correction independently derived.
+
+## Finite-difference weights by moment matching (finite-difference-moment-weights)
+
+> For n≥2 distinct real offsets s_j=h t_j with h>0 and integer 1≤m<n, solve Σ_(j=0)^(n−1) c_j t_j^k=m! δ_(km) for k=0,…,n−1. Set w_j=c_j/h^m and D_m f(x)=Σ_j w_j f(x+s_j). This is exact on polynomials of degree at most n−1.
+
+n node count; m derivative order; h positive scale; t_j distinct dimensionless offsets; s_j physical offsets; c_j scaled weights; w_j derivative weights; δ Kronecker delta.
+
+General numerical differentiation.
+
+Assumptions — Distinct real nodes, finite samples, and sufficient smoothness on the interval containing x and all nodes; for fixed distinct t_j and f with bounded nth derivative the Taylor error is O(h^(n−m)) as h tends to zero.
+
+Limitations — The Vandermonde moment system and weighted summation may be ill-conditioned; scaling does not guarantee stability; noise grows with derivative order and inverse step scale.
+
+Mechanism — Derivative functional of the same unique interpolating polynomial rather than a new polynomial approximation family. A derivative-output variant of polynomial interpolation; direct moment solving is not Fornberg recursion and ordinary difference stencils are special cases.
+
+Source — Driscoll, T. A. and Braun, R. J., Fundamentals of Numerical Computation, §5.4 Finite differences, https://tobydriscoll.net/fnc-julia/localapprox/finitediffs.html ; Persson, P.-O., UC Berkeley Math 128A, §4.1, https://persson.berkeley.edu/math128a/lecture_notes/math128a_lecture_notes_chapter_4.html ; arbitrary-node, arbitrary-order moment equations and error order independently derived from polynomial exactness and Taylor expansion.
