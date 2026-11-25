@@ -5021,3 +5021,35 @@ Limitations — Third-order constant-step method, not A-stable; negative-real sc
 Mechanism — Quadratic slope interpolation through one future and two past/current grid nodes generalizes the implicit trapezoidal rule; conservatively counted as a variant. At z=0 the characteristic roots are 0 and 1; the local exact-state defect is −h⁴y⁽⁴⁾(t_n)/24+O(h⁵) with additional derivative regularity.
 
 Source — University of Bielefeld, Computational Physics SoSe 2026, Multi-Step Methods, Adams–Moulton table order 3 and implicit equation discussion, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/05_multistep_methods.html ; moments and characteristic polynomial independently derived.
+
+## Single shooting for scalar second-order boundary value problems (single-shooting-boundary-value)
+
+> For y″=g(t,y,y′), y(a)=A, y(b)=B, solve Y′=(v,g(t,y,v)), Y(a)=(A,s), with Y=(y,v). Define R(s)=y(b;s)−B and find a slope s* with R(s*)=0. If g is differentiable, R′(s)=w(b) where w″=g_y w+g_v w′ along the trajectory, w(a)=0, w′(a)=1.
+
+a<b interval endpoints; A,B boundary values; s unknown initial slope; v derivative state; R endpoint residual; w slope sensitivity.
+
+General numerical boundary value problems.
+
+Assumptions — Well-posed IVPs on the whole interval for slopes considered, continuous dependence, and a root in the search domain; differentiable dynamics and nonzero R′ at a simple root for local sensitivity analysis.
+
+Limitations — Repeated IVP solves may be expensive or unstable; near-zero endpoint sensitivity can amplify slope error and growing modes can amplify integration errors; multiple or absent roots are possible; small residual does not certify trajectory accuracy or uniqueness.
+
+Mechanism — A global endpoint equation selects an unknown initial state; IVP integration and scalar root solvers are constituent procedures, not duplicate definitions of the BVP algorithm. Local slope perturbations scale as residual perturbation divided by R′(s*) when that derivative is nonzero..
+
+Source — University of Bielefeld, Computational Physics SoSe 2026, Boundary Value Problems, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/08_boundary_value_problems.html; Shooting Method: Nonlinear Case; sensitivity equation independently differentiated.
+
+## Centered finite differences for linear second-order boundary value problems (centered-finite-difference-linear-bvp)
+
+> For −y″+c(t)y=g(t), y(a)=A, y(b)=B, let N≥2, h=(b−a)/N, t_i=a+ih, U_0=A, U_N=B. For i=1,…,N−1 solve (−U_(i−1)+2U_i−U_(i+1))/h²+c(t_i)U_i=g(t_i). The scaled matrix has diagonal 2+h²c(t_i) and neighbouring entries −1.
+
+a<b endpoints; N integer subinterval count; h grid spacing; c,g given functions; U_i nodal approximation.
+
+General numerical boundary value problems.
+
+Assumptions — Uniform grid, exact Dirichlet boundary values, continuous c≥0 and g, and exact solution with bounded fourth derivative for second-order consistency and convergence.
+
+Limitations — Second-order nodal discretization under the stated regularity; layers may require fine grids, negative c or other boundary types require separate analysis; linear solve and rounding errors are not included in the exact-arithmetic bound.
+
+Mechanism — Unlike derivative weights alone, solves a coupled global boundary-constrained linear system. For zero-boundary vectors the scaled matrix quadratic form is Σ_(i=1)^N (v_i−v_(i−1))²+h²Σ_(i=1)^(N−1)c_i v_i²>0 for nonzero v. The discrete barrier q(t)=(t−a)(b−t)/2 gives max nodal error ≤(b−a)²h² max|y⁽⁴⁾|/96 in exact arithmetic..
+
+Source — James M. Ortega, Numerical Analysis: A Second Course, §6.1, equations (6.1)–(6.2), https://doi.org/10.1137/1.9781611971323.ch6 (public abstract); University of Bielefeld, Computational Physics SoSe 2026, Boundary Value Problems, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/08_boundary_value_problems.html; finite-difference section. Energy and maximum-norm bound independently derived.

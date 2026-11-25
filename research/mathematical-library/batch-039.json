@@ -1,0 +1,109 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "039",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "single-shooting-boundary-value",
+    "name": "Single shooting for scalar second-order boundary value problems",
+    "definition": "For y″=g(t,y,y′), y(a)=A, y(b)=B, solve Y′=(v,g(t,y,v)), Y(a)=(A,s), with Y=(y,v). Define R(s)=y(b;s)−B and find a slope s* with R(s*)=0. If g is differentiable, R′(s)=w(b) where w″=g_y w+g_v w′ along the trajectory, w(a)=0, w′(a)=1.",
+    "variables": "a<b interval endpoints; A,B boundary values; s unknown initial slope; v derivative state; R endpoint residual; w slope sensitivity",
+    "assumptions": "Well-posed IVPs on the whole interval for slopes considered, continuous dependence, and a root in the search domain; differentiable dynamics and nonzero R′ at a simple root for local sensitivity analysis",
+    "limitations": "Repeated IVP solves may be expensive or unstable; near-zero endpoint sensitivity can amplify slope error and growing modes can amplify integration errors; multiple or absent roots are possible; small residual does not certify trajectory accuracy or uniqueness",
+    "failure_conditions": [
+      "Failed IVP integration, nonfinite endpoint or unresolved root solve",
+      "Unresolved sensitivity or tolerance under refinement"
+    ],
+    "computation": "Declare a finite slope search and IVP/root budgets. For each trial integrate the two-state IVP, evaluate the endpoint residual only on successful completion, and apply a suitable scalar root solver (bracketed if a reliable sign change is available). Reintegrate at tighter tolerance and check endpoint and trajectory changes; reject unresolved residual, integration or sensitivity. Report only the located branch, not global uniqueness.",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Bielefeld, Computational Physics SoSe 2026, Boundary Value Problems, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/08_boundary_value_problems.html; Shooting Method: Nonlinear Case; sensitivity equation independently differentiated."
+    },
+    "application": "General numerical boundary value problems.",
+    "required_inputs": "Differential equation, endpoints, boundary conditions, integration and root solve policies",
+    "compatible_methods": [
+      "classical-rk4",
+      "bdf2-constant-step-ode",
+      "brent-bracketed-root-solver"
+    ],
+    "incompatible_methods": [
+      "Unresolved endpoint residual"
+    ],
+    "relationships": [
+      {
+        "target": "classical-rk4",
+        "type": "related"
+      },
+      {
+        "target": "brent-bracketed-root-solver",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "A global endpoint equation selects an unknown initial state; IVP integration and scalar root solvers are constituent procedures, not duplicate definitions of the BVP algorithm. Local slope perturbations scale as residual perturbation divided by R′(s*) when that derivative is nonzero."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "039",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "centered-finite-difference-linear-bvp",
+    "name": "Centered finite differences for linear second-order boundary value problems",
+    "definition": "For −y″+c(t)y=g(t), y(a)=A, y(b)=B, let N≥2, h=(b−a)/N, t_i=a+ih, U_0=A, U_N=B. For i=1,…,N−1 solve (−U_(i−1)+2U_i−U_(i+1))/h²+c(t_i)U_i=g(t_i). The scaled matrix has diagonal 2+h²c(t_i) and neighbouring entries −1.",
+    "variables": "a<b endpoints; N integer subinterval count; h grid spacing; c,g given functions; U_i nodal approximation",
+    "assumptions": "Uniform grid, exact Dirichlet boundary values, continuous c≥0 and g, and exact solution with bounded fourth derivative for second-order consistency and convergence",
+    "limitations": "Second-order nodal discretization under the stated regularity; layers may require fine grids, negative c or other boundary types require separate analysis; linear solve and rounding errors are not included in the exact-arithmetic bound",
+    "failure_conditions": [
+      "Invalid grid, coefficients outside stated assumptions or nonfinite inputs",
+      "Unresolved linear solve or unacceptable scaled residual or refinement error"
+    ],
+    "computation": "Assemble the symmetric tridiagonal interior system with right side h²g(t_i) plus A at i=1 and B at i=N−1 (add both for N=2). Use a stable tridiagonal solver, restore endpoints, check scaled residual and refine h when feasible. For c≥0 the matrix is positive definite by the discrete energy sum, so there is a unique discrete solution.",
+    "source": {
+      "kind": "literature",
+      "citation": "James M. Ortega, Numerical Analysis: A Second Course, §6.1, equations (6.1)–(6.2), https://doi.org/10.1137/1.9781611971323.ch6 (public abstract); University of Bielefeld, Computational Physics SoSe 2026, Boundary Value Problems, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/08_boundary_value_problems.html; finite-difference section. Energy and maximum-norm bound independently derived."
+    },
+    "application": "General numerical boundary value problems.",
+    "required_inputs": "Coefficient functions, forcing, interval, Dirichlet conditions, uniform grid and solve policy",
+    "compatible_methods": [
+      "finite-difference-moment-weights",
+      "jacobi-linear-solve"
+    ],
+    "incompatible_methods": [
+      "Unresolved discrete system"
+    ],
+    "relationships": [
+      {
+        "target": "finite-difference-moment-weights",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Unlike derivative weights alone, solves a coupled global boundary-constrained linear system. For zero-boundary vectors the scaled matrix quadratic form is Σ_(i=1)^N (v_i−v_(i−1))²+h²Σ_(i=1)^(N−1)c_i v_i²>0 for nonzero v. The discrete barrier q(t)=(t−a)(b−t)/2 gives max nodal error ≤(b−a)²h² max|y⁽⁴⁾|/96 in exact arithmetic."
+  }
+]

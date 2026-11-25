@@ -7229,5 +7229,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Quadratic slope interpolation through one future and two past/current grid nodes generalizes the implicit trapezoidal rule; conservatively counted as a variant. At z=0 the characteristic roots are 0 and 1; the local exact-state defect is −h⁴y⁽⁴⁾(t_n)/24+O(h⁵) with additional derivative regularity."
+  },
+  {
+    "id": "single-shooting-boundary-value",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Bielefeld, Computational Physics SoSe 2026, Boundary Value Problems, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/08_boundary_value_problems.html; Shooting Method: Nonlinear Case; sensitivity equation independently differentiated."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "A global endpoint equation selects an unknown initial state; IVP integration and scalar root solvers are constituent procedures, not duplicate definitions of the BVP algorithm. Local slope perturbations scale as residual perturbation divided by R′(s*) when that derivative is nonzero."
+  },
+  {
+    "id": "centered-finite-difference-linear-bvp",
+    "source": {
+      "kind": "literature",
+      "citation": "James M. Ortega, Numerical Analysis: A Second Course, §6.1, equations (6.1)–(6.2), https://doi.org/10.1137/1.9781611971323.ch6 (public abstract); University of Bielefeld, Computational Physics SoSe 2026, Boundary Value Problems, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/07_ode/08_boundary_value_problems.html; finite-difference section. Energy and maximum-norm bound independently derived."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Unlike derivative weights alone, solves a coupled global boundary-constrained linear system. For zero-boundary vectors the scaled matrix quadratic form is Σ_(i=1)^N (v_i−v_(i−1))²+h²Σ_(i=1)^(N−1)c_i v_i²>0 for nonzero v. The discrete barrier q(t)=(t−a)(b−t)/2 gives max nodal error ≤(b−a)²h² max|y⁽⁴⁾|/96 in exact arithmetic."
   }
 ]
