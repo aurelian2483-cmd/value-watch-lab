@@ -1,0 +1,276 @@
+name: Unified research orchestration
+on:
+  pull_request:
+    paths:
+      - 'research/unified-orchestration/**'
+      - '.github/workflows/unified-research-orchestration.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  orchestration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test orchestration and inherited Phase 2 safeguards
+        run: node --test research/unified-orchestration/*.test.mjs research/unified-live/*.test.mjs research/unified-control-centre/*.test.mjs
+      - name: Verify exact accepted Phase 2 release artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, io, json, os, pathlib, subprocess, zipfile
+          def require(ok, message):
+              if not ok:
+                  raise RuntimeError(message)
+          def sha(raw):
+              return hashlib.sha256(raw).hexdigest()
+          repo = os.environ['GITHUB_REPOSITORY']
+          repo_id = int(os.environ['GITHUB_REPOSITORY_ID'])
+          endpoint = f'repos/{repo}/actions/artifacts/14975003557'
+          a = json.loads(subprocess.check_output(['gh','api',endpoint]))
+          run = json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/45511111878']))
+          head = '79379e17c448f17404d0df70d76b87fcb4f51504'
+          expected = '73e81d29abaa688fb20b4958d4a70c153e94e9e7fac498129666847d46d5df4e'
+          require(a['id']==14975003557 and a['name']=='unified-research-live-evidence' and a['expired'] is False, 'Artifact identity or expiry')
+          w = a['workflow_run']
+          require(w['id']==45511111878 and w['head_sha']==head and w['repository_id']==repo_id and w['head_repository_id']==repo_id, 'Artifact provenance mismatch')
+          require(run['head_sha']==head and run['conclusion']=='success' and run['status']=='completed', 'Phase 2 workflow not accepted')
+          require(a['digest']=='sha256:'+expected and 0<a['size_in_bytes']<=32*1024*1024,'Archive metadata mismatch')
+          raw = subprocess.check_output(['gh','api',endpoint+'/zip'])
+          require(len(raw)==a['size_in_bytes'] and sha(raw)==expected,'Archive fingerprint mismatch')
+          def member(z,name,limit):
+              rows=[i for i in z.infolist() if i.filename==name]
+              require(len(rows)==1 and not rows[0].is_dir() and 0<rows[0].file_size<=limit,'Invalid archive member: '+name)
+              return z.read(rows[0])
+          with zipfile.ZipFile(io.BytesIO(raw)) as z:
+              receipt=json.loads(member(z,'phase2-release-receipt.json',65536))
+              preview=member(z,'phase2-local-preview.zip',16*1024*1024)
+          require(sha(preview)==receipt['archiveSha256'] and receipt['deterministic'] is True and receipt['tamperRejected'] is True,'Preview receipt mismatch')
+          with zipfile.ZipFile(io.BytesIO(preview)) as z:
+              manifest=json.loads(member(z,'manifest.json',65536))
+              rows=[r for r in manifest['files'] if r['path']=='state/current.json']
+              state=member(z,'state/current.json',16*1024*1024)
+              require(len(rows)==1 and sha(state)==rows[0]['sha256'] and len(state)==rows[0]['bytes'],'State manifest mismatch')
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])
+          for name in ['orchestration-evidence','orchestration-registry','orchestration-output']:
+              (root/name).mkdir()
+          (root/'orchestration-evidence/current.json').write_bytes(state)
+          (root/'orchestration-output/source-receipt.json').write_text(json.dumps({'artifactId':a['id'],'runId':run['id'],'head':head,'archiveSha256':expected,'previewSha256':sha(preview),'stateBytesSha256':sha(state),'expiresAt':a['expires_at'],'measurementFreshness':'UNKNOWN','modelValidation':'UNVALIDATED','publicationGate':'BLOCKED'},indent=2)+'\n')
+          print('PASS exact accepted Phase 2 archive and historical state')
+          PY
+      - name: Run persistent metadata orchestration against accepted historical state
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {createHash} from 'node:crypto'
+          import {readFileSync,writeFileSync} from 'node:fs'
+          import {join} from 'node:path'
+          import {status} from './research/unified-live/sync.mjs'
+          import {inspect,advance,setReviewControl} from './research/unified-orchestration/registry.mjs'
+          const root=process.env.RUNNER_TEMP,evidence=join(root,'orchestration-evidence'),registry=join(root,'orchestration-registry'),out=join(root,'orchestration-output')
+          const before=readFileSync(join(evidence,'current.json')),s=status(evidence)
+          const plan={kind:'APPROVED_ORCHESTRATION_REVIEW',schemaVersion:1,baseRevision:'79379e17c448f17404d0df70d76b87fcb4f51504',stateSha256:s.stateSha256,trustSha256:null,mode:'HISTORICAL_MANUAL_REVIEW'}
+          const raw=JSON.stringify(plan),path=join(root,'ci-orchestration-plan.json'),fingerprint=createHash('sha256').update(raw).digest('hex')
+          writeFileSync(path,raw)
+          const args=[evidence,registry,path,fingerprint]
+          let view=inspect(...args)
+          assert.equal(view.status,'NOT_INITIALIZED')
+          for(let i=0;i<7;i++){
+            view=advance(...args,view.registrySha256)
+            assert.equal(view.reviewed,i+1)
+            assert.equal(view.executionAuthorized,false)
+            assert.equal(view.publicationGate,'BLOCKED')
+            assert.deepEqual(inspect(...args,{trustedRegistrySha256:view.registrySha256}),view)
+          }
+          assert.equal(view.status,'METADATA_REVIEW_COMPLETE_EXECUTION_BLOCKED')
+          assert.deepEqual(readFileSync(join(evidence,'current.json')),before)
+          writeFileSync(join(out,'orchestration-status.json'),JSON.stringify(view,null,2)+'\n')
+          writeFileSync(join(out,'registry.json'),readFileSync(join(registry,'registry.json')))
+          console.log('PASS seven metadata reviews, anchored persistence and unchanged Phase 2 state')
+          const beforeRegistry=readFileSync(join(registry,'registry.json'))
+          assert.throws(()=>advance(...args,null),/Previous registry anchor mismatch/)
+          const held=inspect(...args)
+          assert.equal(held.control.status,'REVIEW_HOLD')
+          assert.equal(held.control.incidents,1)
+          assert.throws(()=>advance(...args,view.registrySha256,{trustedControlSha256:held.control.controlSha256}),/on hold/)
+          const resumed=setReviewControl(...args,'RESUME',view.registrySha256,held.control.controlSha256)
+          assert.equal(resumed.control.status,'METADATA_REVIEW_AVAILABLE')
+          assert.equal(resumed.executionAuthorized,false)
+          assert.deepEqual(readFileSync(join(registry,'registry.json')),beforeRegistry)
+          assert.deepEqual(readFileSync(join(evidence,'current.json')),before)
+          writeFileSync(join(out,'control-ledger.json'),readFileSync(join(registry,'control.json')))
+          writeFileSync(join(out,'control-status.json'),JSON.stringify(resumed,null,2)+'\n')
+          console.log('PASS persistent rejection hold and explicit anchored resume on historical evidence')
+          const {inspectQueue,reviewQueue}=await import('./research/unified-orchestration/producer-queue.mjs')
+          const {mkdirSync}=await import('node:fs')
+          const queue=join(root,'orchestration-queue'),qp=join(root,'ci-queue-plan.json')
+          mkdirSync(queue)
+          const queuePlan={kind:'APPROVED_SYNTHETIC_CONTRACT_QUEUE',schemaVersion:1,orchestrationPlanSha256:fingerprint,evidenceStateSha256:resumed.evidenceStateSha256,registrySha256:resumed.registrySha256,controlSha256:resumed.control.controlSha256,requests:s.snapshot.modules.map(m=>({producerId:m.id,sourceHead:m.source.head,summarySha256:m.receiptSha256,operation:'SYNTHETIC_CONTRACT_CHECK',declaredBudget:{cpuSlots:1,memoryMiB:64,maxSeconds:5,gpu:false,network:false}}))}
+          const queueRaw=JSON.stringify(queuePlan),queueHash=createHash('sha256').update(queueRaw).digest('hex')
+          writeFileSync(qp,queueRaw)
+          const qargs=[...args,queue,qp,queueHash]
+          let q=inspectQueue(...qargs)
+          assert.equal(q.pending,6)
+          for(const req of queuePlan.requests){
+            q=reviewQueue(...qargs,q.queueSha256,req.producerId,'REVIEW')
+            assert.equal(q.dispatchAuthorized,false)
+            assert.equal(q.executionAuthorized,false)
+            assert.deepEqual(inspectQueue(...qargs,{trustedQueueSha256:q.queueSha256}),q)
+          }
+          assert.equal(q.reviewed,6);assert.equal(q.pending,0)
+          assert.deepEqual(readFileSync(join(registry,'registry.json')),beforeRegistry)
+          assert.deepEqual(readFileSync(join(evidence,'current.json')),before)
+          writeFileSync(join(out,'producer-queue-status.json'),JSON.stringify(q,null,2)+'\n')
+          writeFileSync(join(out,'producer-queue.json'),readFileSync(join(queue,'queue.json')))
+          console.log('PASS six producer contract queue reviews with dispatch blocked')
+          const {supervise,saveCheckpoint,restoreCheckpoint}=await import('./research/unified-orchestration/operational-review.mjs')
+          const anchors={registrySha256:q.registrySha256,controlSha256:q.controlSha256,queueSha256:q.queueSha256}
+          const report=supervise(qargs,anchors)
+          assert.equal(report.status,'OPERATIONAL_READINESS_BLOCKED')
+          assert.equal(report.historicalSupervisor.liveMonitor,false)
+          const backup=join(root,'orchestration-backup'),target=join(root,'orchestration-recovered')
+          mkdirSync(backup)
+          const cp=join(backup,'checkpoint.json'),saved=saveCheckpoint(qargs,anchors,cp)
+          assert.equal(saved.files,6)
+          const recovered=restoreCheckpoint(cp,saved.checkpointSha256,target)
+          const ra=[join(target,'evidence'),join(target,'registry'),join(target,'orchestration-plan.json'),fingerprint,join(target,'queue'),join(target,'queue-plan.json'),queueHash]
+          assert.deepEqual(inspectQueue(...ra,{trustedQueueSha256:q.queueSha256}),q)
+          assert.deepEqual(readFileSync(join(target,'evidence','current.json')),before)
+          assert.deepEqual(readFileSync(join(target,'registry','registry.json')),beforeRegistry)
+          assert.deepEqual(readFileSync(join(target,'registry','control.json')),readFileSync(join(registry,'control.json')))
+          writeFileSync(join(out,'operational-supervisor.json'),JSON.stringify(report,null,2)+'\n')
+          writeFileSync(join(out,'checkpoint-receipt.json'),JSON.stringify(saved,null,2)+'\n')
+          writeFileSync(join(out,'recovery-receipt.json'),JSON.stringify(recovered,null,2)+'\n')
+          console.log('PASS cross-module supervisor reconciliation and isolated six-file checkpoint recovery')
+          JS
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Fixed synthetic resource limit QA (Linux only)
+        run: |
+          python3 research/unified-orchestration/synthetic-resource-qa.py > "$RUNNER_TEMP/orchestration-output/synthetic-resource-qa.json"
+          python3 - <<'PY'
+          import json, os, pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'orchestration-output/synthetic-resource-qa.json'
+          r=json.loads(p.read_text())
+          assert r['passed']==4 and len(r['checks'])==4 and all(x['status']=='PASS' for x in r['checks'])
+          assert r['executionAuthorized'] is False and r['dispatchAuthorized'] is False
+          assert r['publicationGate']=='BLOCKED' and r['modelValidation']=='UNVALIDATED'
+          print('PASS four fixed Linux resource probes; research dispatch blocked')
+          PY
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Persistent fixed synthetic QA scheduling and restart containment
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {createHash} from 'node:crypto'
+          import {readFileSync,writeFileSync,mkdirSync} from 'node:fs'
+          import {join} from 'node:path'
+          import {digest} from './research/scientific-reference/digest.mjs'
+          import {inspectSchedule,advanceSchedule} from './research/unified-orchestration/synthetic-scheduler.mjs'
+          const root=process.env.RUNNER_TEMP,dir=join(root,'synthetic-schedule'),plan=join(root,'synthetic-schedule-plan.json')
+          mkdirSync(dir)
+          const sha=x=>createHash('sha256').update(x).digest('hex')
+          const p={kind:'APPROVED_FIXED_SYNTHETIC_QA',schemaVersion:1,scriptSha256:sha(readFileSync('research/unified-orchestration/synthetic-resource-qa.py')),probes:['known-answer','memory-limit','cpu-limit','wall-timeout']}
+          const raw=JSON.stringify(p);writeFileSync(plan,raw)
+          const args=[dir,plan,sha(raw)]
+          let s=inspectSchedule(...args)
+          for(let i=0;i<4;i++){
+            s=advanceSchedule(...args,s.scheduleSha256)
+            assert.equal(s.completed,i+1)
+            assert.equal(s.dispatchAuthorized,false)
+            assert.deepEqual(inspectSchedule(...args,{trustedScheduleSha256:s.scheduleSha256}),s)
+          }
+          assert.equal(s.status,'FIXED_QA_COMPLETE')
+          assert.deepEqual(advanceSchedule(...args,s.scheduleSha256),s)
+          assert.throws(()=>advanceSchedule(...args,null),/Previous schedule anchor/)
+          const schedule=join(dir,'schedule.json'),before=readFileSync(schedule)
+          const v=JSON.parse(before);v.rows.pop();v.inflight={probe:'wall-timeout',startedAt:new Date().toISOString()}
+          delete v.scheduleSha256;v.scheduleSha256=digest(v)
+          writeFileSync(schedule,JSON.stringify(v))
+          assert.throws(()=>inspectSchedule(...args,{trustedScheduleSha256:s.scheduleSha256}),/external anchor mismatch/)
+          assert.equal(inspectSchedule(...args,{trustedScheduleSha256:v.scheduleSha256}).status,'INTERRUPTED_OR_FAILED_MANUAL_REVIEW')
+          assert.throws(()=>advanceSchedule(...args,v.scheduleSha256),/manual review/)
+          writeFileSync(schedule,before)
+          writeFileSync(join(root,'orchestration-output','synthetic-schedule.json'),before)
+          console.log('PASS serial fixed synthetic scheduling, persisted results and interrupted-state refusal')
+          JS
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Read-only orchestration browser acceptance
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node research/unified-orchestration/browser-acceptance.mjs "$RUNNER_TEMP/orchestration-evidence" "$RUNNER_TEMP/orchestration-output"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Portable Phase 3 historical preview and extracted browser acceptance
+        run: |
+          python3 research/unified-orchestration/release.py "$RUNNER_TEMP/orchestration-recovered" "$RUNNER_TEMP/orchestration-output"
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,zipfile
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])
+          out=root/'orchestration-output'
+          raw=(out/'phase3-local-preview.zip').read_bytes()
+          receipt=json.loads((out/'phase3-release-receipt.json').read_text())
+          assert hashlib.sha256(raw).hexdigest()==receipt['archiveSha256']
+          target=root/'phase3-extracted'
+          target.mkdir()
+          with zipfile.ZipFile(out/'phase3-local-preview.zip') as z:z.extractall(target)
+          PY
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {readFileSync,writeFileSync} from 'node:fs'
+          import {createHash} from 'node:crypto'
+          import {join} from 'node:path'
+          import {pathToFileURL} from 'node:url'
+          import {chromium} from 'playwright'
+          const root=process.env.RUNNER_TEMP,target=join(root,'phase3-extracted'),out=join(root,'orchestration-output')
+          const hash=x=>createHash('sha256').update(x).digest('hex')
+          const registry=JSON.parse(readFileSync(join(target,'registry','registry.json')))
+          const control=JSON.parse(readFileSync(join(target,'registry','control.json')))
+          const q=JSON.parse(readFileSync(join(target,'queue','queue.json')))
+          const op=join(target,'orchestration-plan.json'),qp=join(target,'queue-plan.json')
+          const {startDashboard}=await import(pathToFileURL(join(target,'research','unified-orchestration','dashboard.mjs')).href)
+          const server=await startDashboard(join(target,'evidence'),join(target,'registry'),op,hash(readFileSync(op)),{port:0,trustedRegistrySha256:registry.registrySha256,trustedControlSha256:control.controlSha256,queueConfig:{directory:join(target,'queue'),planPath:qp,planSha256:hash(readFileSync(qp)),trustedQueueSha256:q.queueSha256}})
+          const url='http://127.0.0.1:'+server.address().port
+          let browser
+          const checks=[]
+          try{
+            browser=await chromium.launch({headless:true})
+            for(const width of [1440,390,320,280]){
+              const page=await browser.newPage({viewport:{width,height:900}})
+              const external=[]
+              await page.route('**/*',route=>{if(route.request().url().startsWith(url+'/'))return route.continue();external.push(route.request().url());return route.abort()})
+              assert.equal((await page.goto(url+'/')).status(),200)
+              assert.equal(await page.locator('[data-reviewed]').getAttribute('data-reviewed'),'7')
+              assert.equal(await page.locator('[data-queue-counts]').getAttribute('data-queue-counts'),'0:6:0')
+              const body=await page.locator('body').innerText()
+              for(const label of ['UNVALIDATED','PUBLICATION BLOCKED','EXECUTION BLOCKED'])assert.ok(body.includes(label))
+              assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth))
+              assert.deepEqual(external,[])
+              await page.screenshot({path:join(out,'phase3-extracted-'+width+'.png'),fullPage:true})
+              await page.close()
+              checks.push({width,status:'PASS'})
+            }
+            const status=await (await fetch(url+'/status')).json()
+            assert.equal(status.externalRegistryAnchorMatched,true)
+            assert.equal(status.externalControlAnchorMatched,true)
+            assert.equal(status.queue.anchored,true)
+            assert.equal(status.queue.view.dispatchAuthorized,false)
+            writeFileSync(join(out,'phase3-extracted-browser.json'),JSON.stringify({checks,executionAuthorized:false,publicationGate:'BLOCKED'},null,2)+'\n')
+            console.log('PASS extracted Phase 3 preview at four Chromium viewports with independent anchors')
+          }finally{
+            if(browser)await browser.close()
+            await new Promise(ok=>server.close(ok))
+          }
+          JS
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unified-research-orchestration-evidence
+          path: ${{ runner.temp }}/orchestration-output/
+          retention-days: 7
+          if-no-files-found: error
