@@ -6,6 +6,7 @@ import json
 import re
 import ssl
 import sys
+import warnings
 
 HEX=re.compile(r"[a-f0-9]{64}")
 REV=re.compile(r"[a-f0-9]{40}")
@@ -90,10 +91,12 @@ def main():
     try:
         endpoint(args.host,args.port,args.allow_remote)
         need(isinstance(args.revision,str) and REV.fullmatch(args.revision),"Pinned revision required")
-        token=getpass.getpass("PC-only credential (not saved): ")
+        with warnings.catch_warnings():
+            warnings.simplefilter("error",getpass.GetPassWarning)
+            token=getpass.getpass("PC-only credential (not saved): ")
         result=PresenceClient(args.host,args.port,args.revision,token,cafile=args.ca_file,allow_remote=args.allow_remote).report_once()
         print(json.dumps(result,sort_keys=True))
-    except (ValueError,OSError,http.client.HTTPException,UnicodeError,RecursionError,EOFError):
+    except (ValueError,OSError,http.client.HTTPException,UnicodeError,RecursionError,EOFError,getpass.GetPassWarning):
         print("Presence report not confirmed; no automatic retry. Verify endpoint and credentials before another explicit run.",file=sys.stderr)
         sys.exit(1)
 
