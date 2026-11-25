@@ -52,6 +52,8 @@ class Presence:
     def check_policy(self,db):
         row=db.execute("SELECT digest FROM presence_policy WHERE id=1").fetchone()
         need(row is not None and row["digest"]==self._policy,"Policy mismatch")
+    def assert_service_scope(self,credentials,revision):
+        need(revision==self._revision and dict(credentials)=={r:self._digests[r] for r in ROLES if r!='pc-qa'},'Presence service scope mismatch')
     def auth(self,role,token):
         need(hex_string(token,64),"Unauthorized")
         need(secrets.compare_digest(hashlib.sha256(token.encode()).hexdigest(),self._digests[role]),"Unauthorized")
