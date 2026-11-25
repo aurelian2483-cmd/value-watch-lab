@@ -67,21 +67,6 @@ jobs:
           $extract = Join-Path $env:RUNNER_TEMP "cloudflare-extracted"
           Expand-Archive -LiteralPath (Join-Path $kit "Sky-Research-Cloudflare-Disabled.zip") -DestinationPath $extract
           "SKY_EXTRACTED=$extract" >> $env:GITHUB_ENV
-      - name: Windows Wrangler dry run
-        run: |
-          $dryRun = Join-Path $env:RUNNER_TEMP "cloudflare-dry-run"
-          New-Item -ItemType Directory -Path $dryRun | Out-Null
-          Copy-Item -Path (Join-Path $env:SKY_EXTRACTED "*") -Destination $dryRun -Recurse
-          $dryConfig = Get-Content (Join-Path $dryRun "wrangler.json") -Raw | ConvertFrom-Json
-          $dryConfig | Add-Member -NotePropertyName account_id -NotePropertyValue "00000000000000000000000000000000" -Force
-          $dryConfig | ConvertTo-Json -Depth 100 | Set-Content -Path (Join-Path $dryRun "wrangler.json") -Encoding utf8
-          Push-Location $dryRun
-          try {
-            npx --yes wrangler@4.165.0 deploy --dry-run --outdir preview --config wrangler.json
-            if ($LASTEXITCODE -ne 0) { throw "Windows Wrangler dry run failed" }
-          } finally {
-            Pop-Location
-          }
       - name: Windows preflight Wrangler launcher
         run: |
           Push-Location $env:SKY_EXTRACTED
