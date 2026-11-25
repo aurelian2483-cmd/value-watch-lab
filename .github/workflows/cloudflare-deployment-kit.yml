@@ -69,10 +69,18 @@ jobs:
           "SKY_EXTRACTED=$extract" >> $env:GITHUB_ENV
       - name: Windows Wrangler dry run and authentication gate
         run: |
-          Push-Location $env:SKY_EXTRACTED
+          $dryRun = Join-Path $env:RUNNER_TEMP "cloudflare-dry-run"
+          New-Item -ItemType Directory -Path $dryRun | Out-Null
+          Copy-Item -Path (Join-Path $env:SKY_EXTRACTED "*") -Destination $dryRun -Recurse
+          Push-Location $dryRun
           try {
             npx --yes wrangler@4.165.0 deploy --dry-run --outdir preview
             if ($LASTEXITCODE -ne 0) { throw "Windows Wrangler dry run failed" }
+          } finally {
+            Pop-Location
+          }
+          Push-Location $env:SKY_EXTRACTED
+          try {
             node preflight.mjs 00000000000000000000000000000000
             if ($LASTEXITCODE -ne 1) { throw "Unauthenticated preflight did not fail closed" }
             if (Test-Path wrangler.account.json) { throw "Account config must not be created without verified authentication" }
