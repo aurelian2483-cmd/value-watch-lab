@@ -1,0 +1,7 @@
+# Shared cloud/PC job controller — storage prototype
+
+Stacked on accepted PR #190 at e927c2a70c482b465bab68f71325bcf6765cdaed. No existing code changed. This is a single-controller local SQLite prototype, not a hosted shared service. It supports a fixed job allowlist, pinned revisions, idempotent enqueue, uniqueness of logical jobs, atomic CPU leases, restart persistence, hashed lease tokens, replay rejection, expiry quarantine and a read-only-in-content snapshot (snapshot advances trusted time and records expiry). GPU jobs stay blocked. Receipt hashes are unverified references; no job becomes scientifically accepted. Worker labels and time are trusted in-process inputs, not authentication or remote attestations. No execution, network endpoint, credentials, worker registration, retries, provider data, schedule or deployment. Production and publication remain blocked.
+
+Run: python -B -m unittest discover -s research/shared-job-controller -p 'test_*.py' -v
+
+Next gates: authenticated service boundary and trusted server clock, durable hosted storage/backup, revocable worker identity, bounded fixed-job execution adapters, trusted receipt artifact intake, cross-host acceptance and fault tests. No shared network filesystem SQLite deployment. No unreviewed commands or automatic GPU fallback. Quarantined work requires explicit future reconciliation; never retry automatically. Do not expose this prototype to the internet.
