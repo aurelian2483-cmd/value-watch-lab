@@ -1,0 +1,41 @@
+name: Cloudflare disabled deployment kit QA
+on:
+  pull_request:
+    paths:
+      - 'research/cloudflare-deployment-kit/**'
+      - '.github/workflows/cloudflare-deployment-kit.yml'
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B -m unittest discover -s research/cloudflare-deployment-kit -p 'test_*.py' -v
+      - run: python -B research/cloudflare-deployment-kit/package.py "$RUNNER_TEMP/cloudflare-kit"
+      - run: npm install --prefix "$RUNNER_TEMP/sky-wrangler" --no-audit --no-fund wrangler@4.165.0
+      - name: Verify exact extracted package with Wrangler offline dry run
+        env:
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          mkdir "$RUNNER_TEMP/cloudflare-extracted"
+          unzip -q "$RUNNER_TEMP/cloudflare-kit/Sky-Research-Cloudflare-Disabled.zip" -d "$RUNNER_TEMP/cloudflare-extracted"
+          cd "$RUNNER_TEMP/cloudflare-extracted"
+          "$RUNNER_TEMP/sky-wrangler/node_modules/.bin/wrangler" deploy --dry-run --outdir preview
+      - run: test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-disabled-deployment-kit
+          path: ${{ runner.temp }}/cloudflare-kit/
+          retention-days: 14
+          if-no-files-found: error
