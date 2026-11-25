@@ -1,0 +1,33 @@
+name: PC enrollment kit QA
+on:
+  pull_request:
+    paths:
+      - 'research/pc-enrollment-kit/**'
+      - 'research/pc-presence-client/**'
+      - '.github/workflows/pc-enrollment-kit-qa.yml'
+permissions:
+  contents: read
+jobs:
+  kit:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B -m unittest discover -s research/pc-enrollment-kit -p 'test_*.py' -v
+      - shell: bash
+        run: python -B research/pc-enrollment-kit/package.py "$RUNNER_TEMP/pc-enrollment"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pc-enrollment-kit-${{ matrix.os }}
+          path: ${{ runner.temp }}/pc-enrollment/
+          retention-days: 14
+          if-no-files-found: error
