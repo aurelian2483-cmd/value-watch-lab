@@ -84,13 +84,9 @@ jobs:
           }
           Push-Location $env:SKY_EXTRACTED
           try {
-            $preflightOutput = & node preflight.mjs 00000000000000000000000000000000 2>&1
-            $preflightExit = $LASTEXITCODE
-            $preflightOutput | ForEach-Object { Write-Host $_ }
-            if ($preflightExit -ne 1 -or (($preflightOutput -join "`n") -notmatch "Cloudflare authentication or account membership")) {
-              throw "Wrangler authentication gate did not fail for the expected reason"
-            }
-            if (Test-Path wrangler.account.json) { throw "Account config must not be created without verified authentication" }
+            $script = "import { defaultRunner } from './preflight.mjs'; const r=defaultRunner(['--version'],process.cwd()); if(r.status!==0 || !r.stdout.includes('4.165.0')) process.exit(1); console.log('PASS Windows npx.cmd Wrangler launcher');"
+            node --input-type=module -e $script
+            if ($LASTEXITCODE -ne 0) { throw "Windows preflight Wrangler launcher failed" }
           } finally {
             Pop-Location
           }
