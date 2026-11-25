@@ -1,0 +1,74 @@
+name: Historical evidence readiness QA
+on:
+  pull_request:
+    paths:
+      - 'research/historical-evidence-readiness/**'
+      - '.github/workflows/historical-evidence-readiness.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  readiness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Synthetic chronology and metadata contract tests
+        run: python -B -m unittest discover -s research/historical-evidence-readiness -p 'test_*.py' -v
+      - name: Verify accepted aggregate artifact and Git tree metadata only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -B - <<'PY'
+          import json,hashlib,os,pathlib,subprocess
+          def need(ok,msg):
+              if not ok:raise RuntimeError(msg)
+          repo=os.environ['GITHUB_REPOSITORY']
+          rid=int(os.environ['GITHUB_REPOSITORY_ID'])
+          ep=f'repos/{repo}/actions/artifacts/14950762722'
+          a=json.loads(subprocess.check_output(['gh','api',ep]))
+          run=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/45458157425']))
+          head='405136090977aecedffa096d2118f683a3c7669f'
+          sha='a7bbd094720c3c3daf1c3ce0759563ffee2802f1da001b6259f355c6e9d6ce34'
+          w=a['workflow_run']
+          need(a['id']==14950762722 and a['name']=='central-data-integrity-manifest' and not a['expired'] and a['digest']=='sha256:'+sha and 0<a['size_in_bytes']<=1024*1024,'Unexpected source archive')
+          need(w['id']==45458157425 and w['repository_id']==rid and w['head_repository_id']==rid and w['head_sha']==head and run['head_sha']==head and run['conclusion']=='success','Source workflow mismatch')
+          raw=subprocess.check_output(['gh','api',ep+'/zip'])
+          need(len(raw)==a['size_in_bytes'] and hashlib.sha256(raw).hexdigest()==sha,'Archive byte mismatch')
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])
+          (root/'source-aggregate.zip').write_bytes(raw)
+          for name,rev in [('old','cb8ca042a91c7127361ec0277caf467766d3fab2'),('research','38378e3c66f26a43b019314586fdbd03ec97b2ab')]:
+              # Tree metadata only; never request source blob contents.
+              tree=subprocess.check_output(['gh','api',f'repos/{repo}/git/trees/{rev}?recursive=1'])
+              (root/f'{name}-tree.json').write_bytes(tree)
+          print('PASS exact source archive provenance and Git metadata retrieval')
+          PY
+          out="$RUNNER_TEMP/historical-readiness"
+          mkdir "$out"
+          python -B research/historical-evidence-readiness/readiness.py "$RUNNER_TEMP/source-aggregate.zip" "$RUNNER_TEMP/old-tree.json" "$RUNNER_TEMP/research-tree.json" > "$out/readiness.json"
+          python -B research/historical-evidence-readiness/temporal.py > "$out/synthetic-temporal.json"
+          python -B - <<'PY'
+          import json,os,pathlib
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'historical-readiness'
+          a=json.loads((root/'readiness.json').read_text())
+          b=json.loads((root/'synthetic-temporal.json').read_text())
+          assert a['sourceGitMetadataMatches']==9 and a['sourceClaimsRecorded']==0
+          assert a['historicalStructurallyAccepted']==782 and a['prospectiveStructurallyAccepted']==80
+          assert a['archivedOutcomeFeedRows']==0 and b['accepted']==3
+          for x in [a,b]:
+              assert x['realEvaluationEligibleRows']==0
+              assert x['executionAuthorized'] is False and x['accessAuthorized'] is False and x['publicationGate']=='BLOCKED'
+          print('PASS aggregate reconciliation, synthetic chronology and blocked real-data gate')
+          PY
+          cp research/historical-evidence-readiness/DOCUMENTARY-REVIEW-20261125.md "$out/"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: historical-evidence-readiness
+          path: ${{ runner.temp }}/historical-readiness/
+          retention-days: 7
+          if-no-files-found: error
