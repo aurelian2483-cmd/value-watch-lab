@@ -20,8 +20,9 @@ export function defaultRunner(args,cwd) {
   const commandArgs=['--yes','wrangler@'+WRANGLER,...args];
   const windows=process.platform==='win32';
   const executable=windows?(process.env.ComSpec||'cmd.exe'):'npx';
+  if(windows&&commandArgs.some(a=>/[\\s&|<>^()%!"']/u.test(String(a))))fail('Unsafe Windows command argument');
   const invocation=windows
-    ? ['/d','/s','/c','npx.cmd '+commandArgs.map(a=>'"'+String(a).replace(/"/g,'""')+'"').join(' ')]
+    ? ['/d','/s','/c','npx.cmd '+commandArgs.join(' ')]
     : commandArgs;
   const r=spawnSync(executable,invocation,{
     cwd,encoding:'utf8',timeout:60000,windowsHide:true,shell:false,
