@@ -74,6 +74,16 @@ class Presence:
             need(row["last_seen"] is None or now>row["last_seen"],"Heartbeat rate exceeded")
             db.execute("UPDATE pc_presence SET sequence=?,last_seen=?,gpu=?,last_clock=? WHERE id=1",(sequence,now,gpu,now))
         return {"sequence":sequence,"accepted":True,"gpuDispatchAuthorized":False}
+    def cursor(self,token):
+        """PC-only cursor for restart or uncertain acknowledgement; no other status."""
+        self.auth("pc-qa",token)
+        with self.tx(readonly=True) as db:
+            self.check_policy(db)
+            row=db.execute("SELECT sequence,revoked,last_clock FROM pc_presence WHERE id=1").fetchone()
+            need(not row["revoked"],"Worker revoked")
+            need(self.now()>=row["last_clock"],"Clock rollback")
+            return {"kind":"PC_HEARTBEAT_CURSOR","revision":self._revision,"sequence":row["sequence"],
+                    "gpuDispatchAuthorized":False}
     def revoke(self,token):
         self.auth("operator",token)
         with self.tx() as db:
