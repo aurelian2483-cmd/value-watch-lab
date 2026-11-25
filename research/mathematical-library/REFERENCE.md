@@ -4845,3 +4845,19 @@ Limitations — Even-multiplicity roots may lack a sign-changing bracket; finite
 Mechanism — Exponential correction at a midpoint, rather than polynomial inverse interpolation or unguarded secant updates. Under exact arithmetic with opposite endpoint signs the correction magnitude is less than the half-width. The chosen opposite-sign partner retains a bracket no wider than the original half-width.
 
 Source — Brown University, MATHEMATICA tutorial, Bracketing Methods, section III Ridders’ Method (exponential correction formula); MATLAB tutorial Part III, rebracketing rule. https://www.cfm.brown.edu/people/dobrush/am33/python/p3/bracket.html ; https://www.cfm.brown.edu/people/dobrush/am33/Matlab/ch3/bracket.html
+
+## Classical false-position scalar root solver (regula-falsi-bracketed-root)
+
+> Check endpoint zeros first. Given a<b and opposite signs f(a), f(b), compute x=(af(b)−bf(a))/(f(b)−f(a)). If f(x)=0 return x; otherwise replace the endpoint of matching sign with x and repeat. Return a bracket on width tolerance, or a residual-only approximate point explicitly labelled as such.
+
+a,b ordered bracket endpoints; x interpolation trial; f real scalar function.
+
+General scalar root solving.
+
+Assumptions — Continuous real f, strict sign change after endpoint-zero checks, finite values, representable interior trials and bounded iterations.
+
+Limitations — A bracket endpoint may remain fixed indefinitely; a small residual alone is not a certified error bound without further assumptions.
+
+Mechanism — Same linear intercept as the existing secant method, but retains the opposite-sign endpoint rather than discarding by age. Bracket preservation is a material control-rule change; counted as a variant, not an independent algorithm.
+
+Source — Vladimir Dobrushkin, Brown University, Mathematica tutorial, Part III Bracketing Methods, section II False Position Method. https://www.cfm.brown.edu/people/dobrush/am33/python/p3/bracket.html

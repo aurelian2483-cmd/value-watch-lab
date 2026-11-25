@@ -1,6 +1,6 @@
 # Sky Universal Mathematical Research Library
 
-Research catalogue v1 registers **337 specifications** across six sports, including 16 preserved v0 records and 321 entries added in batches. The 1,000-entry milestone remains open with **663 entries outstanding**.
+Research catalogue v1 registers **338 specifications** across six sports, including 16 preserved v0 records and 322 entries added in batches. The 1,000-entry milestone remains open with **662 entries outstanding**.
 
 | Classification | Count |
 | --- | ---: |
@@ -8,7 +8,7 @@ Research catalogue v1 registers **337 specifications** across six sports, includ
 | Distinct models | 33 |
 | Distributions | 29 |
 | Frameworks | 4 |
-| Model variants | 28 |
+| Model variants | 29 |
 | Parameter configurations | 1 |
 | Feature transformations | 13 |
 | Diagnostics | 77 |
@@ -134,3 +134,7 @@ One rank-one solve algorithm and one block power-iteration variant admitted afte
 ## Batch 032 admission
 
 Two general scalar root-solving algorithms admitted after source and overlap review. Catalogue: 337 specifications. Two provisional candidates staged for review. See [review](BATCH-032-ADMISSION.md). No implementation or empirical qualification claimed.
+
+## Batch 033 admission
+
+One bracket-preserving secant variant admitted; standalone inverse quadratic interpolation withheld as a constituent mechanism of Brent. Catalogue: 338. Two provisional quadrature candidates staged. See [review](BATCH-033-ADMISSION.md). No empirical qualification claimed.

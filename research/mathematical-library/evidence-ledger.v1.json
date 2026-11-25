@@ -6987,5 +6987,27 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Exponential correction at a midpoint, rather than polynomial inverse interpolation or unguarded secant updates. Under exact arithmetic with opposite endpoint signs the correction magnitude is less than the half-width. The chosen opposite-sign partner retains a bracket no wider than the original half-width."
+  },
+  {
+    "id": "regula-falsi-bracketed-root",
+    "source": {
+      "kind": "literature",
+      "citation": "Vladimir Dobrushkin, Brown University, Mathematica tutorial, Part III Bracketing Methods, section II False Position Method. https://www.cfm.brown.edu/people/dobrush/am33/python/p3/bracket.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Same linear intercept as the existing secant method, but retains the opposite-sign endpoint rather than discarding by age. Bracket preservation is a material control-rule change; counted as a variant, not an independent algorithm."
   }
 ]
