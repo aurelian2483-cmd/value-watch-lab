@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const {createHash} = require('node:crypto');
 const {sides, fixtures, matchPoll, metrics, comparison, movement, maxAge} = require('../market-intelligence/comparison-core.cjs');
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
@@ -16,11 +17,13 @@ function mergePoll(ledger, poll, rows, allowed, now) {
   const checked = typeof poll?.checked === 'string' && /(?:Z|[+-]\d{2}:\d{2})$/.test(poll.checked) ? Date.parse(poll.checked) : NaN;
   if (!['ok', 'empty', 'failed'].includes(poll?.status) || !Array.isArray(poll.records) ||
       poll.records.length > 1000 || !poll.records.every(row => row && typeof row === 'object') ||
-      !Number.isFinite(checked) || checked > now || checked <= (ledger.checked ?? -Infinity)) {
+      !Number.isFinite(checked) || checked > now || checked < (ledger.checked ?? -Infinity)) {
     return {...ledger, status:'failed'};
   }
+  const digest = createHash('sha256').update(JSON.stringify(poll)).digest('hex');
+  if (checked === ledger.checked) return digest === ledger.digest ? ledger : {...ledger,status:'failed'};
   const {accepted, rejects, rejected} = matchPoll(rows, poll.status === 'ok' ? poll.records : [], checked, allowed);
-  return {checked, status: poll.status === 'ok' && !accepted.length ? 'empty' : poll.status,
+  return {checked, digest, status: poll.status === 'ok' && !accepted.length ? 'empty' : poll.status,
     rejects, rejected, observations:[...ledger.observations, ...accepted.map(row => ({...row,poll:checked}))]};
 }
 

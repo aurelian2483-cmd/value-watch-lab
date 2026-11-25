@@ -26,6 +26,8 @@ assert(Math.abs(math.outcomes.home.probability-6/13)<1e-10);
 assert(Math.abs(math.outcomes.home.fairOdds-13/6)<1e-10);
 assert.equal(core.metrics({home:2,away:4}),null);
 const history = mergePoll(empty,poll,[fixture],books,now);
+assert.equal(mergePoll(history,poll,[fixture],books,now),history);
+assert.equal(mergePoll(history,{...poll,records:[]},[fixture],books,now).status,'failed');
 const late = start-10*60000;
 const later = {...base,observed_at_utc:iso(late),checked_at_utc:iso(late),prices:{home:1.9,draw:3.2,away:4}};
 const two = mergePoll(history,{status:'ok',checked:iso(late),records:[later]},[fixture],books,late);
