@@ -12,7 +12,9 @@ const WRANGLER='4.165.0';
 const MEMBERS=['START-HERE.txt','preflight.mjs','queue.mjs','worker.mjs','wrangler.json'];
 const fail=(message)=>{throw new Error(message)};
 const sha=(bytes)=>createHash('sha256').update(bytes).digest('hex');
-const isHex=(v,n)=>typeof v==='string'&&new RegExp('^[a-f0-9]{'+n+'}
+const isHex=(v,n)=>typeof v==='string'&&new RegExp('^[a-f0-9]{'+n+'}'+'$').test(v);
+const canonical=value=>Array.isArray(value)?value.map(canonical):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,canonical(value[k])])):value;
+const same=(a,b)=>JSON.stringify(canonical(a))===JSON.stringify(canonical(b));
 
 export function defaultRunner(args,cwd) {
   const executable=process.platform==='win32'?'npx.cmd':'npx';
