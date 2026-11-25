@@ -5,13 +5,14 @@ on:
       - 'research/shared-job-controller/**'
       - 'research/optional-pc-worker/**'
       - 'research/bounded-qa-scheduler/**'
+      - 'research/operational-status/**'
       - '.github/workflows/shared-job-controller-qa.yml'
 permissions:
   contents: read
 jobs:
   controller:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,11 +26,23 @@ jobs:
         run: PYTHONPATH=research/shared-job-controller python -B -m unittest discover -s research/optional-pc-worker -p 'test_*.py' -v
       - name: Bounded schedule admission and recovery
         run: PYTHONPATH=research/shared-job-controller python -B -m unittest discover -s research/bounded-qa-scheduler -p 'test_*.py' -v
+      - name: Operational evidence export tests
+        run: PYTHONPATH=research/shared-job-controller:research/bounded-qa-scheduler python -B -m unittest discover -s research/operational-status -p 'test_*.py' -v
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - name: Actual fixed CPU dispatch over loopback TLS
         run: python -B research/shared-job-controller/hosted_acceptance.py
-      - name: Scheduled fixed CPU dispatch over loopback TLS
-        run: PYTHONPATH=research/shared-job-controller python -B research/bounded-qa-scheduler/scheduled_acceptance.py
+      - name: Scheduled fixed CPU dispatch and redacted evidence export
+        run: PYTHONPATH=research/shared-job-controller:research/bounded-qa-scheduler python -B research/operational-status/export_acceptance.py
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Static operational evidence browser acceptance
+        run: node research/operational-status/browser-acceptance.mjs "$RUNNER_TEMP/operational-status"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: operational-status-qa
+          path: ${{ runner.temp }}/operational-status/
+          retention-days: 14
+          if-no-files-found: error
       - run: test -z "$(git status --porcelain --untracked-files=all)"
