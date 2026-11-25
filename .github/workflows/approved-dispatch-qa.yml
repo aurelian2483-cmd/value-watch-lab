@@ -1,0 +1,74 @@
+name: Approved dispatch QA
+on:
+  pull_request:
+    paths:
+      - 'research/approved-dispatch/**'
+      - '.github/workflows/approved-dispatch-qa.yml'
+permissions:
+  contents: read
+jobs:
+  fixed-dispatch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dispatch and producer contracts
+        run: |
+          python -B -m unittest discover -s research/approved-dispatch -p 'test_*.py' -v
+          python -B -m unittest discover -s research/local-producer-integration -p 'test_*.py' -v
+      - name: Explicitly approved fixed QA queue
+        run: |
+          python -B - <<'PY'
+          import hashlib,json,os,pathlib,subprocess,sys
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'dispatch-qa'
+          root.mkdir();store=root/'store';store.mkdir()
+          plan=root/'plan.json';revision=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          payload={'kind':'APPROVED_FIXED_QA_DISPATCH','schemaVersion':1,'revision':revision,
+                   'jobs':[{'id':'probe','kind':'cpu-probe','backend':'CPU','timeoutSeconds':15},
+                           {'id':'gpu','kind':'gpu-qa','backend':'GPU','timeoutSeconds':0},
+                           {'id':'local','kind':'local-qa','backend':'CPU','timeoutSeconds':180},
+                           {'id':'cancelled','kind':'cpu-probe','backend':'CPU','timeoutSeconds':15}]}
+          plan.write_text(json.dumps(payload,indent=2)+'\n')
+          h=hashlib.sha256(plan.read_bytes()).hexdigest()
+          def run(action,*args):
+              raw=subprocess.check_output([sys.executable,'-B','research/approved-dispatch/dispatch.py',action,str(store),str(plan),h,*args],timeout=210)
+              return json.loads(raw)
+          def advance(state):return run('advance',state['eventSha256'] or 'NEW')
+          s=run('init');assert s['eventCount']==0
+          s=run('cancel','NEW','cancelled');assert s['jobs'][3]['status']=='CANCELLED'
+          s=advance(s);assert s['jobs'][0]['status']=='PASSED'
+          s=advance(s);assert s['jobs'][1]['status']=='BLOCKED_GPU'
+          s=advance(s);assert s['jobs'][2]['status']=='PASSED'
+          assert s['status']=='FIXED_QA_QUEUE_TERMINAL' and s['eventCount']==6
+          assert run('status')==s and advance(s)==s
+          assert not s['productionDispatchAuthorized'] and not s['gpuDispatchAuthorized'] and s['publicationGate']=='BLOCKED'
+          assert not (store/'outputs'/'gpu.json').exists()
+          assert not (store/'outputs'/'cancelled.json').exists()
+          p=store/'outputs'/'local.json'
+          result=json.loads(p.read_bytes())
+          assert result['status']=='FIXED_QA_COMPLETE_RESEARCH_BLOCKED'
+          assert result['producers'][1]['metrics']['passed']==250 and result['producers'][2]['metrics']['passed']==250
+          original=p.read_bytes();p.write_bytes(original+b' ')
+          check=subprocess.run([sys.executable,'-B','research/approved-dispatch/dispatch.py','status',str(store),str(plan),h],capture_output=True)
+          assert check.returncode!=0
+          p.write_bytes(original);assert run('status')==s
+          (root/'acceptance.json').write_text(json.dumps({'kind':'FIXED_DISPATCH_ACCEPTANCE','revision':revision,'state':s,'checks':['two actual CPU dispatches','GPU held without fallback','pending cancellation','restart and idempotent terminal state','output tamper rejected','500 independently checked synthetic cases'],'productionDispatchAuthorized':False},indent=2)+'\n')
+          print('PASS actual serial CPU dispatch, 500 reference checks, GPU withholding, cancellation, restart and output tamper detection')
+          PY
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: approved-fixed-dispatch-evidence
+          path: ${{ runner.temp }}/dispatch-qa/
+          retention-days: 14
+          if-no-files-found: warn
