@@ -11,7 +11,7 @@ assert.equal(process.argv.length,3)
 mkdirSync(out,{recursive:true})
 const originalSha='f8919ac7209fa9d8b4100d6cb6853e90253746b12718ffe983057c48c66d5826'
 const homeBlob='f0e343322c3aff6c7251d9318c656f4b4b40c906'
-const back='<p class="muted"><a href="../" id="return-research-desk">← Back to Value Watch research desk</a></p>'
+const back='<p class="muted"><a href="../" id="return-research-desk">← Back to Value Watch research desk</a></p><p class="muted" id="measurement-freshness">Measurement freshness: UNKNOWN</p>'
 const links=['<a href="./research-control-centre/">Research Control Centre · Evidence</a>','<a href="./research-control-centre/">Control Centre</a>']
 const bytes=p=>readFileSync(join(root,p))
 const hash=b=>createHash('sha256').update(b).digest('hex')
@@ -76,6 +76,7 @@ try{
    const text=await page.locator('body').innerText()
    for(const gate of ['UNVALIDATED','PUBLICATION BLOCKED','EXECUTION BLOCKED','OFFLINE SNAPSHOT','Measurement freshness: UNKNOWN'])assert.ok(text.includes(gate),gate)
    assert.equal(await page.locator('script,iframe,form,input,button').count(),0)
+   assert.ok(await page.locator('#measurement-freshness').isVisible(),'Freshness warning must remain visible')
    const nav=page.locator('nav[aria-label="Research navigation"] a')
    assert.equal(await nav.count(),10)
    for(const a of await nav.all()){
