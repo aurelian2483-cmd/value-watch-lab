@@ -1,0 +1,55 @@
+name: Integrated research website acceptance
+on:
+  pull_request:
+    paths:
+      - 'research/integrated-website/**'
+      - '.github/workflows/integrated-research-website.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare exact accepted evidence snapshots
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -B research/integrated-website/prepare.py "$RUNNER_TEMP/website-archives" "$RUNNER_TEMP/website-input" --download
+      - name: Build deterministic integrated website
+        run: |
+          set -euo pipefail
+          mkdir "$RUNNER_TEMP/website" "$RUNNER_TEMP/website-repeat" "$RUNNER_TEMP/website-qa"
+          node research/integrated-website/build.mjs "$RUNNER_TEMP/website-input" "$RUNNER_TEMP/website"
+          node research/integrated-website/build.mjs "$RUNNER_TEMP/website-input" "$RUNNER_TEMP/website-repeat"
+          cmp "$RUNNER_TEMP/website/index.html" "$RUNNER_TEMP/website-repeat/index.html"
+          cmp "$RUNNER_TEMP/website/status.json" "$RUNNER_TEMP/website-repeat/status.json"
+      - name: Install existing locked browser dependencies
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Full integrated Chromium acceptance
+        run: node research/integrated-website/browser-acceptance.mjs "$RUNNER_TEMP/website-input" "$RUNNER_TEMP/website" "$RUNNER_TEMP/website-qa"
+      - name: Package verified website and acceptance receipt
+        run: |
+          set -euo pipefail
+          python -B research/integrated-website/package.py "$RUNNER_TEMP/website" "$RUNNER_TEMP/website-qa"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integrated-research-website-evidence
+          path: |
+            ${{ runner.temp }}/website-qa/
+          retention-days: 14
+          if-no-files-found: warn
