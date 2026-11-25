@@ -71,7 +71,7 @@ try{
     onControlCentre=true
     await page.goto(base+'research-control-centre/')
    }
-   assert.equal(await page.title(),'Research Control Centre | Sky Research')
+   assert.equal(await page.title(),'Sky Research · Integrated Control Centre')
    assert.equal(await page.locator('h1').innerText(),'Research Control Centre')
    const text=await page.locator('body').innerText()
    for(const gate of ['UNVALIDATED','PUBLICATION BLOCKED','EXECUTION BLOCKED','OFFLINE SNAPSHOT','Measurement freshness: UNKNOWN'])assert.ok(text.includes(gate),gate)
