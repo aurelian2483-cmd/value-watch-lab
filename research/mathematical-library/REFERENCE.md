@@ -4957,3 +4957,35 @@ Limitations — The Vandermonde moment system and weighted summation may be ill-
 Mechanism — Derivative functional of the same unique interpolating polynomial rather than a new polynomial approximation family. A derivative-output variant of polynomial interpolation; direct moment solving is not Fornberg recursion and ordinary difference stencils are special cases.
 
 Source — Driscoll, T. A. and Braun, R. J., Fundamentals of Numerical Computation, §5.4 Finite differences, https://tobydriscoll.net/fnc-julia/localapprox/finitediffs.html ; Persson, P.-O., UC Berkeley Math 128A, §4.1, https://persson.berkeley.edu/math128a/lecture_notes/math128a_lecture_notes_chapter_4.html ; arbitrary-node, arbitrary-order moment equations and error order independently derived from polynomial exactness and Taylor expansion.
+
+## Constant-step BDF2 ODE integration (bdf2-constant-step-ode)
+
+> For y′=f(t,y) and t_n=t_0+nh with constant h>0, solve (3y_(n+1)−4y_n+y_(n−1))/(2h)=f(t_(n+1),y_(n+1)) for n≥1. For y′=λy, with z=hλ, the characteristic equation is (3−2z)r²−4r+1=0.
+
+h positive constant step; t_n grid time; y_n state; f right-hand side; λ scalar test rate; r characteristic root.
+
+General numerical ODE integration.
+
+Assumptions — Smooth initial-value problem with a locally Lipschitz right-hand side, bounded solution derivatives through order three, O(h²) accurate starting states and sufficiently accurate implicit solves on a fixed finite interval.
+
+Limitations — Constant-step coefficients are not valid on arbitrary unequal grids; startup and implicit solves are required; second-order convergence and scalar linear stability do not imply accuracy for large steps or unconditional nonlinear solvability.
+
+Mechanism — A two-step implicit backward derivative approximation with history and a distinct characteristic polynomial, rather than one-step backward Euler or endpoint quadrature. Zero-step-rate roots are 1 and 1/3. Taylor expansion at t_(n+1) gives a derivative defect of O(h²).
+
+Source — Sun, L. (2016), Analysis of backward differentiation formula for nonlinear differential-algebraic equations with 2 delays, SpringerPlus 5, 1013, Eq. (18) for the ordinary differential equation, https://link.springer.com/article/10.1186/s40064-016-2422-z ; truncation and characteristic roots independently derived for the constant-step ODE only.
+
+## Implicit midpoint ODE integration (implicit-midpoint-ode)
+
+> For y′=f(t,y), solve y_(n+1)=y_n+h f(t_n+h/2,(y_n+y_(n+1))/2). For y′=λy, z=hλ gives amplification R(z)=(1+z/2)/(1−z/2).
+
+h positive step; t_n time; y_n state; f right-hand side; λ scalar test rate; z scaled rate.
+
+General numerical ODE integration.
+
+Assumptions — Smooth right-hand side and solution with bounded derivatives through the order required for second-order convergence, locally Lipschitz dynamics and sufficiently accurate implicit solves on a fixed finite interval.
+
+Limitations — Not L-stable since R(z) tends to −1 for large negative real z; scalar linear A-stability does not guarantee nonlinear solvability, physical invariants for arbitrary systems or accuracy at large steps.
+
+Mechanism — One-stage implicit Runge–Kutta evaluates the vector field at the midpoint of time and state. It is generally different from averaging endpoint vector fields in trapezoidal integration, although the scalar autonomous linear amplification is identical. Distinct implicit stage mechanism from the existing explicit RK4 and RK23.
+
+Source — LeMesurier, B., Introduction to Numerical Methods and Analysis with Julia (draft), §7.3, implicit midpoint equation and implicit trapezoid comparison, https://lemesurierb.people.charleston.edu/introduction-to-numerical-methods-and-analysis-julia/docs/ODE-IVP-2-Runge-Kutta.html ; order and scalar amplification independently derived. Idaho National Laboratory TMAP8 search result was not used as a verified source because the linked page returned 404.

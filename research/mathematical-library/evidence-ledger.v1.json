@@ -7141,5 +7141,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Derivative functional of the same unique interpolating polynomial rather than a new polynomial approximation family. A derivative-output variant of polynomial interpolation; direct moment solving is not Fornberg recursion and ordinary difference stencils are special cases."
+  },
+  {
+    "id": "bdf2-constant-step-ode",
+    "source": {
+      "kind": "literature",
+      "citation": "Sun, L. (2016), Analysis of backward differentiation formula for nonlinear differential-algebraic equations with 2 delays, SpringerPlus 5, 1013, Eq. (18) for the ordinary differential equation, https://link.springer.com/article/10.1186/s40064-016-2422-z ; truncation and characteristic roots independently derived for the constant-step ODE only."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "A two-step implicit backward derivative approximation with history and a distinct characteristic polynomial, rather than one-step backward Euler or endpoint quadrature. Zero-step-rate roots are 1 and 1/3. Taylor expansion at t_(n+1) gives a derivative defect of O(h²)."
+  },
+  {
+    "id": "implicit-midpoint-ode",
+    "source": {
+      "kind": "literature",
+      "citation": "LeMesurier, B., Introduction to Numerical Methods and Analysis with Julia (draft), §7.3, implicit midpoint equation and implicit trapezoid comparison, https://lemesurierb.people.charleston.edu/introduction-to-numerical-methods-and-analysis-julia/docs/ODE-IVP-2-Runge-Kutta.html ; order and scalar amplification independently derived. Idaho National Laboratory TMAP8 search result was not used as a verified source because the linked page returned 404."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "One-stage implicit Runge–Kutta evaluates the vector field at the midpoint of time and state. It is generally different from averaging endpoint vector fields in trapezoidal integration, although the scalar autonomous linear amplification is identical. Distinct implicit stage mechanism from the existing explicit RK4 and RK23."
   }
 ]
