@@ -28,7 +28,7 @@
       "Incorrect residue classes or phase factors",
       "Non-power-of-two input"
     ],
-    "computation": "Recursively split into even and two odd residue classes, reuse subtransform outputs and combine; direct base cases.",
+    "computation": "Recursively split into even and two odd residue classes, reuse subtransform outputs and combine in O(N log N) arithmetic; direct base cases.",
     "source": {
       "kind": "literature",
       "citation": "Duhamel, P. and Hollmann, H. (1984). Split radix FFT algorithm. Electronics Letters 20(1), 14–16. https://doi.org/10.1049/el:19840012",
@@ -48,7 +48,7 @@
         "type": "variant-of"
       }
     ],
-    "mechanism_note": "Provisional: mixed radix-two/radix-four recursion; classification and full source review pending."
+    "mechanism_note": "Mixed radix-two/radix-four decomposition of the same DFT; partition into even indices and the two odd residue classes gives the stated phase factors. A Cooley–Tukey variant, not a new distinct algorithm."
   },
   {
     "profile": "multifeature",
@@ -79,11 +79,11 @@
       "Zero contour parameters",
       "Inconsistent chirp branch or aliasing"
     ],
-    "computation": "Preweight samples, convolve with the signed-difference chirp, postweight each output; use a circular embedding of length at least N+M−1.",
+    "computation": "Choose q with q²=W. Multiply x_n by A^(−n)q^(n²), convolve with q^(−r²) for signed differences r=−(N−1),…,M−1, and multiply output k by q^(k²); use circular embedding length at least N+M−1.",
     "source": {
       "kind": "literature",
-      "citation": "Rabiner, L. R., Schafer, R. W. and Rader, C. M. (1969). The chirp z-transform algorithm. IEEE Transactions on Audio and Electroacoustics 17(2), 86–92. https://doi.org/10.1109/TAU.1969.1162034",
-      "url": "https://doi.org/10.1109/TAU.1969.1162034"
+      "citation": "Rabiner, L. R., Schafer, R. W. and Rader, C. M. (1969). The chirp z-transform algorithm and its application. Bell System Technical Journal 48(5), 1249–1292. https://doi.org/10.1002/j.1538-7305.1969.tb04268.x",
+      "url": "https://doi.org/10.1002/j.1538-7305.1969.tb04268.x"
     },
     "application": "General geometric-contour Z-transform evaluation; no forecasting benefit claimed.",
     "required_inputs": "Finite vector, output count and nonzero contour parameters",
@@ -99,6 +99,6 @@
         "type": "variant-of"
       }
     ],
-    "mechanism_note": "Provisional: generalizes the chirp convolution DFT to geometric contours; full source and classification review pending."
+    "mechanism_note": "Generalizes the Bluestein chirp convolution to geometric contours; A=1, M=N and W=e^(−2πi/N) recover the ordinary DFT. Classified as a variant of the existing convolution mechanism."
   }
 ]

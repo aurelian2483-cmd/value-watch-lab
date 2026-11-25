@@ -1,0 +1,104 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "047",
+    "family": "numerical-linear-algebra",
+    "classification": "model-variant",
+    "id": "split-radix-power-two-fft",
+    "name": "Split-radix power-of-two Fourier transform",
+    "definition": "For N≥4 a power of two and W=e^(−2πi/N), let E_k, O_k, P_k be DFTs of x_(2n), x_(4n+1), x_(4n+3) respectively; X_k=E_(k mod (N/2))+W^k O_(k mod (N/4))+W^(3k) P_(k mod (N/4)), 0≤k<N.",
+    "variables": "N power-of-two length; k output index; E,O,P shorter unnormalized DFTs; W primitive root",
+    "assumptions": "Finite complex vector and consistent negative-exponent convention; direct base cases N=1,2",
+    "limitations": "Irregular recursion and indexing; arithmetic reduction need not imply runtime improvement",
+    "failure_conditions": [
+      "Incorrect residue classes or phase factors",
+      "Non-power-of-two input"
+    ],
+    "computation": "Recursively split into even and two odd residue classes, reuse subtransform outputs and combine in O(N log N) arithmetic; direct base cases.",
+    "source": {
+      "kind": "literature",
+      "citation": "Duhamel, P. and Hollmann, H. (1984). Split radix FFT algorithm. Electronics Letters 20(1), 14–16. https://doi.org/10.1049/el:19840012",
+      "url": "https://doi.org/10.1049/el:19840012"
+    },
+    "application": "General power-of-two Fourier transformation; no forecasting benefit claimed.",
+    "required_inputs": "Finite complex vector of power-of-two length",
+    "compatible_methods": [
+      "radix-two-cooley-tukey-fft"
+    ],
+    "incompatible_methods": [
+      "Non-power-of-two input for stated recursion"
+    ],
+    "relationships": [
+      {
+        "target": "radix-two-cooley-tukey-fft",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Mixed radix-two/radix-four decomposition of the same DFT; partition into even indices and the two odd residue classes gives the stated phase factors. A Cooley–Tukey variant, not a new distinct algorithm."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "047",
+    "family": "numerical-linear-algebra",
+    "classification": "model-variant",
+    "id": "chirp-z-geometric-contour-transform",
+    "name": "Chirp Z-transform on a geometric contour",
+    "definition": "For z_k=A W^(−k), X_k=Σ_(n=0)^(N−1)x_n A^(−n) W^(nk), 0≤k<M; W^(nk)=W^(n²/2) W^(k²/2) W^(−(k−n)²/2) with a consistent square root of W.",
+    "variables": "N,M positive lengths; A,W nonzero complex contour parameters; k output index",
+    "assumptions": "Finite complex vector and consistent square-root convention; sufficient convolution embedding",
+    "limitations": "Off-unit-circle powers may overflow or underflow; conditioning can deteriorate; not a general arbitrary-point transform",
+    "failure_conditions": [
+      "Zero contour parameters",
+      "Inconsistent chirp branch or aliasing"
+    ],
+    "computation": "Choose q with q²=W. Multiply x_n by A^(−n)q^(n²), convolve with q^(−r²) for signed differences r=−(N−1),…,M−1, and multiply output k by q^(k²); use circular embedding length at least N+M−1.",
+    "source": {
+      "kind": "literature",
+      "citation": "Rabiner, L. R., Schafer, R. W. and Rader, C. M. (1969). The chirp z-transform algorithm and its application. Bell System Technical Journal 48(5), 1249–1292. https://doi.org/10.1002/j.1538-7305.1969.tb04268.x",
+      "url": "https://doi.org/10.1002/j.1538-7305.1969.tb04268.x"
+    },
+    "application": "General geometric-contour Z-transform evaluation; no forecasting benefit claimed.",
+    "required_inputs": "Finite vector, output count and nonzero contour parameters",
+    "compatible_methods": [
+      "bluestein-chirp-dft"
+    ],
+    "incompatible_methods": [
+      "Arbitrary unrelated evaluation points"
+    ],
+    "relationships": [
+      {
+        "target": "bluestein-chirp-dft",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Generalizes the Bluestein chirp convolution to geometric contours; A=1, M=N and W=e^(−2πi/N) recover the ordinary DFT. Classified as a variant of the existing convolution mechanism."
+  }
+]

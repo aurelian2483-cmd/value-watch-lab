@@ -1,0 +1,104 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "048",
+    "family": "numerical-linear-algebra",
+    "classification": "feature-transformation",
+    "id": "orthonormal-discrete-hartley-transform",
+    "name": "Orthonormal discrete Hartley transform",
+    "definition": "H_k=N^(−1/2) Σ_(n=0)^(N−1) x_n [cos(2πkn/N)+sin(2πkn/N)]; x_n=N^(−1/2) Σ_(k=0)^(N−1) H_k [cos(2πkn/N)+sin(2πkn/N)].",
+    "variables": "N positive integer length; n,k indices; x real input and H real coefficients",
+    "assumptions": "Finite real vector and symmetric normalization",
+    "limitations": "Equivalent information to the real-input DFT; direct evaluation is quadratic; not a claim of faster runtime",
+    "failure_conditions": [
+      "Inconsistent normalization",
+      "Incorrect sine sign"
+    ],
+    "computation": "Evaluate real kernel sums directly; inverse uses the same kernel.",
+    "source": {
+      "kind": "literature",
+      "citation": "Bracewell, R. N. (1983). Discrete Hartley transform. Journal of the Optical Society of America 73(12), 1832–1835. https://doi.org/10.1364/JOSA.73.001832",
+      "url": "https://doi.org/10.1364/JOSA.73.001832"
+    },
+    "application": "General real-valued orthogonal transformation; no forecasting benefit claimed.",
+    "required_inputs": "Finite real vector",
+    "compatible_methods": [
+      "radix-two-cooley-tukey-fft"
+    ],
+    "incompatible_methods": [
+      "Complex inputs for the stated real-output specification"
+    ],
+    "relationships": [
+      {
+        "target": "radix-two-cooley-tukey-fft",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: real Fourier-related basis; source and equivalence review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "048",
+    "family": "numerical-linear-algebra",
+    "classification": "feature-transformation",
+    "id": "prime-field-number-theoretic-transform",
+    "name": "Prime-field number theoretic transform",
+    "definition": "For prime p and N dividing p−1, choose ω of exact order N in F_p; X_k=Σ_(n=0)^(N−1)x_n ω^(nk) mod p; x_n=N^(−1) Σ_(k=0)^(N−1)X_k ω^(−nk) mod p.",
+    "variables": "p prime modulus; N positive integer length; ω primitive Nth root; N^(−1) modular inverse",
+    "assumptions": "Finite-field inputs; N divides p−1; exact order N verified",
+    "limitations": "Modular residues do not directly recover unrestricted integer coefficients; requires appropriate modulus and arithmetic",
+    "failure_conditions": [
+      "Root has smaller order",
+      "Modular arithmetic overflow in implementation"
+    ],
+    "computation": "Evaluate modular sums and inverse using modular exponentiation; no fast implementation claimed.",
+    "source": {
+      "kind": "literature",
+      "citation": "Wolfram Function Repository. NumberTheoreticTransform. https://resources.wolframcloud.com/FunctionRepository/resources/NumberTheoreticTransform",
+      "url": "https://resources.wolframcloud.com/FunctionRepository/resources/NumberTheoreticTransform"
+    },
+    "application": "General finite-field transformation; no forecasting benefit claimed.",
+    "required_inputs": "Prime modulus, vector, root of exact order N",
+    "compatible_methods": [
+      "radix-two-cooley-tukey-fft"
+    ],
+    "incompatible_methods": [
+      "Arbitrary complex-valued inputs without a specified mapping"
+    ],
+    "relationships": [
+      {
+        "target": "radix-two-cooley-tukey-fft",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: finite-field analogue of DFT; mathematical and source review pending."
+  }
+]

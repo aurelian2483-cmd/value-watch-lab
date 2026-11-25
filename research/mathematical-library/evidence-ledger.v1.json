@@ -7743,5 +7743,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "A global binary-character basis, not the localized Haar wavelet or sinusoidal Fourier basis. H_N H_N^T=N I follows by block multiplication. Classified as a feature transformation, not an extra distinct FFT algorithm."
+  },
+  {
+    "id": "split-radix-power-two-fft",
+    "source": {
+      "kind": "literature",
+      "citation": "Duhamel, P. and Hollmann, H. (1984). Split radix FFT algorithm. Electronics Letters 20(1), 14–16. https://doi.org/10.1049/el:19840012",
+      "url": "https://doi.org/10.1049/el:19840012"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Mixed radix-two/radix-four decomposition of the same DFT; partition into even indices and the two odd residue classes gives the stated phase factors. A Cooley–Tukey variant, not a new distinct algorithm."
+  },
+  {
+    "id": "chirp-z-geometric-contour-transform",
+    "source": {
+      "kind": "literature",
+      "citation": "Rabiner, L. R., Schafer, R. W. and Rader, C. M. (1969). The chirp z-transform algorithm and its application. Bell System Technical Journal 48(5), 1249–1292. https://doi.org/10.1002/j.1538-7305.1969.tb04268.x",
+      "url": "https://doi.org/10.1002/j.1538-7305.1969.tb04268.x"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Generalizes the Bluestein chirp convolution to geometric contours; A=1, M=N and W=e^(−2πi/N) recover the ordinary DFT. Classified as a variant of the existing convolution mechanism."
   }
 ]

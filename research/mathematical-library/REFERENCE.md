@@ -5389,3 +5389,35 @@ Limitations — Ordering and normalization differ among libraries; non-power-of-
 Mechanism — A global binary-character basis, not the localized Haar wavelet or sinusoidal Fourier basis. H_N H_N^T=N I follows by block multiplication. Classified as a feature transformation, not an extra distinct FFT algorithm.
 
 Source — MathWorks. fwht: Fast Walsh-Hadamard transform. https://www.mathworks.com/help/signal/ref/fwht.html
+
+## Split-radix power-of-two Fourier transform (split-radix-power-two-fft)
+
+> For N≥4 a power of two and W=e^(−2πi/N), let E_k, O_k, P_k be DFTs of x_(2n), x_(4n+1), x_(4n+3) respectively; X_k=E_(k mod (N/2))+W^k O_(k mod (N/4))+W^(3k) P_(k mod (N/4)), 0≤k<N.
+
+N power-of-two length; k output index; E,O,P shorter unnormalized DFTs; W primitive root.
+
+General power-of-two Fourier transformation; no forecasting benefit claimed.
+
+Assumptions — Finite complex vector and consistent negative-exponent convention; direct base cases N=1,2.
+
+Limitations — Irregular recursion and indexing; arithmetic reduction need not imply runtime improvement.
+
+Mechanism — Mixed radix-two/radix-four decomposition of the same DFT; partition into even indices and the two odd residue classes gives the stated phase factors. A Cooley–Tukey variant, not a new distinct algorithm.
+
+Source — Duhamel, P. and Hollmann, H. (1984). Split radix FFT algorithm. Electronics Letters 20(1), 14–16. https://doi.org/10.1049/el:19840012
+
+## Chirp Z-transform on a geometric contour (chirp-z-geometric-contour-transform)
+
+> For z_k=A W^(−k), X_k=Σ_(n=0)^(N−1)x_n A^(−n) W^(nk), 0≤k<M; W^(nk)=W^(n²/2) W^(k²/2) W^(−(k−n)²/2) with a consistent square root of W.
+
+N,M positive lengths; A,W nonzero complex contour parameters; k output index.
+
+General geometric-contour Z-transform evaluation; no forecasting benefit claimed.
+
+Assumptions — Finite complex vector and consistent square-root convention; sufficient convolution embedding.
+
+Limitations — Off-unit-circle powers may overflow or underflow; conditioning can deteriorate; not a general arbitrary-point transform.
+
+Mechanism — Generalizes the Bluestein chirp convolution to geometric contours; A=1, M=N and W=e^(−2πi/N) recover the ordinary DFT. Classified as a variant of the existing convolution mechanism.
+
+Source — Rabiner, L. R., Schafer, R. W. and Rader, C. M. (1969). The chirp z-transform algorithm and its application. Bell System Technical Journal 48(5), 1249–1292. https://doi.org/10.1002/j.1538-7305.1969.tb04268.x
