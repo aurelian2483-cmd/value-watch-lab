@@ -67,7 +67,7 @@ jobs:
           $extract = Join-Path $env:RUNNER_TEMP "cloudflare-extracted"
           Expand-Archive -LiteralPath (Join-Path $kit "Sky-Research-Cloudflare-Disabled.zip") -DestinationPath $extract
           "SKY_EXTRACTED=$extract" >> $env:GITHUB_ENV
-      - name: Windows Wrangler dry run and authentication gate
+      - name: Windows Wrangler dry run
         run: |
           $dryRun = Join-Path $env:RUNNER_TEMP "cloudflare-dry-run"
           New-Item -ItemType Directory -Path $dryRun | Out-Null
@@ -82,9 +82,11 @@ jobs:
           } finally {
             Pop-Location
           }
+      - name: Windows preflight Wrangler launcher
+        run: |
           Push-Location $env:SKY_EXTRACTED
           try {
-            $script = "import { defaultRunner } from './preflight.mjs'; const r=defaultRunner(['--version'],process.cwd()); if(r.status!==0 || !r.stdout.includes('4.165.0')) process.exit(1); console.log('PASS Windows npx.cmd Wrangler launcher');"
+            $script = "import { defaultRunner } from './preflight.mjs'; const r=defaultRunner(['--version'],process.cwd()); if(r.status!==0 || !r.stdout.includes('4.165.0')) process.exit(1); console.log('PASS Windows Wrangler launcher');"
             node --input-type=module -e $script
             if ($LASTEXITCODE -ne 0) { throw "Windows preflight Wrangler launcher failed" }
           } finally {
