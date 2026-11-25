@@ -1,0 +1,24 @@
+name: Hosted presence boundary QA
+on:
+  pull_request:
+    paths:
+      - 'research/hosted-presence-boundary/**'
+      - 'research/optional-pc-worker/**'
+      - '.github/workflows/hosted-presence-boundary-qa.yml'
+permissions:
+  contents: read
+jobs:
+  boundary:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Strict WSGI boundary and actual loopback TLS
+        run: PYTHONPATH=research/optional-pc-worker python -B -m unittest discover -s research/hosted-presence-boundary -p 'test_*.py' -v
+      - run: test -z "$(git status --porcelain --untracked-files=all)"
