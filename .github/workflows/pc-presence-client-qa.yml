@@ -1,0 +1,41 @@
+name: Portable PC presence client QA
+on:
+  pull_request:
+    paths:
+      - 'research/pc-presence-client/**'
+      - 'research/optional-pc-worker/**'
+      - 'research/shared-job-controller/**'
+      - '.github/workflows/pc-presence-client-qa.yml'
+permissions:
+  contents: read
+jobs:
+  portable:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B -m unittest discover -s research/pc-presence-client -p test_client.py -v
+      - run: python -B research/pc-presence-client/client.py
+  tls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Actual TLS cursor, recovery and role isolation
+        run: PYTHONPATH=research/shared-job-controller:research/optional-pc-worker python -B -m unittest discover -s research/pc-presence-client -p test_tls_client.py -v
+      - run: test -z "$(git status --porcelain --untracked-files=all)"
