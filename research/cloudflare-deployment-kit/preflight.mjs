@@ -48,7 +48,7 @@ async function verifyPackage(dir) {
     files[name]=await readFile(path);
   }
   const manifest=JSON.parse(files['manifest.json'].toString('utf8'));
-  if(Object.keys(manifest).sort().join('|')!=='activationAuthorized|files|host|kind|publicationGate|productionDispatchAuthorized|revision')fail('Manifest schema mismatch');
+  if(Object.keys(manifest).sort().join('|')!=='activationAuthorized|files|host|kind|productionDispatchAuthorized|publicationGate|revision')fail('Manifest schema mismatch');
   if(manifest.kind!=='DISABLED_CLOUDFLARE_DEPLOYMENT_KIT'||manifest.revision!==REVISION||manifest.host!==HOST||
      manifest.activationAuthorized!==false||manifest.productionDispatchAuthorized!==false||manifest.publicationGate!=='BLOCKED')fail('Manifest safety policy mismatch');
   if(!Array.isArray(manifest.files)||manifest.files.length!==MEMBERS.length)fail('Manifest file list mismatch');
