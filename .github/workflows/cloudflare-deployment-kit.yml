@@ -81,8 +81,12 @@ jobs:
           }
           Push-Location $env:SKY_EXTRACTED
           try {
-            node preflight.mjs 00000000000000000000000000000000
-            if ($LASTEXITCODE -ne 1) { throw "Unauthenticated preflight did not fail closed" }
+            $preflightOutput = & node preflight.mjs 00000000000000000000000000000000 2>&1
+            $preflightExit = $LASTEXITCODE
+            $preflightOutput | ForEach-Object { Write-Host $_ }
+            if ($preflightExit -ne 1 -or (($preflightOutput -join "`n") -notmatch "Cloudflare authentication or account membership")) {
+              throw "Wrangler authentication gate did not fail for the expected reason"
+            }
             if (Test-Path wrangler.account.json) { throw "Account config must not be created without verified authentication" }
           } finally {
             Pop-Location
