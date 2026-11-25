@@ -1,0 +1,28 @@
+SKY RESEARCH — LOCAL HARDWARE ACCEPTANCE
+
+1. Verify the downloaded ZIP against its published SHA-256.
+2. Extract the whole ZIP to a new folder on the RTX 4070 Windows PC.
+3. Double-click Run-Hardware-Acceptance.cmd.
+4. After completion, return the entire new Hardware-Acceptance-* folder (ZIP it).
+
+Requirements: Python 3.10+ on PATH or via the Windows py launcher; Node.js 22.
+Actual GPU numerical checks require a compatible already-installed CuPy/CUDA
+runtime and working NVIDIA driver. The launcher never installs anything.
+Without CuPy, CPU, NVIDIA inventory (if nvidia-smi exists), interruption test,
+and Phase 3 HTTP integration can still run; the overall report requires review.
+Do not treat CPU-only success or detected hardware as GPU numerical acceptance.
+
+The fixed smoke and repeated matrix benchmarks reuse the exact accepted
+PR #174 compute implementation. The package includes the exact historical
+Phase 3 preview accepted on PR #179. Tests start a temporary loopback-only
+read-only HTTP service and close it after verification. No real datasets,
+research task dispatch, GPU scheduler, maximum load stress test, deployment
+or automatic repair. GPU/CPU timings have different scopes, not fair speedup
+evidence. Memory and NVIDIA utilization are point-in-time samples only.
+No device serials, usernames or credentials are requested; reports include
+hardware model, driver/runtime information and numerical observations.
+Local receipts are unsigned. Hardware is not independently attested.
+Research UNVALIDATED; publication BLOCKED; production execution BLOCKED.
+
+Hosted QA: Run-Hardware-Acceptance.cmd --cpu-only
+The normal double-click requests GPU tests as well as CPU.

@@ -1,0 +1,120 @@
+name: Local hardware acceptance kit
+on:
+  pull_request:
+    paths:
+      - 'research/local-hardware-acceptance/**'
+      - '.github/workflows/local-hardware-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve the exact accepted historical Phase 3 preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import hashlib,io,json,os,pathlib,subprocess,zipfile
+          def need(ok,msg):
+              if not ok:raise RuntimeError(msg)
+          repo=os.environ['GITHUB_REPOSITORY']
+          endpoint=f'repos/{repo}/actions/artifacts/14975479970'
+          artifact=json.loads(subprocess.check_output(['gh','api',endpoint]))
+          run=json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/actions/runs/45515174320']))
+          head='b2b7cfe832c8cacd1777ce992717f2d8a40390b8'
+          digest='4d743da1cd34a9e03bccdd551096066a4aece2da759d9558a57d02f2e56ff885'
+          need(artifact['id']==14975479970 and artifact['expired'] is False and artifact['digest']=='sha256:'+digest,'Unexpected artifact')
+          need(artifact['workflow_run']['head_sha']==head and artifact['workflow_run']['id']==45515174320 and artifact['workflow_run']['repository_id']==int(os.environ['GITHUB_REPOSITORY_ID']),'Unexpected artifact origin')
+          need(run['head_sha']==head and run['conclusion']=='success','Phase 3 run not accepted')
+          need(0<artifact['size_in_bytes']<=32*1024*1024,'Unexpected artifact size')
+          raw=subprocess.check_output(['gh','api',endpoint+'/zip'])
+          need(hashlib.sha256(raw).hexdigest()==digest,'Artifact byte mismatch')
+          with zipfile.ZipFile(io.BytesIO(raw)) as z:
+              name='phase3-local-preview.zip'
+              rows=[i for i in z.infolist() if i.filename==name]
+              need(len(rows)==1 and 0<rows[0].file_size<4*1024*1024,'Unexpected preview inventory')
+              preview=z.read(rows[0])
+          need(hashlib.sha256(preview).hexdigest()=='0c1b27627f422b3534b47181cecfa804edbf2baa5a573f4a05edca5365b295c9','Preview bytes mismatch')
+          (pathlib.Path(os.environ['RUNNER_TEMP'])/'phase3-preview.zip').write_bytes(preview)
+          PY
+      - name: Package exact accepted compute and preview sources
+        run: python3 research/local-hardware-acceptance/package.py "$RUNNER_TEMP/phase3-preview.zip" "$RUNNER_TEMP/acceptance-kit"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: local-hardware-acceptance-kit
+          path: ${{ runner.temp }}/acceptance-kit/
+          retention-days: 7
+          if-no-files-found: error
+  hosted-acceptance:
+    needs: package
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: local-hardware-acceptance-kit
+          path: ${{ runner.temp }}/acceptance-kit
+      - name: Verify and extract exact packaged release
+        shell: python
+        run: |
+          import hashlib,json,os,pathlib,zipfile
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])
+          raw=(root/'acceptance-kit/Sky-Research-Hardware-Acceptance.zip').read_bytes()
+          receipt=json.loads((root/'acceptance-kit/package-receipt.json').read_text())
+          assert hashlib.sha256(raw).hexdigest()==receipt['archiveSha256']
+          target=root/'hardware-test'
+          target.mkdir()
+          with zipfile.ZipFile(root/'acceptance-kit/Sky-Research-Hardware-Acceptance.zip') as z:z.extractall(target)
+      - name: Existing scientific compute regression suite
+        run: python -B -m unittest discover -s research/scientific-compute -p 'test_*.py'
+      - name: Linux packaged CPU-only acceptance
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP/hardware-test"
+          python -B hardware_acceptance.py --cpu-only --output "$RUNNER_TEMP/hardware-result"
+      - name: Windows packaged launcher CPU-only acceptance
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          cd /d "%RUNNER_TEMP%\hardware-test"
+          call Run-Hardware-Acceptance.cmd --cpu-only --output "%RUNNER_TEMP%\hardware-result"
+          if errorlevel 1 exit /b 1
+      - name: Reconcile exact hosted reports without claiming GPU acceptance
+        shell: python
+        run: |
+          import json,os,pathlib,platform
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'hardware-result'
+          r=json.loads((root/'hardware-acceptance-report.json').read_text())
+          assert r['platform']==platform.system() and r['status']=='LOCAL_FIXED_CHECKS_PASSED'
+          assert r['cpu']['status']=='PASS' and r['gpu']['status']=='NOT_REQUESTED'
+          assert r['gpuRequested'] is False and r['hardwareIndependentlyVerified'] is False
+          assert r['recovery']['status']=='PASS' and r['phase3']['status']=='PASS'
+          assert r['phase3']['metadataReviews']==7 and r['phase3']['contractReviews']==6
+          assert r['phase3']['filesUnchanged'] is True and r['phase3']['dispatchRejected'] is True
+          assert r['productionHardwareAccepted'] is False and r['executionAuthorized'] is False
+          assert r['publicationGate']=='BLOCKED' and r['modelValidation']=='UNVALIDATED'
+          assert not (root/'local-gpu-receipt.json').exists()
+          print('PASS hosted packaged CPU, interruption recovery and Phase 3 HTTP integration; GPU not requested')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: local-hardware-hosted-${{ matrix.os }}
+          path: ${{ runner.temp }}/hardware-result/
+          retention-days: 7
+          if-no-files-found: error
