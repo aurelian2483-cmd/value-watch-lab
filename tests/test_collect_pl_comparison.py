@@ -72,7 +72,11 @@ class PremierLeagueCollectorTests(unittest.TestCase):
         with self.assertRaisesRegex(CollectionError, 'test_registry_forbidden'):
             collect('synthetic-secret', self.config(), request=unexpected, clock=lambda: NOW)
         result = collect('synthetic-secret', json.loads(DEFAULT.read_text()), request=unexpected, clock=lambda: NOW)
-        self.assertEqual(result['rejected'], [{'bookmaker': 'skybet', 'reason': 'bookmaker_disabled'}])
+        self.assertEqual(result['rejected'], [
+            {'bookmaker': entry['provider_key'], 'reason': 'bookmaker_disabled'}
+            for entry in json.loads(DEFAULT.read_text())['bookmakers']])
+        self.assertEqual({entry['provider_key'] for entry in json.loads(DEFAULT.read_text())['bookmakers']},
+                         {'skybet', 'williamhill', 'paddypower', 'betfred_uk', 'sport888', 'betvictor'})
 
     def test_reserve_stops_before_odds_request(self):
         calls = []
