@@ -5117,3 +5117,35 @@ Limitations — Dense matrices and increasingly ill-conditioned differentiation 
 Mechanism — Differentiating the unique degree-N interpolant gives the cardinal derivative entries, and differentiation stays in the same polynomial space, so the full D squared evaluates its second derivative. Mapping from [−1,1] multiplies the first derivative matrix by 2/(b−a) and the second by its square. The derivative mechanism overlaps polynomial interpolation and moment weights, but enforcing differential equations and boundary constraints through a dense global polynomial solve is not the local centered BVP stencil or a standalone differentiation operation. No unconditional spectral convergence or stability claim.
 
 Source — Lloyd N. Trefethen, Spectral Methods in MATLAB, chapters 6 and 7, SIAM, https://doi.org/10.1137/1.9780898719598.ch6 and https://doi.org/10.1137/1.9780898719598.ch7 (public excerpts only); cardinal differentiation and affine mapping independently derived.
+
+## Forward-time centred-space heat equation integration (heat-equation-ftcs)
+
+> For u_t=κu_xx on [a,b] with zero Dirichlet endpoints, N≥2, h=(b−a)/N, x_i=a+ih, t_n=nΔt and r=κΔt/h², set U_i^0=f(x_i), U_0^n=U_N^n=0 and U_i^(n+1)=(1−2r)U_i^n+r(U_(i−1)^n+U_(i+1)^n) for i=1,…,N−1. Require 0<r≤1/2.
+
+κ diffusivity; h spatial step; Δt time step; r diffusion number; f initial function; U nodal solution; N spatial intervals.
+
+General numerical heat equation integration.
+
+Assumptions — Constant κ>0, finite interval a<b, uniform mesh, positive time step, compatible homogeneous Dirichlet and initial data, sufficient bounded time and spatial derivatives for the stated error order.
+
+Limitations — First order in time and second order in space for smooth solutions over a fixed time interval under the stated stability bound; explicit step size shrinks quadratically with mesh spacing; the sufficient uniform bound need not be the exact finite-grid spectral bound.
+
+Mechanism — Forward Euler on the centred spatial difference is the existing time integrator applied to a semidiscrete system. For homogeneous endpoints the discrete sine eigenvalues of the unscaled difference are −4 sin²(jπ/(2N)); the update eigenvalues are 1−4r sin²(jπ/(2N)). The bound r≤1/2 also makes the stencil a convex average, giving maximum-norm nonexpansion. Taylor residual per unit time is O(Δt+h²); summing the stable one-step defects over a fixed interval yields the same global order for smooth compatible data. Retain as a PDE-specific variant, not a distinct integrator.
+
+Source — University of British Columbia, MATH 316 Partial Differential Equations, Heat Equation, https://ubcmath.github.io/MATH316/heat.html ; University of Bielefeld, Computational Physics, Crank–Nicolson, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/08_pde/02_crank_nicolson.html ; finite-grid stability and error independently derived.
+
+## Crank–Nicolson centred-space heat equation integration (heat-equation-crank-nicolson)
+
+> For u_t=κu_xx on [a,b] with homogeneous Dirichlet endpoints, N≥2, h=(b−a)/N, r=κΔt/h² and U^n=(U_1^n,…,U_(N−1)^n), let L=tridiag(1,−2,1) and I be the interior identity. Set U_i^0=f(a+ih), then solve (I−rL/2)U^(n+1)=(I+rL/2)U^n at each positive time step.
+
+κ diffusivity; N spatial intervals; h spatial step; Δt time step; r diffusion number; L unscaled interior second difference; I identity; f initial function; U interior state.
+
+General numerical heat equation integration.
+
+Assumptions — Constant κ>0, finite interval a<b, uniform mesh, positive time step, homogeneous Dirichlet data, compatible smooth initial data and sufficiently accurate linear solves; bounded derivatives for the stated error order.
+
+Limitations — Second order in time and space for sufficiently smooth compatible solutions over a fixed time interval; unconditional discrete Euclidean-norm stability is not unconditional accuracy or positivity; high-frequency modes can alternate sign and damp slowly when r is large.
+
+Mechanism — This is implicit trapezoidal integration of the centred semidiscrete diffusion equation. The sine modes of L have eigenvalues −4 sin²(jπ/(2N)), so the amplification is (1−q)/(1+q), q=2r sin²(jπ/(2N))≥0. The left matrix has eigenvalues 1+q>0 and the amplification magnitude is at most one; as q grows it approaches −1, so stiff modes may oscillate. A sufficient smoothness Taylor residual is O(Δt²+h²); the inverse left matrix and update both have Euclidean operator norm at most one, implying the same global order in the grid-weighted Euclidean norm over fixed time. Retain as a variant, not another distinct time integrator.
+
+Source — University of Bielefeld, Computational Physics, Crank–Nicolson, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/08_pde/02_crank_nicolson.html ; homogeneous Dirichlet modal and convergence arguments independently derived.

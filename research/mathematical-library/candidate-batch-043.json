@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "043",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "lie-trotter-linear-splitting",
+    "name": "Lie–Trotter splitting for linear systems",
+    "definition": "Provisional: U^(n+1)=exp(Δt B)exp(Δt A)U^n for U′=(A+B)U.",
+    "variables": "A and B component linear operators; Δt time step; U state",
+    "assumptions": "Provisional: bounded finite-dimensional matrices and positive step",
+    "limitations": "Provisional: splitting error and noncommutation require independent review",
+    "failure_conditions": [
+      "Unresolved subflow or splitting error"
+    ],
+    "computation": "Provisional: compose exact component flows; review order and limitations.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: operator splitting literature; independent source review pending."
+    },
+    "application": "General numerical integration of split linear differential systems.",
+    "required_inputs": "Component operators, initial state, step and subflow policies",
+    "compatible_methods": [
+      "forward-euler-ode"
+    ],
+    "incompatible_methods": [
+      "Unresolved component-flow evaluation"
+    ],
+    "relationships": [
+      {
+        "target": "forward-euler-ode",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: operator composition; novelty and commutation cases require review."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "043",
+    "family": "numerical-ode",
+    "classification": "model-variant",
+    "id": "strang-linear-splitting",
+    "name": "Strang symmetric splitting for linear systems",
+    "definition": "Provisional: U^(n+1)=exp(Δt A/2)exp(Δt B)exp(Δt A/2)U^n.",
+    "variables": "A and B component linear operators; Δt time step; U state",
+    "assumptions": "Provisional: bounded finite-dimensional matrices and positive step",
+    "limitations": "Provisional: splitting error and noncommutation require independent review",
+    "failure_conditions": [
+      "Unresolved subflow or splitting error"
+    ],
+    "computation": "Provisional: compose exact component flows; review order and limitations.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: operator splitting literature; independent source review pending."
+    },
+    "application": "General numerical integration of split linear differential systems.",
+    "required_inputs": "Component operators, initial state, step and subflow policies",
+    "compatible_methods": [
+      "lie-trotter-linear-splitting"
+    ],
+    "incompatible_methods": [
+      "Unresolved component-flow evaluation"
+    ],
+    "relationships": [
+      {
+        "target": "lie-trotter-linear-splitting",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional: operator composition; novelty and commutation cases require review."
+  }
+]

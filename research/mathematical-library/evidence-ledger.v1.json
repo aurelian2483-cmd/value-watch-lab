@@ -7361,5 +7361,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Differentiating the unique degree-N interpolant gives the cardinal derivative entries, and differentiation stays in the same polynomial space, so the full D squared evaluates its second derivative. Mapping from [−1,1] multiplies the first derivative matrix by 2/(b−a) and the second by its square. The derivative mechanism overlaps polynomial interpolation and moment weights, but enforcing differential equations and boundary constraints through a dense global polynomial solve is not the local centered BVP stencil or a standalone differentiation operation. No unconditional spectral convergence or stability claim."
+  },
+  {
+    "id": "heat-equation-ftcs",
+    "source": {
+      "kind": "literature",
+      "citation": "University of British Columbia, MATH 316 Partial Differential Equations, Heat Equation, https://ubcmath.github.io/MATH316/heat.html ; University of Bielefeld, Computational Physics, Crank–Nicolson, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/08_pde/02_crank_nicolson.html ; finite-grid stability and error independently derived."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Forward Euler on the centred spatial difference is the existing time integrator applied to a semidiscrete system. For homogeneous endpoints the discrete sine eigenvalues of the unscaled difference are −4 sin²(jπ/(2N)); the update eigenvalues are 1−4r sin²(jπ/(2N)). The bound r≤1/2 also makes the stencil a convex average, giving maximum-norm nonexpansion. Taylor residual per unit time is O(Δt+h²); summing the stable one-step defects over a fixed interval yields the same global order for smooth compatible data. Retain as a PDE-specific variant, not a distinct integrator."
+  },
+  {
+    "id": "heat-equation-crank-nicolson",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Bielefeld, Computational Physics, Crank–Nicolson, https://roesner.pages.ub.uni-bielefeld.de/lectures/computational-physics/semester/sose2026/lecture/08_pde/02_crank_nicolson.html ; homogeneous Dirichlet modal and convergence arguments independently derived."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "This is implicit trapezoidal integration of the centred semidiscrete diffusion equation. The sine modes of L have eigenvalues −4 sin²(jπ/(2N)), so the amplification is (1−q)/(1+q), q=2r sin²(jπ/(2N))≥0. The left matrix has eigenvalues 1+q>0 and the amplification magnitude is at most one; as q grows it approaches −1, so stiff modes may oscillate. A sufficient smoothness Taylor residual is O(Δt²+h²); the inverse left matrix and update both have Euclidean operator norm at most one, implying the same global order in the grid-weighted Euclidean norm over fixed time. Retain as a variant, not another distinct time integrator."
   }
 ]
