@@ -20,33 +20,37 @@
     "classification": "distinct-algorithm",
     "id": "radix-two-cooley-tukey-fft",
     "name": "Radix-two Cooley–Tukey discrete Fourier transform",
-    "definition": "Provisional: X_k=Σ_(j=0)^(N−1) x_j exp(−2πijk/N); split even and odd indices recursively for N a power of two.",
-    "variables": "N transform length; x_j input; X_k transform",
-    "assumptions": "Provisional: power-of-two length; normalization and numerical accuracy require review",
-    "limitations": "Provisional: finite precision, twiddle evaluation and memory require review",
+    "definition": "For N=2M=2^m and W_N=e^(−2πi/N), E_k=Σ_(n=0)^(M−1)x_(2n)W_M^(nk), O_k=Σ_(n=0)^(M−1)x_(2n+1)W_M^(nk); X_k=E_k+W_N^k O_k and X_(k+M)=E_k−W_N^k O_k for k=0,…,M−1, recursively to length 1.",
+    "variables": "N=2^m transform length; M=N/2; x_n complex input; k frequency index; W_q=e^(−2πi/q); E_k and O_k even- and odd-index length-M transforms.",
+    "assumptions": "Positive power-of-two N; finite complex input; forward DFT uses the negative-exponent convention shown. The positive-exponent convention is its conjugate counterpart.",
+    "limitations": "This radix-two recurrence applies directly only when N is a power of two. Floating-point round-off, memory layout, bit-reversal order and speed depend on implementation and hardware; no sports forecasting benefit is established.",
     "failure_conditions": [
-      "Unsupported length or unresolved numerical accuracy"
+      "N is not a positive power of two for this recurrence",
+      "Input contains non-finite values or arithmetic overflows",
+      "Implementation indexing, twiddle factors or output ordering are inconsistent with the declared DFT convention"
     ],
-    "computation": "Provisional: recursively evaluate even and odd transforms and combine with twiddle factors.",
+    "computation": "Recursively compute transforms of the even and odd subsequences, then combine each pair with one twiddle factor using the stated butterfly equations. For N=2^m this yields O(N log2 N) arithmetic; the exact operation count depends on the counting convention.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional: discrete Fourier transform algorithm literature; independent review pending."
+      "citation": "Cooley, J. W. and Tukey, J. W. (1965). An algorithm for the machine calculation of complex Fourier series. Mathematics of Computation, 19(90), 297–301. https://doi.org/10.1090/S0025-5718-1965-0178586-1",
+      "url": "https://doi.org/10.1090/S0025-5718-1965-0178586-1"
     },
-    "application": "General numerical Fourier transformation.",
-    "required_inputs": "Finite input vector and transform convention",
+    "application": "Numerical preprocessing or frequency-domain analysis of suitable time-series measurements in sporting contexts. This is a transform algorithm, not a forecast model; no predictive value is claimed.",
+    "required_inputs": "Finite complex vector of length N=2^m and the declared DFT sign and normalization convention.",
     "compatible_methods": [
+      "bluestein-chirp-dft",
       "haar-wavelet"
     ],
     "incompatible_methods": [
-      "Unreviewed length or normalization"
+      "Non-power-of-two length when using this radix-two recurrence"
     ],
     "relationships": [
       {
-        "target": "haar-wavelet",
+        "target": "bluestein-chirp-dft",
         "type": "related"
       }
     ],
-    "mechanism_note": "Provisional: divide-and-conquer Fourier recurrence; novelty and accuracy pending review."
+    "mechanism_note": "The original paper derives sparse-factor Fourier computation and the binary N=2^m case. Its operation reduction is O(N log N) rather than the direct O(N^2) sum; implementation details such as decimation order must be specified by the chosen variant."
   },
   {
     "profile": "multifeature",
@@ -66,35 +70,38 @@
     "legacy_id": null,
     "batch": "045",
     "family": "numerical-linear-algebra",
-    "classification": "model-variant",
+    "classification": "distinct-algorithm",
     "id": "bluestein-chirp-dft",
     "name": "Bluestein chirp convolution discrete Fourier transform",
-    "definition": "Provisional: exp(−2πijk/N)=exp(−πij²/N)exp(−πik²/N)exp(πi(j−k)²/N); reduce DFT to chirp convolution.",
-    "variables": "N length; j,k sample and frequency indices; i imaginary unit",
-    "assumptions": "Provisional: zero padding and indexing require review",
-    "limitations": "Provisional: convolution length, roundoff and normalization require review",
+    "definition": "For X_k=Σ_(n=0)^(N−1)x_n e^(−2πink/N), use 2nk=n²+k²−(k−n)² to obtain X_k=e^(−πik²/N)Σ_(n=0)^(N−1)[x_n e^(−πin²/N)]e^(+πi(k−n)²/N), a chirp-weighted linear convolution.",
+    "variables": "N positive DFT length; n input index; k output index; x_n input; a_n=x_n e^(−πin²/N); b_r=e^(+πir²/N) for r=−(N−1),…,N−1.",
+    "assumptions": "N is a positive integer; the negative-exponent forward DFT convention is used. Embed the required linear convolution without circular aliasing by zero-padding both sequences to an FFT length L≥2N−1; apply the FFT's declared normalization consistently.",
+    "limitations": "The convolution implementation requires correct negative-index embedding and padding. Floating-point error, memory use and speed depend on L and the selected FFT; this can cost more than a radix-two FFT when N already has favorable factors. No sports forecasting benefit is established.",
     "failure_conditions": [
-      "Unresolved indexing or padding"
+      "N is not positive",
+      "Padding length is less than 2N−1 or negative convolution indices are embedded incorrectly, causing circular aliasing",
+      "Chirp signs or FFT normalization do not match the declared DFT convention"
     ],
-    "computation": "Provisional: form chirp sequences, compute linear convolution and apply output chirp.",
+    "computation": "Form a_n=x_n e^(−πin²/N) and b_r=e^(+πir²/N) for r=−(N−1),…,N−1. Zero-pad for linear convolution at L≥2N−1, compute that convolution using FFTs, then multiply output k by e^(−πik²/N). With an O(L log L) FFT and L chosen proportional to N, total arithmetic is O(N log N).",
     "source": {
       "kind": "literature",
-      "citation": "Provisional: chirp transform literature; independent source review pending."
+      "citation": "Bluestein, L. I. (1970). A linear filtering approach to the computation of discrete Fourier transform. IEEE Transactions on Audio and Electroacoustics, 18(4), 451–455. https://doi.org/10.1109/TAU.1970.1162132",
+      "url": "https://doi.org/10.1109/TAU.1970.1162132"
     },
-    "application": "General arbitrary-length discrete Fourier transformation.",
-    "required_inputs": "Finite input vector, convolution and transform convention",
+    "application": "Computing the DFT for arbitrary-length sequences through chirp convolution, including preprocessing or frequency-domain analysis of suitable sporting time series. This is a transform algorithm, not a forecast model; no predictive value is claimed.",
+    "required_inputs": "Finite complex vector of length N, DFT sign and normalization convention, and an FFT implementation with a supported padded length L≥2N−1.",
     "compatible_methods": [
       "radix-two-cooley-tukey-fft"
     ],
     "incompatible_methods": [
-      "Unresolved convolution padding"
+      "FFT embedding that cannot preserve the required linear-convolution range or declared transform convention"
     ],
     "relationships": [
       {
         "target": "radix-two-cooley-tukey-fft",
-        "type": "variant-of"
+        "type": "related"
       }
     ],
-    "mechanism_note": "Provisional: materially different reduction of the DFT; classification and source review pending."
+    "mechanism_note": "Bluestein's 1970 paper reduces arbitrary-length DFT evaluation to chirp linear filtering; an FFT computes the padded convolution. This is a distinct DFT algorithm, not merely a parameter variant of Cooley–Tukey."
   }
 ]
