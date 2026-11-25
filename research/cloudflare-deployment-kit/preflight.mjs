@@ -9,7 +9,7 @@ const WORKER='sky-research-controller';
 const HOST='sky-research-controller.aurelian2483.workers.dev';
 const REVISION='c91abd1cd13f03fbf1d71b75c7173a0811b0ccc4';
 const WRANGLER='4.165.0';
-const MEMBERS=['START-HERE.txt','queue.mjs','worker.mjs','wrangler.json'];
+const MEMBERS=['START-HERE.txt','preflight.mjs','queue.mjs','worker.mjs','wrangler.json'];
 const fail=(message)=>{throw new Error(message)};
 const sha=(bytes)=>createHash('sha256').update(bytes).digest('hex');
 const isHex=(v,n)=>typeof v==='string'&&new RegExp('^[a-f0-9]{'+n+'}$').test(v);
@@ -122,12 +122,13 @@ export async function runPreflight({accountId,packageDir=process.cwd(),run=defau
 
 if(import.meta.url===pathToFileURL(process.argv[1]??'').href) {
   const accountId=process.argv[2];
+  const packageDir=process.argv[3]??process.cwd();
   if(!accountId) {
-    console.error('Usage: node preflight.mjs <expected-cloudflare-account-id>');
+    console.error('Usage: node preflight.mjs <expected-cloudflare-account-id> [extracted-package-directory]');
     process.exitCode=2;
   } else {
     try {
-      const result=await runPreflight({accountId,packageDir:process.cwd()});
+      const result=await runPreflight({accountId,packageDir});
       console.log(JSON.stringify(result,null,2));
       console.log('STOP: this script never deploys. Separate explicit owner approval is required.');
     } catch(e) {
