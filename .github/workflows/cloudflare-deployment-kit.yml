@@ -86,7 +86,7 @@ jobs:
         run: |
           Push-Location $env:SKY_EXTRACTED
           try {
-            $script = "import { defaultRunner } from './preflight.mjs'; const r=defaultRunner(['--version'],process.cwd()); if(r.status!==0 || !r.stdout.includes('4.165.0')) process.exit(1); console.log('PASS Windows Wrangler launcher');"
+            $script = "import { defaultRunner } from './preflight.mjs'; const r=defaultRunner(['--version'],process.cwd()); console.log(JSON.stringify({status:r.status,stdout:r.stdout.slice(0,300),stderr:r.stderr.slice(0,300)})); if(r.status!==0 || !r.stdout.includes('4.165.0')) process.exit(1); console.log('PASS Windows Wrangler launcher');"
             node --input-type=module -e $script
             if ($LASTEXITCODE -ne 0) { throw "Windows preflight Wrangler launcher failed" }
           } finally {
