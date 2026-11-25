@@ -110,6 +110,19 @@ class HistoricalDevelopmentTests(unittest.TestCase):
         with self.assertRaises(ValueError):loss([.4,.4,.4],0)
         with self.assertRaises(ValueError):forecast(prior[:10],target["home"],target["away"])
 
+    def test_date_only_cohort_and_verified_alias(self):
+        a,b=fixtures()
+        self.assertEqual(team("FC St. Pauli 1910"),"stpauli")
+        rows=secondary(raw(b))
+        ordinary=[v for k,v in rows.items() if k!=("union","bochum")]
+        self.assertTrue(all("kickoff" not in x for x in ordinary))
+        result=benchmark(ordinary,date_only=True)
+        self.assertGreater(result["paired_targets"],0)
+        self.assertEqual(result["paired_targets"]+sum(result["excluded_before_scoring"].values()),305)
+        self.assertFalse(result["protected_holdout_opened"])
+        self.assertEqual(result["empirically_qualified_methods"],0)
+        self.assertEqual(result,benchmark(list(reversed(ordinary)),date_only=True))
+
     def test_bounded_get_no_retry(self):
         class Response(io.BytesIO):
             def __init__(self,data,url,media="application/json"):
