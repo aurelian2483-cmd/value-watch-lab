@@ -4893,3 +4893,35 @@ Limitations — Difference indicator is not a guaranteed upper error bound; sing
 Mechanism — Nested higher-order rule reuses Gauss evaluations and drives nonuniform bisection; conservative variant of Gaussian quadrature, not a separate independent algorithm count.
 
 Source — GNU Scientific Library 2.8 Numerical Integration, Introduction and QAG adaptive integration; Netlib QUADPACK QAGE, local-rule choices and global interval subdivision (lines 249–327). https://www.gnu.org/software/gsl/doc/html/integration.html ; https://www.netlib.org/quadpack/qage.f
+
+## Tanh–sinh quadrature (tanh-sinh-quadrature)
+
+> For finite a<b, set c=(a+b)/2, d=(b−a)/2, x(t)=tanh((π/2)sinh t), w(t)=(π/2)cosh(t)/cosh²((π/2)sinh t). Set Q(h,N)=dh Σ_(k=−N)^N f(c+d x(kh))w(kh), approximating ∫_a^b f(s)ds.
+
+a,b interval endpoints; h>0 mesh spacing; N nonnegative integer truncation; c midpoint; d half-width; w derivative of x.
+
+General numerical integration.
+
+Assumptions — Integrable f with finite interior samples and a sufficiently smooth, rapidly decaying transformed integrand for useful convergence; rapid double-exponential convergence is conditional.
+
+Limitations — Endpoint rounding, overflow, cancellation and insufficient tail resolution can corrupt the result; refinement differences are indicators, not certified bounds.
+
+Mechanism — Nonlinear transformation creates clustered nonuniform physical nodes and Jacobian weights; distinct from finite uniform-grid trapezoid, although it uses trapezoidal summation in transformed coordinates.
+
+Source — Mori, M. (2005), Discovery of the Double Exponential Transformation and Its Developments, Publ. RIMS 41, 897–935, publisher abstract, https://ems.press/journals/prims/articles/2317 ; Boost.Math 1.71 tanh_sinh and 1.66 endpoint handling documentation, https://www.boost.org/doc/libs/1_71_0/libs/math/doc/html/math_toolkit/double_exponential/de_tanh_sinh.html ; https://www.boost.org/doc/libs/1_66_0/libs/math/doc/html/math_toolkit/double_exponential/de_tanh_sinh_2_arg.html
+
+## Adaptive Simpson quadrature (adaptive-simpson-quadrature)
+
+> S(l,r)=(r−l)[f(l)+4f((l+r)/2)+f(r)]/6; m=(l+r)/2; S₂=S(l,m)+S(m,r); E=|S₂−S(l,r)|/15. If E≤τ, accept S₂+(S₂−S(l,r))/15; otherwise recurse on both halves with local tolerance τ/2 and sum their accepted estimates.
+
+l,r panel endpoints; S coarse estimate; S₂ two-panel estimate; E estimated error of S₂; τ positive local absolute tolerance.
+
+General numerical integration.
+
+Assumptions — Finite a<b and finite sampled values; sufficiently smooth integrand with locally stable fourth derivative for asymptotic error scaling; positive tolerance and finite recursion budget.
+
+Limitations — Estimator can miss localized or oscillatory structure and is not a rigorous bound; correction relies on the same asymptotic scaling.
+
+Mechanism — Adaptive subdivision and Richardson correction of composite Simpson; a variant, not an independent algorithm. Unlike Romberg, refinement is local; unlike Gauss–Kronrod, uses Simpson panels.
+
+Source — Per-Olof Persson, UC Berkeley Math 128A, Numerical Differentiation and Integration, §4.6 Adaptive Quadrature Methods, https://persson.berkeley.edu/math128a/lecture_notes/math128a_lecture_notes_chapter_4.html ; signed Richardson correction derived from stated 1/16 error scaling.

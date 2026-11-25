@@ -7053,5 +7053,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Nested higher-order rule reuses Gauss evaluations and drives nonuniform bisection; conservative variant of Gaussian quadrature, not a separate independent algorithm count."
+  },
+  {
+    "id": "tanh-sinh-quadrature",
+    "source": {
+      "kind": "literature",
+      "citation": "Mori, M. (2005), Discovery of the Double Exponential Transformation and Its Developments, Publ. RIMS 41, 897–935, publisher abstract, https://ems.press/journals/prims/articles/2317 ; Boost.Math 1.71 tanh_sinh and 1.66 endpoint handling documentation, https://www.boost.org/doc/libs/1_71_0/libs/math/doc/html/math_toolkit/double_exponential/de_tanh_sinh.html ; https://www.boost.org/doc/libs/1_66_0/libs/math/doc/html/math_toolkit/double_exponential/de_tanh_sinh_2_arg.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Nonlinear transformation creates clustered nonuniform physical nodes and Jacobian weights; distinct from finite uniform-grid trapezoid, although it uses trapezoidal summation in transformed coordinates."
+  },
+  {
+    "id": "adaptive-simpson-quadrature",
+    "source": {
+      "kind": "literature",
+      "citation": "Per-Olof Persson, UC Berkeley Math 128A, Numerical Differentiation and Integration, §4.6 Adaptive Quadrature Methods, https://persson.berkeley.edu/math128a/lecture_notes/math128a_lecture_notes_chapter_4.html ; signed Richardson correction derived from stated 1/16 error scaling."
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Adaptive subdivision and Richardson correction of composite Simpson; a variant, not an independent algorithm. Unlike Romberg, refinement is local; unlike Gauss–Kronrod, uses Simpson panels."
   }
 ]
