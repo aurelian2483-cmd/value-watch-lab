@@ -1,0 +1,31 @@
+name: Cloudflare presence pilot QA
+on:
+  pull_request:
+    paths:
+      - 'research/cloudflare-presence/**'
+      - '.github/workflows/cloudflare-presence-qa.yml'
+permissions:
+  contents: read
+jobs:
+  local-workerd:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Wrangler in temporary tool directory
+        run: npm install --prefix "$RUNNER_TEMP/sky-wrangler" --no-audit --no-fund wrangler@4.165.0
+      - name: Actual local Durable Object SQLite acceptance
+        env:
+          WRANGLER_BIN: ${{ runner.temp }}/sky-wrangler/node_modules/.bin/wrangler
+          WRANGLER_SEND_METRICS: 'false'
+        run: python -B research/cloudflare-presence/runtime_qa.py
+      - run: test -z "$(git status --porcelain --untracked-files=all)"
