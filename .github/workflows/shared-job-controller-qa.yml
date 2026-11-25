@@ -4,6 +4,7 @@ on:
     paths:
       - 'research/shared-job-controller/**'
       - 'research/optional-pc-worker/**'
+      - 'research/bounded-qa-scheduler/**'
       - '.github/workflows/shared-job-controller-qa.yml'
 permissions:
   contents: read
@@ -22,9 +23,13 @@ jobs:
       - run: python -B -m unittest discover -s research/shared-job-controller -p 'test_*.py' -v
       - name: Optional PC presence and role isolation
         run: PYTHONPATH=research/shared-job-controller python -B -m unittest discover -s research/optional-pc-worker -p 'test_*.py' -v
+      - name: Bounded schedule admission and recovery
+        run: PYTHONPATH=research/shared-job-controller python -B -m unittest discover -s research/bounded-qa-scheduler -p 'test_*.py' -v
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - name: Actual fixed CPU dispatch over loopback TLS
         run: python -B research/shared-job-controller/hosted_acceptance.py
+      - name: Scheduled fixed CPU dispatch over loopback TLS
+        run: PYTHONPATH=research/shared-job-controller python -B research/bounded-qa-scheduler/scheduled_acceptance.py
       - run: test -z "$(git status --porcelain --untracked-files=all)"
