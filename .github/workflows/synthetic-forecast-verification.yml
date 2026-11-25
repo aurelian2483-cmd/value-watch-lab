@@ -1,0 +1,97 @@
+name: Synthetic forecast verification QA
+on:
+  pull_request:
+    paths:
+      - 'research/forecast-verification-synthetic/**'
+      - '.github/workflows/synthetic-forecast-verification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  campaign:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fixed campaign and numerical regression
+        run: node --test research/mathematical-testing-lab/*.test.mjs research/automated-mathematical-research/*.test.mjs research/forecast-verification-synthetic/*.test.mjs
+      - name: Run and independently verify both 250-case campaigns
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/forecast-verification-evidence"
+          mkdir "$out" "$RUNNER_TEMP/forecast-campaign-store"
+          revision="$(git rev-parse HEAD)"
+          node research/automated-mathematical-research/campaign.mjs "$revision" > "$out/numerical-campaign.json"
+          python -B research/automated-mathematical-research/reference.py "$out/numerical-campaign.json" > "$out/numerical-reference.json"
+          node research/forecast-verification-synthetic/campaign.mjs "$revision" > "$out/forecast-campaign.json"
+          node research/forecast-verification-synthetic/campaign.mjs "$revision" > "$RUNNER_TEMP/forecast-replay.json"
+          cmp "$out/forecast-campaign.json" "$RUNNER_TEMP/forecast-replay.json"
+          python -B research/forecast-verification-synthetic/reference.py "$out/forecast-campaign.json" > "$out/forecast-reference.json"
+          python -B - <<'PY'
+          import copy,hashlib,importlib.util,json,os,pathlib
+          p=pathlib.Path('research/forecast-verification-synthetic/reference.py')
+          spec=importlib.util.spec_from_file_location('independent_forecast_reference',p)
+          ref=importlib.util.module_from_spec(spec);spec.loader.exec_module(ref)
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'forecast-verification-evidence'
+          a=json.loads((root/'numerical-reference.json').read_text())
+          b=json.loads((root/'forecast-reference.json').read_text())
+          c=json.loads((root/'forecast-campaign.json').read_text())
+          assert a['counts']=={'total':250,'passed':250,'failed':0,'distinctMethods':4}
+          assert b['counts']=={'total':250,'passed':250,'failed':0,'distinctMethods':8}
+          for mutation in ('tolerance','input','flags','count'):
+              v=copy.deepcopy(c)
+              if mutation=='tolerance':v['rows'][0]['tolerance']=1
+              elif mutation=='input':v['rows'][0]['input']['y'][0]=99
+              elif mutation=='flags':v['executionAuthorized']=True
+              else:v['counts']['total']=251
+              try:ref.verify(v)
+              except ValueError:pass
+              else:raise AssertionError('Mutation accepted: '+mutation)
+          v=copy.deepcopy(c);v['rows'][0]['value']+=0.25
+          assert ref.verify(v)['counts']['failed']==1
+          files=['numerical-campaign.json','numerical-reference.json','forecast-campaign.json','forecast-reference.json']
+          summary={'kind':'SYNTHETIC_CAMPAIGN_RECONCILIATION','schemaVersion':1,'declaredCodeRevision':c['declaredCodeRevision'],
+                   'totalCases':500,'passedCases':500,'failedCases':0,'distinctMethods':12,
+                   'forecastByMethod':b['byMethod'],'numericalByMethod':a['byMethod'],
+                   'files':[{'path':n,'sha256':hashlib.sha256((root/n).read_bytes()).hexdigest()} for n in files],
+                   'executionAuthorized':False,'dispatchAuthorized':False,'validationAuthorized':False,
+                   'researchOnly':True,'modelValidation':'UNVALIDATED','publicationGate':'BLOCKED',
+                   'limitations':['Fixed artificial numerical and assessment fixtures only. No predictive qualification.']}
+          (root/'campaign-reconciliation.json').write_text(json.dumps(summary,indent=2)+'\n')
+          print('PASS 500 fixed cases, 12 distinct methods, independent references and five forecast mutation checks')
+          PY
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {readFileSync} from 'node:fs'
+          import {join} from 'node:path'
+          import {digest} from './research/scientific-reference/digest.mjs'
+          import {campaign} from './research/forecast-verification-synthetic/campaign.mjs'
+          const root=join(process.env.RUNNER_TEMP,'forecast-verification-evidence')
+          const r=JSON.parse(readFileSync(join(root,'forecast-campaign.json')))
+          const {campaignSha256,...payload}=r
+          assert.equal(digest(payload),campaignSha256)
+          assert.deepEqual(campaign(r.declaredCodeRevision),r)
+          const ref=JSON.parse(readFileSync(join(root,'forecast-reference.json')))
+          assert.equal(ref.campaignSha256,campaignSha256)
+          assert.equal(ref.declaredCodeRevision,r.declaredCodeRevision)
+          assert.equal(ref.rows.length,r.rows.length)
+          assert.ok(ref.rows.every((v,i)=>v.id===r.rows[i].id&&v.method===r.rows[i].method&&v.status==='PASS'))
+          console.log('PASS canonical replay and reference identity reconciliation')
+          JS
+          csha="$(sha256sum "$out/numerical-campaign.json" | cut -d' ' -f1)"
+          rsha="$(sha256sum "$out/numerical-reference.json" | cut -d' ' -f1)"
+          node research/automated-mathematical-research/record.mjs "$out/numerical-campaign.json" "$out/numerical-reference.json" "$RUNNER_TEMP/forecast-campaign-store" "$csha" "$rsha" > "$out/numerical-record.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-forecast-verification-evidence
+          path: ${{ runner.temp }}/forecast-verification-evidence/
+          retention-days: 7
+          if-no-files-found: warn
