@@ -1,11 +1,12 @@
 import { DurableObject } from 'cloudflare:workers';
+import { queueRoutes, enabled, createQueue, queueConfig, prepareQueue, queueOperation } from './queue.mjs';
 
 const roles = ['operator','hosted-qa','observer','pc-qa'];
 const roleKeys = ['SKY_OPERATOR_DIGEST','SKY_CPU_DIGEST','SKY_OBSERVER_DIGEST','SKY_PC_DIGEST'];
 const routes = new Map([
   ['/qa/pc-cursor','pc-qa'], ['/qa/pc-heartbeat','pc-qa'],
   ['/qa/pc-status','observer'], ['/qa/operator/provision','operator'],
-  ['/qa/operator/revoke','operator']
+  ['/qa/operator/revoke','operator'], ...queueRoutes
 ]);
 const maxSequence = 2147483647;
 const ttl = 120;
@@ -34,7 +35,7 @@ function checkOuter(req,env) {
     if (u.protocol!=='https:' || u.host!==env.SKY_APPROVED_HOST ||
         !/^(?:[a-z0-9-]+\.)+[a-z][a-z0-9-]*$/.test(u.host)) fail();
   }
-  if (u.search || !routes.has(u.pathname)) fail(404);
+  if (u.search || !routes.has(u.pathname) || (queueRoutes.has(u.pathname)&&!enabled(env))) fail(404);
   if (req.method!=='POST') fail(405);
   if (req.headers.get('content-type')!=='application/json') fail(415);
   if (req.headers.has('transfer-encoding') || req.headers.has('expect')) fail(400);
@@ -65,6 +66,11 @@ async function readBody(req,route) {
   const bytes=new Uint8Array(size); let offset=0;
   for(const c of chunks) {bytes.set(c,offset);offset+=c.length;}
   let raw; try {raw=new TextDecoder('utf-8',{fatal:true}).decode(bytes);}catch{fail(400);}
+  if(route==='/qa/queue/submit') {
+    const m=/^\s*\{\s*"job"\s*:\s*"(probe|local)"\s*,\s*"lease"\s*:\s*"([a-f0-9]{64})"\s*,\s*"receipt_hash"\s*:\s*"([a-f0-9]{64})"\s*\}\s*$/.exec(raw);
+    if(!m)fail();
+    return {job:m[1],lease:m[2],receipt_hash:m[3]};
+  }
   if(route!=='/qa/pc-heartbeat') {
     if(!/^\s*\{\s*\}\s*$/.test(raw)) fail();
     return {};
@@ -97,6 +103,7 @@ export class SkyPresence extends DurableObject {
     super(ctx,env);
     this.storage=ctx.storage;
     this.sql=ctx.storage.sql;
+    createQueue(this.sql);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS presence(
       id INTEGER PRIMARY KEY CHECK(id=1), policy TEXT NOT NULL,
       sequence INTEGER NOT NULL CHECK(sequence BETWEEN 0 AND 2147483647),
@@ -107,9 +114,15 @@ export class SkyPresence extends DurableObject {
   async fetch(req) {
     try {
       const c=config(this.env),route=new URL(req.url).pathname,role=routes.get(route);
-      if(!role || req.method!=='POST') fail(404);
+      if(!role || req.method!=='POST' || (queueRoutes.has(route)&&!enabled(this.env))) fail(404);
       await auth(req,c,role);
       const payload=await readBody(req,route);
+      if(queueRoutes.has(route)) {
+        const q=await queueConfig(this.env,c,hash,toHex,fail);
+        const prepared=await prepareQueue(route,payload,hash,toHex);
+        const result=this.storage.transactionSync(()=>queueOperation(this.sql,route,payload,prepared,c,q,Math.floor(Date.now()/1000),fail));
+        return json(200,{result});
+      }
       const policy=toHex(await hash([c.revision,...c.digests].join('|')));
       const result=this.storage.transactionSync(()=>{
         const rows=this.sql.exec('SELECT * FROM presence WHERE id=1').toArray();

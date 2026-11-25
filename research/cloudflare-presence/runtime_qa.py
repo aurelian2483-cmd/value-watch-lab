@@ -28,7 +28,7 @@ def free_port():
 def run():
     with tempfile.TemporaryDirectory(prefix="sky-cloudflare-qa-") as folder:
         root=Path(folder)
-        for name in ("worker.mjs","wrangler.json"):
+        for name in ("worker.mjs","queue.mjs","wrangler.json"):
             shutil.copyfile(ROOT/name,root/name)
         port=free_port()
         base=f"http://127.0.0.1:{port}"
@@ -48,11 +48,15 @@ def run():
                 data=json.loads(response.read())
                 check(response.headers.get("Cache-Control")=="no-store","cache contract")
                 return response.status,data
-        def start(*,provision=False,revision=REVISION,mode="LOCAL_PRESENCE_QA"):
+        def start(*,provision=False,revision=REVISION,mode="LOCAL_PRESENCE_QA",queue_plan=None,lease="240",bad_anchor=False):
             nonlocal proc
             values={"SKY_MODE":mode,"SKY_APPROVED_HOST":f"127.0.0.1:{port}",
                     "SKY_APPROVED_REVISION":revision,"SKY_PROVISION_ENABLED":str(provision).lower()}
             values.update({key:hashlib.sha256(TOKENS[role].encode()).hexdigest() for role,key in zip(ROLES,KEYS)})
+            if queue_plan is not None:
+                values.update({"SKY_QUEUE_ENABLED":"true","SKY_QUEUE_OPENS_AT":str(queue_plan["opensAt"]),
+                               "SKY_QUEUE_CLOSES_AT":str(queue_plan["closesAt"]),"SKY_LOCAL_LEASE_SECONDS":lease,
+                               "SKY_QUEUE_PLAN_SHA256":"f"*64 if bad_anchor else hashlib.sha256(json.dumps(queue_plan,sort_keys=True,separators=(",",":")).encode()).hexdigest()})
             (root/".dev.vars").write_text("".join(f"{k}={v}\n" for k,v in values.items()),encoding="ascii")
             with log.open("ab") as output:
                 proc=subprocess.Popen([binary,"dev","--local","--ip","127.0.0.1","--port",str(port),
@@ -135,6 +139,75 @@ def run():
             start(mode="DISABLED")
             status("/qa/pc-cursor",503)
             print("PASS local Cloudflare workerd SQLite presence: provisioning, auth, schema, concurrent replay, restart, policy mismatch and revocation")
+            stop()
+            # A fresh object state tests CPU independence from PC provisioning.
+            state=root/"queue-state"
+            now=int(time.time())
+            plan={"schema":1,"revision":REVISION,"scope":"FIXED_QA_ONLY","opensAt":now-10,"closesAt":now+600}
+            start(queue_plan=plan,bad_anchor=True)
+            status("/qa/queue/admit",503,role="operator")
+            stop()
+            start(queue_plan=plan)
+            status("/qa/pc-cursor",503)
+            status("/qa/queue/admit",403)
+            status("/qa/queue/claim",409,role="hosted-qa")
+            status("/qa/queue/status",403)
+            check(status("/qa/queue/status",200,role="observer")["result"]["state"]=="WAITING","unadmitted queue")
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+                admission=list(pool.map(lambda _:request("/qa/queue/admit",role="operator"),range(2)))
+            check(all(code==200 and len(data["result"]["events"])==3 for code,data in admission),"atomic admission")
+            status("/qa/queue/claim",403)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+                claims=list(pool.map(lambda _:request("/qa/queue/claim",role="hosted-qa"),range(2)))
+            check(all(code==200 for code,_ in claims),"claim status")
+            leases=[data["result"] for _,data in claims if data["result"] is not None]
+            check(len(leases)==1 and leases[0]["id"]=="probe","exclusive lease")
+            first=leases[0]
+            def submit(job,token,receipt):
+                return json.dumps({"job":job,"lease":token,"receipt_hash":receipt},separators=(",",":")).encode()
+            def result(body):
+                return status("/qa/queue/submit",200,role="hosted-qa",body=body)["result"]
+            check(result(submit("probe","0"*64,"a"*64)) is False,"wrong lease")
+            check(result(submit("probe",first["token"],"a"*64)) is True,"record unverified receipt")
+            check(result(submit("probe",first["token"],"a"*64)) is False,"receipt replay")
+            status("/qa/queue/submit",403,role="hosted-qa",body=b'{"job":"gpu","lease":"x","receipt_hash":"x"}')
+            stop()
+            start(queue_plan=plan)
+            snap=status("/qa/queue/status",200,role="observer")["result"]
+            check([r["state"] for r in snap["jobs"]]==["RECEIPT_PENDING_REVIEW","QUEUED","BLOCKED_GPU"],"durable queue")
+            check(first["token"] not in json.dumps(snap) and "lease_hash" not in json.dumps(snap),"lease redaction")
+            second=status("/qa/queue/claim",200,role="hosted-qa")["result"]
+            check(second["id"]=="local","second fixed CPU job")
+            check(result(submit("local",second["token"],"a"*64)) is False,"duplicate receipt digest")
+            status("/qa/queue/revoke",200,role="operator")
+            status("/qa/queue/submit",403,role="hosted-qa",body=submit("local",second["token"],"b"*64))
+            stop()
+            start(queue_plan=plan)
+            snap=status("/qa/queue/status",200,role="observer")["result"]
+            check(snap["workerRevoked"] and snap["jobs"][1]["state"]=="QUARANTINED" and not snap["gpuDispatchAuthorized"] and not snap["productionDispatchAuthorized"],"durable revoke")
+            status("/qa/queue/claim",403,role="hosted-qa")
+            stop()
+            start(queue_plan=plan|{"closesAt":plan["closesAt"]+1})
+            status("/qa/queue/status",503,role="observer")
+            stop()
+            state=root/"expiry-state"
+            start(queue_plan=plan,lease="2")
+            status("/qa/queue/admit",200,role="operator")
+            first=status("/qa/queue/claim",200,role="hosted-qa")["result"]
+            time.sleep(2.2)
+            check(result(submit("probe",first["token"],"c"*64)) is False,"expired lease")
+            snap=status("/qa/queue/status",200,role="observer")["result"]
+            check(snap["jobs"][0]["state"]=="QUARANTINED","no automatic retry")
+            stop()
+            state=root/"missed-state"
+            missed=plan|{"opensAt":now-60,"closesAt":now-1}
+            start(queue_plan=missed)
+            check(status("/qa/queue/admit",200,role="operator")["result"]["state"]=="MISSED","missed window")
+            status("/qa/queue/claim",409,role="hosted-qa")
+            stop()
+            start()
+            status("/qa/queue/status",404,role="observer")
+            print("PASS local Cloudflare fixed QA queue: admission, concurrency, durable leases, expiry, revocation, missed window and GPU blocking")
         finally:
             stop()
             # Runtime logs are not uploaded: dev variables and request details stay disposable.
