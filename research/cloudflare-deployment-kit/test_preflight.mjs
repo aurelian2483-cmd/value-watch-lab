@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,mkdir,writeFile,readFile,rm,stat} from 'node:fs/promises';
+import {mkdtemp,writeFile,readFile,rm,stat} from 'node:fs/promises';
+import {mkdirSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -48,6 +49,8 @@ function mockRunner({auth=true,deployments=1}={}) {
     if(args[0]==='deploy') {
       assert.ok(args.includes('--dry-run'),'Deployment command must be dry-run only');
       assert.ok(!args.includes('--yes'),'Do not auto-confirm');
+      mkdirSync(join(cwd,'preview'),{recursive:true});
+      writeFileSync(join(cwd,'preview','worker.js'),'compiled disabled worker');
       return {status:0,stdout:'Total Upload: 1.00 KiB',stderr:''};
     }
     throw new Error('Unexpected Wrangler command');
