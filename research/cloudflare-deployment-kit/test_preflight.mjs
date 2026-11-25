@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,writeFile,readFile,rm,stat} from 'node:fs/promises';
+import {mkdtemp,writeFile,rm,stat} from 'node:fs/promises';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -41,7 +41,6 @@ async function fixture(overrides={}) {
 }
 function mockRunner({auth=true,deployments=1}={}) {
   const calls=[];
-  const run=async()=>{};
   const runner=(args,cwd)=>{
     calls.push({args:[...args],cwd});
     if(args[0]==='--version')return {status:0,stdout:'wrangler 4.165.0',stderr:''};
