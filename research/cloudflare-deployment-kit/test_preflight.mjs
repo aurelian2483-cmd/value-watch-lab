@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,writeFile,rm,stat} from 'node:fs/promises';
+import {mkdtemp,writeFile,readFile,rm,stat} from 'node:fs/promises';
 import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -82,7 +82,23 @@ test('validates account, existing worker, Hello World and disabled Wrangler dry-
     assert.ok(calls.every(x=>!(x.args[0]==='deploy'&&!x.args.includes('--dry-run'))));
     assert.equal(calls[2].config.account_id,ACCOUNT);
     assert.equal(calls[2].config.vars.SKY_MODE,'DISABLED');
+    const localConfig=JSON.parse(await readFile(join(f.dir,'wrangler.account.json'),'utf8'));
+    assert.equal(localConfig.account_id,ACCOUNT);
+    assert.equal(localConfig.vars.SKY_MODE,'DISABLED');
+    assert.equal(result.accountConfigFile,'wrangler.account.json');
+    assert.equal(result.accountConfigCreated,true);
     await assert.rejects(stat(calls[2].cwd));
+  } finally {await rm(f.dir,{recursive:true,force:true});}
+});
+test('reuses the same account-scoped config but refuses a different account',async()=>{
+  const f=await fixture(),first=mockRunner(),second=mockRunner();
+  const fetchImpl=async()=>({status:200,text:async()=>'Hello World!'});
+  try {
+    const a=await runPreflight({accountId:ACCOUNT,packageDir:f.dir,run:first.runner,fetchImpl});
+    assert.equal(a.accountConfigCreated,true);
+    const b=await runPreflight({accountId:ACCOUNT,packageDir:f.dir,run:second.runner,fetchImpl});
+    assert.equal(b.accountConfigCreated,false);
+    await assert.rejects(runPreflight({accountId:'b'.repeat(32),packageDir:f.dir,run:mockRunner().runner,fetchImpl}),/different account or policy/);
   } finally {await rm(f.dir,{recursive:true,force:true});}
 });
 test('stops before inspecting deployments if account authentication fails',async()=>{
