@@ -120,7 +120,7 @@ export async function runPreflight({accountId,packageDir=process.cwd(),run=defau
     }
     if(bundleBytes<1)fail('Dry-run bundle is empty');
     if(!hasAccountConfig) {
-      await writeFile(join(dir,'wrangler.account.json'),JSON.stringify({...config,account_id:accountId},null,2)+'\\n',{flag:'wx',mode:0o600});
+      await writeFile(join(dir,'wrangler.account.json'),JSON.stringify({...config,account_id:accountId},null,2)+'\n',{flag:'wx',mode:0o600});
     }
     return {kind:'CLOUDFLARE_DISABLED_DEPLOYMENT_PREFLIGHT',wrangler:WRANGLER,accountMembershipVerified:true,
       accountConfigFile:'wrangler.account.json',accountConfigCreated:!hasAccountConfig,
