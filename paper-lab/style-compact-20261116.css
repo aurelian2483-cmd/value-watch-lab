@@ -524,7 +524,12 @@
     column-gap: 10px;
     align-items: center;
   }
-  #events .desk-market-row > :is(.event-time, .event-card-header, .market-grid, .desk-row-disclosures) { grid-column: auto; }
+  #events .desk-market-row > .event-time { grid-area: 1 / 1; }
+  #events .desk-market-row > .event-card-header { grid-area: 1 / 2; }
+  #events .desk-market-row > .market-grid { grid-area: 1 / 3; }
+  #events .desk-market-row > .desk-row-disclosures:not(:has(> details[open])) { grid-area: 1 / 4; }
+  /* A visible method agreement adds a row without shifting the outcome columns. */
+  #events .desk-market-row > .method-agreement-summary { grid-row: 2; }
   #events .desk-market-row > .event-time { align-self: start; padding-top: 3px; }
   #events .desk-market-row .desk-event-clock { display: block; margin: 0; }
   #events:has(.desk-market-head) > .desk-market-row { margin-block-start: calc(-1 * var(--board-gap)); border-radius: 0; }
