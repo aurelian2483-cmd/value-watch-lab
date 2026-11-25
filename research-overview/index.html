@@ -1,1 +1,66 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Value Watch Research Overview</title><style>:root{color-scheme:dark;font:15px system-ui;background:#09111e;color:#edf6ff}body{margin:0;background:radial-gradient(ellipse at top right,#173a50,transparent 55%)}main{max-width:1000px;margin:auto;padding:16px}*{box-sizing:border-box}h1{font-size:clamp(25px,5vw,36px);line-height:1.12}h2{font-size:20px}a{color:#50e0cc}nav{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}nav a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 13px;background:#173b4b;border:1px solid #3c6573;border-radius:999px;color:#e4f7ff;text-decoration:none;font-weight:700;font-size:13px}nav a[aria-current=page]{background:#1a555a;border-color:#50e0cc}nav a:focus-visible{outline:2px solid #50e0cc;outline-offset:2px}.card{background:#14263b;border:1px solid #36526c;border-radius:16px;padding:18px;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{background:#182e45;padding:16px;border-radius:12px}.stat b{display:block;font-size:28px;margin-top:7px}.muted{color:#a7bbd1}.warn{color:#ffda91}.row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #30465c;padding:12px 0;flex-wrap:wrap}@media(max-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:12px}.stat b{font-size:26px}.card{padding:14px}.row{font-size:13px}}@media(max-width:350px){.grid{grid-template-columns:1fr}}.subtle{font-size:12px;color:#a7bbd1}</style><main><h1>Value Watch · Research Overview</h1><p>Research only. Model unvalidated. Publication blocked. Official challenge 0/100.</p><nav aria-label="Value Watch main navigation"><a href="../">Four-Sport Dashboard</a><a href="../research-lab/">Football Research Lab</a><a href="./" aria-current="page">Research Overview</a></nav><p id="status">Loading research snapshot…</p><div id="summary" class="card"></div><section class="card"><h2>Feed health and evidence</h2><div class="row"><span>Football feed freshness</span><b id="freshness">Checking…</b></div><div class="row"><span>Historical results freshness</span><b id="historyfresh">Checking…</b></div><div class="row"><span>ESPN schedule audit</span><b id="espn">Unavailable</b></div><div class="row"><span>Football-Data schedule audit</span><b id="football">Unavailable</b></div><div class="row"><span>Archived forecast audit</span><b id="archive">Unavailable</b></div><p class="muted">A healthy data feed is not evidence of prediction accuracy. The freshness threshold is 36 hours.</p></section></main><script>Promise.all([fetch('../research-dashboard-data.json').then(r=>r.json()),fetch('../research-history.json').then(r=>r.json())]).then(([d,h])=>{if(d.research_only!==true||d.publication_gate!=='BLOCKED'||h.research_only!==true||h.publication_gate!=='BLOCKED')throw Error('Safety validation failed');document.getElementById('status').textContent='Snapshot updated · '+new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',dateStyle:'medium',timeStyle:'short'}).format(new Date(d.generated_at_utc))+' UK';if(d.model_validation!=='UNVALIDATED'||h.model_validation!=='UNVALIDATED'||d.official_challenge?.completed!==0||h.official_challenge!=='0/100'||!Array.isArray(h.entries)||h.entries.length!==h.sample_size)throw Error('Research safety validation failed');const stats=[['Upcoming fixtures',d.upcoming_fixtures.length],['Schedule cross-checked',d.upcoming_fixtures.filter(f=>f.verification==='SCHEDULE_CROSS_CHECK').length],['Archived paper forecasts',d.paper_forecasts.length],['Verified scored results',h.sample_size]];const box=document.getElementById('summary');box.replaceChildren();const grid=document.createElement('div');grid.className='grid';box.append(grid);for(const [label,value] of stats){const cell=document.createElement('div');cell.className='stat';cell.textContent=label;const num=document.createElement('b');num.textContent=value;cell.append(num);grid.append(cell)}const fresh=t=>{const n=Date.parse(t||'');return !Number.isFinite(n)||n>Date.now()+300000?'Invalid timestamp':Date.now()-n>36*3600000?'STALE':'Fresh'};for(const [id,value] of [['freshness',fresh(d.generated_at_utc)],['historyfresh',fresh(h.generated_at_utc)],['espn',d.source_audits?.espn||'Unavailable'],['football',d.source_audits?.football_data_cross_check||'Unavailable'],['archive',d.forecast_archive_audit?.status||'Unavailable']])document.getElementById(id).textContent=value}).catch(e=>document.getElementById('status').textContent='Research feeds unavailable: '+e.message)</script></html>
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Value Watch Research Overview</title><style>:root{color-scheme:dark;font:15px system-ui;background:#09111e;color:#edf6ff}body{margin:0;background:radial-gradient(ellipse at top right,#173a50,transparent 55%)}main{max-width:1000px;margin:auto;padding:16px}*{box-sizing:border-box}h1{font-size:clamp(25px,5vw,36px);line-height:1.12}h2{font-size:20px}a{color:#50e0cc}nav{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}nav a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 13px;background:#173b4b;border:1px solid #3c6573;border-radius:999px;color:#e4f7ff;text-decoration:none;font-weight:700;font-size:13px}nav a[aria-current=page]{background:#1a555a;border-color:#50e0cc}nav a:focus-visible{outline:2px solid #50e0cc;outline-offset:2px}.card{background:#14263b;border:1px solid #36526c;border-radius:16px;padding:18px;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{background:#182e45;padding:16px;border-radius:12px}.stat b{display:block;font-size:28px;margin-top:7px}.muted{color:#a7bbd1}.warn{color:#ffda91}.row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #30465c;padding:12px 0;flex-wrap:wrap}@media(max-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:12px}.stat b{font-size:26px}.card{padding:14px}.row{font-size:13px}}@media(max-width:350px){.grid{grid-template-columns:1fr}}.subtle{font-size:12px;color:#a7bbd1}</style><!-- research-header:start -->
+<link rel="stylesheet" href="../research-header.css">
+<header class="vw-page-header" aria-label="Value Watch">
+  <div class="vw-page-header-inner">
+    <a class="vw-page-brand" href="../" aria-label="Value Watch Pro research desk">
+      <span class="vw-page-logo" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="m5 9 7 15 4-8 4 8 7-15M14 8h4" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span>VALUE<span class="vw-page-accent">WATCH PRO</span></span>
+    </a>
+    <a class="vw-page-back" href="../">← Research desk</a>
+    <nav class="vw-page-nav" aria-label="Research sections">
+      <a href="../">Research</a>
+      <a href="../analyst/">Analysis</a>
+      <a href="../validation-centre/">Validation</a>
+      <a href="../ops-control/">Operations</a>
+      <a class="vw-page-gold" href="../wildcard/">Gold Council</a>
+    </nav>
+    <a class="vw-page-methodology" href="../research-overview/" aria-current="page">Methodology</a>
+    <details class="vw-page-menu">
+      <summary>Research Pages</summary>
+      <div class="vw-page-menu-grid">
+        <section aria-label="Desk and methodology">
+          <h2>Desk</h2>
+          <a href="../">Research desk</a>
+          <a href="../?view=overview">Overview dashboard</a>
+          <a href="../?view=visual-preview">Compact layout</a>
+          <a href="../research-overview/" aria-current="page">Methodology</a>
+          <a href="../paper-lab/">Paper Lab</a>
+          <a href="../legacy-dashboard.html">Legacy dashboard</a>
+        </section>
+        <section aria-label="Sport research">
+          <h2>Sports</h2>
+          <a href="../football-match/">Football Match Centre</a>
+          <a href="../football-leagues/">Football leagues</a>
+          <a href="../fixture-detail/">Fixture evidence</a>
+          <a href="../racing-research/">Horse Racing Lab</a>
+          <a href="../darts/">Darts Lab</a>
+          <a href="../rugby/">Rugby Lab</a>
+          <a href="../sports-watch/">Sports Watch</a>
+          <a href="../cricfy-browser/">CRICFy Browser Lab</a>
+        </section>
+        <section aria-label="Analytics">
+          <h2>Analysis</h2>
+          <a href="../analyst/">Analyst Terminal</a>
+          <a href="../market-intelligence/">Market Intelligence</a>
+          <a href="../research-lab/">Football Research Lab</a>
+          <a href="../racing-research/analysis.html">Racing analysis desk</a>
+          <a href="../racing-research/context.html">Context Racing Lab</a>
+          <a href="../racing-research/sources.html">Horse advice board</a>
+          <a href="../v3-research/">Horse Racing V3 Lab</a>
+          <a href="../reliability-lab/">Historical Reliability Lab</a>
+          <a class="vw-page-gold" href="../wildcard/">Gold Wildcard Council</a>
+        </section>
+        <section aria-label="Validation, reports and operations">
+          <h2>Evidence and operations</h2>
+          <a href="../validation-centre/">Independent Validation Centre</a>
+          <a href="../track-record/">Evidence &amp; track record</a>
+          <a href="../research-reports/">Report archive</a>
+          <a href="../research/horse-ab-phase3-master-20261115/dashboard/">Archived racing model comparison</a>
+          <a href="../ops-control/">Operations Control Centre</a>
+        </section>
+      </div>
+    </details>
+  </div>
+</header>
+<!-- research-header:end -->
+<main><h1>Value Watch · Research Overview</h1><p>Research only. Model unvalidated. Publication blocked. Official challenge 0/100.</p><nav aria-label="Value Watch main navigation"><a href="../">Four-Sport Dashboard</a><a href="../research-lab/">Football Research Lab</a><a href="./" aria-current="page">Research Overview</a></nav><p id="status">Loading research snapshot…</p><div id="summary" class="card"></div><section class="card"><h2>Feed health and evidence</h2><div class="row"><span>Football feed freshness</span><b id="freshness">Checking…</b></div><div class="row"><span>Historical results freshness</span><b id="historyfresh">Checking…</b></div><div class="row"><span>ESPN schedule audit</span><b id="espn">Unavailable</b></div><div class="row"><span>Football-Data schedule audit</span><b id="football">Unavailable</b></div><div class="row"><span>Archived forecast audit</span><b id="archive">Unavailable</b></div><p class="muted">A healthy data feed is not evidence of prediction accuracy. The freshness threshold is 36 hours.</p></section></main><script>Promise.all([fetch('../research-dashboard-data.json').then(r=>r.json()),fetch('../research-history.json').then(r=>r.json())]).then(([d,h])=>{if(d.research_only!==true||d.publication_gate!=='BLOCKED'||h.research_only!==true||h.publication_gate!=='BLOCKED')throw Error('Safety validation failed');document.getElementById('status').textContent='Snapshot updated · '+new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',dateStyle:'medium',timeStyle:'short'}).format(new Date(d.generated_at_utc))+' UK';if(d.model_validation!=='UNVALIDATED'||h.model_validation!=='UNVALIDATED'||d.official_challenge?.completed!==0||h.official_challenge!=='0/100'||!Array.isArray(h.entries)||h.entries.length!==h.sample_size)throw Error('Research safety validation failed');const stats=[['Upcoming fixtures',d.upcoming_fixtures.length],['Schedule cross-checked',d.upcoming_fixtures.filter(f=>f.verification==='SCHEDULE_CROSS_CHECK').length],['Archived paper forecasts',d.paper_forecasts.length],['Verified scored results',h.sample_size]];const box=document.getElementById('summary');box.replaceChildren();const grid=document.createElement('div');grid.className='grid';box.append(grid);for(const [label,value] of stats){const cell=document.createElement('div');cell.className='stat';cell.textContent=label;const num=document.createElement('b');num.textContent=value;cell.append(num);grid.append(cell)}const fresh=t=>{const n=Date.parse(t||'');return !Number.isFinite(n)||n>Date.now()+300000?'Invalid timestamp':Date.now()-n>36*3600000?'STALE':'Fresh'};for(const [id,value] of [['freshness',fresh(d.generated_at_utc)],['historyfresh',fresh(h.generated_at_utc)],['espn',d.source_audits?.espn||'Unavailable'],['football',d.source_audits?.football_data_cross_check||'Unavailable'],['archive',d.forecast_archive_audit?.status||'Unavailable']])document.getElementById(id).textContent=value}).catch(e=>document.getElementById('status').textContent='Research feeds unavailable: '+e.message)</script></html>
