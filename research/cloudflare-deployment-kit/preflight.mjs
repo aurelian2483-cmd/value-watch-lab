@@ -25,10 +25,10 @@ export function defaultRunner(args,cwd) {
     ? ['/d','/s','/c','npx.cmd '+commandArgs.join(' ')]
     : commandArgs;
   const r=spawnSync(executable,invocation,{
-    cwd,encoding:'utf8',timeout:60000,windowsHide:true,shell:false,
+    cwd,encoding:'utf8',timeout:180000,windowsHide:true,shell:false,
     env:{...process.env,CI:'true',WRANGLER_SEND_METRICS:'false'}
   });
-  if(r.error)fail('Wrangler command could not start');
+  if(r.error)fail('Wrangler command could not start or timed out ('+(r.error.code??'unknown')+')');
   return {status:r.status,stdout:r.stdout??'',stderr:r.stderr??''};
 }
 function deploymentCount(value) {
