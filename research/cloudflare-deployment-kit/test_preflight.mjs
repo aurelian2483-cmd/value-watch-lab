@@ -12,7 +12,7 @@ const REV='c91abd1cd13f03fbf1d71b75c7173a0811b0ccc4';
 const HOST='sky-research-controller.aurelian2483.workers.dev';
 const digest=b=>createHash('sha256').update(b).digest('hex');
 const sortKeys=x=>Array.isArray(x)?x.map(sortKeys):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,sortKeys(x[k])])):x;
-const encode=x=>Buffer.from(JSON.stringify(sortKeys(x),null,2)+'\\n');
+const encode=x=>Buffer.from(JSON.stringify(sortKeys(x),null,2)+'\n');
 function packageFiles(overrides={}) {
   const config={name:'sky-research-controller',main:'worker.mjs',compatibility_date:'2026-11-01',
     workers_dev:true,preview_urls:false,observability:{enabled:false},
