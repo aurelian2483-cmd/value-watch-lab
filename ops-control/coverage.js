@@ -38,16 +38,18 @@
 
   renderAudit('racing', 'racing-future-data.json', (body, audit) => {
     if (!Array.isArray(audit.days)) throw new Error('Missing daily diagnostics');
-    for (const day of audit.days) {
-      const dates = Object.keys(day.source_meeting_dates || {});
-      const details = [day.status || 'Unavailable', dates.length ? 'Response dates: ' + dates.join(', ') : '',
-        day.error].filter(Boolean).join(' · ');
-      appendRow(body, [day.date || 'Unavailable', details, count(day.meeting_page_races),
-        count(day.meeting_page_runner_observations)]);
+    for (const day of ValueWatchRacingCoverage.daily(audit)) {
+      const details = [day.indexStatus || 'Unavailable', count(day.indexRaces) + ' index races',
+        day.sourceDates.length ? 'Response dates: ' + day.sourceDates.join(', ') : '', day.error].filter(Boolean).join(' · ');
+      appendRow(body, [day.date || 'Unavailable', details,
+        count(day.meetings) + ' meetings · ' + count(day.recoveredPages) + ' / ' + count(day.attempted) + ' pages recovered',
+        count(day.races) + ' published · ' + count(day.recoveredRaces) + ' recovered from meeting pages',
+        count(day.observedFields) + ' single-source fields · ' + count(day.unconfirmedFields) + ' unconfirmed · ' +
+        count(day.runnerObservations) + ' meeting-page runner observations', day.scope]);
     }
     const providers = document.getElementById('racing-provider-diagnostics');
     if (Array.isArray(audit.fixture_provider_results)) {
-      for (const result of audit.fixture_provider_results.filter(row => row?.error)) {
+      for (const result of audit.fixture_provider_results.filter(row => row && row.status !== 'SOURCE_OBSERVED')) {
         const item = document.createElement('li');
         item.textContent = [result.provider, result.status, result.error].filter(Boolean).join(' · ');
         providers.append(item);
