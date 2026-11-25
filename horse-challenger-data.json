@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-25T19:55:28.658450+00:00",
+  "generated_at_utc": "2026-11-25T23:05:07.156393+00:00",
   "research_only": true,
   "model_validation": "UNVALIDATED",
   "publication_gate": "BLOCKED",
@@ -808,20 +808,20 @@
     },
     {
       "race_id": "950222",
-      "reason": "INSUFFICIENT_FORM_FOR_FULL_FIELD"
+      "reason": "NOT_PRE_EVENT_WITH_BUFFER"
     }
   ],
   "current_field_checks": {},
   "performance": {
-    "scored_forecasts": 87,
+    "scored_forecasts": 88,
     "independently_verified_results": 0,
     "verification": "SINGLE_SOURCE_PROVISIONAL",
     "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
     "metrics": {
-      "mean_multiclass_brier_score": 0.8973510779088472,
-      "mean_log_loss": 2.349309888818747,
-      "mean_equal_chance_brier_score": 0.9070990312369622,
-      "mean_equal_chance_log_loss": 2.3996248533167517
+      "mean_multiclass_brier_score": 0.897688871262995,
+      "mean_log_loss": 2.350115887951715,
+      "mean_equal_chance_brier_score": 0.9071216662125753,
+      "mean_equal_chance_log_loss": 2.3996051989926794
     },
     "entries": [
       {
@@ -2670,7 +2670,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-25T14:51:19.627752+00:00"
+        "result_last_checked_at_utc": "2026-11-25T23:05:07.156393+00:00"
       },
       {
         "record_sha256": "34b3c05b63bff7399f115d9a8973467e85e200e1321b45abc216c6e9d06fdd53",
@@ -2694,7 +2694,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-25T14:51:19.627752+00:00"
+        "result_last_checked_at_utc": "2026-11-25T23:05:07.156393+00:00"
       },
       {
         "record_sha256": "835a1fd03fb9bd1b04544cf8d33e6d3175efa71c95dd580eecf1a5ecf2d758bf",
@@ -2718,7 +2718,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-25T14:51:19.627752+00:00"
+        "result_last_checked_at_utc": "2026-11-25T23:05:07.156393+00:00"
       },
       {
         "record_sha256": "d833abb94ea0910ec5c3d45de81b43cad622bd2235def4fb33b17232c6dad0b4",
@@ -2741,8 +2741,8 @@
         "independently_verified": false,
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
-        "result_recheck_status": "NOT_RECHECKED",
-        "result_last_checked_at_utc": "2026-11-25T15:43:30.839451+00:00"
+        "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
+        "result_last_checked_at_utc": "2026-11-25T23:05:07.156393+00:00"
       },
       {
         "record_sha256": "324f1d138484a9f71aa1244a8ff4da12cd3341b287cbd8307be68f2ccd514bda",
@@ -2911,13 +2911,33 @@
         "publication_gate": "BLOCKED",
         "result_recheck_status": "NOT_RECHECKED",
         "result_last_checked_at_utc": "2026-11-25T19:55:28.658450+00:00"
+      },
+      {
+        "record_sha256": "f426abe14cc638d471082a1015143387cfc5d1ef224de230d35515754654c6a1",
+        "race_id": "950221",
+        "racecourse": "Kempton",
+        "startUTC": "2026-11-25T20:00:00+00:00",
+        "model": "AW_CONDITIONAL_LOGIT_PILOT_V1",
+        "winner_horse_id": "1144007",
+        "scored_at_utc": "2026-11-25T23:05:07.156393+00:00",
+        "multiclass_brier_score": 0.9270768930738534,
+        "log_loss": 2.4202378125199577,
+        "equal_chance_brier_score": 0.9090909090909091,
+        "equal_chance_log_loss": 2.3978952727983707,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-25/kempton/racecard/950221/unibet-s-new-var-goal-guarantee-fillies-handicap",
+          "sha256": "3b78637c24b1639fab58506fdaae0356526416bbfefd4002ed710181747932f6",
+          "observed_at_utc": "2026-11-25T23:05:07.156393+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-25T23:05:07.156393+00:00"
       }
     ],
     "pending": [
-      {
-        "race_id": "950221",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
       {
         "race_id": "949833",
         "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
@@ -2974,6 +2994,90 @@
     "selection_policy": "Latest archived forecast per race/model, captured at least five minutes before scheduled start."
   },
   "settled_forecasts": [
+    {
+      "record_sha256": "f426abe14cc638d471082a1015143387cfc5d1ef224de230d35515754654c6a1",
+      "race_id": "950221",
+      "racecourse": "Kempton",
+      "race_name": "Unibet's New VAR Goal Guarantee Fillies' Handicap",
+      "startUTC": "2026-11-25T20:00:00+00:00",
+      "generated_at_utc": "2026-11-25T09:50:37.937269+00:00",
+      "model": "AW_CONDITIONAL_LOGIT_PILOT_V1",
+      "runners": [
+        {
+          "horse_id": "1061173",
+          "name": "Golden Phase",
+          "model_probability": 0.058860707379097106,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1144007",
+          "name": "Ghost Story",
+          "model_probability": 0.08890047329973218,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1165664",
+          "name": "Solar Pass",
+          "model_probability": 0.05019643485297193,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1166442",
+          "name": "Star Of Dubai",
+          "model_probability": 0.05137793704860537,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1181680",
+          "name": "Lucky Luna",
+          "model_probability": 0.05286414452098569,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1188050",
+          "name": "Just Queen High",
+          "model_probability": 0.10576675477897518,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1194707",
+          "name": "Caraway",
+          "model_probability": 0.12038034109067905,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1195780",
+          "name": "Glenna",
+          "model_probability": 0.10495967496564347,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1195943",
+          "name": "Midnight Media",
+          "model_probability": 0.172904201693301,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1223315",
+          "name": "Lunella",
+          "model_probability": 0.10660004595227346,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1233398",
+          "name": "Moontune",
+          "model_probability": 0.08718928441773559,
+          "equal_chance_reference": 0.09090909090909091
+        }
+      ],
+      "winner_horse_id": "1144007",
+      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-25T23:05:07.156393+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
     {
       "record_sha256": "87535b0b2a7c6d0c84b3f1f977e3ec7ca0763d003be30248376ca0c730dbddcf",
       "race_id": "950748",
@@ -3664,8 +3768,8 @@
       ],
       "winner_horse_id": "1217297",
       "result_verification": "SINGLE_SOURCE_PROVISIONAL",
-      "result_recheck_status": "NOT_RECHECKED",
-      "result_last_checked_at_utc": "2026-11-25T15:43:30.839451+00:00",
+      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
+      "result_last_checked_at_utc": "2026-11-25T23:05:07.156393+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -3737,7 +3841,7 @@
       "winner_horse_id": "1105880",
       "result_verification": "SINGLE_SOURCE_PROVISIONAL",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-25T14:51:19.627752+00:00",
+      "result_last_checked_at_utc": "2026-11-25T23:05:07.156393+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -3809,7 +3913,7 @@
       "winner_horse_id": "1180028",
       "result_verification": "SINGLE_SOURCE_PROVISIONAL",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-25T14:51:19.627752+00:00",
+      "result_last_checked_at_utc": "2026-11-25T23:05:07.156393+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -3887,7 +3991,7 @@
       "winner_horse_id": "1199485",
       "result_verification": "SINGLE_SOURCE_PROVISIONAL",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-25T14:51:19.627752+00:00",
+      "result_last_checked_at_utc": "2026-11-25T23:05:07.156393+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -4593,90 +4697,6 @@
         }
       ],
       "winner_horse_id": "1064778",
-      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-25T18:52:07.012584+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
-    },
-    {
-      "record_sha256": "288d15d42b9631ba40ef8a27ce7ba04c49631038ea07f7f6ebcd5a51659f0188",
-      "race_id": "949825",
-      "racecourse": "Wolverhampton",
-      "race_name": "AWC Season 14 Has Begun Handicap (Div 2)",
-      "startUTC": "2026-11-23T19:30:00+00:00",
-      "generated_at_utc": "2026-11-23T07:43:16.907141+00:00",
-      "model": "AW_CONDITIONAL_LOGIT_PILOT_V1",
-      "runners": [
-        {
-          "horse_id": "1016722",
-          "name": "Beauzon",
-          "model_probability": 0.06196028010204548,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1063170",
-          "name": "Romanovich",
-          "model_probability": 0.046901170039117146,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1080386",
-          "name": "Good Karma",
-          "model_probability": 0.09439263433161348,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1114492",
-          "name": "Profit Street",
-          "model_probability": 0.1041061146721313,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1146548",
-          "name": "Yehudi",
-          "model_probability": 0.10160802948629279,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1181924",
-          "name": "Mr Tony",
-          "model_probability": 0.07991522048512943,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1189561",
-          "name": "Jamie Sommers",
-          "model_probability": 0.094243507142936,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1195427",
-          "name": "Girls Allowed",
-          "model_probability": 0.17294963695562834,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "1196575",
-          "name": "Chapman's Peak",
-          "model_probability": 0.08024275138529413,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "976741",
-          "name": "Monsieur Patat",
-          "model_probability": 0.11563782437741223,
-          "equal_chance_reference": 0.09090909090909091
-        },
-        {
-          "horse_id": "988370",
-          "name": "Lhebayeb",
-          "model_probability": 0.04804283102239966,
-          "equal_chance_reference": 0.09090909090909091
-        }
-      ],
-      "winner_horse_id": "1063170",
       "result_verification": "SINGLE_SOURCE_PROVISIONAL",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
       "result_last_checked_at_utc": "2026-11-25T18:52:07.012584+00:00",
