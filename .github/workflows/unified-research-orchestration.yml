@@ -206,6 +206,68 @@ jobs:
           npx playwright install --with-deps chromium
           node research/unified-orchestration/browser-acceptance.mjs "$RUNNER_TEMP/orchestration-evidence" "$RUNNER_TEMP/orchestration-output"
           test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Portable Phase 3 historical preview and extracted browser acceptance
+        run: |
+          python3 research/unified-orchestration/release.py "$RUNNER_TEMP/orchestration-recovered" "$RUNNER_TEMP/orchestration-output"
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,zipfile
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])
+          out=root/'orchestration-output'
+          raw=(out/'phase3-local-preview.zip').read_bytes()
+          receipt=json.loads((out/'phase3-release-receipt.json').read_text())
+          assert hashlib.sha256(raw).hexdigest()==receipt['archiveSha256']
+          target=root/'phase3-extracted'
+          target.mkdir()
+          with zipfile.ZipFile(out/'phase3-local-preview.zip') as z:z.extractall(target)
+          PY
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict'
+          import {readFileSync,writeFileSync} from 'node:fs'
+          import {createHash} from 'node:crypto'
+          import {join} from 'node:path'
+          import {pathToFileURL} from 'node:url'
+          import {chromium} from 'playwright'
+          const root=process.env.RUNNER_TEMP,target=join(root,'phase3-extracted'),out=join(root,'orchestration-output')
+          const hash=x=>createHash('sha256').update(x).digest('hex')
+          const registry=JSON.parse(readFileSync(join(target,'registry','registry.json')))
+          const control=JSON.parse(readFileSync(join(target,'registry','control.json')))
+          const q=JSON.parse(readFileSync(join(target,'queue','queue.json')))
+          const op=join(target,'orchestration-plan.json'),qp=join(target,'queue-plan.json')
+          const {startDashboard}=await import(pathToFileURL(join(target,'research','unified-orchestration','dashboard.mjs')).href)
+          const server=await startDashboard(join(target,'evidence'),join(target,'registry'),op,hash(readFileSync(op)),{port:0,trustedRegistrySha256:registry.registrySha256,trustedControlSha256:control.controlSha256,queueConfig:{directory:join(target,'queue'),planPath:qp,planSha256:hash(readFileSync(qp)),trustedQueueSha256:q.queueSha256}})
+          const url='http://127.0.0.1:'+server.address().port
+          let browser
+          const checks=[]
+          try{
+            browser=await chromium.launch({headless:true})
+            for(const width of [1440,390,320,280]){
+              const page=await browser.newPage({viewport:{width,height:900}})
+              const external=[]
+              await page.route('**/*',route=>{if(route.request().url().startsWith(url+'/'))return route.continue();external.push(route.request().url());return route.abort()})
+              assert.equal((await page.goto(url+'/')).status(),200)
+              assert.equal(await page.locator('[data-reviewed]').getAttribute('data-reviewed'),'7')
+              assert.equal(await page.locator('[data-queue-counts]').getAttribute('data-queue-counts'),'0:6:0')
+              const body=await page.locator('body').innerText()
+              for(const label of ['UNVALIDATED','PUBLICATION BLOCKED','EXECUTION BLOCKED'])assert.ok(body.includes(label))
+              assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth))
+              assert.deepEqual(external,[])
+              await page.screenshot({path:join(out,'phase3-extracted-'+width+'.png'),fullPage:true})
+              await page.close()
+              checks.push({width,status:'PASS'})
+            }
+            const status=await (await fetch(url+'/status')).json()
+            assert.equal(status.externalRegistryAnchorMatched,true)
+            assert.equal(status.externalControlAnchorMatched,true)
+            assert.equal(status.queue.anchored,true)
+            assert.equal(status.queue.view.dispatchAuthorized,false)
+            writeFileSync(join(out,'phase3-extracted-browser.json'),JSON.stringify({checks,executionAuthorized:false,publicationGate:'BLOCKED'},null,2)+'\n')
+            console.log('PASS extracted Phase 3 preview at four Chromium viewports with independent anchors')
+          }finally{
+            if(browser)await browser.close()
+            await new Promise(ok=>server.close(ok))
+          }
+          JS
+          test -z "$(git status --porcelain --untracked-files=all)"
       - uses: actions/upload-artifact@v4
         with:
           name: unified-research-orchestration-evidence
