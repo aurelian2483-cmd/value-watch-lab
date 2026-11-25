@@ -1,0 +1,22 @@
+name: Shared job controller QA
+on:
+  pull_request:
+    paths:
+      - 'research/shared-job-controller/**'
+      - '.github/workflows/shared-job-controller-qa.yml'
+permissions:
+  contents: read
+jobs:
+  controller:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -B -m unittest discover -s research/shared-job-controller -p 'test_*.py' -v
+      - run: test -z "$(git status --porcelain --untracked-files=all)"
