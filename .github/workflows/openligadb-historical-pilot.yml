@@ -1,0 +1,79 @@
+name: OpenLigaDB bounded historical pilot
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'research/openligadb-pilot/**'
+      - '.github/workflows/openligadb-historical-pilot.yml'
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Existing adapter and bounded pilot offline contracts
+        run: |
+          python -B -m unittest discover -s tests -p 'test_openligadb_bundesliga.py' -v
+          python -B -m unittest discover -s research/openligadb-pilot -p 'test_*.py' -v
+          python -B -m unittest discover -s research/historical-evidence-readiness -p 'test_*.py' -v
+          test -z "$(git status --porcelain --untracked-files=all)"
+  one-authorized-read:
+    needs: offline
+    if: >-
+      github.repository == 'aurelian2483-cmd/value-watch-lab' &&
+      github.event.action == 'opened' &&
+      github.run_attempt == 1 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'development/openligadb-historical-pilot-20261125' &&
+      github.event.pull_request.base.ref == 'development/historical-evidence-readiness-20261125' &&
+      github.event.pull_request.base.sha == 'bee3fcf2e88514d8f0fb4c04644d8ee1ad335d0a'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    concurrency:
+      group: openligadb-one-shot-20261125
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Single fixed-scope GET and aggregate-only receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/openligadb-pilot"
+          mkdir "$out"
+          python -B research/openligadb-pilot/pilot.py --authorized-one-matchday > "$out/pilot-summary.json"
+          python -B - <<'PY'
+          import json,os,pathlib,hashlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'openligadb-pilot'/'pilot-summary.json'
+          raw=p.read_bytes()
+          r=json.loads(raw)
+          assert r['status']=='SOURCE_CONTRACT_PASSED_NOT_CERTIFIED'
+          assert r['network_requests']==1 and r['fixture_count']==9
+          assert r['source_reported_finished_count']==9 and r['final_result_shape_accepted_count']==9
+          assert r['distinct_provider_team_ids']==18
+          assert r['independently_verified_outcomes']==0 and r['real_evaluation_eligible_rows']==0
+          assert r['raw_records_published'] is False
+          assert r['execution_authorized'] is False and r['validation_authorized'] is False
+          assert r['protected_evaluation_authorized'] is False and r['publication_gate']=='BLOCKED'
+          assert not set(r).intersection({'fixtures','results','matchResults','event_id','teamName','pointsTeam1','pointsTeam2'})
+          print('PASS one OpenLigaDB historical matchday; nine shape-checked results; zero certified outcomes')
+          print('Aggregate receipt SHA-256:',hashlib.sha256(raw).hexdigest())
+          PY
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openligadb-pilot-aggregate-only
+          path: ${{ runner.temp }}/openligadb-pilot/pilot-summary.json
+          retention-days: 7
+          if-no-files-found: error
