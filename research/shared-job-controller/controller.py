@@ -6,7 +6,8 @@ import sqlite3
 from contextlib import contextmanager
 
 KINDS = {"cpu-probe": "CPU", "local-qa": "CPU", "gpu-qa": "GPU"}
-WORKERS = {"hosted-qa": "CPU", "pc-qa": "GPU"}
+MAX_JOBS = 300
+MAX_TIME = 2**53-301
 FLAGS = {"researchStatus": "UNVALIDATED", "productionDispatchAuthorized": False,
          "publicationGate": "BLOCKED", "remoteEnrollmentEnabled": False}
 HEX = re.compile(r"[a-f0-9]{64}")
@@ -24,7 +25,8 @@ def hash_token(token):
 class Controller:
     """Single-controller SQLite store. Worker labels are trusted in-process inputs only."""
     def __init__(self, path):
-        self.path = path
+        from pathlib import Path
+        self.path = Path(path)
         need(str(path) != ":memory:", "Persistent store required")
         with self.tx() as db:
             db.execute("CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, revision TEXT NOT NULL, kind TEXT NOT NULL, backend TEXT NOT NULL, state TEXT NOT NULL, worker TEXT, token_hash TEXT, expires INTEGER, receipt_hash TEXT, UNIQUE(revision,kind))")
@@ -50,7 +52,7 @@ class Controller:
 
     @staticmethod
     def tick(db, now):
-        need(type(now) is int and 0 <= now <= 2**53-1, "Invalid trusted clock")
+        need(type(now) is int and 0 <= now <= MAX_TIME, "Invalid trusted clock")
         last = db.execute("SELECT last FROM clock WHERE id=1").fetchone()[0]
         need(now >= last, "Clock rollback")
         db.execute("UPDATE clock SET last=? WHERE id=1", (now,))
@@ -70,11 +72,13 @@ class Controller:
         need(isinstance(kind,str) and kind in KINDS, "Unapproved job kind")
         with self.tx() as db:
             self.tick(db,now)
+            self.expire(db,now)
             prior=db.execute("SELECT * FROM jobs WHERE id=?", (job,)).fetchone()
             if prior:
                 need(prior["revision"]==revision and prior["kind"]==kind, "Job ID conflict")
                 return prior["state"]
             need(not db.execute("SELECT 1 FROM jobs WHERE revision=? AND kind=?", (revision,kind)).fetchone(), "Duplicate logical job")
+            need(db.execute("SELECT COUNT(*) FROM jobs").fetchone()[0] < MAX_JOBS, "Queue capacity reached")
             # GPU registration and dispatch deliberately remain blocked.
             state="QUEUED" if KINDS[kind]=="CPU" else "BLOCKED_GPU"
             db.execute("INSERT INTO jobs(id,revision,kind,backend,state) VALUES(?,?,?,?,?)",(job,revision,kind,KINDS[kind],state))
@@ -107,16 +111,32 @@ class Controller:
             row=db.execute("SELECT * FROM jobs WHERE id=?", (job,)).fetchone()
             if not row or row["state"]!="LEASED" or row["worker"]!=worker or not secrets.compare_digest(row["token_hash"],hashed):
                 return False
+            if db.execute("SELECT 1 FROM jobs WHERE receipt_hash=?", (receipt_hash,)).fetchone():
+                return False
             # Hash alone is not evidence authenticity or acceptance.
             db.execute("UPDATE jobs SET state='RECEIPT_PENDING_REVIEW',receipt_hash=?,token_hash=NULL WHERE id=?",(receipt_hash,job))
             self.event(db,job,"UNVERIFIED_RECEIPT_RECORDED",now)
             return True
 
+    @staticmethod
+    def view(db):
+        rows=db.execute("SELECT id,revision,kind,backend,state,worker,expires,receipt_hash FROM jobs ORDER BY rowid").fetchall()
+        events=db.execute("SELECT seq,job,action,at FROM events ORDER BY seq").fetchall()
+        return {"kind":"LOCAL_CONTROLLER_QA_SNAPSHOT","jobs":[dict(r) for r in rows],
+                "events":[dict(r) for r in events],**FLAGS}
+
+    def read_only_status(self):
+        """Stored state only. Expiration is reconciled by a separate trusted operation."""
+        db=sqlite3.connect(self.path.resolve().as_uri()+"?mode=ro",uri=True,timeout=10)
+        db.row_factory=sqlite3.Row
+        try:
+            db.execute("BEGIN")
+            return self.view(db)|{"freshness":"STORED_STATE_ONLY"}
+        finally:
+            db.close()
+
     def snapshot(self, now):
         with self.tx() as db:
             self.tick(db,now)
             self.expire(db,now)
-            rows=db.execute("SELECT id,revision,kind,backend,state,worker,expires,receipt_hash FROM jobs ORDER BY rowid").fetchall()
-            events=db.execute("SELECT seq,job,action,at FROM events ORDER BY seq").fetchall()
-            return {"kind":"LOCAL_CONTROLLER_QA_SNAPSHOT","jobs":[dict(r) for r in rows],
-                    "events":[dict(r) for r in events],**FLAGS}
+            return self.view(db)
