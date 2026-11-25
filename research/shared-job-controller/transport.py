@@ -8,7 +8,7 @@ from controller import HEX, ID, need
 
 MAX_BODY=4096
 MAX_RESPONSE=1048576
-ROUTES={"/qa/claim":set(),"/qa/submit":{"job","lease","receipt_hash"},"/qa/status":set()}
+ROUTES={"/qa/claim":set(),"/qa/submit":{"job","lease","receipt_hash"},"/qa/status":set(),"/qa/pc-heartbeat":{"sequence","gpu"},"/qa/pc-status":set()}
 
 def strict_object(pairs):
     out={}
@@ -42,6 +42,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if self.path not in ROUTES:
                 return self.reply(404,{"error":"unknown route"})
+            if self.path in ("/qa/pc-heartbeat","/qa/pc-status") and self.server.presence is None:
+                return self.reply(404,{"error":"unknown route"})
             auth=self.headers.get_all("Authorization",[])
             if len(auth)!=1 or not re.fullmatch(r"Bearer [a-f0-9]{64}",auth[0]):
                 return self.reply(403,{"error":"request rejected"})
@@ -65,6 +67,10 @@ class Handler(BaseHTTPRequestHandler):
                 result=service.claim(token)
             elif self.path=="/qa/status":
                 result=service.status(token)
+            elif self.path=="/qa/pc-heartbeat":
+                result=self.server.presence.heartbeat(token,payload["sequence"],payload["gpu"])
+            elif self.path=="/qa/pc-status":
+                result=self.server.presence.status(token)
             else:
                 need(isinstance(payload["job"],str) and ID.fullmatch(payload["job"]),"Invalid job")
                 need(all(isinstance(payload[k],str) and HEX.fullmatch(payload[k]) for k in ("lease","receipt_hash")),"Invalid receipt")
@@ -77,8 +83,11 @@ class Handler(BaseHTTPRequestHandler):
 
 class LoopbackServer(HTTPServer):
     allow_reuse_address=False
-    def __init__(self,service,certfile,keyfile):
+    def __init__(self,service,certfile,keyfile,*,presence=None):
         self.service=service
+        self.presence=presence
+        if presence is not None:
+            presence.assert_service_scope(service._credentials,service._revision)
         self.context=ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         self.context.minimum_version=ssl.TLSVersion.TLSv1_2
         self.context.load_cert_chain(certfile,keyfile)
