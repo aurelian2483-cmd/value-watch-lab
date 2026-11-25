@@ -65,9 +65,11 @@ function matchPoll(rows, records, asOf, allowedBooks) {
     const matches = candidates.filter(fixture => fixture.signature === key);
     const observed = numberTime(record.observed_at_utc);
     const checked = numberTime(record.checked_at_utc);
+    const review = allowedBooks.get(record.bookmaker);
     let reason;
-    if (record.sport_key !== 'soccer_epl' || record.market !== 'h2h' ||
-      record.settlement !== market || !allowedBooks.has(record.bookmaker) || exchange.test(record.bookmaker) ||
+    if (!review || review.settlement !== market || record.review_sha256 !== review.review_sha256 ||
+      !(asOf < review.review_expires) || exchange.test(record.bookmaker)) reason = 'bookmaker_review_unavailable';
+    else if (record.sport_key !== 'soccer_epl' || record.market !== review.market_key || record.settlement !== review.settlement ||
       !/^[a-z0-9]{16,64}$/.test(record.event_id || '') ||
       !/^[a-f0-9]{64}$/.test(record.receipt_sha256 || '') || !complete(record.prices)) reason = 'no_market';
     else if (matches.length !== 1 || providerEvents.get(key).size !== 1 || providerFixtures.get(record.event_id).size !== 1 ||
@@ -80,7 +82,7 @@ function matchPoll(rows, records, asOf, allowedBooks) {
     }
     accepted.push({fixture: matches[0], source: 'THE_ODDS_API', event: record.event_id,
       bookmaker: record.bookmaker, market, period: 'REGULATION', line: null,
-      observed, checked, receipt: record.receipt_sha256, prices: record.prices});
+      observed, checked, review: review.review_sha256, receipt: record.receipt_sha256, prices: record.prices});
   }
   return {accepted, rejects, rejected};
 }

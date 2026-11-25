@@ -5,20 +5,21 @@ from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
-import re
 import sys
 import tempfile
 
 from collect_current_odds import CollectionError, MAX_EVENTS, MAX_USED, PARAMS, RESERVE, clean_event, quota, request_json
 
-MARKET = 'PL:1X2:90_MINUTES_PLUS_STOPPAGE:NO_EXTRA_TIME'
-EXCHANGE = re.compile(r'betfair(?!_sportsbook$)|exchange|betdaq|matchbook|smarkets|betopenly|prophetx|polymarket')
+from pl_bookmakers import DEFAULT, approved
 
 
-def collect(key, books, request=request_json, clock=lambda: datetime.now(timezone.utc)):
-    if (not key or not 1 <= len(books) <= 10 or len(set(books)) != len(books)
-            or any(not re.fullmatch(r'[a-z0-9_]{2,40}', b) or EXCHANGE.search(b) for b in books)):
-        raise CollectionError('An existing key and reviewed bookmaker allowlist are required.')
+def collect(key, config, request=request_json, clock=lambda: datetime.now(timezone.utc), *, allow_test=False):
+    reviews, rejected = approved(config, clock().date(), allow_test=allow_test and request is not request_json)
+    if not reviews:
+        return {'status': 'failed', 'checked': clock().isoformat(), 'records': [], 'rejected': rejected}
+    if not key:
+        raise CollectionError('missing_provider_credential')
+    books = list(reviews)
     catalogue, headers, _ = request('', {}, key)
     used, remaining, cost = quota(headers)
     if (cost or used >= MAX_USED or remaining <= RESERVE or not isinstance(catalogue, list)
@@ -32,23 +33,27 @@ def collect(key, books, request=request_json, clock=lambda: datetime.now(timezon
         raise CollectionError('Unexpected provider response or quota movement.')
     checked = clock()
     counts = Counter(row.get('id') for row in payload if isinstance(row, dict) and isinstance(row.get('id'), str))
-    records = [dict(record, settlement=MARKET) for row in payload if isinstance(row, dict)
+    records = [dict(record, **reviews[book]) for row in payload if isinstance(row, dict)
                and isinstance(row.get('id'), str) and counts[row['id']] == 1 for book in books
                if (record := clean_event(row, 'soccer_epl', checked, digest, book))]
     return {'status': 'ok' if records else 'empty', 'checked': checked.isoformat(),
-            'events': len(payload), 'records': records}
+            'events': len(payload), 'records': records, 'rejected': rejected}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--books', nargs='+', required=True, help='Account-approved regulation-only non-exchange keys')
+    parser.add_argument('--config', type=Path, default=DEFAULT, help='Reviewed bookmaker registry JSON')
     parser.add_argument('--output', type=Path, default=Path('work/pl-market/poll.json'))
     args = parser.parse_args()
     key = os.environ.get('THE_ODDS_API_KEY', '')
     try:
-        poll = collect(key, args.books)
+        poll = collect(key, json.loads(args.config.read_text()))
+    except CollectionError as error:
+        poll = {'status': 'failed', 'checked': datetime.now(timezone.utc).isoformat(), 'records': [],
+                'rejected': [{'reason': str(error)}]}
     except Exception:
-        poll = {'status': 'failed', 'checked': datetime.now(timezone.utc).isoformat(), 'records': []}
+        poll = {'status': 'failed', 'checked': datetime.now(timezone.utc).isoformat(), 'records': [],
+                'rejected': [{'reason': 'configuration_or_source_read_failed'}]}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(mode='w', dir=args.output.parent, delete=False) as tmp:
         json.dump(poll, tmp)

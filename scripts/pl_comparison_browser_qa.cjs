@@ -11,13 +11,13 @@ async function main() {
   const now = Date.parse('2026-11-26T12:00Z');
   const html = await fs.readFile('market-intelligence/index.html','utf8');
   const fixture = {home:'QA Home',away:'QA Away',kickoff_utc:'2026-11-26T13:00:00Z'};
-  const books = new Set(['skybet','synthetic_book']);
+  const books = require('../tests/fixtures/pl-bookmakers.cjs')(['skybet','synthetic_book']);
   const price = {sport_key:'soccer_epl',event_id:'abcdefghijklmnop',market:'h2h',settlement:market,
     home:fixture.home,away:fixture.away,start_utc:fixture.kickoff_utc,
     observed_at_utc:'2026-11-26T11:59:00Z',checked_at_utc:new Date(now).toISOString(),receipt_sha256:'a'.repeat(64),
-    bookmaker:'skybet',prices:{home:2,draw:3,away:4}};
+    bookmaker:'skybet',...books.get('skybet'),prices:{home:2,draw:3,away:4}};
   const ledger = mergePoll({observations:[]},{status:'ok',checked:price.checked_at_utc,
-    records:[price,{...price,bookmaker:'synthetic_book',prices:{home:2.1,draw:3,away:4}}]},[fixture],books,now);
+    records:[price,{...price,bookmaker:'synthetic_book',...books.get('synthetic_book'),prices:{home:2.1,draw:3,away:4}}]},[fixture],books,now);
   const pages = {
     '/market-intelligence/':html,
     '/market-intelligence/preview.html':render(html,ledger,[fixture],books,true,now),
