@@ -1,0 +1,49 @@
+name: Sky Lab preflight (research only)
+
+on:
+  pull_request:
+    paths:
+      - 'research/sky-lab-preflight/**'
+      - 'research/mathematical-library/**'
+      - 'research/football-baseline-v1/608-reconstructed-forecasts.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  historical-paired-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Isolated evidence tests
+        run: node --test research/sky-lab-preflight/paired-audit.test.mjs
+      - name: Check the versioned catalogue
+        run: node --test research/mathematical-library/validate-v1.test.mjs
+      - name: Audit the existing 608-match reconstructed record
+        run: node research/sky-lab-preflight/cli.mjs > sky-lab-preflight-report.json
+      - name: Enforce research-only gating on generated report
+        run: |
+          node --input-type=module -e "
+            import assert from 'node:assert/strict';
+            import {readFileSync} from 'node:fs';
+            const r=JSON.parse(readFileSync('sky-lab-preflight-report.json','utf8'));
+            assert.equal(r.census.records,608);
+            assert.equal(r.census.unique_events,608);
+            assert.equal(r.gate.experiment_tournament,'BLOCKED');
+            assert.equal(r.gate.live_betting_publication,'BLOCKED');
+            assert.equal(r.source_type,'RETROSPECTIVE_RECONSTRUCTION_NOT_AS_ISSUED');
+            assert.equal(r.research_only,true);
+          "
+      - name: Retain non-promotional audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sky-lab-preflight-evidence
+          path: sky-lab-preflight-report.json
+          retention-days: 7
