@@ -5,3 +5,11 @@ Stacked on accepted PR #190 at e927c2a70c482b465bab68f71325bcf6765cdaed. No exis
 Run: python -B -m unittest discover -s research/shared-job-controller -p 'test_*.py' -v
 
 Next gates: authenticated service boundary and trusted server clock, durable hosted storage/backup, revocable worker identity, bounded fixed-job execution adapters, trusted receipt artifact intake, cross-host acceptance and fault tests. No shared network filesystem SQLite deployment. No unreviewed commands or automatic GPU fallback. Quarantined work requires explicit future reconciliation; never retry automatically. Do not expose this prototype to the internet.
+
+## Phase 2 — security hardening
+
+Baseline PR #191 controller QA run 45529569059 and full regression run 45529569084 passed at 0e8ef055e11b0ece70e95ae5e6569ba2ebe5cfce. Added queue lifetime capacity of 300, receipt digest deduplication across jobs, expiry reconciliation on enqueue, safe clock range, and a genuinely read-only stored-state view. Eight additional test scenarios cover roles, pinned revision, status immutability, revocation, wrong stored revision, receipt replay, capacity, invalid configuration and expired idempotent enqueue.
+
+The in-process service separates operator, hosted CPU worker and observer credentials, comparing SHA-256 digests of separately provisioned high-entropy tokens. Use synthetic credentials only in tests; no real credentials committed. Time comes from server-side clock, with rollback rejection and fixed 240-second lease. Direct database access is a trusted administrative boundary. One service instance is intended; this is not a network authentication protocol, TLS endpoint, independently attested worker or cross-process authorization system. The in-memory revocation switch is lost on restart and does not terminate an already running task. Persistent revocation and cancellation are still required. The stored-state observer deliberately does not reconcile expiration and labels freshness accordingly. Capacity exhaustion is fail-closed; no automatic cleanup. GPU remains blocked. No job execution or deployment enabled.
+
+Phase 2 acceptance and regression pending at time of writing. Research UNVALIDATED; production execution and publication BLOCKED.
