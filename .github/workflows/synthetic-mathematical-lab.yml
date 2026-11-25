@@ -1,0 +1,67 @@
+name: Synthetic mathematical laboratory
+on:
+  pull_request:
+    paths:
+      - 'research/mathematical-testing-lab/**'
+      - '.github/workflows/synthetic-mathematical-lab.yml'
+      - 'research/mathematical-library/experiment-registry*.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run bounded synthetic unit tests
+        run: node --test research/mathematical-testing-lab/*.test.mjs
+      - name: Generate reproducible known-answer results
+        run: |
+          mkdir -p "$RUNNER_TEMP/synthetic-math"
+          node research/mathematical-testing-lab/suite.mjs "$(git rev-parse HEAD)" > "$RUNNER_TEMP/synthetic-math/report.json"
+          node research/mathematical-testing-lab/suite.mjs "$(git rev-parse HEAD)" > "$RUNNER_TEMP/synthetic-math/repeat.json"
+          cmp "$RUNNER_TEMP/synthetic-math/report.json" "$RUNNER_TEMP/synthetic-math/repeat.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Cross-check against independent analytical references
+        run: |
+          python -B -m unittest discover -s research/mathematical-testing-lab -p 'test_reference_check.py'
+          python -B research/mathematical-testing-lab/reference_check.py "$RUNNER_TEMP/synthetic-math/report.json" > "$RUNNER_TEMP/synthetic-math/reference-check.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Verify persistent synthetic fixture lifecycle
+        run: |
+          mkdir "$RUNNER_TEMP/synthetic-math-registry"
+          node research/mathematical-testing-lab/persistence.mjs "$RUNNER_TEMP/synthetic-math-registry" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/synthetic-math/persistence.json"
+          node research/mathematical-testing-lab/persistence.mjs "$RUNNER_TEMP/synthetic-math-registry" "$(git rev-parse HEAD)" > "$RUNNER_TEMP/synthetic-math/persistence-repeat.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Run bounded CPU worker acceptance
+        run: |
+          node research/mathematical-testing-lab/parallel.mjs "$(git rev-parse HEAD)" 2 > "$RUNNER_TEMP/synthetic-math/cpu-resource-report.json"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Reconcile laboratory evidence for read-only control centre
+        run: |
+          node research/mathematical-testing-lab/status.mjs "$RUNNER_TEMP/synthetic-math" "$(git rev-parse HEAD)" json > "$RUNNER_TEMP/synthetic-math/lab-status.json"
+          node research/mathematical-testing-lab/status.mjs "$RUNNER_TEMP/synthetic-math" "$(git rev-parse HEAD)" html > "$RUNNER_TEMP/synthetic-math/lab-status.html"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Install pinned browser tooling
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Audit generated reports, saved evidence and browser rendering
+        run: |
+          node research/mathematical-testing-lab/acceptance.mjs "$RUNNER_TEMP/synthetic-math" "$RUNNER_TEMP/synthetic-math-registry" "$(git rev-parse HEAD)"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Archive synthetic results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-mathematical-benchmarks
+          path: ${{ runner.temp }}/synthetic-math/
+          retention-days: 7
+          if-no-files-found: warn
