@@ -31,6 +31,18 @@
     if(!prices||!['home','draw','away'].every(side=>Number.isFinite(prices[side])&&prices[side]>1))return null;
     return quote;
   }
+  function footballPriceStatus(fixtureKey, league, now) {
+    const prices = document.getElementById('vw-published-prices');
+    if (!prices?.content || !fixtureKey) return '';
+    const records = [...prices.content.children].filter(row => row.dataset.fixture === 'football:' + fixtureKey);
+    if (records.length === 1) {
+      const expires = Number(records[0].dataset.expires);
+      if (Number.isSafeInteger(expires) && expires > 0 && expires <= now)
+        return 'Last bookmaker observation expired';
+    }
+    if (league !== 'PL') return 'Competition outside the scheduled bookmaker refresh';
+    return 'No current bookmaker observation matched this fixture';
+  }
   const make = (parent, tag, text, className) => {
     const element = document.createElement(tag);
     if (text !== undefined) element.textContent = String(text);
@@ -529,8 +541,11 @@
     const note = record.market.querySelector('.desk-market-note');
     if (emptyMarket && !note) record.market.prepend(make(null, 'p', 'No verified prices or model estimates', 'desk-market-note'));
     else if (!emptyMarket) note?.remove();
-    if (marketRow && !currentOdds && !emptyMarket && record.choices.size)
-      make(quickSignals, 'span', 'No verified price', 'compact-evidence-note');
+    if (marketRow && !currentOdds && record.choices.size) {
+      const priceStatus = footballPriceStatus(fixtureKey, event.league, Date.now());
+      if (priceStatus || !emptyMarket)
+        make(quickSignals, 'span', priceStatus || 'No verified price', 'compact-evidence-note');
+    }
     const compactRunners = event.sport === 'racing' && record.choices.size > 0 &&
       event.choices.every(choice => !Number.isFinite(choice.probability) &&
         !Number.isFinite(choice.quote?.decimal) && !Number.isFinite(choice.forecastPrice?.decimal));

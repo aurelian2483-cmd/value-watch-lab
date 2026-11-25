@@ -72,7 +72,7 @@ def quota(headers):
         raise CollectionError('Quota headers are missing or invalid. No further requests will be made.') from None
 
 
-def clean_event(event, sport, checked, digest):
+def clean_event(event, sport, checked, digest, bookmaker='skybet'):
     if not isinstance(event, dict) or event.get('sport_key') != sport:
         return None
     identity, home, away = (event.get(key) for key in ('id', 'home_team', 'away_team'))
@@ -84,14 +84,14 @@ def clean_event(event, sport, checked, digest):
     bookmakers = event.get('bookmakers')
     if not isinstance(bookmakers, list):
         return None
-    sky = [item for item in bookmakers if isinstance(item, dict) and item.get('key') == 'skybet']
-    if len(sky) != 1 or not isinstance(sky[0].get('markets'), list):
+    matching_books = [item for item in bookmakers if isinstance(item, dict) and item.get('key') == bookmaker]
+    if len(matching_books) != 1 or not isinstance(matching_books[0].get('markets'), list):
         return None
-    markets = [item for item in sky[0]['markets'] if isinstance(item, dict) and item.get('key') == 'h2h']
+    markets = [item for item in matching_books[0]['markets'] if isinstance(item, dict) and item.get('key') == 'h2h']
     if len(markets) != 1:
         return None
     # Main odds endpoint documents bookmaker last_update. Prefer market time when supplied.
-    observed = markets[0].get('last_update', sky[0].get('last_update'))
+    observed = markets[0].get('last_update', matching_books[0].get('last_update'))
     seen = instant(observed)
     if not seen or seen > checked or (checked - seen).total_seconds() > MAX_AGE:
         return None
@@ -110,10 +110,11 @@ def clean_event(event, sport, checked, digest):
         if type(price) not in (int, float) or not 1 < price <= 10000 or not math.isfinite(price):
             return None
         prices[side] = price
+    query = urlencode({**PARAMS, 'bookmakers': bookmaker})
     return dict(sport_key=sport, event_id=identity, start_utc=event['commence_time'],
-                home=home, away=away, market='h2h', bookmaker='skybet',
+                home=home, away=away, market='h2h', bookmaker=bookmaker,
                 observed_at_utc=observed, checked_at_utc=checked.isoformat().replace('+00:00', 'Z'),
-                source_url=f'{ROOT}/{sport}/odds?{urlencode(PARAMS)}',
+                source_url=f'{ROOT}/{sport}/odds?{query}',
                 receipt_sha256=digest, prices=prices)
 
 

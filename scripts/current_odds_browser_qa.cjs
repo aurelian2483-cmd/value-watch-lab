@@ -172,6 +172,7 @@ async function main(){
       }
       const empty=page.locator('#events .desk-event-card').filter({hasText:'QA Football Unpriced vs QA Football Away'});
       await empty.getByText('No verified prices or model estimates',{exact:true}).waitFor();
+      await empty.getByText('No current bookmaker observation matched this fixture',{exact:true}).waitFor();
       assert.equal(await empty.locator('.selection-price:visible').count(),0);
       const unverified=page.locator('#events .desk-event-card').filter({hasText:'QA Football Unverified vs QA Football Away'});
       await unverified.locator('[data-choice-id=home] .selection-price').filter({hasText:'50.0%'}).waitFor();
@@ -209,8 +210,12 @@ async function main(){
    }
    if(!live&&width===390){
     await page.clock.setFixedTime(new Date(now+31*60000));
-    await page.reload();
+    const footballFixture = [...matched.keys()].find(row=>row.sport==='football');
+    await page.goto(base+'/?'+new URLSearchParams({sport:'football',fsport:'football',fq:footballFixture.name.slice(0,65)}));
     await page.locator('.pro-feature-event').first().waitFor();
+    const expired = page.locator('#events .desk-event-card').filter({has:page.getByRole('heading',{name:footballFixture.name,exact:true})});
+    await expired.getByText('Last bookmaker observation expired',{exact:true}).waitFor();
+    assert.equal(await expired.locator('.live-price-pill').count(),0);
     assert.equal(await page.locator('.pro-featured .pro-fixture-evidence-toggle').filter({hasText:'Sky Bet prices'}).count(),0);
     assert.equal(await page.locator('#pro-featured-rows').getByText('Sky Bet via The Odds API',{exact:true}).count(),0);
    }
