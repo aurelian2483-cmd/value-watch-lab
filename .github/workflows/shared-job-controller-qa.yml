@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'research/shared-job-controller/**'
+      - 'research/optional-pc-worker/**'
       - '.github/workflows/shared-job-controller-qa.yml'
 permissions:
   contents: read
@@ -19,6 +20,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -B -m unittest discover -s research/shared-job-controller -p 'test_*.py' -v
+      - name: Optional PC presence and role isolation
+        run: PYTHONPATH=research/shared-job-controller python -B -m unittest discover -s research/optional-pc-worker -p 'test_*.py' -v
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
