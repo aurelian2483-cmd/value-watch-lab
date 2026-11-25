@@ -4813,3 +4813,35 @@ Limitations — A small invariant-subspace residual alone cannot certify that th
 Mechanism — Block generalization of power iteration: spans are those of A^kQ₀ in exact arithmetic. p=1 is power iteration; full square orthogonal iteration is related to unshifted QR. Restrict to 1<p<n and count only as a variant.
 
 Source — David Bindel (2025), Cornell CS 6210 Matrix Computations, Power method and subspace iteration, 27 October, section Subspaces and orthogonal iteration. https://www.cs.cornell.edu/courses/cs6210/2025fa/lec/2025-10-27.html
+
+## Brent safeguarded scalar root solver (brent-bracketed-root-solver)
+
+> Initialize a=left, b=right, c=a, d=e=b−a. Cache f(a), f(b), f(c). Maintain b,c of opposite signs unless f(b)=0; if |f(c)|<|f(b)|, assign (a,b,c)=(old b,old c,old b) with matching values. Let h=(c−b)/2 and τ=2ε|b|+tol/2. Stop if f(b)=0 or |h|≤τ. If |e|≥τ and |f(a)|>|f(b)|, set s=f(b)/f(a). For a=c set P=2hs, Q=1−s; otherwise set u=f(a)/f(c), v=f(b)/f(c), P=s[2hu(u−v)−(b−a)(v−1)], Q=(u−1)(v−1)(s−1). If P>0 negate Q, then P←|P|. Accept interpolation only when Q≠0, 2P<3hQ−|τQ| and P<|eQ/2|, setting e←d and d←P/Q; otherwise set d=e=h. Set a←b and b←b+d if |d|>τ, else b←b+sign(h)τ. Evaluate f(b); if f(b) and f(c) share a nonzero sign, reset c←a, d=e=b−a. Repeat with bounded evaluations.
+
+a,b bracket endpoints; f scalar continuous function; interpolation history.
+
+General scalar root solving.
+
+Assumptions — Continuous real function on a finite sign-changing interval; check exact endpoint zeros before iteration, positive tol and finite arithmetic; ε is unit roundoff as measured by the cited implementation..
+
+Limitations — A sign change does not identify a unique root; discontinuity breaks the existence argument. A small bracket is a location guarantee, not necessarily a small function residual. Floating-point stagnation requires an explicit termination status..
+
+Mechanism — Uses the ZEROIN form of Brent’s hybrid, with interpolation-history acceptance tests; unlike the existing bisection and secant methods it combines inverse quadratic interpolation and safeguarded fallback. No empirical superiority claimed.
+
+Source — Forsythe, Malcolm and Moler, Netlib FMM ZEROIN routine, adapted from Brent (1973), initialization, interpolation tests and bracket reset (lines 39–117). https://netlib.org/fmm/zeroin.f
+
+## Ridders bracketed scalar root solver (ridder-bracketed-root-solver)
+
+> Start with ordered endpoints a<b of opposite function signs; return any exact endpoint root. Set m=a+(b−a)/2 and return if f(m)=0. Let D=sqrt(f(m)^2−f(a)f(b)); propose x=m+(m−a)sign(f(a))f(m)/D. Evaluate f(x); if zero return x. From a,m,b choose the nearest point y with sign(f(y)) opposite sign(f(x)); replace (a,b) with sorted (x,y). Repeat until bracket width meets tolerance or budget is exhausted.
+
+a,b bracket; m midpoint; x trial point; f continuous scalar function.
+
+General scalar root solving.
+
+Assumptions — Continuous real function, strict initial sign change after endpoint-zero checks, finite function values and positive tolerances. In exact arithmetic D>|f(m)|, so x lies strictly inside the original bracket..
+
+Limitations — Even-multiplicity roots may lack a sign-changing bracket; finite precision may round a trial onto an existing endpoint. No uniform convergence-rate claim..
+
+Mechanism — Exponential correction at a midpoint, rather than polynomial inverse interpolation or unguarded secant updates. Under exact arithmetic with opposite endpoint signs the correction magnitude is less than the half-width. The chosen opposite-sign partner retains a bracket no wider than the original half-width.
+
+Source — Brown University, MATHEMATICA tutorial, Bracketing Methods, section III Ridders’ Method (exponential correction formula); MATLAB tutorial Part III, rebracketing rule. https://www.cfm.brown.edu/people/dobrush/am33/python/p3/bracket.html ; https://www.cfm.brown.edu/people/dobrush/am33/Matlab/ch3/bracket.html

@@ -6943,5 +6943,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Block generalization of power iteration: spans are those of A^kQ₀ in exact arithmetic. p=1 is power iteration; full square orthogonal iteration is related to unshifted QR. Restrict to 1<p<n and count only as a variant."
+  },
+  {
+    "id": "brent-bracketed-root-solver",
+    "source": {
+      "kind": "literature",
+      "citation": "Forsythe, Malcolm and Moler, Netlib FMM ZEROIN routine, adapted from Brent (1973), initialization, interpolation tests and bracket reset (lines 39–117). https://netlib.org/fmm/zeroin.f"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Uses the ZEROIN form of Brent’s hybrid, with interpolation-history acceptance tests; unlike the existing bisection and secant methods it combines inverse quadratic interpolation and safeguarded fallback. No empirical superiority claimed."
+  },
+  {
+    "id": "ridder-bracketed-root-solver",
+    "source": {
+      "kind": "literature",
+      "citation": "Brown University, MATHEMATICA tutorial, Bracketing Methods, section III Ridders’ Method (exponential correction formula); MATLAB tutorial Part III, rebracketing rule. https://www.cfm.brown.edu/people/dobrush/am33/python/p3/bracket.html ; https://www.cfm.brown.edu/people/dobrush/am33/Matlab/ch3/bracket.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Exponential correction at a midpoint, rather than polynomial inverse interpolation or unguarded secant updates. Under exact arithmetic with opposite endpoint signs the correction magnitude is less than the half-width. The chosen opposite-sign partner retains a bracket no wider than the original half-width."
   }
 ]
