@@ -1,0 +1,248 @@
+{
+  "reconciliation": {
+    "atp_matches_2018.csv": {
+      "source_rows": 2897,
+      "accepted": 2542,
+      "excluded_nonstandard_or_incomplete_score": 88,
+      "excluded_event_level": 267
+    },
+    "atp_matches_2019.csv": {
+      "source_rows": 2806,
+      "accepted": 2518,
+      "excluded_nonstandard_or_incomplete_score": 86,
+      "excluded_event_level": 202
+    },
+    "atp_matches_2020.csv": {
+      "source_rows": 1462,
+      "accepted": 1308,
+      "excluded_nonstandard_or_incomplete_score": 30,
+      "excluded_event_level": 124
+    },
+    "atp_matches_2021.csv": {
+      "source_rows": 2733,
+      "accepted": 2489,
+      "excluded_nonstandard_or_incomplete_score": 100,
+      "excluded_event_level": 144
+    },
+    "atp_matches_2022.csv": {
+      "source_rows": 2917,
+      "accepted": 2587,
+      "excluded_nonstandard_or_incomplete_score": 107,
+      "excluded_event_level": 223
+    },
+    "atp_matches_2023.csv": {
+      "source_rows": 2986,
+      "accepted": 2660,
+      "excluded_nonstandard_or_incomplete_score": 91,
+      "excluded_event_level": 235
+    },
+    "atp_matches_2024.csv": {
+      "source_rows": 3076,
+      "accepted": 2623,
+      "excluded_nonstandard_or_incomplete_score": 99,
+      "excluded_event_level": 354
+    }
+  },
+  "development": {
+    "2021": {
+      "n": 2489,
+      "start_weeks": 36,
+      "models": {
+        "global_elo": {
+          "log_loss": 0.6304276150456873,
+          "relative_gain_pct": 0.0,
+          "binary_brier": 0.2209276456814694,
+          "mean_probability_minus_frequency": 0.04034468434712101,
+          "ece": 0.04297432480848179,
+          "adjusted_week_bootstrap_interval_pct": [
+            0.0,
+            0.0
+          ]
+        },
+        "surface_elo": {
+          "log_loss": 0.6454401489669548,
+          "relative_gain_pct": -2.3813255579198334,
+          "binary_brier": 0.22772446547851485,
+          "mean_probability_minus_frequency": 0.04579927222331729,
+          "ece": 0.05345206274726087,
+          "adjusted_week_bootstrap_interval_pct": [
+            -4.8281079244323095,
+            -0.40121059548538546
+          ]
+        },
+        "equal_surface_global": {
+          "log_loss": 0.6333179977055549,
+          "relative_gain_pct": -0.45847970344032873,
+          "binary_brier": 0.22201954779194993,
+          "mean_probability_minus_frequency": 0.04307197828521915,
+          "ece": 0.051906445640653,
+          "adjusted_week_bootstrap_interval_pct": [
+            -1.4970743366466799,
+            0.4725528213779098
+          ]
+        },
+        "surface_experience_pool": {
+          "log_loss": 0.6324474238089145,
+          "relative_gain_pct": -0.32038710155180006,
+          "binary_brier": 0.22169667000188154,
+          "mean_probability_minus_frequency": 0.043140157017312025,
+          "ece": 0.05598083030658411,
+          "adjusted_week_bootstrap_interval_pct": [
+            -1.0635115928905752,
+            0.4713613470674595
+          ]
+        }
+      }
+    },
+    "2022": {
+      "n": 2587,
+      "start_weeks": 36,
+      "models": {
+        "global_elo": {
+          "log_loss": 0.6226152752938066,
+          "relative_gain_pct": 0.0,
+          "binary_brier": 0.21691368728861107,
+          "mean_probability_minus_frequency": 0.019234399397737103,
+          "ece": 0.0212950027339167,
+          "adjusted_week_bootstrap_interval_pct": [
+            0.0,
+            0.0
+          ]
+        },
+        "surface_elo": {
+          "log_loss": 0.6343350326344523,
+          "relative_gain_pct": -1.8823433676784296,
+          "binary_brier": 0.22220732353528386,
+          "mean_probability_minus_frequency": 0.029655298635433314,
+          "ece": 0.03814151678403093,
+          "adjusted_week_bootstrap_interval_pct": [
+            -5.246879427437799,
+            0.543837182943343
+          ]
+        },
+        "equal_surface_global": {
+          "log_loss": 0.623456182840197,
+          "relative_gain_pct": -0.1350605389489834,
+          "binary_brier": 0.21704951199097489,
+          "mean_probability_minus_frequency": 0.02444484901658521,
+          "ece": 0.037542541922198906,
+          "adjusted_week_bootstrap_interval_pct": [
+            -1.6302197385503632,
+            1.0624316810670111
+          ]
+        },
+        "surface_experience_pool": {
+          "log_loss": 0.6211050873277022,
+          "relative_gain_pct": 0.2425555597542428,
+          "binary_brier": 0.2161226538261415,
+          "mean_probability_minus_frequency": 0.025473451464075002,
+          "ece": 0.030087411617903577,
+          "adjusted_week_bootstrap_interval_pct": [
+            -0.7219231388487024,
+            1.2909081661462032
+          ]
+        }
+      }
+    },
+    "2023": {
+      "n": 2660,
+      "start_weeks": 35,
+      "models": {
+        "global_elo": {
+          "log_loss": 0.6371792945527069,
+          "relative_gain_pct": 0.0,
+          "binary_brier": 0.22326524034466433,
+          "mean_probability_minus_frequency": 0.009930158280879554,
+          "ece": 0.027817447629198796,
+          "adjusted_week_bootstrap_interval_pct": [
+            0.0,
+            0.0
+          ]
+        },
+        "surface_elo": {
+          "log_loss": 0.6397640997137964,
+          "relative_gain_pct": -0.405663709286741,
+          "binary_brier": 0.22492855116129673,
+          "mean_probability_minus_frequency": 0.01496204959205275,
+          "ece": 0.019126127652209276,
+          "adjusted_week_bootstrap_interval_pct": [
+            -3.8654348353808934,
+            2.431178841741599
+          ]
+        },
+        "equal_surface_global": {
+          "log_loss": 0.6319188789989969,
+          "relative_gain_pct": 0.8255785457377041,
+          "binary_brier": 0.22124069663448956,
+          "mean_probability_minus_frequency": 0.012446103936466155,
+          "ece": 0.015117997353013965,
+          "adjusted_week_bootstrap_interval_pct": [
+            -0.7343858851457512,
+            2.4172639713324235
+          ]
+        },
+        "surface_experience_pool": {
+          "log_loss": 0.6295734622467113,
+          "relative_gain_pct": 1.1936722318221071,
+          "binary_brier": 0.22031549906010872,
+          "mean_probability_minus_frequency": 0.013698342420953398,
+          "ece": 0.015326288675950317,
+          "adjusted_week_bootstrap_interval_pct": [
+            0.2245606004382857,
+            2.2761518280160478
+          ]
+        }
+      }
+    },
+    "2024": {
+      "n": 2623,
+      "start_weeks": 35,
+      "models": {
+        "global_elo": {
+          "log_loss": 0.6234733348291231,
+          "relative_gain_pct": 0.0,
+          "binary_brier": 0.21799390156420415,
+          "mean_probability_minus_frequency": 0.021719825205946734,
+          "ece": 0.02425431266195182,
+          "adjusted_week_bootstrap_interval_pct": [
+            0.0,
+            0.0
+          ]
+        },
+        "surface_elo": {
+          "log_loss": 0.6342540602808115,
+          "relative_gain_pct": -1.729139780235056,
+          "binary_brier": 0.22265837833346827,
+          "mean_probability_minus_frequency": 0.026920769853316793,
+          "ece": 0.030480376123463694,
+          "adjusted_week_bootstrap_interval_pct": [
+            -4.83635456433376,
+            0.538089840526014
+          ]
+        },
+        "equal_surface_global": {
+          "log_loss": 0.6235903097238246,
+          "relative_gain_pct": -0.01876181196001081,
+          "binary_brier": 0.21772910307037724,
+          "mean_probability_minus_frequency": 0.024320297529631763,
+          "ece": 0.028999991620613355,
+          "adjusted_week_bootstrap_interval_pct": [
+            -1.3695911403101735,
+            1.0467126617663598
+          ]
+        },
+        "surface_experience_pool": {
+          "log_loss": 0.62210732113147,
+          "relative_gain_pct": 0.2190973729497836,
+          "binary_brier": 0.21721110051855053,
+          "mean_probability_minus_frequency": 0.026696151280349266,
+          "ece": 0.027296727317718764,
+          "adjusted_week_bootstrap_interval_pct": [
+            -0.7537214669861371,
+            1.253921114360803
+          ]
+        }
+      }
+    }
+  }
+}
