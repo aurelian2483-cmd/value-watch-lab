@@ -5466,7 +5466,7 @@ Assumptions — Finite scalar coefficients and argument in a commutative field; 
 
 Limitations — Cancellation and overflow can affect floating-point results; not a stable relative-error guarantee near roots.
 
-Mechanism — Induction gives b_j=Σ_(k=j)^d a_k x^(k−j), so b_0=P(x). This one-state monomial recurrence is not barycentric interpolation, a root solver, or a Chebyshev iterative linear-system solver..
+Mechanism — Induction gives b_j=Σ_(k=j)^d a_k x^(k−j), so b_0=P(x). This one-state monomial recurrence is not barycentric interpolation, a root solver, or a Chebyshev iterative linear-system solver.
 
 Source — NIST Digital Library of Mathematical Functions §1.11(i), equations 1.11.1–1.11.4. https://dlmf.nist.gov/1.11.i
 
@@ -5482,7 +5482,7 @@ Assumptions — Finite expansion with full constant coefficient and x in [−1,1
 
 Limitations — Roundoff and cancellation remain possible, especially near endpoints; extrapolation may amplify error.
 
-Mechanism — The DLMF uses half-weighted c_0; set c_0=2a_0 and c_j=a_j for j>0. Substitution into its final (u_0−u_2)/2 gives the stated full-coefficient formula. This two-state recurrence is a generalization of Horner but uses a materially different recurrence for an orthogonal basis; neither Clenshaw–Curtis quadrature nor Chebyshev iteration evaluates this supplied expansion..
+Mechanism — The DLMF uses half-weighted c_0; set c_0=2a_0 and c_j=a_j for j>0. Substitution into its final (u_0−u_2)/2 gives the stated full-coefficient formula. This two-state recurrence is a generalization of Horner but uses a materially different recurrence for an orthogonal basis; neither Clenshaw–Curtis quadrature nor Chebyshev iteration evaluates this supplied expansion.
 
 Source — NIST Digital Library of Mathematical Functions §3.11(ii), equations 3.11.11 and 3.11.15. https://dlmf.nist.gov/3.11.ii
 
@@ -5498,7 +5498,7 @@ Assumptions — Finite scalar Bernstein coefficients and t in [0,1]; exact arith
 
 Limitations — Quadratic arithmetic cost; cancellation may still matter for mixed-sign coefficients; extrapolation loses convex combination property.
 
-Mechanism — Induction using Pascal's identity yields b_i^(r)=Σ_(j=0)^r C(r,j)t^j(1−t)^(r−j)β_(i+j). Each level is a triangular array of convex combinations, distinct from the scalar backward Horner or Clenshaw recurrence..
+Mechanism — Induction using Pascal's identity yields b_i^(r)=Σ_(j=0)^r C(r,j)t^j(1−t)^(r−j)β_(i+j). Each level is a triangular array of convex combinations, distinct from the scalar backward Horner or Clenshaw recurrence.
 
 Source — Eric W. Weisstein, MathWorld, de Casteljau Algorithm, equations (1)–(3). https://mathworld.wolfram.com/deCasteljauAlgorithm.html
 
@@ -5514,6 +5514,6 @@ Assumptions — Finite distinct real nodes, finite ordinates and scalar query; n
 
 Limitations — Same polynomial and possible high-degree oscillation as barycentric interpolation; close nodes can amplify rounding; order affects finite-precision results.
 
-Mechanism — The Newton form is the same unique degree-at-most-d interpolant as the barycentric form, but uses a divided-difference table and nested product basis, allowing incremental addition of a node. Conservatively classified as a computational variant, not a new interpolant or independent algorithm count..
+Mechanism — The Newton form is the same unique degree-at-most-d interpolant as the barycentric form, but uses a divided-difference table and nested product basis, allowing incremental addition of a node. Conservatively classified as a computational variant, not a new interpolant or independent algorithm count.
 
 Source — NIST Digital Library of Mathematical Functions §3.3(iii)–(iv), equations 3.3.34–3.3.38. https://dlmf.nist.gov/3.3
