@@ -5773,3 +5773,35 @@ Limitations — Merge order, large count imbalance, squared differences and fini
 Mechanism — Within each block the deviations about its own mean sum to zero; shifting the block centers adds n_A(m_A−m)²+n_B(m_B−m)²=δ² n_A n_B/n. A singleton B gives the Welford correction. Arbitrary block merging adds parallel aggregation capability, but the shared recentering identity warrants variant classification.
 
 Source — Pébay (2008), SAND2008-6212, p. 8, eqs. (1.3)–(1.4), attributing the block formula to Chan, Golub and LeVeque (1979). DOI 10.2172/1028931. https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf
+
+## Pébay pairwise centered cross moment merge (pebay-pairwise-central-cross-moment)
+
+> For disjoint nonempty paired blocks G=A,B, C_G=Σ_(i∈G)(x_i−m_(x,G))(y_i−m_(y,G)); n=n_A+n_B, δ_x=m_(x,B)−m_(x,A), δ_y=m_(y,B)−m_(y,A); C=C_A+C_B+δ_xδ_y n_A n_B/n
+
+C_G unnormalized centered cross moment; m_(x,G),m_(y,G) block coordinate means; n_G positive counts; C merged cross moment.
+
+General numerical covariance summary; no empirical benefit claimed.
+
+Assumptions — Disjoint observation identities with aligned finite real pairs, consistent block summaries, common coordinate units, exact counts and representable intermediates; identity in real arithmetic.
+
+Limitations — Products and mean differences may overflow or underflow or suffer cancellation; merge order matters in floating point; covariance does not establish independence or causation.
+
+Mechanism — Expanding each centered product about the combined means eliminates both first-order terms because within-block deviations sum to zero. Setting y=x recovers Chan's second-moment merge. This is its bivariate extension rather than a new distinct algorithm.
+
+Source — Pébay (2008), Formulas for Robust, One-Pass Parallel Computation of Covariances and Arbitrary-Order Statistical Moments, SAND2008-6212, pp. 12–13, Proposition 3.1, eqs. (3.1)–(3.11). DOI 10.2172/1028931. https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf
+
+## Pébay arbitrary-order central moment merge (pebay-arbitrary-order-central-moment-merge)
+
+> For integer p≥3 and disjoint nonempty blocks G=A,B, n=n_A+n_B, m=m_A+(m_B−m_A)n_B/n, M_(j,G)=Σ_(i∈G)(x_i−m_G)^j for j≥2; M_p=Σ_(j=0)^p binom(p,j)[M_(j,A)(m_A−m)^(p−j)+M_(j,B)(m_B−m)^(p−j)], with M_(0,G)=n_G, M_(1,G)=0 and exponent-zero factors equal to 1
+
+p integer moment order; M_(j,G) unnormalized block central moment; m_G block mean; n_G positive count; m and M_p merged mean and moment.
+
+General numerical higher-moment summary; no empirical benefit claimed.
+
+Assumptions — Finite real observations, disjoint observation identities, consistent lower-order moment states, exact counts, and representable intermediate terms; identity in real arithmetic.
+
+Limitations — Large powers and binomial coefficients may overflow or underflow; cancellation and merge order affect floating-point accuracy; high-order moments are sensitive to outliers and are not inherently robust.
+
+Mechanism — Apply the binomial theorem to x_i−m=(x_i−m_G)+(m_G−m) and sum separately over the blocks. Re-indexing the exponent gives the stated form of (2.6); the first centered moment vanishes. At p=2 this reduces to Chan's merge, so arbitrary higher orders are a single variant, not separate entries per order.
+
+Source — Pébay (2008), Formulas for Robust, One-Pass Parallel Computation of Covariances and Arbitrary-Order Statistical Moments, SAND2008-6212, p. 10, Proposition 2.1, particularly eq. (2.6). DOI 10.2172/1028931. https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf

@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "057",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "jain-chlamtac-p2-quantile",
+    "name": "P² streaming quantile marker estimator",
+    "definition": "For internal marker i with integer rank n_i and movement d=±1, q'_i=q_i+d/(n_(i+1)−n_(i−1))[(n_i−n_(i−1)+d)(q_(i+1)−q_i)/(n_(i+1)−n_i)+(n_(i+1)−n_i−d)(q_i−q_(i−1))/(n_i−n_(i−1))]",
+    "variables": "q marker heights; n marker ranks; d signed one-step adjustment",
+    "assumptions": "Finite ordered scalar observations, 0<p<1; initialization and update details pending review",
+    "limitations": "Heuristic approximation, order sensitivity; review pending",
+    "failure_conditions": [
+      "Invalid marker positions or nonfinite observations"
+    ],
+    "computation": "Maintain five markers, adjust desired and actual ranks and use bounded parabolic or linear updates; verify initialization, update pseudocode and tie handling before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Jain and Chlamtac (1985), Communications of the ACM, 28(10), 1076–1085. https://www.cse.wustl.edu/~jain/papers/ftp/psqr.pdf; admission review pending."
+    },
+    "application": "General streaming descriptive quantile estimation; no empirical benefit claimed.",
+    "required_inputs": "A fixed interior quantile and scalar stream.",
+    "compatible_methods": [
+      "welford-online-central-second-moment"
+    ],
+    "incompatible_methods": [
+      "Treating the heuristic as a deterministic rank-error guarantee"
+    ],
+    "relationships": [
+      {
+        "target": "welford-online-central-second-moment",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional fixed-memory marker adjustment, unlike moment aggregation; independent review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "057",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "greenwald-khanna-quantile-summary",
+    "name": "Greenwald–Khanna deterministic quantile summary",
+    "definition": "Maintain ordered tuples (v_i,g_i,Δ_i) bounding ranks by r_min(v_i)=Σ_(j≤i)g_j and r_max(v_i)=r_min(v_i)+Δ_i; target rank error ≤εN",
+    "variables": "v retained values; g rank increments; Δ rank slack; ε error parameter; N stream length",
+    "assumptions": "Totally ordered input and fixed error tolerance; exact invariant and boundary conventions pending review",
+    "limitations": "Rank error does not imply value error; space and update rules pending review",
+    "failure_conditions": [
+      "Violation of rank invariants or invalid error parameter"
+    ],
+    "computation": "Insert tuples and compress admissible adjacent groups; verify complete algorithm, integer thresholds and query rule from original paper before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Greenwald and Khanna (2001), SIGMOD, 58–66, DOI 10.1145/375663.375670; admission review pending."
+    },
+    "application": "General approximate rank summaries of streams; no empirical benefit claimed.",
+    "required_inputs": "Ordered stream and fixed rank-error tolerance.",
+    "compatible_methods": [
+      "welford-online-central-second-moment"
+    ],
+    "incompatible_methods": [
+      "Treating rank error as numerical value error"
+    ],
+    "relationships": [
+      {
+        "target": "welford-online-central-second-moment",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional deterministic rank-bound summary, not the P² marker heuristic; independent review pending."
+  }
+]
