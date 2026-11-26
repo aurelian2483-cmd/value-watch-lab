@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "reviewed_at_utc": "2026-11-26T23:08:58Z",
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "window": "W1",
+  "freeze_commit": "63ccd51d3f8869d127462cff4907c686d5ad0a0a",
+  "coverage_scope": "Pinned snapshot only. Denominator unavailable for unsupported lanes. Scheduled and unresolved fixtures remain in frozen coverage.",
+  "observations": {
+    "2550642": {
+      "state": "missing_verified_final",
+      "reason": "LNR and Rugbyrama confirmed the scheduled fixture. No matching regulation-time final was found.",
+      "sources": [
+        "https://prod2.lnr.fr/feuille-de-match/2026-2027/j12/12098-brive-biarritz",
+        "https://www.rugbyrama.fr/resultats/rugby/pro-d2/phase-reguliere/rencontre/61019/brive-biarritz/direct"
+      ]
+    },
+    "nfl-401873079": {
+      "state": "verified_final",
+      "outcome": "14",
+      "score_in_fixture_order": [
+        26,
+        13
+      ],
+      "sources": [
+        "https://www.packers.com/news/in-game-updates-week-12-rams-2026",
+        "https://www.cbssports.com/nfl/gametracker/recap/NFL_20261125_GB%40LAR/"
+      ],
+      "scores": {
+        "baseline": {
+          "pick": "14",
+          "correct": 1,
+          "fractional_credit": 0.5,
+          "confidence": 0.497196261682243,
+          "tie": true,
+          "brier": 0.5000471656913268,
+          "log_loss": 0.6987704381143074
+        },
+        "challenger": {
+          "pick": "14",
+          "correct": 1,
+          "fractional_credit": 1,
+          "confidence": 0.5417917515106679,
+          "tie": false,
+          "brier": 0.4148337014605512,
+          "log_loss": 0.612873573679834
+        }
+      }
+    },
+    "nfl-401873081": {
+      "state": "verified_final",
+      "outcome": "3",
+      "score_in_fixture_order": [
+        35,
+        39
+      ],
+      "sources": [
+        "https://www.detroitlions.com/news/recap-lions-vs-bears-gibbs-goff-moore",
+        "https://www.reuters.com/sports/nfl/bears-rally-take-down-lions-control-nfc-north--flm-2026-11-26/"
+      ],
+      "scores": {
+        "baseline": {
+          "pick": "8",
+          "correct": 0,
+          "fractional_credit": 0.5,
+          "confidence": 0.497196261682243,
+          "tie": true,
+          "brier": 0.5000471656913268,
+          "log_loss": 0.6987704381143074
+        },
+        "challenger": {
+          "pick": "3",
+          "correct": 1,
+          "fractional_credit": 1,
+          "confidence": 0.5411772678217985,
+          "tie": false,
+          "brier": 0.41595381121431096,
+          "log_loss": 0.614008386853331
+        }
+      }
+    },
+    "nfl-401873080": {
+      "state": "in_progress_observed",
+      "reason": "NFL game centre showed Q2. No independently corroborated final.",
+      "sources": [
+        "https://www.nfl.com/games/eagles-at-cowboys-2026-reg-12"
+      ]
+    },
+    "wta-186836": {
+      "state": "conflicting_result_reports",
+      "reason": "Publishers agree on Maristany as winner but report different third-set scores (6–0 versus 6–1); official result and independent upstream provenance not established.",
+      "sources": [
+        "https://tennisbrief.com/match-briefs/guiomar-maristany-zuleta-de-reales-vs-nuria-brancaccio-buenos-aires-2026-11-26",
+        "https://beyond100tennis.com/m/225055",
+        "https://www.wtatennis.com/tournaments/2052/buenos-aires/2026/scores"
+      ]
+    },
+    "wta-186834": {
+      "state": "missing_verified_final",
+      "reason": "Live snapshot reached set three. No two-source final found.",
+      "sources": [
+        "https://www.tennislive.co.uk/wta/match/sofia-costoulas-VS-varvara-lepchenko/argentina-open-buenos-aires-2026/",
+        "https://www.wtatennis.com/tournaments/2052/buenos-aires/2026/scores"
+      ]
+    },
+    "wta-186833": {
+      "state": "missing_verified_final",
+      "reason": "Sources confirmed the fixture. The second source listed a different start time, and no independently matched final was found.",
+      "sources": [
+        "https://stadiro.com/matches/wta-125-buenos-aires/2026-11-26/irene-burillo-escorihuela-v-laura-samson/",
+        "https://www.sofascore.com/tennis/match/laura-samson-irene-burillo/IzOsNDQd"
+      ]
+    },
+    "wta-186835": {
+      "state": "missing_verified_final",
+      "reason": "Sources listed the fixture without independently matching a final.",
+      "sources": [
+        "https://www.tennis.com/tournaments/ieb-argentina-open/matches/m-carle-vs-n-podoroska-2026-11-26",
+        "https://www.wtatennis.com/tournaments/2052/buenos-aires/2026/scores"
+      ]
+    }
+  },
+  "summaries": {
+    "football": {
+      "frozen": 19,
+      "observed_eligible_scope_denominator": 19,
+      "selected_over_observed": 1,
+      "verified_over_frozen": 0,
+      "counts": {
+        "verified_final": 0,
+        "in_progress_observed": 0,
+        "missing_verified_final": 0,
+        "conflicting_result_reports": 0,
+        "scheduled_after_review": 19
+      },
+      "measures": null
+    },
+    "tennis": {
+      "frozen": 4,
+      "observed_eligible_scope_denominator": 4,
+      "selected_over_observed": 1,
+      "verified_over_frozen": 0,
+      "counts": {
+        "verified_final": 0,
+        "in_progress_observed": 0,
+        "missing_verified_final": 3,
+        "conflicting_result_reports": 1,
+        "scheduled_after_review": 0
+      },
+      "measures": null
+    },
+    "nfl": {
+      "frozen": 16,
+      "observed_eligible_scope_denominator": 16,
+      "selected_over_observed": 1,
+      "verified_over_frozen": 0.125,
+      "counts": {
+        "verified_final": 2,
+        "in_progress_observed": 1,
+        "missing_verified_final": 0,
+        "conflicting_result_reports": 0,
+        "scheduled_after_review": 13
+      },
+      "measures": {
+        "paired": {
+          "both": 1,
+          "neither": 0,
+          "baseline_only": 0,
+          "challenger_only": 1
+        },
+        "confidence_interval": null,
+        "interval_reason": "One verified UTC event date in this sport. No date-level uncertainty estimate.",
+        "baseline": {
+          "wins": 1,
+          "losses": 1,
+          "ties": 2,
+          "fractional_wins": 1,
+          "mean_brier": 0.5000471656913268,
+          "mean_log_loss": 0.6987704381143074,
+          "calibration": [
+            {
+              "lower": 0.4,
+              "upper": 0.5,
+              "n": 2,
+              "mean_confidence": 0.497196261682243,
+              "observed_accuracy": 0.5
+            }
+          ]
+        },
+        "challenger": {
+          "wins": 2,
+          "losses": 0,
+          "ties": 0,
+          "fractional_wins": 2,
+          "mean_brier": 0.4153937563374311,
+          "mean_log_loss": 0.6134409802665826,
+          "calibration": [
+            {
+              "lower": 0.5,
+              "upper": 0.6,
+              "n": 2,
+              "mean_confidence": 0.5414845096662333,
+              "observed_accuracy": 1
+            }
+          ]
+        },
+        "brier_delta": -0.0846534093538957,
+        "log_loss_delta": -0.08532945784772483
+      }
+    },
+    "rugby": {
+      "frozen": 4,
+      "observed_eligible_scope_denominator": 10,
+      "selected_over_observed": 0.4,
+      "verified_over_frozen": 0,
+      "counts": {
+        "verified_final": 0,
+        "in_progress_observed": 0,
+        "missing_verified_final": 1,
+        "conflicting_result_reports": 0,
+        "scheduled_after_review": 3
+      },
+      "measures": null
+    },
+    "darts": {
+      "frozen": 2,
+      "observed_eligible_scope_denominator": 8,
+      "selected_over_observed": 0.25,
+      "verified_over_frozen": 0,
+      "counts": {
+        "verified_final": 0,
+        "in_progress_observed": 0,
+        "missing_verified_final": 0,
+        "conflicting_result_reports": 0,
+        "scheduled_after_review": 2
+      },
+      "measures": null
+    },
+    "horse_racing": {
+      "frozen": 0,
+      "observed_eligible_scope_denominator": null,
+      "selected_over_observed": null,
+      "verified_over_frozen": null,
+      "counts": {
+        "verified_final": 0,
+        "in_progress_observed": 0,
+        "missing_verified_final": 0,
+        "conflicting_result_reports": 0,
+        "scheduled_after_review": 0
+      },
+      "measures": null
+    },
+    "basketball": {
+      "frozen": 0,
+      "observed_eligible_scope_denominator": null,
+      "selected_over_observed": null,
+      "verified_over_frozen": null,
+      "counts": {
+        "verified_final": 0,
+        "in_progress_observed": 0,
+        "missing_verified_final": 0,
+        "conflicting_result_reports": 0,
+        "scheduled_after_review": 0
+      },
+      "measures": null
+    },
+    "cricket": {
+      "frozen": 0,
+      "observed_eligible_scope_denominator": null,
+      "selected_over_observed": null,
+      "verified_over_frozen": null,
+      "counts": {
+        "verified_final": 0,
+        "in_progress_observed": 0,
+        "missing_verified_final": 0,
+        "conflicting_result_reports": 0,
+        "scheduled_after_review": 0
+      },
+      "measures": null
+    },
+    "golf": {
+      "frozen": 0,
+      "observed_eligible_scope_denominator": null,
+      "selected_over_observed": null,
+      "verified_over_frozen": null,
+      "counts": {
+        "verified_final": 0,
+        "in_progress_observed": 0,
+        "missing_verified_final": 0,
+        "conflicting_result_reports": 0,
+        "scheduled_after_review": 0
+      },
+      "measures": null
+    }
+  },
+  "independent_improvement_confirmed": false
+}
