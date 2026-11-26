@@ -5805,3 +5805,35 @@ Limitations — Large powers and binomial coefficients may overflow or underflow
 Mechanism — Apply the binomial theorem to x_i−m=(x_i−m_G)+(m_G−m) and sum separately over the blocks. Re-indexing the exponent gives the stated form of (2.6); the first centered moment vanishes. At p=2 this reduces to Chan's merge, so arbitrary higher orders are a single variant, not separate entries per order.
 
 Source — Pébay (2008), Formulas for Robust, One-Pass Parallel Computation of Covariances and Arbitrary-Order Statistical Moments, SAND2008-6212, p. 10, Proposition 2.1, particularly eq. (2.6). DOI 10.2172/1028931. https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf
+
+## P² streaming quantile marker estimator (jain-chlamtac-p2-quantile)
+
+> For internal marker i with integer rank n_i and movement d=±1, q'_i=q_i+d/(n_(i+1)−n_(i−1))[(n_i−n_(i−1)+d)(q_(i+1)−q_i)/(n_(i+1)−n_i)+(n_(i+1)−n_i−d)(q_i−q_(i−1))/(n_i−n_(i−1))]
+
+q marker heights; n marker positions; d signed one-step adjustment; N observation count; p requested quantile.
+
+General streaming descriptive quantile estimation; no empirical benefit claimed.
+
+Assumptions — Finite scalar stream with defined total order, 0<p<1, at least five observations before reporting, strictly increasing integer marker positions, nondecreasing heights and representable intermediates.
+
+Limitations — Fixed-size heuristic, arrival-order sensitive, especially at small sample sizes or extreme quantiles; no uniform deterministic rank-error guarantee; rounded interpolation can lose accuracy.
+
+Mechanism — Five movable quantile markers approximate a single fixed interior quantile via local quadratic interpolation and a monotonicity fallback. Unlike Welford and empirical CDF construction, it maintains estimated rank locations rather than exact moments or a full empirical distribution. Box 1's prose specifies increments from k+1; use that rather than the inconsistent printed loop lower index.
+
+Source — Jain and Chlamtac (1985), The P² Algorithm for Dynamic Calculation of Quantiles and Histograms Without Storing Observations, Communications of the ACM 28(10), 1076–1085, pp. 1078–1079 and Box 1. https://www.cse.wustl.edu/~jain/papers/ftp/psqr.pdf
+
+## Greenwald–Khanna deterministic quantile summary (greenwald-khanna-quantile-summary)
+
+> Maintain ordered tuples (v_i,g_i,Δ_i), r_min(v_i)=Σ_(j≤i)g_j, r_max(v_i)=r_min(v_i)+Δ_i; Σ_i g_i=N; after exact startup enforce max_i(g_i+Δ_i)≤⌊2εN⌋; for r=⌈φN⌉ return a retained v_i with r−εN≤r_min(v_i)≤r_max(v_i)≤r+εN
+
+v retained ordered observations; g positive rank increments; Δ nonnegative integer rank slack; ε rank tolerance; N count; φ query fraction; r target integer rank.
+
+General approximate rank summaries of streams; no empirical benefit claimed.
+
+Assumptions — Fixed 0<ε<1/2, totally ordered finite observations, exact integer rank arithmetic; ties consistently ordered by arrival identity; exact startup while floor(2εN)<1; 0<φ≤1 and N>0.
+
+Limitations — Rank error does not bound value error; no fixed-size bound independent of stream length; original paper's asymptotic space theorem depends on its band compression algorithm, not arbitrary greedy variants; no merge or deletion guarantee asserted.
+
+Mechanism — The rank interval of an inserted interior tuple lies between the predecessor lower rank plus one and the old successor upper rank. Moving a deleted tuple's g into its successor leaves all surviving rank bounds unchanged. Proposition 1 yields the query error from the maximum tuple width; exact startup avoids an impossible fractional bound for unit increments. This deterministic rank-bound mechanism differs from P²'s heuristic interpolation.
+
+Source — Greenwald and Khanna (2001), Space-Efficient Online Computation of Quantile Summaries, SIGMOD, 58–66, Proposition 1, Corollary 1, sections 2.1–2.2 and Figures 2–3. DOI 10.1145/375663.375670. https://cs.emory.edu/~cheung/Courses/584/Syllabus/papers/Quantiles/2001-Greenwald-Quantile-paper.pdf

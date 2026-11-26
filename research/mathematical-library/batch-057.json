@@ -1,0 +1,109 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "057",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "jain-chlamtac-p2-quantile",
+    "name": "P² streaming quantile marker estimator",
+    "definition": "For internal marker i with integer rank n_i and movement d=±1, q'_i=q_i+d/(n_(i+1)−n_(i−1))[(n_i−n_(i−1)+d)(q_(i+1)−q_i)/(n_(i+1)−n_i)+(n_(i+1)−n_i−d)(q_i−q_(i−1))/(n_i−n_(i−1))]",
+    "variables": "q marker heights; n marker positions; d signed one-step adjustment; N observation count; p requested quantile",
+    "assumptions": "Finite scalar stream with defined total order, 0<p<1, at least five observations before reporting, strictly increasing integer marker positions, nondecreasing heights and representable intermediates",
+    "limitations": "Fixed-size heuristic, arrival-order sensitive, especially at small sample sizes or extreme quantiles; no uniform deterministic rank-error guarantee; rounded interpolation can lose accuracy",
+    "failure_conditions": [
+      "Invalid marker gaps, nonfinite observations or intermediates, count overflow",
+      "Reporting a five-marker estimate before initialization"
+    ],
+    "computation": "Sort the first five observations into q_1 through q_5, set n_i=i. Set desired positions to 1+(N−1)u_i with u=(0,p/2,p,(1+p)/2,1). For each new x choose cell k by q_k≤x<q_(k+1), treating the upper endpoint as cell 4 and replacing an exceeded extreme. Increment n_(k+1) through n_5 and N. In order i=2,3,4, move by d=sign(desired_i−n_i) only if the discrepancy is at least one and the neighbor in that direction is more than one rank away. Accept the parabolic estimate only strictly between neighboring heights; otherwise use q_i+d(q_(i+d)−q_i)/(n_(i+d)−n_i). Update n_i by d and return q_3. Ties follow the half-open cell rule.",
+    "source": {
+      "kind": "literature",
+      "citation": "Jain and Chlamtac (1985), The P² Algorithm for Dynamic Calculation of Quantiles and Histograms Without Storing Observations, Communications of the ACM 28(10), 1076–1085, pp. 1078–1079 and Box 1. https://www.cse.wustl.edu/~jain/papers/ftp/psqr.pdf",
+      "url": "https://www.cse.wustl.edu/~jain/papers/ftp/psqr.pdf"
+    },
+    "application": "General streaming descriptive quantile estimation; no empirical benefit claimed.",
+    "required_inputs": "A fixed interior quantile and scalar stream.",
+    "compatible_methods": [
+      "welford-online-central-second-moment"
+    ],
+    "incompatible_methods": [
+      "Treating the heuristic as a deterministic rank-error guarantee"
+    ],
+    "relationships": [
+      {
+        "target": "welford-online-central-second-moment",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Five movable quantile markers approximate a single fixed interior quantile via local quadratic interpolation and a monotonicity fallback. Unlike Welford and empirical CDF construction, it maintains estimated rank locations rather than exact moments or a full empirical distribution. Box 1's prose specifies increments from k+1; use that rather than the inconsistent printed loop lower index."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "057",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "greenwald-khanna-quantile-summary",
+    "name": "Greenwald–Khanna deterministic quantile summary",
+    "definition": "Maintain ordered tuples (v_i,g_i,Δ_i), r_min(v_i)=Σ_(j≤i)g_j, r_max(v_i)=r_min(v_i)+Δ_i; Σ_i g_i=N; after exact startup enforce max_i(g_i+Δ_i)≤⌊2εN⌋; for r=⌈φN⌉ return a retained v_i with r−εN≤r_min(v_i)≤r_max(v_i)≤r+εN",
+    "variables": "v retained ordered observations; g positive rank increments; Δ nonnegative integer rank slack; ε rank tolerance; N count; φ query fraction; r target integer rank",
+    "assumptions": "Fixed 0<ε<1/2, totally ordered finite observations, exact integer rank arithmetic; ties consistently ordered by arrival identity; exact startup while floor(2εN)<1; 0<φ≤1 and N>0",
+    "limitations": "Rank error does not bound value error; no fixed-size bound independent of stream length; original paper's asymptotic space theorem depends on its band compression algorithm, not arbitrary greedy variants; no merge or deletion guarantee asserted",
+    "failure_conditions": [
+      "Inconsistent rank bounds, missing extrema, invalid tolerance, nonfinite values or integer overflow",
+      "No tuple satisfying query bounds after nonexact startup"
+    ],
+    "computation": "Start empty. Insert each observation in sorted order with g=1 and Δ=0 at the extrema; inside the summary use Δ=g_successor+Δ_successor−1, which bounds the possible rank interval from the adjacent retained ranks. During exact startup keep every tuple. After insertion update N, retain both extrema, and compress right-to-left by merging a contiguous block into its right neighbor only when its summed g plus neighbor g and Δ does not exceed floor(2εN). For the original banded strategy use the capacity bands and descendant-block eligibility in sections 2.1–2.2, Figure 2, with the stricter published capacity inequality. Query exact startup directly, otherwise scan cumulative ranks for a tuple satisfying both query inequalities. This conservative successor-bound specification establishes rank accuracy; no original asymptotic space bound is asserted for its modified insertion or compression schedule.",
+    "source": {
+      "kind": "literature",
+      "citation": "Greenwald and Khanna (2001), Space-Efficient Online Computation of Quantile Summaries, SIGMOD, 58–66, Proposition 1, Corollary 1, sections 2.1–2.2 and Figures 2–3. DOI 10.1145/375663.375670. https://cs.emory.edu/~cheung/Courses/584/Syllabus/papers/Quantiles/2001-Greenwald-Quantile-paper.pdf",
+      "url": "https://cs.emory.edu/~cheung/Courses/584/Syllabus/papers/Quantiles/2001-Greenwald-Quantile-paper.pdf"
+    },
+    "application": "General approximate rank summaries of streams; no empirical benefit claimed.",
+    "required_inputs": "Ordered stream and fixed rank-error tolerance.",
+    "compatible_methods": [
+      "welford-online-central-second-moment",
+      "jain-chlamtac-p2-quantile"
+    ],
+    "incompatible_methods": [
+      "Treating rank error as numerical value error"
+    ],
+    "relationships": [
+      {
+        "target": "welford-online-central-second-moment",
+        "type": "related"
+      },
+      {
+        "target": "jain-chlamtac-p2-quantile",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "The rank interval of an inserted interior tuple lies between the predecessor lower rank plus one and the old successor upper rank. Moving a deleted tuple's g into its successor leaves all surviving rank bounds unchanged. Proposition 1 yields the query error from the maximum tuple width; exact startup avoids an impossible fractional bound for unit increments. This deterministic rank-bound mechanism differs from P²'s heuristic interpolation."
+  }
+]

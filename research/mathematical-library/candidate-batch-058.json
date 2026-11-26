@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "058",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "vitter-reservoir-algorithm-r",
+    "name": "Uniform reservoir sampling Algorithm R",
+    "definition": "For t>k choose J uniformly from {1,…,t}; if J≤k replace reservoir slot J; P(item i retained after t)=k/t",
+    "variables": "t stream count; k reservoir size; J uniform integer",
+    "assumptions": "Fixed positive reservoir size, distinct observation identities, unbiased random draws; full review pending",
+    "limitations": "Random sampling variation and no temporal stratification; review pending",
+    "failure_conditions": [
+      "Invalid size, biased random generator or count overflow"
+    ],
+    "computation": "Fill k slots, then update using the stated random replacement; verify uniform subset proof and startup before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Vitter (1985), Random sampling with a reservoir, ACM TOMS 11(1), 37–57. https://doi.org/10.1145/3147.3165; full review pending."
+    },
+    "application": "General uniform sampling of a finite stream; no empirical benefit claimed.",
+    "required_inputs": "Stream and sample capacity.",
+    "compatible_methods": [
+      "monte-carlo"
+    ],
+    "incompatible_methods": [
+      "Treating samples as independent draws with replacement"
+    ],
+    "relationships": [
+      {
+        "target": "monte-carlo",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional uniform sampling without replacement from unknown-length stream; distinct from rank summaries."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "058",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "boyer-moore-majority-vote",
+    "name": "Boyer–Moore majority cancellation",
+    "definition": "If c=0 set m=x,c=1; otherwise c←c+1 if x=m and c←c−1 otherwise; verify count(m)>N/2",
+    "variables": "m candidate; c residual count; N total count",
+    "assumptions": "Equality comparable observations; replay or guaranteed strict majority; full review pending",
+    "limitations": "Candidate is not necessarily a majority without verification; not a mode estimator; review pending",
+    "failure_conditions": [
+      "No replay and no majority guarantee, invalid equality semantics"
+    ],
+    "computation": "Cancel unequal pairs during a single pass; verify candidate in a second pass unless strict majority is guaranteed. Review original proof before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Boyer and Moore (1991), MJRTY: A Fast Majority Vote Algorithm, pp. 105–117, DOI 10.1007/978-94-011-3488-0_5; full review pending."
+    },
+    "application": "General categorical stream majority detection; no empirical benefit claimed.",
+    "required_inputs": "Equality-comparable stream and replay for verification.",
+    "compatible_methods": [
+      "ecdf"
+    ],
+    "incompatible_methods": [
+      "Reporting an unverified candidate as a strict majority"
+    ],
+    "relationships": [
+      {
+        "target": "ecdf",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional cancellation-based majority candidate; distinct from numeric quantile summaries."
+  }
+]

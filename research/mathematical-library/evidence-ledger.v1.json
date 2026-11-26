@@ -8339,5 +8339,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Apply the binomial theorem to x_i−m=(x_i−m_G)+(m_G−m) and sum separately over the blocks. Re-indexing the exponent gives the stated form of (2.6); the first centered moment vanishes. At p=2 this reduces to Chan's merge, so arbitrary higher orders are a single variant, not separate entries per order."
+  },
+  {
+    "id": "jain-chlamtac-p2-quantile",
+    "source": {
+      "kind": "literature",
+      "citation": "Jain and Chlamtac (1985), The P² Algorithm for Dynamic Calculation of Quantiles and Histograms Without Storing Observations, Communications of the ACM 28(10), 1076–1085, pp. 1078–1079 and Box 1. https://www.cse.wustl.edu/~jain/papers/ftp/psqr.pdf",
+      "url": "https://www.cse.wustl.edu/~jain/papers/ftp/psqr.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Five movable quantile markers approximate a single fixed interior quantile via local quadratic interpolation and a monotonicity fallback. Unlike Welford and empirical CDF construction, it maintains estimated rank locations rather than exact moments or a full empirical distribution. Box 1's prose specifies increments from k+1; use that rather than the inconsistent printed loop lower index."
+  },
+  {
+    "id": "greenwald-khanna-quantile-summary",
+    "source": {
+      "kind": "literature",
+      "citation": "Greenwald and Khanna (2001), Space-Efficient Online Computation of Quantile Summaries, SIGMOD, 58–66, Proposition 1, Corollary 1, sections 2.1–2.2 and Figures 2–3. DOI 10.1145/375663.375670. https://cs.emory.edu/~cheung/Courses/584/Syllabus/papers/Quantiles/2001-Greenwald-Quantile-paper.pdf",
+      "url": "https://cs.emory.edu/~cheung/Courses/584/Syllabus/papers/Quantiles/2001-Greenwald-Quantile-paper.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The rank interval of an inserted interior tuple lies between the predecessor lower rank plus one and the old successor upper rank. Moving a deleted tuple's g into its successor leaves all surviving rank bounds unchanged. Proposition 1 yields the query error from the maximum tuple width; exact startup avoids an impossible fractional bound for unit increments. This deterministic rank-bound mechanism differs from P²'s heuristic interpolation."
   }
 ]
