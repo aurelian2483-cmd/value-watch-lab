@@ -5837,3 +5837,35 @@ Limitations — Rank error does not bound value error; no fixed-size bound indep
 Mechanism — The rank interval of an inserted interior tuple lies between the predecessor lower rank plus one and the old successor upper rank. Moving a deleted tuple's g into its successor leaves all surviving rank bounds unchanged. Proposition 1 yields the query error from the maximum tuple width; exact startup avoids an impossible fractional bound for unit increments. This deterministic rank-bound mechanism differs from P²'s heuristic interpolation.
 
 Source — Greenwald and Khanna (2001), Space-Efficient Online Computation of Quantile Summaries, SIGMOD, 58–66, Proposition 1, Corollary 1, sections 2.1–2.2 and Figures 2–3. DOI 10.1145/375663.375670. https://cs.emory.edu/~cheung/Courses/584/Syllabus/papers/Quantiles/2001-Greenwald-Quantile-paper.pdf
+
+## Uniform reservoir sampling Algorithm R (vitter-reservoir-algorithm-r)
+
+> For t>k choose J uniformly from {1,…,t}; if J≤k replace slot J; P(R_t=S)=1/C(t,k) for every k-subset S of the first t observation identities
+
+t stream count; k reservoir capacity; J unbiased integer draw; R_t retained identity set; C(t,k) binomial coefficient.
+
+General uniform sampling of a finite stream; no empirical benefit claimed.
+
+Assumptions — Fixed positive integer capacity, finite stream independent of sampling draws, conditionally uniform independent integer draws, exact counters and distinct observation identities even when values repeat.
+
+Limitations — O(N) sequential processing and O(k) stored records; samples are dependent without replacement, order of slots is not a random permutation guarantee, no stratification or temporal weighting.
+
+Mechanism — For a subset S not containing t, the preceding subset must equal S and survive with probability (t−k)/t. If S contains t, there are t−k possible preceding subsets, each with a unique replacement of probability 1/t. Both cases yield 1/C(t,k) by induction from t=k. Distinct from simulation by repeated independent draws and from quantile summaries. Short streams retain every observed identity.
+
+Source — Vitter (1985), Random Sampling with a Reservoir, ACM TOMS 11(1), 37–57, section 2, pp. 39–40; Algorithm R attributed there to Alan Waterman. DOI 10.1145/3147.3165. https://www.cs.umd.edu/~samir/498/vitter.pdf
+
+## Boyer–Moore majority cancellation (boyer-moore-majority-vote)
+
+> Start c=0; if c=0 set (m,c)=(x,1), else c←c+1 for x=m and c←c−1 otherwise; a strict majority satisfies count(m)>N/2
+
+m current candidate; c uncancelled count; N total observations; x current observation.
+
+General categorical stream majority detection; no empirical benefit claimed.
+
+Assumptions — Finite replayable categorical stream or an externally guaranteed strict majority; stable equivalence relation for equality; exact integer counters.
+
+Limitations — O(N) comparisons, O(1) candidate and counters; residual count is not frequency, mode is not necessarily a strict majority, a nonzero residual alone does not establish majority.
+
+Mechanism — Each processed prefix partitions into c identical uncancelled observations and unequal pairs. Removing a pair cannot eliminate a strict majority, so a true majority must survive; c=0 rules one out. A nonmajority can survive (A,B,C leaves C), making verification essential unless the residual itself certifies it. Distinct from a full histogram or empirical distribution.
+
+Source — Boyer and Moore (1991), MJRTY: A Fast Majority Vote Algorithm, in Automated Reasoning, pp. 105–117, sections 5.2–5.4 and Figure 5.1. https://www.cs.utexas.edu/~boyer/mjrty.pdf

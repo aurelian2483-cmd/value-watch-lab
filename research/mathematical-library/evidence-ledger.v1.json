@@ -8385,5 +8385,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "The rank interval of an inserted interior tuple lies between the predecessor lower rank plus one and the old successor upper rank. Moving a deleted tuple's g into its successor leaves all surviving rank bounds unchanged. Proposition 1 yields the query error from the maximum tuple width; exact startup avoids an impossible fractional bound for unit increments. This deterministic rank-bound mechanism differs from P²'s heuristic interpolation."
+  },
+  {
+    "id": "vitter-reservoir-algorithm-r",
+    "source": {
+      "kind": "literature",
+      "citation": "Vitter (1985), Random Sampling with a Reservoir, ACM TOMS 11(1), 37–57, section 2, pp. 39–40; Algorithm R attributed there to Alan Waterman. DOI 10.1145/3147.3165. https://www.cs.umd.edu/~samir/498/vitter.pdf",
+      "url": "https://www.cs.umd.edu/~samir/498/vitter.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "For a subset S not containing t, the preceding subset must equal S and survive with probability (t−k)/t. If S contains t, there are t−k possible preceding subsets, each with a unique replacement of probability 1/t. Both cases yield 1/C(t,k) by induction from t=k. Distinct from simulation by repeated independent draws and from quantile summaries. Short streams retain every observed identity."
+  },
+  {
+    "id": "boyer-moore-majority-vote",
+    "source": {
+      "kind": "literature",
+      "citation": "Boyer and Moore (1991), MJRTY: A Fast Majority Vote Algorithm, in Automated Reasoning, pp. 105–117, sections 5.2–5.4 and Figure 5.1. https://www.cs.utexas.edu/~boyer/mjrty.pdf",
+      "url": "https://www.cs.utexas.edu/~boyer/mjrty.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Each processed prefix partitions into c identical uncancelled observations and unequal pairs. Removing a pair cannot eliminate a strict majority, so a true majority must survive; c=0 rules one out. A nonmajority can survive (A,B,C leaves C), making verification essential unless the residual itself certifies it. Distinct from a full histogram or empirical distribution."
   }
 ]

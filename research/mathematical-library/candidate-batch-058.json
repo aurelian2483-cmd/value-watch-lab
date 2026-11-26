@@ -16,21 +16,23 @@
     "test_evidence": null,
     "legacy_id": null,
     "batch": "058",
-    "family": "numerical-optimisation",
+    "family": "streaming-algorithms",
     "classification": "distinct-algorithm",
     "id": "vitter-reservoir-algorithm-r",
     "name": "Uniform reservoir sampling Algorithm R",
-    "definition": "For t>k choose J uniformly from {1,…,t}; if J≤k replace reservoir slot J; P(item i retained after t)=k/t",
-    "variables": "t stream count; k reservoir size; J uniform integer",
-    "assumptions": "Fixed positive reservoir size, distinct observation identities, unbiased random draws; full review pending",
-    "limitations": "Random sampling variation and no temporal stratification; review pending",
+    "definition": "For t>k choose J uniformly from {1,…,t}; if J≤k replace slot J; P(R_t=S)=1/C(t,k) for every k-subset S of the first t observation identities",
+    "variables": "t stream count; k reservoir capacity; J unbiased integer draw; R_t retained identity set; C(t,k) binomial coefficient",
+    "assumptions": "Fixed positive integer capacity, finite stream independent of sampling draws, conditionally uniform independent integer draws, exact counters and distinct observation identities even when values repeat",
+    "limitations": "O(N) sequential processing and O(k) stored records; samples are dependent without replacement, order of slots is not a random permutation guarantee, no stratification or temporal weighting",
     "failure_conditions": [
-      "Invalid size, biased random generator or count overflow"
+      "Invalid capacity, biased integer draws or counter overflow",
+      "Request for exactly k records from a stream of length less than k"
     ],
-    "computation": "Fill k slots, then update using the stated random replacement; verify uniform subset proof and startup before admission.",
+    "computation": "Start empty and retain each of the first min(k,N) records. At each later arrival t, generate an unbiased integer J from 1 through t (avoid modulo or floating-point scaling bias). Replace slot J if J≤k, otherwise leave the reservoir unchanged. At end return the retained identities; if N<k report the actual count and insufficient population for a full-size sample. Record random generator and seed for reproducibility where applicable.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Vitter (1985), Random sampling with a reservoir, ACM TOMS 11(1), 37–57. https://doi.org/10.1145/3147.3165; full review pending."
+      "citation": "Vitter (1985), Random Sampling with a Reservoir, ACM TOMS 11(1), 37–57, section 2, pp. 39–40; Algorithm R attributed there to Alan Waterman. DOI 10.1145/3147.3165. https://www.cs.umd.edu/~samir/498/vitter.pdf",
+      "url": "https://www.cs.umd.edu/~samir/498/vitter.pdf"
     },
     "application": "General uniform sampling of a finite stream; no empirical benefit claimed.",
     "required_inputs": "Stream and sample capacity.",
@@ -46,7 +48,7 @@
         "type": "related"
       }
     ],
-    "mechanism_note": "Provisional uniform sampling without replacement from unknown-length stream; distinct from rank summaries."
+    "mechanism_note": "For a subset S not containing t, the preceding subset must equal S and survive with probability (t−k)/t. If S contains t, there are t−k possible preceding subsets, each with a unique replacement of probability 1/t. Both cases yield 1/C(t,k) by induction from t=k. Distinct from simulation by repeated independent draws and from quantile summaries. Short streams retain every observed identity."
   },
   {
     "profile": "multifeature",
@@ -65,21 +67,23 @@
     "test_evidence": null,
     "legacy_id": null,
     "batch": "058",
-    "family": "numerical-optimisation",
+    "family": "streaming-algorithms",
     "classification": "distinct-algorithm",
     "id": "boyer-moore-majority-vote",
     "name": "Boyer–Moore majority cancellation",
-    "definition": "If c=0 set m=x,c=1; otherwise c←c+1 if x=m and c←c−1 otherwise; verify count(m)>N/2",
-    "variables": "m candidate; c residual count; N total count",
-    "assumptions": "Equality comparable observations; replay or guaranteed strict majority; full review pending",
-    "limitations": "Candidate is not necessarily a majority without verification; not a mode estimator; review pending",
+    "definition": "Start c=0; if c=0 set (m,c)=(x,1), else c←c+1 for x=m and c←c−1 otherwise; a strict majority satisfies count(m)>N/2",
+    "variables": "m current candidate; c uncancelled count; N total observations; x current observation",
+    "assumptions": "Finite replayable categorical stream or an externally guaranteed strict majority; stable equivalence relation for equality; exact integer counters",
+    "limitations": "O(N) comparisons, O(1) candidate and counters; residual count is not frequency, mode is not necessarily a strict majority, a nonzero residual alone does not establish majority",
     "failure_conditions": [
-      "No replay and no majority guarantee, invalid equality semantics"
+      "Counter overflow or nontransitive equality",
+      "No replay or strict majority guarantee when residual count is positive but no greater than N/2"
     ],
-    "computation": "Cancel unequal pairs during a single pass; verify candidate in a second pass unless strict majority is guaranteed. Review original proof before admission.",
+    "computation": "Start with no candidate and c=0. Process each item by the recurrence. If c=0 at termination return no strict majority, including an empty stream. If c>N/2 the candidate is already certified; otherwise count its true occurrences on an unchanged replay and return it only if the count exceeds floor(N/2). If replay is unavailable and no strict majority is guaranteed, report an unverified candidate rather than a majority.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Boyer and Moore (1991), MJRTY: A Fast Majority Vote Algorithm, pp. 105–117, DOI 10.1007/978-94-011-3488-0_5; full review pending."
+      "citation": "Boyer and Moore (1991), MJRTY: A Fast Majority Vote Algorithm, in Automated Reasoning, pp. 105–117, sections 5.2–5.4 and Figure 5.1. https://www.cs.utexas.edu/~boyer/mjrty.pdf",
+      "url": "https://www.cs.utexas.edu/~boyer/mjrty.pdf"
     },
     "application": "General categorical stream majority detection; no empirical benefit claimed.",
     "required_inputs": "Equality-comparable stream and replay for verification.",
@@ -95,6 +99,6 @@
         "type": "related"
       }
     ],
-    "mechanism_note": "Provisional cancellation-based majority candidate; distinct from numeric quantile summaries."
+    "mechanism_note": "Each processed prefix partitions into c identical uncancelled observations and unequal pairs. Removing a pair cannot eliminate a strict majority, so a true majority must survive; c=0 rules one out. A nonmajority can survive (A,B,C leaves C), making verification essential unless the residual itself certifies it. Distinct from a full histogram or empirical distribution."
   }
 ]

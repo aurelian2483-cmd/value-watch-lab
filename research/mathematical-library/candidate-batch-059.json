@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "059",
+    "family": "streaming-algorithms",
+    "classification": "model-variant",
+    "id": "misra-gries-frequent-items",
+    "name": "Misra–Gries bounded frequent-item counters",
+    "definition": "For capacity k−1, increment existing counter or insert with count 1 if space; otherwise decrement every counter by 1 and remove zeros; f_i>N/k implies retained candidate",
+    "variables": "k threshold denominator; f_i true frequency; N count",
+    "assumptions": "Finite equality-comparable stream, integer k≥2; full review pending",
+    "limitations": "Residual counts underestimate frequencies; verify exact frequencies on replay; full review pending",
+    "failure_conditions": [
+      "Invalid capacity or counter overflow"
+    ],
+    "computation": "Generalize unequal cancellation to k distinct items; verify invariant and error bound before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Misra and Gries (1982), Finding repeated elements, Science of Computer Programming 2(2), 143–152. DOI 10.1016/0167-6423(82)90012-0; full review pending."
+    },
+    "application": "General categorical stream frequency screening; no empirical benefit claimed.",
+    "required_inputs": "Stream, capacity and replay if exact frequencies required.",
+    "compatible_methods": [
+      "boyer-moore-majority-vote"
+    ],
+    "incompatible_methods": [
+      "Treating residual counts as exact frequencies"
+    ],
+    "relationships": [
+      {
+        "target": "boyer-moore-majority-vote",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional generalization of majority cancellation to multiple counters."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "059",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "count-min-frequency-sketch",
+    "name": "Count–Min nonnegative frequency sketch",
+    "definition": "C[j,h_j(x)]←C[j,h_j(x)]+w; f_hat(x)=min_j C[j,h_j(x)]",
+    "variables": "C counter matrix; h_j row hash functions; w nonnegative increment; f_hat frequency estimate",
+    "assumptions": "Nonnegative updates, fixed dimensions and appropriate independent hash functions; full review pending",
+    "limitations": "Collision overestimation; probabilistic error bound requires justified hash assumptions; full review pending",
+    "failure_conditions": [
+      "Negative updates under nonnegative model or counter overflow"
+    ],
+    "computation": "Maintain row counters and query their minimum; verify probability and memory bounds before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Cormode and Muthukrishnan (2005), An improved data stream summary: the count-min sketch and its applications, Journal of Algorithms 55(1), 58–75. DOI 10.1016/j.jalgor.2003.12.001; full review pending."
+    },
+    "application": "General nonnegative stream frequency estimation; no empirical benefit claimed.",
+    "required_inputs": "Stream of item and increment pairs, hash functions and dimensions.",
+    "compatible_methods": [
+      "boyer-moore-majority-vote"
+    ],
+    "incompatible_methods": [
+      "Unqualified exact frequency claims"
+    ],
+    "relationships": [
+      {
+        "target": "boyer-moore-majority-vote",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional hash-collision counter mechanism, distinct from explicit cancellation."
+  }
+]
