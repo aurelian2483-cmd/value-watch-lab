@@ -5709,3 +5709,35 @@ Limitations — The residual accumulation and final addition still round; the re
 Mechanism — Successive exact local identities give Σx_i=p_n+Σ_(i=2)^n r_i in real arithmetic by telescoping; c_n approximates rather than exactly represents the latter sum. The correction is separately accumulated and appended once, unlike Kahan’s feedback into each incoming term. It is conservatively classified in the compensated-summation family, not as an additional distinct algorithm.
 
 Source — Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, p. 1963, Algorithm 4.1 and equation (4.2), DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf
+
+## Non-FMA split product residual (split-two-product-residual)
+
+> For binary64 operands a,b, let (a_h,a_l)=Split(a), (b_h,b_l)=Split(b), p=fl(ab), d_1=fl(p−fl(a_h b_h)), d_2=fl(d_1−fl(a_l b_h)), d_3=fl(d_2−fl(a_h b_l)), e=fl(fl(a_l b_l)−d_3); ab=p+e in real arithmetic on the stated domain.
+
+a,b operands; h and l high and low split components; p rounded product; d_j intermediate differences; e residual; fl rounds one operation.
+
+General numerical product decomposition; no forecasting benefit claimed.
+
+Assumptions — IEEE binary64 round-to-nearest ties-to-even; registered Dekker split with factor 2^27+1; all operations separately rounded, no overflow or underflow in any nonzero intermediate, no reassociation or implicit FMA.
+
+Limitations — The split itself can overflow even if ab is finite; the exact identity is restricted to this conservative arithmetic domain; additional scaling is outside the specification.
+
+Mechanism — Expanding (a_h+a_l)(b_h+b_l) shows the correction is ab−p; the paper establishes exactness of the ordered floating-point recurrence without underflow. Same output identity as the existing FMA transform, so classified as a variant rather than a new distinct algorithm.
+
+Source — Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, p. 1961, Algorithm 3.3 and p. 1962, Theorem 3.4, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf
+
+## Error-residual compensated dot product (compensated-dot-product-dot2)
+
+> For n≥1, initialize (p_1,c_1)=TwoProduct(x_1,y_1); for i=2,…,n set (h_i,r_i)=TwoProduct(x_i,y_i), (p_i,q_i)=TwoSum(p_(i−1),h_i), c_i=fl(c_(i−1)+fl(q_i+r_i)); D=fl(p_n+c_n).
+
+x_i,y_i paired components; h_i rounded product; r_i multiplication residual; p_i running rounded sum; q_i addition residual; c_i rounded correction; D returned dot product.
+
+General numerical inner-product computation; no forecasting benefit claimed.
+
+Assumptions — Finite equal-length nonempty binary64 vectors; round-to-nearest ties-to-even, separate operations, no overflow or underflow in nonzero intermediates, and exact residual transforms on their declared domains; for the cited bound n u < 1 with unit roundoff u.
+
+Limitations — Correction accumulation and final addition still round; cancellation may yield a large relative error; not guaranteed correctly rounded, exact, or superior on every input.
+
+Mechanism — With exact local transforms, q_i+r_i=x_i y_i+p_(i−1)−p_i. Telescoping yields xᵀy=p_n+c_1+Σ_(i=2)^n(q_i+r_i) before rounding the correction. Unlike compensated summation of already-rounded values, this mechanism also accounts for multiplication error; classified as a distinct inner-product algorithm.
+
+Source — Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, pp. 1972–1973, Algorithms 5.3–5.4, equation (5.1), Proposition 5.5, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf

@@ -8203,5 +8203,49 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Successive exact local identities give Σx_i=p_n+Σ_(i=2)^n r_i in real arithmetic by telescoping; c_n approximates rather than exactly represents the latter sum. The correction is separately accumulated and appended once, unlike Kahan’s feedback into each incoming term. It is conservatively classified in the compensated-summation family, not as an additional distinct algorithm."
+  },
+  {
+    "id": "split-two-product-residual",
+    "source": {
+      "kind": "literature",
+      "citation": "Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, p. 1961, Algorithm 3.3 and p. 1962, Theorem 3.4, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Expanding (a_h+a_l)(b_h+b_l) shows the correction is ab−p; the paper establishes exactness of the ordered floating-point recurrence without underflow. Same output identity as the existing FMA transform, so classified as a variant rather than a new distinct algorithm."
+  },
+  {
+    "id": "compensated-dot-product-dot2",
+    "source": {
+      "kind": "literature",
+      "citation": "Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, pp. 1972–1973, Algorithms 5.3–5.4, equation (5.1), Proposition 5.5, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "With exact local transforms, q_i+r_i=x_i y_i+p_(i−1)−p_i. Telescoping yields xᵀy=p_n+c_1+Σ_(i=2)^n(q_i+r_i) before rounding the correction. Unlike compensated summation of already-rounded values, this mechanism also accounts for multiplication error; classified as a distinct inner-product algorithm."
   }
 ]

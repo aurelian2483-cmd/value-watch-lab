@@ -1,0 +1,105 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "055",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "welford-online-central-second-moment",
+    "name": "Welford online central second moment",
+    "definition": "For k≥1 update δ=x_k−m_(k−1), m_k=m_(k−1)+δ/k, M_k=M_(k−1)+δ(x_k−m_k), initialized m_0=M_0=0.",
+    "variables": "k count; x_k observation; m_k running mean; M_k unnormalized second central moment",
+    "assumptions": "Finite numeric stream; exact initialization and rounding domain pending independent review",
+    "limitations": "Floating-point error and overflow remain possible; review pending",
+    "failure_conditions": [
+      "Nonfinite input or unsupported arithmetic"
+    ],
+    "computation": "Maintain count, mean and second central moment; review recurrence and variance denominators before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Welford (1962), Note on a Method for Calculating Corrected Sums of Squares and Products, DOI 10.1080/00401706.1962.10490022; review pending."
+    },
+    "application": "General streaming numerical summary; no empirical benefit claimed.",
+    "required_inputs": "Finite numeric observations and declared arithmetic.",
+    "compatible_methods": [
+      "balanced-pairwise-summation"
+    ],
+    "incompatible_methods": [
+      "Treating a rounded accumulator as exact"
+    ],
+    "relationships": [
+      {
+        "target": "balanced-pairwise-summation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional streaming central-moment recurrence; independent review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "055",
+    "family": "numerical-optimisation",
+    "classification": "model-variant",
+    "id": "chan-parallel-central-second-moment",
+    "name": "Chan pairwise central second moment merge",
+    "definition": "For nonempty disjoint blocks A,B let n=n_A+n_B, δ=m_B−m_A, m=m_A+δ n_B/n, M=M_A+M_B+δ² n_A n_B/n.",
+    "variables": "n_A,n_B block counts; m_A,m_B block means; M_A,M_B block unnormalized central second moments",
+    "assumptions": "Disjoint finite observation blocks and internally consistent states; independent review pending",
+    "limitations": "Finite precision and unbalanced block sizes can affect accuracy; review pending",
+    "failure_conditions": [
+      "Invalid counts or inconsistent block state"
+    ],
+    "computation": "Combine two moment summaries with the count-weighted mean and between-block correction; review empty-block treatment and arithmetic domain before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Chan, Golub and LeVeque (1983), Algorithms for Computing the Sample Variance: Analysis and Recommendations, DOI 10.1080/00031305.1983.10483115; review pending."
+    },
+    "application": "General parallel numerical summary; no empirical benefit claimed.",
+    "required_inputs": "Two finite valid disjoint block moment states.",
+    "compatible_methods": [
+      "welford-online-central-second-moment",
+      "balanced-pairwise-summation"
+    ],
+    "incompatible_methods": [
+      "Merging overlapping observations as independent blocks"
+    ],
+    "relationships": [
+      {
+        "target": "welford-online-central-second-moment",
+        "type": "variant-of"
+      },
+      {
+        "target": "balanced-pairwise-summation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional block generalization of the singleton update, conservatively a variant pending review."
+  }
+]
