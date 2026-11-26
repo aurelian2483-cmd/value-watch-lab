@@ -8891,5 +8891,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "If final symbols match an optimal common subsequence can be chosen to end at that pair; if unequal, at least one final position is unused. The score maximization is a material objective change within the same prefix-grid alignment family. With insertion/deletion cost one and unequal substitution cost two, D2(i,j)=i+j−2L(i,j); unequal substitution is replaceable by deletion plus insertion. This identity does not hold for unit substitutions (x=a,y=b gives D1=1, L=0). Conservatively count as a variant, not another distinct algorithm."
+  },
+  {
+    "id": "longest-increasing-subsequence-minimal-tails",
+    "source": {
+      "kind": "literature",
+      "citation": "Fredman (1975), On computing the length of longest increasing subsequences, Discrete Mathematics 11(1), 29–35, section 2, pp. 30–31, DOI 10.1016/0012-365X(75)90103-X; original distinct-input algorithm adapted to repeated values by lower-bound replacement. https://par.cse.nsysu.edu.tw/resource/paper/2014/140127/On%20computing%20the%20length%20of%20longest%20increasing%20subsequences.pdf",
+      "url": "https://par.cse.nsysu.edu.tw/resource/paper/2014/140127/On%20computing%20the%20length%20of%20longest%20increasing%20subsequences.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Inductively, the minimal tail for length k+1 is strictly greater than the minimal tail for length k: remove the last value of a witness for length k+1. If j is the first tail at least x_i, a length j subsequence can extend to x_i (or start a singleton), but no longer one can do so. Shorter minimal tails cannot improve and only the j-th tail may improve or be appended. Equality therefore replaces rather than extends. This one-sequence ordered frontier differs from two-sequence prefix-grid dynamic programming."
+  },
+  {
+    "id": "manacher-palindrome-radius",
+    "source": {
+      "kind": "literature",
+      "citation": "Manacher (1975), A New Linear-Time On-Line Algorithm for Finding the Smallest Initial Palindrome of a String, JACM 22(3), 346–351, DOI 10.1145/321892.321896 (metadata and abstract only); Princeton Algorithms, 4th ed., section 5.3 Manacher.java (transformed sequence mirror scan, indexed extract); Algorithms for Competitive Programming, Manacher's Algorithm (odd-radius explanation with exclusive endpoints). https://cp-algorithms.com/string/manacher.html",
+      "url": "https://cp-algorithms.com/string/manacher.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Reflection in the known palindrome certifies the smaller of the reflected radius and r−i+1. If the reflected radius is strictly smaller, its stopping mismatch also reflects within the interval. Otherwise further successful comparisons extend the rightmost frontier; each advances a previously unverified right endpoint, and at most one unsuccessful comparison occurs per center. The inclusive zero-based formulation is independently derived from the exclusive-boundary invariant. Unlike exact pattern search or edit alignment, it reuses symmetry about changing centers."
   }
 ]

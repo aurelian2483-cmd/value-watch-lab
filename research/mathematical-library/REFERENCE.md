@@ -6189,3 +6189,35 @@ Limitations — O((m+1)(n+1)) full-table time and space including empty inputs; 
 Mechanism — If final symbols match an optimal common subsequence can be chosen to end at that pair; if unequal, at least one final position is unused. The score maximization is a material objective change within the same prefix-grid alignment family. With insertion/deletion cost one and unequal substitution cost two, D2(i,j)=i+j−2L(i,j); unequal substitution is replaceable by deletion plus insertion. This identity does not hold for unit substitutions (x=a,y=b gives D1=1, L=0). Conservatively count as a variant, not another distinct algorithm.
 
 Source — MIT 6.006 (Spring 2020), Lecture 16: Dynamic Programming Subproblems, pp. 2–3, longest common subsequence suffix recurrence and complexity; prefix form follows by reversing both sequences. https://live.ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/28461a74f81101874a13d9679a40584d_MIT6_006S20_lec16.pdf
+
+## Longest increasing subsequence minimal tails (longest-increasing-subsequence-minimal-tails)
+
+> Initially T=[]; for each x_i set j=min({k:T_k≥x_i}∪{len(T)}); append x_i if j=len(T), otherwise T_j←x_i; return len(T).
+
+x finite sequence; T[k] least attainable final value for a strictly increasing subsequence of length k+1; j zero-based lower-bound index.
+
+General exact strictly increasing subsequence length; no empirical benefit claimed.
+
+Assumptions — Finite sequence over a total order, including repeated values; strict increase required; constant-cost comparisons, indexed array access and amortized append.
+
+Limitations — O(n log(n+1)) time for n≥1 and O(L) tail storage for longest length L; empty input returns zero. Tail values need not themselves occur in subsequence order. Reconstruction requires additional predecessor information; no nondecreasing variant or tighter comparison-optimal bound asserted.
+
+Mechanism — Inductively, the minimal tail for length k+1 is strictly greater than the minimal tail for length k: remove the last value of a witness for length k+1. If j is the first tail at least x_i, a length j subsequence can extend to x_i (or start a singleton), but no longer one can do so. Shorter minimal tails cannot improve and only the j-th tail may improve or be appended. Equality therefore replaces rather than extends. This one-sequence ordered frontier differs from two-sequence prefix-grid dynamic programming.
+
+Source — Fredman (1975), On computing the length of longest increasing subsequences, Discrete Mathematics 11(1), 29–35, section 2, pp. 30–31, DOI 10.1016/0012-365X(75)90103-X; original distinct-input algorithm adapted to repeated values by lower-bound replacement. https://par.cse.nsysu.edu.tw/resource/paper/2014/140127/On%20computing%20the%20length%20of%20longest%20increasing%20subsequences.pdf
+
+## Manacher odd palindrome radius scan (manacher-palindrome-radius)
+
+> Initially l=0,r=−1; for i=0,…,n−1 set k=1 if i>r, otherwise k=min(d_{l+r−i},r−i+1); while i−k≥0 and i+k<n and x_{i−k}=x_{i+k}, increment k; d_i←k; if i+k−1>r set l←i−k+1,r←i+k−1; return d.
+
+x finite sequence; n length; l,r inclusive endpoints of a previously processed maximal odd palindrome reaching farthest right; d_i radius including center, with odd length 2d_i−1.
+
+General exact maximal odd palindrome radius at every sequence position; no empirical benefit claimed.
+
+Assumptions — Finite immutable indexed sequence, consistent symbol equality, exact indices and constant-cost symbol comparisons; no separator or sentinel required.
+
+Limitations — O(n) time and O(n) radius storage; empty input returns an empty array. Only odd contiguous palindromes are represented; explicit listing of all occurrences can require quadratic output. Does not detect even palindromes or palindromic subsequences.
+
+Mechanism — Reflection in the known palindrome certifies the smaller of the reflected radius and r−i+1. If the reflected radius is strictly smaller, its stopping mismatch also reflects within the interval. Otherwise further successful comparisons extend the rightmost frontier; each advances a previously unverified right endpoint, and at most one unsuccessful comparison occurs per center. The inclusive zero-based formulation is independently derived from the exclusive-boundary invariant. Unlike exact pattern search or edit alignment, it reuses symmetry about changing centers.
+
+Source — Manacher (1975), A New Linear-Time On-Line Algorithm for Finding the Smallest Initial Palindrome of a String, JACM 22(3), 346–351, DOI 10.1145/321892.321896 (metadata and abstract only); Princeton Algorithms, 4th ed., section 5.3 Manacher.java (transformed sequence mirror scan, indexed extract); Algorithms for Competitive Programming, Manacher's Algorithm (odd-radius explanation with exclusive endpoints). https://cp-algorithms.com/string/manacher.html

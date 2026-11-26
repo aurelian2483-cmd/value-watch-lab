@@ -1,0 +1,106 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "069",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "longest-increasing-subsequence-minimal-tails",
+    "name": "Longest increasing subsequence minimal tails",
+    "definition": "Initially T=[]; for each x_i set j=min({k:T_k≥x_i}∪{len(T)}); append x_i if j=len(T), otherwise T_j←x_i; return len(T).",
+    "variables": "x finite sequence; T[k] least attainable final value for a strictly increasing subsequence of length k+1; j zero-based lower-bound index",
+    "assumptions": "Finite sequence over a total order, including repeated values; strict increase required; constant-cost comparisons, indexed array access and amortized append",
+    "limitations": "O(n log(n+1)) time for n≥1 and O(L) tail storage for longest length L; empty input returns zero. Tail values need not themselves occur in subsequence order. Reconstruction requires additional predecessor information; no nondecreasing variant or tighter comparison-optimal bound asserted",
+    "failure_conditions": [
+      "Reject unordered values or inconsistent comparison semantics",
+      "Do not use first strictly greater tail when equal values must not extend a subsequence"
+    ],
+    "computation": "Process each item once; binary search the first tail at least as large as the item, replace it or append at the end. Return the final number of tails. Use an empty initial array without a numeric sentinel.",
+    "source": {
+      "kind": "literature",
+      "citation": "Fredman (1975), On computing the length of longest increasing subsequences, Discrete Mathematics 11(1), 29–35, section 2, pp. 30–31, DOI 10.1016/0012-365X(75)90103-X; original distinct-input algorithm adapted to repeated values by lower-bound replacement. https://par.cse.nsysu.edu.tw/resource/paper/2014/140127/On%20computing%20the%20length%20of%20longest%20increasing%20subsequences.pdf",
+      "url": "https://par.cse.nsysu.edu.tw/resource/paper/2014/140127/On%20computing%20the%20length%20of%20longest%20increasing%20subsequences.pdf"
+    },
+    "application": "General exact strictly increasing subsequence length; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence with declared comparison semantics.",
+    "compatible_methods": [
+      "longest-common-subsequence-length-dp"
+    ],
+    "incompatible_methods": [
+      "Treating the final tail array as a reconstructed subsequence",
+      "Replacing lower bound by upper bound while claiming strict increase"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "longest-common-subsequence-length-dp"
+      }
+    ],
+    "mechanism_note": "Inductively, the minimal tail for length k+1 is strictly greater than the minimal tail for length k: remove the last value of a witness for length k+1. If j is the first tail at least x_i, a length j subsequence can extend to x_i (or start a singleton), but no longer one can do so. Shorter minimal tails cannot improve and only the j-th tail may improve or be appended. Equality therefore replaces rather than extends. This one-sequence ordered frontier differs from two-sequence prefix-grid dynamic programming."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "069",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "manacher-palindrome-radius",
+    "name": "Manacher odd palindrome radius scan",
+    "definition": "Initially l=0,r=−1; for i=0,…,n−1 set k=1 if i>r, otherwise k=min(d_{l+r−i},r−i+1); while i−k≥0 and i+k<n and x_{i−k}=x_{i+k}, increment k; d_i←k; if i+k−1>r set l←i−k+1,r←i+k−1; return d.",
+    "variables": "x finite sequence; n length; l,r inclusive endpoints of a previously processed maximal odd palindrome reaching farthest right; d_i radius including center, with odd length 2d_i−1",
+    "assumptions": "Finite immutable indexed sequence, consistent symbol equality, exact indices and constant-cost symbol comparisons; no separator or sentinel required",
+    "limitations": "O(n) time and O(n) radius storage; empty input returns an empty array. Only odd contiguous palindromes are represented; explicit listing of all occurrences can require quadratic output. Does not detect even palindromes or palindromic subsequences",
+    "failure_conditions": [
+      "Reject inconsistent equality or unsafe index arithmetic",
+      "Do not mix inclusive endpoint and exclusive endpoint radius conventions"
+    ],
+    "computation": "Scan centers in increasing order. Within the rightmost known palindrome use the already computed reflected radius capped at the right boundary. Extend only after checking bounds and equality; update both endpoints if the new right endpoint is strictly greater.",
+    "source": {
+      "kind": "literature",
+      "citation": "Manacher (1975), A New Linear-Time On-Line Algorithm for Finding the Smallest Initial Palindrome of a String, JACM 22(3), 346–351, DOI 10.1145/321892.321896 (metadata and abstract only); Princeton Algorithms, 4th ed., section 5.3 Manacher.java (transformed sequence mirror scan, indexed extract); Algorithms for Competitive Programming, Manacher's Algorithm (odd-radius explanation with exclusive endpoints). https://cp-algorithms.com/string/manacher.html",
+      "url": "https://cp-algorithms.com/string/manacher.html"
+    },
+    "application": "General exact maximal odd palindrome radius at every sequence position; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence with declared comparison semantics.",
+    "compatible_methods": [
+      "levenshtein-unit-edit-distance-dp"
+    ],
+    "incompatible_methods": [
+      "Interpreting odd radii as all palindrome lengths",
+      "Assuming symmetry outside the known palindrome without comparison"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "levenshtein-unit-edit-distance-dp"
+      }
+    ],
+    "mechanism_note": "Reflection in the known palindrome certifies the smaller of the reflected radius and r−i+1. If the reflected radius is strictly smaller, its stopping mismatch also reflects within the interval. Otherwise further successful comparisons extend the rightmost frontier; each advances a previously unverified right endpoint, and at most one unsuccessful comparison occurs per center. The inclusive zero-based formulation is independently derived from the exclusive-boundary invariant. Unlike exact pattern search or edit alignment, it reuses symmetry about changing centers."
+  }
+]
