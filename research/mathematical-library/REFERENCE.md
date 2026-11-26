@@ -5517,3 +5517,35 @@ Limitations — Same polynomial and possible high-degree oscillation as barycent
 Mechanism — The Newton form is the same unique degree-at-most-d interpolant as the barycentric form, but uses a divided-difference table and nested product basis, allowing incremental addition of a node. Conservatively classified as a computational variant, not a new interpolant or independent algorithm count.
 
 Source — NIST Digital Library of Mathematical Functions §3.3(iii)–(iv), equations 3.3.34–3.3.38. https://dlmf.nist.gov/3.3
+
+## De Boor B-spline evaluation (de-boor-bspline-evaluation)
+
+> For degree q≥1, nondecreasing knots u_0,…,u_(n+q+1), coefficients c_0,…,c_n and u_k<x<u_(k+1), q≤k≤n, set d_j^(0)=c_(k−q+j) for j=0,…,q; for r=1,…,q and j=r,…,q set α=(x−u_(k−q+j))/(u_(k+1+j−r)−u_(k−q+j)), d_j^(r)=(1−α)d_(j−1)^(r−1)+α d_j^(r−1); S(x)=d_q^(q).
+
+q spline degree; n highest coefficient index; c spline coefficients; u knot sequence; k span index; x query.
+
+General B-spline evaluation; no forecasting benefit claimed.
+
+Assumptions — Finite real coefficients and nondecreasing finite knots with valid dimensions, n≥q and strictly interior query in a positive span; exact arithmetic for the identity.
+
+Limitations — This specification excludes queries at knots and endpoints; knot multiplicities affect continuity; roundoff is not excluded.
+
+Mechanism — Substitute i=k−q+j into the cited recurrence. At every permitted update the lower knot is at or below u_k and the upper knot is at or above u_(k+1), giving positive denominators and convex weights. For one clamped span all weights equal the normalized query, recovering de Casteljau. General knot-dependent weights and local support materially extend that triangular mechanism; conservatively count as a variant, not an independent algorithm.
+
+Source — Ching-Kuang Shene, Michigan Technological University, De Boor’s Algorithm, non-knot case and recurrence. https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/de-Boor.html
+
+## Remez polynomial minimax exchange (remez-polynomial-exchange)
+
+> For d≥0 and d+2 ordered distinct nodes t_i in [a,b], solve Σ_(j=0)^d a_j t_i^j+(−1)^i E=f(t_i), i=0,…,d+1. Set P(x)=Σ_(j=0)^d a_j x^j, e=f−P, M=max_[a,b]|e(x)|. If M−|E|≤ε stop; otherwise insert a maximizer η of |e| and exchange one old node so the retained nonzero errors alternate, then solve again.
+
+d degree bound; a,b interval; t_i reference nodes; E signed reference error; P polynomial; M global maximum absolute residual; ε nonnegative absolute gap tolerance.
+
+General uniform polynomial approximation; no forecasting benefit claimed.
+
+Assumptions — Continuous real f on compact nondegenerate interval, distinct nodes, exact or certified global extremum search and a reliable linear solve; nonzero E for exchange; explicit iteration bound.
+
+Limitations — Grid maxima alone do not certify the global error; ill-conditioning, near-ties and zero reference error need handling; finite iteration convergence is not guaranteed.
+
+Mechanism — Alternation gives |E|≤optimal uniform error≤M: a strictly better polynomial would require its difference from P to alternate signs at d+2 nodes, forcing at least d+1 roots. On exchange, the order-(d+1) divided difference annihilates both degree-d polynomials; alternating residual signs align with the signs of the divided-difference weights. The new reference magnitude is a positive weighted average of the retained magnitudes |E| and the strictly larger M. This establishes a strict lower-bound increase in the stated nondegenerate exact case, not global finite convergence. Distinct from fitting least squares, evaluating a fixed polynomial or interpolating fixed ordinates.
+
+Source — NIST DLMF §3.11(i), alternation condition and equations 3.11.1–3.11.5; Pachón and Trefethen (2009), BIT 49, 721–741, DOI 10.1007/s10543-009-0240-1 (Oxford publication abstract). One-point exchange rule and lower bound checked by derivation. https://dlmf.nist.gov/3.11.i
