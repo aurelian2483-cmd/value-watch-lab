@@ -1,10 +1,12 @@
 import datetime as dt
+import json
+import tempfile
 import subprocess
 import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from horse_refresh_session import requested_cycles, run_session
+from horse_refresh_session import races_due, requested_cycles, run_session
 
 
 class ActiveHorseSessionTests(unittest.TestCase):
@@ -16,7 +18,7 @@ class ActiveHorseSessionTests(unittest.TestCase):
         for n in ['7', '0', 'bad', None]:
             with self.assertRaises(ValueError):requested_cycles('workflow_dispatch', {'inputs': {'active_cycles': n}})
 
-    def session(self, start_hour=14, cycles=6, fail=False):
+    def session(self, start_hour=14, cycles=6, fail=False, continue_if=None):
         elapsed=[0];calls=[];waits=[]
         start=dt.datetime(2026, 11, 6, start_hour, tzinfo=dt.timezone.utc)
         def clock():return start+dt.timedelta(seconds=elapsed[0])
@@ -25,7 +27,7 @@ class ActiveHorseSessionTests(unittest.TestCase):
             calls.append((elapsed[0], options['env']['HORSE_SESSION_CYCLE'], cmd[:4]))
             if fail:raise subprocess.CalledProcessError(1, cmd)
             elapsed[0]+=30
-        count=run_session(cycles, clock=clock, monotonic=lambda:elapsed[0], sleep=sleep, runner=runner)
+        count=run_session(cycles, clock=clock, monotonic=lambda:elapsed[0], sleep=sleep, runner=runner, continue_if=continue_if)
         return count,calls,waits
 
     def test_six_cycles_are_twenty_minutes_apart_and_uniquely_archived(self):
@@ -47,3 +49,20 @@ class ActiveHorseSessionTests(unittest.TestCase):
 
     def test_source_or_cycle_failure_stops_instead_of_retrying_around_block(self):
         with self.assertRaises(subprocess.CalledProcessError):self.session(fail=True)
+
+    def test_automatic_session_only_repeats_when_races_are_due(self):
+        self.assertEqual(self.session(cycles=3, continue_if=lambda _: False)[0], 1)
+        count, calls, _ = self.session(cycles=3, continue_if=lambda due: due.minute == 20)
+        self.assertEqual(count, 2)
+        self.assertEqual([call[0] for call in calls], [0, 1200])
+        self.assertEqual(self.session(start_hour=23, cycles=3, continue_if=lambda _: True)[0], 1)
+
+    def test_lookahead_uses_upcoming_races_in_daily_snapshot(self):
+        now = dt.datetime(2026, 11, 26, 18, tzinfo=dt.timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            snapshot = Path(directory) / 'racing-research-data.json'
+            self.assertFalse(races_due(now, snapshot))
+            for minutes, expected in [(0, False), (30, True), (120, True), (121, False)]:
+                race = {'startUTC': (now + dt.timedelta(minutes=minutes)).isoformat()}
+                snapshot.write_text(json.dumps({'races': [race]}))
+                self.assertEqual(races_due(now, snapshot), expected)
