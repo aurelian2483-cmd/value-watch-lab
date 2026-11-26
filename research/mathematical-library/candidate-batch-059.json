@@ -20,8 +20,8 @@
     "classification": "model-variant",
     "id": "misra-gries-frequent-items",
     "name": "Misra–Gries bounded frequent-item counters",
-    "definition": "For capacity k−1, increment existing counter or insert with count 1 if space; otherwise decrement every counter by 1 and remove zeros; f_i>N/k implies retained candidate",
-    "variables": "k threshold denominator; f_i true frequency; N count",
+    "definition": "Maintain at most k−1 positive counters c_i; for an existing item i set c_i←c_i+1, for an untracked item with space set c_i←1, otherwise set every stored c_j←c_j−1 and remove zeros. With N stream items and absent counters interpreted as zero, f_i>N/k implies c_i>0.",
+    "variables": "k threshold denominator; c_i residual counter for item i (zero when absent); f_i true frequency; N stream length",
     "assumptions": "Finite equality-comparable stream, integer k≥2; full review pending",
     "limitations": "Residual counts underestimate frequencies; verify exact frequencies on replay; full review pending",
     "failure_conditions": [
