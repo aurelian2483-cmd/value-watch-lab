@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "064",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "fenwick-binary-indexed-tree-prefix-sum",
+    "name": "Fenwick binary indexed tree prefix sums",
+    "definition": "For 1≤i≤n, T_i=Σ_{j=i−lowbit(i)+1}^i x_j; prefix query accumulates T_i while i>0, replacing i by i−lowbit(i); point increment adds δ along i←i+lowbit(i).",
+    "variables": "n array size; i one-based index; lowbit(i) least significant set bit; T_i partial sum; δ increment",
+    "assumptions": "Fixed indexed numeric array and additive arithmetic; review pending",
+    "limitations": "Index bounds, numeric precision and complexity require independent review",
+    "failure_conditions": [
+      "Invalid index or unsupported arithmetic"
+    ],
+    "computation": "Provisional partial-sum traversal; independently review boundary and update rules.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Fenwick (1994), A new data structure for cumulative frequency tables; review pending."
+    },
+    "application": "General mutable prefix sums; no empirical benefit claimed.",
+    "required_inputs": "Array size, values and indexed additive updates.",
+    "compatible_methods": [
+      "datar-exponential-histogram-window-count"
+    ],
+    "incompatible_methods": [
+      "Using zero index in the one-based update"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "datar-exponential-histogram-window-count"
+      }
+    ],
+    "mechanism_note": "Provisional binary index interval decomposition, distinct from age-based stream buckets."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "064",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "segment-tree-associative-range-aggregate",
+    "name": "Segment tree associative range aggregate",
+    "definition": "Recursively split [l,r] at m=⌊(l+r)/2⌋, store A(l,r)=A(l,m)⊗A(m+1,r); leaves store x_l and disjoint query nodes contribute identity e.",
+    "variables": "l,r inclusive endpoints; m split index; ⊗ associative operation; e identity; A stored ordered aggregate",
+    "assumptions": "Fixed finite array, associative operation with identity; review pending",
+    "limitations": "Boundary cases, operand order and complexity require independent review",
+    "failure_conditions": [
+      "Invalid range or nonassociative operation"
+    ],
+    "computation": "Provisional recursive range decomposition and point replacement followed by ancestor recomputation.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: standard segment tree range-query construction in algorithms texts; authoritative source to be established before admission."
+    },
+    "application": "General mutable range aggregation; no empirical benefit claimed.",
+    "required_inputs": "Array, associative operation and identity.",
+    "compatible_methods": [
+      "monotone-deque-sliding-window-maximum"
+    ],
+    "incompatible_methods": [
+      "Reordering operands for a noncommutative operation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "monotone-deque-sliding-window-maximum"
+      }
+    ],
+    "mechanism_note": "Provisional balanced interval tree rather than monotone dominance deletion; novelty relative to Fenwick tree to be reviewed."
+  }
+]

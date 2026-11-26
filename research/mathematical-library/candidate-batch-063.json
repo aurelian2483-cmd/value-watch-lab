@@ -20,17 +20,19 @@
     "classification": "distinct-algorithm",
     "id": "datar-exponential-histogram-window-count",
     "name": "Exponential histogram sliding-window bit count",
-    "definition": "Maintain timestamped power-of-two buckets of ones, merge oldest equal-size buckets when the declared per-size cap is exceeded; count_hat=Σ retained bucket sizes−oldest bucket size/2 when nonempty (boundary conventions pending review).",
-    "variables": "Window width W; bucket size b; newest timestamp per bucket; count estimate",
-    "assumptions": "Binary insertion stream and ordered timestamps; precise bucket cap and boundary rule pending",
-    "limitations": "Approximation error, partially expired oldest bucket and space bound require review",
+    "definition": "At position t retain chronological buckets (b,u) with newest-one timestamp u>t−W and power-of-two size b. Cap each size at q+1 buckets. For total T=Σb and oldest size B, estimate C_hat=0 if empty, T if B=1, otherwise T−B/2. With integer q≥1, |C_hat−C|≤C/(q+1), where C=Σ x_i over max(1,t−W+1)≤i≤t.",
+    "variables": "W positive integer window width; q positive integer cap parameter; x_i bit at position i; b bucket cardinality; u newest constituent position; T retained mass; B oldest retained size; C true active count; C_hat estimate",
+    "assumptions": "One ordered bit per integer position, initially empty, fixed W and q, exact timestamps and arithmetic; use the partial prefix before W arrivals",
+    "limitations": "Only the oldest bucket may straddle expiry; estimates may be fractional. The conservative relative bound stated here is independently derived for the declared cap and exact singleton rule, not an assertion of every constant in the source theorem. Storage is O((q+1) log(W+1)) buckets; actual memory depends on timestamp encoding. No arbitrary deletions, irregular clocks or weighted values in this specification",
     "failure_conditions": [
-      "Invalid window, inconsistent timestamps or unsupported bucket configuration"
+      "Invalid W or q, nonbinary input, or missing arrival positions",
+      "Timestamp or integer overflow; incorrect expiry or merging nonadjacent buckets"
     ],
-    "computation": "Stage bucket merges and expiration for review; no guarantee admitted.",
+    "computation": "Advance t for every bit. Delete oldest buckets while u≤t−W. On a one append (1,t). Whenever a size has q+2 buckets merge its oldest two into one of twice the size, retaining the newer timestamp; repeat for cascades. Maintain T and oldest size for constant-time queries if desired. Return exact zero or singleton-oldest case as specified. Never round before checking the approximation bound.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Datar, Gionis, Indyk and Motwani (2002), Maintaining stream statistics over sliding windows; review pending."
+      "citation": "Datar, Gionis, Indyk and Motwani (2002), Maintaining Stream Statistics over Sliding Windows, SIAM Journal on Computing 31(6), 1794–1813, section 2.1, Fact 1, Invariant 2 and Algorithm INSERT; DOI 10.1137/S0097539701398363. https://perso.ens-lyon.fr/bruno.salvy/INF431/Projet-hyperloglog/INF431_-_Projet_Informatique_files/DatarGionisIndykMotwani2002.pdf",
+      "url": "https://perso.ens-lyon.fr/bruno.salvy/INF431/Projet-hyperloglog/INF431_-_Projet_Informatique_files/DatarGionisIndykMotwani2002.pdf"
     },
     "application": "General bounded-memory sliding-window counting; no empirical benefit claimed.",
     "required_inputs": "Ordered bit stream, window width and bucket configuration.",
@@ -46,7 +48,7 @@
         "target": "morris-randomized-counter"
       }
     ],
-    "mechanism_note": "Provisional bucket-age and coalescence mechanism; not state-dependent probabilistic counting."
+    "mechanism_note": "The chronological groups contain consecutive arrivals of ones, so every retained bucket except the oldest lies wholly in the window. When B≥2 there are at least q buckets of each smaller power of two, since a merge leaves q of its size and expiration cannot reach smaller buckets while B remains. Thus C≥q(B−1)+1; absolute error ≤B/2 and B/[2(q(B−1)+1)]≤1/(q+1). A singleton oldest bucket is fully active. This uses deterministic age-aware coalescence, unlike Morris random increments. The source's printed invariant does not justify its sharper constant directly from the stated lower counts; this entry uses the weaker independently proved bound."
   },
   {
     "profile": "multifeature",
@@ -69,17 +71,19 @@
     "classification": "distinct-algorithm",
     "id": "monotone-deque-sliding-window-maximum",
     "name": "Monotone deque sliding-window maximum",
-    "definition": "For each x_t remove expired indices i≤t−W from deque front and tail indices i with x_i≤x_t, append t; maximum M_t=x_front for t≥W.",
-    "variables": "W window width; t ordered position; deque stores indices of decreasing values; M_t window maximum",
-    "assumptions": "Finite comparable values and fixed integer W≥1; review pending",
-    "limitations": "Tie policy, amortized costs and boundary handling require review",
+    "definition": "For t=1,2,…, remove front indices i≤t−W, then remove tail indices i with x_i≤x_t, then append (t,x_t). For t≥W return M_t=x_front=max{x_i:t−W+1≤i≤t}; ties choose the latest index.",
+    "variables": "W positive integer window width; t arrival position; x_t finite ordered value; deque stores increasing indices with strictly decreasing values; M_t maximum",
+    "assumptions": "Fixed W≥1, initially empty deque, sequential arrivals, finite totally ordered values with a consistent equality rule; no output before a full window",
+    "limitations": "Exact value only under the ordering assumptions; a single arrival may remove O(W) entries even though total deque operations are O(n) over n arrivals. Storage O(W). This is the single-sided deque, not Lemire's joint max-min comparison-optimized algorithm; no three-comparison joint claim",
     "failure_conditions": [
-      "Invalid W or noncomparable inputs"
+      "Invalid W, unordered or missing positions, NaN or incompatible comparisons",
+      "Index overflow or expiry based on queue length instead of position"
     ],
-    "computation": "Stage index expiration and dominance deletion for independent review.",
+    "computation": "Keep index-value pairs. Expire all out-of-window fronts; discard all dominated tails, including equal values; append current pair. Return front value and optionally its latest maximizing index. Every pair enters once and leaves at most once.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Lemire (2006), Streaming Maximum-Minimum Filter Using No More than Three Comparisons per Element; check relation to standard monotone deque before admission."
+      "citation": "Lemire (2006), Streaming Maximum-Minimum Filter Using No More than Three Comparisons per Element, Nordic Journal of Computing 13(4), 328–339; author manuscript arXiv:cs/0610046v5 (2007), section 4, monotonic wedge update, pp. 5–6. https://arxiv.org/pdf/cs/0610046",
+      "url": "https://arxiv.org/pdf/cs/0610046"
     },
     "application": "General exact sliding-window extrema; no empirical benefit claimed.",
     "required_inputs": "Ordered numeric stream and window width.",
@@ -95,6 +99,6 @@
         "target": "jain-chlamtac-p2-quantile"
       }
     ],
-    "mechanism_note": "Provisional dominance and expiration mechanism rather than approximate bucket counting."
+    "mechanism_note": "If i<j and x_i≤x_j, every future trailing window that still contains i after j arrives also contains j. Thus i is dominated; equal values retain the more recent index. Expiry and dominance removal preserve the maximum at the front. This is an independently justified one-sided specialization of the wedge update; unlike the quantile marker estimator, it gives an exact extremum. No separate count for reversing comparisons to obtain a minimum."
   }
 ]

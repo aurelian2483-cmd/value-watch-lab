@@ -5997,3 +5997,35 @@ Limitations — A single base-two counter has large relative standard deviation 
 Mechanism — Let Z=2^C. Conditional on Z, the next Z equals 2Z with probability 1/Z and Z otherwise. Thus E[Z_next|Z]=Z+1 and E[Z_next²|Z]=Z²+3Z. From Z₀=1 obtain E[Z_n]=n+1 and Var(Z_n)=n(n−1)/2 by summing the recurrences. Unlike KMV, this counts every arrival through state-dependent random increments, not distinct hash values. No separate admission for merely changing the exponential base.
 
 Source — Nelson and Yu (2022), Optimal Bounds for Approximate Counting, section 1.2, p. 3 of author-hosted manuscript dated March 30 2022; attributes base-two counter to Morris (1978), Counting large numbers of events in small registers, Communications of the ACM 21(10), 840–842. https://www.cs.princeton.edu/~hy2/files/approx_counting.pdf
+
+## Exponential histogram sliding-window bit count (datar-exponential-histogram-window-count)
+
+> At position t retain chronological buckets (b,u) with newest-one timestamp u>t−W and power-of-two size b. Cap each size at q+1 buckets. For total T=Σb and oldest size B, estimate C_hat=0 if empty, T if B=1, otherwise T−B/2. With integer q≥1, |C_hat−C|≤C/(q+1), where C=Σ x_i over max(1,t−W+1)≤i≤t.
+
+W positive integer window width; q positive integer cap parameter; x_i bit at position i; b bucket cardinality; u newest constituent position; T retained mass; B oldest retained size; C true active count; C_hat estimate.
+
+General bounded-memory sliding-window counting; no empirical benefit claimed.
+
+Assumptions — One ordered bit per integer position, initially empty, fixed W and q, exact timestamps and arithmetic; use the partial prefix before W arrivals.
+
+Limitations — Only the oldest bucket may straddle expiry; estimates may be fractional. The conservative relative bound stated here is independently derived for the declared cap and exact singleton rule, not an assertion of every constant in the source theorem. Storage is O((q+1) log(W+1)) buckets; actual memory depends on timestamp encoding. No arbitrary deletions, irregular clocks or weighted values in this specification.
+
+Mechanism — The chronological groups contain consecutive arrivals of ones, so every retained bucket except the oldest lies wholly in the window. When B≥2 there are at least q buckets of each smaller power of two, since a merge leaves q of its size and expiration cannot reach smaller buckets while B remains. Thus C≥q(B−1)+1; absolute error ≤B/2 and B/[2(q(B−1)+1)]≤1/(q+1). A singleton oldest bucket is fully active. This uses deterministic age-aware coalescence, unlike Morris random increments. The source's printed invariant does not justify its sharper constant directly from the stated lower counts; this entry uses the weaker independently proved bound.
+
+Source — Datar, Gionis, Indyk and Motwani (2002), Maintaining Stream Statistics over Sliding Windows, SIAM Journal on Computing 31(6), 1794–1813, section 2.1, Fact 1, Invariant 2 and Algorithm INSERT; DOI 10.1137/S0097539701398363. https://perso.ens-lyon.fr/bruno.salvy/INF431/Projet-hyperloglog/INF431_-_Projet_Informatique_files/DatarGionisIndykMotwani2002.pdf
+
+## Monotone deque sliding-window maximum (monotone-deque-sliding-window-maximum)
+
+> For t=1,2,…, remove front indices i≤t−W, then remove tail indices i with x_i≤x_t, then append (t,x_t). For t≥W return M_t=x_front=max{x_i:t−W+1≤i≤t}; ties choose the latest index.
+
+W positive integer window width; t arrival position; x_t finite ordered value; deque stores increasing indices with strictly decreasing values; M_t maximum.
+
+General exact sliding-window extrema; no empirical benefit claimed.
+
+Assumptions — Fixed W≥1, initially empty deque, sequential arrivals, finite totally ordered values with a consistent equality rule; no output before a full window.
+
+Limitations — Exact value only under the ordering assumptions; a single arrival may remove O(W) entries even though total deque operations are O(n) over n arrivals. Storage O(W). This is the single-sided deque, not Lemire's joint max-min comparison-optimized algorithm; no three-comparison joint claim.
+
+Mechanism — If i<j and x_i≤x_j, every future trailing window that still contains i after j arrives also contains j. Thus i is dominated; equal values retain the more recent index. Expiry and dominance removal preserve the maximum at the front. This is an independently justified one-sided specialization of the wedge update; unlike the quantile marker estimator, it gives an exact extremum. No separate count for reversing comparisons to obtain a minimum.
+
+Source — Lemire (2006), Streaming Maximum-Minimum Filter Using No More than Three Comparisons per Element, Nordic Journal of Computing 13(4), 328–339; author manuscript arXiv:cs/0610046v5 (2007), section 4, monotonic wedge update, pp. 5–6. https://arxiv.org/pdf/cs/0610046
