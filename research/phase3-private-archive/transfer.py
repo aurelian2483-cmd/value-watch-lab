@@ -26,7 +26,8 @@ class RecipientPolicy:
                         for name, pin in self.pins), 'RECIPIENT_KEY_POLICY_INVALID')
 
 
-def _pinned_recipient(vault, policy, recipient):
+def _pinned_recipient(vault, policy, recipient, actor):
+    require(actor == vault.custodian, 'CUSTODY_ACTOR_NOT_APPROVED')
     expected = dict(policy.pins).get(recipient)
     require(expected is not None, 'RECIPIENT_KEY_NOT_APPROVED')
     fingerprint = protocol.sha(sorted(policy.pins))
@@ -80,7 +81,7 @@ def _authenticated_container(encrypted):
 
 def seal(vault, items, recipient, *, actor, approval, certificate, key_policy):
     """Apply vault transfer policy, then encrypt the approved exact bytes."""
-    certificate_pin = _pinned_recipient(vault,key_policy,recipient)
+    certificate_pin = _pinned_recipient(vault,key_policy,recipient,actor)
     with TemporaryDirectory(prefix='vw-private-handoff-') as directory:
         cert = _certificate(directory,certificate,certificate_pin)
         bundle_sha = vault.export(items,recipient,actor=actor,approval=approval)
@@ -97,7 +98,7 @@ def restore(vault, encrypted, recipient, *, actor, ciphertext_pin, bundle_pin, c
     """Restore only when separately pinned ciphertext and custody manifest agree."""
     _authenticated_container(encrypted)
     require(sha(encrypted) == ciphertext_pin, 'CIPHERTEXT_PIN_MISMATCH')
-    certificate_pin = _pinned_recipient(vault,key_policy,recipient)
+    certificate_pin = _pinned_recipient(vault,key_policy,recipient,actor)
     key = Path(private_key)
     require(not key.is_symlink() and key.is_file()
             and (os.name == 'nt' or key.stat().st_mode & 0o077 == 0), 'PRIVATE_KEY_LOCATION_UNSAFE')

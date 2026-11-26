@@ -60,6 +60,9 @@ class TransferTests(unittest.TestCase):
 
     def test_unapproved_recipient_and_pin_are_rejected(self):
         _,cert,pin = self.keys[1]
+        with self.assertRaisesRegex(EvidenceError,'CUSTODY_ACTOR_NOT_APPROVED'):
+            self.seal(actor='unapproved-actor',certificate=cert,
+                      key_policy=RecipientPolicy((('reviewer-fixture',pin),)))
         with self.assertRaisesRegex(EvidenceError,'RECIPIENT_CERTIFICATE_PIN_MISMATCH'):
             self.seal(certificate=cert)
         with self.assertRaisesRegex(EvidenceError,'RECIPIENT_KEY_POLICY_CHANGED'):
