@@ -32,10 +32,23 @@
 <section id="sports" class="sport-grid" aria-live="polite"><div class="panel loading">Loading sport status…</div></section>
 <section id="coverage-diagnostics" class="panel" aria-labelledby="coverage-heading">
   <h2 id="coverage-heading">Fixture source diagnostics</h2>
+  <div class="panel" aria-labelledby="dec2-review-heading">
+    <h3 id="dec2-review-heading">2 December · independent meeting cross-check</h3>
+    <p><strong>Meeting evidence is not project race coverage.</strong> Official venue/BHA pages confirm four meetings. Value Watch has zero matched race IDs for this date; race coverage, declared runners, withdrawals and non-runners remain <strong>UNKNOWN</strong>. Keep odds and race-level publication gated.</p>
+    <div class="tablewrap" tabindex="0" role="region" aria-label="Official source cross-check for 2 December 2026">
+      <table><thead><tr><th scope="col">Meeting</th><th scope="col">Official source evidence</th><th scope="col">Audit result</th></tr></thead><tbody>
+        <tr><td>Southwell</td><td><a href="https://www.southwell-racecourse.co.uk/whats-on/wednesday-afternoon-flat-racing-2nd-december-2026" target="_blank" rel="noopener noreferrer">Venue event page</a>: fixture, 8-race summary and approximate first/last times.</td><td>Meeting confirmed. Project race IDs and runners unknown.</td></tr>
+        <tr><td>Haydock Park</td><td><a href="https://www.thejockeyclub.co.uk/haydock/events-tickets/christmas-time-raceday/" target="_blank" rel="noopener noreferrer">Venue event page</a>: provisional schedule; headline first race 12:08 conflicts with detailed first row 12:05.</td><td>Meeting confirmed; schedule conflict unresolved. Project race IDs and runners unknown.</td></tr>
+        <tr><td>Newcastle</td><td><a href="https://www.newcastle-racecourse.co.uk/downloads/newcastle-a4-2.pdf" target="_blank" rel="noopener noreferrer">Official fixture list</a> and <a href="https://www.newcastle-racecourse.co.uk/whats-on" target="_blank" rel="noopener noreferrer">events page</a>.</td><td>Meeting confirmed. No project race IDs or runners reconciled.</td></tr>
+        <tr><td>Catterick Bridge</td><td><a href="https://www.britishhorseracing.com/press_releases/bha-confirms-transfer-of-12-ludlow-fixtures/" target="_blank" rel="noopener noreferrer">BHA transfer notice</a> and <a href="https://www.catterickbridge.co.uk/News/ArtMID/451/ArticleID/40794/Additional-Fixture-on-Wednesday-2nd-December" target="_blank" rel="noopener noreferrer">venue notice</a>.</td><td>Transferred meeting confirmed. Project race IDs and runners unknown.</td></tr>
+      </tbody></table>
+    </div>
+    <p class="muted">Manual research reviewed 25 November 2026. Third-party racecard content is excluded because reuse rights are not cleared. Source links do not certify complete cards or declarations.</p>
+  </div>
   <h3>Horse racing · future racecard discovery</h3>
   <p id="racing-diagnostic-status" class="muted" role="status">Loading the published discovery audit…</p>
   <div class="tablewrap" tabindex="0" role="region" aria-label="Future racecard discovery by date">
-    <table><thead><tr><th scope="col">Requested UK date</th><th scope="col">Index result</th><th scope="col">Meeting-page races</th><th scope="col">Runner observations</th></tr></thead><tbody id="racing-diagnostics"></tbody></table>
+    <table><thead><tr><th scope="col">Requested UK date</th><th scope="col">Index result</th><th scope="col">Meetings and pages</th><th scope="col">Racecards</th><th scope="col">Runner fields</th><th scope="col">Coverage status</th></tr></thead><tbody id="racing-diagnostics"></tbody></table>
   </div>
   <ul id="racing-provider-diagnostics"></ul>
   <h3>Football · expanded competitions</h3>
@@ -70,4 +83,5 @@
 <div class="scheduled-links"><a href="https://github.com/aurelian2483-cmd/value-watch-lab/actions/workflows/operations-scheduled-monitor.yml" target="_blank" rel="noopener noreferrer">View scheduled audit runs</a><a href="https://github.com/aurelian2483-cmd/value-watch-lab/issues/27" target="_blank" rel="noopener noreferrer">Open shared Director history</a></div>
 </section>
 <footer><span>VALUE WATCH OPERATIONS • Separate standalone dashboard • Data is retrieved on this page only.</span><span>Research status: <strong>UNVALIDATED / BLOCKED</strong></span></footer>
-</main></div><script src="./history.js?v=4" defer></script><script src="./briefing.js?v=4" defer></script><script src="./extra-feeds.js?v=2" defer></script><script src="./app.js?v=7" defer></script><script src="./trends.js?v=7" defer></script><script src="./coverage.js" defer></script></body></html>
+</main></div><script src="./history.js?v=4" defer></script><script src="./briefing.js?v=4" defer></script><script src="./extra-feeds.js?v=2" defer></script><script src="./app.js?v=7" defer></script><script src="./trends.js?v=7" defer></script><script src="./racing-coverage-core.js" defer></script>
+  <script src="./coverage.js?v=racing-coverage-1" defer></script></body></html>
