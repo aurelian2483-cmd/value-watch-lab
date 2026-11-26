@@ -1,0 +1,74 @@
+{
+  "acquisition": {
+    "backward_clock": "COLLECTION_CLOCK_MOVED_BACKWARDS",
+    "commit_mismatch": "LOCAL_RECEIPT_IDENTITY_MISMATCH",
+    "content_tampering": "LOCAL_RECEIPT_BYTES_MISMATCH",
+    "forward_jump": "FEED_STALE_OR_FUTURE",
+    "independent_attestation": false,
+    "self_authored_local_fixture_pairs": 1
+  },
+  "betting_eligible": false,
+  "duplicate_control": {
+    "concurrent_same_input_forecast_objects": 2,
+    "distinct_revision_preserved": true,
+    "rescheduled": "SCHEDULE_CHANGED_REQUIRES_REVIEW",
+    "sequential_retry_idempotent": true
+  },
+  "freshness": {
+    "current_and_original_exact_30_minute_pairs": 1,
+    "current_one_microsecond_older": "CURRENT_FIELD_CHECK_STALE_OR_FUTURE",
+    "cutoff_exactly_five_minutes": "CAPTURE_NOT_PRE_EVENT",
+    "duplicate_feed": "DUPLICATE_FEED_RACE",
+    "exact_two_hour_envelope_pairs": 1,
+    "expired_envelope": "FEED_STALE_OR_FUTURE",
+    "original_one_microsecond_older": "SOURCE_STALE_AT_AB_CAPTURE"
+  },
+  "interruption": {
+    "before_publish": {
+      "child_exit": 86,
+      "events_after_retry": [
+        "PAIRED_FORECAST_FROZEN"
+      ],
+      "inputs_at_interruption": 1,
+      "published_forecasts_at_interruption": 0,
+      "retry_created_forecast": true,
+      "temporary_files": 1
+    },
+    "forecasts": {
+      "child_exit": 86,
+      "events_after_retry": [
+        "UNCHANGED_INPUT"
+      ],
+      "inputs_at_interruption": 1,
+      "published_forecasts_at_interruption": 1,
+      "retry_created_forecast": false,
+      "temporary_files": 0
+    },
+    "inputs": {
+      "child_exit": 86,
+      "events_after_retry": [
+        "PAIRED_FORECAST_FROZEN"
+      ],
+      "inputs_at_interruption": 1,
+      "published_forecasts_at_interruption": 0,
+      "retry_created_forecast": true,
+      "temporary_files": 0
+    }
+  },
+  "isolation": {
+    "fault_child_without_fixture_capability": "DISPOSABLE_FIXTURE_REQUIRED"
+  },
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "research_only": true,
+  "scope": "DISPOSABLE_SYNTHETIC_LEDGER_AUDIT",
+  "shared_batch_clock": {
+    "pairs": 2,
+    "shared_capture_timestamp": true,
+    "simulated_second_write_after_cutoff": true
+  },
+  "transport_controls": {
+    "oversized_input": "INPUT_TOO_LARGE",
+    "redirect_followed": false
+  }
+}

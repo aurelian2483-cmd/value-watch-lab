@@ -27,6 +27,12 @@ jobs:
         run: python -m unittest discover -s tests
       - name: Isolated horse Phase 3 acquisition and locked endpoint regressions
         run: python -m unittest discover -s research/horse-ab-phase3-master-20261115 -p 'test_*.py'
+      - name: Reproduce disposable Phase 3 infrastructure audit
+        run: |
+          set -euo pipefail
+          receipt="$(mktemp -d)/phase3-intake-audit.json"
+          python scripts/audit_phase3_isolation.py "$receipt"
+          cmp "$receipt" research/reviews/phase3-independent-review/intake-audit.json
       - name: Mathematical library and Sky 81 validation
         run: |
           set -euo pipefail
