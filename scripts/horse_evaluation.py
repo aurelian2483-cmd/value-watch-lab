@@ -6,6 +6,9 @@ import math
 import random
 import datetime as dt
 import urllib.parse
+from zoneinfo import ZoneInfo
+
+LONDON=ZoneInfo('Europe/London')
 
 def parameter_fingerprint(record):
  """Parameter identity is derived, never added to or changed in frozen records."""
@@ -20,6 +23,39 @@ def paired_interval(values,repeats=1000):
  return {'lower':means[int(.025*repeats)],'upper':means[int(.975*repeats)-1],
   'method':'Paired bootstrap resampling whole races; 1000 replicates',
   'limitation':'Exploratory descriptive interval; not independent model validation.'}
+
+def date_cluster_interval(rows,value_key,repeats=20000,seed=20261115):
+ """Bootstrap paired deltas by London race date, retaining every race in a date.
+
+ Same-day races can share weather, going, meeting and collection effects.  This
+ interval is therefore reported alongside, rather than instead of, the existing
+ race-level bootstrap.  The fixed seed and date-level resampling match the
+ locked Phase 3 research protocol; neither interval is model validation.
+ """
+ if len(rows)<30:return None
+ clusters={}
+ for row in rows:
+  value=row.get(value_key)
+  if type(value) not in (int,float) or not math.isfinite(value):
+   raise ValueError('Invalid clustered comparison value')
+  race_date=_instant(row.get('startUTC')).astimezone(LONDON).date().isoformat()
+  clusters.setdefault(race_date,[]).append(value)
+ if len(clusters)<2:return None
+ # Sorting makes the result independent of archive/file ordering.
+ dates=sorted(clusters)
+ values_by_date=[sorted(clusters[date]) for date in dates]
+ rng=random.Random(seed);means=[];date_count=len(dates)
+ for _ in range(repeats):
+  total=0.0;race_count=0
+  for _ in range(date_count):
+   selected=values_by_date[rng.randrange(date_count)]
+   total+=sum(selected);race_count+=len(selected)
+  means.append(total/race_count)
+ means.sort()
+ return {'lower':means[int(.025*repeats)],'upper':means[int(.975*repeats)-1],
+  'race_dates':date_count,'seed':seed,
+  'method':f'Paired bootstrap resampling Europe/London race dates with all races; {repeats} replicates',
+  'limitation':'Exploratory dependence-sensitivity interval; not independent model validation.'}
 
 def evaluate(records,entries):
  frozen={};groups={};seen=set()
@@ -56,13 +92,18 @@ def evaluate(records,entries):
      if lo<=p<hi:probabilities.append(p);wins+=int(str(runner['horse_id'])==str(e['winner_horse_id']))
    if probabilities:calibration.append({'lower':lo,'upper':min(hi,1),'runner_observations':len(probabilities),
     'mean_model_probability':sum(probabilities)/len(probabilities),'observed_win_frequency':wins/len(probabilities)})
-  n=len(rows);b=[e['multiclass_brier_score']-e['equal_chance_brier_score'] for _,e in rows];l=[e['log_loss']-e['equal_chance_log_loss'] for _,e in rows]
+  n=len(rows);metric_rows=[{'startUTC':r['startUTC'],
+   'brier_delta':e['multiclass_brier_score']-e['equal_chance_brier_score'],
+   'log_loss_delta':e['log_loss']-e['equal_chance_log_loss']} for r,e in rows]
+  b=[row['brier_delta'] for row in metric_rows];l=[row['log_loss_delta'] for row in metric_rows]
   key=name if sum(model==name for model,_ in groups)==1 else name+'@'+fingerprint
   result[key]={'model':name,'parameter_sha256':fingerprint,'scored_races':n,'status':'INSUFFICIENT_SAMPLE' if n<30 else 'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION',
    'mean_brier_delta_vs_equal_chance':sum(b)/n,'mean_log_loss_delta_vs_equal_chance':sum(l)/n,
    'brier_delta_bootstrap_95_interval':paired_interval(b),'log_loss_delta_bootstrap_95_interval':paired_interval(l),
-   'calibration_bins':calibration,'calibration_note':'Runner observations within a race are dependent. Calibration bins are descriptive; uncertainty resamples whole races.'}
- return {'protocol_version':'RACE_LEVEL_PAIRED_EVALUATION_V2','models':result,
+   'brier_delta_date_cluster_bootstrap_95_interval':date_cluster_interval(metric_rows,'brier_delta'),
+   'log_loss_delta_date_cluster_bootstrap_95_interval':date_cluster_interval(metric_rows,'log_loss_delta'),
+   'calibration_bins':calibration,'calibration_note':'Runner observations within a race are dependent. Calibration bins are descriptive; uncertainty is shown by whole-race and, when available, London race-date resampling.'}
+ return {'protocol_version':'RACE_LEVEL_PAIRED_EVALUATION_V3','models':result,
   'minimum_races_for_exploratory_intervals':30,'prospective_review_target_races':100,
   'threshold_note':'30 and 100 are research review milestones, not validation or profitability guarantees.',
   'comparison':'Paired form-model minus equal-chance score on the same frozen field; negative values favour the form model.',
@@ -150,10 +191,12 @@ def compare_embedded_form_baseline(records,entries,corroborated_results=None):
    'mean_log_loss_delta_challenger_minus_form':sum(l)/len(l) if l else None,
    'brier_delta_bootstrap_95_interval':paired_interval(b),
    'log_loss_delta_bootstrap_95_interval':paired_interval(l),
+   'brier_delta_date_cluster_bootstrap_95_interval':date_cluster_interval(selected,'brier_delta_challenger_minus_form'),
+   'log_loss_delta_date_cluster_bootstrap_95_interval':date_cluster_interval(selected,'log_loss_delta_challenger_minus_form'),
    'pairs':sorted(selected,key=lambda r:(r['startUTC'],r['race_id']))}
  all_results=summary(rows)
  corroborated_results=summary([r for r in rows if r['result_evidence']=='TWO_PUBLISHER_RESULT_CORROBORATED'])
- return {'protocol_version':'CHALLENGER_VS_EMBEDDED_FORM_PAIRED_V2','model_validation':'UNVALIDATED',
+ return {'protocol_version':'CHALLENGER_VS_EMBEDDED_FORM_PAIRED_V3','model_validation':'UNVALIDATED',
   'research_only':True,'publication_gate':'BLOCKED',**all_results,
   'two_publisher_corroborated':corroborated_results,
   'comparison':'Challenger minus its embedded form baseline on the identical frozen field and forecast receipt; negative deltas favour the challenger.',
@@ -242,8 +285,10 @@ def compare_models(context_records,context_entries,baseline_records,baseline_ent
   summaries.append({'discipline':discipline,'surface':surface,'context_parameter_sha256':cp,'baseline_parameter_sha256':bp,
    'paired_races':len(rows),'status':'INSUFFICIENT_SAMPLE' if len(rows)<30 else 'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION',
    'mean_brier_delta_context_minus_baseline':sum(b)/len(b),'mean_log_loss_delta_context_minus_baseline':sum(l)/len(l),
-   'brier_delta_bootstrap_95_interval':paired_interval(b),'log_loss_delta_bootstrap_95_interval':paired_interval(l)})
- return {'protocol_version':'CONTEXT_VS_FORM_PAIRED_V1','model_validation':'UNVALIDATED','research_only':True,'publication_gate':'BLOCKED',
+   'brier_delta_bootstrap_95_interval':paired_interval(b),'log_loss_delta_bootstrap_95_interval':paired_interval(l),
+   'brier_delta_date_cluster_bootstrap_95_interval':date_cluster_interval(rows,'brier_delta_context_minus_baseline'),
+   'log_loss_delta_date_cluster_bootstrap_95_interval':date_cluster_interval(rows,'log_loss_delta_context_minus_baseline')})
+ return {'protocol_version':'CONTEXT_VS_FORM_PAIRED_V2','model_validation':'UNVALIDATED','research_only':True,'publication_gate':'BLOCKED',
   'status':'NO_ELIGIBLE_PAIRS' if not pairs else 'DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION','matched_races':len(pairs),
   'groups':summaries,'pairs':sorted(pairs,key=lambda r:(r['startUTC'],r['race_id'])),'exclusions':exclusions,
   'comparison':'Context minus original form baseline on identical frozen fields and observed winners; negative deltas favour context.',
