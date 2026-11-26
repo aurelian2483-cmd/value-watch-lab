@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
-from horse_evaluation import compare_embedded_form_baseline,compare_models,evaluate,parameter_fingerprint
+from horse_evaluation import compare_embedded_form_baseline,compare_models,date_cluster_interval,evaluate,parameter_fingerprint
 
 
 def fixture(race_id='1',context=True,probability=.6):
@@ -155,6 +155,38 @@ class BootstrapOrderIntegrity(unittest.TestCase):
     def test_small_sample_still_has_no_interval(self):
         from horse_evaluation import paired_interval
         self.assertIsNone(paired_interval([.1]*29))
+
+    def test_date_cluster_interval_is_order_independent_and_uses_london_date(self):
+        rows=[]
+        # 23:30 UTC is the following London date during British Summer Time.
+        for index in range(15):
+            rows.append({'startUTC':f'2026-07-01T23:{30+index:02d}:00Z','delta':-.2})
+            rows.append({'startUTC':f'2026-07-02T12:{index:02d}:00Z','delta':.1})
+        for index in range(30):
+            rows.append({'startUTC':f'2026-07-03T12:{index:02d}:00Z','delta':.3})
+        expected=date_cluster_interval(rows,'delta',repeats=1000)
+        self.assertEqual(expected,date_cluster_interval(list(reversed(rows)),'delta',repeats=1000))
+        self.assertEqual(expected['race_dates'],2)
+        self.assertLess(expected['lower'],expected['upper'])
+
+    def test_date_cluster_interval_requires_sample_and_multiple_dates(self):
+        self.assertIsNone(date_cluster_interval([{'startUTC':'2026-11-04T15:00:00Z','delta':.1}]*29,'delta'))
+        self.assertIsNone(date_cluster_interval([{'startUTC':'2026-11-04T15:00:00Z','delta':.1}]*30,'delta'))
+        with self.assertRaisesRegex(ValueError,'clustered comparison'):
+            date_cluster_interval([{'startUTC':f'2026-11-{4+i%2:02d}T15:00:00Z','delta':float('nan')} for i in range(30)],'delta')
+
+    def test_evaluation_reports_clustered_interval_without_replacing_race_interval(self):
+        records=[];entries=[]
+        for index in range(30):
+            record,entry=fixture(str(index))
+            day=4+index//15
+            record['startUTC']=entry['startUTC']=f'2026-11-{day:02d}T15:00:00Z'
+            records.append(record);entries.append(entry)
+        result=evaluate(records,entries)
+        summary=next(iter(result['models'].values()))
+        self.assertEqual(result['protocol_version'],'RACE_LEVEL_PAIRED_EVALUATION_V3')
+        self.assertIsNotNone(summary['brier_delta_bootstrap_95_interval'])
+        self.assertEqual(summary['brier_delta_date_cluster_bootstrap_95_interval']['race_dates'],2)
 
 class RevisionTieIntegrity(unittest.TestCase):
     def test_conflicting_capture_time_ties_rejected_in_both_orders(self):
