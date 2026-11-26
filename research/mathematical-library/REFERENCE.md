@@ -5645,3 +5645,67 @@ Limitations — A tiny product residual may be unrepresentable even when the rou
 Mechanism — The real residual r=a b−p is the exact input to the final rounding; if r belongs to the format, that rounding is the identity and the pair preserves the product. For a subnormal residual below the minimum representable increment this argument fails. The multiplication residual and explicit fused operation differ from the six-addition TwoSum primitive; neither alone is a full compensated dot-product algorithm.
 
 Source — Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, equation (2.3) and Algorithm 3.5, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf
+
+## Magnitude-ordered FastTwoSum (dekker-fast-two-sum)
+
+> For |a|≥|b|, compute s=fl(a+b), z=fl(s−a), e=fl(b−z). Under the stated arithmetic assumptions, a+b=s+e as real numbers.
+
+a,b floating-point operands; s rounded sum; z temporary; e residual; fl working-precision rounding.
+
+General numerical residual extraction; no forecasting benefit claimed.
+
+Assumptions — Finite binary IEEE floating-point values, fixed precision, round-to-nearest ties-to-even, gradual underflow, |a|≥|b| and no overflowing intermediate.
+
+Limitations — Magnitude ordering is a sufficient, not necessary, restriction; the pair is exact in real arithmetic, not necessarily when rounded again; arbitrary operand order, flush-to-zero or reassociation can defeat exactness.
+
+Mechanism — Magnitude ordering implies the sufficient exponent ordering in the binary format. For binary64, a=1 and b=2^−53 give s=1, z=0 and e=2^−53. A separate unordered counterexample is a=1, b=2^54: s=2^54, z=2^54 and e=0, although the real residual is 1. The halfway subtraction 2^54−1 rounds to 2^54 in ties-to-even. The three-operation ordered variant computes the same real pair identity as the existing general six-operation TwoSum; it is not a distinct statistical model.
+
+Source — Lange and Oishi (2020), A note on Dekker’s FastTwoSum algorithm, Numerische Mathematik 145, 383–403, Theorem 1 and Lemma 1, DOI 10.1007/s00211-020-01114-2. https://link.springer.com/article/10.1007/s00211-020-01114-2
+
+## Scaled sum-of-squares accumulation (scaled-sum-of-squares)
+
+> Maintain m≥0 and q≥0 with Σx_i²=m²q in exact arithmetic. For each nonzero x let v=|x|; if v>m, update q←1+q(m/v)² and m←v; otherwise q←q+(v/m)². Return m√q.
+
+m maximum magnitude so far; q scaled accumulator; x next term; v absolute value.
+
+General numerical norm evaluation; no forecasting benefit claimed.
+
+Assumptions — Finite real floating-point inputs, declared working precision and ordered evaluation; start m=q=0, skip zeros, and require finite scaled state and final norm.
+
+Limitations — The invariant is exact only in real arithmetic; ratios and squares can round or underflow, accumulation can lose small contributions, and an unrepresentable final norm can overflow; this historical one-scale algorithm is not the current three-accumulator safe-scaling implementation.
+
+Mechanism — When a new maximum v appears, v²[1+q(m/v)²]=v²+m²q; otherwise m²[q+(v/m)²]=m²q+v². The induction starts at zero, and the nonzero branch prevents division by zero. Ratios have magnitude at most one, avoiding direct squaring of a large input. This is a scale-changing norm reduction, not the unscaled pairwise or compensated sum of already rounded terms.
+
+Source — LAPACK 3.1 (2006), DLASSQ auxiliary routine, Netlib source, purpose and executable recurrence. https://netlib.org/lapack/lapack-3.1.1/html/dlassq.f.html
+
+## Dekker binary64 significand splitting (dekker-binary64-significand-split)
+
+> With C=2^27+1 compute t=fl(Ca), h=fl(t−fl(t−a)), l=fl(a−h). Under the stated arithmetic conditions a=h+l exactly with nonoverlapping components.
+
+a binary64 input; C splitting constant; t temporary; h high component; l low component; fl rounded arithmetic.
+
+General floating-point decomposition into high and low components; no forecasting benefit claimed.
+
+Assumptions — Finite binary64 input, round-to-nearest ties-to-even, each arithmetic operation rounded separately in binary64, no overflow or underflow in intermediate arithmetic for this restricted specification.
+
+Limitations — The initial multiplication can overflow for large a; this specification does not include rescaling or claim exactness with flush-to-zero, reassociation or mixed precision.
+
+Mechanism — The source establishes the nonoverlapping exact decomposition for its arithmetic model. For a=1+2^−52, the rounded product is C+2^−25, h=1 and l=2^−52. A single input is decomposed into two narrower components, unlike TwoSum on two inputs or FMA extraction of an existing product residual.
+
+Source — Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, SIAM J. Sci. Comput. 26(6), 1955–1988, p. 1961, Algorithm 3.2, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf
+
+## TwoSum cascaded compensated summation (two-sum-cascaded-compensated-summation)
+
+> For n≥1 let p_1=x_1 and c_1=0; for i=2,…,n set (p_i,r_i)=TwoSum(p_(i−1),x_i), c_i=fl(c_(i−1)+r_i); return fl(p_n+c_n).
+
+x_i input terms; p_i running rounded sum; r_i exact local residual; c_i rounded residual accumulation; fl rounding.
+
+General compensated summation of floating-point measurements; no forecasting benefit claimed.
+
+Assumptions — Nonempty finite floating-point sequence, fixed binary working precision, round-to-nearest ties-to-even with gradual underflow, strict TwoSum semantics and no overflow in any intermediate.
+
+Limitations — The residual accumulation and final addition still round; the result is not a guaranteed correctly rounded or exact sum; cancellation may make relative error large.
+
+Mechanism — Successive exact local identities give Σx_i=p_n+Σ_(i=2)^n r_i in real arithmetic by telescoping; c_n approximates rather than exactly represents the latter sum. The correction is separately accumulated and appended once, unlike Kahan’s feedback into each incoming term. It is conservatively classified in the compensated-summation family, not as an additional distinct algorithm.
+
+Source — Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, p. 1963, Algorithm 4.1 and equation (4.2), DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf

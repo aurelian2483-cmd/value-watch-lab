@@ -1,0 +1,110 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "054",
+    "family": "numerical-optimisation",
+    "classification": "model-variant",
+    "id": "split-two-product-residual",
+    "name": "Non-FMA split product residual",
+    "definition": "Split a=a_h+a_l and b=b_h+b_l; p=fl(ab); compute a residual from the four component products using the ordered TwoProduct recurrence, so ab=p+e under suitable arithmetic conditions.",
+    "variables": "a,b operands; high and low components; p rounded product; e residual",
+    "assumptions": "Restricted binary64 splitting and exact-product conditions; independent review pending",
+    "limitations": "Intermediate overflow and underflow can defeat the residual identity; detailed review pending",
+    "failure_conditions": [
+      "Unsupported split domain or arithmetic"
+    ],
+    "computation": "Use split and ordered component-product residual recurrence; exact parentheses and domain pending review",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Ogita, Rump and Oishi (2005), Algorithm 3.3, DOI 10.1137/030601818; admission review pending."
+    },
+    "application": "General numerical product decomposition; no forecasting benefit claimed.",
+    "required_inputs": "Finite operands and declared arithmetic",
+    "compatible_methods": [
+      "dekker-binary64-significand-split",
+      "two-product-fma-error-free-transform"
+    ],
+    "incompatible_methods": [
+      "Claiming exactness for arbitrary underflow"
+    ],
+    "relationships": [
+      {
+        "target": "two-product-fma-error-free-transform",
+        "type": "variant-of"
+      },
+      {
+        "target": "dekker-binary64-significand-split",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional non-FMA route to the same product decomposition; review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "054",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "compensated-dot-product-dot2",
+    "name": "Error-residual compensated dot product",
+    "definition": "For paired inputs x_i,y_i compute p_i=fl(x_i y_i) and product residuals; accumulate rounded products and local addition residuals, then combine the corrections to approximate Σx_i y_i.",
+    "variables": "x_i,y_i input components; p_i rounded products; product and sum residuals",
+    "assumptions": "Finite paired inputs and declared arithmetic; exact residual domain and recurrence pending independent review",
+    "limitations": "Not guaranteed correctly rounded; residual underflow and cancellation require review",
+    "failure_conditions": [
+      "Unmatched vectors or unsupported residual arithmetic"
+    ],
+    "computation": "Review and specify the Dot2 recurrence and its rounding conditions before admission",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, section 5, DOI 10.1137/030601818; admission review pending."
+    },
+    "application": "General numerical inner-product computation; no forecasting benefit claimed.",
+    "required_inputs": "Paired finite vectors and declared arithmetic",
+    "compatible_methods": [
+      "knuth-two-sum-error-free-transform",
+      "two-product-fma-error-free-transform"
+    ],
+    "incompatible_methods": [
+      "Inferring exact dot product from individual residuals"
+    ],
+    "relationships": [
+      {
+        "target": "two-product-fma-error-free-transform",
+        "type": "related"
+      },
+      {
+        "target": "knuth-two-sum-error-free-transform",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional combined product and addition correction mechanism; review pending."
+  }
+]
