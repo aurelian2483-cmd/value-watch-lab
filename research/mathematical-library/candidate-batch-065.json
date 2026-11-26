@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "065",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "sparse-table-idempotent-range-query",
+    "name": "Sparse table idempotent range query",
+    "definition": "S_{0,i}=x_i; S_{j,i}=S_{j−1,i}⊗S_{j−1,i+2^{j−1}}. For [a,b], j=⌊log₂(b−a+1)⌋; Q(a,b)=S_{j,a}⊗S_{j,b−2^j+1}.",
+    "variables": "i starting index; j level; ⊗ associative idempotent operation; a,b inclusive endpoints",
+    "assumptions": "Provisional; mathematical and source review pending",
+    "limitations": "Provisional; computational bounds and boundary cases require review",
+    "failure_conditions": [
+      "Invalid inputs or violated algebraic assumptions"
+    ],
+    "computation": "Provisional specification; independently verify all traversal and boundary rules before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: static range minimum query sparse tables in algorithms teaching materials; authoritative source and assumptions pending."
+    },
+    "application": "General mathematical data structure; no empirical benefit claimed.",
+    "required_inputs": "Finite indexed data and declared operations.",
+    "compatible_methods": [
+      "segment-tree-associative-range-aggregate"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "segment-tree-associative-range-aggregate"
+      }
+    ],
+    "mechanism_note": "Provisional overlapping-block static lookup, not mutable tree traversal; novelty review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "065",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "disjoint-set-union-rank-path-compression",
+    "name": "Disjoint set union with rank and path compression",
+    "definition": "Initially parent_i=i and rank_i=0; Find(i)=i if parent_i=i, otherwise parent_i←Find(parent_i). Union roots by rank, increasing the surviving root rank by one only on equal-rank merge.",
+    "variables": "parent_i representative pointer; rank_i root rank; Find representative query",
+    "assumptions": "Provisional; mathematical and source review pending",
+    "limitations": "Provisional; computational bounds and boundary cases require review",
+    "failure_conditions": [
+      "Invalid inputs or violated algebraic assumptions"
+    ],
+    "computation": "Provisional specification; independently verify all traversal and boundary rules before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Tarjan (1975), Efficiency of a Good But Not Linear Set Union Algorithm; review pending."
+    },
+    "application": "General mathematical data structure; no empirical benefit claimed.",
+    "required_inputs": "Finite indexed data and declared operations.",
+    "compatible_methods": [
+      "kruskal-spanning-forest"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "kruskal-spanning-forest"
+      }
+    ],
+    "mechanism_note": "Provisional partition maintenance with root compression and ranked linking; review relationship to registered spanning-forest algorithm."
+  }
+]

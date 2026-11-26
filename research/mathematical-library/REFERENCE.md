@@ -6029,3 +6029,35 @@ Limitations — Exact value only under the ordering assumptions; a single arriva
 Mechanism — If i<j and x_i≤x_j, every future trailing window that still contains i after j arrives also contains j. Thus i is dominated; equal values retain the more recent index. Expiry and dominance removal preserve the maximum at the front. This is an independently justified one-sided specialization of the wedge update; unlike the quantile marker estimator, it gives an exact extremum. No separate count for reversing comparisons to obtain a minimum.
 
 Source — Lemire (2006), Streaming Maximum-Minimum Filter Using No More than Three Comparisons per Element, Nordic Journal of Computing 13(4), 328–339; author manuscript arXiv:cs/0610046v5 (2007), section 4, monotonic wedge update, pp. 5–6. https://arxiv.org/pdf/cs/0610046
+
+## Fenwick binary indexed tree prefix sums (fenwick-binary-indexed-tree-prefix-sum)
+
+> For 1≤i≤n, let b(i)=2^{v_2(i)} and T_i=Σ_{j=i−b(i)+1}^i x_j. Prefix P(k)=Σ_{j=1}^k x_j is obtained from sum=0 by adding T_i for i=k,k−b(k),… until i=0. For a point increment x_k←x_k+δ, add δ to T_i for i=k,k+b(k),… while i≤n.
+
+n positive integer array length; i,k one-based indices except prefix k=0; v_2(i) exponent of the largest power of two dividing i; b(i) that power; T_i block sum; δ additive increment.
+
+General mutable prefix sums; no empirical benefit claimed.
+
+Assumptions — Fixed n≥1, exact commutative additive arithmetic with zero; prefix index 0≤k≤n and update index 1≤k≤n; enough integer width for indices and arithmetic; signed values and increments allowed for sums only.
+
+Limitations — O(n) stored sums and O(1+log n) additions per query or point increment. Initialization by n updates costs O(n log(n+1)). Finite-precision addition may round or overflow. Prefix search by cumulative rank and arbitrary range updates are not part of this specification.
+
+Mechanism — Subtracting the lowest set bit partitions the prefix into disjoint consecutive dyadic intervals; adding that bit enumerates precisely the stored intervals containing the changed index. The update increases the lowest set-bit size until leaving the array. This is the one-based positive-index form with no stored index-zero frequency, unlike the paper's special zero slot. Distinct mutable dyadic representation, not chronological bucket coalescence or static pairwise summation.
+
+Source — Fenwick (1994), A new data structure for cumulative frequency tables, Software: Practice and Experience 24(3), 327–336, Principles and Figures 4–5, pp. 328–331; DOI 10.1002/spe.4380240306. https://www.plouffe.fr/OEIS/archive_in_pdf/spe884.pdf
+
+## Segment tree associative range aggregate (segment-tree-associative-range-aggregate)
+
+> For a nonempty array indexed 1,…,n, A(l,l)=x_l and A(l,r)=A(l,m)⊗A(m+1,r) for m=⌊(l+r)/2⌋ when l<r. Query Q(l,r;a,b)=e if [l,r]∩[a,b] is empty, A(l,r) if [l,r]⊆[a,b], otherwise Q(l,m;a,b)⊗Q(m+1,r;a,b).
+
+n positive integer length; l,r inclusive node endpoints; m split; a,b inclusive query endpoints; ⊗ associative operation; e two-sided identity; A stored ordered aggregate; Q range query.
+
+General mutable range aggregation; no empirical benefit claimed.
+
+Assumptions — Fixed n≥1; values in a monoid (closed associative operation with two-sided identity); valid nonempty query 1≤a≤b≤n or explicitly empty query returning e; exact operation for mathematical equality.
+
+Limitations — O(n) aggregate slots and build combines; O(1+log n) combines for a point replacement or contiguous range query. Time bounds assume constant-cost combine and storage per aggregate. Floating-point nonassociativity, overflow, or growing aggregate sizes can invalidate exact or constant-cost claims. No lazy range updates or dynamic resizing here.
+
+Mechanism — Induction on interval splits proves every node stores the ordered fold, and disjoint query pieces concatenate in original order. Only the two boundary paths can contain partially intersecting nodes at each depth, yielding logarithmic combine count. Unlike Fenwick prefix differences, arbitrary monoid ranges require no inverse or commutativity. This is the independently derived unpadded inclusive formulation of the course's balanced half-open tree, not a new entry for each aggregate.
+
+Source — Carnegie Mellon University, 15-451 Algorithm Design and Analysis, Fall 2024, Range query data structures, sections 2–3 and 5.1, pp. 3–7 and 8–9. https://www.cs.cmu.edu/~15451-f24/lectures/lecture06-range-queries.pdf
