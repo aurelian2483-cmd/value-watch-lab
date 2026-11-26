@@ -5901,3 +5901,35 @@ Limitations — Collision overestimation is possible; the error is additive in t
 Mechanism — Each addressed cell equals f_x plus nonnegative collision mass. Expected collision mass per row is at most F/W≤εF/e. For F>0 Markov bounds the chance of exceeding εF by 1/e; independence makes the probability that every row exceeds it at most e^(−d)≤δ. Unlike explicit candidate cancellation, this stores hashed aggregate counters and answers a supplied key query. No empirical benefit or implementation is claimed.
 
 Source — Cormode and Muthukrishnan (2005), An improved data stream summary: The count-min sketch and its applications, Journal of Algorithms 55(1), 58–75, sections 3 and 4.1, Theorem 1, pp. 63–64. DOI 10.1016/j.jalgor.2003.12.001. https://cs.au.dk/~gerth/madalgo/old-madalgo.au.dk/img/SumSchoo2007_Lecture%20slides/Bibliography/p14_Cormode_JAl_05.pdf
+
+## Bloom probabilistic membership filter (bloom-filter-membership)
+
+> For an m-bit zero array B and k distinct addresses H(x), insertion sets B[i]←1 for i∈H(x); query Q(x)=∏_{i∈H(x)} B[i]. With T=Σ_i B[i], Pr(Q(x)=1 | B)=choose(T,k)/choose(m,k) for an independent uniform k-subset query of a nonmember
+
+m bit capacity; k addresses per key; H(x) stable address subset; T occupied bit count; Q binary query result; choose binomial coefficient (zero if T<k).
+
+General approximate set membership; no empirical benefit claimed.
+
+Assumptions — Integers 1≤k≤m; insertion only, stable distinct address mapping, intact bit state and consistent key representation. Probability formula additionally requires the absent query key's address set to be uniform among k-subsets and independent of the constructed filter.
+
+Limitations — Positive results can be false; negatives exclude previously inserted keys only under the stated intact insertion-only model. Saturation yields all positives. Probability is conditional on occupied state, not a guarantee for adaptive queries or arbitrary hashes. No deletion, exact count or exact membership recovery.
+
+Mechanism — Inserted keys retain every addressed bit by monotonicity. Under independent uniform distinct query addresses, exactly choose(T,k) of choose(m,k) equally likely subsets lie wholly in the occupied set. This is conditional on the bit pattern and differs from the common independent-with-replacement approximation. Boolean set-membership screening differs from Count–Min numerical frequency estimation.
+
+Source — Bloom (1970), Space/time trade-offs in hash coding with allowable errors, Communications of the ACM 13(7), 422–426, Method 2, p. 423. DOI 10.1145/362686.362692. https://crystal.uta.edu/~mcguigan/cse6350/papers/Bloom.pdf ; conditional occupancy ratio independently derived
+
+## Count Sketch signed frequency estimator (count-sketch-signed-frequency)
+
+> C[j,h_j(x)]←C[j,h_j(x)]+s_j(x)u; Z_j(x)=s_j(x)C[j,h_j(x)]; f_hat(x)=median_j Z_j(x). E[Z_j]=f_x; Var(Z_j)=Σ_{y≠x} f_y²/b. For odd d and V=Σ_{y≠x} f_y²/b>0, Pr(|f_hat−f_x|>2√V)≤exp(−d/8)
+
+C signed counter matrix; b buckets per row; d odd row count; h_j bucket hash; s_j sign hash into {−1,+1}; u signed increment; f_y net frequency; Z_j row estimate; V row variance.
+
+General signed streaming frequency estimation; no empirical benefit claimed.
+
+Assumptions — Finite key universe, fixed update vector and query independent of hashes, exact arithmetic; b≥1 and odd d≥1. Pairwise independent uniform bucket hashes and pairwise independent unbiased signs, sign and bucket functions independent, rows mutually independent.
+
+Limitations — Two-sided additive error depends on other keys' squared frequencies; median is not asserted unbiased. Bound is for a fixed query, not adaptive queries, and does not recover unknown keys or guarantee a top-k list. O(bd) counters and d hash evaluations per update or query plus median computation.
+
+Mechanism — Expand Z_j−f_x as Σ_{y≠x} f_y s_j(x)s_j(y)1{h_j(y)=h_j(x)}. Independent unbiased pairwise signs cancel cross terms since s_j(x)²=1; uniform pairwise bucket hashes yield the stated variance. Chebyshev bounds a bad row by 1/4 and Hoeffding bounds a majority of bad independent rows by exp(−d/8). Signed collision cancellation and median estimation differ from nonnegative minimum estimation.
+
+Source — Charikar, Chen and Farach-Colton (2002), Finding frequent items in data streams, ICALP, LNCS 2380, 693–703, sections 3.2, 4 and 4.2. DOI 10.1007/3-540-45465-9_59. https://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarCF.pdf ; fixed-query signed L2 bound independently derived

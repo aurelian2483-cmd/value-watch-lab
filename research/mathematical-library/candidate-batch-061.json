@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "061",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "hyperloglog-cardinality",
+    "name": "HyperLogLog register cardinality estimator",
+    "definition": "M[j]←max(M[j],ρ(w)); E_raw=α_m m²/Σ_j 2^(−M[j])",
+    "variables": "M register array; m register count; j hash prefix index; w remaining hash bits; ρ leading-zero run plus one; α_m normalization",
+    "assumptions": "Uniform hash model and appropriate register indexing; full review pending",
+    "limitations": "Finite hash range, small-cardinality and saturation corrections require review",
+    "failure_conditions": [
+      "Invalid register configuration or unverified hash model"
+    ],
+    "computation": "Stage register update and harmonic aggregation for review; verify constants, rank conventions and correction regimes before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Flajolet et al. (2007), HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm; full review pending."
+    },
+    "application": "General distinct-key cardinality estimation; no empirical benefit claimed.",
+    "required_inputs": "Key stream, hash function and register configuration.",
+    "compatible_methods": [
+      "bloom-filter-membership"
+    ],
+    "incompatible_methods": [
+      "Treating approximate cardinality as exact"
+    ],
+    "relationships": [
+      {
+        "target": "bloom-filter-membership",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional register-maxima cardinality estimation, not bit-membership testing."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "061",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "ams-second-frequency-moment",
+    "name": "AMS random-sign second frequency moment estimator",
+    "definition": "Z_j←Z_j+s_j(x)u; Y_j=Z_j²; aggregate independent block averages by median",
+    "variables": "Z_j signed accumulator; s_j sign map; u increment; Y_j squared accumulator",
+    "assumptions": "Four-wise independent unbiased signs within rows and independent rows; full review pending",
+    "limitations": "Variance and confidence parameters must be verified; no exactness claimed",
+    "failure_conditions": [
+      "Unjustified sign independence or arithmetic overflow"
+    ],
+    "computation": "Stage squared signed projection and median-of-means aggregation; derive error and confidence bounds before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Alon, Matias and Szegedy (1996), The space complexity of approximating the frequency moments; full review pending."
+    },
+    "application": "General estimation of squared frequency norm; no empirical benefit claimed.",
+    "required_inputs": "Update stream, random sign families and aggregation dimensions.",
+    "compatible_methods": [
+      "count-sketch-signed-frequency"
+    ],
+    "incompatible_methods": [
+      "Assuming exact squared frequency norm"
+    ],
+    "relationships": [
+      {
+        "target": "count-sketch-signed-frequency",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional scalar squared projection targeting a global moment, rather than a per-key estimate; classification to be reviewed."
+  }
+]

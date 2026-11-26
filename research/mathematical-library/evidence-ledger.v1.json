@@ -8477,5 +8477,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Each addressed cell equals f_x plus nonnegative collision mass. Expected collision mass per row is at most F/W≤εF/e. For F>0 Markov bounds the chance of exceeding εF by 1/e; independence makes the probability that every row exceeds it at most e^(−d)≤δ. Unlike explicit candidate cancellation, this stores hashed aggregate counters and answers a supplied key query. No empirical benefit or implementation is claimed."
+  },
+  {
+    "id": "bloom-filter-membership",
+    "source": {
+      "kind": "literature",
+      "citation": "Bloom (1970), Space/time trade-offs in hash coding with allowable errors, Communications of the ACM 13(7), 422–426, Method 2, p. 423. DOI 10.1145/362686.362692. https://crystal.uta.edu/~mcguigan/cse6350/papers/Bloom.pdf ; conditional occupancy ratio independently derived",
+      "url": "https://crystal.uta.edu/~mcguigan/cse6350/papers/Bloom.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Inserted keys retain every addressed bit by monotonicity. Under independent uniform distinct query addresses, exactly choose(T,k) of choose(m,k) equally likely subsets lie wholly in the occupied set. This is conditional on the bit pattern and differs from the common independent-with-replacement approximation. Boolean set-membership screening differs from Count–Min numerical frequency estimation."
+  },
+  {
+    "id": "count-sketch-signed-frequency",
+    "source": {
+      "kind": "literature",
+      "citation": "Charikar, Chen and Farach-Colton (2002), Finding frequent items in data streams, ICALP, LNCS 2380, 693–703, sections 3.2, 4 and 4.2. DOI 10.1007/3-540-45465-9_59. https://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarCF.pdf ; fixed-query signed L2 bound independently derived",
+      "url": "https://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarCF.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Expand Z_j−f_x as Σ_{y≠x} f_y s_j(x)s_j(y)1{h_j(y)=h_j(x)}. Independent unbiased pairwise signs cancel cross terms since s_j(x)²=1; uniform pairwise bucket hashes yield the stated variance. Chebyshev bounds a bad row by 1/4 and Hoeffding bounds a majority of bad independent rows by exp(−d/8). Signed collision cancellation and median estimation differ from nonnegative minimum estimation."
   }
 ]
