@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "069",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "longest-increasing-subsequence-minimal-tails",
+    "name": "Longest increasing subsequence minimal tails",
+    "definition": "Initially T=[]; for each x_i set j=min({k:T_k≥x_i}∪{len(T)}); append x_i if j=len(T), otherwise T_j←x_i; return len(T).",
+    "variables": "x finite sequence; T minimal tail array; j zero-based insertion location",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify bounds and edge cases",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Fredman (1975), On computing the length of longest increasing subsequences; verify exact lower-bound algorithm and assumptions."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence with declared comparison semantics.",
+    "compatible_methods": [
+      "longest-common-subsequence-length-dp"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "longest-common-subsequence-length-dp"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "069",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "manacher-palindrome-radius",
+    "name": "Manacher odd palindrome radius scan",
+    "definition": "Initially l=0,r=−1; for i=0,…,n−1 set k=1 if i>r, otherwise k=min(d_{l+r−i},r−i+1); while i−k≥0 and i+k<n and x_{i−k}=x_{i+k}, increment k; d_i←k; if i+k−1>r set l←i−k+1,r←i+k−1; return d.",
+    "variables": "x finite sequence; n length; l,r inclusive rightmost palindrome boundaries; d_i radius including center",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify bounds and edge cases",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Manacher (1975), A new linear-time on-line algorithm for finding the smallest initial palindrome of a string; verify modern odd-radius mirror formulation with academic source."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence with declared comparison semantics.",
+    "compatible_methods": [
+      "levenshtein-unit-edit-distance-dp"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "levenshtein-unit-edit-distance-dp"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  }
+]

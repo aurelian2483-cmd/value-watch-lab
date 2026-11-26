@@ -8845,5 +8845,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Inductively ranks encode lexicographic order and equality of prefixes truncated at span h. Concatenating two adjacent truncated blocks gives the next prefix order; a missing second block ranks before any nonempty block. Distinct truncated prefixes fix their full suffix order, so early unique ranks are sufficient. When h≥n all distinct nonempty suffixes have been distinguished. Unlike KMP, this creates an index by repeated pair sorting rather than scanning a single fixed pattern. The comparison-sort specification is not a claim to implement the original paper's optimized sorting procedure."
+  },
+  {
+    "id": "levenshtein-unit-edit-distance-dp",
+    "source": {
+      "kind": "literature",
+      "citation": "Wagner and Fischer (1974), The String-to-String Correction Problem, JACM 21(1), 168–173, DOI 10.1145/321796.321811 (bibliographic record and abstract); Cornell CS 4820 (2025), Dynamic Programming II: Edit Distance, and Dynamic Programming III: Analysis of Edit Distance (recurrence and boundaries). https://www.cs.cornell.edu/courses/cs4820/2025sp/notes/07-ED-Analysis.pdf",
+      "url": "https://www.cs.cornell.edu/courses/cs4820/2025sp/notes/07-ED-Analysis.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "An optimal order-preserving alignment ends with a deletion, insertion or paired symbols. Under unit costs, repeated changes of one surviving symbol cannot beat direct substitution, and an inserted then deleted symbol can be omitted. Removing the final alignment operation leaves an optimal prefix subproblem; each predecessor also extends to a feasible alignment. Unlike exact pattern scanning and suffix ordering, this minimizes global edit cost."
+  },
+  {
+    "id": "longest-common-subsequence-length-dp",
+    "source": {
+      "kind": "literature",
+      "citation": "MIT 6.006 (Spring 2020), Lecture 16: Dynamic Programming Subproblems, pp. 2–3, longest common subsequence suffix recurrence and complexity; prefix form follows by reversing both sequences. https://live.ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/28461a74f81101874a13d9679a40584d_MIT6_006S20_lec16.pdf",
+      "url": "https://live.ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/28461a74f81101874a13d9679a40584d_MIT6_006S20_lec16.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "If final symbols match an optimal common subsequence can be chosen to end at that pair; if unequal, at least one final position is unused. The score maximization is a material objective change within the same prefix-grid alignment family. With insertion/deletion cost one and unequal substitution cost two, D2(i,j)=i+j−2L(i,j); unequal substitution is replaceable by deletion plus insertion. This identity does not hold for unit substitutions (x=a,y=b gives D1=1, L=0). Conservatively count as a variant, not another distinct algorithm."
   }
 ]

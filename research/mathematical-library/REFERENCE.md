@@ -6157,3 +6157,35 @@ Limitations — Comparison sorting gives O(n log²(n+1)) time and O(n) auxiliary
 Mechanism — Inductively ranks encode lexicographic order and equality of prefixes truncated at span h. Concatenating two adjacent truncated blocks gives the next prefix order; a missing second block ranks before any nonempty block. Distinct truncated prefixes fix their full suffix order, so early unique ranks are sufficient. When h≥n all distinct nonempty suffixes have been distinguished. Unlike KMP, this creates an index by repeated pair sorting rather than scanning a single fixed pattern. The comparison-sort specification is not a claim to implement the original paper's optimized sorting procedure.
 
 Source — Manber and Myers (1993), Suffix Arrays: A New Method for On-Line String Searches, SIAM J. Comput. 22(5), 935–948, DOI 10.1137/0222058 (bibliographic record and abstract); Kulcu, Advanced String Algorithms, §10.7.3 (pair-rank comparison-sort formulation). https://sercankulcu.github.io/files/algorithms/notes/Chapter_10_Advanced_String_Algorithms_Lecture_Notes.html
+
+## Levenshtein unit edit distance dynamic programming (levenshtein-unit-edit-distance-dp)
+
+> D_{i,0}=i, D_{0,j}=j; D_{i,j}=min(D_{i−1,j}+1,D_{i,j−1}+1,D_{i−1,j−1}+1[x_{i−1}≠y_{j−1}]); return D_{m,n}.
+
+x,y input sequences; m,n lengths; i,j prefix lengths; D distance table.
+
+General exact minimum unit edit count for two sequences; no empirical benefit claimed.
+
+Assumptions — Finite immutable sequences over a consistent equality relation; insertion and deletion each cost one, unequal-symbol substitution costs one, equality costs zero; exact nonnegative integer arithmetic and constant-cost indexing/comparison.
+
+Limitations — Full table uses O((m+1)(n+1)) time and space including empty inputs; two rows reduce value-only storage to O(min(m,n)+1). No transpositions, affine gap penalties, normalization or traceback is specified; raw distance depends on sequence lengths.
+
+Mechanism — An optimal order-preserving alignment ends with a deletion, insertion or paired symbols. Under unit costs, repeated changes of one surviving symbol cannot beat direct substitution, and an inserted then deleted symbol can be omitted. Removing the final alignment operation leaves an optimal prefix subproblem; each predecessor also extends to a feasible alignment. Unlike exact pattern scanning and suffix ordering, this minimizes global edit cost.
+
+Source — Wagner and Fischer (1974), The String-to-String Correction Problem, JACM 21(1), 168–173, DOI 10.1145/321796.321811 (bibliographic record and abstract); Cornell CS 4820 (2025), Dynamic Programming II: Edit Distance, and Dynamic Programming III: Analysis of Edit Distance (recurrence and boundaries). https://www.cs.cornell.edu/courses/cs4820/2025sp/notes/07-ED-Analysis.pdf
+
+## Longest common subsequence length dynamic programming (longest-common-subsequence-length-dp)
+
+> L_{i,0}=L_{0,j}=0; if x_{i−1}=y_{j−1}, L_{i,j}=1+L_{i−1,j−1}; otherwise L_{i,j}=max(L_{i−1,j},L_{i,j−1}); return L_{m,n}.
+
+x,y input sequences; m,n lengths; i,j prefix lengths; L subsequence length table.
+
+General maximum common order-preserving subsequence length; no empirical benefit claimed.
+
+Assumptions — Finite immutable sequences, consistent symbol equality, exact integer lengths, constant-cost indexing and comparisons; subsequence preserves order without requiring adjacent positions.
+
+Limitations — O((m+1)(n+1)) full-table time and space including empty inputs; two rows suffice for the length in O(min(m,n)+1) space. Does not reconstruct a unique subsequence, compute a contiguous substring or imply a normalized similarity.
+
+Mechanism — If final symbols match an optimal common subsequence can be chosen to end at that pair; if unequal, at least one final position is unused. The score maximization is a material objective change within the same prefix-grid alignment family. With insertion/deletion cost one and unequal substitution cost two, D2(i,j)=i+j−2L(i,j); unequal substitution is replaceable by deletion plus insertion. This identity does not hold for unit substitutions (x=a,y=b gives D1=1, L=0). Conservatively count as a variant, not another distinct algorithm.
+
+Source — MIT 6.006 (Spring 2020), Lecture 16: Dynamic Programming Subproblems, pp. 2–3, longest common subsequence suffix recurrence and complexity; prefix form follows by reversing both sequences. https://live.ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/28461a74f81101874a13d9679a40584d_MIT6_006S20_lec16.pdf
