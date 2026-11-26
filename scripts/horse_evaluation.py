@@ -32,6 +32,8 @@ def date_cluster_interval(rows,value_key,repeats=20000,seed=20261115):
  race-level bootstrap.  The fixed seed and date-level resampling match the
  locked Phase 3 research protocol; neither interval is model validation.
  """
+ if type(repeats) is not int or repeats<40:
+  raise ValueError('At least 40 bootstrap replicates required')
  if len(rows)<30:return None
  clusters={}
  for row in rows:
@@ -43,19 +45,21 @@ def date_cluster_interval(rows,value_key,repeats=20000,seed=20261115):
  if len(clusters)<2:return None
  # Sorting makes the result independent of archive/file ordering.
  dates=sorted(clusters)
- values_by_date=[sorted(clusters[date]) for date in dates]
+ totals_by_date=[(sum(sorted(clusters[date])),len(clusters[date])) for date in dates]
  rng=random.Random(seed);means=[];date_count=len(dates)
  for _ in range(repeats):
   total=0.0;race_count=0
   for _ in range(date_count):
-   selected=values_by_date[rng.randrange(date_count)]
-   total+=sum(selected);race_count+=len(selected)
+   day_total,day_size=totals_by_date[rng.randrange(date_count)]
+   total+=day_total;race_count+=day_size
   means.append(total/race_count)
  means.sort()
  return {'lower':means[int(.025*repeats)],'upper':means[int(.975*repeats)-1],
-  'race_dates':date_count,'seed':seed,
+  'race_dates':date_count,'races':len(rows),'seed':seed,
+  'largest_date_race_count':max(size for _,size in totals_by_date),
+  'weighting':'Race-weighted ratio of sampled score sums to sampled race counts',
   'method':f'Paired bootstrap resampling Europe/London race dates with all races; {repeats} replicates',
-  'limitation':'Exploratory dependence-sensitivity interval; not independent model validation.'}
+  'limitation':'Exploratory; sparse or concentrated dates can under-cover. Dependence across dates is not modelled.'}
 
 def evaluate(records,entries):
  frozen={};groups={};seen=set()

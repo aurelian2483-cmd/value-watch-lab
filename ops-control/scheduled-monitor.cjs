@@ -7,7 +7,7 @@ const crypto=require('node:crypto');
 const extraFeeds=require('./extra-feeds.js');
 const SOURCES=[
  {id:'football',filename:'research-dashboard-data.json',owner:'Football Manager',maxAgeHours:24},
- {id:'racing',filename:'racing-research-data.json',owner:'Horse Racing Manager',maxAgeHours:6},
+ {id:'racing',filename:'racing-research-data.json',owner:'Horse Racing Manager',maxAgeHours:0.5},
  {id:'other',filename:'other-sports-data.json',owner:'Tennis / NFL Managers',maxAgeHours:24},
  {id:'horse',filename:'horse-model-data.json',owner:'Horse Racing Manager + IT/QA',maxAgeHours:6},
  ...extraFeeds.specs
@@ -41,7 +41,9 @@ function audit(root,now=new Date()){
   else if(!stampOK||future)record(issues,'P1','IT & QA Manager',spec.id+':INVALID_TIMESTAMP',spec.id+' has missing, invalid or future generation timestamp','Check source timestamps, clocks, and publishing process.');
   else if(age>spec.maxAgeHours)record(issues,'P2','IT & QA Manager',spec.id+':STALE',spec.id+' published snapshot exceeds '+spec.maxAgeHours+' hours','Check collector scheduling and data freshness.');
   const state=!gateOK?'BLOCKED':context.pending?'PENDING':!stampOK||future?'BLOCKED':age>spec.maxAgeHours?'STALE':'OBSERVED';
-  feeds.push({id:spec.id,state,generatedAt:stampOK?new Date(ms).toISOString():null,ageHours:age===null?null:Number(age.toFixed(2)),gateOK});
+  const feedReport={id:spec.id,state,generatedAt:stampOK?new Date(ms).toISOString():null,
+   ageHours:age===null?null:Number(age.toFixed(2)),gateOK};
+  feeds.push(feedReport);
   if(spec.id==='football'){
     const count=Array.isArray(doc.upcoming_fixtures)?doc.upcoming_fixtures.length:null;
     sports.push({sport:'football',observedCount:count,status:'RESEARCH ONLY'});
@@ -67,9 +69,28 @@ function audit(root,now=new Date()){
       sports.push({sport,observedCount:Array.isArray(events)?events.filter(event=>event.code===code).length:null,status:'PROVIDER FIXTURES ONLY'});
     }
   }else if(spec.id==='racing-forecasts'){
+    const forecasts=Array.isArray(doc.forecasts)?doc.forecasts:[];
+    const recentRunnerMs=30*60*1000;
+    let upcoming=0, stale=0, unknown=0;
+    for(const row of forecasts){
+      const start=Date.parse(row?.startUTC);
+      if(!Number.isFinite(start)||start<=nowMs)continue;
+      upcoming++;
+      const observed=row?.runner_observed_at_utc;
+      const received=typeof observed==='string'&&/(?:Z|[+-]\d{2}:\d{2})$/i.test(observed)?Date.parse(observed):NaN;
+      if(!Number.isFinite(received)||received>nowMs)unknown++;
+      else if(nowMs-received>recentRunnerMs)stale++;
+    }
+    feedReport.originalRunnerEvidence={upcoming,stale,unknown};
+    if(stale||unknown){
+      record(issues,'P2',spec.owner,spec.id+':ORIGINAL_RUNNER_RECEIPTS_NOT_CURRENT',
+       stale+' stale and '+unknown+' unconfirmed original runner receipts among '+upcoming+' upcoming forecasts',
+       'Check original forecast and runner receipts before prospective capture.');
+      if(feedReport.state==='OBSERVED')feedReport.state=unknown?'PENDING':'STALE';
+    }
     const skipped=Array.isArray(doc.skipped)?doc.skipped:[];
-    const unknown=skipped.filter(item=>item.reason==='UNKNOWN_RACE_DISCIPLINE').length;
-    if(unknown)record(issues,'P2',spec.owner,spec.id+':UNKNOWN_DISCIPLINE',unknown+' races lack a confirmed discipline','Match individual racecards to their published race type.');
+    const unknownDiscipline=skipped.filter(item=>item.reason==='UNKNOWN_RACE_DISCIPLINE').length;
+    if(unknownDiscipline)record(issues,'P2',spec.owner,spec.id+':UNKNOWN_DISCIPLINE',unknownDiscipline+' races lack a confirmed discipline','Match individual racecards to their published race type.');
   }else if(spec.id==='horse'){
     if(!Array.isArray(doc.form_forecasts))record(issues,'P2','Horse Racing Manager',spec.id+':MODEL_ARRAY_MISSING','Racing model forecast array not present','Review model source compatibility without synthesising picks.');
   }

@@ -32,7 +32,7 @@ python evaluate_locked_endpoint.py
 python phase3_ab.py dashboard
 ```
 
-The collector only reads the existing public repository context feed; it never runs production collectors or changes schedules. Network access is needed for that optional read. For retained pinned input, use --local acquisition/horse-predictions-data.json with its original --ref9bdc35c9581744bb19495ab38663c585076445c0. Old feeds will correctly fail freshness checks later; do not backdate the CLI clock to replay them as prospective.
+The collector only reads the existing public repository context feed; it never runs production collectors or changes schedules. Network access is needed for that optional read. For retained pinned input, use `--local acquisition/horse-predictions-data.json --local-receipt acquisition/connector_receipt.json --ref 9bdc35c9581744bb19495ab38663c585076445c0`. Old feeds will correctly fail freshness checks later; do not backdate the CLI clock to replay them as prospective.
 
 The core analyze command gives the all-observed descriptive ledger view. **evaluate_locked_endpoint.py is the primary fixed-window analysis**, applying the first500pairs/minimum60dates/180day horizon without favourable stopping. It never approves deployment. No autonomous scheduler was installed and no background collection is promised.
 

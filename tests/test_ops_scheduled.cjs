@@ -29,6 +29,12 @@ try{
  const original=fs.readFileSync(path.join(base,'research-dashboard-data.json'),'utf8');
  report=audit(base,now);
  assert.equal(report.signature,audit(base,now).signature,'same inputs => same incident signature');
+ data['racing-forecasts'].forecasts=[{startUTC:'2026-11-12T21:00:00Z',runner_observed_at_utc:'2026-11-12T19:29:59Z'}];
+ write();report=audit(base,now);
+ const racing=report.feeds.find(x=>x.id==='racing-forecasts');
+ assert.equal(racing.state,'STALE');
+ assert.deepEqual(racing.originalRunnerEvidence,{upcoming:1,stale:1,unknown:0});
+ data['racing-forecasts'].forecasts=[];
  assert.equal(original,fs.readFileSync(path.join(base,'research-dashboard-data.json'),'utf8'),'monitor may not alter inputs');
  data.racing.coverage_verified=false;data.football.generated_at_utc='2026-11-10T20:00:00.000Z';write();
  report=audit(base,now);assert.equal(report.priority,'P2');assert(report.issues.some(x=>x.code==='racing:COVERAGE_UNVERIFIED'));assert(report.issues.some(x=>x.code==='football:STALE'));

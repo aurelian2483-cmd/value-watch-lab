@@ -1,0 +1,233 @@
+{
+  "scope": "SYNTHETIC_RETROSPECTIVE_METHOD_DIAGNOSTIC",
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "numpy_version": "2.3.5",
+  "bootstrap_seed": 20261115,
+  "simulation_seed": 20261126,
+  "replicates_per_trial": 20000,
+  "scenarios": {
+    "balanced_iid": {
+      "truth": 0,
+      "common_sd": 0,
+      "size_mode": "balanced"
+    },
+    "balanced_date_dependence": {
+      "truth": 0,
+      "common_sd": 0.08,
+      "size_mode": "balanced"
+    },
+    "unequal_informative_dates": {
+      "truth": 0.048,
+      "common_sd": 0.08,
+      "size_mode": "informative"
+    }
+  },
+  "oracle": {
+    "count_matrix_matches": true,
+    "unequal_date_sizes": [
+      41,
+      9,
+      7
+    ],
+    "two_date_draw_distribution": [
+      0.0,
+      0.4,
+      0.4,
+      1.0
+    ]
+  },
+  "results": [
+    {
+      "scenario": "balanced_iid",
+      "dates": 2,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.47833333333333333,
+      "monte_carlo_se": 0.014420198668174778,
+      "mean_interval_width": 0.020307483734356757
+    },
+    {
+      "scenario": "balanced_date_dependence",
+      "dates": 2,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.49083333333333334,
+      "monte_carlo_se": 0.014431330852876501,
+      "mean_interval_width": 0.09460563121607982
+    },
+    {
+      "scenario": "unequal_informative_dates",
+      "dates": 2,
+      "trials": 1200,
+      "true_race_weighted_mean": 0.048,
+      "coverage": 0.47,
+      "monte_carlo_se": 0.014407752542757436,
+      "mean_interval_width": 0.1315849885533323
+    },
+    {
+      "scenario": "balanced_iid",
+      "dates": 5,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.84,
+      "monte_carlo_se": 0.010583005244258363,
+      "mean_interval_width": 0.026488963975459467
+    },
+    {
+      "scenario": "balanced_date_dependence",
+      "dates": 5,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.8441666666666666,
+      "monte_carlo_se": 0.010470168159886273,
+      "mean_interval_width": 0.12008350470757406
+    },
+    {
+      "scenario": "unequal_informative_dates",
+      "dates": 5,
+      "trials": 1200,
+      "true_race_weighted_mean": 0.048,
+      "coverage": 0.79,
+      "monte_carlo_se": 0.011757976016304846,
+      "mean_interval_width": 0.16897757222439952
+    },
+    {
+      "scenario": "balanced_iid",
+      "dates": 10,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.905,
+      "monte_carlo_se": 0.00846438617581531,
+      "mean_interval_width": 0.02101262374026461
+    },
+    {
+      "scenario": "balanced_date_dependence",
+      "dates": 10,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.9075,
+      "monte_carlo_se": 0.008363798479160052,
+      "mean_interval_width": 0.09394337903694089
+    },
+    {
+      "scenario": "unequal_informative_dates",
+      "dates": 10,
+      "trials": 1200,
+      "true_race_weighted_mean": 0.048,
+      "coverage": 0.8858333333333334,
+      "monte_carlo_se": 0.009180261383755588,
+      "mean_interval_width": 0.12815304146335024
+    },
+    {
+      "scenario": "balanced_iid",
+      "dates": 15,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.9075,
+      "monte_carlo_se": 0.008363798479160052,
+      "mean_interval_width": 0.017506247475991336
+    },
+    {
+      "scenario": "balanced_date_dependence",
+      "dates": 15,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.9,
+      "monte_carlo_se": 0.008660254037844385,
+      "mean_interval_width": 0.07889552733386547
+    },
+    {
+      "scenario": "unequal_informative_dates",
+      "dates": 15,
+      "trials": 1200,
+      "true_race_weighted_mean": 0.048,
+      "coverage": 0.8983333333333333,
+      "monte_carlo_se": 0.008724035551067884,
+      "mean_interval_width": 0.10518822309097454
+    },
+    {
+      "scenario": "balanced_iid",
+      "dates": 22,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.9416666666666667,
+      "monte_carlo_se": 0.006765756643788112,
+      "mean_interval_width": 0.014849990484555107
+    },
+    {
+      "scenario": "balanced_date_dependence",
+      "dates": 22,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.935,
+      "monte_carlo_se": 0.00711658860222602,
+      "mean_interval_width": 0.06611681929610666
+    },
+    {
+      "scenario": "unequal_informative_dates",
+      "dates": 22,
+      "trials": 1200,
+      "true_race_weighted_mean": 0.048,
+      "coverage": 0.9158333333333334,
+      "monte_carlo_se": 0.00801470725650085,
+      "mean_interval_width": 0.0884666649980241
+    },
+    {
+      "scenario": "balanced_iid",
+      "dates": 30,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.9325,
+      "monte_carlo_se": 0.007242452968435487,
+      "mean_interval_width": 0.012713516668137222
+    },
+    {
+      "scenario": "balanced_date_dependence",
+      "dates": 30,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.94,
+      "monte_carlo_se": 0.006855654600401047,
+      "mean_interval_width": 0.056855795339161096
+    },
+    {
+      "scenario": "unequal_informative_dates",
+      "dates": 30,
+      "trials": 1200,
+      "true_race_weighted_mean": 0.048,
+      "coverage": 0.9316666666666666,
+      "monte_carlo_se": 0.00728376556052848,
+      "mean_interval_width": 0.07630903459118663
+    },
+    {
+      "scenario": "balanced_iid",
+      "dates": 60,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.9441666666666667,
+      "monte_carlo_se": 0.006627969285675049,
+      "mean_interval_width": 0.009122581589844823
+    },
+    {
+      "scenario": "balanced_date_dependence",
+      "dates": 60,
+      "trials": 1200,
+      "true_race_weighted_mean": 0,
+      "coverage": 0.9516666666666667,
+      "monte_carlo_se": 0.006191204932686248,
+      "mean_interval_width": 0.040896653440309946
+    },
+    {
+      "scenario": "unequal_informative_dates",
+      "dates": 60,
+      "trials": 1200,
+      "true_race_weighted_mean": 0.048,
+      "coverage": 0.9416666666666667,
+      "monte_carlo_se": 0.006765756643788112,
+      "mean_interval_width": 0.05414406142838357
+    }
+  ],
+  "limitations": "Known synthetic ground truths only. Common draws across trials, independent synthetic samples. No dependence across dates simulated."
+}

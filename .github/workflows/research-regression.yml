@@ -25,6 +25,8 @@ jobs:
           for script in paper-lab/*.js; do node --check "$script"; done
       - name: Historical, collector and model safeguards
         run: python -m unittest discover -s tests
+      - name: Isolated horse Phase 3 acquisition and locked endpoint regressions
+        run: python -m unittest discover -s research/horse-ab-phase3-master-20261115 -p 'test_*.py'
       - name: Mathematical library and Sky 81 validation
         run: |
           set -euo pipefail

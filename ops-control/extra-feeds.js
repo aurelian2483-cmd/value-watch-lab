@@ -2,7 +2,7 @@
 (function (root) {
   const specs = [
     {id:'racing-future',label:'Seven-day racing coverage',filename:'racing-future-coverage.json',owner:'Horse Racing Manager',maxAgeHours:6},
-    {id:'racing-forecasts',label:'Racing forecast coverage',filename:'horse-predictions-data.json',owner:'Horse Racing Manager',maxAgeHours:6},
+    {id:'racing-forecasts',label:'Racing forecast coverage',filename:'horse-predictions-data.json',owner:'Horse Racing Manager',maxAgeHours:0.5},
     {id:'darts',label:'Darts fixtures',filename:'darts/feed.json',owner:'Darts Manager',maxAgeHours:48},
     {id:'darts-analysis',label:'Darts analysis',filename:'darts/analysis.json',owner:'Darts Manager',maxAgeHours:48},
     {id:'rugby',label:'Rugby provider fixtures',filename:'rugby-research-data.json',owner:'Rugby Manager',maxAgeHours:48},

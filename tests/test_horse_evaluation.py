@@ -169,6 +169,23 @@ class BootstrapOrderIntegrity(unittest.TestCase):
         self.assertEqual(expected['race_dates'],2)
         self.assertLess(expected['lower'],expected['upper'])
 
+    def test_london_clusters_across_transitions_and_local_midnight(self):
+        # Each adjacent pair shares a Europe/London date, even when the UTC
+        # day differs or the same clock hour occurs twice.
+        stamps = (
+            '2026-03-29T00:59:59Z', '2026-03-29T01:00:00Z',
+            '2026-03-29T23:00:00Z', '2026-03-30T00:00:00+01:00',
+            '2026-10-25T01:30:00+01:00', '2026-10-25T01:30:00+00:00',
+            '2026-10-25T23:59:59Z', '2026-10-26T00:00:00Z',
+        )
+        rows = [{'startUTC': stamp, 'delta': .1} for stamp in stamps for _ in range(4)]
+        interval = date_cluster_interval(rows, 'delta', repeats=40)
+        self.assertEqual(interval['race_dates'], 4)
+        self.assertEqual(interval['largest_date_race_count'], 12)
+        self.assertEqual(interval['races'], 32)
+        with self.assertRaisesRegex(ValueError, 'replicates'):
+            date_cluster_interval(rows, 'delta', repeats=39)
+
     def test_date_cluster_interval_requires_sample_and_multiple_dates(self):
         self.assertIsNone(date_cluster_interval([{'startUTC':'2026-11-04T15:00:00Z','delta':.1}]*29,'delta'))
         self.assertIsNone(date_cluster_interval([{'startUTC':'2026-11-04T15:00:00Z','delta':.1}]*30,'delta'))
