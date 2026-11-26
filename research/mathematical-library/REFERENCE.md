@@ -6061,3 +6061,35 @@ Limitations — O(n) aggregate slots and build combines; O(1+log n) combines for
 Mechanism — Induction on interval splits proves every node stores the ordered fold, and disjoint query pieces concatenate in original order. Only the two boundary paths can contain partially intersecting nodes at each depth, yielding logarithmic combine count. Unlike Fenwick prefix differences, arbitrary monoid ranges require no inverse or commutativity. This is the independently derived unpadded inclusive formulation of the course's balanced half-open tree, not a new entry for each aggregate.
 
 Source — Carnegie Mellon University, 15-451 Algorithm Design and Analysis, Fall 2024, Range query data structures, sections 2–3 and 5.1, pp. 3–7 and 8–9. https://www.cs.cmu.edu/~15451-f24/lectures/lecture06-range-queries.pdf
+
+## Sparse table idempotent range query (sparse-table-idempotent-range-query)
+
+> For x_1,…,x_n, S_{0,i}=x_i; S_{j,i}=S_{j−1,i}⊗S_{j−1,i+2^{j−1}} for 1≤i≤n−2^j+1 and j≥1. For 1≤a≤b≤n set j=⌊log₂(b−a+1)⌋ and Q(a,b)=S_{j,a}⊗S_{j,b−2^j+1}.
+
+n positive length; i one-based start; j nonnegative level; ⊗ closed associative idempotent operation; a,b inclusive endpoints.
+
+General static nonempty range aggregation; no empirical benefit claimed.
+
+Assumptions — Static nonempty array; exact associative and idempotent operation (u⊗u=u for every value in its closed domain); preserve operand order; integer index arithmetic.
+
+Limitations — O(n log(n+1)) aggregate slots and preprocessing combines; two table reads and one combine per nonempty query with constant-time integer logarithm or precomputed lengths. No empty interval identity required; changes invalidate stored aggregates. Time bounds assume constant-cost combines and indexing.
+
+Mechanism — The two blocks cover the interval with contiguous overlap; the ordered product has form A⊗B⊗B⊗C, omitting empty outside pieces, and reduces to A⊗B⊗C by associativity and idempotence. Commutativity is not needed. The source treats minimum; this generalized ordered formulation is independently derived. Corrects the printed build loop upper endpoint to n−L+1. Distinct static overlapping-block lookup rather than disjoint mutable segment-tree traversal.
+
+Source — Jeff Erickson (2025), Advanced Data Structures, Lecture 1: Range-Minimum Queries, section 1.1 Sparse Lookup Table, pp. 1–2 and footnote 2. https://jeffe.cs.illinois.edu/teaching/datastructures/notes/01-RMQ-LCA.pdf
+
+## Disjoint set union with rank and path compression (disjoint-set-union-rank-path-compression)
+
+> For 1≤i≤n initialize parent_i=i and rank_i=0. Find(i)=i if parent_i=i, otherwise parent_i←Find(parent_i), returning that root. For u=Find(a), v=Find(b), if u=v do nothing; otherwise exchange u,v if rank_u<rank_v, set parent_v←u, and if rank_u=rank_v set rank_u←rank_u+1.
+
+n positive universe size; a,b,i valid item indices; parent_i parent pointer; rank_i nonnegative historical height bound; u,v representative roots.
+
+General incremental maintenance of equivalence classes; no empirical benefit claimed.
+
+Assumptions — Fixed finite universe of singleton sets; sequential operations; all indices valid; only merging and membership queries; deterministic tie rule chooses first root after rank ordering.
+
+Limitations — O(n) space; O(log(n+1)) worst-case pointer traversal per find or union and O(m(1+α(n))) total amortized time for m operations including n singleton creations under standard union-find analysis. α is an inverse Ackermann function; not a constant worst-case guarantee. Compression does not support arbitrary splitting or deletion; representatives can change after union.
+
+Mechanism — Each parent edge strictly increases rank, excluding nonroot cycles. A root of rank r represents at least 2^r elements by induction on equal-rank mergers; compression changes no membership. The resulting logarithmic depth bound is independent of the cited stronger amortized theorem. This maintains arbitrary partitions, whereas Kruskal uses connectivity as a subroutine in a weighted graph algorithm.
+
+Source — Stajano and Sauerwald (2015), University of Cambridge Algorithms, 5.3 Disjoint Sets, slides 9–11; Tarjan (1975), Efficiency of a Good But Not Linear Set Union Algorithm, JACM 22(2), 215–225, DOI 10.1145/321879.321884 (bibliographic metadata and abstract checked). https://www.cl.cam.ac.uk/teaching/1415/Algorithms/disjointsets.pdf

@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "066",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "cartesian-tree-monotone-stack",
+    "name": "Cartesian tree monotone-stack construction",
+    "definition": "For each new index i, pop larger ordered keys from stack, set left_i=last popped (if any), and if stack remains set right_top=i; then push i. Use key (x_i,i) to break ties.",
+    "variables": "i array index; x_i key; left_i,right_i child pointers",
+    "assumptions": "Provisional; mathematical and source review pending",
+    "limitations": "Provisional; complexity and boundary conditions require review",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Cartesian trees and linear-time construction in range-minimum query literature; verify authoritative source."
+    },
+    "application": "General mathematical data structure; no empirical benefit claimed.",
+    "required_inputs": "Finite indexed data and declared operations.",
+    "compatible_methods": [
+      "sparse-table-idempotent-range-query"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "sparse-table-idempotent-range-query"
+      }
+    ],
+    "mechanism_note": "Provisional; independent novelty and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "066",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "binary-lifting-tree-ancestor",
+    "name": "Binary lifting tree ancestor query",
+    "definition": "For rooted tree with parent P(v), T_{0,v}=P(v); T_{j,v}=T_{j−1,T_{j−1,v}}. Apply T_j for each set bit j of nonnegative ancestor distance k.",
+    "variables": "v node; P parent; T jump table; k ancestor distance",
+    "assumptions": "Provisional; mathematical and source review pending",
+    "limitations": "Provisional; complexity and boundary conditions require review",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: binary lifting in rooted-tree ancestor query teaching materials; verify authoritative source."
+    },
+    "application": "General mathematical data structure; no empirical benefit claimed.",
+    "required_inputs": "Finite indexed data and declared operations.",
+    "compatible_methods": [
+      "sparse-table-idempotent-range-query"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "sparse-table-idempotent-range-query"
+      }
+    ],
+    "mechanism_note": "Provisional; independent novelty and source review pending."
+  }
+]
