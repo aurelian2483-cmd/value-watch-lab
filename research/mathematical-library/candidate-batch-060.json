@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "060",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "bloom-filter-membership",
+    "name": "Bloom probabilistic membership filter",
+    "definition": "B[h_j(x)]←1 for every hash j on insertion; query(x)=AND_j B[h_j(x)]",
+    "variables": "B bit array; h_j hash maps; x key",
+    "assumptions": "Insertion only and stable hashes; false-positive analysis assumptions pending review",
+    "limitations": "False positives possible; standard filter does not support arbitrary deletion; full review pending",
+    "failure_conditions": [
+      "Invalid bit array or inconsistent hash mapping"
+    ],
+    "computation": "Initialize bits to zero, set addressed bits for each insertion and test all addressed bits on query; verify probability model and edge cases before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Bloom (1970), Space/time trade-offs in hash coding with allowable errors, Communications of the ACM 13(7), 422–426. DOI 10.1145/362686.362692; full review pending."
+    },
+    "application": "General approximate set membership; no empirical benefit claimed.",
+    "required_inputs": "Key stream, bit array capacity and hash functions.",
+    "compatible_methods": [
+      "count-min-frequency-sketch"
+    ],
+    "incompatible_methods": [
+      "Treating a positive query as proof of membership"
+    ],
+    "relationships": [
+      {
+        "target": "count-min-frequency-sketch",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional bit-membership mechanism, unlike numerical frequency counters."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "060",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "count-sketch-signed-frequency",
+    "name": "Count Sketch signed frequency estimator",
+    "definition": "C[j,h_j(x)]←C[j,h_j(x)]+s_j(x)u; f_hat(x)=median_j s_j(x) C[j,h_j(x)]",
+    "variables": "C signed counters; h_j bucket hashes; s_j sign maps into {−1,+1}; u signed increment",
+    "assumptions": "Appropriate independent row, bucket and sign hashes; full review pending",
+    "limitations": "Estimation error can have either sign; verify L2 error bound and median probability before admission",
+    "failure_conditions": [
+      "Unjustified hash or sign independence or counter overflow"
+    ],
+    "computation": "Accumulate signed updates in each row and take median of signed query buckets; verify exact hash assumptions and error analysis before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Charikar, Chen and Farach-Colton (2002), Finding frequent items in data streams, ICALP; full review pending."
+    },
+    "application": "General signed streaming frequency estimation; no empirical benefit claimed.",
+    "required_inputs": "Key and update stream, bucket and sign hashes, counter dimensions.",
+    "compatible_methods": [
+      "count-min-frequency-sketch"
+    ],
+    "incompatible_methods": [
+      "Applying Count–Min one-sided guarantee to signed estimation"
+    ],
+    "relationships": [
+      {
+        "target": "count-min-frequency-sketch",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional signed collision cancellation and median mechanism, distinct from nonnegative minimum estimation."
+  }
+]

@@ -5869,3 +5869,35 @@ Limitations — O(N) comparisons, O(1) candidate and counters; residual count is
 Mechanism — Each processed prefix partitions into c identical uncancelled observations and unequal pairs. Removing a pair cannot eliminate a strict majority, so a true majority must survive; c=0 rules one out. A nonmajority can survive (A,B,C leaves C), making verification essential unless the residual itself certifies it. Distinct from a full histogram or empirical distribution.
 
 Source — Boyer and Moore (1991), MJRTY: A Fast Majority Vote Algorithm, in Automated Reasoning, pp. 105–117, sections 5.2–5.4 and Figure 5.1. https://www.cs.utexas.edu/~boyer/mjrty.pdf
+
+## Misra–Gries bounded frequent-item counters (misra-gries-frequent-items)
+
+> With at most k−1 counters, increment c_i←c_i+1 for a tracked arrival, insert c_i←1 if space remains, otherwise decrement all stored c_j←c_j−1, remove zeros and set D←D+1. Initially D=0. N=Σ_i c_i+kD and 0≤f_i−c_i≤D≤floor(N/k).
+
+k threshold denominator; N stream length; c_i residual multiplicity (zero when absent); f_i actual multiplicity; D number of full cancellation steps.
+
+General categorical stream frequency screening; no empirical benefit claimed.
+
+Assumptions — Finite stream of unit arrivals, stable equality, fixed integer k≥2, exact integer counters; replay is required for exact threshold classification unless bounds decide it.
+
+Limitations — Retained keys need not exceed the threshold; absent keys can tie the threshold; counts are lower bounds, not exact frequencies or a guaranteed top-k ranking. O(k) stored keys; O(N log k) time with an ordered balanced tree, including amortized full decrements.
+
+Mechanism — A full miss discards one group of k distinct occurrences. The residual bag and D disjoint groups account for all arrivals, and a key loses at most one occurrence per group. Thus every key above N/k survives, whereas equality need not survive. For k=2 this reduces to unequal-pair cancellation; classify as a variant of the existing majority algorithm rather than an additional distinct algorithm.
+
+Source — Misra and Gries (1982), Finding repeated elements, Science of Computer Programming 2(2), 143–152, sections 3–4, Theorem 1 and Algorithm (3), pp. 146–148. DOI 10.1016/0167-6423(82)90012-0. https://www.cs.utexas.edu/~misra/scannedPdf.dir/FindRepeatedElements.pdf
+
+## Count–Min nonnegative frequency sketch (count-min-frequency-sketch)
+
+> For 0<ε,δ<1 set W=ceil(e/ε), d=ceil(ln(1/δ)); C[j,h_j(x)]←C[j,h_j(x)]+u; f_hat(x)=min_j C[j,h_j(x)]. For fixed x, f_x≤f_hat(x) and Pr(f_hat(x)≤f_x+εF)≥1−δ.
+
+ε additive relative-to-total error allowance; δ failure probability; W row width; d row count; e natural exponential base; C counter matrix; h_j row hash; u nonnegative increment; f_x true cumulative weight; F=Σ_x f_x total weight; f_hat estimate.
+
+General nonnegative stream frequency estimation; no empirical benefit claimed.
+
+Assumptions — Finite key universe, nonnegative updates, exact arithmetic or explicitly bounded numerical error; independent row hashes drawn from a family with collision probability at most 1/W for distinct keys; fixed query and data independent of hash selection.
+
+Limitations — Collision overestimation is possible; the error is additive in total weight, not relative to the queried frequency. The stated probability is for one fixed query, not all adaptive queries. Uses Wd counters plus hash descriptions and O(d) hash evaluations per update or query.
+
+Mechanism — Each addressed cell equals f_x plus nonnegative collision mass. Expected collision mass per row is at most F/W≤εF/e. For F>0 Markov bounds the chance of exceeding εF by 1/e; independence makes the probability that every row exceeds it at most e^(−d)≤δ. Unlike explicit candidate cancellation, this stores hashed aggregate counters and answers a supplied key query. No empirical benefit or implementation is claimed.
+
+Source — Cormode and Muthukrishnan (2005), An improved data stream summary: The count-min sketch and its applications, Journal of Algorithms 55(1), 58–75, sections 3 and 4.1, Theorem 1, pp. 63–64. DOI 10.1016/j.jalgor.2003.12.001. https://cs.au.dk/~gerth/madalgo/old-madalgo.au.dk/img/SumSchoo2007_Lecture%20slides/Bibliography/p14_Cormode_JAl_05.pdf

@@ -8431,5 +8431,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Each processed prefix partitions into c identical uncancelled observations and unequal pairs. Removing a pair cannot eliminate a strict majority, so a true majority must survive; c=0 rules one out. A nonmajority can survive (A,B,C leaves C), making verification essential unless the residual itself certifies it. Distinct from a full histogram or empirical distribution."
+  },
+  {
+    "id": "misra-gries-frequent-items",
+    "source": {
+      "kind": "literature",
+      "citation": "Misra and Gries (1982), Finding repeated elements, Science of Computer Programming 2(2), 143–152, sections 3–4, Theorem 1 and Algorithm (3), pp. 146–148. DOI 10.1016/0167-6423(82)90012-0. https://www.cs.utexas.edu/~misra/scannedPdf.dir/FindRepeatedElements.pdf",
+      "url": "https://www.cs.utexas.edu/~misra/scannedPdf.dir/FindRepeatedElements.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "A full miss discards one group of k distinct occurrences. The residual bag and D disjoint groups account for all arrivals, and a key loses at most one occurrence per group. Thus every key above N/k survives, whereas equality need not survive. For k=2 this reduces to unequal-pair cancellation; classify as a variant of the existing majority algorithm rather than an additional distinct algorithm."
+  },
+  {
+    "id": "count-min-frequency-sketch",
+    "source": {
+      "kind": "literature",
+      "citation": "Cormode and Muthukrishnan (2005), An improved data stream summary: The count-min sketch and its applications, Journal of Algorithms 55(1), 58–75, sections 3 and 4.1, Theorem 1, pp. 63–64. DOI 10.1016/j.jalgor.2003.12.001. https://cs.au.dk/~gerth/madalgo/old-madalgo.au.dk/img/SumSchoo2007_Lecture%20slides/Bibliography/p14_Cormode_JAl_05.pdf",
+      "url": "https://cs.au.dk/~gerth/madalgo/old-madalgo.au.dk/img/SumSchoo2007_Lecture%20slides/Bibliography/p14_Cormode_JAl_05.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Each addressed cell equals f_x plus nonnegative collision mass. Expected collision mass per row is at most F/W≤εF/e. For F>0 Markov bounds the chance of exceeding εF by 1/e; independence makes the probability that every row exceeds it at most e^(−d)≤δ. Unlike explicit candidate cancellation, this stores hashed aggregate counters and answers a supplied key query. No empirical benefit or implementation is claimed."
   }
 ]
