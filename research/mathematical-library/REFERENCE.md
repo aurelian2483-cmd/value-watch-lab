@@ -5965,3 +5965,35 @@ Limitations — The mean of squares is unbiased but the median of block averages
 Mechanism — Expand the second and fourth powers of a signed projection. Terms with odd sign multiplicity vanish by four-wise independence; the fourth moment is Σ f_x⁴+6Σ_{x<y} f_x²f_y². Subtract F₂² to obtain the variance. Chebyshev bounds a block failure by 1/4 with q≥8/ε²; Hoeffding bounds the probability of at least half bad independent blocks by exp(−d/8). Unlike Count Sketch per-key signed bucket queries, the square of a scalar projection estimates a global quadratic functional; the nonlinear aggregation and target differ.
 
 Source — Alon, Matias and Szegedy (1999), The space complexity of approximating the frequency moments, Journal of Computer and System Sciences 58(1), 137–147, DOI 10.1006/jcss.1997.1545. Author-hosted 2002 manuscript section 2.2, Theorem 2.2, pp. 6–7: https://www.cs.tau.ac.il/~nogaa/PDFS/amsz4.pdf ; signed updates and explicit confidence parameters independently derived
+
+## Bottom-k hash order-statistic cardinality estimator (kmv-bottom-k-cardinality)
+
+> Maintain S of the k smallest distinct hashes seen; if |S|<k return n_hat=|S|, otherwise n_hat=(k−1)/max(S). For n≥k under ideal hashing, E[n_hat]=n and Var(n_hat)=n(n−k+1)/(k−2) for k>2.
+
+S retained hash set, initially empty; n true distinct-key count; k integer capacity; max(S)=U_(k), kth order statistic; n_hat estimate.
+
+General distinct-key count estimation; no empirical benefit claimed.
+
+Assumptions — Insertion-only finite stream fixed independently of hash randomness; stable mapping from each distinct key to an independent continuous uniform value in (0,1), hence collisions have probability zero in the ideal model; k≥2 and accurate arithmetic.
+
+Limitations — For k=2 the second moment is infinite in the ideal full-buffer case. Finite hashes can collide, quantize order statistics or create a zero denominator; exact small-count claims and moment identities are conditional on the ideal model. No deletion or exact recovery of unretained keys. A full buffer alone does not distinguish n=k from n>k; this specification uses the estimator in both cases.
+
+Mechanism — The kth order statistic has Beta(k,n−k+1) law. Integrating inverse powers against its density gives E[U_(k)^−r]=B(k−r,n−k+1)/B(k,n−k+1) for 0≤r<k. This yields the stated mean and variance, including n=k. The source discusses an exact n≤k branch; without an extra overflow indicator only n<k is detectable from S alone. The bottom-k union identity follows because any omitted value already has k smaller values in its own set. This retains numerical hash order statistics rather than HyperLogLog register ranks or reservoir samples of arrival positions.
+
+Source — Beyer, Gemulla, Haas, Reinwald and Sismanis (2009), Distinct-value synopses for multiset operations, Communications of the ACM 52(10), 87–95, Algorithm 1, sections 2 and 4.1, equation (2) and Theorem 2. DOI 10.1145/1562764.1562787. https://www.uni-mannheim.de/media/Einrichtungen/dws/Files_People/Profs/rgemulla/publications/beyer09distinct.pdf
+
+## Morris exponential randomized counter (morris-randomized-counter)
+
+> Initialize C=0; for each unit arrival increment C with conditional probability 2^(−C), else leave it unchanged; n_hat=2^C−1. After n arrivals, E[n_hat]=n and Var(n_hat)=n(n−1)/2.
+
+C nonnegative integer random state; n fixed true number of unit arrivals; n_hat approximate arrival count.
+
+General approximate event counting; no empirical benefit claimed.
+
+Assumptions — Fixed finite number of unit insertions, independent fresh Bernoulli draws conditional on current state with the stated probability, exact arithmetic and an unsaturated integer state.
+
+Limitations — A single base-two counter has large relative standard deviation approaching 1/√2; unbiasedness is not high-probability accuracy. State and decoded value can overflow finite storage; no distinct-key semantics, deletions or arbitrary weighted updates in this specification. No worst-case logarithmic-logarithmic space guarantee.
+
+Mechanism — Let Z=2^C. Conditional on Z, the next Z equals 2Z with probability 1/Z and Z otherwise. Thus E[Z_next|Z]=Z+1 and E[Z_next²|Z]=Z²+3Z. From Z₀=1 obtain E[Z_n]=n+1 and Var(Z_n)=n(n−1)/2 by summing the recurrences. Unlike KMV, this counts every arrival through state-dependent random increments, not distinct hash values. No separate admission for merely changing the exponential base.
+
+Source — Nelson and Yu (2022), Optimal Bounds for Approximate Counting, section 1.2, p. 3 of author-hosted manuscript dated March 30 2022; attributes base-two counter to Morris (1978), Counting large numbers of events in small registers, Communications of the ACM 21(10), 840–842. https://www.cs.princeton.edu/~hy2/files/approx_counting.pdf

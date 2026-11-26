@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "063",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "datar-exponential-histogram-window-count",
+    "name": "Exponential histogram sliding-window bit count",
+    "definition": "Maintain timestamped power-of-two buckets of ones, merge oldest equal-size buckets when the declared per-size cap is exceeded; count_hat=Σ retained bucket sizes−oldest bucket size/2 when nonempty (boundary conventions pending review).",
+    "variables": "Window width W; bucket size b; newest timestamp per bucket; count estimate",
+    "assumptions": "Binary insertion stream and ordered timestamps; precise bucket cap and boundary rule pending",
+    "limitations": "Approximation error, partially expired oldest bucket and space bound require review",
+    "failure_conditions": [
+      "Invalid window, inconsistent timestamps or unsupported bucket configuration"
+    ],
+    "computation": "Stage bucket merges and expiration for review; no guarantee admitted.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Datar, Gionis, Indyk and Motwani (2002), Maintaining stream statistics over sliding windows; review pending."
+    },
+    "application": "General bounded-memory sliding-window counting; no empirical benefit claimed.",
+    "required_inputs": "Ordered bit stream, window width and bucket configuration.",
+    "compatible_methods": [
+      "morris-randomized-counter"
+    ],
+    "incompatible_methods": [
+      "Treating approximate counts as exact"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "morris-randomized-counter"
+      }
+    ],
+    "mechanism_note": "Provisional bucket-age and coalescence mechanism; not state-dependent probabilistic counting."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "063",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "monotone-deque-sliding-window-maximum",
+    "name": "Monotone deque sliding-window maximum",
+    "definition": "For each x_t remove expired indices i≤t−W from deque front and tail indices i with x_i≤x_t, append t; maximum M_t=x_front for t≥W.",
+    "variables": "W window width; t ordered position; deque stores indices of decreasing values; M_t window maximum",
+    "assumptions": "Finite comparable values and fixed integer W≥1; review pending",
+    "limitations": "Tie policy, amortized costs and boundary handling require review",
+    "failure_conditions": [
+      "Invalid W or noncomparable inputs"
+    ],
+    "computation": "Stage index expiration and dominance deletion for independent review.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Lemire (2006), Streaming Maximum-Minimum Filter Using No More than Three Comparisons per Element; check relation to standard monotone deque before admission."
+    },
+    "application": "General exact sliding-window extrema; no empirical benefit claimed.",
+    "required_inputs": "Ordered numeric stream and window width.",
+    "compatible_methods": [
+      "jain-chlamtac-p2-quantile"
+    ],
+    "incompatible_methods": [
+      "Using future observations in a current window"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "jain-chlamtac-p2-quantile"
+      }
+    ],
+    "mechanism_note": "Provisional dominance and expiration mechanism rather than approximate bucket counting."
+  }
+]

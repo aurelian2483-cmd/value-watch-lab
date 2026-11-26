@@ -8569,5 +8569,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Expand the second and fourth powers of a signed projection. Terms with odd sign multiplicity vanish by four-wise independence; the fourth moment is Σ f_x⁴+6Σ_{x<y} f_x²f_y². Subtract F₂² to obtain the variance. Chebyshev bounds a block failure by 1/4 with q≥8/ε²; Hoeffding bounds the probability of at least half bad independent blocks by exp(−d/8). Unlike Count Sketch per-key signed bucket queries, the square of a scalar projection estimates a global quadratic functional; the nonlinear aggregation and target differ."
+  },
+  {
+    "id": "kmv-bottom-k-cardinality",
+    "source": {
+      "kind": "literature",
+      "citation": "Beyer, Gemulla, Haas, Reinwald and Sismanis (2009), Distinct-value synopses for multiset operations, Communications of the ACM 52(10), 87–95, Algorithm 1, sections 2 and 4.1, equation (2) and Theorem 2. DOI 10.1145/1562764.1562787. https://www.uni-mannheim.de/media/Einrichtungen/dws/Files_People/Profs/rgemulla/publications/beyer09distinct.pdf",
+      "url": "https://www.uni-mannheim.de/media/Einrichtungen/dws/Files_People/Profs/rgemulla/publications/beyer09distinct.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The kth order statistic has Beta(k,n−k+1) law. Integrating inverse powers against its density gives E[U_(k)^−r]=B(k−r,n−k+1)/B(k,n−k+1) for 0≤r<k. This yields the stated mean and variance, including n=k. The source discusses an exact n≤k branch; without an extra overflow indicator only n<k is detectable from S alone. The bottom-k union identity follows because any omitted value already has k smaller values in its own set. This retains numerical hash order statistics rather than HyperLogLog register ranks or reservoir samples of arrival positions."
+  },
+  {
+    "id": "morris-randomized-counter",
+    "source": {
+      "kind": "literature",
+      "citation": "Nelson and Yu (2022), Optimal Bounds for Approximate Counting, section 1.2, p. 3 of author-hosted manuscript dated March 30 2022; attributes base-two counter to Morris (1978), Counting large numbers of events in small registers, Communications of the ACM 21(10), 840–842. https://www.cs.princeton.edu/~hy2/files/approx_counting.pdf",
+      "url": "https://www.cs.princeton.edu/~hy2/files/approx_counting.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Let Z=2^C. Conditional on Z, the next Z equals 2Z with probability 1/Z and Z otherwise. Thus E[Z_next|Z]=Z+1 and E[Z_next²|Z]=Z²+3Z. From Z₀=1 obtain E[Z_n]=n+1 and Var(Z_n)=n(n−1)/2 by summing the recurrences. Unlike KMV, this counts every arrival through state-dependent random increments, not distinct hash values. No separate admission for merely changing the exponential base."
   }
 ]
