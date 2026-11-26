@@ -5453,3 +5453,67 @@ Limitations — Direct evaluation uses O(N²) field operations with precomputed 
 Mechanism — The prime-field multiplicative group is cyclic of order p−1. Summing ω^(k(n−m)) over k yields N for n=m and zero otherwise by the geometric-series identity in the field; N is invertible since N divides p−1. A finite-field Fourier analogue with different scalar domain, classified as a feature transformation rather than a new fast algorithm.
 
 Source — Wolfram Function Repository. NumberTheoreticTransform. https://resources.wolframcloud.com/FunctionRepository/resources/NumberTheoreticTransform
+
+## Horner nested polynomial evaluation (horner-polynomial-evaluation)
+
+> For P(x)=Σ_(j=0)^d a_j x^j, set b_d=a_d and b_j=a_j+x b_(j+1) for j=d−1,…,0; P(x)=b_0.
+
+d nonnegative degree; a_j coefficients; x scalar argument.
+
+General polynomial evaluation; no forecasting benefit claimed.
+
+Assumptions — Finite scalar coefficients and argument in a commutative field; standard monomial basis.
+
+Limitations — Cancellation and overflow can affect floating-point results; not a stable relative-error guarantee near roots.
+
+Mechanism — Induction gives b_j=Σ_(k=j)^d a_k x^(k−j), so b_0=P(x). This one-state monomial recurrence is not barycentric interpolation, a root solver, or a Chebyshev iterative linear-system solver..
+
+Source — NIST Digital Library of Mathematical Functions §1.11(i), equations 1.11.1–1.11.4. https://dlmf.nist.gov/1.11.i
+
+## Clenshaw Chebyshev series evaluation (clenshaw-chebyshev-series-evaluation)
+
+> For S(x)=Σ_(j=0)^d a_j T_j(x), set b_(d+1)=b_(d+2)=0, b_j=a_j+2x b_(j+1)−b_(j+2) for j=d,…,1; S(x)=a_0+x b_1−b_2.
+
+T_j first-kind Chebyshev polynomial; a_j full series coefficients; d nonnegative degree; x real argument.
+
+General Chebyshev expansion evaluation; no forecasting benefit claimed.
+
+Assumptions — Finite expansion with full constant coefficient and x in [−1,1].
+
+Limitations — Roundoff and cancellation remain possible, especially near endpoints; extrapolation may amplify error.
+
+Mechanism — The DLMF uses half-weighted c_0; set c_0=2a_0 and c_j=a_j for j>0. Substitution into its final (u_0−u_2)/2 gives the stated full-coefficient formula. This two-state recurrence is a generalization of Horner but uses a materially different recurrence for an orthogonal basis; neither Clenshaw–Curtis quadrature nor Chebyshev iteration evaluates this supplied expansion..
+
+Source — NIST Digital Library of Mathematical Functions §3.11(ii), equations 3.11.11 and 3.11.15. https://dlmf.nist.gov/3.11.ii
+
+## De Casteljau Bernstein polynomial evaluation (de-casteljau-bernstein-evaluation)
+
+> For P(t)=Σ_(i=0)^d β_i C(d,i)t^i(1−t)^(d−i), set b_i^(0)=β_i and b_i^(r)=(1−t)b_i^(r−1)+t b_(i+1)^(r−1) for r=1,…,d and i=0,…,d−r; P(t)=b_0^(d).
+
+d nonnegative degree; C(d,i) binomial coefficient; β_i real Bernstein coefficients; t scalar argument; b intermediate values.
+
+General Bernstein polynomial evaluation; no forecasting benefit claimed.
+
+Assumptions — Finite scalar Bernstein coefficients and t in [0,1]; exact arithmetic for the identity.
+
+Limitations — Quadratic arithmetic cost; cancellation may still matter for mixed-sign coefficients; extrapolation loses convex combination property.
+
+Mechanism — Induction using Pascal's identity yields b_i^(r)=Σ_(j=0)^r C(r,j)t^j(1−t)^(r−j)β_(i+j). Each level is a triangular array of convex combinations, distinct from the scalar backward Horner or Clenshaw recurrence..
+
+Source — Eric W. Weisstein, MathWorld, de Casteljau Algorithm, equations (1)–(3). https://mathworld.wolfram.com/deCasteljauAlgorithm.html
+
+## Newton divided difference polynomial interpolation (newton-divided-difference-interpolation)
+
+> For distinct nodes x_0,…,x_d and ordinates y_i set D_(i,0)=y_i; D_(i,r)=(D_(i+1,r−1)−D_(i,r−1))/(x_(i+r)−x_i) for r=1,…,d and i=0,…,d−r. P(x)=Σ_(r=0)^d D_(0,r) Π_(j=0)^(r−1)(x−x_j), with empty product 1.
+
+d nonnegative degree bound; x_i distinct nodes; y_i ordinates; D divided differences; x query.
+
+General interpolation of finite numerical tables; no forecasting benefit claimed.
+
+Assumptions — Finite distinct real nodes, finite ordinates and scalar query; no repeated-node derivative data.
+
+Limitations — Same polynomial and possible high-degree oscillation as barycentric interpolation; close nodes can amplify rounding; order affects finite-precision results.
+
+Mechanism — The Newton form is the same unique degree-at-most-d interpolant as the barycentric form, but uses a divided-difference table and nested product basis, allowing incremental addition of a node. Conservatively classified as a computational variant, not a new interpolant or independent algorithm count..
+
+Source — NIST Digital Library of Mathematical Functions §3.3(iii)–(iv), equations 3.3.34–3.3.38. https://dlmf.nist.gov/3.3

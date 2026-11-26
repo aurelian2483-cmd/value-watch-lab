@@ -1,0 +1,222 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "049",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "horner-polynomial-evaluation",
+    "name": "Horner nested polynomial evaluation",
+    "definition": "For P(x)=Σ_(j=0)^d a_j x^j, set b_d=a_d and b_j=a_j+x b_(j+1) for j=d−1,…,0; P(x)=b_0.",
+    "variables": "d nonnegative degree; a_j coefficients; x scalar argument",
+    "assumptions": "Finite scalar coefficients and argument in a commutative field; standard monomial basis",
+    "limitations": "Cancellation and overflow can affect floating-point results; not a stable relative-error guarantee near roots",
+    "failure_conditions": [
+      "Incorrect coefficient ordering",
+      "Arithmetic overflow"
+    ],
+    "computation": "Evaluate descending coefficients using d multiplications and d additions in exact arithmetic; d=0 returns the constant. Use finite-precision safeguards where appropriate.",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §1.11(i), equations 1.11.1–1.11.4. https://dlmf.nist.gov/1.11.i",
+      "url": "https://dlmf.nist.gov/1.11.i"
+    },
+    "application": "General polynomial evaluation; no forecasting benefit claimed.",
+    "required_inputs": "Monomial coefficients and scalar argument",
+    "compatible_methods": [
+      "barycentric-polynomial-interpolation"
+    ],
+    "incompatible_methods": [
+      "Non-monomial coefficients without basis conversion"
+    ],
+    "relationships": [
+      {
+        "target": "barycentric-polynomial-interpolation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Induction gives b_j=Σ_(k=j)^d a_k x^(k−j), so b_0=P(x). This one-state monomial recurrence is not barycentric interpolation, a root solver, or a Chebyshev iterative linear-system solver."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "049",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "clenshaw-chebyshev-series-evaluation",
+    "name": "Clenshaw Chebyshev series evaluation",
+    "definition": "For S(x)=Σ_(j=0)^d a_j T_j(x), set b_(d+1)=b_(d+2)=0, b_j=a_j+2x b_(j+1)−b_(j+2) for j=d,…,1; S(x)=a_0+x b_1−b_2.",
+    "variables": "T_j first-kind Chebyshev polynomial; a_j full series coefficients; d nonnegative degree; x real argument",
+    "assumptions": "Finite expansion with full constant coefficient and x in [−1,1]",
+    "limitations": "Roundoff and cancellation remain possible, especially near endpoints; extrapolation may amplify error",
+    "failure_conditions": [
+      "Incorrect half-weight convention",
+      "Inconsistent recurrence indexing"
+    ],
+    "computation": "Backward two-state recurrence in O(d) arithmetic and O(1) auxiliary storage; d=0 returns a_0.",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §3.11(ii), equations 3.11.11 and 3.11.15. https://dlmf.nist.gov/3.11.ii",
+      "url": "https://dlmf.nist.gov/3.11.ii"
+    },
+    "application": "General Chebyshev expansion evaluation; no forecasting benefit claimed.",
+    "required_inputs": "Chebyshev coefficients and scalar argument",
+    "compatible_methods": [
+      "clenshaw-curtis-quadrature",
+      "horner-polynomial-evaluation"
+    ],
+    "incompatible_methods": [
+      "Coefficients in unrelated basis without conversion"
+    ],
+    "relationships": [
+      {
+        "target": "clenshaw-curtis-quadrature",
+        "type": "related"
+      },
+      {
+        "target": "horner-polynomial-evaluation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "The DLMF uses half-weighted c_0; set c_0=2a_0 and c_j=a_j for j>0. Substitution into its final (u_0−u_2)/2 gives the stated full-coefficient formula. This two-state recurrence is a generalization of Horner but uses a materially different recurrence for an orthogonal basis; neither Clenshaw–Curtis quadrature nor Chebyshev iteration evaluates this supplied expansion."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "049",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "de-casteljau-bernstein-evaluation",
+    "name": "De Casteljau Bernstein polynomial evaluation",
+    "definition": "For P(t)=Σ_(i=0)^d β_i C(d,i)t^i(1−t)^(d−i), set b_i^(0)=β_i and b_i^(r)=(1−t)b_i^(r−1)+t b_(i+1)^(r−1) for r=1,…,d and i=0,…,d−r; P(t)=b_0^(d).",
+    "variables": "d nonnegative degree; C(d,i) binomial coefficient; β_i real Bernstein coefficients; t scalar argument; b intermediate values",
+    "assumptions": "Finite scalar Bernstein coefficients and t in [0,1]; exact arithmetic for the identity",
+    "limitations": "Quadratic arithmetic cost; cancellation may still matter for mixed-sign coefficients; extrapolation loses convex combination property",
+    "failure_conditions": [
+      "Coefficients supplied in a different basis",
+      "Invalid parameter interval for the bounded specification",
+      "In-place recurrence overwritten in the wrong order"
+    ],
+    "computation": "Initialize a length d+1 array with coefficients; update increasing i at each level using the preceding level values. Uses d(d+1)/2 linear blends and O(d) auxiliary space; d=0 returns β_0.",
+    "source": {
+      "kind": "literature",
+      "citation": "Eric W. Weisstein, MathWorld, de Casteljau Algorithm, equations (1)–(3). https://mathworld.wolfram.com/deCasteljauAlgorithm.html",
+      "url": "https://mathworld.wolfram.com/deCasteljauAlgorithm.html"
+    },
+    "application": "General Bernstein polynomial evaluation; no forecasting benefit claimed.",
+    "required_inputs": "Bernstein coefficients and scalar t in [0,1]",
+    "compatible_methods": [
+      "horner-polynomial-evaluation",
+      "clenshaw-chebyshev-series-evaluation"
+    ],
+    "incompatible_methods": [
+      "Treating monomial coefficients as Bernstein coefficients"
+    ],
+    "relationships": [
+      {
+        "target": "horner-polynomial-evaluation",
+        "type": "related"
+      },
+      {
+        "target": "clenshaw-chebyshev-series-evaluation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Induction using Pascal's identity yields b_i^(r)=Σ_(j=0)^r C(r,j)t^j(1−t)^(r−j)β_(i+j). Each level is a triangular array of convex combinations, distinct from the scalar backward Horner or Clenshaw recurrence."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "049",
+    "family": "numerical-interpolation",
+    "classification": "model-variant",
+    "id": "newton-divided-difference-interpolation",
+    "name": "Newton divided difference polynomial interpolation",
+    "definition": "For distinct nodes x_0,…,x_d and ordinates y_i set D_(i,0)=y_i; D_(i,r)=(D_(i+1,r−1)−D_(i,r−1))/(x_(i+r)−x_i) for r=1,…,d and i=0,…,d−r. P(x)=Σ_(r=0)^d D_(0,r) Π_(j=0)^(r−1)(x−x_j), with empty product 1.",
+    "variables": "d nonnegative degree bound; x_i distinct nodes; y_i ordinates; D divided differences; x query",
+    "assumptions": "Finite distinct real nodes, finite ordinates and scalar query; no repeated-node derivative data",
+    "limitations": "Same polynomial and possible high-degree oscillation as barycentric interpolation; close nodes can amplify rounding; order affects finite-precision results",
+    "failure_conditions": [
+      "Duplicate nodes",
+      "Arithmetic overflow or nonfinite divided differences"
+    ],
+    "computation": "Build divided differences in O(d²) arithmetic, then evaluate nested Newton products in O(d) arithmetic. For fixed coefficients a new node extends the polynomial with one additional basis term after its divided difference is computed.",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §3.3(iii)–(iv), equations 3.3.34–3.3.38. https://dlmf.nist.gov/3.3",
+      "url": "https://dlmf.nist.gov/3.3"
+    },
+    "application": "General interpolation of finite numerical tables; no forecasting benefit claimed.",
+    "required_inputs": "Distinct nodes, associated ordinates, query point",
+    "compatible_methods": [
+      "barycentric-polynomial-interpolation",
+      "horner-polynomial-evaluation"
+    ],
+    "incompatible_methods": [
+      "Repeated nodes without Hermite divided-difference rules"
+    ],
+    "relationships": [
+      {
+        "target": "barycentric-polynomial-interpolation",
+        "type": "variant-of"
+      },
+      {
+        "target": "horner-polynomial-evaluation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "The Newton form is the same unique degree-at-most-d interpolant as the barycentric form, but uses a divided-difference table and nested product basis, allowing incremental addition of a node. Conservatively classified as a computational variant, not a new interpolant or independent algorithm count."
+  }
+]

@@ -1,0 +1,113 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "050",
+    "family": "numerical-interpolation",
+    "classification": "distinct-algorithm",
+    "id": "de-boor-bspline-evaluation",
+    "name": "De Boor B-spline evaluation",
+    "definition": "For degree q≥1, nondecreasing knots u_j and x in a positive knot span [u_k,u_(k+1)), set d_j^(0)=c_(k−q+j) for j=0,…,q; for r=1,…,q and j=r,…,q, set α=(x−u_(k−q+j))/(u_(k+1+j−r)−u_(k−q+j)), d_j^(r)=(1−α)d_(j−1)^(r−1)+α d_j^(r−1); S(x)=d_q^(q).",
+    "variables": "q spline degree; c spline coefficients; u knot sequence; k span index; x query",
+    "assumptions": "Valid knot and coefficient dimensions, interior nonempty span, all recurrence denominators positive; rightmost endpoint excluded",
+    "limitations": "Knot multiplicity and endpoint conventions need explicit treatment; only the supplied span is considered",
+    "failure_conditions": [
+      "Invalid span or zero denominator",
+      "Inconsistent knot and coefficient counts"
+    ],
+    "computation": "Locate the span and perform triangular local interpolation with descending j if in-place.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Carl de Boor, A Practical Guide to Splines, revised edition (2001). Source review pending."
+    },
+    "application": "General B-spline evaluation; no forecasting benefit claimed.",
+    "required_inputs": "Degree, valid knots, coefficients and query",
+    "compatible_methods": [
+      "natural-cubic-spline",
+      "de-casteljau-bernstein-evaluation"
+    ],
+    "incompatible_methods": [
+      "Unspecified endpoint convention"
+    ],
+    "relationships": [
+      {
+        "target": "de-casteljau-bernstein-evaluation",
+        "type": "related"
+      },
+      {
+        "target": "natural-cubic-spline",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional local knot-dependent triangular evaluation; novelty and classification review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "050",
+    "family": "numerical-interpolation",
+    "classification": "distinct-algorithm",
+    "id": "remez-polynomial-exchange",
+    "name": "Remez polynomial minimax exchange",
+    "definition": "For continuous f on [a,b] and d+2 ordered distinct points t_i, solve Σ_(j=0)^d a_j t_i^j+(−1)^i E=f(t_i) for a_j,E. Form P(x)=Σ_(j=0)^d a_j x^j; seek d+2 ordered alternating extrema of f−P and repeat with a justified exchange rule.",
+    "variables": "d degree bound; a,b interval; t_i exchange nodes; E alternating error; P approximant",
+    "assumptions": "Continuous real f on nondegenerate compact interval; distinct exchange nodes and a reliable extremum search; explicit stopping rule required",
+    "limitations": "A sampled extremum search is not a global error certificate; exchange degeneracy and conditioning need handling",
+    "failure_conditions": [
+      "Singular or ill-conditioned solve",
+      "Failure to find justified alternating exchange points"
+    ],
+    "computation": "Solve alternating linear system, locate extrema including boundaries and exchange points while maintaining alternation; review exact exchange and termination rules before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: NIST DLMF §3.11(i). https://dlmf.nist.gov/3.11.i",
+      "url": "https://dlmf.nist.gov/3.11.i"
+    },
+    "application": "General uniform polynomial approximation; no forecasting benefit claimed.",
+    "required_inputs": "Function, interval, degree, initial points and tolerance",
+    "compatible_methods": [
+      "horner-polynomial-evaluation",
+      "pivoted-lu"
+    ],
+    "incompatible_methods": [
+      "Claiming global minimax error from a finite sample alone"
+    ],
+    "relationships": [
+      {
+        "target": "horner-polynomial-evaluation",
+        "type": "related"
+      },
+      {
+        "target": "pivoted-lu",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional exchange method; specific exchange rule and convergence assumptions require review."
+  }
+]

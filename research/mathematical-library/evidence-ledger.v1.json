@@ -7835,5 +7835,97 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "The prime-field multiplicative group is cyclic of order p−1. Summing ω^(k(n−m)) over k yields N for n=m and zero otherwise by the geometric-series identity in the field; N is invertible since N divides p−1. A finite-field Fourier analogue with different scalar domain, classified as a feature transformation rather than a new fast algorithm."
+  },
+  {
+    "id": "horner-polynomial-evaluation",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §1.11(i), equations 1.11.1–1.11.4. https://dlmf.nist.gov/1.11.i",
+      "url": "https://dlmf.nist.gov/1.11.i"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Induction gives b_j=Σ_(k=j)^d a_k x^(k−j), so b_0=P(x). This one-state monomial recurrence is not barycentric interpolation, a root solver, or a Chebyshev iterative linear-system solver."
+  },
+  {
+    "id": "clenshaw-chebyshev-series-evaluation",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §3.11(ii), equations 3.11.11 and 3.11.15. https://dlmf.nist.gov/3.11.ii",
+      "url": "https://dlmf.nist.gov/3.11.ii"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The DLMF uses half-weighted c_0; set c_0=2a_0 and c_j=a_j for j>0. Substitution into its final (u_0−u_2)/2 gives the stated full-coefficient formula. This two-state recurrence is a generalization of Horner but uses a materially different recurrence for an orthogonal basis; neither Clenshaw–Curtis quadrature nor Chebyshev iteration evaluates this supplied expansion."
+  },
+  {
+    "id": "de-casteljau-bernstein-evaluation",
+    "source": {
+      "kind": "literature",
+      "citation": "Eric W. Weisstein, MathWorld, de Casteljau Algorithm, equations (1)–(3). https://mathworld.wolfram.com/deCasteljauAlgorithm.html",
+      "url": "https://mathworld.wolfram.com/deCasteljauAlgorithm.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Induction using Pascal's identity yields b_i^(r)=Σ_(j=0)^r C(r,j)t^j(1−t)^(r−j)β_(i+j). Each level is a triangular array of convex combinations, distinct from the scalar backward Horner or Clenshaw recurrence."
+  },
+  {
+    "id": "newton-divided-difference-interpolation",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §3.3(iii)–(iv), equations 3.3.34–3.3.38. https://dlmf.nist.gov/3.3",
+      "url": "https://dlmf.nist.gov/3.3"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The Newton form is the same unique degree-at-most-d interpolant as the barycentric form, but uses a divided-difference table and nested product basis, allowing incremental addition of a node. Conservatively classified as a computational variant, not a new interpolant or independent algorithm count."
   }
 ]
