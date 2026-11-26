@@ -4,7 +4,7 @@ const js=fs.readFileSync(__dirname+'/app.js','utf8'),html=fs.readFileSync(__dirn
 const css=fs.readFileSync(__dirname+'/style.css','utf8');
 const historyJS=fs.readFileSync(__dirname+'/history.js','utf8');
 const briefingJS=fs.readFileSync(__dirname+'/briefing.js','utf8');
-assert(html.includes('./history.js?v=4')&&html.includes('./briefing.js?v=4')&&html.includes('./app.js?v=7')&&html.includes('./style.css?v=5'));
+assert(html.includes('./history.js?v=4')&&html.includes('./briefing.js?v=4')&&html.includes('./app.js?v=8')&&html.includes('./style.css?v=5'));
 for(const id of ['briefing-title','briefing-date','briefing-risk','b-p1','b-new','b-degraded','b-aged','b-repeated','b-cleared','briefing-notes','briefing-step','briefing-warning'])assert(html.includes('id="'+id+'"'), 'Missing daily briefing element: '+id);
 assert(html.includes('id="history-board"')&&html.includes('id="history-summary"')&&html.includes('id="history-warning"'));
 assert(html.includes('READ-ONLY RESEARCH OVERSIGHT'));
@@ -14,7 +14,8 @@ assert(js.includes('planActions(')&&js.includes('actionRegister:actions'));
 assert(!/https?:\/\//.test(js),'No external API calls or remote scripts');
 assert(css.includes('@media(max-width:650px)'),'Responsive narrow layout must exist');
 new vm.Script(js);new vm.Script(historyJS);new vm.Script(briefingJS);
-const {specs,context:extraContext}=require('../ops-control/extra-feeds.js');
+const extraFeeds=require('../ops-control/extra-feeds.js');
+const {specs}=extraFeeds;
 const stamp=new Date().toISOString(),start=new Date(Date.now()+86400000).toISOString();
 const extra=Object.fromEntries(specs.map(spec=>['../'+spec.filename,{
  schema_version:1,generated_at_utc:stamp,research_only:true,model_validation:'UNVALIDATED',publication_gate:'BLOCKED',
@@ -32,7 +33,7 @@ async function run(denied){
  function element(tag){return {tagName:tag,textContent:'',className:'',disabled:false,children:[],append(...xs){this.children.push(...xs)},replaceChildren(){this.children=[]},setAttribute(){},addEventListener(){},remove(){},click(){}}}
  const document={hidden:false,body:element('body'),createElement:element,getElementById(id){if(!nodes.has(id))nodes.set(id,element('div'));return nodes.get(id)},addEventListener(){}};
  const fetch=(url,opts)=>{requests.push({url,opts});return denied&&url.includes('other-sports')?Promise.reject(Error('Synthetic feed failure')):Promise.resolve({ok:true,json:async()=>data[url]})};
- const window={ValueWatchExtraFeeds:{specs,context:extraContext},localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)}};
+ const window={ValueWatchExtraFeeds:extraFeeds,localStorage:{getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)}};
  const scope={window,document,fetch,setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,AbortController:class{constructor(){this.signal={}}abort(){}},Intl,Date,Blob,URL};
  vm.runInNewContext(historyJS,scope,{timeout:5000});
  vm.runInNewContext(briefingJS,scope,{timeout:5000});

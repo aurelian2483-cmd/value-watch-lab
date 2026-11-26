@@ -32,15 +32,15 @@ function audit(root,now=new Date()){
    feeds.push({id:spec.id,state:'UNAVAILABLE',generatedAt:null,ageHours:null,gateOK:false});continue;
   }
   const context=extraFeeds.context(spec.id,doc,nowMs);
-  const ms=Date.parse(context.observedAt ?? doc.generated_at_utc);
-  const stampOK=Number.isFinite(ms),future=stampOK&&ms>nowMs+300000;
-  const age=stampOK?Math.max(0,(nowMs-ms)/3600000):null;
+  const ms=extraFeeds.parseEvidenceTime(context.observedAt ?? doc.generated_at_utc);
+  const stampOK=ms!==null && ms<=nowMs;
+  const age=stampOK?(nowMs-ms)/3600000:null;
   const gateOK=context.gateOK ?? (doc.research_only===true&&doc.model_validation==='UNVALIDATED'&&doc.publication_gate==='BLOCKED');
   if(!gateOK)record(issues,'P1','Operations Director + IT & QA',spec.id+':GATE_CHANGED',spec.id+' research-only / UNVALIDATED / BLOCKED gates are not all present','Inspect the publication gate; do not approve or publish a bet.');
   if(context.pending)record(issues,'P2',spec.owner,spec.id+':PENDING',context.pending,'Check the latest collection and source coverage.');
-  else if(!stampOK||future)record(issues,'P1','IT & QA Manager',spec.id+':INVALID_TIMESTAMP',spec.id+' has missing, invalid or future generation timestamp','Check source timestamps, clocks, and publishing process.');
+  else if(!stampOK)record(issues,'P1','IT & QA Manager',spec.id+':INVALID_TIMESTAMP',spec.id+' has missing, invalid or future generation timestamp','Check source timestamps, clocks, and publishing process.');
   else if(age>spec.maxAgeHours)record(issues,'P2','IT & QA Manager',spec.id+':STALE',spec.id+' published snapshot exceeds '+spec.maxAgeHours+' hours','Check collector scheduling and data freshness.');
-  const state=!gateOK?'BLOCKED':context.pending?'PENDING':!stampOK||future?'BLOCKED':age>spec.maxAgeHours?'STALE':'OBSERVED';
+  const state=!gateOK?'BLOCKED':context.pending?'PENDING':!stampOK?'BLOCKED':age>spec.maxAgeHours?'STALE':'OBSERVED';
   feeds.push({id:spec.id,state,generatedAt:stampOK?new Date(ms).toISOString():null,ageHours:age===null?null:Number(age.toFixed(2)),gateOK});
   if(spec.id==='football'){
     const count=Array.isArray(doc.upcoming_fixtures)?doc.upcoming_fixtures.length:null;

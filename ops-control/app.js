@@ -18,7 +18,6 @@ const sportDefs=[
 ];
 let latest=null,busy=false;
 const txt=(id,value)=>{const e=$(id);if(e)e.textContent=String(value)};
-const safeDate=s=>{if(typeof s!=='string'||s.length>70)return null;const n=Date.parse(s);return Number.isFinite(n)?n:null};
 const ncount=(v)=>Array.isArray(v)?v.length:null;
 const niceNumber=v=>Number.isInteger(v)&&v>=0?v.toLocaleString('en-GB'):'Unavailable';
 const hourAge=ms=>!Number.isFinite(ms)||ms<0?'Unknown':ms<3600000?Math.floor(ms/60000)+' min':(ms/3600000).toFixed(1)+' hr';
@@ -33,10 +32,12 @@ async function fetchSource(spec,now){
   const data=await response.json();
   if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Invalid data object');
   const context=extraFeeds.context(spec.id,data,now);
-  const stamp=safeDate(context.observedAt ?? data.generated_at_utc);const age=stamp===null?null:now-stamp;
+  const sourceTime=extraFeeds.parseEvidenceTime(context.observedAt ?? data.generated_at_utc);
+  const stamp=sourceTime!==null&&sourceTime<=now?sourceTime:null;
+  const age=stamp===null?null:now-stamp;
   const gate=data.publication_gate,model=data.model_validation;
   const gateOK=context.gateOK ?? (gate==='BLOCKED'&&model==='UNVALIDATED'&&data.research_only===true);
-  const stale=age===null||age<0||age>spec.limitHours*3600000;
+  const stale=age===null||age>spec.limitHours*3600000;
   const result={id:spec.id,label:spec.label,file:spec.file,ok:true,data,age,stamp,stale,gateOK,pending:context.pending,limitHours:spec.limitHours};
   return result;
  }catch(error){return{id:spec.id,label:spec.label,file:spec.file,ok:false,error:error?.name==='AbortError'?'Request timeout':String(error?.message||error),age:null,stamp:null,stale:true,gateOK:false}}
@@ -99,7 +100,7 @@ function evaluateSport(spec,feeds,messages){
  if(!Number.isInteger(count))issue(messages,'caution',spec.label+': event count unavailable');
  if(d.stale)issue(messages,'caution',spec.label+': published research is stale or un-timestamped');
  if(!d.gateOK)issue(messages,'blocked',spec.label+': research safeguards not confirmed by source');
- return {id:spec.id,label:spec.label,icon:spec.icon,count,details,source:spec.source,level:!d.gateOK?'blocked':d.stale?'caution':'good',status:!d.gateOK?'REVIEW SAFEGUARDS':d.stale?'STALE SOURCE':'SOURCE AVAILABLE'};
+ return {id:spec.id,label:spec.label,icon:spec.icon,count,details,source:spec.source,level:!d.gateOK?'blocked':d.stale?'caution':'good',status:!d.gateOK?'REVIEW SAFEGUARDS':d.stamp===null?'TIMESTAMP UNKNOWN':d.stale?'STALE SOURCE':'SOURCE AVAILABLE'};
 }
 function renderSports(sports,feeds){
  const root=$('sports');root.replaceChildren();
@@ -201,7 +202,7 @@ function renderSources(feeds){
  const body=$('source-table');body.replaceChildren();
  for(const f of feeds){const tr=add(body,'tr');
    add(tr,'td',f.label);add(tr,'td',f.ok?fmtTime(f.stamp):'—');add(tr,'td',hourAge(f.age));
-   const cell=add(tr,'td');cell.append(cls(!f.ok||!f.gateOK?'blocked':(f.stale||f.pending)?'caution':'good',!f.ok?'UNAVAILABLE':!f.gateOK?'GATE NOT VERIFIED':f.pending?'PENDING':f.stale?'STALE':'RESPONDING'));
+   const cell=add(tr,'td');cell.append(cls(!f.ok||!f.gateOK?'blocked':(f.stale||f.pending)?'caution':'good',!f.ok?'UNAVAILABLE':!f.gateOK?'GATE NOT VERIFIED':f.pending?'PENDING':f.stamp===null?'TIMESTAMP UNKNOWN':f.stale?'STALE':'RESPONDING'));
  }
 }
 function exportReport(){if(!latest)return;const blob=new Blob([JSON.stringify(latest,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const anchor=document.createElement('a');anchor.href=url;anchor.download='value-watch-operations-'+new Date(latest.checkedAt).toISOString().slice(0,10)+'.json';document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}
