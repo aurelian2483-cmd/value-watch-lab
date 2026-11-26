@@ -29,8 +29,8 @@ def date_cluster_interval(rows,value_key,repeats=20000,seed=20261115):
 
  Same-day races can share weather, going, meeting and collection effects.  This
  interval is therefore reported alongside, rather than instead of, the existing
- race-level bootstrap.  The fixed seed and date-level resampling match the
- locked Phase 3 research protocol; neither interval is model validation.
+ race-level bootstrap. The seed and resampling unit follow the Phase 3
+ protocol. This diagnostic retains its own endpoint rank convention.
  """
  if type(repeats) is not int or repeats<40:
   raise ValueError('At least 40 bootstrap replicates required')

@@ -1,10 +1,13 @@
 """One-shot, read-only acquisition of the pinned public context feed."""
 import argparse
+from collections import Counter
 import hashlib
 import json
 from pathlib import Path
 import re
+import shutil
 import sys
+from tempfile import TemporaryDirectory
 import urllib.error
 import urllib.request
 
@@ -61,7 +64,6 @@ def collect(root, ref, local=None, local_receipt=None):
     ab.registration(root)
     raw, url, transport, local_receipt_sha = acquire(ref, local, local_receipt)
     received = ab.utcnow()
-    feed = ab.strict_json(raw)
     receipt = {
         'source_url': url, 'source_ref': ref, 'observed_at_utc': received.isoformat(),
         'transport': transport, 'raw_sha256': hashlib.sha256(raw).hexdigest(),
@@ -72,8 +74,47 @@ def collect(root, ref, local=None, local_receipt=None):
         **ab.GUARDS,
     }
     digest = ab.store_object(root, 'snapshots', receipt)
-    result = ab.inspect_feed(feed, root, ab.utcnow())
-    return {'acquisition_receipt_sha256': digest, **result}
+    feed = ab.strict_json(raw)
+    # The pinned inspector checks skipped rows after writing forecasts. Reject
+    # that malformed envelope before handing any of its races to the inspector.
+    ab.require(isinstance(feed, dict), 'WRONG_FEED_MODEL')
+    skipped = feed.get('skipped', [])
+    ab.require(isinstance(skipped, list), 'SKIP_LIST_INVALID')
+    ab.require(all(isinstance(row, dict) and isinstance(row.get('reason'), str)
+                   for row in skipped), 'SKIP_RECORD_INVALID')
+    ab.event(root, 'PINNED_FEED_RECEIVED', received, acquisition_receipt_sha256=digest,
+             source_snapshot_sha256=ab.sha(feed), source_ref=ref)
+    inspected = ab.utcnow()
+    ab.require(inspected >= received, 'COLLECTION_CLOCK_MOVED_BACKWARDS')
+    result = ab.inspect_feed(feed, root, inspected)
+    return {
+        'acquisition_receipt_sha256': digest,
+        'source_ref': ref,
+        'source_raw_sha256': receipt['raw_sha256'],
+        'source_git_blob_sha1': receipt['git_blob_sha1'],
+        'intake_checked_at_utc': inspected.isoformat(),
+        'capture_failure_counts': dict(Counter(row['reason'] for row in result['capture_failures'])),
+        'upstream_exclusion_counts': dict(Counter(row['reason'] for row in skipped)),
+        **result,
+    }
+
+
+def probe(root, ref, local=None, local_receipt=None):
+    """Rehearse intake against the registration in an empty, disposable ledger."""
+    registration = ab.registration(root)
+    model_name = registration['model_bundle_sha256'] + '.json'
+    with TemporaryDirectory(prefix='intake-probe-', dir=ab.ROOT / 'state') as directory:
+        target = Path(directory)
+        (target / 'snapshots').mkdir()
+        shutil.copyfile(root / 'registration.json', target / 'registration.json')
+        shutil.copyfile(root / 'snapshots' / model_name, target / 'snapshots' / model_name)
+        result = collect(target, ref, local, local_receipt)
+    return {
+        'status': 'DISPOSABLE_INTAKE_PROBE',
+        'persisted_in_registered_ledger': False,
+        'independent_timestamp_attested': False,
+        **result,
+    }
 
 
 def main():
@@ -82,12 +123,14 @@ def main():
     p.add_argument('--local', type=Path)
     p.add_argument('--local-receipt', type=Path)
     p.add_argument('--store', type=Path, default=ab.ROOT / 'state')
+    p.add_argument('--probe', action='store_true', help='Use a disposable ledger and retain no pairs')
     a = p.parse_args()
     try:
-        root = ab.safe_root(a.store)
-        result = collect(root, a.ref, a.local, a.local_receipt)
+        root = a.store.resolve(strict=True) if a.probe else ab.safe_root(a.store)
+        action = probe if a.probe else collect
+        result = action(root, a.ref, a.local, a.local_receipt)
     except (ab.ResearchError, OSError, urllib.error.URLError) as e:
-        if 'root' in locals():
+        if not a.probe and 'root' in locals():
             ab.event(root, 'ACQUISITION_BLOCKED', ab.utcnow(), reason=str(e), source_ref=a.ref)
         print(json.dumps({'status': 'BLOCKED', 'reason': str(e), **ab.GUARDS}), file=sys.stderr)
         return 2

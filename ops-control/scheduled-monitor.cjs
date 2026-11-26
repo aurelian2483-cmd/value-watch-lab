@@ -14,6 +14,35 @@ const SOURCES=[
 ];
 function safeString(s){return String(s??'').replace(/[\r\n\t]/g,' ').slice(0,150)}
 function record(issues,priority,owner,code,description,nextStep){issues.push({priority,owner,code,description,nextStep})}
+function awareTime(value){
+ return typeof value==='string'&&/T.*(?:Z|[+-]\d{2}:\d{2})$/i.test(value)?Date.parse(value):NaN;
+}
+function forecastEvidence(forecasts, checks, nowMs){
+ const maximumAge=30*60*1000, preOff=5*60*1000;
+ const evidence={upcoming:0,stale:0,unknown:0,insideCutoff:0,invalidStart:0,currentFieldUnconfirmed:0};
+ for(const row of forecasts){
+  const start=awareTime(row?.startUTC);
+  if(!Number.isFinite(start)){evidence.invalidStart++;continue;}
+  if(start<=nowMs)continue;
+  evidence.upcoming++;
+  if(start-nowMs<=preOff)evidence.insideCutoff++;
+  const original=awareTime(row.runner_observed_at_utc), frozen=awareTime(row.generated_at_utc);
+  if(!Number.isFinite(original)||!Number.isFinite(frozen)||original>frozen||frozen>nowMs)evidence.unknown++;
+  else if(nowMs-original>maximumAge)evidence.stale++;
+  if(start-nowMs<=preOff)continue;
+  const check=checks?.[row.record_sha256];
+  const seen=awareTime(check?.runner_observed_at_utc), checked=awareTime(check?.checked_at_utc);
+  const frozenIds=Array.isArray(row.runners)?row.runners.map(runner=>runner?.horse_id).sort():[];
+  const checkedIds=Array.isArray(check?.active_runner_ids)?[...check.active_runner_ids].sort():[];
+  const sameField=frozenIds.length>=2&&frozenIds.length===checkedIds.length&&
+    frozenIds.every((id,index)=>typeof id==='string'&&id===checkedIds[index]);
+  if(check?.status!=='FRESH_MATCHING_FIELD_AND_CONTEXT'||!(seen<=checked&&checked<=nowMs&&nowMs-seen<=maximumAge)||
+     !sameField||typeof row.context_signature!=='string'||row.context_signature!==check.context_signature){
+    evidence.currentFieldUnconfirmed++;
+  }
+ }
+ return evidence;
+}
 function audit(root,now=new Date()){
  const timestamp=now instanceof Date?now:new Date(now);
  if(!Number.isFinite(timestamp.getTime()))throw Error('Invalid monitor timestamp');
@@ -32,8 +61,10 @@ function audit(root,now=new Date()){
    feeds.push({id:spec.id,state:'UNAVAILABLE',generatedAt:null,ageHours:null,gateOK:false});continue;
   }
   const context=extraFeeds.context(spec.id,doc,nowMs);
-  const ms=Date.parse(context.observedAt ?? doc.generated_at_utc);
-  const stampOK=Number.isFinite(ms),future=stampOK&&ms>nowMs+300000;
+  const racingSnapshot=spec.id==='racing'||spec.id==='racing-forecasts';
+  const sourceTime=context.observedAt ?? doc.generated_at_utc;
+  const ms=racingSnapshot?awareTime(sourceTime):Date.parse(sourceTime);
+  const stampOK=Number.isFinite(ms),future=stampOK&&ms>nowMs+(racingSnapshot?0:300000);
   const age=stampOK?Math.max(0,(nowMs-ms)/3600000):null;
   const gateOK=context.gateOK ?? (doc.research_only===true&&doc.model_validation==='UNVALIDATED'&&doc.publication_gate==='BLOCKED');
   if(!gateOK)record(issues,'P1','Operations Director + IT & QA',spec.id+':GATE_CHANGED',spec.id+' research-only / UNVALIDATED / BLOCKED gates are not all present','Inspect the publication gate; do not approve or publish a bet.');
@@ -69,27 +100,31 @@ function audit(root,now=new Date()){
       sports.push({sport,observedCount:Array.isArray(events)?events.filter(event=>event.code===code).length:null,status:'PROVIDER FIXTURES ONLY'});
     }
   }else if(spec.id==='racing-forecasts'){
-    const forecasts=Array.isArray(doc.forecasts)?doc.forecasts:[];
-    const recentRunnerMs=30*60*1000;
-    let upcoming=0, stale=0, unknown=0;
-    for(const row of forecasts){
-      const start=Date.parse(row?.startUTC);
-      if(!Number.isFinite(start)||start<=nowMs)continue;
-      upcoming++;
-      const observed=row?.runner_observed_at_utc;
-      const received=typeof observed==='string'&&/(?:Z|[+-]\d{2}:\d{2})$/i.test(observed)?Date.parse(observed):NaN;
-      if(!Number.isFinite(received)||received>nowMs)unknown++;
-      else if(nowMs-received>recentRunnerMs)stale++;
-    }
+    const forecasts=Array.isArray(doc.forecasts)?doc.forecasts:null;
+    const {upcoming,stale,unknown,insideCutoff,invalidStart,currentFieldUnconfirmed}=
+      forecastEvidence(forecasts||[],doc.current_field_checks,nowMs);
     feedReport.originalRunnerEvidence={upcoming,stale,unknown};
+    feedReport.intakeTiming={insideCutoff,invalidStart,currentFieldUnconfirmed};
+    if(!forecasts||invalidStart){
+      record(issues,'P1',spec.owner,spec.id+':INVALID_FORECAST_SCHEDULE',
+       'Missing forecast list or invalid start time on '+invalidStart+' forecasts',
+       'Reconcile the published forecast list and time-zone-aware start times.');
+      feedReport.state='BLOCKED';
+    }
     if(stale||unknown){
       record(issues,'P2',spec.owner,spec.id+':ORIGINAL_RUNNER_RECEIPTS_NOT_CURRENT',
        stale+' stale and '+unknown+' unconfirmed original runner receipts among '+upcoming+' upcoming forecasts',
        'Check original forecast and runner receipts before prospective capture.');
       if(feedReport.state==='OBSERVED')feedReport.state=unknown?'PENDING':'STALE';
     }
+    if(currentFieldUnconfirmed){
+      record(issues,'P2',spec.owner,spec.id+':CURRENT_FIELD_RECEIPTS_NOT_CURRENT',
+       currentFieldUnconfirmed+' forecasts outside the pre-off cutoff lack a current matching field receipt',
+       'Review field and conditions receipts before prospective capture.');
+      if(feedReport.state==='OBSERVED')feedReport.state='PENDING';
+    }
     const skipped=Array.isArray(doc.skipped)?doc.skipped:[];
-    const unknownDiscipline=skipped.filter(item=>item.reason==='UNKNOWN_RACE_DISCIPLINE').length;
+    const unknownDiscipline=skipped.filter(item=>item?.reason==='UNKNOWN_RACE_DISCIPLINE').length;
     if(unknownDiscipline)record(issues,'P2',spec.owner,spec.id+':UNKNOWN_DISCIPLINE',unknownDiscipline+' races lack a confirmed discipline','Match individual racecards to their published race type.');
   }else if(spec.id==='horse'){
     if(!Array.isArray(doc.form_forecasts))record(issues,'P2','Horse Racing Manager',spec.id+':MODEL_ARRAY_MISSING','Racing model forecast array not present','Review model source compatibility without synthesising picks.');

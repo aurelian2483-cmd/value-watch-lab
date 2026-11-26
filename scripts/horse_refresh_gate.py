@@ -59,7 +59,9 @@ def snapshot_health(snapshot, now, *, future=False):
                 'future_runner_receipts': future_receipts, 'invalid_claimed_receipts': invalid,
                 'reason': 'RUNNER_RECEIPT_AFTER_SNAPSHOT' if future_receipts else
                 'RUNNER_RECEIPTS_INVALID' if invalid else
-                'RUNNER_RECEIPTS_STALE' if stale else 'CURRENT_SNAPSHOT'}
+                'RUNNER_RECEIPTS_STALE' if stale else
+                'RUNNER_RECEIPTS_MISSING' if not future and missing and not checked else
+                'CURRENT_SNAPSHOT'}
     except (KeyError, ValueError, TypeError, AttributeError):
         return {'reason': 'SNAPSHOT_SCHEMA_OR_TIMESTAMP_INVALID'}
 

@@ -34,6 +34,8 @@ python phase3_ab.py dashboard
 
 The collector only reads the existing public repository context feed; it never runs production collectors or changes schedules. Network access is needed for that optional read. For retained pinned input, use `--local acquisition/horse-predictions-data.json --local-receipt acquisition/connector_receipt.json --ref 9bdc35c9581744bb19495ab38663c585076445c0`. Old feeds will correctly fail freshness checks later; do not backdate the CLI clock to replay them as prospective.
 
+Use `--probe` with the same inputs to run the real-clock intake against an empty disposable ledger with the existing registration. The JSON reports original source hashes, inspection time, newly generated disposable pairs and exclusion counts. The temporary store is removed on success or failure. A probe does not exercise revision conflicts against existing pairs. Run one real collection at a time against the registered store. Independent timestamp evidence must cover the actual paired forecast bytes.
+
 The core analyze command gives the all-observed descriptive ledger view. **evaluate_locked_endpoint.py is the primary fixed-window analysis**, applying the first500pairs/minimum60dates/180day horizon without favourable stopping. It never approves deployment. No autonomous scheduler was installed and no background collection is promised.
 
 Capture accepts complete original context records and verifies source SHA, exact parameters, original baseline parity, IDs, history, age, London cutoff, freshness and pre-off timing. Feed ingestion additionally requires fresh matching field/context checks. Changed start times for the same raceID are withheld for review. A-only past archives cannot become prospective A/B pairs after the event.

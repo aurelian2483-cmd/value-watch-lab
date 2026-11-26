@@ -71,3 +71,10 @@ class HorseRefreshGateTests(unittest.TestCase):
         row['runner_observed_at_utc'] = '2026-11-06T13:59:30Z'
         health = snapshot_health(dict(fresh, races=[row]), self.now)
         self.assertEqual(health['reason'], 'RUNNER_RECEIPT_AFTER_SNAPSHOT')
+
+    def test_envelope_with_no_observed_upcoming_fields_needs_daily_refresh(self):
+        fresh = self.card('2026-11-06T13:59:00Z')
+        fresh['races'].append({'startUTC': '2026-11-06T16:00:00Z', 'runners': []})
+        self.assertEqual(snapshot_health(fresh, self.now)['reason'], 'RUNNER_RECEIPTS_MISSING')
+        self.assertTrue(should_refresh('workflow_run', fresh, self.now, self.upstream)[0])
+        self.assertEqual(snapshot_health(fresh, self.now, future=True)['reason'], 'CURRENT_SNAPSHOT')
