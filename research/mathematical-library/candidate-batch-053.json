@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "053",
+    "family": "numerical-optimisation",
+    "classification": "model-variant",
+    "id": "dekker-fast-two-sum",
+    "name": "Magnitude-ordered FastTwoSum",
+    "definition": "For |a|≥|b|, s=fl(a+b), z=fl(s−a), e=fl(b−z); proposed exact identity a+b=s+e.",
+    "variables": "a,b floating operands; s rounded sum; e residual; fl rounding",
+    "assumptions": "Magnitude ordering, binary round-to-nearest, no overflow; domain pending review",
+    "limitations": "Ordering and arithmetic conditions require independent verification",
+    "failure_conditions": [
+      "Magnitude ordering absent or nonfinite intermediates"
+    ],
+    "computation": "Evaluate three ordered arithmetic operations; exactness conditions pending review",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Lange and Oishi (2020), A note on Dekker’s FastTwoSum algorithm, DOI 10.1007/s00211-020-01114-2; admission review pending."
+    },
+    "application": "General numerical residual extraction; no forecasting benefit claimed.",
+    "required_inputs": "Ordered floating-point pair and declared arithmetic",
+    "compatible_methods": [
+      "knuth-two-sum-error-free-transform"
+    ],
+    "incompatible_methods": [
+      "Assuming exactness for arbitrary input ordering"
+    ],
+    "relationships": [
+      {
+        "target": "knuth-two-sum-error-free-transform",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional reduced-operation variant of TwoSum; admission review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "053",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "scaled-sum-of-squares",
+    "name": "Scaled sum-of-squares accumulation",
+    "definition": "Maintain scale m and q such that Σx_i²=m²q; when |x|>m update q=1+q(m/|x|)², m=|x|; otherwise for m>0 update q=q+(x/m)²; norm=m√q.",
+    "variables": "m scale; q scaled accumulator; x new term",
+    "assumptions": "Finite input, stable zero handling, specified arithmetic; review pending",
+    "limitations": "Rounded accumulation and final overflow need review",
+    "failure_conditions": [
+      "Nonfinite input or invalid scaled state"
+    ],
+    "computation": "Start m=0,q=0; skip zero terms and update as specified; source and error review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: LAPACK xLASSQ scaled sum-of-squares routine documentation; independent review pending."
+    },
+    "application": "General numerical norm evaluation; no forecasting benefit claimed.",
+    "required_inputs": "Finite numeric sequence and arithmetic format",
+    "compatible_methods": [
+      "balanced-pairwise-summation"
+    ],
+    "incompatible_methods": [
+      "Claiming overflow immunity for unrepresentable final norms"
+    ],
+    "relationships": [
+      {
+        "target": "balanced-pairwise-summation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional rescaling invariant, not an admitted specification."
+  }
+]

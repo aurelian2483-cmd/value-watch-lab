@@ -5581,3 +5581,67 @@ Limitations — Finite residual angle and finite-precision shift, angle-table an
 Mechanism — Each unscaled update equals √(1+2^(−2i)) times rotation by σ_i α_i, α_i=arctan(2^(−i)). Thus after correction the vector is (cos(z_0−z_N),sin(z_0−z_N)). Since |z_0|≤2α_0 and α_(i−1)≤2α_i by concavity of arctan on nonnegative arguments, induction gives |z_(i+1)|≤α_i. Euclidean vector error is at most |z_N| in exact arithmetic. Unlike Givens elimination or Jacobi diagonalization, signed shift-add microrotations approximate a supplied angle, not an elimination pivot.
 
 Source — Ryan Robucci, University of Maryland Baltimore County, Lecture 20 – CORDIC, §§2–6 and 11; rotation equations and deferred gain correction. https://eclipse.umbc.edu/robucci/cmpeRSD/lectures/Lecture20__CORDIC/Lecture20__CORDIC.html
+
+## Kahan compensated summation (kahan-compensated-summation)
+
+> Set s=0,c=0; for each x_i compute y=fl(x_i−c), t=fl(s+y), c=fl(fl(t−s)−y), s=t; return s.
+
+x_i terms; s running sum; c signed rounding compensation; t,y temporaries; fl operation-wise rounding; u unit roundoff.
+
+General numerical summation; no forecasting benefit claimed.
+
+Assumptions — Finite floating-point inputs; fixed working precision, round-to-nearest, standard relative rounding model with no overflow or underflow for the quoted bound; strict evaluation order.
+
+Limitations — Not an exact accumulator or a guaranteed correctly rounded result; cancellation can still make relative error large; nonfinite intermediates and reassociation invalidate the analysis.
+
+Mechanism — The sign convention c=−e maps the recurrence to Higham’s compensated sum. Under the stated rounding model its absolute forward error is bounded asymptotically by (2u+O(nu²))Σ|x_i|; this is not a certified numerical tolerance or relative error guarantee. The feedback state is different from Horner polynomial evaluation, which multiplies by a query at each step, and from a balanced addition tree.
+
+Source — Higham (1993), The Accuracy of Floating Point Summation, SIAM J. Sci. Comput. 14(4), 783–799, p. 791, equations (3.10)–(3.11), DOI 10.1137/0914050. https://nhigham.com/wp-content/uploads/2023/10/high93s.pdf
+
+## TwoSum error-free addition transform (knuth-two-sum-error-free-transform)
+
+> For floating-point a,b set s=fl(a+b), z=fl(s−a), e=fl(fl(a−fl(s−z))+fl(b−z)); under suitable arithmetic conditions a+b=s+e exactly.
+
+a,b input numbers; s rounded sum; z temporary; e residual; fl rounding operator.
+
+General floating-point residual decomposition; no forecasting benefit claimed.
+
+Assumptions — IEEE binary floating point with round-to-nearest ties-to-even, one working precision, gradual underflow, individually rounded operations and no overflow in any intermediate.
+
+Limitations — Exactness concerns the unevaluated real sum s+e, not a second rounded addition; flush-to-zero, double rounding and reassociation can invalidate the identity.
+
+Mechanism — The cited theorem supplies the exact identity even with gradual underflow because subnormal addition/subtraction is exact in this format. Unlike Kahan, this is an order-independent two-operand residual extraction in six operations, not a streaming approximate sum; it requires no magnitude ordering. For example, the binary64 pair 1 and 2^−53 yields s=1 and e=2^−53, whose real sum is exact but whose rounded sum is 1.
+
+Source — Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, SIAM J. Sci. Comput. 26(6), 1955–1988, Algorithm 3.1 and Theorem 3.4, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf
+
+## Balanced pairwise floating-point summation (balanced-pairwise-summation)
+
+> Let v^(0)=(x_1,…,x_n), n≥1. At each level replace adjacent pairs by v_j^(k+1)=fl(v_(2j−1)^(k)+v_(2j)^(k)); copy an unpaired last term unchanged. Stop at one value Ŝ.
+
+n number of terms; k tree level; v intermediate terms; fl rounded addition; Ŝ computed sum; u unit roundoff; d=⌈log₂ n⌉.
+
+General numerical reduction; no forecasting benefit claimed.
+
+Assumptions — Finite inputs, fixed pairing and precision, round-to-nearest with standard relative rounding model; no overflow or underflow for the stated bound; du<1.
+
+Limitations — Not guaranteed correctly rounded; cancellation and input order affect accuracy; different parallel reduction trees can yield different rounded answers.
+
+Mechanism — A leaf undergoes at most d rounded additions, so its multiplicative perturbation differs from 1 by at most γ_d=du/(1−du) under the stated rounding model. Summing absolute leaf errors yields |Ŝ−Σx_i|≤γ_dΣ|x_i|; shorter paths are covered by padding with factors 1. This extends the cited power-of-two derivation to odd lengths. The balanced reduction tree, unlike the sequential feedback in Kahan, uses no compensation.
+
+Source — Higham (1993), The Accuracy of Floating Point Summation, p. 788, equation (3.6), DOI 10.1137/0914050. https://nhigham.com/wp-content/uploads/2023/10/high93s.pdf
+
+## Fused multiply-add product residual transform (two-product-fma-error-free-transform)
+
+> For floating-point a,b form p=fl(a b) and e=fma(a,b,−p), where fma rounds the exact product-plus-addend only once. If the exact residual is representable then a b=p+e as real numbers.
+
+a,b operands; p rounded product; e residual; fl rounding to working precision; fma single-rounding fused operation.
+
+General numerical product decomposition; no forecasting benefit claimed.
+
+Assumptions — Finite IEEE binary operands, round-to-nearest ties-to-even, correctly rounded FMA in the same precision, no overflow and representable exact residual; no underflow in the sense of the cited product decomposition is a sufficient condition.
+
+Limitations — A tiny product residual may be unrepresentable even when the rounded product is normal; product decomposition must not be claimed exact in that case; not equivalent to a separate rounded multiplication and subtraction.
+
+Mechanism — The real residual r=a b−p is the exact input to the final rounding; if r belongs to the format, that rounding is the identity and the pair preserves the product. For a subnormal residual below the minimum representable increment this argument fails. The multiplication residual and explicit fused operation differ from the six-addition TwoSum primitive; neither alone is a full compensated dot-product algorithm.
+
+Source — Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, equation (2.3) and Algorithm 3.5, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf
