@@ -1,0 +1,33 @@
+name: Phase 3 isolated hierarchy and cloud acceptance
+on:
+  push:
+    branches: [research/phase3-hierarchy-cloud]
+    paths: ['research/phase3-hierarchy/**', '.github/workflows/phase3-hierarchy-cloud-acceptance.yml']
+permissions:
+  contents: read
+jobs:
+  synthetic-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify protected history and disposable cloud acceptance
+        run: |
+          set -euo pipefail
+          openssl version
+          python -m unittest discover -s research/phase3-hierarchy -v
+          base=research/reviews/phase3-independent-review
+          python "$base/final-qualification/verify_integrated_pins.py"
+          work="$(mktemp -d)"
+          python research/phase3-transactional/acceptance.py "$work/transactional.json"
+          cmp "$work/transactional.json" "$base/transactional-repair/acceptance.json"
+          python research/phase3-evidence/acceptance.py "$work/evidence.json"
+          cmp "$work/evidence.json" "$base/evidence-qualification/acceptance.json"
+          python research/phase3-lifecycle/acceptance.py "$work/lifecycle.json"
+          cmp "$work/lifecycle.json" "$base/final-qualification/acceptance.json"
