@@ -1,0 +1,75 @@
+{
+  "league": "E1",
+  "home": "Queens Park Rangers",
+  "away": "Wolverhampton Wanderers",
+  "kickoff_utc": "2026-12-08T19:45:00Z",
+  "espn_event_id": "401880109",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261208&limit=100",
+      "sha256": "73b0755ac9612e311f45735a52956cb52dba3e1ae7bc0f12e9461ba995cfed1f",
+      "observed_at_utc": "2026-11-26T18:38:32.758405Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-12-01",
+      "sha256": "1285a7d340dc49821055673710bf97779f0c2f0797c3dc98c53b533517f72567",
+      "observed_at_utc": "2026-11-26T18:38:40.091565Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.48483947877670647,
+  "prob_draw": 0.24094715851941195,
+  "prob_away": 0.2742133627038816,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 8,
+    "away_matches": 8,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 204,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/E1.csv",
+        "sha256": "8abf1159a002feb6adfd08137056299e01eb428038901e2db191758843b1281c",
+        "observed_at_utc": "2026-11-26T18:38:48.672009Z"
+      }
+    ],
+    "training_sha256": "0981982341fb0fcfb94665f82ba2f6933004a2758ecb16b312d46050437609a8",
+    "lambda_home": 1.6782759961492995,
+    "lambda_away": 1.2036442115627637,
+    "home_venue_inputs": {
+      "hgf": 16,
+      "hga": 7,
+      "hn": 8,
+      "agf": 10,
+      "aga": 12,
+      "an": 9
+    },
+    "away_venue_inputs": {
+      "hgf": 18,
+      "hga": 8,
+      "hn": 9,
+      "agf": 13,
+      "aga": 11,
+      "an": 8
+    },
+    "league_home_mean": 1.6323529411764706,
+    "league_away_mean": 1.2696078431372548
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-26T18:39:31.782974Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "cb18eef021703022b13c54c2b159471e710dc141980c665dc7654a68b11c0048",
+  "record_sha256": "e614133f920fc7018e836cbb83be5504b6261ef70604fed687122740af67fd27"
+}

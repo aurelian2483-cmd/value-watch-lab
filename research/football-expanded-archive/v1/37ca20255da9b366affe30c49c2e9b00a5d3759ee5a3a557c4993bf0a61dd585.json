@@ -1,0 +1,75 @@
+{
+  "league": "E1",
+  "home": "Southampton",
+  "away": "Burnley",
+  "kickoff_utc": "2026-12-09T20:00:00Z",
+  "espn_event_id": "401880101",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261209&limit=100",
+      "sha256": "bcf7dd325c1a24ca55037109107b797ebd02aecf50119fdc38bb516fe3a1e323",
+      "observed_at_utc": "2026-11-26T18:38:32.840309Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-12-01",
+      "sha256": "1285a7d340dc49821055673710bf97779f0c2f0797c3dc98c53b533517f72567",
+      "observed_at_utc": "2026-11-26T18:38:40.091565Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.7848046690529757,
+  "prob_draw": 0.12336013285288015,
+  "prob_away": 0.09183519809414416,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 8,
+    "away_matches": 8,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 204,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/E1.csv",
+        "sha256": "8abf1159a002feb6adfd08137056299e01eb428038901e2db191758843b1281c",
+        "observed_at_utc": "2026-11-26T18:38:48.672009Z"
+      }
+    ],
+    "training_sha256": "0981982341fb0fcfb94665f82ba2f6933004a2758ecb16b312d46050437609a8",
+    "lambda_home": 3.188377813943425,
+    "lambda_away": 1.0761853917962516,
+    "home_venue_inputs": {
+      "hgf": 22,
+      "hga": 5,
+      "hn": 8,
+      "agf": 10,
+      "aga": 11,
+      "an": 9
+    },
+    "away_venue_inputs": {
+      "hgf": 10,
+      "hga": 14,
+      "hn": 9,
+      "agf": 14,
+      "aga": 21,
+      "an": 8
+    },
+    "league_home_mean": 1.6323529411764706,
+    "league_away_mean": 1.2696078431372548
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-26T18:39:31.782974Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "3d782598fe08d916afa72092fe49fe9a77b32492df0ed67446af6d12c0a77a9d",
+  "record_sha256": "37ca20255da9b366affe30c49c2e9b00a5d3759ee5a3a557c4993bf0a61dd585"
+}

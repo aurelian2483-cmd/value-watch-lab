@@ -1,0 +1,75 @@
+{
+  "league": "E1",
+  "home": "West Ham United",
+  "away": "Middlesbrough",
+  "kickoff_utc": "2026-12-08T20:00:00Z",
+  "espn_event_id": "401880106",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261208&limit=100",
+      "sha256": "73b0755ac9612e311f45735a52956cb52dba3e1ae7bc0f12e9461ba995cfed1f",
+      "observed_at_utc": "2026-11-26T18:38:32.758405Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-12-01",
+      "sha256": "1285a7d340dc49821055673710bf97779f0c2f0797c3dc98c53b533517f72567",
+      "observed_at_utc": "2026-11-26T18:38:40.091565Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.41542278034903757,
+  "prob_draw": 0.2243708371949871,
+  "prob_away": 0.3602063824559753,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 8,
+    "away_matches": 8,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 204,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/E1.csv",
+        "sha256": "8abf1159a002feb6adfd08137056299e01eb428038901e2db191758843b1281c",
+        "observed_at_utc": "2026-11-26T18:38:48.672009Z"
+      }
+    ],
+    "training_sha256": "0981982341fb0fcfb94665f82ba2f6933004a2758ecb16b312d46050437609a8",
+    "lambda_home": 1.7881965676083327,
+    "lambda_away": 1.6545135085859068,
+    "home_venue_inputs": {
+      "hgf": 19,
+      "hga": 12,
+      "hn": 8,
+      "agf": 19,
+      "aga": 13,
+      "an": 9
+    },
+    "away_venue_inputs": {
+      "hgf": 21,
+      "hga": 10,
+      "hn": 9,
+      "agf": 13,
+      "aga": 10,
+      "an": 8
+    },
+    "league_home_mean": 1.6323529411764706,
+    "league_away_mean": 1.2696078431372548
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-26T18:39:31.782974Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "revision_of": "43e6d628e3241045198ed413d4593cc384aca733bd5dc84ca50405de59ac7ef9",
+  "record_sha256": "2eec0412c69e84c45f2f2e15d2570e502049545621636663815dff78ad7d361f"
+}
