@@ -1,0 +1,33 @@
+name: Research Control Centre site integration
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'research-control-centre/**'
+      - '.github/workflows/control-centre-site-integration.yml'
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install existing locked browser dependencies
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Verify combined website navigation and original evidence bytes
+        run: node research-control-centre/browser-qa.mjs "$RUNNER_TEMP/control-centre-integration"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: control-centre-site-integration-evidence
+          path: ${{ runner.temp }}/control-centre-integration/
+          retention-days: 14
+          if-no-files-found: warn

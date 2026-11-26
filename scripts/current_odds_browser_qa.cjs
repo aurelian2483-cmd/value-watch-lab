@@ -163,13 +163,33 @@ async function main(){
      if(!live){
       const card=page.locator('#events .desk-event-card').filter({has:page.getByRole('heading',{name:item.name,exact:true})});
       await card.locator('.live-price-pill').filter({hasText:/Sky Bet · observed/}).waitFor();
-      const headings=page.locator('#events .desk-market-head');
-      assert.equal(await headings.isVisible(),width>=1000);
-      if(width>=1000){
-       const column=await headings.locator('.desk-market-head-outcomes').boundingBox();
-       const market=await card.locator('.desk-three-way').boundingBox();
-       assert(Math.abs(column.x-market.x)<=1 && Math.abs(column.width-market.width)<=1);
-      }
+      // The desk refreshes DOM nodes after date changes. Capture the real board,
+      // header and matching market in one browser evaluation, not separate boxes
+      // that can refer to different render generations. Keep the original alignment
+      // tolerance and require the correct container-query layout.
+      checkpoint='stable football market geometry at '+width;
+      const geometry=await page.waitForFunction(({name})=>{
+       const board=document.querySelector('#events');
+       const heading=board?.querySelector('.desk-market-head');
+       const column=heading?.querySelector('.desk-market-head-outcomes');
+       const target=Array.from(board?.querySelectorAll('.desk-event-card')||[]).find(el=>
+        Array.from(el.querySelectorAll('h1,h2,h3,h4,h5,h6,[role=heading]')).some(h=>h.textContent.trim()===name));
+       const market=target?.querySelector('.desk-three-way');
+       if(!board||!heading||!column||!market)return false;
+       const visible=el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(el).visibility!=='hidden'};
+       if(!visible(market))return false;
+       const boardWidth=board.clientWidth;
+       const wide=boardWidth>=670;
+       if(visible(heading)!==wide)return false;
+       if(wide&&!visible(column))return false;
+       const a=column.getBoundingClientRect(),b=market.getBoundingClientRect();
+       if(wide&&(Math.abs(a.x-b.x)>1||Math.abs(a.width-b.width)>1))return false;
+       return {boardWidth,wide,headingVisible:visible(heading),columnX:a.x,marketX:b.x,columnWidth:a.width,marketWidth:b.width};
+      },{name:item.name},{timeout:15000});
+      const box=await geometry.jsonValue();
+      assert.equal(box.headingVisible,box.wide);
+      if(box.wide)assert(Math.abs(box.columnX-box.marketX)<=1 && Math.abs(box.columnWidth-box.marketWidth)<=1);
+      else assert(box.boardWidth<670);
       const empty=page.locator('#events .desk-event-card').filter({hasText:'QA Football Unpriced vs QA Football Away'});
       await empty.getByText('No verified prices or model estimates',{exact:true}).waitFor();
       assert.equal(await empty.locator('.selection-price:visible').count(),0);
