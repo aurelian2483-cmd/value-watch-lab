@@ -1,0 +1,31 @@
+{
+  "design": "Same observed races in both worlds; every missing race takes one imposed support endpoint.",
+  "limitation": "The imposed score range and illustrative date weights do not describe registered forecasts.",
+  "question": "Can the sign of a race-weighted mean be identified with large missing clusters?",
+  "sampling": "Exact deterministic enumeration; no random seed or estimated interval.",
+  "scenarios": [
+    {
+      "dates": 12,
+      "lower_ground_truth_milli": -59.183333,
+      "missing_races": 50,
+      "observed_mean_milli": -15.742857,
+      "observed_races": 70,
+      "race_count": 120,
+      "upper_ground_truth_milli": 40.816667
+    },
+    {
+      "dates": 1200,
+      "lower_ground_truth_milli": -59.183333,
+      "missing_races": 5000,
+      "observed_mean_milli": -15.742857,
+      "observed_races": 7000,
+      "race_count": 12000,
+      "upper_ground_truth_milli": 40.816667
+    }
+  ],
+  "scope": "EXPLORATORY_SYNTHETIC_ONLY",
+  "support_milli": [
+    -120,
+    120
+  ]
+}
