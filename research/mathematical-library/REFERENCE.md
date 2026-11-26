@@ -6125,3 +6125,35 @@ Limitations — O(n log(n+1)) preprocessing and storage and O(log(n+1)) query ti
 Mechanism — By induction T_{j,v}=P^{2^j}(v), extending P by an absorbing missing sentinel. Function composition adds iteration counts, so the binary expansion of k gives exactly P^k(v). Tree depth is at most n−1; the early large-distance check prevents missing levels. This is repeated parent-function composition, not overlapping range aggregation or union-find compression; it is not itself a lowest-common-ancestor algorithm. The source's section 4 height-difference notation is not used because height differences in branching trees need not equal edge distance.
 
 Source — Demaine (2012), MIT 6.851 Advanced Data Structures, Lecture 15, sections 1.3 and 4.2 (Algorithm B), pp. 2 and 7, CSAIL scribed notes. https://courses.csail.mit.edu/6.851/fall17/scribe/lec15.pdf
+
+## Knuth–Morris–Pratt prefix-function matching (knuth-morris-pratt-prefix-matching)
+
+> For pattern p of length m≥1, π_i=max({0}∪{k:1≤k≤i and p[0:k]=p[i−k+1:i+1]}). Set π_0=0; for i=1,…,m−1 start q=π_{i−1}; while q>0 and p_q≠p_i set q←π_{q−1}; if p_q=p_i increment q; set π_i=q. For text t of length n≥0 start q=0; at each i=0,…,n−1 use the same fallback on p_q≠t_i, increment q on equality, and if q=m emit i−m+1 then reset q←π_{m−1}.
+
+p pattern; t text; m,n lengths; π_i longest proper border length of pattern prefix ending at i; q matched prefix length; i zero-based index; slices exclude right endpoint.
+
+General exact sequence matching, including overlapping occurrences; no empirical benefit claimed.
+
+Assumptions — Finite pattern and text over a consistent equality relation, nonempty pattern, exact indices, no mutation during preprocessing or scanning; symbol comparisons and indexing have bounded constant cost.
+
+Limitations — O(m+n) time and O(m) auxiliary storage excluding returned matches. Empty patterns are outside this specification; no approximate matching, wildcard or Unicode normalization semantics are implied.
+
+Mechanism — Every shorter viable alignment is a border of the already matched prefix; iterating proper borders enumerates these in decreasing length. The scan maintains the longest viable matched prefix, except that after emission it retains the longest proper border. Each fallback strictly decreases q and increases are at most one per processed symbol, giving linear total work. Cornell's prefix array is indexed by prefix length j, equivalent to π_{j−1}; the all-occurrences reset is independently derived. Distinct from suffix sorting and from Boyer–Moore majority cancellation, which is not string matching.
+
+Source — Knuth, Morris and Pratt (1977), Fast Pattern Matching in Strings, SIAM J. Comput. 6(2), 323–350, DOI 10.1137/0206024 (publisher abstract and metadata); Cornell CS 312 (2003), Lecture 27, KMP algorithm and prefix preprocessing. https://www.cs.cornell.edu/courses/cs312/2003sp/lectures/lec27.html
+
+## Suffix array prefix-doubling construction (suffix-array-prefix-doubling)
+
+> For sequence x of length n≥0, return [] if n=0. Otherwise set h=1 and assign dense nonnegative ranks r_i to symbols in ascending order; initialize SA by ascending r_i. While h<n and ranks are not unique, sort indices by K_i=(r_i,r_{i+h}) with r_{i+h}=−1 if i+h≥n. Assign dense new ranks starting at 0, equal exactly for equal pairs, indexed by original i; replace ranks simultaneously and set h←2h. Return SA in its final sorted order.
+
+x finite sequence; n length; i zero-based suffix start; h prefix span; r_i current dense rank; K_i ordered pair; SA permutation of nonempty suffix starts; −1 missing-block sentinel.
+
+General static sequence indexing by lexicographically sorted suffixes; no empirical benefit claimed.
+
+Assumptions — Static sequence with a consistent total order on symbols, lexicographic comparison with shorter proper prefixes first, exact integer ranks and safe index arithmetic; rank pairs read from the preceding round only.
+
+Limitations — Comparison sorting gives O(n log²(n+1)) time and O(n) auxiliary space with a linear-space sort; bounded-integer stable radix sorting of dense ranks can reduce doubling rounds to O(n log(n+1)) total time including initial comparison sorting. No linear-time construction or accelerated query guarantee is implied.
+
+Mechanism — Inductively ranks encode lexicographic order and equality of prefixes truncated at span h. Concatenating two adjacent truncated blocks gives the next prefix order; a missing second block ranks before any nonempty block. Distinct truncated prefixes fix their full suffix order, so early unique ranks are sufficient. When h≥n all distinct nonempty suffixes have been distinguished. Unlike KMP, this creates an index by repeated pair sorting rather than scanning a single fixed pattern. The comparison-sort specification is not a claim to implement the original paper's optimized sorting procedure.
+
+Source — Manber and Myers (1993), Suffix Arrays: A New Method for On-Line String Searches, SIAM J. Comput. 22(5), 935–948, DOI 10.1137/0222058 (bibliographic record and abstract); Kulcu, Advanced String Algorithms, §10.7.3 (pair-rank comparison-sort formulation). https://sercankulcu.github.io/files/algorithms/notes/Chapter_10_Advanced_String_Algorithms_Lecture_Notes.html

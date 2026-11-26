@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "068",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "levenshtein-unit-edit-distance-dp",
+    "name": "Levenshtein unit edit distance dynamic programming",
+    "definition": "D_{i,0}=i, D_{0,j}=j; D_{i,j}=min(D_{i−1,j}+1,D_{i,j−1}+1,D_{i−1,j−1}+1[x_{i−1}≠y_{j−1}]); return D_{m,n}.",
+    "variables": "x,y input sequences; m,n lengths; i,j prefix lengths; D distance table",
+    "assumptions": "Provisional; mathematical and source review pending",
+    "limitations": "Provisional; boundary conditions and computational complexity require review",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Wagner and Fischer (1974), The String-to-String Correction Problem; verify exact unit-cost recurrence and assumptions."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Two finite sequences with a declared symbol comparison rule.",
+    "compatible_methods": [
+      "knuth-morris-pratt-prefix-matching"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "knuth-morris-pratt-prefix-matching"
+      }
+    ],
+    "mechanism_note": "Provisional; independent novelty and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "068",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "longest-common-subsequence-length-dp",
+    "name": "Longest common subsequence length dynamic programming",
+    "definition": "L_{i,0}=L_{0,j}=0; if x_{i−1}=y_{j−1}, L_{i,j}=1+L_{i−1,j−1}; otherwise L_{i,j}=max(L_{i−1,j},L_{i,j−1}); return L_{m,n}.",
+    "variables": "x,y input sequences; m,n lengths; i,j prefix lengths; L subsequence length table",
+    "assumptions": "Provisional; mathematical and source review pending",
+    "limitations": "Provisional; boundary conditions and computational complexity require review",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: standard dynamic programming LCS recurrence in Introduction to Algorithms; verify source and distinguish from substring and edit distance."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Two finite sequences with a declared symbol comparison rule.",
+    "compatible_methods": [
+      "suffix-array-prefix-doubling"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "suffix-array-prefix-doubling"
+      }
+    ],
+    "mechanism_note": "Provisional; independent novelty and source review pending."
+  }
+]

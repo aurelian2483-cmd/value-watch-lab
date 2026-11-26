@@ -8799,5 +8799,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "By induction T_{j,v}=P^{2^j}(v), extending P by an absorbing missing sentinel. Function composition adds iteration counts, so the binary expansion of k gives exactly P^k(v). Tree depth is at most n−1; the early large-distance check prevents missing levels. This is repeated parent-function composition, not overlapping range aggregation or union-find compression; it is not itself a lowest-common-ancestor algorithm. The source's section 4 height-difference notation is not used because height differences in branching trees need not equal edge distance."
+  },
+  {
+    "id": "knuth-morris-pratt-prefix-matching",
+    "source": {
+      "kind": "literature",
+      "citation": "Knuth, Morris and Pratt (1977), Fast Pattern Matching in Strings, SIAM J. Comput. 6(2), 323–350, DOI 10.1137/0206024 (publisher abstract and metadata); Cornell CS 312 (2003), Lecture 27, KMP algorithm and prefix preprocessing. https://www.cs.cornell.edu/courses/cs312/2003sp/lectures/lec27.html",
+      "url": "https://www.cs.cornell.edu/courses/cs312/2003sp/lectures/lec27.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Every shorter viable alignment is a border of the already matched prefix; iterating proper borders enumerates these in decreasing length. The scan maintains the longest viable matched prefix, except that after emission it retains the longest proper border. Each fallback strictly decreases q and increases are at most one per processed symbol, giving linear total work. Cornell's prefix array is indexed by prefix length j, equivalent to π_{j−1}; the all-occurrences reset is independently derived. Distinct from suffix sorting and from Boyer–Moore majority cancellation, which is not string matching."
+  },
+  {
+    "id": "suffix-array-prefix-doubling",
+    "source": {
+      "kind": "literature",
+      "citation": "Manber and Myers (1993), Suffix Arrays: A New Method for On-Line String Searches, SIAM J. Comput. 22(5), 935–948, DOI 10.1137/0222058 (bibliographic record and abstract); Kulcu, Advanced String Algorithms, §10.7.3 (pair-rank comparison-sort formulation). https://sercankulcu.github.io/files/algorithms/notes/Chapter_10_Advanced_String_Algorithms_Lecture_Notes.html",
+      "url": "https://sercankulcu.github.io/files/algorithms/notes/Chapter_10_Advanced_String_Algorithms_Lecture_Notes.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Inductively ranks encode lexicographic order and equality of prefixes truncated at span h. Concatenating two adjacent truncated blocks gives the next prefix order; a missing second block ranks before any nonempty block. Distinct truncated prefixes fix their full suffix order, so early unique ranks are sufficient. When h≥n all distinct nonempty suffixes have been distinguished. Unlike KMP, this creates an index by repeated pair sorting rather than scanning a single fixed pattern. The comparison-sort specification is not a claim to implement the original paper's optimized sorting procedure."
   }
 ]
