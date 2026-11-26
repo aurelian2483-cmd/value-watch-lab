@@ -1,0 +1,416 @@
+{
+  "draft_pin": "e03ff8668330a4c2020f4ccc364f935e38741db8",
+  "hosted_run": 45864937894,
+  "managed_linux_dns_only": {
+    "authorities": {
+      "freetsa": {
+        "network": {
+          "all_proxy_environment": true,
+          "https_proxy_environment": true,
+          "no_proxy_match": false,
+          "origin_dns": {
+            "diagnostic": "[Errno -3] Temporary failure in name resolution",
+            "exit": 1,
+            "output": ""
+          },
+          "proxy_auto_detected": true,
+          "proxy_dns": {
+            "diagnostic": "",
+            "exit": 0,
+            "output": "['AF_INET']"
+          }
+        }
+      },
+      "open-tsa": {
+        "network": {
+          "all_proxy_environment": true,
+          "https_proxy_environment": true,
+          "no_proxy_match": false,
+          "origin_dns": {
+            "diagnostic": "[Errno -3] Temporary failure in name resolution",
+            "exit": 1,
+            "output": ""
+          },
+          "proxy_auto_detected": true,
+          "proxy_dns": {
+            "diagnostic": "",
+            "exit": 0,
+            "output": "['AF_INET']"
+          }
+        }
+      }
+    },
+    "context": "managed-linux",
+    "host_os": "linux",
+    "observed_utc": "2026-11-26T17:06:54.743402+00:00",
+    "production_qualification": false,
+    "registered_collection_enabled": false,
+    "scope": "SYNTHETIC_TRANSPORT_DIAGNOSTIC"
+  },
+  "probe_commit": "891ac9dd649768d9af366d422ce2d8996d9a7c59",
+  "qualified_for_registered_intake": 0,
+  "runners": {
+    "ubuntu-24.04": {
+      "github_artifact": 15140276354,
+      "github_job": 140065217264,
+      "observations": {
+        "freetsa": {
+          "crl_raw_sha256": "13d85acc0dd6a7ace445822b09dcba0de4236e84d60494dcbe6d7a6c97031935",
+          "network": {
+            "all_proxy_environment": false,
+            "https_proxy_environment": false,
+            "no_proxy_match": false,
+            "origin_dns": {
+              "diagnostic": "",
+              "exit": 0,
+              "output": "['AF_INET', 'AF_INET6']"
+            },
+            "proxy_auto_detected": false,
+            "proxy_dns": null
+          },
+          "openssl": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)",
+          "root_pin": {
+            "calculated_raw_sha256": "2151b61137ffa86bf664691ba67e7da0b19f98c758e3d228d5d8ebf27e044438",
+            "independent_pin": false,
+            "operator_published_raw_sha256": "2151b61137ffa86bf664691ba67e7da0b19f98c758e3d228d5d8ebf27e044438",
+            "published_raw_hash_match": true
+          },
+          "signed_accuracy_field": "unspecified",
+          "signed_policy_oid_display": "tsa_policy1",
+          "signer_cert_sha256": "8bfb0305bb64e2571ca507552ef3245cb1c2fee8728e0ff8689225081ea13467",
+          "submission_utc": "2026-11-26T17:07:20.847818+00:00",
+          "transport": {
+            "diagnostic": "",
+            "exit": 0,
+            "https_url": "https://freetsa.org/tsr",
+            "metrics": {
+              "bytes": "4644",
+              "content_type": "application/timestamp-reply",
+              "dns": "0.000690",
+              "first_byte": "0.225736",
+              "http": "200",
+              "proxy_connect": "000",
+              "tcp": "0.064932",
+              "tls": "0.132002",
+              "tls_verify_result": "0",
+              "total": "0.225853"
+            },
+            "sha256": "d6caa7fd9afd3b1b84841f05f15865b6c93ae52d280b6270e14b45f4c548a963"
+          }
+        },
+        "open-tsa": {
+          "crl_raw_sha256": null,
+          "network": {
+            "all_proxy_environment": false,
+            "https_proxy_environment": false,
+            "no_proxy_match": false,
+            "origin_dns": {
+              "diagnostic": "",
+              "exit": 0,
+              "output": "['AF_INET']"
+            },
+            "proxy_auto_detected": false,
+            "proxy_dns": null
+          },
+          "openssl": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)",
+          "root_pin": {
+            "calculated_raw_sha256": "0edd16f56d0dcbdc18742dbaecadbe48a28973cb8b522290a26be40fd99bfff8",
+            "independent_pin": false,
+            "operator_published_raw_sha256": null
+          },
+          "signed_accuracy_field": "0x01 seconds, unspecified millis, unspecified micros",
+          "signed_policy_oid_display": "1.3.6.1.4.1.59085.1.1",
+          "signer_cert_sha256": "1433116ba8a5189bd3802aaa875fac87d682d57a201761797bf0c357640e4048",
+          "submission_utc": "2026-11-26T17:07:22.179423+00:00",
+          "transport": {
+            "diagnostic": "",
+            "exit": 0,
+            "https_url": "https://tsr.open-tsa.eu",
+            "metrics": {
+              "bytes": "2514",
+              "content_type": "application/timestamp-reply",
+              "dns": "0.144065",
+              "first_byte": "0.522118",
+              "http": "200",
+              "proxy_connect": "000",
+              "tcp": "0.255392",
+              "tls": "0.371037",
+              "tls_verify_result": "0",
+              "total": "0.522203"
+            },
+            "sha256": "cd7e8935d293e1b93b7a3009500a0276bb452dd44b05ebb347f5982c0304a767"
+          }
+        }
+      },
+      "offline_reverification": {
+        "artifact_zip_sha256": "a6ece5404d2903a3115e6503b63c63931f59b6ffa9af81c7c4d7a5e31fb19eb6",
+        "evidence": {
+          "freetsa": {
+            "accuracy_check_rejection": "TSA_ACCURACY_UNSPECIFIED",
+            "crl_dates": [
+              "lastUpdate=Sep 18 10:30:55 2026 GMT",
+              "nextUpdate=Sep 18 10:30:55 2027 GMT"
+            ],
+            "fixture_sha256": "a7265ca398634c93fa2b33ecb35c6d5bd6177d61d5cb2da2fc5b18bfa93f3f31",
+            "modified_input_rejected": true,
+            "provider_supplied_chain": [
+              {
+                "identity": [
+                  "subject=O=Free TSA, OU=TSA, description=This certificate digitally signs documents and time stamp requests made using the freetsa.org online services, CN=www.freetsa.org, emailAddress=busilezas@mailbox.org, L=Wuerzburg, C=DE, ST=Bayern",
+                  "issuer=O=Free TSA, OU=Root CA, CN=www.freetsa.org, emailAddress=busilezas@gmail.com, L=Wuerzburg, ST=Bayern, C=DE",
+                  "notBefore=Feb 15 19:44:22 2026 GMT",
+                  "notAfter=Feb  2 19:44:22 2040 GMT",
+                  "sha256 Fingerprint=32:E8:41:A9:5C:C1:16:41:01:FF:DE:41:29:8E:F2:FC:75:C1:C4:37:2E:F0:95:E8:8A:6B:BD:47:DF:B1:91:FC"
+                ],
+                "revocation_uris": [
+                  "CA Issuers - URI:http://www.freetsa.org/files/cacert.pem",
+                  "OCSP - URI:http://www.freetsa.org:2560",
+                  "URI:http://www.freetsa.org/crl/root_ca.crl"
+                ]
+              }
+            ],
+            "query_sha256": "1609db15f7f2e3867854ef0d8b95edad85e82e48d90215fb852bae2c4afa1639",
+            "receipt_sha256": "d6caa7fd9afd3b1b84841f05f15865b6c93ae52d280b6270e14b45f4c548a963",
+            "same_input_different_nonce_rejected": true,
+            "signature_and_binding_at_signed_time": true,
+            "signed_crl_covers_issuance_time": true,
+            "signed_generation_utc": "2026-11-26T17:07:21+00:00",
+            "signer_fingerprint": "32:E8:41:A9:5C:C1:16:41:01:FF:DE:41:29:8E:F2:FC:75:C1:C4:37:2E:F0:95:E8:8A:6B:BD:47:DF:B1:91:FC",
+            "signer_revocation_uris": [
+              "CA Issuers - URI:http://www.freetsa.org/files/cacert.pem",
+              "OCSP - URI:http://www.freetsa.org:2560",
+              "URI:http://www.freetsa.org/crl/root_ca.crl"
+            ]
+          },
+          "open-tsa": {
+            "existing_direct_verifier_result": "CRYPTO_VERIFICATION_FAILED",
+            "fixture_sha256": "68712cfe66e301871110370700a2d859a0deba5d6caa034fb50cc377a3239080",
+            "modified_input_rejected": true,
+            "provider_supplied_chain": [
+              {
+                "identity": [
+                  "subject=C=DE, O=open-tsa.eu, CN=open-tsa.eu TSA Intermediate CA",
+                  "issuer=C=DE, O=open-tsa.eu, CN=open-tsa.eu TSA Root CA",
+                  "notBefore=Apr  4 08:38:56 2026 GMT",
+                  "notAfter=Apr  1 08:38:56 2036 GMT",
+                  "sha256 Fingerprint=45:D7:27:57:2C:33:35:8E:7F:59:4F:43:70:28:92:6C:A8:36:77:94:BB:95:27:90:AE:AA:BA:E6:41:66:92:CB"
+                ],
+                "revocation_uris": []
+              },
+              {
+                "identity": [
+                  "subject=C=DE, O=open-tsa.eu, CN=open-tsa.eu TSA Root CA",
+                  "issuer=C=DE, O=open-ca.eu, CN=open-ca.eu Root CA",
+                  "notBefore=Apr  4 08:38:55 2026 GMT",
+                  "notAfter=Mar 31 08:38:55 2041 GMT",
+                  "sha256 Fingerprint=5A:97:83:AC:0E:B5:09:C6:D7:61:13:28:6D:59:91:69:DE:6B:E7:EA:57:35:68:69:DE:EF:A8:D7:84:F0:86:8C"
+                ],
+                "revocation_uris": []
+              },
+              {
+                "identity": [
+                  "subject=C=DE, O=open-ca.eu, CN=open-ca.eu Root CA",
+                  "issuer=C=DE, O=open-ca.eu, CN=open-ca.eu Root CA",
+                  "notBefore=Apr  4 08:38:55 2026 GMT",
+                  "notAfter=Mar 29 08:38:55 2051 GMT",
+                  "sha256 Fingerprint=E4:5A:75:CB:52:60:87:63:81:07:D4:A3:E9:53:5B:51:14:5E:FD:DF:88:C5:CA:BE:A9:B0:9E:0A:B4:39:AF:95"
+                ],
+                "revocation_uris": []
+              }
+            ],
+            "query_sha256": "7cf711b4ba0a59e51ef1f8cd2971fa2dcdf2cb4a5db81f667c0707d19c9bef4c",
+            "receipt_sha256": "cd7e8935d293e1b93b7a3009500a0276bb452dd44b05ebb347f5982c0304a767",
+            "same_input_different_nonce_rejected": true,
+            "signature_and_binding_at_signed_time": true,
+            "signed_accuracy_microseconds": 1000000,
+            "signed_generation_utc": "2026-11-26T17:07:22+00:00",
+            "signer_fingerprint": "CD:A5:25:3F:30:38:5C:E0:F7:06:7D:2F:B5:1A:17:26:C3:DB:5F:73:A0:2A:0E:ED:E2:4C:E8:68:CD:94:97:D4",
+            "signer_revocation_uris": []
+          }
+        }
+      }
+    },
+    "windows-2025": {
+      "github_artifact": 15139916617,
+      "github_job": 140065217844,
+      "observations": {
+        "freetsa": {
+          "crl_raw_sha256": "13d85acc0dd6a7ace445822b09dcba0de4236e84d60494dcbe6d7a6c97031935",
+          "network": {
+            "all_proxy_environment": false,
+            "https_proxy_environment": false,
+            "no_proxy_match": false,
+            "origin_dns": {
+              "diagnostic": "",
+              "exit": 0,
+              "output": "['AF_INET']"
+            },
+            "proxy_auto_detected": false,
+            "proxy_dns": null
+          },
+          "openssl": "OpenSSL 3.6.5 29 Sep 2026 (Library: OpenSSL 3.6.5 29 Sep 2026)",
+          "root_pin": {
+            "calculated_raw_sha256": "2151b61137ffa86bf664691ba67e7da0b19f98c758e3d228d5d8ebf27e044438",
+            "independent_pin": false,
+            "operator_published_raw_sha256": "2151b61137ffa86bf664691ba67e7da0b19f98c758e3d228d5d8ebf27e044438",
+            "published_raw_hash_match": true
+          },
+          "signed_accuracy_field": "unspecified",
+          "signed_policy_oid_display": "tsa_policy1",
+          "signer_cert_sha256": "8bfb0305bb64e2571ca507552ef3245cb1c2fee8728e0ff8689225081ea13467",
+          "submission_utc": "2026-11-26T17:07:46.776816+00:00",
+          "transport": {
+            "diagnostic": "",
+            "exit": 0,
+            "https_url": "https://freetsa.org/tsr",
+            "metrics": {
+              "bytes": "4645",
+              "content_type": "application/timestamp-reply",
+              "dns": "0.180439",
+              "first_byte": "0.468322",
+              "http": "200",
+              "proxy_connect": "000",
+              "tcp": "0.243098",
+              "tls": "0.392614",
+              "tls_verify_result": "0",
+              "total": "0.468676"
+            },
+            "sha256": "f5d06b3c25d8c87abfa83c1a6e6819d24e042bdb08b4cc9419491881f0b63464"
+          }
+        },
+        "open-tsa": {
+          "crl_raw_sha256": null,
+          "network": {
+            "all_proxy_environment": false,
+            "https_proxy_environment": false,
+            "no_proxy_match": false,
+            "origin_dns": {
+              "diagnostic": "",
+              "exit": 0,
+              "output": "['AF_INET']"
+            },
+            "proxy_auto_detected": false,
+            "proxy_dns": null
+          },
+          "openssl": "OpenSSL 3.6.5 29 Sep 2026 (Library: OpenSSL 3.6.5 29 Sep 2026)",
+          "root_pin": {
+            "calculated_raw_sha256": "0edd16f56d0dcbdc18742dbaecadbe48a28973cb8b522290a26be40fd99bfff8",
+            "independent_pin": false,
+            "operator_published_raw_sha256": null
+          },
+          "signed_accuracy_field": "0x01 seconds, unspecified millis, unspecified micros",
+          "signed_policy_oid_display": "1.3.6.1.4.1.59085.1.1",
+          "signer_cert_sha256": "1433116ba8a5189bd3802aaa875fac87d682d57a201761797bf0c357640e4048",
+          "submission_utc": "2026-11-26T17:07:48.481509+00:00",
+          "transport": {
+            "diagnostic": "",
+            "exit": 0,
+            "https_url": "https://tsr.open-tsa.eu",
+            "metrics": {
+              "bytes": "2513",
+              "content_type": "application/timestamp-reply",
+              "dns": "0.486686",
+              "first_byte": "0.995801",
+              "http": "200",
+              "proxy_connect": "000",
+              "tcp": "0.584227",
+              "tls": "0.861967",
+              "tls_verify_result": "0",
+              "total": "0.996090"
+            },
+            "sha256": "d60ee419d20d401e36bba4e08c169cc201f9be83b7c225848f203c18991ebce3"
+          }
+        }
+      },
+      "offline_reverification": {
+        "artifact_zip_sha256": "4e8f45a122285adbcc5ab7ec61534382811d3221345f998f9429a3084fd185f0",
+        "evidence": {
+          "freetsa": {
+            "accuracy_check_rejection": "TSA_ACCURACY_UNSPECIFIED",
+            "crl_dates": [
+              "lastUpdate=Sep 18 10:30:55 2026 GMT",
+              "nextUpdate=Sep 18 10:30:55 2027 GMT"
+            ],
+            "fixture_sha256": "4aa031b9a2c1c8401afb1e8f0e94c16e82fbae2d132d7dc8e4bc40686a46e06f",
+            "modified_input_rejected": true,
+            "provider_supplied_chain": [
+              {
+                "identity": [
+                  "subject=O=Free TSA, OU=TSA, description=This certificate digitally signs documents and time stamp requests made using the freetsa.org online services, CN=www.freetsa.org, emailAddress=busilezas@mailbox.org, L=Wuerzburg, C=DE, ST=Bayern",
+                  "issuer=O=Free TSA, OU=Root CA, CN=www.freetsa.org, emailAddress=busilezas@gmail.com, L=Wuerzburg, ST=Bayern, C=DE",
+                  "notBefore=Feb 15 19:44:22 2026 GMT",
+                  "notAfter=Feb  2 19:44:22 2040 GMT",
+                  "sha256 Fingerprint=32:E8:41:A9:5C:C1:16:41:01:FF:DE:41:29:8E:F2:FC:75:C1:C4:37:2E:F0:95:E8:8A:6B:BD:47:DF:B1:91:FC"
+                ],
+                "revocation_uris": [
+                  "CA Issuers - URI:http://www.freetsa.org/files/cacert.pem",
+                  "OCSP - URI:http://www.freetsa.org:2560",
+                  "URI:http://www.freetsa.org/crl/root_ca.crl"
+                ]
+              }
+            ],
+            "query_sha256": "d7268d6a47167cf37ed4ddc8d8686d1e2c7b7c8afea70bf924dcc8471b0c3925",
+            "receipt_sha256": "f5d06b3c25d8c87abfa83c1a6e6819d24e042bdb08b4cc9419491881f0b63464",
+            "same_input_different_nonce_rejected": true,
+            "signature_and_binding_at_signed_time": true,
+            "signed_crl_covers_issuance_time": true,
+            "signed_generation_utc": "2026-11-26T17:07:47+00:00",
+            "signer_fingerprint": "32:E8:41:A9:5C:C1:16:41:01:FF:DE:41:29:8E:F2:FC:75:C1:C4:37:2E:F0:95:E8:8A:6B:BD:47:DF:B1:91:FC",
+            "signer_revocation_uris": [
+              "CA Issuers - URI:http://www.freetsa.org/files/cacert.pem",
+              "OCSP - URI:http://www.freetsa.org:2560",
+              "URI:http://www.freetsa.org/crl/root_ca.crl"
+            ]
+          },
+          "open-tsa": {
+            "existing_direct_verifier_result": "CRYPTO_VERIFICATION_FAILED",
+            "fixture_sha256": "8f51bd61a79aa5f55137e51291ead0d960c03ba635145e3c7ef8b2468b6c2d3d",
+            "modified_input_rejected": true,
+            "provider_supplied_chain": [
+              {
+                "identity": [
+                  "subject=C=DE, O=open-tsa.eu, CN=open-tsa.eu TSA Intermediate CA",
+                  "issuer=C=DE, O=open-tsa.eu, CN=open-tsa.eu TSA Root CA",
+                  "notBefore=Apr  4 08:38:56 2026 GMT",
+                  "notAfter=Apr  1 08:38:56 2036 GMT",
+                  "sha256 Fingerprint=45:D7:27:57:2C:33:35:8E:7F:59:4F:43:70:28:92:6C:A8:36:77:94:BB:95:27:90:AE:AA:BA:E6:41:66:92:CB"
+                ],
+                "revocation_uris": []
+              },
+              {
+                "identity": [
+                  "subject=C=DE, O=open-tsa.eu, CN=open-tsa.eu TSA Root CA",
+                  "issuer=C=DE, O=open-ca.eu, CN=open-ca.eu Root CA",
+                  "notBefore=Apr  4 08:38:55 2026 GMT",
+                  "notAfter=Mar 31 08:38:55 2041 GMT",
+                  "sha256 Fingerprint=5A:97:83:AC:0E:B5:09:C6:D7:61:13:28:6D:59:91:69:DE:6B:E7:EA:57:35:68:69:DE:EF:A8:D7:84:F0:86:8C"
+                ],
+                "revocation_uris": []
+              },
+              {
+                "identity": [
+                  "subject=C=DE, O=open-ca.eu, CN=open-ca.eu Root CA",
+                  "issuer=C=DE, O=open-ca.eu, CN=open-ca.eu Root CA",
+                  "notBefore=Apr  4 08:38:55 2026 GMT",
+                  "notAfter=Mar 29 08:38:55 2051 GMT",
+                  "sha256 Fingerprint=E4:5A:75:CB:52:60:87:63:81:07:D4:A3:E9:53:5B:51:14:5E:FD:DF:88:C5:CA:BE:A9:B0:9E:0A:B4:39:AF:95"
+                ],
+                "revocation_uris": []
+              }
+            ],
+            "query_sha256": "6046eb8cbb9494f410479774c545d49e38d250e90f27dfe4708dffcd26b96ea4",
+            "receipt_sha256": "d60ee419d20d401e36bba4e08c169cc201f9be83b7c225848f203c18991ebce3",
+            "same_input_different_nonce_rejected": true,
+            "signature_and_binding_at_signed_time": true,
+            "signed_accuracy_microseconds": 1000000,
+            "signed_generation_utc": "2026-11-26T17:07:49+00:00",
+            "signer_fingerprint": "CD:A5:25:3F:30:38:5C:E0:F7:06:7D:2F:B5:1A:17:26:C3:DB:5F:73:A0:2A:0E:ED:E2:4C:E8:68:CD:94:97:D4",
+            "signer_revocation_uris": []
+          }
+        }
+      }
+    }
+  },
+  "scope": "HOSTED SYNTHETIC TRANSPORT AND OFFLINE REVERIFICATION",
+  "verified_synthetic_receipts": 4
+}
