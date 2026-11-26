@@ -8753,5 +8753,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Each parent edge strictly increases rank, excluding nonroot cycles. A root of rank r represents at least 2^r elements by induction on equal-rank mergers; compression changes no membership. The resulting logarithmic depth bound is independent of the cited stronger amortized theorem. This maintains arbitrary partitions, whereas Kruskal uses connectivity as a subroutine in a weighted graph algorithm."
+  },
+  {
+    "id": "cartesian-tree-monotone-stack",
+    "source": {
+      "kind": "literature",
+      "citation": "Demaine (2012), MIT 6.851 Advanced Data Structures, Lecture 15, sections 2.1–2.1.1, pp. 2–4. https://ocw.mit.edu/courses/6-851-advanced-data-structures-spring-2012/99d1ee86e7c3488b9a47174160776405_MIT6_851S12_L15.pdf",
+      "url": "https://ocw.mit.edu/courses/6-851-advanced-data-structures-spring-2012/99d1ee86e7c3488b9a47174160776405_MIT6_851S12_L15.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The stack holds the increasing-key right spine. Replacing its popped suffix by the new node with the displaced subtree on the left preserves in-order index order and strict lexicographic heap order. These properties uniquely determine the tree by its minimum root and recursive subarrays. Each node is pushed once and popped at most once. Unlike a sliding-window deque, this construction retains child topology for all indices; unlike a sparse table it constructs an ordered tree rather than storing overlapping aggregates. Deterministic leftmost tie resolution is a specified convention."
+  },
+  {
+    "id": "binary-lifting-tree-ancestor",
+    "source": {
+      "kind": "literature",
+      "citation": "Demaine (2012), MIT 6.851 Advanced Data Structures, Lecture 15, sections 1.3 and 4.2 (Algorithm B), pp. 2 and 7, CSAIL scribed notes. https://courses.csail.mit.edu/6.851/fall17/scribe/lec15.pdf",
+      "url": "https://courses.csail.mit.edu/6.851/fall17/scribe/lec15.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "By induction T_{j,v}=P^{2^j}(v), extending P by an absorbing missing sentinel. Function composition adds iteration counts, so the binary expansion of k gives exactly P^k(v). Tree depth is at most n−1; the early large-distance check prevents missing levels. This is repeated parent-function composition, not overlapping range aggregation or union-find compression; it is not itself a lowest-common-ancestor algorithm. The source's section 4 height-difference notation is not used because height differences in branching trees need not equal edge distance."
   }
 ]

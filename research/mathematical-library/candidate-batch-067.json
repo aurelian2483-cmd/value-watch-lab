@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "067",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "knuth-morris-pratt-prefix-matching",
+    "name": "Knuth–Morris–Pratt prefix-function matching",
+    "definition": "For pattern p of length m≥1, π_i=max({0}∪{k:1≤k≤i and p[0:k]=p[i−k+1:i+1]}). On mismatch at matched length q>0 set q←π_{q−1}; advance q on equality; when q=m emit a match and reset q←π_{m−1}.",
+    "variables": "p pattern; π_i longest proper border length for prefix ending at i; q matched prefix length; slice end excluded",
+    "assumptions": "Provisional; mathematical and source review pending",
+    "limitations": "Provisional; complexity and boundary conditions require review",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Knuth, Morris and Pratt, Fast Pattern Matching in Strings (1977); verify paper and exact prefix conventions."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Finite indexed sequence and declared comparison rules.",
+    "compatible_methods": [
+      "cartesian-tree-monotone-stack"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "cartesian-tree-monotone-stack"
+      }
+    ],
+    "mechanism_note": "Provisional; independent novelty and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "067",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "suffix-array-prefix-doubling",
+    "name": "Suffix array prefix-doubling construction",
+    "definition": "Start r_i as rank of symbol x_i. For span h=1,2,4,… sort indices by (r_i,r_{i+h}), using a smaller sentinel for i+h≥n; assign equal new ranks to equal pairs, then h←2h until ranks are unique or h≥n.",
+    "variables": "n sequence length; i index; h prefix span; r_i prefix rank; sentinel for missing suffix",
+    "assumptions": "Provisional; mathematical and source review pending",
+    "limitations": "Provisional; complexity and boundary conditions require review",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Manber and Myers, Suffix Arrays: A New Method for On-Line String Searches (1993); verify construction and complexity."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Finite indexed sequence and declared comparison rules.",
+    "compatible_methods": [
+      "knuth-morris-pratt-prefix-matching"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "knuth-morris-pratt-prefix-matching"
+      }
+    ],
+    "mechanism_note": "Provisional; independent novelty and source review pending."
+  }
+]

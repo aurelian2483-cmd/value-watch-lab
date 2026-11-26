@@ -6093,3 +6093,35 @@ Limitations — O(n) space; O(log(n+1)) worst-case pointer traversal per find or
 Mechanism — Each parent edge strictly increases rank, excluding nonroot cycles. A root of rank r represents at least 2^r elements by induction on equal-rank mergers; compression changes no membership. The resulting logarithmic depth bound is independent of the cited stronger amortized theorem. This maintains arbitrary partitions, whereas Kruskal uses connectivity as a subroutine in a weighted graph algorithm.
 
 Source — Stajano and Sauerwald (2015), University of Cambridge Algorithms, 5.3 Disjoint Sets, slides 9–11; Tarjan (1975), Efficiency of a Good But Not Linear Set Union Algorithm, JACM 22(2), 215–225, DOI 10.1145/321879.321884 (bibliographic metadata and abstract checked). https://www.cl.cam.ac.uk/teaching/1415/Algorithms/disjointsets.pdf
+
+## Cartesian tree monotone-stack construction (cartesian-tree-monotone-stack)
+
+> For ordered keys K_i=(x_i,i) and indices 0≤i<n, initialize left_i=right_i=⊥ and stack S empty. For each i in increasing order set p=⊥; while S is nonempty and K_top>K_i set p=pop(S). Set left_i=p; if S remains nonempty set right_top=i; push i. The root is the bottom of S, or ⊥ if n=0.
+
+n array length; i zero-based index; x_i comparable value; K_i lexicographic value/index key; left_i,right_i child pointers; S right-spine stack; p last removed node; ⊥ null sentinel.
+
+General ordered-array tree construction and reduction of leftmost range minima to lowest common ancestor queries; no empirical benefit claimed.
+
+Assumptions — Finite immutable indexed array; values admit a consistent total ordering; compare by value and then increasing index to resolve equal values; child pointers initially null; sequential construction.
+
+Limitations — O(n) comparisons, pointer operations and auxiliary storage under constant-cost indexing and comparisons; a single insertion can cost O(n). Output may be highly unbalanced. Construction alone supplies neither constant-time range queries nor a dynamic update structure.
+
+Mechanism — The stack holds the increasing-key right spine. Replacing its popped suffix by the new node with the displaced subtree on the left preserves in-order index order and strict lexicographic heap order. These properties uniquely determine the tree by its minimum root and recursive subarrays. Each node is pushed once and popped at most once. Unlike a sliding-window deque, this construction retains child topology for all indices; unlike a sparse table it constructs an ordered tree rather than storing overlapping aggregates. Deterministic leftmost tie resolution is a specified convention.
+
+Source — Demaine (2012), MIT 6.851 Advanced Data Structures, Lecture 15, sections 2.1–2.1.1, pp. 2–4. https://ocw.mit.edu/courses/6-851-advanced-data-structures-spring-2012/99d1ee86e7c3488b9a47174160776405_MIT6_851S12_L15.pdf
+
+## Binary lifting tree ancestor query (binary-lifting-tree-ancestor)
+
+> For a rooted tree of n≥1 nodes let P(root)=⊥ and P(⊥)=⊥; J=max(1,ceil(log₂ n)). Set T_{0,v}=P(v), T_{j,v}=T_{j−1,T_{j−1,v}} for 1≤j<J and T_{j,⊥}=⊥. For valid node v and integer k≥0, return ⊥ if k≥n; otherwise start w=v and for each set bit j of k set w=T_{j,w}. Return w.
+
+n tree size; v,w nodes; P immediate parent; ⊥ missing ancestor sentinel; J number of levels; T jump table; j bit position; k upward edge distance.
+
+General static tree ancestor lookup by edge distance; no empirical benefit claimed.
+
+Assumptions — Static connected rooted tree with a unique parent for every nonroot and no cycles; root has no parent; exact nonnegative integer distance and valid node indices; sentinel is outside node domain.
+
+Limitations — O(n log(n+1)) preprocessing and storage and O(log(n+1)) query time under constant-cost indexing and bounded integer operations. If k exceeds depth, return missing ancestor, not the root. Structural changes or rerooting invalidate the table; no constant-time or optimal-space claim.
+
+Mechanism — By induction T_{j,v}=P^{2^j}(v), extending P by an absorbing missing sentinel. Function composition adds iteration counts, so the binary expansion of k gives exactly P^k(v). Tree depth is at most n−1; the early large-distance check prevents missing levels. This is repeated parent-function composition, not overlapping range aggregation or union-find compression; it is not itself a lowest-common-ancestor algorithm. The source's section 4 height-difference notation is not used because height differences in branching trees need not equal edge distance.
+
+Source — Demaine (2012), MIT 6.851 Advanced Data Structures, Lecture 15, sections 1.3 and 4.2 (Algorithm B), pp. 2 and 7, CSAIL scribed notes. https://courses.csail.mit.edu/6.851/fall17/scribe/lec15.pdf
