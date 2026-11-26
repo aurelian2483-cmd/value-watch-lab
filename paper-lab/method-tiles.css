@@ -1,0 +1,134 @@
+/* Value Watch engine tile picker — visual UI only, not predictor validation. */
+.engine-switch{display:block}
+.engine-switch .engine-select-legacy{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important;clip-path:inset(50%)!important;border:0!important;padding:0!important;margin:-1px!important}
+.engine-switch .engine-method-header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:13px}
+.engine-switch .engine-method-header h2{color:#f2f7ff;font-size:18px;font-weight:800;letter-spacing:-.025em}
+.engine-switch .engine-method-hint{margin:0;color:#c5d7ee;font-size:13px;line-height:1.5}
+.engine-switch .engine-method-label{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:13px;font-weight:750;color:#d5e7fc}
+.engine-switch .engine-method-label svg{width:17px;height:17px;color:#8fbeff}
+.engine-switch .engine-method-label small{display:inline-block;padding:3px 9px;border-radius:99px;border:1px solid #426ca4;background:#153457;color:#cde4ff;font-size:10px;font-weight:700}
+.engine-switch .engine-method-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 15px}
+.engine-switch .engine-method-tile{display:flex;align-items:center;gap:12px;width:100%;min-width:0;min-height:57px;padding:12px 15px;border:1.5px solid #6d89ab;border-radius:12px;background:linear-gradient(165deg,#102139,#0b1627);color:#f1f6ff;font-size:13px;font-weight:720;line-height:1.3;text-align:left;transition:border-color .16s,box-shadow .16s,background .16s}
+.engine-switch .engine-method-tile:hover{border-color:#aacfff;background:#192c48}
+.engine-switch .engine-method-tile[aria-pressed="true"]{background:linear-gradient(145deg,#1252bf,#07317f);border-color:#91beff;box-shadow:inset 0 1px 0 #ffffff33,0 0 13px #2b88ff54;color:#fff}
+.engine-switch .engine-method-tile[aria-pressed="true"]:hover{background:linear-gradient(145deg,#1b61d7,#0b3f94)}
+.engine-switch .engine-method-tile:focus-visible{outline:3px solid #f7d56e;outline-offset:3px}
+.engine-switch .engine-method-check{display:grid;place-items:center;flex:none;width:24px;height:24px;border:2px solid #aac3e0;border-radius:6px;color:transparent;background:#071428;font-size:17px;font-weight:900;line-height:1}
+.engine-switch .engine-method-tile[aria-pressed="true"] .engine-method-check{background:#f0f7ff;border-color:#f0f7ff;color:#0a4eb7}
+.engine-switch .engine-method-name{min-width:0;overflow-wrap:anywhere}
+.engine-switch #engine-status{margin:10px 0 0;padding:12px 0 0;border-top:1px solid #314767;color:#bed4ef;font-size:12px;line-height:1.55}
+.engine-switch #engine-analysis{margin-top:14px}
+.engine-switch .engine-mode-panel{margin:0 0 12px;padding:14px;border:1px solid #304969;border-radius:11px;background:linear-gradient(175deg,#112139,#0b1829)}
+.engine-switch .engine-mode-panel:last-child{margin-bottom:0}
+.engine-switch .engine-mode-panel-heading{margin:0 0 10px;color:#e6f2ff;font-size:14px;font-weight:780}
+.engine-switch .engine-mode-panel-description{color:#b6cce6;margin:0 0 10px;font-size:11px}
+.engine-switch .engine-mode-panel .engine-selection-details{margin-bottom:9px;border-radius:8px}
+@media(max-width:1180px){.engine-switch .engine-method-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.engine-switch .engine-method-header{display:block}.engine-switch .engine-method-hint{margin-top:6px}.engine-switch .engine-method-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.engine-switch .engine-method-tile{min-height:56px;padding:10px 9px;gap:8px;font-size:11px}.engine-switch .engine-method-check{width:22px;height:22px}.engine-switch .engine-method-label{flex-wrap:wrap}.engine-switch .engine-mode-panel{padding:10px}}
+@media(max-width:400px){.engine-switch .engine-method-grid{grid-template-columns:1fr}.engine-switch .engine-method-tile{min-height:46px}}
+@media(prefers-reduced-motion:reduce){.engine-switch .engine-method-tile{transition:none}}
+
+
+/* The compact Visual Preview previously positioned a single dropdown in a
+   two-column grid. The new method picker must occupy a full-width block instead:
+   otherwise its second row can fall under the sticky paper slip panel. */
+.engine-switch{min-width:0;max-width:100%}
+.visual-preview .pro-landing > .engine-switch{
+  display:block!important;
+  grid-template-columns:none!important;
+  grid-template-rows:none!important;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+.visual-preview .pro-landing > .engine-switch :is(#engine-heading,#engine-status,#engine-analysis){
+  grid-area:auto!important;
+}
+.visual-preview .pro-landing > .engine-switch .engine-method-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+html.unified-desk .engine-switch .engine-method-tile[aria-pressed="true"]{
+  background:linear-gradient(145deg,#1252bf,#07317f)!important;
+  border-color:#91beff!important;
+  color:#fff!important;
+}
+html.unified-desk .engine-switch .engine-method-tile[aria-pressed="true"] .engine-method-check{
+  background:#f0f7ff!important;
+  border-color:#f0f7ff!important;
+  color:#0a4eb7!important;
+}
+@media(max-width:1180px){
+  .visual-preview .pro-landing > .engine-switch .engine-method-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:400px){
+  .visual-preview .pro-landing > .engine-switch .engine-method-grid{
+    grid-template-columns:minmax(0,1fr);
+  }
+}
+
+
+/* Unified Desk still uses a legacy 3-column dropdown CSS grid. Override its
+   container (not only Visual Preview) so each method box is a full-size card. */
+html.unified-desk .engine-switch{
+  display:block!important;
+  grid-template-columns:none!important;
+  grid-template-rows:none!important;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+html.unified-desk .engine-switch .engine-method-grid{
+  display:grid!important;
+  width:100%;
+  min-width:0;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+@media(max-width:1180px){
+ html.unified-desk .engine-switch .engine-method-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+}
+@media(max-width:400px){
+ html.unified-desk .engine-switch .engine-method-grid{
+  grid-template-columns:minmax(0,1fr);
+ }
+}
+
+
+/* Star hue is an identity marker, NOT a positive-value/consensus status. */
+.engine-switch .engine-method-tile .method-identity-star{font-size:20px;font-weight:900;line-height:1;flex:none;text-shadow:0 0 8px currentColor}
+.engine-switch .method-star-guide{border-top:1px solid #355071;padding-top:12px;margin:12px 0 0;min-width:0}
+.engine-switch .method-star-guide>strong{font-size:12px;line-height:1.55;color:#dbeaff;font-weight:800}
+.engine-switch .method-star-legend{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 8px}
+.engine-switch .method-star-key{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:30px;padding:5px 9px;border:1px solid #46617e;border-radius:8px;background:#10253a;font-size:11px;font-weight:730;color:#e8f4ff}
+.engine-switch .method-key-symbol{font-size:17px;line-height:1;color:#dbeafe}
+.engine-switch .method-unavailable{font-size:10px;font-weight:500;color:#a3b6d2}
+.engine-switch .method-alpha-link{display:inline-flex;margin:5px 0 2px;color:#d7e7ff;text-decoration:underline;font-size:11px}
+.engine-switch .method-star-disclosure{font-size:11px;line-height:1.6;margin:4px 0 8px!important;color:#abc3dd}
+#events .method-star-row{display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:wrap;margin:4px 0;min-height:20px}
+#events .method-star-row[hidden]{display:none!important}
+#events .method-direction-star{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;font-size:19px;line-height:1;border-radius:6px;background:#0a1a2c;border:1px solid #49637a;text-shadow:0 0 8px currentColor}
+#events .method-direction-alignment{display:inline-flex;align-items:center;padding:3px 7px;border-radius:7px;border:1px solid #7d8a96;font-size:10px;font-weight:700;background:#273145;color:#f2f7ff;white-space:normal}
+#events .method-agreement-summary:not([hidden]){display:flex;flex-wrap:wrap;gap:5px;margin:7px 0 11px}
+#events .method-agreement-summary[hidden]{display:none!important}
+#events .method-agreement-chip{font-size:11px;padding:5px 9px;border:1px solid #7891ab;background:#24344b;color:#f3f9ff;border-radius:8px;line-height:1.5}
+.engine-switch [data-method-star="current"] .method-key-symbol,
+.engine-switch .method-identity-star[data-method-star="current"],#events .method-direction-star[data-method-star="current"]{color:#55ece2}
+.engine-switch [data-method-star="experimental"] .method-key-symbol,
+.engine-switch .method-identity-star[data-method-star="experimental"],#events .method-direction-star[data-method-star="experimental"]{color:#eda1ff}
+.engine-switch [data-method-star="hybrid"] .method-key-symbol,
+.engine-switch .method-identity-star[data-method-star="hybrid"],#events .method-direction-star[data-method-star="hybrid"]{color:#ffca71}
+.engine-switch [data-method-star="compare"] .method-key-symbol,
+.engine-switch .method-identity-star[data-method-star="compare"],#events .method-direction-star[data-method-star="compare"]{color:#9ca8ff}
+.engine-switch [data-method-star="reliability"] .method-key-symbol,
+.engine-switch .method-identity-star[data-method-star="reliability"],#events .method-direction-star[data-method-star="reliability"]{color:#c9ed91}
+.engine-switch [data-method-star="bottleneck"] .method-key-symbol,
+.engine-switch .method-identity-star[data-method-star="bottleneck"],#events .method-direction-star[data-method-star="bottleneck"]{color:#efac88}
+.engine-switch [data-method-star="racing-top-four"] .method-key-symbol,
+.engine-switch .method-identity-star[data-method-star="racing-top-four"],#events .method-direction-star[data-method-star="racing-top-four"]{color:#ff90b4}
+.engine-switch [data-method-star="alpha-hunt"] .method-key-symbol,
+.engine-switch .method-identity-star[data-method-star="alpha-hunt"],#events .method-direction-star[data-method-star="alpha-hunt"]{color:#e8df86}
+@media(max-width:400px){.engine-switch .method-star-legend{gap:6px}.engine-switch .method-star-key{padding:5px 7px;font-size:10px}}

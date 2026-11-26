@@ -4,11 +4,11 @@
   "model_validation": "UNVALIDATED",
   "publication_gate": "BLOCKED",
   "official_challenge": "0/100",
-  "generated_at_utc": "2026-11-22T23:39:00.090259+00:00",
-  "sample_size": 18,
-  "metrics_status": "INSUFFICIENT_SAMPLE",
-  "mean_multiclass_brier_score": 0.5876897271052823,
-  "mean_log_loss": 0.9870525550044343,
+  "generated_at_utc": "2026-11-26T01:48:52.214624+00:00",
+  "sample_size": 38,
+  "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
+  "mean_multiclass_brier_score": 0.6372323289506244,
+  "mean_log_loss": 1.0450982322373275,
   "entries": [
     {
       "record_sha256": "3fbc4929fc319fbd09d5ed1fb47959cf96bdbf56cc87d084306cade7c7103b15",
@@ -495,26 +495,566 @@
       "challenge_eligible": 0,
       "publication_gate": "BLOCKED",
       "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "2ece82ee87426c210437c7cfe7967e411052c4335017b4b184d66e13a955f04e",
+      "home": "Manchester City",
+      "away": "Fulham",
+      "kickoff_utc": "2026-11-21T12:30:00Z",
+      "score_home": 1,
+      "score_away": 1,
+      "actual_outcome": "D",
+      "multiclass_brier_score": 1.4023823879573147,
+      "log_loss": 2.003729193393631,
+      "model": "POISSON_BASELINE_2025_26_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:30.454016+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:31.773766+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "6663120004f9b229740807d89df7c9e8f184d88e15f47918476c49461e812d38",
+      "home": "Man City",
+      "away": "Fulham",
+      "kickoff_utc": "2026-11-21T12:30:00Z",
+      "score_home": 1,
+      "score_away": 1,
+      "actual_outcome": "D",
+      "multiclass_brier_score": 1.095743998258148,
+      "log_loss": 1.6060817327167294,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:18.815031+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:20.120802+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "5f115728d45e1f215279d57deab607f35649693da97f3d29c9aa53a2420d9ec8",
+      "home": "AFC Bournemouth",
+      "away": "Nottingham Forest",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
+      "score_home": 2,
+      "score_away": 0,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.5073346762283715,
+      "log_loss": 0.8677551478022663,
+      "model": "POISSON_BASELINE_2025_26_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:31.957400+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:33.295292+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "6975bff0abfc8e5a2d2919eb8d458b4cf2cf48cd315ac9f70c74aeab248ed279",
+      "home": "Chelsea",
+      "away": "Leeds",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
+      "score_home": 1,
+      "score_away": 4,
+      "actual_outcome": "A",
+      "multiclass_brier_score": 0.868511697273586,
+      "log_loss": 1.3681370057191238,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:20.243131+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:21.537531+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "7685e678439acb3cd2f899a96a869117135b2552b54ba6770a62d0652e87d8a2",
+      "home": "Tottenham",
+      "away": "Ipswich",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
+      "score_home": 2,
+      "score_away": 0,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.39880139012821036,
+      "log_loss": 0.7230536604269694,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:21.663033+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:22.966986+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "855ceec5e3130d0fd0481eafe90f82e36035ac432cb603c31b576d516bfbc947",
+      "home": "Bournemouth",
+      "away": "Nott'm Forest",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
+      "score_home": 2,
+      "score_away": 0,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.35692721020599344,
+      "log_loss": 0.6690159510977834,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:23.145563+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:24.469636+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "8d23cc952dac8986a83f103aa6bec55197aa1aab104c346f91ebbafa7ecb4f48",
+      "home": "Chelsea",
+      "away": "Leeds United",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
+      "score_home": 1,
+      "score_away": 4,
+      "actual_outcome": "A",
+      "multiclass_brier_score": 0.8503826954542146,
+      "log_loss": 1.3428072414292096,
+      "model": "POISSON_BASELINE_2025_26_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:33.483528+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:34.810333+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "9a10bf15bb7036616c0a1949d8e5cf124edd4723f6550e62f0ad54187532e15b",
+      "home": "Coventry City",
+      "away": "Crystal Palace",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
+      "score_home": 3,
+      "score_away": 2,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.3332731440747051,
+      "log_loss": 0.6374252723426315,
+      "model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:34.960043+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:36.494800+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "cf8661a74429767594bc85dfff25961f7db1a6c38d794f0590cb18081d833500",
+      "home": "Tottenham Hotspur",
+      "away": "Ipswich Town",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
+      "score_home": 2,
+      "score_away": 0,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.39442521690286053,
+      "log_loss": 0.7151928830024507,
+      "model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:36.621889+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:37.946326+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "fdbca3b5152407d560f504f19738b46880bf1b71d200f55edabaad47b2da8b99",
+      "home": "Aston Villa",
+      "away": "Sunderland",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
+      "score_home": 0,
+      "score_away": 0,
+      "actual_outcome": "D",
+      "multiclass_brier_score": 0.9024289989290798,
+      "log_loss": 1.40192141508171,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:26.045396+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:27.393007+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "fdfa5d3ae3dc84749804cf4b43a9564459aa83ed2dbf0a2bfa62b7e2bbc3d2da",
+      "home": "Aston Villa",
+      "away": "Sunderland",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
+      "score_home": 0,
+      "score_away": 0,
+      "actual_outcome": "D",
+      "multiclass_brier_score": 0.9163156488043256,
+      "log_loss": 1.3978769171092313,
+      "model": "POISSON_BASELINE_2025_26_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:40.988435+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:42.280071+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "fefc606b3493f6e48a09ae82d64039c014bea692cf2e5532c6cb7dfc4f9b4368",
+      "home": "Coventry",
+      "away": "Crystal Palace",
+      "kickoff_utc": "2026-11-21T15:00:00Z",
+      "score_home": 3,
+      "score_away": 2,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.4562154988042242,
+      "log_loss": 0.799538076276767,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:27.546484+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:28.869445+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "d383855506bc4111264a63cc8f4b7ada783cf669d046242edd5d4d78798c69bb",
+      "home": "Newcastle",
+      "away": "Arsenal",
+      "kickoff_utc": "2026-11-21T17:30:00Z",
+      "score_home": 2,
+      "score_away": 2,
+      "actual_outcome": "D",
+      "multiclass_brier_score": 0.9453816017569888,
+      "log_loss": 1.4253293314537452,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:24.623054+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:25.923091+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "e8c32af2be124bc9dec930dad6edc0a8d3039801c79b0289b8747622c77ab0d0",
+      "home": "Newcastle United",
+      "away": "Arsenal",
+      "kickoff_utc": "2026-11-21T17:30:00Z",
+      "score_home": 2,
+      "score_away": 2,
+      "actual_outcome": "D",
+      "multiclass_brier_score": 1.0234851611756768,
+      "log_loss": 1.5629683594585828,
+      "model": "POISSON_BASELINE_2025_26_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261121&limit=100",
+          "sha256": "ac40654b1cf00b4807a4b0605e17ca4596861c8ce5823c8af386c0d4b9846b72",
+          "received_at_utc": "2026-11-23T20:16:38.081641+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:39.398472+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "41b5b080449c3c93b67c32f1cf15a227c406e9fa6a08ea62145314089785a71a",
+      "home": "Hull",
+      "away": "Brighton",
+      "kickoff_utc": "2026-11-22T14:00:00Z",
+      "score_home": 2,
+      "score_away": 0,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.7856243837465533,
+      "log_loss": 1.267332609262341,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261122&limit=100",
+          "sha256": "fdc7437cdd648a1d9b2e88f6603e058cf8ce0824c60bd4510c8a2180718f6e5e",
+          "received_at_utc": "2026-11-23T20:16:15.864140+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:17.142442+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "f67e523d1e54db7952832f6b9ce175dfad3606bd35fa53fda839d8dff3ef10d0",
+      "home": "Hull City",
+      "away": "Brighton & Hove Albion",
+      "kickoff_utc": "2026-11-22T14:00:00Z",
+      "score_home": 2,
+      "score_away": 0,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.710956416336014,
+      "log_loss": 1.1396871943272062,
+      "model": "POISSON_CURRENT_SEASON_SHRINKAGE_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261122&limit=100",
+          "sha256": "fdc7437cdd648a1d9b2e88f6603e058cf8ce0824c60bd4510c8a2180718f6e5e",
+          "received_at_utc": "2026-11-23T20:16:39.546141+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:40.867340+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "2ba42a1fab0213a47feb31c2aa28874aff205af60d673b54a8801477aa98ad7e",
+      "home": "Liverpool",
+      "away": "Manchester United",
+      "kickoff_utc": "2026-11-22T16:30:00Z",
+      "score_home": 4,
+      "score_away": 0,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.4856748465874349,
+      "log_loss": 0.8371696788485314,
+      "model": "POISSON_BASELINE_2025_26_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261122&limit=100",
+          "sha256": "fdc7437cdd648a1d9b2e88f6603e058cf8ce0824c60bd4510c8a2180718f6e5e",
+          "received_at_utc": "2026-11-23T20:16:29.005704+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:30.295932+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "5af0fa70f8835805035c16151bea5d9eacbc4fe4f319d414cc178d9f77014bfc",
+      "home": "Liverpool",
+      "away": "Man United",
+      "kickoff_utc": "2026-11-22T16:30:00Z",
+      "score_home": 4,
+      "score_away": 0,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.35748632336205816,
+      "log_loss": 0.6684882449644788,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261122&limit=100",
+          "sha256": "fdc7437cdd648a1d9b2e88f6603e058cf8ce0824c60bd4510c8a2180718f6e5e",
+          "received_at_utc": "2026-11-23T20:16:17.299516+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "d5da6601831a3c4e78a443d17771acf9cc264ada527a56f40832c23588bfffa5",
+          "received_at_utc": "2026-11-23T20:16:18.655322+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "d46b04d4ba355f615610f01b9a07933722dc7d97b327c21f312b35750950e863",
+      "home": "Brentford",
+      "away": "Everton",
+      "kickoff_utc": "2026-11-23T20:00:00Z",
+      "score_home": 4,
+      "score_away": 0,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.4442682794063581,
+      "log_loss": 0.7857519578691068,
+      "model": "POISSON_BASELINE_2025_26_V1",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261123&limit=100",
+          "sha256": "758f1ec550460822f3c0495b432974d56c4619d62b155d9e2c0ac1d6dde50866",
+          "received_at_utc": "2026-11-24T00:13:41.083997+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "21d2b96792bd0bc8a324123ae68eaf60b981c5a016c538d086e8d8a5cbedd95a",
+          "received_at_utc": "2026-11-24T00:13:42.065485+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
+    },
+    {
+      "record_sha256": "f36f5aff68837e71bdf3c0c25e4825a97e3dbeae1948a4ad1ddaf4ab6262a480",
+      "home": "Brentford",
+      "away": "Everton",
+      "kickoff_utc": "2026-11-23T20:00:00Z",
+      "score_home": 4,
+      "score_away": 0,
+      "actual_outcome": "H",
+      "multiclass_brier_score": 0.4007938368365314,
+      "log_loss": 0.7275249623561216,
+      "model": "LEGACY_ARCHIVE",
+      "source_receipts": [
+        {
+          "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20261123&limit=100",
+          "sha256": "758f1ec550460822f3c0495b432974d56c4619d62b155d9e2c0ac1d6dde50866",
+          "received_at_utc": "2026-11-24T00:13:39.841875+00:00"
+        },
+        {
+          "url": "https://www.football-data.co.uk/mmz4281/2627/E0.csv",
+          "sha256": "21d2b96792bd0bc8a324123ae68eaf60b981c5a016c538d086e8d8a5cbedd95a",
+          "received_at_utc": "2026-11-24T00:13:40.956390+00:00"
+        }
+      ],
+      "challenge_eligible": 0,
+      "publication_gate": "BLOCKED",
+      "timestamp_independently_attested": false
     }
   ],
-  "unique_fixture_count": 16,
+  "unique_fixture_count": 34,
   "model_metrics": {
     "LEGACY_ARCHIVE": {
-      "scored_forecasts": 7,
-      "mean_multiclass_brier_score": 0.5426497913535624,
-      "mean_log_loss": 0.9224626170405603,
+      "scored_forecasts": 17,
+      "mean_multiclass_brier_score": 0.609791969339783,
+      "mean_log_loss": 1.0066859593317465,
       "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION"
     },
     "POISSON_BASELINE_2025_26_V1": {
-      "scored_forecasts": 8,
-      "mean_multiclass_brier_score": 0.68739513138317,
-      "mean_log_loss": 1.1297770141936685,
+      "scored_forecasts": 15,
+      "mean_multiclass_brier_score": 0.7419336497786038,
+      "mean_log_loss": 1.1890849739639937,
       "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION"
     },
     "POISSON_CURRENT_SEASON_SHRINKAGE_V1": {
-      "scored_forecasts": 3,
-      "mean_multiclass_brier_score": 0.4269018324515945,
-      "mean_log_loss": 0.7571638524155162,
+      "scored_forecasts": 6,
+      "mean_multiclass_brier_score": 0.4532267124447272,
+      "mean_log_loss": 0.7939661511531395,
       "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION"
     }
   }

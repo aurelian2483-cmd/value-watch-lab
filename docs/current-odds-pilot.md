@@ -81,6 +81,41 @@ the runner checkout with the same fresh private snapshot, run
 staged tree. It checks the current Pages URL, the rendered prices and the
 absence of the snapshot route.
 
+## Follow-on integration: bounded website refresh (24 November 2026)
+
+The separate `.github/workflows/odds-website-refresh.yml` integration adds a
+controlled acceptance run against the repository's **existing** Actions secret
+`THE_ODDS_API_KEY`. A pull request runs one Premier League odds endpoint at
+most, after free sports discovery, and never deploys that preview. It reports
+whether the secret is accessible without revealing its value. A valid key does
+not guarantee Sky Bet quotes or an exact match in the published fixture feed.
+
+Once this reviewed integration is merged to `main`, scheduled runs sample
+Premier League and Championship at **12:11, 15:11, 17:11, 20:11 UTC**,
+with at most two paid odds endpoints per run. Assuming a one-credit cost per
+endpoint, that is at most approximately 240 scheduled credits in 30 days,
+excluding optional manual runs, other account clients, and unexpected provider
+charging changes. Provider response quota headers independently stop collection
+at 400 total credits used or at 20 remaining. Scheduled GitHub Actions may run
+late or fail; this is not continuous or guaranteed live coverage. Price sections
+automatically expire 30 minutes after their source observation or at kickoff.
+Unavailable or unmatched prices remain absent, never reconstructed from older
+records.
+
+The production publisher embeds a small amount of **display-only** quote
+information into `index.html`, not a raw downloadable price feed. Browser QA
+checks the exact joined fixtures before publication, and the workflow publishes
+nothing on an API error or failed verification. Only the built page is committed;
+`work/current-odds.json` and the provider credential remain unpublished.
+The publisher requires GitHub Pages to continue serving the `main` branch and
+an Actions secret actually accessible in the workflow. The old Hybrid 3.1
+collector remains a separate research evidence source with its own cooldown
+rules; it is not used as an API-key fallback or a live-price substitute.
+
+This is **on-page observational pricing only**. It does not establish
+settlement terms, trade execution, validated EV or betting eligibility.
+Research remains UNVALIDATED and publication of betting recommendations BLOCKED.
+
 ## Racing manual capture
 
 On an exact upcoming race in the default desk, expand **Record an

@@ -4,7 +4,7 @@ const path = require('node:path');
 const sources = require('../pro-sources');
 const core = require('../football-match/core');
 
-const slot = '<template id="vw-published-prices"></template>';
+const slot = /<template id="vw-published-prices">[\s\S]*?<\/template>/g;
 const escaped = value => String(value).replace(/[&<>"']/g,char=>({
  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 })[char]);
@@ -14,7 +14,7 @@ const time = (label,ms) => {
 };
 
 function renderCurrentOdds(html,snapshot,{dashboard,expanded,other},now){
- if(html.split(slot).length!==2)throw Error('Missing or repeated price template.');
+ if([...html.matchAll(slot)].length!==1)throw Error('Missing or repeated price template.');
  const football=sources.footballEvidence([dashboard,expanded],null,core,now);
  const fixtures=sources.summarize([sources.inspect('football',dashboard,now,core),
   sources.inspect('other',other,now)],now).upcoming;

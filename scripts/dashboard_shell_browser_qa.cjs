@@ -53,8 +53,18 @@ async function main() {
       assert.equal(await sportsRail.evaluate(rail => getComputedStyle(rail).flexDirection), 'row');
       assert.equal(await page.locator('#slip-panel').isVisible(), width > 1020);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-      assert.equal(await first.evaluate(node => node.getBoundingClientRect().top < innerHeight - 80), true,
-        'The first fixture should appear above the slip dock');
+      // The persistent multi-select tile panel intentionally occupies more
+      // vertical space than the old dropdown; verify the first fixture stays
+      // accessible by scrolling, rather than requiring it above the fold.
+      await first.scrollIntoViewIfNeeded();
+      assert.equal(await first.evaluate(node => {
+        const rect=node.getBoundingClientRect();
+        const x=rect.left + Math.min(rect.width/2, 50);
+        const y=Math.max(0,Math.min(innerHeight-1,rect.top+Math.min(20,rect.height/2)));
+        return rect.width>0 && rect.height>0 && rect.top < innerHeight &&
+          rect.bottom>0 && (node.contains(document.elementFromPoint(x,y)) ||
+          node===document.elementFromPoint(x,y));
+      }),true,'First fixture accessible after scrolling, not covered by slip dock');
       assert.equal(await page.locator('#page-status').isVisible(), false);
       if (width < 1021) {
         await page.locator('#paper-open').tap();
@@ -63,6 +73,33 @@ async function main() {
         assert.equal(await page.locator('#paper-open').getAttribute('aria-expanded'), 'false');
       }
       await page.screenshot({path: path.join(out, 'dashboard-' + width + '.png')});
+      const engine = page.locator('#engine-methods');
+      const tile = id => engine.locator('button[data-method="' + id + '"]');
+      const lanes = page.locator('[data-bottleneck-lane]');
+      const activate = async (sport, expected) => {
+        await sportsRail.locator(`button[data-sport="${sport}"]`).click();
+        if (width <= 680) await page.locator('.dashboard-slip-tools:not([open]) > summary').click();
+        if (await tile('current').getAttribute('aria-pressed') === 'true') await tile('current').click();
+        if (await tile('bottleneck').getAttribute('aria-pressed') !== 'true') await tile('bottleneck').click();
+        await lanes.first().waitFor();
+        assert.deepEqual(await lanes.evaluateAll(nodes => nodes.map(node => node.dataset.bottleneckLane)), expected);
+        assert.equal(await lanes.getByText(/Second star withheld/).count(), expected.length);
+      };
+      await activate('rugby', ['rugby_union', 'rugby_league']);
+      assert.equal(await tile('bottleneck').getAttribute('aria-pressed'), 'true');
+      assert.equal(await lanes.getByText(/incremental value is unproven/).count(), 1);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      await page.locator('#engine-analysis').screenshot({path: path.join(out, 'bottleneck-rugby-' + width + '.png')});
+      if (width === 1440) {
+        for (const sport of ['football', 'racing', 'tennis', 'nfl', 'darts', 'basketball', 'cricket', 'golf']) {
+          await activate(sport, [sport]);
+        }
+        await activate('all', ['football', 'racing', 'tennis', 'nfl', 'darts', 'rugby_union',
+          'rugby_league', 'basketball', 'cricket', 'golf']);
+      }
+      await sportsRail.locator('button[data-sport="football"]').click();
+      await tile('bottleneck').click();await tile('current').click();
+
       const menu = page.locator('#research-pages > summary');
       await menu.focus();
       await page.keyboard.press('Enter');

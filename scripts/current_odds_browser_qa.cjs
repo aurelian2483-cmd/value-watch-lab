@@ -86,6 +86,9 @@ async function main(){
  }
  const template=await fs.readFile(path.join(root,'index.html'),'utf8');
  const published=renderCurrentOdds(template,document,{dashboard,expanded,other},now);
+ const republished=renderCurrentOdds(published.html,document,{dashboard,expanded,other},now);
+ assert.equal(republished.count,published.count,'Repeated builds must preserve exact current matches.');
+ assert.equal(republished.html,published.html,'Repeated builds must not duplicate stored price sections.');
  const servedHTML=live&&!deployed?await fs.readFile(path.join(root,'work/public-price-preview/site/index.html'),'utf8'):published.html;
  assert.equal(servedHTML,published.html,'The built page must still match the current accepted receipts.');
  assert.equal(published.count,matched.size);

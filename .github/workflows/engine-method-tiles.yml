@@ -1,0 +1,44 @@
+name: Engine method tiles UI acceptance
+on:
+  push:
+    branches: [ui/engine-multiselect-tiles-20261123]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'paper-lab/index.html'
+      - 'paper-lab/method-selection.js'
+      - 'paper-lab/method-stars.js'
+      - 'tests/test_method_stars.cjs'
+      - 'paper-lab/method-tiles.css'
+      - 'paper-lab/desk-compact-20261116.js'
+      - 'scripts/method_tiles_browser_qa.cjs'
+      - 'tests/test_engine_method_tiles.cjs'
+      - '.github/workflows/engine-method-tiles.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tested-ui:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check script syntax and method state
+        run: |
+          node --check paper-lab/desk-compact-20261116.js
+          node --check paper-lab/method-selection.js
+          node --check paper-lab/method-stars.js
+          node tests/test_method_stars.cjs
+          node --check scripts/method_tiles_browser_qa.cjs
+          node tests/test_engine_method_tiles.cjs
+          node tests/test_experimental_engine.cjs
+      - name: Install browser test dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify tile selections against actual HTML in Chromium
+        run: node scripts/method_tiles_browser_qa.cjs

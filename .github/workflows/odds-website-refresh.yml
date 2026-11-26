@@ -1,0 +1,115 @@
+name: Existing-key odds preview and bounded website refresh
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/odds-website-refresh.yml']
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/collect_current_odds.py'
+      - 'scripts/render_current_odds.cjs'
+      - 'scripts/current_odds_browser_qa.cjs'
+      - 'tests/test_collect_current_odds.py'
+      - '.github/workflows/odds-website-refresh.yml'
+  workflow_dispatch:
+  schedule:
+    # Four UTC sampling windows per day; at most two paid sports endpoints.
+    # Maximum roughly 240 credits/month before other API use; provider headers
+    # independently stop the collector at 400 used or 20 remaining.
+    - cron: '11 12,15,17,20 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: existing-key-odds-website-refresh
+  cancel-in-progress: false
+
+jobs:
+  review-and-refresh:
+    if: >-
+      github.repository == 'aurelian2483-cmd/value-watch-lab' &&
+      (github.event_name == 'schedule' ||
+       github.event_name == 'workflow_dispatch' ||
+       github.event_name == 'push' ||
+       (github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        github.event.pull_request.head.ref == 'integration/odds-api-existing-key-20261124'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout reviewed code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: ${{ github.event_name != 'pull_request' }}
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify collector scope and quota safeguards
+        run: python -m unittest discover -s tests -p 'test_collect_current_odds.py'
+      - name: Verify fixture and market joining
+        run: node tests/test_pro_sources.cjs
+      - name: Existing credential availability (no values printed)
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+        run: |
+          if [ -z "${THE_ODDS_API_KEY:-}" ]; then
+            echo "::error::Existing THE_ODDS_API_KEY GitHub Actions secret is missing or not accessible in this workflow."
+            exit 1
+          fi
+          echo "Existing GitHub Actions odds credential is accessible (value withheld)."
+      - name: Make only bounded provider requests
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            python scripts/collect_current_odds.py --sports soccer_epl --max-requests 1
+          else
+            python scripts/collect_current_odds.py --sports soccer_epl soccer_efl_champ --max-requests 2
+          fi
+      - name: Build a limited, expiring on-page preview, never a raw feed
+        run: |
+          set -euo pipefail
+          node scripts/render_current_odds.cjs
+          mkdir -p work/public-price-preview/site
+          git archive --format=tar HEAD | tar -xf - -C work/public-price-preview/site
+          cp work/public-price-preview/index.html work/public-price-preview/site/index.html
+          test ! -e work/public-price-preview/site/work
+          python - <<'PY'
+          import json
+          d=json.load(open('work/current-odds.json'))
+          print('Provider observations:',len(d['records']))
+          print('Research-only publication gate:',d['publication_gate'])
+          PY
+      - name: Install local browser QA
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Verify captured quotes against served fixture cards
+        run: node scripts/current_odds_browser_qa.cjs --live
+      - name: Publish only rendered on-page prices after review branch is merged
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          cp work/public-price-preview/index.html index.html
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- index.html
+          if git diff --cached --quiet; then
+            echo "Published page unchanged."
+            exit 0
+          fi
+          git commit -m "Refresh bounded, expiring on-page market observations"
+          # Never rebase a build over changed fixture inputs. Retry next scheduled cycle.
+          git push origin HEAD:main
