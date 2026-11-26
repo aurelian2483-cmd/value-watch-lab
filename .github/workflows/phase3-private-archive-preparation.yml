@@ -1,0 +1,29 @@
+name: Phase 3 private archive fixture preparation
+on:
+  push:
+    branches: [research/phase3-private-archive-preparation]
+    paths: ['research/phase3-private-archive/**', '.github/workflows/phase3-private-archive-preparation.yml']
+permissions:
+  contents: read
+jobs:
+  synthetic-private-storage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify encrypted synthetic transfer, recovery and protected pins
+        run: |
+          set -euo pipefail
+          openssl version
+          python -m unittest discover -s research/phase3-private-archive -v
+          base=research/reviews/phase3-independent-review
+          python "$base/final-qualification/verify_integrated_pins.py"
+          evidence="$(mktemp -d)"
+          python research/phase3-lifecycle/acceptance.py "$evidence/vault.json"
+          cmp "$evidence/vault.json" "$base/final-qualification/acceptance.json"
