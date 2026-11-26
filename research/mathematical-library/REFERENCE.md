@@ -5741,3 +5741,35 @@ Limitations — Correction accumulation and final addition still round; cancella
 Mechanism — With exact local transforms, q_i+r_i=x_i y_i+p_(i−1)−p_i. Telescoping yields xᵀy=p_n+c_1+Σ_(i=2)^n(q_i+r_i) before rounding the correction. Unlike compensated summation of already-rounded values, this mechanism also accounts for multiplication error; classified as a distinct inner-product algorithm.
 
 Source — Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, pp. 1972–1973, Algorithms 5.3–5.4, equation (5.1), Proposition 5.5, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf
+
+## Welford online central second moment (welford-online-central-second-moment)
+
+> For a finite sequence initialize k=1, m_1=x_1, M_1=0; for k≥2 set δ=x_k−m_(k−1), m_k=m_(k−1)+δ/k, M_k=M_(k−1)+δ(x_k−m_k). Return M_k=Σ_(i=1)^k(x_i−m_k)² in exact arithmetic
+
+k positive count; x_k observation; m_k running mean; M_k unnormalized second central moment.
+
+General streaming numerical summary; no empirical benefit claimed.
+
+Assumptions — Nonempty finite real observations with consistent units; exact count, valid arithmetic, and representable intermediates for a floating-point implementation; no independence assumption for descriptive moments.
+
+Limitations — Rounded mean updates may stagnate and subtraction or products may overflow or underflow; results depend on order in floating point; unbiased sample variance additionally needs independent identically distributed observations of finite variance.
+
+Mechanism — Recenter the first k−1 observations by m_(k−1)−m_k; the cross term vanishes because their old centered deviations sum to zero. Their correction plus the new squared deviation equals δ(x_k−m_k). This updates a centered second moment in constant state, unlike the registered summation, conditional-variance and raw scatter methods; not a guarantee of floating-point exactness.
+
+Source — Pébay (2008), Formulas for Robust, One-Pass Parallel Computation of Covariances and Arbitrary-Order Statistical Moments, SAND2008-6212, pp. 7–8, eqs. (1.1)–(1.2), citing Welford (1962). DOI 10.2172/1028931. https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf
+
+## Chan pairwise central second moment merge (chan-parallel-central-second-moment)
+
+> For nonempty disjoint blocks A,B set n=n_A+n_B, δ=m_B−m_A, m=m_A+δ n_B/n, M=M_A+M_B+δ² n_A n_B/n
+
+n_A,n_B positive block counts; m_A,m_B block means; M_A,M_B block unnormalized second central moments; n,m,M combined state.
+
+General parallel numerical summary; no empirical benefit claimed.
+
+Assumptions — Disjoint observation-index blocks with finite values in common units and internally consistent moment states; counts exact and required intermediates representable; identities in real arithmetic.
+
+Limitations — Merge order, large count imbalance, squared differences and finite precision can change rounded results or overflow; no universal accuracy guarantee or independence inference.
+
+Mechanism — Within each block the deviations about its own mean sum to zero; shifting the block centers adds n_A(m_A−m)²+n_B(m_B−m)²=δ² n_A n_B/n. A singleton B gives the Welford correction. Arbitrary block merging adds parallel aggregation capability, but the shared recentering identity warrants variant classification.
+
+Source — Pébay (2008), SAND2008-6212, p. 8, eqs. (1.3)–(1.4), attributing the block formula to Chan, Golub and LeVeque (1979). DOI 10.2172/1028931. https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf

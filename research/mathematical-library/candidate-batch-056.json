@@ -1,0 +1,105 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "056",
+    "family": "numerical-optimisation",
+    "classification": "model-variant",
+    "id": "pebay-pairwise-central-cross-moment",
+    "name": "Pébay pairwise centered cross moment merge",
+    "definition": "For paired blocks let C=C_A+C_B+(m_xB−m_xA)(m_yB−m_yA)n_A n_B/(n_A+n_B).",
+    "variables": "C unnormalized cross moment; m_x,m_y block coordinate means; n counts",
+    "assumptions": "Disjoint aligned pairs and consistent states; independent review pending",
+    "limitations": "Finite precision and nonfinite intermediates; review pending",
+    "failure_conditions": [
+      "Inconsistent block states or unpaired data"
+    ],
+    "computation": "Merge paired centered cross moment states; verify formula and normalization before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Pébay (2008), SAND2008-6212, section 3, DOI 10.2172/1028931; admission review pending."
+    },
+    "application": "General numerical covariance summary; no empirical benefit claimed.",
+    "required_inputs": "Two disjoint paired block summaries.",
+    "compatible_methods": [
+      "chan-parallel-central-second-moment",
+      "pearson-linear-correlation"
+    ],
+    "incompatible_methods": [
+      "Treating a rounded cross moment as exact"
+    ],
+    "relationships": [
+      {
+        "target": "chan-parallel-central-second-moment",
+        "type": "variant-of"
+      },
+      {
+        "target": "pearson-linear-correlation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional cross-moment extension of centered block merging; independent review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "056",
+    "family": "numerical-optimisation",
+    "classification": "model-variant",
+    "id": "pebay-arbitrary-order-central-moment-merge",
+    "name": "Pébay arbitrary-order central moment merge",
+    "definition": "For integer p≥3, M_p=Σ_(j=0)^p binom(p,j)[M_(j,A)(m_A−m)^(p−j)+M_(j,B)(m_B−m)^(p−j)], with M_(0,G)=n_G and M_(1,G)=0.",
+    "variables": "p moment order; M_(j,G) unnormalized central moment of block G; m combined mean",
+    "assumptions": "Disjoint nonempty finite blocks with consistent lower moments; review pending",
+    "limitations": "High-order powers may overflow or suffer cancellation; review pending",
+    "failure_conditions": [
+      "Missing lower-order moments or invalid counts"
+    ],
+    "computation": "Compute the combined mean and recenter stored moments using the binomial expansion; verify source and assumptions before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Pébay (2008), SAND2008-6212, Proposition 2.1, DOI 10.2172/1028931; admission review pending."
+    },
+    "application": "General numerical higher-moment summary; no empirical benefit claimed.",
+    "required_inputs": "Disjoint block counts, means and moments through the declared order.",
+    "compatible_methods": [
+      "chan-parallel-central-second-moment"
+    ],
+    "incompatible_methods": [
+      "Treating high-order moments as robust estimators"
+    ],
+    "relationships": [
+      {
+        "target": "chan-parallel-central-second-moment",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional extension to arbitrary central moment order, not separate entries per order; independent review pending."
+  }
+]
