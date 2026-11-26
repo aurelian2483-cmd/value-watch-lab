@@ -1,0 +1,104 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "051",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "arithmetic-geometric-mean-iteration",
+    "name": "Arithmetic-geometric mean iteration",
+    "definition": "For a_0,b_0>0, set a_(k+1)=(a_k+b_k)/2 and b_(k+1)=√(a_k b_k); define AGM(a_0,b_0)=lim a_k=lim b_k.",
+    "variables": "a_k arithmetic iterate; b_k geometric iterate; k iteration index",
+    "assumptions": "Positive finite real inputs; exact arithmetic for interval and convergence claims; reliable scaled arithmetic and a declared positive absolute tolerance in original units",
+    "limitations": "Extreme dynamic range can defeat scaling or geometric-mean evaluation; rounded endpoints are not certified enclosures without directed rounding or other error bounds",
+    "failure_conditions": [
+      "Nonpositive or nonfinite input",
+      "Nonfinite or invalid iterates, rounded stagnation without an adequate error bound, or iteration limit before tolerance"
+    ],
+    "computation": "Order the initial pair, update both values from the previous pair, evaluate the arithmetic mean without overflowing the sum and the geometric mean without forming an unsafe product. In exact arithmetic stop when a_k−b_k≤ε and return the enclosing interval; require reliable error bounds for a finite-precision enclosure. Impose an iteration limit.",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST DLMF §19.8(i), equations 19.8.1–19.8.4, common limit and quadratic convergence. https://dlmf.nist.gov/19.8.i",
+      "url": "https://dlmf.nist.gov/19.8.i"
+    },
+    "application": "General numerical special-function computation; no forecasting benefit claimed.",
+    "required_inputs": "Two positive finite scalars, tolerance and iteration limit",
+    "compatible_methods": [
+      "horner-polynomial-evaluation"
+    ],
+    "incompatible_methods": [
+      "Using unverified convergence tolerance as exact error proof"
+    ],
+    "relationships": [
+      {
+        "target": "horner-polynomial-evaluation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "After ordering a≥b>0, b≤√(ab)≤(a+b)/2≤a, so nested intervals enclose the common limit. The new gap is (√a−√b)²/2=(a−b)²/[2(√a+√b)²], proving convergence and a quadratic gap bound since b≥b_0. This two-state coupled mean is neither a scalar fixed-point acceleration nor the matrix square-root iteration with invariant Y=AZ. The enclosing interval is an exact-arithmetic claim."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "051",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "cordic-circular-rotation",
+    "name": "Circular rotation CORDIC",
+    "definition": "For a target angle z_0 in [−π/2,π/2], set x_0=1,y_0=0; for i=0,…,N−1 use σ_i=1 when z_i≥0 and −1 otherwise, x_(i+1)=x_i−σ_i 2^(−i)y_i, y_(i+1)=y_i+σ_i 2^(−i)x_i, z_(i+1)=z_i−σ_i arctan(2^(−i)). Scale (x_N,y_N) by Π_(i=0)^(N−1)(1+2^(−2i))^(−1/2).",
+    "variables": "z residual angle; x,y vector iterates; N rotation steps; σ direction",
+    "assumptions": "Finite target angle in radians in [−π/2,π/2]; positive integer N; simultaneous vector updates and correctly indexed angle table; exact arithmetic for residual and norm claims",
+    "limitations": "Finite residual angle and finite-precision shift, angle-table and gain errors; wider angles need range reduction; no implementation-level error bound implied",
+    "failure_conditions": [
+      "Invalid angle or nonpositive or excessive step count",
+      "Arithmetic overflow or inconsistent angle table or gain"
+    ],
+    "computation": "Execute N signed microrotations from i=0, using old x_i and y_i in both updates. Multiply the final vector by the reciprocal accumulated gain. Report the residual angle; in exact arithmetic |z_N|≤arctan(2^(−(N−1))).",
+    "source": {
+      "kind": "literature",
+      "citation": "Ryan Robucci, University of Maryland Baltimore County, Lecture 20 – CORDIC, §§2–6 and 11; rotation equations and deferred gain correction. https://eclipse.umbc.edu/robucci/cmpeRSD/lectures/Lecture20__CORDIC/Lecture20__CORDIC.html",
+      "url": "https://eclipse.umbc.edu/robucci/cmpeRSD/lectures/Lecture20__CORDIC/Lecture20__CORDIC.html"
+    },
+    "application": "General numerical rotation and trigonometric evaluation; no forecasting benefit claimed.",
+    "required_inputs": "Angle, iteration count and arctangent table",
+    "compatible_methods": [
+      "givens-qr-elimination"
+    ],
+    "incompatible_methods": [
+      "Claiming exact trigonometric values from finite iterations"
+    ],
+    "relationships": [
+      {
+        "target": "givens-qr-elimination",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Each unscaled update equals √(1+2^(−2i)) times rotation by σ_i α_i, α_i=arctan(2^(−i)). Thus after correction the vector is (cos(z_0−z_N),sin(z_0−z_N)). Since |z_0|≤2α_0 and α_(i−1)≤2α_i by concavity of arctan on nonnegative arguments, induction gives |z_(i+1)|≤α_i. Euclidean vector error is at most |z_N| in exact arithmetic. Unlike Givens elimination or Jacobi diagonalization, signed shift-add microrotations approximate a supplied angle, not an elimination pivot."
+  }
+]

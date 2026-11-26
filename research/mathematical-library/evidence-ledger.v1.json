@@ -7973,5 +7973,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Alternation gives |E|≤optimal uniform error≤M: a strictly better polynomial would require its difference from P to alternate signs at d+2 nodes, forcing at least d+1 roots. On exchange, the order-(d+1) divided difference annihilates both degree-d polynomials; alternating residual signs align with the signs of the divided-difference weights. The new reference magnitude is a positive weighted average of the retained magnitudes |E| and the strictly larger M. This establishes a strict lower-bound increase in the stated nondegenerate exact case, not global finite convergence. Distinct from fitting least squares, evaluating a fixed polynomial or interpolating fixed ordinates."
+  },
+  {
+    "id": "arithmetic-geometric-mean-iteration",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST DLMF §19.8(i), equations 19.8.1–19.8.4, common limit and quadratic convergence. https://dlmf.nist.gov/19.8.i",
+      "url": "https://dlmf.nist.gov/19.8.i"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "After ordering a≥b>0, b≤√(ab)≤(a+b)/2≤a, so nested intervals enclose the common limit. The new gap is (√a−√b)²/2=(a−b)²/[2(√a+√b)²], proving convergence and a quadratic gap bound since b≥b_0. This two-state coupled mean is neither a scalar fixed-point acceleration nor the matrix square-root iteration with invariant Y=AZ. The enclosing interval is an exact-arithmetic claim."
+  },
+  {
+    "id": "cordic-circular-rotation",
+    "source": {
+      "kind": "literature",
+      "citation": "Ryan Robucci, University of Maryland Baltimore County, Lecture 20 – CORDIC, §§2–6 and 11; rotation equations and deferred gain correction. https://eclipse.umbc.edu/robucci/cmpeRSD/lectures/Lecture20__CORDIC/Lecture20__CORDIC.html",
+      "url": "https://eclipse.umbc.edu/robucci/cmpeRSD/lectures/Lecture20__CORDIC/Lecture20__CORDIC.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Each unscaled update equals √(1+2^(−2i)) times rotation by σ_i α_i, α_i=arctan(2^(−i)). Thus after correction the vector is (cos(z_0−z_N),sin(z_0−z_N)). Since |z_0|≤2α_0 and α_(i−1)≤2α_i by concavity of arctan on nonnegative arguments, induction gives |z_(i+1)|≤α_i. Euclidean vector error is at most |z_N| in exact arithmetic. Unlike Givens elimination or Jacobi diagonalization, signed shift-add microrotations approximate a supplied angle, not an elimination pivot."
   }
 ]

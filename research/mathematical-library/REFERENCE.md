@@ -5549,3 +5549,35 @@ Limitations — Grid maxima alone do not certify the global error; ill-condition
 Mechanism — Alternation gives |E|≤optimal uniform error≤M: a strictly better polynomial would require its difference from P to alternate signs at d+2 nodes, forcing at least d+1 roots. On exchange, the order-(d+1) divided difference annihilates both degree-d polynomials; alternating residual signs align with the signs of the divided-difference weights. The new reference magnitude is a positive weighted average of the retained magnitudes |E| and the strictly larger M. This establishes a strict lower-bound increase in the stated nondegenerate exact case, not global finite convergence. Distinct from fitting least squares, evaluating a fixed polynomial or interpolating fixed ordinates.
 
 Source — NIST DLMF §3.11(i), alternation condition and equations 3.11.1–3.11.5; Pachón and Trefethen (2009), BIT 49, 721–741, DOI 10.1007/s10543-009-0240-1 (Oxford publication abstract). One-point exchange rule and lower bound checked by derivation. https://dlmf.nist.gov/3.11.i
+
+## Arithmetic-geometric mean iteration (arithmetic-geometric-mean-iteration)
+
+> For a_0,b_0>0, set a_(k+1)=(a_k+b_k)/2 and b_(k+1)=√(a_k b_k); define AGM(a_0,b_0)=lim a_k=lim b_k.
+
+a_k arithmetic iterate; b_k geometric iterate; k iteration index.
+
+General numerical special-function computation; no forecasting benefit claimed.
+
+Assumptions — Positive finite real inputs; exact arithmetic for interval and convergence claims; reliable scaled arithmetic and a declared positive absolute tolerance in original units.
+
+Limitations — Extreme dynamic range can defeat scaling or geometric-mean evaluation; rounded endpoints are not certified enclosures without directed rounding or other error bounds.
+
+Mechanism — After ordering a≥b>0, b≤√(ab)≤(a+b)/2≤a, so nested intervals enclose the common limit. The new gap is (√a−√b)²/2=(a−b)²/[2(√a+√b)²], proving convergence and a quadratic gap bound since b≥b_0. This two-state coupled mean is neither a scalar fixed-point acceleration nor the matrix square-root iteration with invariant Y=AZ. The enclosing interval is an exact-arithmetic claim.
+
+Source — NIST DLMF §19.8(i), equations 19.8.1–19.8.4, common limit and quadratic convergence. https://dlmf.nist.gov/19.8.i
+
+## Circular rotation CORDIC (cordic-circular-rotation)
+
+> For a target angle z_0 in [−π/2,π/2], set x_0=1,y_0=0; for i=0,…,N−1 use σ_i=1 when z_i≥0 and −1 otherwise, x_(i+1)=x_i−σ_i 2^(−i)y_i, y_(i+1)=y_i+σ_i 2^(−i)x_i, z_(i+1)=z_i−σ_i arctan(2^(−i)). Scale (x_N,y_N) by Π_(i=0)^(N−1)(1+2^(−2i))^(−1/2).
+
+z residual angle; x,y vector iterates; N rotation steps; σ direction.
+
+General numerical rotation and trigonometric evaluation; no forecasting benefit claimed.
+
+Assumptions — Finite target angle in radians in [−π/2,π/2]; positive integer N; simultaneous vector updates and correctly indexed angle table; exact arithmetic for residual and norm claims.
+
+Limitations — Finite residual angle and finite-precision shift, angle-table and gain errors; wider angles need range reduction; no implementation-level error bound implied.
+
+Mechanism — Each unscaled update equals √(1+2^(−2i)) times rotation by σ_i α_i, α_i=arctan(2^(−i)). Thus after correction the vector is (cos(z_0−z_N),sin(z_0−z_N)). Since |z_0|≤2α_0 and α_(i−1)≤2α_i by concavity of arctan on nonnegative arguments, induction gives |z_(i+1)|≤α_i. Euclidean vector error is at most |z_N| in exact arithmetic. Unlike Givens elimination or Jacobi diagonalization, signed shift-add microrotations approximate a supplied angle, not an elimination pivot.
+
+Source — Ryan Robucci, University of Maryland Baltimore County, Lecture 20 – CORDIC, §§2–6 and 11; rotation equations and deferred gain correction. https://eclipse.umbc.edu/robucci/cmpeRSD/lectures/Lecture20__CORDIC/Lecture20__CORDIC.html

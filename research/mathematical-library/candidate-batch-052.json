@@ -1,0 +1,102 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "052",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "kahan-compensated-summation",
+    "name": "Kahan compensated summation",
+    "definition": "Set s=0,c=0; for each x_i compute y=x_i−c, t=s+y, c=(t−s)−y, s=t; return s.",
+    "variables": "x_i terms; s running sum; c compensation; t,y temporaries",
+    "assumptions": "Finite floating-point terms, consistent rounding and evaluation order, no unsafe compiler reassociation",
+    "limitations": "Overflow, subnormal arithmetic and severe cancellation require review; not exact summation",
+    "failure_conditions": [
+      "Nonfinite terms or intermediates",
+      "Arithmetic reassociation defeats compensation"
+    ],
+    "computation": "Process terms in order with the compensation recurrence; source and error analysis pending.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Higham (1993), The Accuracy of Floating Point Summation; source review pending."
+    },
+    "application": "General numerical summation; no forecasting benefit claimed.",
+    "required_inputs": "Finite sequence and declared floating-point arithmetic",
+    "compatible_methods": [
+      "horner-polynomial-evaluation"
+    ],
+    "incompatible_methods": [
+      "Claiming exact summation from a compensated result"
+    ],
+    "relationships": [
+      {
+        "target": "horner-polynomial-evaluation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional compensation recurrence; overlap and numerical assumptions require review."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "052",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "knuth-two-sum-error-free-transform",
+    "name": "TwoSum error-free addition transform",
+    "definition": "For floating-point a,b set s=fl(a+b), z=fl(s−a), e=fl(fl(a−fl(s−z))+fl(b−z)); under suitable arithmetic conditions a+b=s+e exactly.",
+    "variables": "a,b input numbers; s rounded sum; z temporary; e residual; fl rounding operator",
+    "assumptions": "Binary floating point, round-to-nearest, individually rounded operations and no overflow; precise underflow conditions require review",
+    "limitations": "Compiler reassociation and unsupported arithmetic may invalidate the identity",
+    "failure_conditions": [
+      "Nonfinite input or intermediate",
+      "Arithmetic assumptions not established"
+    ],
+    "computation": "Evaluate rounded operations in stated order; verify exact-transform conditions in admission review.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Knuth, The Art of Computer Programming, volume 2, floating-point arithmetic; source review pending."
+    },
+    "application": "General floating-point residual decomposition; no forecasting benefit claimed.",
+    "required_inputs": "Two floating-point operands and arithmetic specification",
+    "compatible_methods": [
+      "kahan-compensated-summation"
+    ],
+    "incompatible_methods": [
+      "Assuming the identity under arbitrary rounding or reassociation"
+    ],
+    "relationships": [
+      {
+        "target": "kahan-compensated-summation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional error-free transformation, not a complete summation algorithm; classification and source review pending."
+  }
+]
