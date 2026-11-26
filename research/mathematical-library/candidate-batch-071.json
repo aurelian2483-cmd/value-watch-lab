@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "071",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "huffman-greedy-prefix-code",
+    "name": "Huffman greedy binary prefix code",
+    "definition": "Repeatedly remove two minimum-weight nodes u,v, replace them by a parent of weight w(u)+w(v), and assign binary edge labels until one root remains.",
+    "variables": "Positive symbol weights; binary prefix code tree",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify bounds and edge cases",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Huffman (1952), A Method for the Construction of Minimum-Redundancy Codes; verify optimality assumptions and degenerate cases."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence or symbol weights as appropriate; declared symbol semantics.",
+    "compatible_methods": [
+      "aho-corasick-failure-automaton"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "aho-corasick-failure-automaton"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "071",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "lz78-dictionary-parsing",
+    "name": "LZ78 incremental dictionary parsing",
+    "definition": "Starting D={empty phrase}, find longest dictionary prefix w of remaining input; if next symbol a exists emit (index(w),a), add wa to D and advance by |wa|; otherwise emit terminal index(w) under a declared framing convention.",
+    "variables": "Finite sequence, phrase dictionary D, dictionary indices",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify bounds and edge cases",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Ziv and Lempel (1978), Compression of individual sequences via variable-rate coding; verify finite-input framing and dictionary semantics."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence or symbol weights as appropriate; declared symbol semantics.",
+    "compatible_methods": [
+      "aho-corasick-failure-automaton"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "aho-corasick-failure-automaton"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  }
+]

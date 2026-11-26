@@ -8937,5 +8937,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Reflection in the known palindrome certifies the smaller of the reflected radius and r−i+1. If the reflected radius is strictly smaller, its stopping mismatch also reflects within the interval. Otherwise further successful comparisons extend the rightmost frontier; each advances a previously unverified right endpoint, and at most one unsuccessful comparison occurs per center. The inclusive zero-based formulation is independently derived from the exclusive-boundary invariant. Unlike exact pattern search or edit alignment, it reuses symmetry about changing centers."
+  },
+  {
+    "id": "z-function-prefix-match-length",
+    "source": {
+      "kind": "literature",
+      "citation": "Gusfield (1997), Algorithms on Strings, Trees, and Sequences, Cambridge University Press, sections 1.3–1.5, especially p. 9, Algorithm Z; adapted from one-based inclusive intervals to zero-based half-open intervals. https://dmice.ohsu.edu/bedricks/courses/cs655/pdf/readings/gusfield_chap_1_2.pdf",
+      "url": "https://dmice.ohsu.edu/bedricks/courses/cs655/pdf/readings/gusfield_chap_1_2.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Inside the established prefix-copy interval, the earlier z value certifies the minimum of that value and the remaining interval length. If strictly smaller, the mismatch lies inside the known interval; otherwise successful comparisons extend the frontier. Outside the interval successes also advance the frontier; at most one failed comparison per index. Unlike the KMP recurrence, this measures prefix matches starting at each position rather than borders ending there. Conservatively grouped as a prefix-matching variant rather than counting closely related preprocessing separately."
+  },
+  {
+    "id": "aho-corasick-failure-automaton",
+    "source": {
+      "kind": "literature",
+      "citation": "Aho and Corasick (1975), Efficient string matching: an aid to bibliographic search, Communications of the ACM 18(6), 333–340, DOI 10.1145/360825.360855 (metadata and abstract verified; original PDF retrieval failed). Stanford CS166, Tries and String Matching, sections Suffix Links, Constructing Output Links and The Complete Construction; dense transition bound independently derived. https://web.stanford.edu/class/archive/cs/cs166/cs166.1146/lectures/09/Small09.pdf",
+      "url": "https://web.stanford.edu/class/archive/cs/cs166/cs166.1146/lectures/09/Small09.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The current state represents the longest suffix of processed text that is a prefix of some pattern. Failure moves to shorter represented suffixes. All matching patterns are terminal suffixes of that state, enumerated by terminal-only output links. Dense construction processes K transitions per state; output traversal visits exactly one terminal per report. A single-pattern trie specializes to the KMP failure mechanism; branching states and multiple terminal suffixes give the general automaton a distinct capability."
   }
 ]

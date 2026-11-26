@@ -6221,3 +6221,35 @@ Limitations — O(n) time and O(n) radius storage; empty input returns an empty 
 Mechanism — Reflection in the known palindrome certifies the smaller of the reflected radius and r−i+1. If the reflected radius is strictly smaller, its stopping mismatch also reflects within the interval. Otherwise further successful comparisons extend the rightmost frontier; each advances a previously unverified right endpoint, and at most one unsuccessful comparison occurs per center. The inclusive zero-based formulation is independently derived from the exclusive-boundary invariant. Unlike exact pattern search or edit alignment, it reuses symmetry about changing centers.
 
 Source — Manacher (1975), A New Linear-Time On-Line Algorithm for Finding the Smallest Initial Palindrome of a String, JACM 22(3), 346–351, DOI 10.1145/321892.321896 (metadata and abstract only); Princeton Algorithms, 4th ed., section 5.3 Manacher.java (transformed sequence mirror scan, indexed extract); Algorithms for Competitive Programming, Manacher's Algorithm (odd-radius explanation with exclusive endpoints). https://cp-algorithms.com/string/manacher.html
+
+## Z-function prefix match length scan (z-function-prefix-match-length)
+
+> For n=0 return []; otherwise z_0=0 and [l,r)=[0,0); for i=1,…,n−1 set z_i=min(r−i,z_{i−l}) if i<r else 0; while i+z_i<n and x_{z_i}=x_{i+z_i}, increment z_i; if i+z_i>r set l=i,r=i+z_i. Return z.
+
+x finite indexed sequence; n length; z_i longest prefix matching the suffix starting at i for i>0; z_0=0 by convention; [l,r) rightmost established matching interval, possibly empty.
+
+General sequence algorithm; no empirical benefit claimed.
+
+Assumptions — Immutable finite sequence, consistent equality and constant-cost indexed comparisons; exact integer indices; zero-based half-open interval convention.
+
+Limitations — O(n) time and O(n) returned array storage; z_0=0 is a convention rather than a full self-match length. No approximate matching or wildcard semantics.
+
+Mechanism — Inside the established prefix-copy interval, the earlier z value certifies the minimum of that value and the remaining interval length. If strictly smaller, the mismatch lies inside the known interval; otherwise successful comparisons extend the frontier. Outside the interval successes also advance the frontier; at most one failed comparison per index. Unlike the KMP recurrence, this measures prefix matches starting at each position rather than borders ending there. Conservatively grouped as a prefix-matching variant rather than counting closely related preprocessing separately.
+
+Source — Gusfield (1997), Algorithms on Strings, Trees, and Sequences, Cambridge University Press, sections 1.3–1.5, especially p. 9, Algorithm Z; adapted from one-based inclusive intervals to zero-based half-open intervals. https://dmice.ohsu.edu/bedricks/courses/cs655/pdf/readings/gusfield_chap_1_2.pdf
+
+## Aho–Corasick multi-pattern failure automaton (aho-corasick-failure-automaton)
+
+> Build a trie of distinct nonempty patterns. Let δ(root,a)=child(root,a) if present else root; f(root)=root and f(v)=root for root children. In breadth-first depth order, for each other edge u→v labeled a set f(v)=δ(f(u),a); for any nonroot state w set δ(w,a)=child(w,a) if present else δ(f(w),a). Set o(root)=null and o(v)=f(v) if f(v) is terminal else o(f(v)) for v≠root. Starting q=root, for each text symbol x_i set q←δ(q,x_i); report q if terminal and every terminal along the o-chain from q with ending index i.
+
+Trie states, f longest proper suffix link, δ completed transition, o nearest terminal proper suffix link, q current state; S sum of pattern lengths, K fixed alphabet size, m text length, z number of reported occurrences.
+
+General sequence algorithm; no empirical benefit claimed.
+
+Assumptions — Finite fixed alphabet with constant-cost symbol indexing, finite static set of distinct nonempty patterns, exact equality, breadth-first processing and constant-cost terminal identifier emission.
+
+Limitations — Dense transition table uses O((S+1)K) space and construction time; search O(m+z) with output links and constant-cost transitions. Large alphabets can make dense tables impractical; output volume can dominate. Walking all failure ancestors does not justify the same output-sensitive bound. Empty pattern set gives no matches; empty patterns excluded.
+
+Mechanism — The current state represents the longest suffix of processed text that is a prefix of some pattern. Failure moves to shorter represented suffixes. All matching patterns are terminal suffixes of that state, enumerated by terminal-only output links. Dense construction processes K transitions per state; output traversal visits exactly one terminal per report. A single-pattern trie specializes to the KMP failure mechanism; branching states and multiple terminal suffixes give the general automaton a distinct capability.
+
+Source — Aho and Corasick (1975), Efficient string matching: an aid to bibliographic search, Communications of the ACM 18(6), 333–340, DOI 10.1145/360825.360855 (metadata and abstract verified; original PDF retrieval failed). Stanford CS166, Tries and String Matching, sections Suffix Links, Constructing Output Links and The Complete Construction; dense transition bound independently derived. https://web.stanford.edu/class/archive/cs/cs166/cs166.1146/lectures/09/Small09.pdf
