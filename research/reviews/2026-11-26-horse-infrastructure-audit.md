@@ -95,6 +95,23 @@ observation, before the five-minute pre-off boundary, plus an
 independently reviewable timestamp for the actual paired bytes.
 No archived A can be aged forward with a later field check.
 
+### Fresh-feed follow-up
+
+At 09:46 UTC, the read-only test merge
+`3963462f774ac16ab5a41050a31785b9547f05de` exposed the 09:38 UTC context
+feed from main revision `331a27090bc7d204c578ae9e7579779be448d8aa`.
+The real-clock adapter processed 11 forecasts in a disposable store.
+Seven passed the existing capture gates and four still had stale
+original runner receipts. The probe produced no independent timestamp
+attestation and created no entries in the registered ledger.
+[Fresh-feed probe receipt](2026-11-26-phase3-fresh-feed-probe.json)
+
+The starting draft contained 478 frozen forecast files. Every one
+matches its corresponding blob in the 612-file main snapshot used by
+the first intake probe. The later test merge contained 629 forecast files.
+The draft did not change any archive file, registered model weight,
+protocol, endpoint or evidence object.
+
 ## Results and market references
 
 | Candidate | Verified evidence | Admission decision |
