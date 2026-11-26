@@ -1,0 +1,31 @@
+name: Phase 3 synthetic TSA transport diagnostic
+on:
+  push:
+    branches: [research/phase3-tsa-network-probe-20261126]
+    paths: ['.github/workflows/phase3-external-tsa-probe.yml', 'research/phase3-external-probe/probe.py']
+permissions:
+  contents: read
+jobs:
+  synthetic-probe:
+    timeout-minutes: 6
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compare DNS, TCP, TLS, HTTP and RFC 3161 verification
+        run: python research/phase3-external-probe/probe.py ${{ matrix.os }} external-observation
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tsa-synthetic-${{ matrix.os }}
+          path: external-observation/
+          retention-days: 30
