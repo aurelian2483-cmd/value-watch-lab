@@ -36,6 +36,17 @@ try{
  report=audit(base,now);assert.equal(report.priority,'P1');assert(report.issues.some(x=>x.code==='football:GATE_CHANGED'));
  data.football.publication_gate='BLOCKED';data.football.generated_at_utc='2026-11-13T20:00:00.000Z';write();
  report=audit(base,now);assert(report.issues.some(x=>x.code==='football:INVALID_TIMESTAMP'));
+ for(const invalid of ['2026-11-12T20:00:00','November 12, 2026 20:00:00 GMT','2026-02-30T20:00:00Z','2026-11-12T20:01:00Z']){
+  data.football.generated_at_utc=invalid;write();report=audit(base,now);
+  assert.equal(report.feeds.find(f=>f.id==='football').state,'BLOCKED',invalid);
+  assert.equal(report.feeds.find(f=>f.id==='football').ageHours,null,invalid);
+ }
+ data.football.generated_at_utc='2026-11-12T21:00:00+01:00';write();
+ assert.equal(audit(base,now).feeds.find(f=>f.id==='football').state,'OBSERVED');
+ const hybrid=data['hybrid-prices'].records[0];
+ hybrid.benchmark.observed_at_utc='2026-11-12T20:00:00';write();
+ assert.equal(audit(base,now).feeds.find(f=>f.id==='hybrid-prices').state,'PENDING');
+ hybrid.benchmark.observed_at_utc=now;
  data.football.generated_at_utc=now;write();fs.writeFileSync(path.join(base,'other-sports-data.json'),'{broken json');
  report=audit(base,now);assert.equal(report.priority,'P1');assert(report.issues.some(x=>x.code==='other:FEED_UNAVAILABLE'));assert.equal(report.bookmakerPricesVerified,false);
  fs.rmSync(path.join(base,'horse-model-data.json'));report=audit(base,now);assert(report.issues.some(x=>x.code==='horse:FEED_UNAVAILABLE'));
