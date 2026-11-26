@@ -15,7 +15,19 @@ const SOURCES=[
 function safeString(s){return String(s??'').replace(/[\r\n\t]/g,' ').slice(0,150)}
 function record(issues,priority,owner,code,description,nextStep){issues.push({priority,owner,code,description,nextStep})}
 function awareTime(value){
- return typeof value==='string'&&/T.*(?:Z|[+-]\d{2}:\d{2})$/i.test(value)?Date.parse(value):NaN;
+ if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/i.test(value))return NaN;
+ const day=value.slice(0,10), midnight=new Date(day+'T00:00:00Z');
+ return Number.isFinite(+midnight)&&midnight.toISOString().slice(0,10)===day?Date.parse(value):NaN;
+}
+function matchingIds(forecast, current){
+ if(!Array.isArray(forecast)||!Array.isArray(current)||forecast.length<2||forecast.length!==current.length)return false;
+ const expected=new Set();
+ for(const runner of forecast){
+  const id=runner?.horse_id;
+  if(typeof id!=='string'||!id||expected.has(id))return false;
+  expected.add(id);
+ }
+ return current.every(id=>expected.delete(id));
 }
 function forecastEvidence(forecasts, checks, nowMs){
  const maximumAge=30*60*1000, preOff=5*60*1000;
@@ -30,14 +42,11 @@ function forecastEvidence(forecasts, checks, nowMs){
   if(!Number.isFinite(original)||!Number.isFinite(frozen)||original>frozen||frozen>nowMs)evidence.unknown++;
   else if(nowMs-original>maximumAge)evidence.stale++;
   if(start-nowMs<=preOff)continue;
-  const check=checks?.[row.record_sha256];
+  const key=row.record_sha256;
+  const check=checks&&typeof key==='string'&&Object.hasOwn(checks,key)?checks[key]:null;
   const seen=awareTime(check?.runner_observed_at_utc), checked=awareTime(check?.checked_at_utc);
-  const frozenIds=Array.isArray(row.runners)?row.runners.map(runner=>runner?.horse_id).sort():[];
-  const checkedIds=Array.isArray(check?.active_runner_ids)?[...check.active_runner_ids].sort():[];
-  const sameField=frozenIds.length>=2&&frozenIds.length===checkedIds.length&&
-    frozenIds.every((id,index)=>typeof id==='string'&&id===checkedIds[index]);
   if(check?.status!=='FRESH_MATCHING_FIELD_AND_CONTEXT'||!(seen<=checked&&checked<=nowMs&&nowMs-seen<=maximumAge)||
-     !sameField||typeof row.context_signature!=='string'||row.context_signature!==check.context_signature){
+     !matchingIds(row.runners,check.active_runner_ids)||typeof row.context_signature!=='string'||row.context_signature!==check.context_signature){
     evidence.currentFieldUnconfirmed++;
   }
  }

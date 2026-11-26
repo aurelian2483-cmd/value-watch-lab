@@ -45,12 +45,18 @@ try{
  assert.equal(inspectForecasts().state,'OBSERVED');
  forecasts.current_field_checks.a.active_runner_ids=['A','C'];
  assert.equal(inspectForecasts().state,'PENDING');
+ forecasts.current_field_checks.a.active_runner_ids=['A','A'];
+ assert.equal(inspectForecasts().state,'PENDING');
+ forecasts.current_field_checks.a.active_runner_ids=['A',{toString:1}];
+ assert.equal(inspectForecasts().state,'PENDING');
  forecasts.current_field_checks.a.active_runner_ids=['A','B'];
  forecasts.current_field_checks.a.runner_observed_at_utc='2026-11-12T19:29:59Z';
  assert.equal(inspectForecasts().state,'PENDING');
  forecasts.forecasts[0].startUTC='2026-11-12T20:05:00Z';
  assert.deepEqual(inspectForecasts().intakeTiming,{insideCutoff:1,invalidStart:0,currentFieldUnconfirmed:0});
  forecasts.forecasts[0].startUTC='2026-11-12T21:00:00';
+ assert.equal(inspectForecasts().state,'BLOCKED');
+ forecasts.forecasts[0].startUTC='2026-11-31T21:00:00Z';
  assert.equal(inspectForecasts().state,'BLOCKED');
  forecasts.forecasts=[];
  forecasts.generated_at_utc='2026-11-12T20:00:01Z';
