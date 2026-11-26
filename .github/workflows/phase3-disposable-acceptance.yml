@@ -1,0 +1,32 @@
+name: Phase 3 disposable integrity acceptance
+on:
+  pull_request:
+    paths:
+      - 'research/phase3-transactional/**'
+      - 'research/horse-ab-phase3-master-20261115/**'
+      - 'research/reviews/phase3-independent-review/**'
+      - 'scripts/audit_phase3_isolation.py'
+      - '.github/workflows/phase3-disposable-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  disposable-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify protected baseline and transactional fixtures
+        run: |
+          set -euo pipefail
+          base=research/reviews/phase3-independent-review
+          sha256sum -c "$base/SHA256SUMS"
+          sha256sum -c "$base/transactional-repair/SHA256SUMS"
+          evidence="$(mktemp -d)"
+          python scripts/audit_phase3_isolation.py "$evidence/baseline.json"
+          cmp "$evidence/baseline.json" "$base/intake-audit.json"
+          python research/phase3-transactional/acceptance.py "$evidence/acceptance.json"
+          cmp "$evidence/acceptance.json" "$base/transactional-repair/acceptance.json"
