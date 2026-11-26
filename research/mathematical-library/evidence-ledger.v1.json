@@ -8523,5 +8523,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Expand Z_j−f_x as Σ_{y≠x} f_y s_j(x)s_j(y)1{h_j(y)=h_j(x)}. Independent unbiased pairwise signs cancel cross terms since s_j(x)²=1; uniform pairwise bucket hashes yield the stated variance. Chebyshev bounds a bad row by 1/4 and Hoeffding bounds a majority of bad independent rows by exp(−d/8). Signed collision cancellation and median estimation differ from nonnegative minimum estimation."
+  },
+  {
+    "id": "hyperloglog-cardinality",
+    "source": {
+      "kind": "literature",
+      "citation": "Flajolet, Fusy, Gandouet and Meunier (2007), HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm, DMTCS proceedings AH, 137–156, section 1, equation (3), Theorem 1 and section 4, Figure 3. DOI 10.46298/dmtcs.3545. https://dmtcs.episciences.org/en/articles/3545/download",
+      "url": "https://dmtcs.episciences.org/en/articles/3545/download"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Maxima make repeated identical hashes idempotent and ensure that componentwise maximum of compatible states equals the state obtained from their union. Under independent uniform hashes, each register is empty with probability (1−1/m)^n; the small-range logarithm approximates inversion of the resulting expected empty count. The finite-range logarithm analogously inverts expected hash occupancy approximately. Neither inversion is an exact unbiased estimate. The original practical program uses zero initialization, unlike the analytical presentation; corrections are interpreted as mutually exclusive to avoid overwriting the small-range result. This register-rank mechanism differs from Bloom bit membership."
+  },
+  {
+    "id": "ams-second-frequency-moment",
+    "source": {
+      "kind": "literature",
+      "citation": "Alon, Matias and Szegedy (1999), The space complexity of approximating the frequency moments, Journal of Computer and System Sciences 58(1), 137–147, DOI 10.1006/jcss.1997.1545. Author-hosted 2002 manuscript section 2.2, Theorem 2.2, pp. 6–7: https://www.cs.tau.ac.il/~nogaa/PDFS/amsz4.pdf ; signed updates and explicit confidence parameters independently derived",
+      "url": "https://www.cs.tau.ac.il/~nogaa/PDFS/amsz4.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Expand the second and fourth powers of a signed projection. Terms with odd sign multiplicity vanish by four-wise independence; the fourth moment is Σ f_x⁴+6Σ_{x<y} f_x²f_y². Subtract F₂² to obtain the variance. Chebyshev bounds a block failure by 1/4 with q≥8/ε²; Hoeffding bounds the probability of at least half bad independent blocks by exp(−d/8). Unlike Count Sketch per-key signed bucket queries, the square of a scalar projection estimates a global quadratic functional; the nonlinear aggregation and target differ."
   }
 ]

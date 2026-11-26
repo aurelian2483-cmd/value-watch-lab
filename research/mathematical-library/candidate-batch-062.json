@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "062",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "kmv-bottom-k-cardinality",
+    "name": "Bottom-k hash order-statistic cardinality estimator",
+    "definition": "Keep k smallest distinct uniform hashes; n_hat=(k−1)/U_(k) when k hashes retained.",
+    "variables": "k retained count; U_(k) kth smallest hash; n_hat cardinality estimate",
+    "assumptions": "Ideal independent continuous uniform hashes; k≥2; review pending",
+    "limitations": "Finite hash collisions and estimator variance require review",
+    "failure_conditions": [
+      "Invalid k or unsuitable hashes"
+    ],
+    "computation": "Stage distinct order-statistic retention and estimate for review.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Bar-Yossef et al. (2002), Counting distinct elements in a data stream; review pending."
+    },
+    "application": "General distinct-key count estimation; no empirical benefit claimed.",
+    "required_inputs": "Key stream, hash map and retained count.",
+    "compatible_methods": [
+      "hyperloglog-cardinality"
+    ],
+    "incompatible_methods": [
+      "Treating approximate counts as exact"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "hyperloglog-cardinality"
+      }
+    ],
+    "mechanism_note": "Provisional order-statistic rather than register-rank mechanism."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "062",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "morris-randomized-counter",
+    "name": "Morris exponential randomized counter",
+    "definition": "Initialize C=0; increment C with probability 2^(−C); n_hat=2^C−1.",
+    "variables": "C integer state; n_hat approximate arrival count",
+    "assumptions": "Independent random draws and unit arrivals; review pending",
+    "limitations": "Variance and overflow require review",
+    "failure_conditions": [
+      "Invalid random draws or exponent overflow"
+    ],
+    "computation": "Stage state-dependent probabilistic increments for review.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Morris (1978), Counting large numbers of events in small registers; review pending."
+    },
+    "application": "General approximate event counting; no empirical benefit claimed.",
+    "required_inputs": "Unit arrivals and random number generator.",
+    "compatible_methods": [
+      "vitter-reservoir-algorithm-r"
+    ],
+    "incompatible_methods": [
+      "Treating randomized state as exact count"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "vitter-reservoir-algorithm-r"
+      }
+    ],
+    "mechanism_note": "Provisional state-dependent increment rather than distinct-key estimation."
+  }
+]

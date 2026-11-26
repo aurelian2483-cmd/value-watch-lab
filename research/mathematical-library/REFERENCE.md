@@ -5933,3 +5933,35 @@ Limitations — Two-sided additive error depends on other keys' squared frequenc
 Mechanism — Expand Z_j−f_x as Σ_{y≠x} f_y s_j(x)s_j(y)1{h_j(y)=h_j(x)}. Independent unbiased pairwise signs cancel cross terms since s_j(x)²=1; uniform pairwise bucket hashes yield the stated variance. Chebyshev bounds a bad row by 1/4 and Hoeffding bounds a majority of bad independent rows by exp(−d/8). Signed collision cancellation and median estimation differ from nonnegative minimum estimation.
 
 Source — Charikar, Chen and Farach-Colton (2002), Finding frequent items in data streams, ICALP, LNCS 2380, 693–703, sections 3.2, 4 and 4.2. DOI 10.1007/3-540-45465-9_59. https://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarCF.pdf ; fixed-query signed L2 bound independently derived
+
+## HyperLogLog register cardinality estimator (hyperloglog-cardinality)
+
+> For 32-bit hashes, m=2^b, 4≤b≤16, M[j]←max(M[j],ρ(w)), E=α_m m²/Σ_j 2^(−M[j]); V=#{j:M[j]=0}. Return m ln(m/V) if E≤2.5m and V>0; otherwise E if E≤2^32/30; otherwise −2^32 ln(1−E/2^32) for E<2^32.
+
+b prefix length; m registers; j prefix integer plus one; w remaining 32−b bits; ρ first one position (all-zero suffix gives 33−b); M registers initialized to zero; V zero register count; E raw estimate; α_m normalization.
+
+General distinct-key cardinality estimation; no empirical benefit claimed.
+
+Assumptions — Insertion-only finite stream, stable 32-bit hash, independent uniformly distributed hash words across distinct keys for probabilistic interpretation; repeated keys map identically. Use m=16 to 65536, adequate register width and accurate arithmetic. The original asymptotic error analysis assumes an ideal infinite-bit hash model.
+
+Limitations — Approximate only; finite hash collisions, small-range bias and saturation affect accuracy. Typical asymptotic relative standard error near 1.04/√m for large m in the ideal model is not a deterministic bound or an unconditional confidence interval. Original 32-bit correction is unsuitable once raw E reaches the hash range; no deletion.
+
+Mechanism — Maxima make repeated identical hashes idempotent and ensure that componentwise maximum of compatible states equals the state obtained from their union. Under independent uniform hashes, each register is empty with probability (1−1/m)^n; the small-range logarithm approximates inversion of the resulting expected empty count. The finite-range logarithm analogously inverts expected hash occupancy approximately. Neither inversion is an exact unbiased estimate. The original practical program uses zero initialization, unlike the analytical presentation; corrections are interpreted as mutually exclusive to avoid overwriting the small-range result. This register-rank mechanism differs from Bloom bit membership.
+
+Source — Flajolet, Fusy, Gandouet and Meunier (2007), HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm, DMTCS proceedings AH, 137–156, section 1, equation (3), Theorem 1 and section 4, Figure 3. DOI 10.46298/dmtcs.3545. https://dmtcs.episciences.org/en/articles/3545/download
+
+## AMS random-sign second frequency moment estimator (ams-second-frequency-moment)
+
+> For f_x=Σ updates of key x and F₂=Σ_x f_x², Z_j←Z_j+s_j(x)u; X_j=Z_j²; E[X_j]=F₂; Var(X_j)=2(F₂²−Σ_x f_x⁴). Let A_i be independent averages of q=ceil(8/ε²) squares, and Y=median of odd d such averages with d≥8 ln(1/δ). Then Pr(|Y−F₂|>εF₂)≤δ.
+
+f_x net frequency; F₂ second frequency moment; u signed increment; s_j stable random sign map; Z_j accumulator initialized to zero; X_j square; A_i block average; q block size; d odd block count; ε relative tolerance; δ failure probability.
+
+General estimation of squared frequency norm; no empirical benefit claimed.
+
+Assumptions — Finite key universe, fixed finite signed update sequence independent of random maps, exact arithmetic, unbiased four-wise independent signs within each map, mutually independent maps across and within blocks; 0<ε,δ<1. Signed increments follow by linearity from the original unit-insertion formulation.
+
+Limitations — The mean of squares is unbiased but the median of block averages is not claimed unbiased. Requires bounded arithmetic and storage for sign seeds and accumulators. Fixed-stream probability guarantee does not cover adaptive updates or simultaneous unlimited queries. No recovery of individual frequencies.
+
+Mechanism — Expand the second and fourth powers of a signed projection. Terms with odd sign multiplicity vanish by four-wise independence; the fourth moment is Σ f_x⁴+6Σ_{x<y} f_x²f_y². Subtract F₂² to obtain the variance. Chebyshev bounds a block failure by 1/4 with q≥8/ε²; Hoeffding bounds the probability of at least half bad independent blocks by exp(−d/8). Unlike Count Sketch per-key signed bucket queries, the square of a scalar projection estimates a global quadratic functional; the nonlinear aggregation and target differ.
+
+Source — Alon, Matias and Szegedy (1999), The space complexity of approximating the frequency moments, Journal of Computer and System Sciences 58(1), 137–147, DOI 10.1006/jcss.1997.1545. Author-hosted 2002 manuscript section 2.2, Theorem 2.2, pp. 6–7: https://www.cs.tau.ac.il/~nogaa/PDFS/amsz4.pdf ; signed updates and explicit confidence parameters independently derived
