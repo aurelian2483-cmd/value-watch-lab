@@ -1,0 +1,74 @@
+{
+  "league": "D1",
+  "home": "Bayern Munich",
+  "away": "Werder Bremen",
+  "kickoff_utc": "2026-12-18T19:30:00Z",
+  "espn_event_id": "401884700",
+  "league_name": "Bundesliga",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=20261218&limit=100",
+      "sha256": "0221d0f541cccb26327c30372ffead7df9002f1a26fa5a50ff6a462ef6c7a96b",
+      "observed_at_utc": "2026-11-27T19:40:23.347037Z"
+    },
+    {
+      "url": "https://www.skysports.com/bundesliga-scores-fixtures/2026-12-01",
+      "sha256": "72a2cd51045a92650077772c7ad8913e6836050694a45bc8df37837977a499d8",
+      "observed_at_utc": "2026-11-27T19:41:17.741315Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_D1_PRIOR_SEASON",
+  "prob_home": 0.8303850704540588,
+  "prob_draw": 0.10348721951777762,
+  "prob_away": 0.06612771002816342,
+  "training_basis": {
+    "mode": "PRIOR_SEASON",
+    "home_matches": 17,
+    "away_matches": 17,
+    "league_average_pseudo_matches": 5,
+    "small_sample": false,
+    "training_matches": 306,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2526/D1.csv",
+        "sha256": "618301a4b39918225a8ccc57f0f839d675e1abd92fa3a3ccd9a67acd7c79dd7f",
+        "observed_at_utc": "2026-11-27T19:41:24.015048Z"
+      }
+    ],
+    "training_sha256": "47dbfc7314590f3b8d14a7b8511610932f45d635139cc37b8b00d5b7fce2b83c",
+    "lambda_home": 3.385732323232323,
+    "lambda_away": 0.9423215876178637,
+    "home_venue_inputs": {
+      "hgf": 68,
+      "hga": 19,
+      "hn": 17,
+      "agf": 54,
+      "aga": 17,
+      "an": 17
+    },
+    "away_venue_inputs": {
+      "hgf": 19,
+      "hga": 31,
+      "hn": 17,
+      "agf": 18,
+      "aga": 29,
+      "an": 17
+    },
+    "league_home_mean": 1.7777777777777777,
+    "league_away_mean": 1.457516339869281
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-27T19:42:22.076857Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "47b83a42c040d8c99ff212ea35de7ca219bdef55cf70a3a472ade4626e6fb518"
+}
