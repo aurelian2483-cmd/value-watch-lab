@@ -5,6 +5,7 @@ const SOURCES=[
   {id:'football',label:'Football research',file:'../research-dashboard-data.json',limitHours:24},
   {id:'racing',label:'Racing racecards',file:'../racing-research-data.json',limitHours:6},
   {id:'sports',label:'Tennis + NFL',file:'../other-sports-data.json',limitHours:24},
+  {id:'horse-status',label:'Horse model readiness',file:'../horse-research-status.json',limitHours:1},
   {id:'horse',label:'Racing model audit',file:'../horse-model-data.json',limitHours:6},
   ...extraFeeds.specs.map(spec=>({...spec,file:'../'+spec.filename,limitHours:spec.maxAgeHours}))
 ];
@@ -33,7 +34,7 @@ async function fetchSource(spec,now){
   const data=await response.json();
   if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Invalid data object');
   const context=extraFeeds.context(spec.id,data,now);
-  const stamp=safeDate(context.observedAt ?? data.generated_at_utc);const age=stamp===null?null:now-stamp;
+  const stamp=safeDate(context.observedAt ?? data.generated_at_utc ?? data.report_generated_at_utc);const age=stamp===null?null:now-stamp;
   const gate=data.publication_gate,model=data.model_validation;
   const gateOK=context.gateOK ?? (gate==='BLOCKED'&&model==='UNVALIDATED'&&data.research_only===true);
   const stale=age===null||age<0||age>spec.limitHours*3600000;
@@ -53,6 +54,11 @@ function evaluateSport(spec,feeds,messages){
    details.push('Football manager or transfer changes are not independently verified here');
  }else if(spec.id==='racing'){
    count=ncount(f.races);
+   details.push('Racecards published: '+fmtTime(d.stamp));
+   const runnerTimes=(Array.isArray(f.races)?f.races:[]).map(race=>safeDate(race.runner_observed_at_utc)).filter(Number.isFinite);
+   if(runnerTimes.length) details.push('Latest runner observation: '+fmtTime(Math.max(...runnerTimes))+' · Field coverage separate');
+   const readiness=feeds.find(row=>row.id==='horse-status');
+   details.push(readiness?.ok?'Model readiness snapshot: '+fmtTime(readiness.stamp)+(readiness.stale?' · Stale':' · Current'):'Model readiness snapshot unavailable');
    details.push('Candidate selections: '+niceNumber(ncount(f.candidate_selections)));
    details.push('Qualified selections: '+niceNumber(ncount(f.qualified_selections)));
    const superseded=ncount(f.runner_audit?.superseded_racecards);
@@ -62,6 +68,8 @@ function evaluateSport(spec,feeds,messages){
    if(future?.gateOK && !future.stale){
      details.push('Seven-day provisional cards: '+niceNumber(future.data.provisional_racecards));
      details.push('Scheduled meetings: '+niceNumber(future.data.meeting_fixtures));
+     const unknown=(future.data.days||[]).filter(day=>['SOURCE_DATE_MISMATCH','COLLECTION_FAILED'].includes(day.index_status)&&day.meeting_page_races===0);
+     for(const day of unknown) details.push(day.date+' · Coverage unknown');
    }
    const forecast=feeds.find(x=>x.id==='racing-forecasts')?.data;
    if(forecast){
