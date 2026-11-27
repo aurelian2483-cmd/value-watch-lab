@@ -6413,3 +6413,35 @@ Limitations — O(q+1+k) bit processing and output; integer operation costs depe
 Mechanism — When m=2^k and k>0, the Golomb threshold t=0 and b=k, so all residues have k bits; k=0 gives the same unary-only special case. This is a material restricted variant, not an additional distinct algorithm.
 
 Source — Kiely (2004), Selecting the Golomb Parameter in Rice Coding, JPL IPN Progress Report 42-159, p. 2, https://tda.jpl.nasa.gov/progress_report/42-159/159E.pdf (GPO2 construction, floor quotient verified on page image). Treib (2014), §2.1.3, https://mediatum.ub.tum.de/doc/1190931/939759.pdf (power-of-two restriction). Rice (1979), Some Practical Universal Noiseless Coding Techniques, JPL 79-22, NASA document 19790014634 (metadata reviewed; original full report not reviewed).
+
+## LZ77 sliding-window backreference (lz77-sliding-window-backreference)
+
+> For input x[0..n−1], window W≥1, maximum length L≥2 and position i, define ℓ(d)=max{k: 0≤k≤min(L,n−i), x[i+j]=x[i+j−d] for all 0≤j<k}, for 1≤d≤min(W,i). Choose maximum ℓ(d), breaking ties by smallest d. If a match of length at least 2 exists, emit tagged pair (d,ℓ) and advance i by ℓ; otherwise emit tagged literal x[i] and advance by one. Decoder appends y[|y|−d] repeatedly ℓ times, recalculating the current output length each time.
+
+x input, n length, i current position, W window bound, L length bound, d distance, ℓ match length, y decoded prefix.
+
+General lossless sequence representation; no empirical benefit claimed.
+
+Assumptions — Finite equality-comparable symbols; fixed shared integer W and L; empty initial dictionary; framed tagged tokens and exact expected output length; overlapping references permitted; empty input encodes as no tokens.
+
+Limitations — Direct exhaustive matching takes O(nWL) symbol comparisons as a conservative bound; decoding takes O(n) symbol writes with O(W) history beyond output. Greedy longest matching is not necessarily bit-optimal; this specifies a simplified token parser, not original triple framing or the full DEFLATE format.
+
+Mechanism — Each copied symbol references an already produced symbol because d≥1, including within overlapping copies; induction on decoded length proves lossless reconstruction. Unlike LZ78, no persistent phrase dictionary or phrase-index insertion is required; references are bounded relative positions. This is a distinct sliding-window mechanism.
+
+Source — Deutsch (1996), RFC 1951, DEFLATE Compressed Data Format Specification, §§2 and 3.2.3, https://www.rfc-editor.org/rfc/rfc1951.html (literal and distance/length token model, overlapping copies; this specification generalizes bounds and uses its own greedy rule and framing). Ziv and Lempel (1977), A Universal Algorithm for Sequential Data Compression, IEEE Transactions on Information Theory 23(3), 337–343, DOI 10.1109/TIT.1977.1055714 (metadata and abstract reviewed; original full paper not reviewed).
+
+## Run-length encoding symbol-count pairs (run-length-encoding-symbol-count)
+
+> For a finite sequence x of length n, partition into maximal equal-symbol runs (s_i,c_i), c_i≥1, adjacent s_i≠s_(i+1), and Σ_i c_i=n. Encode the ordered pairs; decode x=s_1 repeated c_1 times followed by subsequent runs in order. Empty input has zero pairs.
+
+s_i run symbol, c_i positive run length, n input length, r number of maximal runs.
+
+General lossless sequence representation; no empirical benefit claimed.
+
+Assumptions — Finite equality-comparable symbols with unambiguous representation; framed pairs and declared output length; exact bounded positive integer counts; adjacent equal-symbol pairs rejected under this canonical unsplit-run convention.
+
+Limitations — Encoding and decoding require O(n) symbol operations and O(1) working words beyond input/output in a bounded-count word model; r≤n for nonempty input. Actual encoded size depends on count and symbol representation, and may expand; fixed-width split-run formats and PackBits are not specified.
+
+Mechanism — Run boundaries occur exactly at unequal adjacent symbols; the unique maximal-run partition is recovered from its ordered symbols and lengths. This is not Golomb coding of integers, nor general LZ77 substring substitution; although long constant runs can be represented using distance-one LZ77 references, the canonical run partition is a different sequence representation.
+
+Source — Kulcu, Algorithms Lecture Notes, Chapter 9: String Matching and Compression, §9.8.1, https://sercankulcu.github.io/files/algorithms/notes/Chapter_09_String_Matching_and_Compression_Lecture_Notes.html (maximal runs and count-symbol pairs). TIFF Image File Format Rev. 4.0, Appendix C, https://cool.culturalheritage.org/bytopic/imaging/std/tiff4.html (historical PackBits repeat packets; not the same wire format).

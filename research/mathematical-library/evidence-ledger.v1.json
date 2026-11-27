@@ -9213,5 +9213,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "When m=2^k and k>0, the Golomb threshold t=0 and b=k, so all residues have k bits; k=0 gives the same unary-only special case. This is a material restricted variant, not an additional distinct algorithm."
+  },
+  {
+    "id": "lz77-sliding-window-backreference",
+    "source": {
+      "kind": "literature",
+      "citation": "Deutsch (1996), RFC 1951, DEFLATE Compressed Data Format Specification, §§2 and 3.2.3, https://www.rfc-editor.org/rfc/rfc1951.html (literal and distance/length token model, overlapping copies; this specification generalizes bounds and uses its own greedy rule and framing). Ziv and Lempel (1977), A Universal Algorithm for Sequential Data Compression, IEEE Transactions on Information Theory 23(3), 337–343, DOI 10.1109/TIT.1977.1055714 (metadata and abstract reviewed; original full paper not reviewed).",
+      "url": "https://www.rfc-editor.org/rfc/rfc1951.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Each copied symbol references an already produced symbol because d≥1, including within overlapping copies; induction on decoded length proves lossless reconstruction. Unlike LZ78, no persistent phrase dictionary or phrase-index insertion is required; references are bounded relative positions. This is a distinct sliding-window mechanism."
+  },
+  {
+    "id": "run-length-encoding-symbol-count",
+    "source": {
+      "kind": "literature",
+      "citation": "Kulcu, Algorithms Lecture Notes, Chapter 9: String Matching and Compression, §9.8.1, https://sercankulcu.github.io/files/algorithms/notes/Chapter_09_String_Matching_and_Compression_Lecture_Notes.html (maximal runs and count-symbol pairs). TIFF Image File Format Rev. 4.0, Appendix C, https://cool.culturalheritage.org/bytopic/imaging/std/tiff4.html (historical PackBits repeat packets; not the same wire format).",
+      "url": "https://sercankulcu.github.io/files/algorithms/notes/Chapter_09_String_Matching_and_Compression_Lecture_Notes.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Run boundaries occur exactly at unequal adjacent symbols; the unique maximal-run partition is recovered from its ordered symbols and lengths. This is not Golomb coding of integers, nor general LZ77 substring substitution; although long constant runs can be represented using distance-one LZ77 references, the canonical run partition is a different sequence representation."
   }
 ]

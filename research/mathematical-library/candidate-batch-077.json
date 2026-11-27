@@ -1,0 +1,198 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "077",
+    "family": "network-science",
+    "classification": "distinct-algorithm",
+    "id": "kahn-topological-sort",
+    "name": "Kahn indegree topological sort",
+    "definition": "For directed graph G=(V,E), initialize d(v)=indegree(v); repeatedly remove a zero-indegree vertex and decrement its successors. If fewer than |V| vertices are removed, report a cycle. Provisional.",
+    "variables": "Provisional; define graph and state variables during review",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify complexity and edge cases",
+    "failure_conditions": [
+      "Invalid graph or unsupported input"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Kahn (1962), Topological sorting of large networks, DOI 10.1145/368996.369025"
+    },
+    "application": "General graph computation; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared algorithm inputs.",
+    "compatible_methods": [
+      "dijkstra-shortest-path"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "dijkstra-shortest-path"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "077",
+    "family": "network-science",
+    "classification": "distinct-algorithm",
+    "id": "tarjan-strongly-connected-components",
+    "name": "Tarjan strongly connected components",
+    "definition": "DFS discovery index idx(v) and lowlink low(v) track reachable active vertices; when low(v)=idx(v), pop the component. Provisional; distinguish on-stack edge updates.",
+    "variables": "Provisional; define graph and state variables during review",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify complexity and edge cases",
+    "failure_conditions": [
+      "Invalid graph or unsupported input"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Tarjan (1972), Depth-first search and linear graph algorithms, DOI 10.1137/0201010"
+    },
+    "application": "General graph computation; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared algorithm inputs.",
+    "compatible_methods": [
+      "kahn-topological-sort"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "kahn-topological-sort"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "077",
+    "family": "operations-research",
+    "classification": "distinct-algorithm",
+    "id": "edmonds-karp-maximum-flow",
+    "name": "Edmonds–Karp shortest augmenting path maximum flow",
+    "definition": "For residual capacity c_f(u,v)>0, use BFS to find a minimum-edge s-t path and augment by δ=min residual capacity on the path. Provisional; verify termination and complexity.",
+    "variables": "Provisional; define graph and state variables during review",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify complexity and edge cases",
+    "failure_conditions": [
+      "Invalid graph or unsupported input"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Edmonds and Karp (1972), Theoretical improvements in algorithmic efficiency for network flow problems, DOI 10.1145/321694.321699"
+    },
+    "application": "General graph computation; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared algorithm inputs.",
+    "compatible_methods": [
+      "dijkstra-shortest-path"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "dijkstra-shortest-path"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "077",
+    "family": "operations-research",
+    "classification": "distinct-algorithm",
+    "id": "hopcroft-karp-bipartite-matching",
+    "name": "Hopcroft–Karp bipartite maximum matching",
+    "definition": "Find shortest augmenting path length ℓ by BFS in the alternating graph and augment along a maximal vertex-disjoint collection of shortest paths. Provisional; verify phase complexity.",
+    "variables": "Provisional; define graph and state variables during review",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify complexity and edge cases",
+    "failure_conditions": [
+      "Invalid graph or unsupported input"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Hopcroft and Karp (1973), An n^5/2 algorithm for maximum matchings in bipartite graphs, DOI 10.1137/0202019"
+    },
+    "application": "General graph computation; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared algorithm inputs.",
+    "compatible_methods": [
+      "edmonds-karp-maximum-flow"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "edmonds-karp-maximum-flow"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  }
+]
