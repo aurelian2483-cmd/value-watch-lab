@@ -13,7 +13,6 @@ import numpy as np
 import replay
 
 HERE = Path(__file__).resolve().parent
-root = Path(sys.argv[1])
 pins = json.loads((HERE/"source-hashes.json").read_text())
 reference = {r["id"]:r for r in replay.rows}
 names = ["benchmark", "venue_normalisation", "davidson_elo", "half_venue_elo"]
@@ -68,14 +67,16 @@ def run(season, games):
             ratings[team] += value
     return output
 
-scores = {}
-for season, sha in pins.items():
-    data = (root/(season+".json")).read_bytes()
-    assert hashlib.sha256(data).hexdigest()==sha
-    games = [g for g in json.loads(data)["matches"] if isinstance(g.get("score"),dict) and len(g["score"].get("ft",[]))==2]
-    completed = run(season,games)
-    assert len({r["id"] for r in completed}) == len(completed)
-    scores[season] = dict(completed=len(games), results=replay.score_arrays(
-        np.array([r["forecasts"] for r in completed]), np.array([r["winner_index"] for r in completed]),
-        [replay.date.fromisoformat(r["date"]).isocalendar()[:2] for r in completed], names, 18))
-(HERE/"six-season-results.json").write_text(json.dumps(scores,indent=2)+"\n")
+if __name__ == "__main__":
+    root = Path(sys.argv[1])
+    scores = {}
+    for season, sha in pins.items():
+        data = (root/(season+".json")).read_bytes()
+        assert hashlib.sha256(data).hexdigest()==sha
+        games = [g for g in json.loads(data)["matches"] if isinstance(g.get("score"),dict) and len(g["score"].get("ft",[]))==2]
+        completed = run(season,games)
+        assert len({r["id"] for r in completed}) == len(completed)
+        scores[season] = dict(completed=len(games), results=replay.score_arrays(
+            np.array([r["forecasts"] for r in completed]), np.array([r["winner_index"] for r in completed]),
+            [replay.date.fromisoformat(r["date"]).isocalendar()[:2] for r in completed], names, 18))
+    (HERE/"six-season-results.json").write_text(json.dumps(scores,indent=2)+"\n")

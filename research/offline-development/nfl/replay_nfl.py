@@ -16,13 +16,13 @@ from replay import score_arrays
 
 PIN = "af16cf3c5848393057fad07feea278f0a85ab7b57ddbfe42ed96b5c80e7d519d"
 NAMES = ["home_elo", "no_home_advantage", "margin_weighted_elo", "equal_margin_home_pool"]
-def load(path):
+def load(path, first_year=2012, last_year=2020, first_scored=2017):
     assert hashlib.sha256(path.read_bytes()).hexdigest() == PIN
     games, counts, seen = [], Counter(), set()
     with path.open(newline="") as f:
         for row in csv.DictReader(f):
             year = int(row["season"])
-            if not 2012<=year<=2020:
+            if not first_year<=year<=last_year:
                 counts["outside_years"] += 1
                 continue
             if row["playoff"]!="0":
@@ -34,10 +34,10 @@ def load(path):
             assert row["neutral"] in {"0","1"}
             diff = int(row["score1"])-int(row["score2"])
             games.append((year,day,h,a,int(row["neutral"]),diff))
-            counts["warmup" if year<2017 else "scored"] += 1
+            counts["warmup" if year<first_scored else "scored"] += 1
     return sorted(games),counts
 
-def run(games):
+def run(games, first_scored=2017, scorer=score_arrays):
     ratings = [defaultdict(float) for _ in range(3)]
     report = {}
     ties, previous = 1,200
@@ -75,11 +75,11 @@ def run(games):
             pending.append((day,changes))
         while pending:
             apply(pending.popleft()[1])
-        if year>=2017:
+        if year>=first_scored:
             p=np.asarray(forecasts)
             assert np.isfinite(p).all() and (p>0).all() and np.allclose(p.sum(axis=2),1)
             report[year]=dict(ties=labels.count(1),calendar_weeks=len(set(weeks)),
-                models=score_arrays(p,np.array(labels),weeks,NAMES,12))
+                models=scorer(p,np.array(labels),weeks,NAMES,12))
     return report
 if __name__=="__main__":
     games,counts=load(Path(sys.argv[1]))

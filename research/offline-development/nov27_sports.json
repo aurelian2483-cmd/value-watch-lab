@@ -1,0 +1,280 @@
+{
+  "tennis": {
+    "2021": {
+      "n": 2489,
+      "start_weeks": 36,
+      "models": {
+        "global_elo": {
+          "log_loss": 0.6304276150456873,
+          "relative_gain_pct": 0.0,
+          "binary_brier": 0.2209276456814694,
+          "mean_probability_minus_frequency": 0.04034468434712101,
+          "ece": 0.04297432480848179,
+          "adjusted_week_bootstrap_interval_pct": [
+            0.0,
+            0.0
+          ]
+        },
+        "inactivity_shrink": {
+          "log_loss": 0.6311396575045365,
+          "relative_gain_pct": -0.11294594999577967,
+          "binary_brier": 0.22129978043619009,
+          "mean_probability_minus_frequency": 0.040022323047834485,
+          "ece": 0.04631405886721445,
+          "adjusted_week_bootstrap_interval_pct": [
+            -0.3512047680815067,
+            0.17974544297910702
+          ]
+        }
+      }
+    },
+    "2022": {
+      "n": 2587,
+      "start_weeks": 36,
+      "models": {
+        "global_elo": {
+          "log_loss": 0.6226152752938066,
+          "relative_gain_pct": 0.0,
+          "binary_brier": 0.21691368728861107,
+          "mean_probability_minus_frequency": 0.019234399397737103,
+          "ece": 0.0212950027339167,
+          "adjusted_week_bootstrap_interval_pct": [
+            0.0,
+            0.0
+          ]
+        },
+        "inactivity_shrink": {
+          "log_loss": 0.6221553836827558,
+          "relative_gain_pct": 0.07386449213498958,
+          "binary_brier": 0.2167526068908267,
+          "mean_probability_minus_frequency": 0.01891945131464432,
+          "ece": 0.020551396841979493,
+          "adjusted_week_bootstrap_interval_pct": [
+            -0.21173725801454532,
+            0.3570929483103728
+          ]
+        }
+      }
+    },
+    "2023": {
+      "n": 2660,
+      "start_weeks": 35,
+      "models": {
+        "global_elo": {
+          "log_loss": 0.6371792945527069,
+          "relative_gain_pct": 0.0,
+          "binary_brier": 0.22326524034466433,
+          "mean_probability_minus_frequency": 0.009930158280879554,
+          "ece": 0.027817447629198796,
+          "adjusted_week_bootstrap_interval_pct": [
+            0.0,
+            0.0
+          ]
+        },
+        "inactivity_shrink": {
+          "log_loss": 0.6365092107189982,
+          "relative_gain_pct": 0.105164094225485,
+          "binary_brier": 0.2230803685760987,
+          "mean_probability_minus_frequency": 0.00980263656232478,
+          "ece": 0.027708112267024396,
+          "adjusted_week_bootstrap_interval_pct": [
+            -0.1237142135972795,
+            0.36307884132707735
+          ]
+        }
+      }
+    },
+    "2024": {
+      "n": 2623,
+      "start_weeks": 35,
+      "models": {
+        "global_elo": {
+          "log_loss": 0.6234733348291231,
+          "relative_gain_pct": 0.0,
+          "binary_brier": 0.21799390156420415,
+          "mean_probability_minus_frequency": 0.021719825205946734,
+          "ece": 0.02425431266195182,
+          "adjusted_week_bootstrap_interval_pct": [
+            0.0,
+            0.0
+          ]
+        },
+        "inactivity_shrink": {
+          "log_loss": 0.6222111167361043,
+          "relative_gain_pct": 0.2024494108260111,
+          "binary_brier": 0.21742955085752463,
+          "mean_probability_minus_frequency": 0.020649104371758917,
+          "ece": 0.022098107688248804,
+          "adjusted_week_bootstrap_interval_pct": [
+            -0.09972275047725895,
+            0.47427341041228027
+          ]
+        }
+      }
+    }
+  },
+  "nrl": {
+    "2024": {
+      "metrics": [
+        {
+          "method": "home_elo",
+          "n": 213,
+          "weeks": 32,
+          "loss": 0.669454223964382,
+          "gain_pct": 0.0,
+          "paired_week_interval_pct": [
+            0.0,
+            0.0
+          ],
+          "brier": 0.4554683065590223,
+          "top_label_ece": 0.03564000893040598,
+          "mean_pred_minus_observed": [
+            -0.01540625302231918,
+            -0.0011207655556192072,
+            0.01652701857793839
+          ]
+        },
+        {
+          "method": "quarter_frequency_pool",
+          "n": 213,
+          "weeks": 32,
+          "loss": 0.6713729183147,
+          "gain_pct": -0.2866057575909853,
+          "paired_week_interval_pct": [
+            -2.297207104554564,
+            1.765145143598762
+          ],
+          "brier": 0.457316539059164,
+          "top_label_ece": 0.019141017099113918,
+          "mean_pred_minus_observed": [
+            -0.01695370661371204,
+            -0.0011207655556192072,
+            0.018074472169331276
+          ]
+        }
+      ],
+      "paired_calendar_week_intervals_pct": {
+        "1": [
+          -2.256132118059159,
+          1.7341662322984652
+        ],
+        "2": [
+          -2.1765119093413925,
+          1.6489767735200678
+        ],
+        "4": [
+          -2.136532213037165,
+          1.4873750038005473
+        ]
+      }
+    },
+    "2025": {
+      "metrics": [
+        {
+          "method": "home_elo",
+          "n": 213,
+          "weeks": 32,
+          "loss": 0.6805222725834683,
+          "gain_pct": 0.0,
+          "paired_week_interval_pct": [
+            0.0,
+            0.0
+          ],
+          "brier": 0.4663038829526936,
+          "top_label_ece": 0.046601608479912245,
+          "mean_pred_minus_observed": [
+            0.00857186372096399,
+            -0.0010801520431632213,
+            -0.007491711677800757
+          ]
+        },
+        {
+          "method": "quarter_frequency_pool",
+          "n": 213,
+          "weeks": 32,
+          "loss": 0.6827375254297091,
+          "gain_pct": -0.32552246054065037,
+          "paired_week_interval_pct": [
+            -1.8778670301676712,
+            1.0765132145838412
+          ],
+          "brier": 0.4682718296078519,
+          "top_label_ece": 0.046064059233370105,
+          "mean_pred_minus_observed": [
+            0.006862772329458379,
+            -0.0010801520431632213,
+            -0.005782620286295158
+          ]
+        }
+      ],
+      "paired_calendar_week_intervals_pct": {
+        "1": [
+          -1.8865012788429254,
+          1.0944876173047688
+        ],
+        "2": [
+          -2.0602376421258795,
+          1.142675957730375
+        ],
+        "4": [
+          -2.202612057660935,
+          1.2777069123909133
+        ]
+      }
+    },
+    "2026": {
+      "metrics": [
+        {
+          "method": "home_elo",
+          "n": 114,
+          "weeks": 17,
+          "loss": 0.6639532689459109,
+          "gain_pct": 0.0,
+          "paired_week_interval_pct": [
+            0.0,
+            0.0
+          ],
+          "brier": 0.4683392030854059,
+          "top_label_ece": 0.040903003321624706,
+          "mean_pred_minus_observed": [
+            0.010706236446796497,
+            0.0035188888915362662,
+            -0.014225125338332749
+          ]
+        },
+        {
+          "method": "quarter_frequency_pool",
+          "n": 114,
+          "weeks": 17,
+          "loss": 0.6651129811290756,
+          "gain_pct": -0.17466774205447955,
+          "paired_week_interval_pct": [
+            -2.07375578866811,
+            1.6100915768790012
+          ],
+          "brier": 0.46922053717581075,
+          "top_label_ece": 0.0436803233845318,
+          "mean_pred_minus_observed": [
+            0.007600776916131415,
+            0.0035188888915362662,
+            -0.011119665807667656
+          ]
+        }
+      ],
+      "paired_calendar_week_intervals_pct": {
+        "1": [
+          -2.088709689261149,
+          1.5950904056561748
+        ],
+        "2": [
+          -1.9399908940478532,
+          1.2755920274595827
+        ],
+        "4": [
+          -1.9587105896403945,
+          1.3351059057134538
+        ]
+      }
+    }
+  }
+}

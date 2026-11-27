@@ -71,13 +71,19 @@ def rating_updates(history, ratings, appearances):
     for pair,delta in changes.items():
         ratings[pair] += delta
 
-def predict(rows):
+def predict(rows, inactivity=False):
+    last_observed_start = {}
     ratings, appearances, pending = defaultdict(float), Counter(), deque()
     scored = defaultdict(list)
     for day,batch in groupby(rows,key=lambda r:r[0]):
         group = list(batch)
         while pending and pending[0][0]+timedelta(days=42) <= day:
-            rating_updates(pending.popleft()[1], ratings, appearances)
+            start, prior = pending.popleft()
+            rating_updates(prior, ratings, appearances)
+            if inactivity:
+                for r in prior:
+                    for player in r[3:5]:
+                        last_observed_start[player] = start
         for _,event,surface,w,l in group:
             if day.year < 2021:
                 continue
@@ -85,11 +91,17 @@ def predict(rows):
             g,s = [win_prob(ratings[k,first]-ratings[k,second]) for k in ["all",surface]]
             n = min(appearances[surface,first],appearances[surface,second])
             share = n/(n+20)
-            scored[day.year].append((day, first==w, [g,s,(g+s)/2,(1-share)*g+share*s]))
+            probs = [g,s,(g+s)/2,(1-share)*g+share*s]
+            if inactivity:
+                def adjusted(player):
+                    idle = (day - last_observed_start.get(player,day)).days
+                    return ratings["all",player] * 2**(-max(idle-90,0)/180)
+                probs = [g,win_prob(adjusted(first)-adjusted(second))]
+            scored[day.year].append((day, first==w, probs))
         pending.append((day,group))
     return scored
 
-def metrics(rows, year):
+def metrics(rows, year, models=MODELS, comparisons=12):
     p = np.array([r[2] for r in rows])
     y = np.array([r[1] for r in rows])[:,None]
     loss = -np.log(np.where(y,p,1-p))
@@ -101,9 +113,9 @@ def metrics(rows, year):
     draws = np.random.default_rng(20261126+year).integers(len(clusters),size=(20000,len(clusters)))
     totals = clusters[draws].sum(axis=1)
     relative = 100*(1-totals/totals[:,[0]])
-    tail = .025/(3*4)
+    tail = .025/comparisons
     out = {}
-    for j,name in enumerate(MODELS):
+    for j,name in enumerate(models):
         residual = p[:,j]-y[:,0]
         bins = np.minimum((10*p[:,j]).astype(int),9)
         out[name] = dict(log_loss=loss[:,j].mean(), relative_gain_pct=100*(1-loss[:,j].sum()/loss[:,0].sum()),
