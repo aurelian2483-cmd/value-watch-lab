@@ -486,8 +486,11 @@
       make(quickSignals,'span','Sky Bet · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK','compact-signal-pill live-price-pill');
     }
     if (event.sport === 'football') {
-      const probabilities = event.choices.map(choice => model?.outcomes.find(outcome => outcome.id === choice.id)?.probability ?? choice.probability);
-      const preview = window.ResearchAudit.footballMarginPreview(probabilities);
+      const comparison = event.seasonComparison;
+      const probabilities = comparison
+        ? [comparison.prob_home, comparison.prob_draw, comparison.prob_away]
+        : event.choices.map(choice => choice.probability);
+      const preview = window.ResearchAudit.footballMarginPreview(probabilities, comparison?.method ?? event.model?.name);
       if (preview) make(quickSignals, 'span', preview, 'compact-evidence-note');
     }
     if (marketRow && (model || hasModelEstimate)) make(quickSignals, 'span', 'Model unvalidated', 'compact-evidence-note');

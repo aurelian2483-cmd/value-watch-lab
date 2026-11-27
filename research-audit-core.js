@@ -64,12 +64,15 @@ function normalizeFootballHistory(document,now=Date.now()){
     return 'Model estimate';
   }
 
-function footballMarginPreview(probabilities) {
+function footballMarginPreview(probabilities, modelName) {
+ if (modelName !== 'CURRENT_SEASON_POISSON_COMPARISON_V1' &&
+     modelName !== 'POISSON_CURRENT_SEASON_SHRINKAGE_V1' &&
+     !/^LEAGUE_POISSON_SHRINKAGE_V1_[A-Z0-9]+_CURRENT_SEASON_SMALL_SAMPLE$/.test(modelName || '')) return '';
  if (probabilities.length !== 3 || !probabilities.every(p => Number.isFinite(p) && p >= 0 && p <= 1) ||
      Math.abs(probabilities.reduce((a, b) => a + b, 0) - 1) > 1e-8) return '';
  const [first, second] = [...probabilities].sort((a, b) => b - a);
  const gap = first - second;
- return '10-point preview · ' + (gap + 1e-12 >= 0.10 ? 'Research lead' : 'Watch') +
+ return 'Current-season 10-point preview · ' + (gap + 1e-12 >= 0.10 ? 'Research lead' : 'Watch') +
      ' · ' + (gap * 100).toFixed(2) + ' pp gap';
 }
 return {footballMarginPreview,footballEstimateBasis,freshness,validateOtherIdentity,validateOtherEvent,validateOtherForecast,normalizeFootballResults,normalizeFootballHistory};
