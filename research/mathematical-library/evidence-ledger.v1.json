@@ -9121,5 +9121,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "The state is an ordering of fixed symbols by recency, rather than an expanding phrase dictionary or a global rotation permutation. Rank emission plus deterministic list update is invertible with shared state, and can be composed with the Burrows–Wheeler transform without being equivalent to it."
+  },
+  {
+    "id": "elias-gamma-positive-integer-code",
+    "source": {
+      "kind": "literature",
+      "citation": "Elias (1975), Universal codeword sets and representations of the integers, IEEE Transactions on Information Theory 21(2), 194–203, DOI 10.1109/TIT.1975.1055349 (bibliographic metadata checked; original full text not reviewed). CMU 15-853 Algorithms in the Real World, Data compression continued, slide 43, https://www.cs.cmu.edu/~15853-f19/slides/compress3.pdf (uses opposite unary polarity; only the unary prefix is complemented here).",
+      "url": "https://www.cs.cmu.edu/~15853-f19/slides/compress3.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The unary header uniquely specifies the number of remaining binary bits, so different header lengths disagree before either can be a prefix, and equal header lengths imply equal total codeword length. Unlike a fitted Huffman tree, no symbol probability table or finite alphabet tree is needed."
+  },
+  {
+    "id": "elias-delta-positive-integer-code",
+    "source": {
+      "kind": "literature",
+      "citation": "Elias (1975), Universal codeword sets and representations of the integers, IEEE Transactions on Information Theory 21(2), 194–203, DOI 10.1109/TIT.1975.1055349 (bibliographic metadata checked; original full text not reviewed). Mansouri (2022), University of Southern Maine, Introduction to Information Retrieval, Session 5, slide 35, https://cs.usm.maine.edu/~behrooz.mansouri/courses/Slides_IR_22/Introduction%20to%20Information%20Retrieval%20--%20Session%205%20-%20Indexing%20%26%20Ranking.pdf (gamma-coded length followed by binary remainder; here leading-zero gamma convention).",
+      "url": "https://cs.usm.maine.edu/~behrooz.mansouri/courses/Slides_IR_22/Introduction%20to%20Information%20Retrieval%20--%20Session%205%20-%20Indexing%20%26%20Ranking.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Gamma's unary length header is replaced by a gamma code for L, while the binary remainder is unchanged. Prefix-freeness follows from gamma header prefix-freeness and the fixed remaining length once L is decoded. This nested header is a material variant of gamma rather than an independent algorithm count."
   }
 ]

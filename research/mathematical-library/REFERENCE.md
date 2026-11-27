@@ -6349,3 +6349,35 @@ Limitations — Simple list representation uses O(nK) worst-case time and O(K) w
 Mechanism — The state is an ordering of fixed symbols by recency, rather than an expanding phrase dictionary or a global rotation permutation. Rank emission plus deterministic list update is invertible with shared state, and can be composed with the Burrows–Wheeler transform without being equivalent to it.
 
 Source — Bentley, Sleator, Tarjan and Wei (1986), A Locally Adaptive Data Compression Scheme, Communications of the ACM 29(4), 320–330, p. 321, sections 2–3. DOI 10.1145/5684.5688. https://www.cs.cmu.edu/~sleator/papers/adaptive-data-compression.pdf ; fixed shared alphabet and zero-based ranks are an explicit restricted convention, not the full new-word or integer coding scheme.
+
+## Elias gamma positive integer code (elias-gamma-positive-integer-code)
+
+> For positive integer n let L=bitlength(n)=⌊log₂ n⌋+1 and B(n) be its canonical binary digits. G(n)=0^(L−1)⊕B(n); |G(n)|=2L−1. If k leading zeros precede the first one, read k further bits of unsigned value v (zero if empty) and recover n=2^k+v.
+
+n positive integer, L binary length, B canonical binary representation, ⊕ concatenation, k leading-zero count, v suffix value.
+
+General integer code; no empirical benefit claimed.
+
+Assumptions — Exact positive integers, leading-zero unary convention (zero bits followed by a one), known bitstream end or declared number of codewords, exact binary arithmetic; n=1 encodes as 1.
+
+Limitations — O(L) emitted or consumed bits and O(L) output representation; arithmetic costs depend on integer implementation. Not necessarily optimal for a specified distribution, no error correction; byte padding is not part of the code and must be separately framed.
+
+Mechanism — The unary header uniquely specifies the number of remaining binary bits, so different header lengths disagree before either can be a prefix, and equal header lengths imply equal total codeword length. Unlike a fitted Huffman tree, no symbol probability table or finite alphabet tree is needed.
+
+Source — Elias (1975), Universal codeword sets and representations of the integers, IEEE Transactions on Information Theory 21(2), 194–203, DOI 10.1109/TIT.1975.1055349 (bibliographic metadata checked; original full text not reviewed). CMU 15-853 Algorithms in the Real World, Data compression continued, slide 43, https://www.cs.cmu.edu/~15853-f19/slides/compress3.pdf (uses opposite unary polarity; only the unary prefix is complemented here).
+
+## Elias delta positive integer code (elias-delta-positive-integer-code)
+
+> For n≥1 let L=bitlength(n), B(n) canonical binary digits, and G the registered leading-zero gamma code. D(n)=G(L)⊕B(n)[1:L]; |D(n)|=L+2⌊log₂ L⌋. Decode L from G, then read L−1 suffix bits of unsigned value v and recover n=2^(L−1)+v.
+
+n positive integer, L binary length, G gamma code, B canonical binary digits, ⊕ concatenation, v suffix value; slice indices zero-based, end exclusive.
+
+General integer code; no empirical benefit claimed.
+
+Assumptions — Exact positive integers, shared leading-zero gamma convention, known bitstream end or declared codeword count, no implicit padding; n=1 encodes as 1.
+
+Limitations — O(L+log L) emitted or consumed bits; integer arithmetic and storage depend on representation. Delta may be longer than gamma for small values; no universal finite-stream compression guarantee or error correction.
+
+Mechanism — Gamma's unary length header is replaced by a gamma code for L, while the binary remainder is unchanged. Prefix-freeness follows from gamma header prefix-freeness and the fixed remaining length once L is decoded. This nested header is a material variant of gamma rather than an independent algorithm count.
+
+Source — Elias (1975), Universal codeword sets and representations of the integers, IEEE Transactions on Information Theory 21(2), 194–203, DOI 10.1109/TIT.1975.1055349 (bibliographic metadata checked; original full text not reviewed). Mansouri (2022), University of Southern Maine, Introduction to Information Retrieval, Session 5, slide 35, https://cs.usm.maine.edu/~behrooz.mansouri/courses/Slides_IR_22/Introduction%20to%20Information%20Retrieval%20--%20Session%205%20-%20Indexing%20%26%20Ranking.pdf (gamma-coded length followed by binary remainder; here leading-zero gamma convention).

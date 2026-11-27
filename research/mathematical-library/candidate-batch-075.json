@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "075",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "golomb-truncated-binary-code",
+    "name": "Golomb truncated-binary code",
+    "definition": "For n≥0, m≥1 set q=⌊n/m⌋, r=n mod m, b=⌈log₂ m⌉, t=2^b−m. Encode q in unary; encode r in b−1 bits if r<t, otherwise encode r+t in b bits. Provisional; verify m=1 separately.",
+    "variables": "n nonnegative integer, m divisor, q quotient, r remainder, b bit length bound, t threshold",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input or malformed code"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Golomb (1966), Run-length encodings; verify truncated binary convention."
+    },
+    "application": "General integer code; no empirical benefit claimed.",
+    "required_inputs": "Nonnegative integer, shared divisor or width, or framed binary code.",
+    "compatible_methods": [
+      "elias-gamma-positive-integer-code"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "elias-gamma-positive-integer-code"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "075",
+    "family": "data-structures",
+    "classification": "model-variant",
+    "id": "rice-power-two-golomb-code",
+    "name": "Rice power-of-two Golomb code",
+    "definition": "For n≥0, k≥0 let m=2^k, q=⌊n/m⌋, r=n mod m. Encode q in unary and r in k bits. Provisional; review framing.",
+    "variables": "n nonnegative integer, k remainder width, m divisor, q quotient, r remainder",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input or malformed code"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Rice (1979), Some practical universal noiseless coding techniques; verify power-of-two convention."
+    },
+    "application": "General integer code; no empirical benefit claimed.",
+    "required_inputs": "Nonnegative integer, shared divisor or width, or framed binary code.",
+    "compatible_methods": [
+      "golomb-truncated-binary-code"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "golomb-truncated-binary-code"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  }
+]

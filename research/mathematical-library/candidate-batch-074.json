@@ -20,17 +20,20 @@
     "classification": "distinct-algorithm",
     "id": "elias-gamma-positive-integer-code",
     "name": "Elias gamma positive integer code",
-    "definition": "For integer n≥1 let l=⌊log₂ n⌋; encode G(n)=0^l concatenated with the (l+1)-bit binary representation of n. Provisional; verify framing and decoding.",
-    "variables": "n positive integer, l binary length minus one",
-    "assumptions": "Provisional; independent source and mathematical review pending",
-    "limitations": "Provisional; verify complexity and edge cases",
+    "definition": "For positive integer n let L=bitlength(n)=⌊log₂ n⌋+1 and B(n) be its canonical binary digits. G(n)=0^(L−1)⊕B(n); |G(n)|=2L−1. If k leading zeros precede the first one, read k further bits of unsigned value v (zero if empty) and recover n=2^k+v.",
+    "variables": "n positive integer, L binary length, B canonical binary representation, ⊕ concatenation, k leading-zero count, v suffix value",
+    "assumptions": "Exact positive integers, leading-zero unary convention (zero bits followed by a one), known bitstream end or declared number of codewords, exact binary arithmetic; n=1 encodes as 1",
+    "limitations": "O(L) emitted or consumed bits and O(L) output representation; arithmetic costs depend on integer implementation. Not necessarily optimal for a specified distribution, no error correction; byte padding is not part of the code and must be separately framed",
     "failure_conditions": [
-      "Invalid input or malformed code"
+      "Nonpositive or noninteger input",
+      "Nonbinary input, missing unary terminator or truncated suffix, unexpected trailing bits under single-codeword framing",
+      "Declared resource bound exceeded"
     ],
-    "computation": "Provisional specification; verify before admission.",
+    "computation": "Compute binary length without floating-point logarithms; prefix L−1 zero bits to canonical digits. Decode by counting zero bits, checking availability of the suffix and reconstructing the leading one plus suffix. For a sequence repeat until the exact framed end; reject truncated codeword.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Elias (1975), Universal codeword sets and representations of the integers; verify gamma convention."
+      "citation": "Elias (1975), Universal codeword sets and representations of the integers, IEEE Transactions on Information Theory 21(2), 194–203, DOI 10.1109/TIT.1975.1055349 (bibliographic metadata checked; original full text not reviewed). CMU 15-853 Algorithms in the Real World, Data compression continued, slide 43, https://www.cs.cmu.edu/~15853-f19/slides/compress3.pdf (uses opposite unary polarity; only the unary prefix is complemented here).",
+      "url": "https://www.cs.cmu.edu/~15853-f19/slides/compress3.pdf"
     },
     "application": "General integer code; no empirical benefit claimed.",
     "required_inputs": "Positive integer or framed binary code.",
@@ -38,7 +41,8 @@
       "move-to-front-rank-transform"
     ],
     "incompatible_methods": [
-      "Treating provisional specification as validated implementation"
+      "Treating arbitrary byte padding as codewords",
+      "Mixing unary polarity conventions"
     ],
     "relationships": [
       {
@@ -46,7 +50,7 @@
         "target": "move-to-front-rank-transform"
       }
     ],
-    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+    "mechanism_note": "The unary header uniquely specifies the number of remaining binary bits, so different header lengths disagree before either can be a prefix, and equal header lengths imply equal total codeword length. Unlike a fitted Huffman tree, no symbol probability table or finite alphabet tree is needed."
   },
   {
     "profile": "multifeature",
@@ -69,17 +73,20 @@
     "classification": "model-variant",
     "id": "elias-delta-positive-integer-code",
     "name": "Elias delta positive integer code",
-    "definition": "For integer n≥1 let L=⌊log₂ n⌋+1; encode D(n)=G(L) concatenated with the final L−1 binary digits of n. Provisional; verify framing and decoding.",
-    "variables": "n positive integer, L binary length, G gamma code",
-    "assumptions": "Provisional; independent source and mathematical review pending",
-    "limitations": "Provisional; verify complexity and edge cases",
+    "definition": "For n≥1 let L=bitlength(n), B(n) canonical binary digits, and G the registered leading-zero gamma code. D(n)=G(L)⊕B(n)[1:L]; |D(n)|=L+2⌊log₂ L⌋. Decode L from G, then read L−1 suffix bits of unsigned value v and recover n=2^(L−1)+v.",
+    "variables": "n positive integer, L binary length, G gamma code, B canonical binary digits, ⊕ concatenation, v suffix value; slice indices zero-based, end exclusive",
+    "assumptions": "Exact positive integers, shared leading-zero gamma convention, known bitstream end or declared codeword count, no implicit padding; n=1 encodes as 1",
+    "limitations": "O(L+log L) emitted or consumed bits; integer arithmetic and storage depend on representation. Delta may be longer than gamma for small values; no universal finite-stream compression guarantee or error correction",
     "failure_conditions": [
-      "Invalid input or malformed code"
+      "Nonpositive or noninteger input",
+      "Malformed or truncated gamma header or truncated binary suffix; unexpected trailing bits under single-codeword framing",
+      "Decoded length exceeds remaining bits or declared resource bound"
     ],
-    "computation": "Provisional specification; verify before admission.",
+    "computation": "Obtain exact bit length L, gamma encode L and append all but the leading binary one of n. Parse gamma header, validate decoded length against available input and resource limits before allocating, then reconstruct n with the implicit leading one.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Elias (1975), Universal codeword sets and representations of the integers; verify delta convention."
+      "citation": "Elias (1975), Universal codeword sets and representations of the integers, IEEE Transactions on Information Theory 21(2), 194–203, DOI 10.1109/TIT.1975.1055349 (bibliographic metadata checked; original full text not reviewed). Mansouri (2022), University of Southern Maine, Introduction to Information Retrieval, Session 5, slide 35, https://cs.usm.maine.edu/~behrooz.mansouri/courses/Slides_IR_22/Introduction%20to%20Information%20Retrieval%20--%20Session%205%20-%20Indexing%20%26%20Ranking.pdf (gamma-coded length followed by binary remainder; here leading-zero gamma convention).",
+      "url": "https://cs.usm.maine.edu/~behrooz.mansouri/courses/Slides_IR_22/Introduction%20to%20Information%20Retrieval%20--%20Session%205%20-%20Indexing%20%26%20Ranking.pdf"
     },
     "application": "General integer code; no empirical benefit claimed.",
     "required_inputs": "Positive integer or framed binary code.",
@@ -87,7 +94,8 @@
       "elias-gamma-positive-integer-code"
     ],
     "incompatible_methods": [
-      "Treating provisional specification as validated implementation"
+      "Allocating from untrusted decoded length without bounds",
+      "Mixing gamma conventions"
     ],
     "relationships": [
       {
@@ -95,6 +103,6 @@
         "target": "elias-gamma-positive-integer-code"
       }
     ],
-    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+    "mechanism_note": "Gamma's unary length header is replaced by a gamma code for L, while the binary remainder is unchanged. Prefix-freeness follows from gamma header prefix-freeness and the fixed remaining length once L is decoded. This nested header is a material variant of gamma rather than an independent algorithm count."
   }
 ]
