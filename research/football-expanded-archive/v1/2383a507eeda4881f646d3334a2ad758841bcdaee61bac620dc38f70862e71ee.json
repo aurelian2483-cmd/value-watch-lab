@@ -1,0 +1,74 @@
+{
+  "league": "E1",
+  "home": "West Bromwich Albion",
+  "away": "Sheffield United",
+  "kickoff_utc": "2026-12-18T20:00:00Z",
+  "espn_event_id": "401880078",
+  "league_name": "Championship",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=20261218&limit=100",
+      "sha256": "f7292bf3b7d06c90229a24e4d4d1171b3646bf47bf79405aabf60cd47374fc33",
+      "observed_at_utc": "2026-11-27T21:23:34.013138Z"
+    },
+    {
+      "url": "https://www.skysports.com/championship-scores-fixtures/2026-12-01",
+      "sha256": "5f4cc360db99d0e5d2d78362ca9c1307d3ebe1625179b2f8d37387e0b7df46d0",
+      "observed_at_utc": "2026-11-27T21:23:37.846135Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_E1_PRIOR_SEASON",
+  "prob_home": 0.40025328370003294,
+  "prob_draw": 0.27602632362388996,
+  "prob_away": 0.32372039267607705,
+  "training_basis": {
+    "mode": "PRIOR_SEASON",
+    "home_matches": 23,
+    "away_matches": 23,
+    "league_average_pseudo_matches": 5,
+    "small_sample": false,
+    "training_matches": 552,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2526/E1.csv",
+        "sha256": "98954c319950f19158624b17a154ef1c56eb7b8d169ef317f28f06d11d0b9a74",
+        "observed_at_utc": "2026-11-27T21:23:40.578186Z"
+      }
+    ],
+    "training_sha256": "315a67cc752ded284f16fd6be5c4e2d5d90d6887654eb9afdd9ec2a75f349ed1",
+    "lambda_home": 1.2753039473354448,
+    "lambda_away": 1.1175642668394588,
+    "home_venue_inputs": {
+      "hgf": 28,
+      "hga": 25,
+      "hn": 23,
+      "agf": 20,
+      "aga": 33,
+      "an": 23
+    },
+    "away_venue_inputs": {
+      "hgf": 38,
+      "hga": 33,
+      "hn": 23,
+      "agf": 28,
+      "aga": 33,
+      "an": 23
+    },
+    "league_home_mean": 1.4003623188405796,
+    "league_away_mean": 1.2047101449275361
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-27T21:25:08.531384Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "2383a507eeda4881f646d3334a2ad758841bcdaee61bac620dc38f70862e71ee"
+}
