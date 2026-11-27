@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-27T07:02:56.810851+00:00",
+  "generated_at_utc": "2026-11-27T12:37:16.236104+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -9,8 +9,8 @@
   "secondary_source_audit": {
     "provider": "The Racing API",
     "connection_status": "CONNECTED",
-    "schedule_matches": 38,
-    "result_rows_cached": 860,
+    "schedule_matches": 32,
+    "result_rows_cached": 864,
     "errors": [],
     "verification_scope": "Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established."
   },
@@ -20,21 +20,50 @@
     "races_received": 38,
     "races_enriched": 38,
     "superseded_racecards": [],
-    "active_runner_observations": 337,
-    "non_runner_observations": 7,
-    "pre_event_races": 38,
+    "active_runner_observations": 321,
+    "non_runner_observations": 23,
+    "pre_event_races": 32,
     "errors": [],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED",
-    "collection_completed_at_utc": "2026-11-27T07:02:53.007732+00:00"
+    "collection_completed_at_utc": "2026-11-27T12:37:12.906962+00:00"
   },
   "race_count": 38,
   "reference_baseline_audit": {
     "status": "REFERENCE_BENCHMARKS_ONLY",
     "model": "EQUAL_CHANCE_REFERENCE_V1",
-    "available_references": 38,
-    "new_archived_records": 7,
-    "skipped": [],
+    "available_references": 31,
+    "new_archived_records": 9,
+    "skipped": [
+      {
+        "race_id": "951087",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "950470",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "950477",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "950484",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "950471",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "950478",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "950485",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      }
+    ],
     "reference_only": true,
     "publication_gate": "BLOCKED",
     "independent_schedule_verification": "NOT_CONNECTED",
@@ -2711,7 +2740,7 @@
       "race_name": "Killowen Contracts Handicap",
       "startUTC": "2026-11-27T19:00:00+00:00",
       "source": "https://www.sportinglife.com/racing/racecards/2026-11-27/dundalk/racecard/950754/killowen-contracts-handicap",
-      "generated_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "generated_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "parameters": {
         "minimum_form_runs": 3,
         "maximum_form_runs": 6,
@@ -2723,67 +2752,6 @@
         "maximum_runner_age_minutes": 30
       },
       "runners": [
-        {
-          "horse_id": "1103227",
-          "name": "Clonmacash",
-          "form_features": {
-            "usable_runs": 6,
-            "weighted_finish_percentile": 0.5285676696434712,
-            "shrunk_form_strength": 0.5103250429022254,
-            "history": [
-              {
-                "race_id": "941455",
-                "date": "2026-09-30",
-                "position": 6,
-                "field_size": 6,
-                "finish_percentile": 0.0,
-                "recency_weight": 0.6397390950731328
-              },
-              {
-                "race_id": "939535",
-                "date": "2026-09-21",
-                "position": 6,
-                "field_size": 17,
-                "finish_percentile": 0.6875,
-                "recency_weight": 0.5968976816791352
-              },
-              {
-                "race_id": "934619",
-                "date": "2026-08-22",
-                "position": 1,
-                "field_size": 27,
-                "finish_percentile": 1.0,
-                "recency_weight": 0.47375800390741934
-              },
-              {
-                "race_id": "931250",
-                "date": "2026-08-03",
-                "position": 5,
-                "field_size": 11,
-                "finish_percentile": 0.6,
-                "recency_weight": 0.40926610976499084
-              },
-              {
-                "race_id": "928720",
-                "date": "2026-07-20",
-                "position": 7,
-                "field_size": 9,
-                "finish_percentile": 0.25,
-                "recency_weight": 0.3674336230688997
-              },
-              {
-                "race_id": "927443",
-                "date": "2026-07-11",
-                "position": 3,
-                "field_size": 11,
-                "finish_percentile": 0.8,
-                "recency_weight": 0.3428276925231832
-              }
-            ]
-          },
-          "model_probability": 0.06361868395292002,
-          "equal_chance_reference": 0.0625
-        },
         {
           "horse_id": "1107185",
           "name": "I'm Spartacus",
@@ -2842,8 +2810,8 @@
               }
             ]
           },
-          "model_probability": 0.05711054966379536,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.06530182940699052,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1109784",
@@ -2903,8 +2871,8 @@
               }
             ]
           },
-          "model_probability": 0.061352767685483915,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.07015250234203291,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1141988",
@@ -2964,8 +2932,8 @@
               }
             ]
           },
-          "model_probability": 0.06568570792993969,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.07510690965101224,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1151118",
@@ -3025,8 +2993,8 @@
               }
             ]
           },
-          "model_probability": 0.07964070020473893,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.09106344535710283,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1155188",
@@ -3086,8 +3054,8 @@
               }
             ]
           },
-          "model_probability": 0.07813775070244294,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.08934493008130831,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1183708",
@@ -3147,8 +3115,8 @@
               }
             ]
           },
-          "model_probability": 0.0492764377587334,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.05634408268258906,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1185687",
@@ -3208,8 +3176,8 @@
               }
             ]
           },
-          "model_probability": 0.06017637298743005,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.0688073791320509,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1185931",
@@ -3269,8 +3237,8 @@
               }
             ]
           },
-          "model_probability": 0.0533098791512726,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.060956034472394074,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1193620",
@@ -3322,8 +3290,8 @@
               }
             ]
           },
-          "model_probability": 0.072106993427016,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.08244919041301102,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1193915",
@@ -3359,69 +3327,8 @@
               }
             ]
           },
-          "model_probability": 0.06436346463310497,
-          "equal_chance_reference": 0.0625
-        },
-        {
-          "horse_id": "1201038",
-          "name": "Fox In Flight",
-          "form_features": {
-            "usable_runs": 6,
-            "weighted_finish_percentile": 0.4889401864407912,
-            "shrunk_form_strength": 0.4959730460527348,
-            "history": [
-              {
-                "race_id": "946913",
-                "date": "2026-11-04",
-                "position": 2,
-                "field_size": 9,
-                "finish_percentile": 0.875,
-                "recency_weight": 0.837664503225156
-              },
-              {
-                "race_id": "937409",
-                "date": "2026-09-09",
-                "position": 12,
-                "field_size": 22,
-                "finish_percentile": 0.47619047619047616,
-                "recency_weight": 0.5442050397551315
-              },
-              {
-                "race_id": "933432",
-                "date": "2026-08-15",
-                "position": 11,
-                "field_size": 12,
-                "finish_percentile": 0.09090909090909091,
-                "recency_weight": 0.4488932925326847
-              },
-              {
-                "race_id": "929678",
-                "date": "2026-07-24",
-                "position": 9,
-                "field_size": 11,
-                "finish_percentile": 0.2,
-                "recency_weight": 0.37892914162759955
-              },
-              {
-                "race_id": "927436",
-                "date": "2026-07-12",
-                "position": 5,
-                "field_size": 9,
-                "finish_percentile": 0.5,
-                "recency_weight": 0.345478219991944
-              },
-              {
-                "race_id": "924877",
-                "date": "2026-06-27",
-                "position": 9,
-                "field_size": 14,
-                "finish_percentile": 0.38461538461538464,
-                "recency_weight": 0.3077861033362291
-              }
-            ]
-          },
-          "model_probability": 0.06181853300685927,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.07359501899836152,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1202390",
@@ -3481,8 +3388,8 @@
               }
             ]
           },
-          "model_probability": 0.048920306275119355,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.055936871799025005,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1229337",
@@ -3526,8 +3433,8 @@
               }
             ]
           },
-          "model_probability": 0.07193049128401507,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.08224737283464648,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "974105",
@@ -3587,8 +3494,8 @@
               }
             ]
           },
-          "model_probability": 0.0644954228521095,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.07374590378509553,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "983774",
@@ -3648,13 +3555,13 @@
               }
             ]
           },
-          "model_probability": 0.04805593848501899,
-          "equal_chance_reference": 0.0625
+          "model_probability": 0.05494852904437955,
+          "equal_chance_reference": 0.07142857142857142
         }
       ],
-      "runner_source_sha256": "409dfac27bbe7a4b813a04972e5749ba022a96c344246f41060aa52fd87f9f86",
-      "runner_observed_at_utc": "2026-11-27T01:56:55.873745+00:00",
-      "active_runner_count": 16,
+      "runner_source_sha256": "7a6efa408d63e7f212c66290fc7df2ea69a21cfc6a9e6202262c8defd223d1cb",
+      "runner_observed_at_utc": "2026-11-27T12:37:10.999333+00:00",
+      "active_runner_count": 14,
       "research_only": true,
       "reference_only": false,
       "model_validation": "UNVALIDATED",
@@ -3665,16 +3572,16 @@
       "schedule_cross_checked": true,
       "secondary_schedule_receipt": {
         "url": "https://api.theracingapi.com/v1/racecards/free?day=today&region_codes=gb&region_codes=ire&limit=100&skip=0",
-        "sha256": "9f63690d18078046503b1235bf8e2f933e2ef3e40a2ae58c70d4069169e3f02c",
-        "observed_at_utc": "2026-11-27T01:56:57.704556+00:00",
+        "sha256": "6d3253ca6f8a72eedbde772bda8586d3481928bb967a08a47e5e26bcb92bcfbe",
+        "observed_at_utc": "2026-11-27T12:37:13.751768+00:00",
         "rate_limit_retries": 0
       },
       "historical_first_availability_verified": false,
       "odds": null,
       "expected_value": null,
       "limitation": "Untrained, uncalibrated form heuristic; parameters are exploratory. Ignores class, distance, going, weight, draw and trainer/jockey effects. Not verified betting value.",
-      "revision_of": null,
-      "record_sha256": "b581c4b54d107d8c79352686d25e1051e537fa81b051f1a4e24db36853e1a029"
+      "revision_of": "b581c4b54d107d8c79352686d25e1051e537fa81b051f1a4e24db36853e1a029",
+      "record_sha256": "82ad54bf736673b2b1c22494f0610530aca5aedcc2ca58c34e8aa57db79baeed"
     },
     {
       "schema_version": 1,
@@ -4384,7 +4291,7 @@
       "race_name": "Saddle Cocktail Bar At Dundalk Stadium Handicap",
       "startUTC": "2026-11-27T20:30:00+00:00",
       "source": "https://www.sportinglife.com/racing/racecards/2026-11-27/dundalk/racecard/950757/saddle-cocktail-bar-at-dundalk-stadium-handicap",
-      "generated_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "generated_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "parameters": {
         "minimum_form_runs": 3,
         "maximum_form_runs": 6,
@@ -4454,8 +4361,8 @@
               }
             ]
           },
-          "model_probability": 0.06017655712912616,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.06380425104482573,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1092967",
@@ -4507,8 +4414,8 @@
               }
             ]
           },
-          "model_probability": 0.059535157190010596,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.0631241848415092,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1113874",
@@ -4552,8 +4459,8 @@
               }
             ]
           },
-          "model_probability": 0.059449266101864774,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.06303311588023895,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1141166",
@@ -4613,8 +4520,8 @@
               }
             ]
           },
-          "model_probability": 0.0810398621403208,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.08592528312219483,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1149284",
@@ -4674,8 +4581,8 @@
               }
             ]
           },
-          "model_probability": 0.07772386898792767,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.08240938806850771,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1155177",
@@ -4735,8 +4642,8 @@
               }
             ]
           },
-          "model_probability": 0.07385228849690599,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.078304412553552,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1182634",
@@ -4796,8 +4703,8 @@
               }
             ]
           },
-          "model_probability": 0.05238878674354063,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.05554700137041961,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1188499",
@@ -4857,8 +4764,8 @@
               }
             ]
           },
-          "model_probability": 0.06312922965473274,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.06693492298859795,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1188729",
@@ -4902,8 +4809,8 @@
               }
             ]
           },
-          "model_probability": 0.0593562545491119,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.06293449720304911,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1189324",
@@ -4963,8 +4870,8 @@
               }
             ]
           },
-          "model_probability": 0.08067829307927366,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.08554191716970952,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1195753",
@@ -5024,8 +4931,8 @@
               }
             ]
           },
-          "model_probability": 0.07155646345107351,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.07587018559595168,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1198629",
@@ -5085,53 +4992,8 @@
               }
             ]
           },
-          "model_probability": 0.07319511353137044,
-          "equal_chance_reference": 0.06666666666666667
-        },
-        {
-          "horse_id": "1198739",
-          "name": "Rosanella",
-          "form_features": {
-            "usable_runs": 4,
-            "weighted_finish_percentile": 0.3228884448531934,
-            "shrunk_form_strength": 0.435750478539441,
-            "history": [
-              {
-                "race_id": "947473",
-                "date": "2026-11-06",
-                "position": 7,
-                "field_size": 14,
-                "finish_percentile": 0.5384615384615384,
-                "recency_weight": 0.8506671609508557
-              },
-              {
-                "race_id": "943976",
-                "date": "2026-10-16",
-                "position": 7,
-                "field_size": 9,
-                "finish_percentile": 0.25,
-                "recency_weight": 0.7236346187201891
-              },
-              {
-                "race_id": "942159",
-                "date": "2026-10-07",
-                "position": 12,
-                "field_size": 13,
-                "finish_percentile": 0.08333333333333333,
-                "recency_weight": 0.675174973084095
-              },
-              {
-                "race_id": "939530",
-                "date": "2026-09-21",
-                "position": 11,
-                "field_size": 17,
-                "finish_percentile": 0.375,
-                "recency_weight": 0.5968976816791352
-              }
-            ]
-          },
-          "model_probability": 0.05685661780044937,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.0776076203394107,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1232555",
@@ -5183,8 +5045,8 @@
               }
             ]
           },
-          "model_probability": 0.05976053693071595,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.06336315141325118,
+          "equal_chance_reference": 0.07142857142857142
         },
         {
           "horse_id": "1237314",
@@ -5220,13 +5082,13 @@
               }
             ]
           },
-          "model_probability": 0.07130170421357587,
-          "equal_chance_reference": 0.06666666666666667
+          "model_probability": 0.0756000684087818,
+          "equal_chance_reference": 0.07142857142857142
         }
       ],
-      "runner_source_sha256": "958e47f75f86bb82b97e1010d598b0e27f532072a4c3da0c6c234b190ea6a212",
-      "runner_observed_at_utc": "2026-11-27T01:56:56.641816+00:00",
-      "active_runner_count": 15,
+      "runner_source_sha256": "9372e0d0a9190ed25154cec49e068e7c870b24f83d903579397ceb5dfb2f69a6",
+      "runner_observed_at_utc": "2026-11-27T12:37:12.891961+00:00",
+      "active_runner_count": 14,
       "research_only": true,
       "reference_only": false,
       "model_validation": "UNVALIDATED",
@@ -5237,23 +5099,23 @@
       "schedule_cross_checked": true,
       "secondary_schedule_receipt": {
         "url": "https://api.theracingapi.com/v1/racecards/free?day=today&region_codes=gb&region_codes=ire&limit=100&skip=0",
-        "sha256": "9f63690d18078046503b1235bf8e2f933e2ef3e40a2ae58c70d4069169e3f02c",
-        "observed_at_utc": "2026-11-27T01:56:57.704556+00:00",
+        "sha256": "6d3253ca6f8a72eedbde772bda8586d3481928bb967a08a47e5e26bcb92bcfbe",
+        "observed_at_utc": "2026-11-27T12:37:13.751768+00:00",
         "rate_limit_retries": 0
       },
       "historical_first_availability_verified": false,
       "odds": null,
       "expected_value": null,
       "limitation": "Untrained, uncalibrated form heuristic; parameters are exploratory. Ignores class, distance, going, weight, draw and trainer/jockey effects. Not verified betting value.",
-      "revision_of": null,
-      "record_sha256": "8487e36a164b92c4c448dbf6a4d29e8ce93a732d49be3b3035640cb32d316fc7"
+      "revision_of": "8487e36a164b92c4c448dbf6a4d29e8ce93a732d49be3b3035640cb32d316fc7",
+      "record_sha256": "7f9d96b25c20a9e0be428cd1e6021bec1e375c153d4aef036491729dc4051170"
     }
   ],
   "form_model_audit": {
     "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
     "generated_forecasts": 8,
     "new_archived_records": 2,
-    "archived_records": 208,
+    "archived_records": 210,
     "skipped": [
       {
         "race_id": "951087",
@@ -8197,7 +8059,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "9a0390a2f3dc5d8e2854a9b55429732001de0ee508e27ef4a19948e96b8e9ca6",
@@ -8221,7 +8083,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "76744d66cb57ad442ed04a0549cc0263f3bfadc8d7050b528c609603010807d6",
@@ -8245,7 +8107,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "2a5c1cf630d51fa0c1c4a208bd2b364cc418cf63ae10b014ec196c930495b771",
@@ -8269,7 +8131,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "6177eb567b097e85a34d20b65a370a8cc8e164ebdaf454f0b0f6e9a9b7f665e0",
@@ -8293,7 +8155,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "f2387fa0f2b882f9150a5dc1d82fd484fad35ccced80b2ad7fdd3aef107aeb6d",
@@ -8317,7 +8179,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "94dda7f4be02720b8363e5478f719b0b6f685fb8b6069f3c8790f8f52d31558f",
@@ -8341,7 +8203,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "19467d999561b84388c7893684b4fd3a080c2f3e6ba0e14ba41f477b307ae0bf",
@@ -8365,7 +8227,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "c50f36c7333e9742cc2e43cb730ade7e6e9b50636666215f9f2b457ab63ea35f",
@@ -8389,7 +8251,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "bfaec49f5a36124d7ff120874a5e6489cbc3ee3d33757dcb45ed592a125886d4",
@@ -8413,7 +8275,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "17f2ff0d6d97658515b87c4bc9084cfb6b3371a3f89e6dbbf2ca8c7d9e9bb4a6",
@@ -8437,7 +8299,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "a67c229edfe6aa0f958e79471126037c91099d45e10728f4dc0f1ebae24e0695",
@@ -8461,7 +8323,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "9f4f2c868a61acec525eaaf777c338af69039bbddde485b4d3bc103a84ac9303",
@@ -8485,7 +8347,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "1e68566dfca43377de0287e963ff924baaf52e5fdf456c14f28af91f1cfddca3",
@@ -8509,7 +8371,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "70d3e83aa28f89ed2a757a6434d2f7dc84d7b72e951d236043b822615642c070",
@@ -8533,7 +8395,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "9dbc30a831a9b8e566cdcf68bd75c5c94de5aca49a3b829377461e46e6a09f49",
@@ -8557,7 +8419,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "2fbbef4df82d17b672fa9f83648285004068f98326e1d1109c12f20466ad1819",
@@ -8581,7 +8443,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "aa9dc00ac79f4d292c1352dc58ed2fd0ba314637020c113f4795b6d7c572cafb",
@@ -8605,7 +8467,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T04:38:20.358817+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "9dd1579a39d32491e23916db4beeb862578979eb07eeb90082b71d2dce73edea",
@@ -8629,7 +8491,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T04:38:20.358817+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       },
       {
         "record_sha256": "77a3490d780cddbea492d257eb14a1bbd59ed6291fa15d043219b49f73149421",
@@ -8653,7 +8515,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T04:38:20.358817+00:00"
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
       }
     ],
     "pending": [
@@ -8731,19 +8593,19 @@
       },
       {
         "race_id": "947106",
-        "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
+        "reason": "DEFERRED_RESULT_BATCH_LIMIT"
       },
       {
         "race_id": "946941",
-        "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
+        "reason": "DEFERRED_RESULT_BATCH_LIMIT"
       },
       {
         "race_id": "946751",
-        "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
+        "reason": "DEFERRED_RESULT_BATCH_LIMIT"
       },
       {
         "race_id": "947463",
-        "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
+        "reason": "DEFERRED_RESULT_BATCH_LIMIT"
       }
     ],
     "amendment_count": 0,
@@ -12993,7 +12855,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "9a0390a2f3dc5d8e2854a9b55429732001de0ee508e27ef4a19948e96b8e9ca6",
@@ -13036,7 +12898,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "76744d66cb57ad442ed04a0549cc0263f3bfadc8d7050b528c609603010807d6",
@@ -13079,7 +12941,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "6177eb567b097e85a34d20b65a370a8cc8e164ebdaf454f0b0f6e9a9b7f665e0",
@@ -13122,7 +12984,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "94dda7f4be02720b8363e5478f719b0b6f685fb8b6069f3c8790f8f52d31558f",
@@ -13165,7 +13027,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "19467d999561b84388c7893684b4fd3a080c2f3e6ba0e14ba41f477b307ae0bf",
@@ -13208,7 +13070,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "c50f36c7333e9742cc2e43cb730ade7e6e9b50636666215f9f2b457ab63ea35f",
@@ -13251,7 +13113,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "bfaec49f5a36124d7ff120874a5e6489cbc3ee3d33757dcb45ed592a125886d4",
@@ -13294,7 +13156,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "17f2ff0d6d97658515b87c4bc9084cfb6b3371a3f89e6dbbf2ca8c7d9e9bb4a6",
@@ -13337,7 +13199,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "a67c229edfe6aa0f958e79471126037c91099d45e10728f4dc0f1ebae24e0695",
@@ -13380,7 +13242,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "9f4f2c868a61acec525eaaf777c338af69039bbddde485b4d3bc103a84ac9303",
@@ -13423,7 +13285,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "1e68566dfca43377de0287e963ff924baaf52e5fdf456c14f28af91f1cfddca3",
@@ -13466,7 +13328,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "70d3e83aa28f89ed2a757a6434d2f7dc84d7b72e951d236043b822615642c070",
@@ -13509,7 +13371,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "9dbc30a831a9b8e566cdcf68bd75c5c94de5aca49a3b829377461e46e6a09f49",
@@ -13552,7 +13414,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "2fbbef4df82d17b672fa9f83648285004068f98326e1d1109c12f20466ad1819",
@@ -13595,7 +13457,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T04:38:20.358817+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "aa9dc00ac79f4d292c1352dc58ed2fd0ba314637020c113f4795b6d7c572cafb",
@@ -13638,7 +13500,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T04:38:20.358817+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "9dd1579a39d32491e23916db4beeb862578979eb07eeb90082b71d2dce73edea",
@@ -13681,7 +13543,7 @@
         "challenge_eligible": 0,
         "publication_gate": "BLOCKED",
         "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-        "result_last_checked_at_utc": "2026-11-27T04:38:20.358817+00:00",
+        "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
         "cross_source_evidence": {
           "verification": "TWO_PUBLISHER_RESULT_CORROBORATED",
           "record_sha256": "77a3490d780cddbea492d257eb14a1bbd59ed6291fa15d043219b49f73149421",
@@ -13930,7 +13792,7 @@
   "current_field_checks": {
     "d4c8ff3bd306e4868b144cd37d7d8f9d1d26c8e04135bbda811899e9c74aefcd": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-27T07:02:44.866665+00:00",
+      "runner_observed_at_utc": "2026-11-27T12:37:05.062879+00:00",
       "active_runner_ids": [
         "1080046",
         "1141900",
@@ -13942,11 +13804,11 @@
         "986747"
       ],
       "active_runner_count": 8,
-      "checked_at_utc": "2026-11-27T07:02:56.810851+00:00"
+      "checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
     },
     "47e3485957c1366d9d834a7931e8c385bdb538d48f2cf14228e122743444e8fd": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-27T07:02:47.658648+00:00",
+      "runner_observed_at_utc": "2026-11-27T12:37:06.438960+00:00",
       "active_runner_ids": [
         "1034666",
         "1077287",
@@ -13956,11 +13818,11 @@
         "1182563"
       ],
       "active_runner_count": 6,
-      "checked_at_utc": "2026-11-27T07:02:56.810851+00:00"
+      "checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
     },
     "0b47ba8411614eecce37ff7ddca3b4cba96096ffd454a844302f84aae0d0a0d6": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-27T07:02:48.991052+00:00",
+      "runner_observed_at_utc": "2026-11-27T12:37:07.632138+00:00",
       "active_runner_ids": [
         "1025762",
         "1058704",
@@ -13977,11 +13839,11 @@
         "962692"
       ],
       "active_runner_count": 13,
-      "checked_at_utc": "2026-11-27T07:02:56.810851+00:00"
+      "checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
     },
     "422ce6d6d3f93925ce939767f02292052c1a788c8e46edd8507071e1a5cc70ee": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-27T07:02:50.376028+00:00",
+      "runner_observed_at_utc": "2026-11-27T12:37:09.397552+00:00",
       "active_runner_ids": [
         "1044363",
         "1098216",
@@ -13991,11 +13853,11 @@
         "1184424"
       ],
       "active_runner_count": 6,
-      "checked_at_utc": "2026-11-27T07:02:56.810851+00:00"
+      "checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
     },
     "bd539fa70522e6d18e411250e6a2384ec3614bf13c02436a6b714c940b34cd52": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-27T07:02:51.364342+00:00",
+      "runner_observed_at_utc": "2026-11-27T12:37:10.340813+00:00",
       "active_runner_ids": [
         "1222285",
         "1224474",
@@ -14007,13 +13869,12 @@
         "1236104"
       ],
       "active_runner_count": 8,
-      "checked_at_utc": "2026-11-27T07:02:56.810851+00:00"
+      "checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
     },
-    "b581c4b54d107d8c79352686d25e1051e537fa81b051f1a4e24db36853e1a029": {
+    "82ad54bf736673b2b1c22494f0610530aca5aedcc2ca58c34e8aa57db79baeed": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-27T07:02:51.988450+00:00",
+      "runner_observed_at_utc": "2026-11-27T12:37:10.999333+00:00",
       "active_runner_ids": [
-        "1103227",
         "1107185",
         "1109784",
         "1141988",
@@ -14024,18 +13885,17 @@
         "1185931",
         "1193620",
         "1193915",
-        "1201038",
         "1202390",
         "1229337",
         "974105",
         "983774"
       ],
-      "active_runner_count": 16,
-      "checked_at_utc": "2026-11-27T07:02:56.810851+00:00"
+      "active_runner_count": 14,
+      "checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
     },
     "b6c37ac3f9f4b5f0c36f464e4e1a5dcabaf4f82d27a11d0d319602a82e026f49": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-27T07:02:52.711706+00:00",
+      "runner_observed_at_utc": "2026-11-27T12:37:12.135675+00:00",
       "active_runner_ids": [
         "1061971",
         "1069938",
@@ -14050,11 +13910,11 @@
         "1232457"
       ],
       "active_runner_count": 11,
-      "checked_at_utc": "2026-11-27T07:02:56.810851+00:00"
+      "checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
     },
-    "8487e36a164b92c4c448dbf6a4d29e8ce93a732d49be3b3035640cb32d316fc7": {
+    "7f9d96b25c20a9e0be428cd1e6021bec1e375c153d4aef036491729dc4051170": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-27T07:02:52.991107+00:00",
+      "runner_observed_at_utc": "2026-11-27T12:37:12.891961+00:00",
       "active_runner_ids": [
         "1024587",
         "1092967",
@@ -14068,12 +13928,11 @@
         "1189324",
         "1195753",
         "1198629",
-        "1198739",
         "1232555",
         "1237314"
       ],
-      "active_runner_count": 15,
-      "checked_at_utc": "2026-11-27T07:02:56.810851+00:00"
+      "active_runner_count": 14,
+      "checked_at_utc": "2026-11-27T12:37:16.236104+00:00"
     }
   },
   "settled_forecasts": [
@@ -14150,7 +14009,7 @@
       "winner_horse_id": "1230958",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T04:38:20.358817+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -14216,7 +14075,7 @@
       "winner_horse_id": "1184831",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T04:38:20.358817+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -14306,7 +14165,7 @@
       "winner_horse_id": "1161585",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T04:38:20.358817+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -14366,7 +14225,7 @@
       "winner_horse_id": "1219744",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -14456,7 +14315,7 @@
       "winner_horse_id": "1030254",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -14540,7 +14399,7 @@
       "winner_horse_id": "1136771",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -14636,7 +14495,7 @@
       "winner_horse_id": "986313",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -14720,7 +14579,7 @@
       "winner_horse_id": "1144007",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -14810,7 +14669,7 @@
       "winner_horse_id": "1147508",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -14900,7 +14759,7 @@
       "winner_horse_id": "1181651",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -14978,7 +14837,7 @@
       "winner_horse_id": "1109222",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -15080,7 +14939,7 @@
       "winner_horse_id": "1227717",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -15182,7 +15041,7 @@
       "winner_horse_id": "1057238",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -15254,7 +15113,7 @@
       "winner_horse_id": "1219496",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -15356,7 +15215,7 @@
       "winner_horse_id": "1153007",
       "result_verification": "SINGLE_SOURCE_PROVISIONAL",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -15440,7 +15299,7 @@
       "winner_horse_id": "948425",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -15542,7 +15401,7 @@
       "winner_horse_id": "1162463",
       "result_verification": "SINGLE_SOURCE_PROVISIONAL",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -15632,7 +15491,7 @@
       "winner_horse_id": "1191750",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -15722,7 +15581,7 @@
       "winner_horse_id": "1217297",
       "result_verification": "TWO_PUBLISHER_CORROBORATED",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -15818,7 +15677,7 @@
       "winner_horse_id": "1129311",
       "result_verification": "SINGLE_SOURCE_PROVISIONAL",
       "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
@@ -15826,12 +15685,12 @@
   ],
   "settled_history_limit": 20,
   "race_cycle_audit": {
-    "checked_at_utc": "2026-11-27T07:02:56.810851+00:00",
+    "checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
     "race_date_uk": "2026-11-27",
     "collection_scope": "CURRENT_UK_DAY_ONLY",
-    "upcoming_observed_races": 38,
+    "upcoming_observed_races": 32,
     "upcoming_form_forecasts": 8,
-    "next_observed_start_utc": "2026-11-27T11:40:00+00:00",
+    "next_observed_start_utc": "2026-11-27T12:40:00+00:00",
     "status": "UPCOMING_FORECASTS_AVAILABLE"
   },
   "limitations": [
