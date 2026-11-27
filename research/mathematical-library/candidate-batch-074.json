@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "074",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "elias-gamma-positive-integer-code",
+    "name": "Elias gamma positive integer code",
+    "definition": "For integer n≥1 let l=⌊log₂ n⌋; encode G(n)=0^l concatenated with the (l+1)-bit binary representation of n. Provisional; verify framing and decoding.",
+    "variables": "n positive integer, l binary length minus one",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input or malformed code"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Elias (1975), Universal codeword sets and representations of the integers; verify gamma convention."
+    },
+    "application": "General integer code; no empirical benefit claimed.",
+    "required_inputs": "Positive integer or framed binary code.",
+    "compatible_methods": [
+      "move-to-front-rank-transform"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "move-to-front-rank-transform"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "074",
+    "family": "data-structures",
+    "classification": "model-variant",
+    "id": "elias-delta-positive-integer-code",
+    "name": "Elias delta positive integer code",
+    "definition": "For integer n≥1 let L=⌊log₂ n⌋+1; encode D(n)=G(L) concatenated with the final L−1 binary digits of n. Provisional; verify framing and decoding.",
+    "variables": "n positive integer, L binary length, G gamma code",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input or malformed code"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Elias (1975), Universal codeword sets and representations of the integers; verify delta convention."
+    },
+    "application": "General integer code; no empirical benefit claimed.",
+    "required_inputs": "Positive integer or framed binary code.",
+    "compatible_methods": [
+      "elias-gamma-positive-integer-code"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "elias-gamma-positive-integer-code"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  }
+]

@@ -6317,3 +6317,35 @@ Limitations — With prefix-code/symbol dictionary nodes and constant-time trans
 Mechanism — LZW retains LZ78-style longest-phrase dictionary growth but starts from the full singleton alphabet and transmits indices alone instead of index/symbol pairs. The decoder is one insertion behind; only the next free code may refer to the immediately pending phrase, whose first symbol must equal that of the previous phrase. This material change in representation and synchronization justifies a variant, not another distinct algorithm count.
 
 Source — Welch (1984), A Technique for High-Performance Data Compression, Computer 17(6), 8–19, pp. 16–17, compression and decompression algorithms and special case. DOI 10.1109/MC.1984.1659158. https://courses.cs.duke.edu/spring03/cps296.5/papers/welch_1984_technique_for.pdf ; unbounded externally framed code list is a specified abstraction.
+
+## Burrows–Wheeler sentinel transform (burrows-wheeler-sentinel-transform)
+
+> Let S=x⊕$ with unique least sentinel $, N=|S|, and π(j) the starting index of the j-th lexicographically sorted cyclic rotation. Set B[j]=S[(π(j)−1) mod N]. Define C(c)=#{i:B[i]<c}, Occ(c,j)=#{i<j:B[i]=c}, and LF(j)=C(B[j])+Occ(B[j],j). Starting at the unique r with B[r]=$, fill S[N−1−k]=B[r] and update r←LF(r) for k=0,…,N−1; then remove the terminal sentinel.
+
+x finite input sequence, $ reserved least symbol, S augmented sequence, N augmented length, π rotation order, B transformed column, C cumulative smaller-symbol count, Occ exclusive occurrence rank, LF last-to-first permutation, r current row.
+
+General reversible sequence rearrangement; no empirical benefit claimed.
+
+Assumptions — Finite totally ordered alphabet, sentinel absent from x and smaller than all input symbols, exact symbol comparisons, zero-based indexing, known block length and alphabet order; empty x is represented by the sentinel alone.
+
+Limitations — Explicit rotation materialization uses O(N²) storage and O(N² log N) worst-case symbol comparisons; a suffix array of the sentinel-terminated sequence can supply the same order without materializing rotations. Inversion uses O(N+K) time and storage with preordered dense alphabet of size K and direct-index counts; arbitrary symbol sorting adds cost. Transformation preserves the symbol multiset plus sentinel and is not itself compression.
+
+Mechanism — Right-rotation of rows ending in the same symbol preserves their relative lexicographic order, giving LF by stable occurrence rank. A unique sentinel distinguishes every rotation and identifies the original row, so LF traverses one cycle of length N. Unlike suffix-array construction, the output is a reversible symbol permutation rather than an index; suffix ordering is a reusable subroutine, not an equivalent transform.
+
+Source — Burrows and Wheeler (1994), A Block-sorting Lossless Data Compression Algorithm, SRC Research Report 124, section 2, pp. 2–4 (rotation and occurrence-ranked inverse). https://www.cl.cam.ac.uk/teaching/2223/Bioinfo/papers/burrows_wheeler.pdf ; sentinel-only framing and single-cycle validity check independently derived from unique sentinel rotation order.
+
+## Move-to-front rank transform (move-to-front-rank-transform)
+
+> With shared initial permutation A of K distinct symbols, at input position t set r_t=index_A(x_t) and A←[x_t] concatenated with A after deleting x_t. For decoding set x_t=A[r_t] before applying the same update, requiring 0≤r_t<K.
+
+A mutable ordered alphabet, K alphabet size, x_t input or recovered symbol at position t, r_t zero-based rank.
+
+General reversible recency-rank transformation for finite symbol sequences; no empirical benefit claimed.
+
+Assumptions — Finite nonempty shared alphabet with identical initial order, exact symbol equality, no insertion of new symbols, externally framed rank sequence; empty input produces empty output.
+
+Limitations — Simple list representation uses O(nK) worst-case time and O(K) working storage for n symbols; integer ranks require separate coding to yield a bitstream. Locality may produce small ranks, but there is no finite-input compression guarantee and rank corruption can desynchronize subsequent state.
+
+Mechanism — The state is an ordering of fixed symbols by recency, rather than an expanding phrase dictionary or a global rotation permutation. Rank emission plus deterministic list update is invertible with shared state, and can be composed with the Burrows–Wheeler transform without being equivalent to it.
+
+Source — Bentley, Sleator, Tarjan and Wei (1986), A Locally Adaptive Data Compression Scheme, Communications of the ACM 29(4), 320–330, p. 321, sections 2–3. DOI 10.1145/5684.5688. https://www.cs.cmu.edu/~sleator/papers/adaptive-data-compression.pdf ; fixed shared alphabet and zero-based ranks are an explicit restricted convention, not the full new-word or integer coding scheme.

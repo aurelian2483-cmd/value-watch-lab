@@ -9075,5 +9075,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "LZW retains LZ78-style longest-phrase dictionary growth but starts from the full singleton alphabet and transmits indices alone instead of index/symbol pairs. The decoder is one insertion behind; only the next free code may refer to the immediately pending phrase, whose first symbol must equal that of the previous phrase. This material change in representation and synchronization justifies a variant, not another distinct algorithm count."
+  },
+  {
+    "id": "burrows-wheeler-sentinel-transform",
+    "source": {
+      "kind": "literature",
+      "citation": "Burrows and Wheeler (1994), A Block-sorting Lossless Data Compression Algorithm, SRC Research Report 124, section 2, pp. 2–4 (rotation and occurrence-ranked inverse). https://www.cl.cam.ac.uk/teaching/2223/Bioinfo/papers/burrows_wheeler.pdf ; sentinel-only framing and single-cycle validity check independently derived from unique sentinel rotation order.",
+      "url": "https://www.cl.cam.ac.uk/teaching/2223/Bioinfo/papers/burrows_wheeler.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Right-rotation of rows ending in the same symbol preserves their relative lexicographic order, giving LF by stable occurrence rank. A unique sentinel distinguishes every rotation and identifies the original row, so LF traverses one cycle of length N. Unlike suffix-array construction, the output is a reversible symbol permutation rather than an index; suffix ordering is a reusable subroutine, not an equivalent transform."
+  },
+  {
+    "id": "move-to-front-rank-transform",
+    "source": {
+      "kind": "literature",
+      "citation": "Bentley, Sleator, Tarjan and Wei (1986), A Locally Adaptive Data Compression Scheme, Communications of the ACM 29(4), 320–330, p. 321, sections 2–3. DOI 10.1145/5684.5688. https://www.cs.cmu.edu/~sleator/papers/adaptive-data-compression.pdf ; fixed shared alphabet and zero-based ranks are an explicit restricted convention, not the full new-word or integer coding scheme.",
+      "url": "https://www.cs.cmu.edu/~sleator/papers/adaptive-data-compression.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The state is an ordering of fixed symbols by recency, rather than an expanding phrase dictionary or a global rotation permutation. Rank emission plus deterministic list update is invertible with shared state, and can be composed with the Burrows–Wheeler transform without being equivalent to it."
   }
 ]
