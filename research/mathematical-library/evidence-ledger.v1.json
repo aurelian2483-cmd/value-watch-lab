@@ -9903,5 +9903,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Repeated polygon half-plane intersection with vertex-list reconstruction; distinct output and procedure from endpoint segment clipping or winding-number containment"
+  },
+  {
+    "id": "bresenham-integer-line-rasterization",
+    "source": {
+      "kind": "literature",
+      "citation": "Brandeis University, CS155, Drawing 2D Primitives, Lecture 02, PDF pp. 4–5 (text and slide images reviewed); doubled midpoint recurrence and octant symmetry. Tie convention follows pseudocode, not the preceding slide's strict-positive diagonal rule. https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf",
+      "url": "https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Incremental integer midpoint decision for a linear primitive, generating a connected nearest-minor-coordinate lattice path; distinct from continuous segment clipping"
+  },
+  {
+    "id": "midpoint-circle-rasterization",
+    "source": {
+      "kind": "literature",
+      "citation": "Brandeis University, CS155, Drawing 2D Primitives, Lecture 02, PDF pp. 5–6 (text and slide images reviewed); circle implicit equation, integer midpoint update and eightfold symmetry. Octant stopping and local deduplication explicitly specified here. https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf",
+      "url": "https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Nonlinear circle midpoint decision with coordinate-dependent increments and eightfold symmetry, distinct primitive and recurrence from linear rasterization; shared midpoint principle is not a claim of independent scientific novelty"
   }
 ]

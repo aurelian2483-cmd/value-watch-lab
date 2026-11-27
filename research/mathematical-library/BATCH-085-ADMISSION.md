@@ -1,0 +1,11 @@
+# Batch 085 admission review (2026-11-27)
+
+Parent d785da10061a535be5e88cc2ce6e6c4b69c878ef. PR 171 open and draft on authorised same-repository branch. SHA-scoped workflow lookup: full research regression 46031985869 and registry validation 46031985861 completed success; connector omits head_sha. Candidate 023 and admitted batch 023 reread: partial correlation and Bartlett admitted; lag correlation remains withheld.
+
+465 ledger IDs and reference headings reconciled in order; normalized name and definition signatures checked. Raster, circle, pixel, midpoint and clipping titles screened; no prior rasterization definition identified. Line and circle are different primitive-specific recurrences, sharing the midpoint principle. No claim of mathematical novelty. Both SPECIFIED with null implementation and test evidence.
+
+Brandeis CS155 Lecture 02 PDF pp. 4–6, extracted text and original page images reviewed: line recurrence, octant symmetry, circle recurrence. Line tie rule is inconsistent between explanatory slide and pseudocode; this specification explicitly selects diagonal on equality as in pseudocode. Circle d=F(midpoint)−1/4 follows directly from integer coordinates; crossing the diagonal is not emitted twice. Original papers not reviewed.
+
+Independent synthetic JavaScript checks executed: 83521 ordered endpoint pairs on [-8,8]^2 compared at every major-axis coordinate with exact bounded integer rounding floor((2bu+a)/(2a)); single points, all directions, endpoint and connectivity verified. 1025 integer radii 0..1024 compared with direct rounded square-root octant oracle, with exact squared-integer rounding inequalities, midpoint invariant and symmetry checks; 2968713 distinct raster points counted across radii. Center translation is algebraic and was not separately exercised. All assertions passed. These are bounded checks of the specified recurrence, not implementation or empirical qualification. Total 84546 cases.
+
+Four views regenerated incrementally following inspected catalogue.mjs; full Node generator and local repository regression not executed. Existing IDs preserved; admitted archive exact match; next candidates provisional and distinct from registered names/IDs/signatures. No protected data, sports experiments, execution authority, gate changes or deployment. Further writes require both new hosted workflows green.

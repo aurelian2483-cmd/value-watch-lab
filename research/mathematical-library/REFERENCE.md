@@ -6893,3 +6893,35 @@ Limitations — Single convex output only; this specification discards zero-area
 Mechanism — Repeated polygon half-plane intersection with vertex-list reconstruction; distinct output and procedure from endpoint segment clipping or winding-number containment
 
 Source — Carnegie Mellon University, Computer Graphics 15-462, 12 September 2001, slides 33–36 (extracted text and page image reviewed); four transition rules and convex clipping window generalization. Convex subject restriction and zero-area discard are explicit catalogue conventions. https://www.cs.cmu.edu/~jkh/462_f02/slides/07_viewing.pdf
+
+## Bresenham integer line rasterization (bresenham-integer-line-rasterization)
+
+> Let A=|x₁−x₀|, B=|y₁−y₀|, a=max(A,B), b=min(A,B). In normalized major/minor coordinates (u,v)=(0,0), set D=2b−a. Emit (u,v); while u<a, if D≥0 set (u,v,D)←(u+1,v+1,D+2(b−a)), otherwise set (u,v,D)←(u+1,v,D+2b); emit after each step. Invert the axis swap and direction signs and add the start point
+
+(x₀,y₀),(x₁,y₁) ordered integer endpoints; A,B absolute coordinate differences; a,b major and minor lengths; u,v normalized offsets; D doubled implicit midpoint decision.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Integer pixel centers on a square Cartesian lattice; exact integer arithmetic; select x as major axis on equal magnitudes; normalize directions independently using the signs of endpoint differences; a=0 returns the single endpoint; ties select the diagonal in normalized coordinates.
+
+Limitations — O(a+1) time and O(1) working state excluding O(a+1) output; fixed-width overflow must be avoided; no antialiasing, fractional endpoints, or all-touched-pixel guarantee; reversing endpoint order can change tie pixels.
+
+Mechanism — Incremental integer midpoint decision for a linear primitive, generating a connected nearest-minor-coordinate lattice path; distinct from continuous segment clipping
+
+Source — Brandeis University, CS155, Drawing 2D Primitives, Lecture 02, PDF pp. 4–5 (text and slide images reviewed); doubled midpoint recurrence and octant symmetry. Tie convention follows pseudocode, not the preceding slide's strict-positive diagonal rule. https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf
+
+## Midpoint circle rasterization (midpoint-circle-rasterization)
+
+> Let F(x,y)=x²+y²−r². Start at (x,y)=(0,r), d=1−r. While x≤y, emit the distinct signed permutations of (x,y) translated by the center. Using old coordinates, if d<0 update (x,y,d)←(x+1,y,d+2x+3), else update (x,y,d)←(x+1,y−1,d+2(x−y)+5). Here d=F(x+1,y−1/2)−1/4
+
+r integer radius; x,y nonnegative octant offsets; d integer midpoint decision; F implicit circle function; (cₓ,cᵧ) integer center.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Square Cartesian integer lattice and integer center, r≥0; exact integer arithmetic; plot only while x≤y; suppress duplicate signed permutations at axes and diagonal; r=0 produces the center alone.
+
+Limitations — O(r+1) time and O(1) working state excluding O(r+1) output if each symmetry orbit is deduplicated locally; no filled disk, antialiasing, noninteger radius or anisotropic pixel support; not a guarantee of globally minimum radial error; fixed-width overflow must be avoided.
+
+Mechanism — Nonlinear circle midpoint decision with coordinate-dependent increments and eightfold symmetry, distinct primitive and recurrence from linear rasterization; shared midpoint principle is not a claim of independent scientific novelty
+
+Source — Brandeis University, CS155, Drawing 2D Primitives, Lecture 02, PDF pp. 5–6 (text and slide images reviewed); circle implicit equation, integer midpoint update and eightfold symmetry. Octant stopping and local deduplication explicitly specified here. https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf
