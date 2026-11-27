@@ -1,0 +1,105 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "083",
+    "family": "computational-geometry",
+    "classification": "model-variant",
+    "id": "jarvis-gift-wrapping-convex-hull",
+    "name": "Jarvis gift-wrapping convex hull",
+    "definition": "For distinct planar points P, orient(a,b,c)=(b_x−a_x)(c_y−a_y)−(b_y−a_y)(c_x−a_x). Start at lexicographically least a; choose b≠a with orient(a,b,c)≥0 for every c∈P, using the farthest collinear supporting candidate. Repeat until returning to start; return unique extreme vertices without repeated closing point",
+    "variables": "P finite point set; a current extreme; b next extreme; c scanned point; n unique point count; h extreme vertex count; orient signed cross product",
+    "assumptions": "Finite Cartesian points, deduplicate first, exact or reliably controlled orientation and squared-distance comparisons; empty and singleton sets return directly; collinear sets return their two extreme endpoints",
+    "limitations": "O(nh) wrapping comparisons after deduplication (sorting-based deduplication adds O(n log n)); worst case quadratic; collinear edge-interior points deliberately omitted; rounding can cause wrong choices or failure to close",
+    "failure_conditions": [
+      "Nonfinite coordinates",
+      "Unreliable orientation or distance comparison",
+      "Repeated non-start extreme or more than n wrapping steps"
+    ],
+    "computation": "Choose any candidate b distinct from a, scan all c, replacing b on negative orientation or zero orientation with larger squared distance to a; append a and advance to b; stop on return to initial point. Guard cycle length and reject inconsistent predicate results",
+    "source": {
+      "kind": "literature",
+      "citation": "Princeton COS226 Jarvis' March (indexed excerpt; direct fetch forbidden), output-sensitive wrapping; TU Wien Daniel Scherzer, Computational Geometry, Jarvis slides including collinearity and rounding (page image reviewed). Farthest-tie rule is explicit specification convention. https://www.cg.tuwien.ac.at/courses/ARTR/slides/ComputationalGeometry.pdf",
+      "url": "https://www.cg.tuwien.ac.at/courses/ARTR/slides/ComputationalGeometry.pdf"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite planar point coordinates; exact or controlled geometric predicates",
+    "compatible_methods": [
+      "andrew-monotone-chain-convex-hull"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "andrew-monotone-chain-convex-hull"
+      }
+    ],
+    "mechanism_note": "Output-sensitive supporting-edge walk; alternative convex-hull construction grouped as variant of Andrew, not independent mathematical output"
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "083",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "ear-clipping-polygon-triangulation",
+    "name": "Ear-clipping polygon triangulation",
+    "definition": "For a simple counterclockwise polygon, clip consecutive vertices (a,b,c) when orient(a,b,c)>0 and no other active vertex q satisfies orient(a,b,q)≥0, orient(b,c,q)≥0, orient(c,a,q)≥0 simultaneously. Remove b, emit abc, and finish with the last triangle; number of triangles = n−2",
+    "variables": "n original vertex count; a,b,c consecutive active vertices; q another active vertex; orient(u,v,w)=(v_x−u_x)(w_y−u_y)−(v_y−u_y)(w_x−u_x)",
+    "assumptions": "One simple nonzero-area planar polygon, no holes, distinct vertices, no three vertices collinear (restricted general-position version); normalize clockwise input by reversal; robust predicates; n≥3",
+    "limitations": "Naive repeated exhaustive ear scans take O(n³) time, O(n) additional storage including output; maintained ear bookkeeping can reduce time to O(n²) but is not specified here; no guarantee of mesh quality or Delaunay property; degeneracies outside scope",
+    "failure_conditions": [
+      "Fewer than three vertices, nonfinite coordinates, repeated vertices, self-intersection, holes, or collinear triple",
+      "No ear found despite validated assumptions or nonpositive final triangle"
+    ],
+    "computation": "Validate boundary and general position; scan active cyclic vertices in order, choose first convex vertex whose closed ear triangle contains no other active vertex; output triangle and remove tip; restart scan. Emit final triangle and verify n−2 positive-area triangles with boundary coverage",
+    "source": {
+      "kind": "literature",
+      "citation": "Godfried Toussaint, Triangulations and Arrangements (1993), lecture notes archived by UC Irvine, two-ear theorem and naive cubic ear cutting; Hacettepe University Polygon Triangulation lecture, 28 January 2026, ear algorithm. https://www-dev.ics.uci.edu/~eppstein/junkyard/godfried.toussaint.html",
+      "url": "https://www-dev.ics.uci.edu/~eppstein/junkyard/godfried.toussaint.html"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Ordered simple polygon boundary without holes, distinct finite coordinates and general position",
+    "compatible_methods": [
+      "polygon-winding-number"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "polygon-winding-number"
+      }
+    ],
+    "mechanism_note": "Constructs a triangulation of an existing simple polygon through successive ear deletion; not hull construction or point containment"
+  }
+]

@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "084",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "cohen-sutherland-segment-clipping",
+    "name": "Cohen–Sutherland rectangular segment clipping",
+    "definition": "Assign four outside bits to each endpoint; accept if code(a) OR code(b)=0, reject if code(a) AND code(b)≠0, otherwise intersect an outside endpoint with a selected rectangle boundary and repeat. Provisional.",
+    "variables": "Provisional; define during review",
+    "assumptions": "Provisional; source review pending",
+    "limitations": "Provisional; complexity and degeneracies pending",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Cohen–Sutherland rectangular segment clipping"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite geometric input; exact conditions pending review",
+    "compatible_methods": [
+      "bentley-ottmann-segment-intersections"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "bentley-ottmann-segment-intersections"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "084",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "sutherland-hodgman-convex-window-clipping",
+    "name": "Sutherland–Hodgman convex-window polygon clipping",
+    "definition": "Sequentially clip a convex subject polygon against each oriented convex window edge, retaining inside vertices with orient(a,b,q)≥0 and adding crossing intersections. Provisional.",
+    "variables": "Provisional; define during review",
+    "assumptions": "Provisional; source review pending",
+    "limitations": "Provisional; complexity and degeneracies pending",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Sutherland–Hodgman convex-window polygon clipping"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite geometric input; exact conditions pending review",
+    "compatible_methods": [
+      "polygon-winding-number"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "polygon-winding-number"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  }
+]

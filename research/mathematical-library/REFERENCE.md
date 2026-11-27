@@ -6829,3 +6829,35 @@ Limitations — O(n²) worst-case time, O(n log n) balanced splits, O(n) stack/o
 Mechanism — Recursive maximum-deviation simplification, not closest-pair minimization or a scalar diagnostic
 
 Source — RPI CSCI 4560/6560 Spring 2026 Lecture 23, recursive split and complexity parsed; PostGIS ST_Simplify documentation on endpoint preservation and invalid output; finite-segment convention explicitly chosen; original Ramer and Douglas–Peucker papers not reviewed; https://www.cs.rpi.edu/~cutler/classes/computationalgeometry/S26/lectures/23_curves_polyline_simplification_sprouts.pdf
+
+## Jarvis gift-wrapping convex hull (jarvis-gift-wrapping-convex-hull)
+
+> For distinct planar points P, orient(a,b,c)=(b_x−a_x)(c_y−a_y)−(b_y−a_y)(c_x−a_x). Start at lexicographically least a; choose b≠a with orient(a,b,c)≥0 for every c∈P, using the farthest collinear supporting candidate. Repeat until returning to start; return unique extreme vertices without repeated closing point
+
+P finite point set; a current extreme; b next extreme; c scanned point; n unique point count; h extreme vertex count; orient signed cross product.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite Cartesian points, deduplicate first, exact or reliably controlled orientation and squared-distance comparisons; empty and singleton sets return directly; collinear sets return their two extreme endpoints.
+
+Limitations — O(nh) wrapping comparisons after deduplication (sorting-based deduplication adds O(n log n)); worst case quadratic; collinear edge-interior points deliberately omitted; rounding can cause wrong choices or failure to close.
+
+Mechanism — Output-sensitive supporting-edge walk; alternative convex-hull construction grouped as variant of Andrew, not independent mathematical output
+
+Source — Princeton COS226 Jarvis' March (indexed excerpt; direct fetch forbidden), output-sensitive wrapping; TU Wien Daniel Scherzer, Computational Geometry, Jarvis slides including collinearity and rounding (page image reviewed). Farthest-tie rule is explicit specification convention. https://www.cg.tuwien.ac.at/courses/ARTR/slides/ComputationalGeometry.pdf
+
+## Ear-clipping polygon triangulation (ear-clipping-polygon-triangulation)
+
+> For a simple counterclockwise polygon, clip consecutive vertices (a,b,c) when orient(a,b,c)>0 and no other active vertex q satisfies orient(a,b,q)≥0, orient(b,c,q)≥0, orient(c,a,q)≥0 simultaneously. Remove b, emit abc, and finish with the last triangle; number of triangles = n−2
+
+n original vertex count; a,b,c consecutive active vertices; q another active vertex; orient(u,v,w)=(v_x−u_x)(w_y−u_y)−(v_y−u_y)(w_x−u_x).
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — One simple nonzero-area planar polygon, no holes, distinct vertices, no three vertices collinear (restricted general-position version); normalize clockwise input by reversal; robust predicates; n≥3.
+
+Limitations — Naive repeated exhaustive ear scans take O(n³) time, O(n) additional storage including output; maintained ear bookkeeping can reduce time to O(n²) but is not specified here; no guarantee of mesh quality or Delaunay property; degeneracies outside scope.
+
+Mechanism — Constructs a triangulation of an existing simple polygon through successive ear deletion; not hull construction or point containment
+
+Source — Godfried Toussaint, Triangulations and Arrangements (1993), lecture notes archived by UC Irvine, two-ear theorem and naive cubic ear cutting; Hacettepe University Polygon Triangulation lecture, 28 January 2026, ear algorithm. https://www-dev.ics.uci.edu/~eppstein/junkyard/godfried.toussaint.html
