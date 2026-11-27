@@ -9995,5 +9995,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Rowwise sorted edge intersections produce raster spans rather than evaluating individual point winding numbers; parity is related to containment but scanline batching and raster boundary policy are distinct computational procedures"
+  },
+  {
+    "id": "chaikin-corner-cutting",
+    "source": {
+      "kind": "literature",
+      "citation": "Neil Dodgson, University of Cambridge, Advanced Graphics Lecture Notes (2014), printed pp. 28–29, equations 46–47 and figure 14; text and page images reviewed. Periodic closure is explicitly fixed here. https://www.cl.cam.ac.uk/teaching/1314/AdvGraph/NADnotes14.pdf",
+      "url": "https://www.cl.cam.ac.uk/teaching/1314/AdvGraph/NADnotes14.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Repeated local corner-cutting creates a refined control polygon rather than evaluating a spline at a query point as de Boor does; related quadratic spline limit does not imply independent empirical evidence."
+  },
+  {
+    "id": "de-casteljau-bezier-subdivision",
+    "source": {
+      "kind": "literature",
+      "citation": "Ching-Kuang Shene, Michigan Technological University, Subdividing a Bézier Curve; page text reviewed, left and reversed right boundary chains and parameter subintervals. https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html",
+      "url": "https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Reuses the exact registered de Casteljau interpolation triangle, returning boundary control polygons instead of only the evaluated point; classified as a variant, not an independent algorithm."
   }
 ]

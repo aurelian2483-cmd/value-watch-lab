@@ -6957,3 +6957,35 @@ Limitations — Direct per-row intersection and sorting costs O(Hn log(n+1)+M) t
 Mechanism — Rowwise sorted edge intersections produce raster spans rather than evaluating individual point winding numbers; parity is related to containment but scanline batching and raster boundary policy are distinct computational procedures
 
 Source — Harriet Fell, Northeastern University CS 4300, Lecture 9, September 2011, slides 5–10 (extracted text reviewed; page-image requests returned HTTP 429). Parity and paired crossing approach; direct recomputation and lower-inclusive/left-inclusive boundary rules explicitly specified here rather than reproducing the lecture's endpoint preprocessing. https://www.khoury.northeastern.edu/home/fell/CS4300/Lectures/CS4300F2011-9-ScanLineFill.pdf
+
+## Chaikin corner-cutting subdivision (chaikin-corner-cutting)
+
+> For a cyclic ordered polygon P₀,…,Pₘ₋₁, m≥3, set Q₂ᵢ=(3Pᵢ+Pᵢ₊₁)/4 and Q₂ᵢ₊₁=(Pᵢ+3Pᵢ₊₁)/4 for i=0,…,m−1, with indices modulo m; repeat on Q for k≥0 refinement rounds
+
+P,Q input and refined vector-valued control polygons; m input vertex count; i cyclic vertex index; k number of rounds.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite real coordinates in a common dimension d≥1; ordered closed polygon with implicit closure, not a repeated closing vertex; repeated or coincident vertices permitted; finite nonnegative integer refinement count.
+
+Limitations — Output size m·2^k and O(d m·2^k) arithmetic and storage for k≥1; limit is a periodic uniform quadratic B-spline, not generally an interpolant of the initial vertices; finite refinement is a polyline, not an exact smooth curve; no topology preservation or tolerance guarantee claimed.
+
+Mechanism — Repeated local corner-cutting creates a refined control polygon rather than evaluating a spline at a query point as de Boor does; related quadratic spline limit does not imply independent empirical evidence.
+
+Source — Neil Dodgson, University of Cambridge, Advanced Graphics Lecture Notes (2014), printed pp. 28–29, equations 46–47 and figure 14; text and page images reviewed. Periodic closure is explicitly fixed here. https://www.cl.cam.ac.uk/teaching/1314/AdvGraph/NADnotes14.pdf
+
+## De Casteljau Bézier curve subdivision (de-casteljau-bezier-subdivision)
+
+> For degree n≥0 Bézier control points Pᵢ⁰=Pᵢ and split s∈[0,1], compute Pᵢʳ=(1−s)Pᵢʳ⁻¹+sPᵢ₊₁ʳ⁻¹ for r=1,…,n and i=0,…,n−r. Left Lⱼ=P₀ʲ and right Rⱼ=Pⱼⁿ⁻ʲ for j=0,…,n; their Bernstein curves satisfy B_L(t)=B_P(st) and B_R(t)=B_P(s+(1−s)t) for t∈[0,1]
+
+n polynomial degree; Pᵢʳ level-r interpolation points; s split parameter; L,R ordered control vectors; t local parameter; B Bernstein polynomial curve.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite real vector coordinates of common dimension d≥1; nonrational polynomial Bézier curve; s in the closed unit interval, n≥0; repeated vertices permitted; endpoint splits yield one constant segment.
+
+Limitations — O(d n²) arithmetic and O(d(n+1)) storage with rolling rows and two boundary chains; subdivision preserves the polynomial exactly in exact arithmetic, not necessarily bitwise under rounding; no rational weights or adaptive error criterion in scope.
+
+Mechanism — Reuses the exact registered de Casteljau interpolation triangle, returning boundary control polygons instead of only the evaluated point; classified as a variant, not an independent algorithm.
+
+Source — Ching-Kuang Shene, Michigan Technological University, Subdividing a Bézier Curve; page text reviewed, left and reversed right boundary chains and parameter subintervals. https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html
