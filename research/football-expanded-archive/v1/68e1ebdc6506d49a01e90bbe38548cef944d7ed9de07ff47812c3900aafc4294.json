@@ -1,0 +1,74 @@
+{
+  "league": "I1",
+  "home": "Frosinone",
+  "away": "Lazio",
+  "kickoff_utc": "2026-12-18T17:30:00Z",
+  "espn_event_id": "401875016",
+  "league_name": "Serie A",
+  "verification": "SCHEDULE_CROSS_CHECK",
+  "forecast_eligible": false,
+  "paper_prediction": null,
+  "result": null,
+  "schedule_source_receipts": [
+    {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/scoreboard?dates=20261218&limit=100",
+      "sha256": "ebe5fcd689b6c1e27386c41d1e7f0a1bf2bec496e9f22c989c3fe7ccf0840fad",
+      "observed_at_utc": "2026-11-27T18:27:15.669930Z"
+    },
+    {
+      "url": "https://www.skysports.com/serie-a-scores-fixtures/2026-12-01",
+      "sha256": "9eccba7edd727368786ffea9a114f417ffd0e5a202585c529db7c1173b434b24",
+      "observed_at_utc": "2026-11-27T18:27:45.102914Z"
+    }
+  ],
+  "model": "LEAGUE_POISSON_SHRINKAGE_V1_I1_CURRENT_SEASON_SMALL_SAMPLE",
+  "prob_home": 0.3426319728146728,
+  "prob_draw": 0.23475957779177306,
+  "prob_away": 0.42260844939355413,
+  "training_basis": {
+    "mode": "CURRENT_SEASON_SMALL_SAMPLE",
+    "home_matches": 6,
+    "away_matches": 6,
+    "league_average_pseudo_matches": 5,
+    "small_sample": true,
+    "training_matches": 120,
+    "source_receipts": [
+      {
+        "url": "https://www.football-data.co.uk/mmz4281/2627/I1.csv",
+        "sha256": "e9e3989f88836484bb76067f2e6a4467698952e567c2fd6f1ecb3c9fb4234fca",
+        "observed_at_utc": "2026-11-27T18:27:50.188900Z"
+      }
+    ],
+    "training_sha256": "5626de1709200b6838cfa5c70108bcb9747652d8090b58d4d733a419b8d7c6e2",
+    "lambda_home": 1.488154269972452,
+    "lambda_away": 1.6746021669206033,
+    "home_venue_inputs": {
+      "hgf": 16,
+      "hga": 6,
+      "hn": 6,
+      "agf": 9,
+      "aga": 14,
+      "an": 6
+    },
+    "away_venue_inputs": {
+      "hgf": 13,
+      "hga": 5,
+      "hn": 6,
+      "agf": 15,
+      "aga": 4,
+      "an": 6
+    },
+    "league_home_mean": 1.6666666666666667,
+    "league_away_mean": 1.4916666666666667
+  },
+  "research_only": true,
+  "model_validation": "UNVALIDATED",
+  "publication_gate": "BLOCKED",
+  "challenge_eligible": 0,
+  "odds": null,
+  "expected_value": null,
+  "generated_at_utc": "2026-11-27T18:27:59.253110Z",
+  "independent_timestamp_attested": false,
+  "source_first_availability_verified": false,
+  "record_sha256": "68e1ebdc6506d49a01e90bbe38548cef944d7ed9de07ff47812c3900aafc4294"
+}
