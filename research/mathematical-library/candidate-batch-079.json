@@ -1,0 +1,198 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "079",
+    "family": "network-science",
+    "classification": "model-variant",
+    "id": "boruvka-component-minimum-edge",
+    "name": "Borůvka component minimum-edge spanning forest",
+    "definition": "For each current component C choose e_C=argmin{w(e): e crosses C}; union chosen edges if endpoints still lie in separate components. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Borůvka minimum spanning forest algorithm"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "kruskal-spanning-forest"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "kruskal-spanning-forest"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "079",
+    "family": "operations-research",
+    "classification": "model-variant",
+    "id": "push-relabel-preflow",
+    "name": "Push–relabel preflow maximum flow",
+    "definition": "Maintain excess e(v) and height h(v); push δ=min(e(u),r(u,v)) on residual edges with h(u)=h(v)+1; otherwise relabel active u. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Goldberg and Tarjan (1988), A new approach to the maximum-flow problem"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "edmonds-karp-maximum-flow"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "edmonds-karp-maximum-flow"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "079",
+    "family": "network-science",
+    "classification": "distinct-algorithm",
+    "id": "dfs-articulation-points",
+    "name": "DFS low-link articulation point detection",
+    "definition": "For nonroot u, articulation if a DFS child v has low(v)≥disc(u); root articulation if at least two DFS children. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Undirected DFS articulation-point theorem"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "tarjan-strongly-connected-components"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "tarjan-strongly-connected-components"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "079",
+    "family": "network-science",
+    "classification": "distinct-algorithm",
+    "id": "hierholzer-eulerian-circuit",
+    "name": "Hierholzer Eulerian circuit construction",
+    "definition": "For connected nonzero-degree vertices with even degree, consume unused incident edges and splice closed trails until used edges=E. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Hierholzer Eulerian circuit algorithm"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "kahn-topological-sort"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "kahn-topological-sort"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  }
+]

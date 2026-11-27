@@ -9351,5 +9351,97 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Each phase increases matching cardinality by k; shortest augmenting distance strictly increases. This is a specialized disjoint-path phase algorithm, distinct from Edmonds–Karp single-path augmentation and Hungarian weighted assignment; related to unit-capacity blocking flow."
+  },
+  {
+    "id": "kosaraju-two-pass-scc",
+    "source": {
+      "kind": "literature",
+      "citation": "Cornell CS 4120 (Spring 2023), Iterative solving, Strongly-connected components, https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html",
+      "url": "https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Same component partition as Tarjan but uses finishing order and a transpose instead of low-link stack state; conservatively counted as a variant, not independent evidence."
+  },
+  {
+    "id": "dinic-blocking-flow",
+    "source": {
+      "kind": "literature",
+      "citation": "MIT 6.854, Strongly Polynomial Flow Algorithms, Scribe Notes #7, §3, https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html (sink-oriented levels in source; equivalent source-oriented convention here).",
+      "url": "https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Shares residual-network objective with Edmonds–Karp but blocks all shortest paths per BFS phase rather than one path. Conservatively classified as variant; generic capacities, not just bipartite unit networks."
+  },
+  {
+    "id": "prim-minimum-spanning-tree",
+    "source": {
+      "kind": "literature",
+      "citation": "James S. Plank, University of Tennessee CS302, Minimum Spanning Tree, Prim’s Algorithm, https://web.eecs.utk.edu/~jplank/plank/classes/cs302/Notes/MST/; Duke COMPSCI 330 Lecture 14 (2019), cut property (parsed text; screenshot unavailable). Prim (1957) original paper locator not independently reviewed.",
+      "url": "https://web.eecs.utk.edu/~jplank/plank/classes/cs302/Notes/MST/"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "A connected frontier with one vertex added each step differs from Kruskal’s sorted global edge scan and component merges, although both exploit cut optimality. Dijkstra prioritizes cumulative path distance, not crossing edge weight."
+  },
+  {
+    "id": "bellman-held-karp-subset-dp",
+    "source": {
+      "kind": "literature",
+      "citation": "Carnegie Mellon University 15-451 (Fall 2023), Dynamic Programming II, §1, pp. 1–3, https://www.cs.cmu.edu/~15451-f23/lectures/lecture10-dp2.pdf. Held and Karp (1962) original publication locator not independently reviewed.",
+      "url": "https://www.cs.cmu.edu/~15451-f23/lectures/lecture10-dp2.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Subset and endpoint state enforces visiting each vertex exactly once; distinct from general branch-and-bound pruning, Bellman–Ford walks and Floyd–Warshall allowed-intermediate-vertex recurrence."
   }
 ]

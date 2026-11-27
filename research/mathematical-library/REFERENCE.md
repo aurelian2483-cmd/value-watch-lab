@@ -6509,3 +6509,67 @@ Limitations — O(|V|+|E|√|V|) time using linear-time layered DFS per phase an
 Mechanism — Each phase increases matching cardinality by k; shortest augmenting distance strictly increases. This is a specialized disjoint-path phase algorithm, distinct from Edmonds–Karp single-path augmentation and Hungarian weighted assignment; related to unit-capacity blocking flow.
 
 Source — Norbert Zeh, Dalhousie University, Algorithms II §7.4.4, https://web.cs.dal.ca/~nzeh/Teaching/4113/book/matching/bipartite_maximum_matching/hopcroft_karp.html. Original Hopcroft and Karp (1973) DOI 10.1137/0202019 retained as unverified locator.
+
+## Kosaraju two-pass strongly connected components (kosaraju-two-pass-scc)
+
+> For G=(V,E), define G^T=(V,{(v,u):(u,v)∈E}). Run a complete DFS forest on G, append each vertex on exit to list L, then scan L in reverse; start DFS in G^T at each still unvisited vertex, ignoring vertices assigned in earlier second-pass trees. Each resulting tree is one strongly connected component
+
+V vertices, E directed arcs, G^T transpose, L increasing finishing order.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite directed graph with valid endpoints; both passes cover every vertex, with fresh visitation marks for the second pass; self-loops and parallel edges are harmless.
+
+Limitations — O(|V|+|E|) time and storage including transpose; recursive DFS may exhaust the call stack on deep graphs; component labels and within-component order are not canonical.
+
+Mechanism — Same component partition as Tarjan but uses finishing order and a transpose instead of low-link stack state; conservatively counted as a variant, not independent evidence.
+
+Source — Cornell CS 4120 (Spring 2023), Iterative solving, Strongly-connected components, https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html
+
+## Dinic layered blocking flow (dinic-blocking-flow)
+
+> Initialize residual capacity r(u,v)=c(u,v), zero for absent arcs, and flow value F=0. BFS from s labels residual distances d. While t is reachable, keep edges with r(u,v)>0 and d(v)=d(u)+1. Repeatedly send δ=min residual capacity on a level-respecting s-to-t path; update r(u,v)=r(u,v)−δ, r(v,u)=r(v,u)+δ and F=F+δ until no such path remains. Rebuild BFS levels; terminate when t is unreachable
+
+c capacity, r residual capacity, s and t distinct terminals, d BFS distance, δ augmentation amount, F net flow value.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite directed graph, finite nonnegative capacities, exact arithmetic; combine parallel arcs by ordered endpoints and ignore self-loops; antiparallel arcs allowed in aggregated residual representation.
+
+Limitations — At most |V|−1 blocking phases since shortest residual path length increases. Standard current-arc implementation takes O(|V|²|E|) time after excluding irrelevant isolated vertices and O(|V|+|E|) storage; a naive path enumerator need not achieve this bound. Numerical tolerance requires separate analysis.
+
+Mechanism — Shares residual-network objective with Edmonds–Karp but blocks all shortest paths per BFS phase rather than one path. Conservatively classified as variant; generic capacities, not just bipartite unit networks.
+
+Source — MIT 6.854, Strongly Polynomial Flow Algorithms, Scribe Notes #7, §3, https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html (sink-oriented levels in source; equivalent source-oriented convention here).
+
+## Prim minimum spanning tree (prim-minimum-spanning-tree)
+
+> For connected undirected weighted G=(V,E), choose root r and initialize S={r}, T=∅. While S≠V, choose e=(u,v) of minimum weight among edges with u∈S and v∈V∖S; set T=T∪{e}, S=S∪{v}. Return T minimizing Σ_{e∈T}w(e)
+
+S growing vertex set, T selected tree edges, w finite edge weight, r starting vertex.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite nonempty connected undirected graph with finite real edge weights; negative and tied weights allowed; ignore loops, choose least parallel edge or retain parallel edges with identities.
+
+Limitations — O((|V|+|E|)log|V|) time using indexed binary heap for |V|≥2, O(|V|+|E|) storage; disconnected graph requires explicit forest extension or rejection; tied weights may give multiple optimal trees.
+
+Mechanism — A connected frontier with one vertex added each step differs from Kruskal’s sorted global edge scan and component merges, although both exploit cut optimality. Dijkstra prioritizes cumulative path distance, not crossing edge weight.
+
+Source — James S. Plank, University of Tennessee CS302, Minimum Spanning Tree, Prim’s Algorithm, https://web.eecs.utk.edu/~jplank/plank/classes/cs302/Notes/MST/; Duke COMPSCI 330 Lecture 14 (2019), cut property (parsed text; screenshot unavailable). Prim (1957) original paper locator not independently reviewed.
+
+## Bellman–Held–Karp subset dynamic programming (bellman-held-karp-subset-dp)
+
+> Fix root r in a complete directed graph with n≥2 vertices and finite costs c(i,j). For r∈S⊆V and j∈S∖{r}, D({r,j},j)=c(r,j), and D(S,j)=min_{i∈S∖{r,j}}[D(S∖{j},i)+c(i,j)] for |S|>2. The optimal rooted tour cost is min_{j∈V∖{r}}[D(V,j)+c(j,r)]
+
+V vertex set, n size, r root, S visited subset, j terminal vertex, D minimum path cost for exactly S, c additive directed edge cost.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Complete finite directed cost matrix, fixed additive costs independent of history; exact arithmetic; negative and asymmetric costs allowed because each vertex visited exactly once before closing tour.
+
+Limitations — O(n²2^n) time and O(n2^n) table storage with constant-time subset indexing and arithmetic; exponential resource requirements; not the Held–Karp relaxation or approximation.
+
+Mechanism — Subset and endpoint state enforces visiting each vertex exactly once; distinct from general branch-and-bound pruning, Bellman–Ford walks and Floyd–Warshall allowed-intermediate-vertex recurrence.
+
+Source — Carnegie Mellon University 15-451 (Fall 2023), Dynamic Programming II, §1, pp. 1–3, https://www.cs.cmu.edu/~15451-f23/lectures/lecture10-dp2.pdf. Held and Karp (1962) original publication locator not independently reviewed.

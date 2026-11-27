@@ -20,20 +20,22 @@
     "classification": "model-variant",
     "id": "kosaraju-two-pass-scc",
     "name": "Kosaraju two-pass strongly connected components",
-    "definition": "Compute DFS finishing order L on G; traverse G^T in reverse L, each new DFS tree = one SCC. Provisional.",
-    "variables": "Provisional; define variables during review",
-    "assumptions": "Provisional; source and mathematical review pending",
-    "limitations": "Provisional; review complexity and edge cases",
+    "definition": "For G=(V,E), define G^T=(V,{(v,u):(u,v)∈E}). Run a complete DFS forest on G, append each vertex on exit to list L, then scan L in reverse; start DFS in G^T at each still unvisited vertex, ignoring vertices assigned in earlier second-pass trees. Each resulting tree is one strongly connected component",
+    "variables": "V vertices, E directed arcs, G^T transpose, L increasing finishing order",
+    "assumptions": "Finite directed graph with valid endpoints; both passes cover every vertex, with fresh visitation marks for the second pass; self-loops and parallel edges are harmless",
+    "limitations": "O(|V|+|E|) time and storage including transpose; recursive DFS may exhaust the call stack on deep graphs; component labels and within-component order are not canonical",
     "failure_conditions": [
-      "Invalid input"
+      "Invalid endpoints or incomplete traversal",
+      "Failure to reset visitation or to reverse the finish order"
     ],
-    "computation": "Provisional; independent review pending",
+    "computation": "Build adjacency lists for both orientations; first DFS records exit order, second DFS labels components. Empty graph yields an empty partition.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Cornell CS 4120 Iterative solving, https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html"
+      "citation": "Cornell CS 4120 (Spring 2023), Iterative solving, Strongly-connected components, https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html",
+      "url": "https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html"
     },
     "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
-    "required_inputs": "Finite graph and declared inputs",
+    "required_inputs": "Finite directed adjacency lists with explicit isolated vertices.",
     "compatible_methods": [
       "tarjan-strongly-connected-components"
     ],
@@ -46,7 +48,7 @@
         "target": "tarjan-strongly-connected-components"
       }
     ],
-    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+    "mechanism_note": "Same component partition as Tarjan but uses finishing order and a transpose instead of low-link stack state; conservatively counted as a variant, not independent evidence."
   },
   {
     "profile": "multifeature",
@@ -69,20 +71,22 @@
     "classification": "model-variant",
     "id": "dinic-blocking-flow",
     "name": "Dinic layered blocking flow",
-    "definition": "For residual graph BFS levels d(v), admissible edges satisfy d(v)=d(u)+1; augment a blocking flow in the level graph, then rebuild. Provisional.",
-    "variables": "Provisional; define variables during review",
-    "assumptions": "Provisional; source and mathematical review pending",
-    "limitations": "Provisional; review complexity and edge cases",
+    "definition": "Initialize residual capacity r(u,v)=c(u,v), zero for absent arcs, and flow value F=0. BFS from s labels residual distances d. While t is reachable, keep edges with r(u,v)>0 and d(v)=d(u)+1. Repeatedly send δ=min residual capacity on a level-respecting s-to-t path; update r(u,v)=r(u,v)−δ, r(v,u)=r(v,u)+δ and F=F+δ until no such path remains. Rebuild BFS levels; terminate when t is unreachable",
+    "variables": "c capacity, r residual capacity, s and t distinct terminals, d BFS distance, δ augmentation amount, F net flow value",
+    "assumptions": "Finite directed graph, finite nonnegative capacities, exact arithmetic; combine parallel arcs by ordered endpoints and ignore self-loops; antiparallel arcs allowed in aggregated residual representation",
+    "limitations": "At most |V|−1 blocking phases since shortest residual path length increases. Standard current-arc implementation takes O(|V|²|E|) time after excluding irrelevant isolated vertices and O(|V|+|E|) storage; a naive path enumerator need not achieve this bound. Numerical tolerance requires separate analysis",
     "failure_conditions": [
-      "Invalid input"
+      "Negative or nonfinite capacities or invalid endpoints",
+      "Incomplete blocking phase or missing reverse residual updates"
     ],
-    "computation": "Provisional; independent review pending",
+    "computation": "Construct residual adjacency including reverse arcs; compute BFS levels from source; use DFS with current-arc indices to saturate a blocking flow in each phase. Return F and optionally reachable side of the final cut.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: MIT 6.854 Scribe Notes #7, §3, https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html"
+      "citation": "MIT 6.854, Strongly Polynomial Flow Algorithms, Scribe Notes #7, §3, https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html (sink-oriented levels in source; equivalent source-oriented convention here).",
+      "url": "https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html"
     },
     "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
-    "required_inputs": "Finite graph and declared inputs",
+    "required_inputs": "Finite directed capacitated graph and distinct source and sink.",
     "compatible_methods": [
       "edmonds-karp-maximum-flow"
     ],
@@ -95,7 +99,7 @@
         "target": "edmonds-karp-maximum-flow"
       }
     ],
-    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+    "mechanism_note": "Shares residual-network objective with Edmonds–Karp but blocks all shortest paths per BFS phase rather than one path. Conservatively classified as variant; generic capacities, not just bipartite unit networks."
   },
   {
     "profile": "multifeature",
@@ -118,20 +122,22 @@
     "classification": "distinct-algorithm",
     "id": "prim-minimum-spanning-tree",
     "name": "Prim minimum spanning tree",
-    "definition": "Start S={r}; choose minimum-weight edge (u,v) crossing S to V\\\\S, add it and set S=S∪{v}. Provisional.",
-    "variables": "Provisional; define variables during review",
-    "assumptions": "Provisional; source and mathematical review pending",
-    "limitations": "Provisional; review complexity and edge cases",
+    "definition": "For connected undirected weighted G=(V,E), choose root r and initialize S={r}, T=∅. While S≠V, choose e=(u,v) of minimum weight among edges with u∈S and v∈V∖S; set T=T∪{e}, S=S∪{v}. Return T minimizing Σ_{e∈T}w(e)",
+    "variables": "S growing vertex set, T selected tree edges, w finite edge weight, r starting vertex",
+    "assumptions": "Finite nonempty connected undirected graph with finite real edge weights; negative and tied weights allowed; ignore loops, choose least parallel edge or retain parallel edges with identities",
+    "limitations": "O((|V|+|E|)log|V|) time using indexed binary heap for |V|≥2, O(|V|+|E|) storage; disconnected graph requires explicit forest extension or rejection; tied weights may give multiple optimal trees",
     "failure_conditions": [
-      "Invalid input"
+      "Invalid weights, invalid endpoints or directed edges",
+      "No crossing edge while unvisited vertices remain"
     ],
-    "computation": "Provisional; independent review pending",
+    "computation": "Keep a minimum crossing-edge key and predecessor per unvisited vertex, update keys when a vertex enters S, and extract smallest key until all vertices are included. Single vertex yields empty tree.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Prim (1957), Shortest connection networks and some generalizations"
+      "citation": "James S. Plank, University of Tennessee CS302, Minimum Spanning Tree, Prim’s Algorithm, https://web.eecs.utk.edu/~jplank/plank/classes/cs302/Notes/MST/; Duke COMPSCI 330 Lecture 14 (2019), cut property (parsed text; screenshot unavailable). Prim (1957) original paper locator not independently reviewed.",
+      "url": "https://web.eecs.utk.edu/~jplank/plank/classes/cs302/Notes/MST/"
     },
     "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
-    "required_inputs": "Finite graph and declared inputs",
+    "required_inputs": "Nonempty undirected graph, finite edge weights, root and tie-breaking convention.",
     "compatible_methods": [
       "kruskal-spanning-forest"
     ],
@@ -144,7 +150,7 @@
         "target": "kruskal-spanning-forest"
       }
     ],
-    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+    "mechanism_note": "A connected frontier with one vertex added each step differs from Kruskal’s sorted global edge scan and component merges, although both exploit cut optimality. Dijkstra prioritizes cumulative path distance, not crossing edge weight."
   },
   {
     "profile": "multifeature",
@@ -167,20 +173,22 @@
     "classification": "distinct-algorithm",
     "id": "bellman-held-karp-subset-dp",
     "name": "Bellman–Held–Karp subset dynamic programming",
-    "definition": "For subsets S containing root r, D(S,j)=min_{i∈S\\\\{j}}[D(S\\\\{j},i)+c(i,j)] for j≠r, with D({r},r)=0. Provisional.",
-    "variables": "Provisional; define variables during review",
-    "assumptions": "Provisional; source and mathematical review pending",
-    "limitations": "Provisional; review complexity and edge cases",
+    "definition": "Fix root r in a complete directed graph with n≥2 vertices and finite costs c(i,j). For r∈S⊆V and j∈S∖{r}, D({r,j},j)=c(r,j), and D(S,j)=min_{i∈S∖{r,j}}[D(S∖{j},i)+c(i,j)] for |S|>2. The optimal rooted tour cost is min_{j∈V∖{r}}[D(V,j)+c(j,r)]",
+    "variables": "V vertex set, n size, r root, S visited subset, j terminal vertex, D minimum path cost for exactly S, c additive directed edge cost",
+    "assumptions": "Complete finite directed cost matrix, fixed additive costs independent of history; exact arithmetic; negative and asymmetric costs allowed because each vertex visited exactly once before closing tour",
+    "limitations": "O(n²2^n) time and O(n2^n) table storage with constant-time subset indexing and arithmetic; exponential resource requirements; not the Held–Karp relaxation or approximation",
     "failure_conditions": [
-      "Invalid input"
+      "Invalid or nonfinite matrix entries",
+      "Root absent, n<2 for this specification, subset indexing overflow or resource budget exceeded"
     ],
-    "computation": "Provisional; independent review pending",
+    "computation": "Evaluate states by increasing subset size, store minimizing predecessor if reconstructing a tour, then add closing edge and minimize. Validate resource limits before allocation.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Held and Karp (1962), A dynamic programming approach to sequencing problems"
+      "citation": "Carnegie Mellon University 15-451 (Fall 2023), Dynamic Programming II, §1, pp. 1–3, https://www.cs.cmu.edu/~15451-f23/lectures/lecture10-dp2.pdf. Held and Karp (1962) original publication locator not independently reviewed.",
+      "url": "https://www.cs.cmu.edu/~15451-f23/lectures/lecture10-dp2.pdf"
     },
     "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
-    "required_inputs": "Finite graph and declared inputs",
+    "required_inputs": "Complete finite directed cost matrix with n≥2, chosen root and deterministic tie-breaking.",
     "compatible_methods": [
       "branch-bound"
     ],
@@ -193,6 +201,6 @@
         "target": "branch-bound"
       }
     ],
-    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+    "mechanism_note": "Subset and endpoint state enforces visiting each vertex exactly once; distinct from general branch-and-bound pruning, Bellman–Ford walks and Floyd–Warshall allowed-intermediate-vertex recurrence."
   }
 ]
