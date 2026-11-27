@@ -167,7 +167,7 @@
     "classification": "distinct-algorithm",
     "id": "ramer-douglas-peucker-polyline",
     "name": "Ramer–Douglas–Peucker polyline simplification",
-    "definition": "Split at maximum segment deviation if d_max>ε; otherwise replace chain by chord. Provisional.",
+    "definition": "For ordered planar vertices p_i,…,p_j with j≥i+2, d_max=max_{i<k<j} min_{0≤t≤1} ||p_k−((1−t)p_i+t p_j)||₂. Split at the first maximizing k if d_max>ε; otherwise replace the subchain by its endpoint chord (ε≥0). Provisional.",
     "variables": "Provisional; define during review",
     "assumptions": "Provisional; source review pending",
     "limitations": "Provisional; complexity and degeneracies pending",
