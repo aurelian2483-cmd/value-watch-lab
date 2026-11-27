@@ -1,0 +1,11 @@
+# Batch 071 admission review (2026-11-27)
+
+Parent 535950deb74d640eec35498d85314adee5c4cb81; PR 171 open and draft, branch matched; exact-head registry 45915226516 and full regression 45915226523 succeeded. Candidate 023 and admission note reread: withheld lagged cross-correlation remains withheld. Reviewed corrected candidate 071, validator, CLI formatting, profile, manifest and snapshots. All 425 prior ledger IDs match reference headings in order. Screened normalized names, definitions and IDs including new candidates; conceptual novelty review limited to existing headings and related mechanisms, not proof of all equivalences.
+
+Huffman: original 1952 paper text and page 1099 image inspected. Positive weights, binary equal-cost prefix codes, unrestricted lengths; exclude empty and singleton alphabets to avoid ambiguous empty code framing. Exchange and contraction argument reviewed. Heap bound independently derived. No optimality claim including codebook overhead.
+
+LZ78: original 1978 bibliographic metadata checked (DBLP DOI 10.1109/TIT.1978.1055934); MIT Goemans section 1 text and LZ-2 image checked. Original full paper not reviewed. Explicit tagged terminal reference and externally framed stream are finite-input adaptations. No claim of universal compression on every finite input. Adaptive dictionary and static weighted prefix coding are distinct mechanisms.
+
+Independent JavaScript synthetic comparisons: 1089 positive weight vectors (lengths 2–6, weights 1–3) against recursive enumeration of binary-tree splits; 16383 binary sequences lengths 0–13 checked against shortest-unseen-prefix parsing and decoder roundtrip, including 10854 terminal-reference cases. All passed. No repository implementation or empirical qualification claimed.
+
+Both entries SPECIFIED with null implementation_ref and test_evidence. Candidate 071 replaced with reviewed records and archived identically in batch 071. Candidate 072 stages arithmetic interval coding and LZW variant pending source and mathematical review. Four catalogue snapshots regenerated incrementally using inspected CLI formatting, prior IDs and index group counts checked. Direct CLI execution and full local tests not performed. Gates unchanged. No prediction experiments, protected data, spending, merging, deployment or permission changes.

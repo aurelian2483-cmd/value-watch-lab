@@ -6253,3 +6253,35 @@ Limitations — Dense transition table uses O((S+1)K) space and construction tim
 Mechanism — The current state represents the longest suffix of processed text that is a prefix of some pattern. Failure moves to shorter represented suffixes. All matching patterns are terminal suffixes of that state, enumerated by terminal-only output links. Dense construction processes K transitions per state; output traversal visits exactly one terminal per report. A single-pattern trie specializes to the KMP failure mechanism; branching states and multiple terminal suffixes give the general automaton a distinct capability.
 
 Source — Aho and Corasick (1975), Efficient string matching: an aid to bibliographic search, Communications of the ACM 18(6), 333–340, DOI 10.1145/360825.360855 (metadata and abstract verified; original PDF retrieval failed). Stanford CS166, Tries and String Matching, sections Suffix Links, Constructing Output Links and The Complete Construction; dense transition bound independently derived. https://web.stanford.edu/class/archive/cs/cs166/cs166.1146/lectures/09/Small09.pdf
+
+## Huffman greedy binary prefix code (huffman-greedy-prefix-code)
+
+> For n≥2 positive weights, initialize one leaf per symbol. Repeatedly extract the two minimum-weight nodes u,v, form parent p with w(p)=w(u)+w(v), label its two edges 0 and 1, and reinsert p until one root remains. The code c_i is the root-to-leaf path; minimize C=Σ_i w_i |c_i| over binary prefix codes.
+
+n symbol count, w_i positive finite weights, c_i binary word, C weighted code length.
+
+General lossless coding specification; no empirical benefit claimed.
+
+Assumptions — At least two distinct symbols; exact positive weights and comparisons, equal bit costs, unrestricted binary prefix-code lengths, known alphabet and codebook; deterministic tie order if reproducibility is required.
+
+Limitations — O(n log n) heap operations and O(n) tree space; materializing codewords costs their total length. Not necessarily optimal with bounded lengths, unequal bit costs or codebook overhead. Empty and singleton alphabets excluded; a singleton needs an explicit count or nonempty code convention.
+
+Mechanism — A positive-weight optimal full binary tree can place the two smallest weights at a deepest sibling pair by exchanges that do not increase cost. Contracting that pair gives a smaller prefix-code problem and adds exactly their weight sum to its cost. Induction yields greedy optimality for the stated objective. Entropy is an information measure, not this constructive tree algorithm.
+
+Source — Huffman (1952), A Method for the Construction of Minimum-Redundancy Codes, Proceedings of the IRE 40(9), 1098–1101, Optimum Binary Code, pp. 1099–1100. https://cs.nyu.edu/home/people/in_memoriam/roweis/csc310-2006/extras/huffman_1952_minimum-redundancy-codes.pdf
+
+## LZ78 incremental dictionary parsing (lz78-dictionary-parsing)
+
+> Initialize D[0]=empty. At position i find the longest dictionary phrase D[k] matching a prefix of the unread suffix. If a following symbol a exists, emit tagged pair (k,a), append D[j]=D[k] concatenated with a at the next free index j and set i←i+|D[j]|. If the remaining nonempty suffix is exactly D[k], emit a tagged terminal reference k and stop without insertion. Empty unread suffix ends the stream.
+
+Finite input x, n length, D dictionary of phrases, k prior index, j next index, i unread position, a next symbol.
+
+General lossless sequence parsing specification; no empirical benefit claimed.
+
+Assumptions — Finite declared alphabet and exact symbol equality; synchronized insertion order, distinguishable normal and terminal records, externally framed stream, no dictionary resets; initially empty phrase only.
+
+Limitations — Trie parsing uses O(n) symbol transitions with constant-time child lookup and O(z) nodes for z new phrases; dense child arrays cost O((z+1) K) for alphabet size K. Bit encoding, tags, dictionary indices and output costs must be accounted for separately. No finite-input compression guarantee; memory grows with dictionary.
+
+Mechanism — Prefix closure ensures that extending the longest matching phrase by the next symbol creates a new phrase. Each emitted normal token references an earlier dictionary entry, so decoder synchronization follows by induction; the terminal token handles a final already-known phrase. Unlike static multi-pattern matching, the dictionary grows from the input; unlike Huffman coding it adapts phrase boundaries and uses dictionary references.
+
+Source — Ziv and Lempel (1978), Compression of individual sequences via variable-rate coding, IEEE Transactions on Information Theory 24(5), 530–536, DOI 10.1109/TIT.1978.1055934 (bibliographic metadata checked). Goemans (2015), MIT 18.310A Lempel-Ziv codes, section 1, pp. LZ-1–LZ-2; explicit tagged terminal record is a specified framing adaptation. https://math.mit.edu/~goemans/18310S15/lempel-ziv-notes.pdf

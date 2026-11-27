@@ -20,33 +20,35 @@
     "classification": "distinct-algorithm",
     "id": "huffman-greedy-prefix-code",
     "name": "Huffman greedy binary prefix code",
-    "definition": "Repeatedly remove two minimum-weight nodes u,v, replace them by a parent p of weight w(p) = w(u) + w(v), and assign binary edge labels until one root remains.",
-    "variables": "Positive symbol weights; binary prefix code tree",
-    "assumptions": "Provisional; independent source and mathematical review pending",
-    "limitations": "Provisional; verify bounds and edge cases",
+    "definition": "For n≥2 positive weights, initialize one leaf per symbol. Repeatedly extract the two minimum-weight nodes u,v, form parent p with w(p)=w(u)+w(v), label its two edges 0 and 1, and reinsert p until one root remains. The code c_i is the root-to-leaf path; minimize C=Σ_i w_i |c_i| over binary prefix codes.",
+    "variables": "n symbol count, w_i positive finite weights, c_i binary word, C weighted code length",
+    "assumptions": "At least two distinct symbols; exact positive weights and comparisons, equal bit costs, unrestricted binary prefix-code lengths, known alphabet and codebook; deterministic tie order if reproducibility is required",
+    "limitations": "O(n log n) heap operations and O(n) tree space; materializing codewords costs their total length. Not necessarily optimal with bounded lengths, unequal bit costs or codebook overhead. Empty and singleton alphabets excluded; a singleton needs an explicit count or nonempty code convention",
     "failure_conditions": [
-      "Invalid inputs or violated assumptions"
+      "Reject nonpositive or nonfinite weights and fewer than two symbols",
+      "Reject overflowing weight sums or inconsistent codebook framing"
     ],
-    "computation": "Provisional specification; verify before admission.",
+    "computation": "Build a minimum heap; merge the two least weights until one node remains; traverse the tree to assign lengths or codewords. Decode by traversing from root to a leaf per symbol; frame the payload and share the tree or codebook.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Huffman (1952), A Method for the Construction of Minimum-Redundancy Codes; verify optimality assumptions and degenerate cases."
+      "citation": "Huffman (1952), A Method for the Construction of Minimum-Redundancy Codes, Proceedings of the IRE 40(9), 1098–1101, Optimum Binary Code, pp. 1099–1100. https://cs.nyu.edu/home/people/in_memoriam/roweis/csc310-2006/extras/huffman_1952_minimum-redundancy-codes.pdf",
+      "url": "https://cs.nyu.edu/home/people/in_memoriam/roweis/csc310-2006/extras/huffman_1952_minimum-redundancy-codes.pdf"
     },
-    "application": "General sequence algorithm; no empirical benefit claimed.",
-    "required_inputs": "Finite sequence or symbol weights as appropriate; declared symbol semantics.",
+    "application": "General lossless coding specification; no empirical benefit claimed.",
+    "required_inputs": "Finite alphabet with at least two symbols and positive weights; declared tie and framing conventions.",
     "compatible_methods": [
-      "aho-corasick-failure-automaton"
+      "entropy"
     ],
     "incompatible_methods": [
-      "Treating provisional specification as validated implementation"
+      "Claiming optimality for arbitrary bit costs or including codebook overhead in the proven objective"
     ],
     "relationships": [
       {
         "type": "related",
-        "target": "aho-corasick-failure-automaton"
+        "target": "entropy"
       }
     ],
-    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+    "mechanism_note": "A positive-weight optimal full binary tree can place the two smallest weights at a deepest sibling pair by exchanges that do not increase cost. Contracting that pair gives a smaller prefix-code problem and adds exactly their weight sum to its cost. Induction yields greedy optimality for the stated objective. Entropy is an information measure, not this constructive tree algorithm."
   },
   {
     "profile": "multifeature",
@@ -69,32 +71,40 @@
     "classification": "distinct-algorithm",
     "id": "lz78-dictionary-parsing",
     "name": "LZ78 incremental dictionary parsing",
-    "definition": "Starting D={empty phrase}, find longest dictionary prefix w of remaining input; if next symbol a exists emit (index(w),a), add wa to D and advance by |wa|; otherwise emit terminal index(w) under a declared framing convention.",
-    "variables": "Finite sequence, phrase dictionary D, dictionary indices",
-    "assumptions": "Provisional; independent source and mathematical review pending",
-    "limitations": "Provisional; verify bounds and edge cases",
+    "definition": "Initialize D[0]=empty. At position i find the longest dictionary phrase D[k] matching a prefix of the unread suffix. If a following symbol a exists, emit tagged pair (k,a), append D[j]=D[k] concatenated with a at the next free index j and set i←i+|D[j]|. If the remaining nonempty suffix is exactly D[k], emit a tagged terminal reference k and stop without insertion. Empty unread suffix ends the stream.",
+    "variables": "Finite input x, n length, D dictionary of phrases, k prior index, j next index, i unread position, a next symbol",
+    "assumptions": "Finite declared alphabet and exact symbol equality; synchronized insertion order, distinguishable normal and terminal records, externally framed stream, no dictionary resets; initially empty phrase only",
+    "limitations": "Trie parsing uses O(n) symbol transitions with constant-time child lookup and O(z) nodes for z new phrases; dense child arrays cost O((z+1) K) for alphabet size K. Bit encoding, tags, dictionary indices and output costs must be accounted for separately. No finite-input compression guarantee; memory grows with dictionary",
     "failure_conditions": [
-      "Invalid inputs or violated assumptions"
+      "Reject invalid dictionary indices, out-of-alphabet symbols or duplicate insertion",
+      "Reject terminal reference to empty phrase or records after a terminal token",
+      "Do not treat a terminal reference as a new phrase"
     ],
-    "computation": "Provisional specification; verify before admission.",
+    "computation": "Traverse a trie from its root until a missing child is found or input ends. Emit the parent index and new symbol, then insert the new node; when input ends at a nonroot existing node emit the terminal reference. Decode each pair using the prior dictionary phrase and symbol, inserting in the same order; output a terminal phrase without insertion.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Ziv and Lempel (1978), Compression of individual sequences via variable-rate coding; verify finite-input framing and dictionary semantics."
+      "citation": "Ziv and Lempel (1978), Compression of individual sequences via variable-rate coding, IEEE Transactions on Information Theory 24(5), 530–536, DOI 10.1109/TIT.1978.1055934 (bibliographic metadata checked). Goemans (2015), MIT 18.310A Lempel-Ziv codes, section 1, pp. LZ-1–LZ-2; explicit tagged terminal record is a specified framing adaptation. https://math.mit.edu/~goemans/18310S15/lempel-ziv-notes.pdf",
+      "url": "https://math.mit.edu/~goemans/18310S15/lempel-ziv-notes.pdf"
     },
-    "application": "General sequence algorithm; no empirical benefit claimed.",
-    "required_inputs": "Finite sequence or symbol weights as appropriate; declared symbol semantics.",
+    "application": "General lossless sequence parsing specification; no empirical benefit claimed.",
+    "required_inputs": "Finite symbol sequence and an explicitly framed token representation.",
     "compatible_methods": [
-      "aho-corasick-failure-automaton"
+      "aho-corasick-failure-automaton",
+      "huffman-greedy-prefix-code"
     ],
     "incompatible_methods": [
-      "Treating provisional specification as validated implementation"
+      "Assuming every input compresses or treating an unframed terminal index as unambiguous"
     ],
     "relationships": [
       {
         "type": "related",
         "target": "aho-corasick-failure-automaton"
+      },
+      {
+        "type": "related",
+        "target": "huffman-greedy-prefix-code"
       }
     ],
-    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+    "mechanism_note": "Prefix closure ensures that extending the longest matching phrase by the next symbol creates a new phrase. Each emitted normal token references an earlier dictionary entry, so decoder synchronization follows by induction; the terminal token handles a final already-known phrase. Unlike static multi-pattern matching, the dictionary grows from the input; unlike Huffman coding it adapts phrase boundaries and uses dictionary references."
   }
 ]

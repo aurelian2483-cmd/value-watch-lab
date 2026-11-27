@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "072",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "arithmetic-coding-interval-refinement",
+    "name": "Arithmetic coding interval refinement",
+    "definition": "Given cumulative probabilities F(a), update bounds simultaneously L_new=L+(U−L)F(a), U_new=L+(U−L)F(next(a)) for each symbol a; select a representable point in the final half-open interval with an explicit length convention.",
+    "variables": "Ordered alphabet, cumulative probabilities, interval bounds, input length",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify bounds and edge cases",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Witten, Neal and Cleary (1987), Arithmetic coding for data compression; verify exact interval and finite precision distinctions."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence or symbol weights as appropriate; declared symbol semantics.",
+    "compatible_methods": [
+      "huffman-greedy-prefix-code"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "huffman-greedy-prefix-code"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "072",
+    "family": "data-structures",
+    "classification": "model-variant",
+    "id": "lzw-implicit-dictionary-parsing",
+    "name": "LZW implicit dictionary parsing",
+    "definition": "Initialize D to all alphabet symbols; on longest matching phrase w followed by a, emit index(w), append D[j]=wa, and resume at a; emit final phrase index and stop.",
+    "variables": "Alphabet, phrase dictionary, indices, input sequence",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify bounds and edge cases",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Welch (1984), A Technique for High-Performance Data Compression; verify decoder special case and framing."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence or symbol weights as appropriate; declared symbol semantics.",
+    "compatible_methods": [
+      "lz78-dictionary-parsing"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "lz78-dictionary-parsing"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  }
+]

@@ -8983,5 +8983,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "The current state represents the longest suffix of processed text that is a prefix of some pattern. Failure moves to shorter represented suffixes. All matching patterns are terminal suffixes of that state, enumerated by terminal-only output links. Dense construction processes K transitions per state; output traversal visits exactly one terminal per report. A single-pattern trie specializes to the KMP failure mechanism; branching states and multiple terminal suffixes give the general automaton a distinct capability."
+  },
+  {
+    "id": "huffman-greedy-prefix-code",
+    "source": {
+      "kind": "literature",
+      "citation": "Huffman (1952), A Method for the Construction of Minimum-Redundancy Codes, Proceedings of the IRE 40(9), 1098–1101, Optimum Binary Code, pp. 1099–1100. https://cs.nyu.edu/home/people/in_memoriam/roweis/csc310-2006/extras/huffman_1952_minimum-redundancy-codes.pdf",
+      "url": "https://cs.nyu.edu/home/people/in_memoriam/roweis/csc310-2006/extras/huffman_1952_minimum-redundancy-codes.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "A positive-weight optimal full binary tree can place the two smallest weights at a deepest sibling pair by exchanges that do not increase cost. Contracting that pair gives a smaller prefix-code problem and adds exactly their weight sum to its cost. Induction yields greedy optimality for the stated objective. Entropy is an information measure, not this constructive tree algorithm."
+  },
+  {
+    "id": "lz78-dictionary-parsing",
+    "source": {
+      "kind": "literature",
+      "citation": "Ziv and Lempel (1978), Compression of individual sequences via variable-rate coding, IEEE Transactions on Information Theory 24(5), 530–536, DOI 10.1109/TIT.1978.1055934 (bibliographic metadata checked). Goemans (2015), MIT 18.310A Lempel-Ziv codes, section 1, pp. LZ-1–LZ-2; explicit tagged terminal record is a specified framing adaptation. https://math.mit.edu/~goemans/18310S15/lempel-ziv-notes.pdf",
+      "url": "https://math.mit.edu/~goemans/18310S15/lempel-ziv-notes.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Prefix closure ensures that extending the longest matching phrase by the next symbol creates a new phrase. Each emitted normal token references an earlier dictionary entry, so decoder synchronization follows by induction; the terminal token handles a final already-known phrase. Unlike static multi-pattern matching, the dictionary grows from the input; unlike Huffman coding it adapts phrase boundaries and uses dictionary references."
   }
 ]
