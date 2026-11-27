@@ -53,5 +53,24 @@ function normalizeFootballHistory(document,now=Date.now()){
  // Legacy aliases/models are not additional matches; retain the established PL baseline lane only.
  return normalizeRows(document.entries.filter(r=>r.model==='POISSON_BASELINE_2025_26_V1'&&r.publication_gate==='BLOCKED'&&r.challenge_eligible===0).map(r=>({...r,league:'PL',verification:'TWO_SOURCE_REGULATION_TIME_FINAL'})),now);
 }
-return {freshness,validateOtherIdentity,validateOtherEvent,validateOtherForecast,normalizeFootballResults,normalizeFootballHistory};
+  function footballEstimateBasis(name) {
+    const baseline = /^POISSON_BASELINE_(\d{4})_(\d{2})_V\d+$/.exec(name || '');
+    if (baseline) return baseline[1] + '–' + baseline[2] + ' baseline';
+    if (name === 'POISSON_CURRENT_SEASON_SHRINKAGE_V1') return 'Current-season form + league average';
+    if (name === 'CURRENT_SEASON_POISSON_COMPARISON_V1') return 'Current-season venue form';
+    if (/^LEAGUE_POISSON_SHRINKAGE_V1_[A-Z0-9]+_PRIOR_SEASON$/.test(name || '')) return 'Prior-season baseline';
+    if (/^LEAGUE_POISSON_SHRINKAGE_V1_[A-Z0-9]+_CURRENT_SEASON_SMALL_SAMPLE$/.test(name || '')) return 'Current-season form + league average · small sample';
+    if (name === 'International captured-results Poisson comparison V1') return 'Recent international results';
+    return 'Model estimate';
+  }
+
+function footballMarginPreview(probabilities) {
+ if (probabilities.length !== 3 || !probabilities.every(p => Number.isFinite(p) && p >= 0 && p <= 1) ||
+     Math.abs(probabilities.reduce((a, b) => a + b, 0) - 1) > 1e-8) return '';
+ const [first, second] = [...probabilities].sort((a, b) => b - a);
+ const gap = first - second;
+ return '10-point preview · ' + (gap + 1e-12 >= 0.10 ? 'Research lead' : 'Watch') +
+     ' · ' + (gap * 100).toFixed(2) + ' pp gap';
+}
+return {footballMarginPreview,footballEstimateBasis,freshness,validateOtherIdentity,validateOtherEvent,validateOtherForecast,normalizeFootballResults,normalizeFootballHistory};
 });

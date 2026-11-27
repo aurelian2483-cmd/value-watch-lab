@@ -469,11 +469,26 @@
     const model = comparisonModel?.cutoff > Date.now() ? comparisonModel : null;
     const quickSignals = record.signals;
     quickSignals.replaceChildren(record.status);
+    if (event.sport === 'football' && !event.international && (model || hasModelEstimate)) {
+      if (event.seasonComparison) {
+        const {prob_home, prob_draw, prob_away} = event.seasonComparison;
+        make(quickSignals, 'span', 'This season (1 / X / 2) · ' +
+          [prob_home, prob_draw, prob_away].map(pct).join(' / ') +
+          (event.seasonComparison.small_sample ? ' · Small sample' : ''), 'compact-evidence-note');
+      } else {
+        make(quickSignals, 'span', 'Current-season venue comparison unavailable', 'compact-evidence-note');
+      }
+    }
     if (event.sport === 'racing') {
       const highlights = racingPicks.map(item => item.choice.label + ' · ' + item.labels.join(' + '));
       make(quickSignals, 'span', highlights.length ? 'Experimental signals: ' + highlights.join('; ') : 'No confirmed research signal', 'compact-signal-pill');
     } else if(currentOdds) {
       make(quickSignals,'span','Sky Bet · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK','compact-signal-pill live-price-pill');
+    }
+    if (event.sport === 'football') {
+      const probabilities = event.choices.map(choice => model?.outcomes.find(outcome => outcome.id === choice.id)?.probability ?? choice.probability);
+      const preview = window.ResearchAudit.footballMarginPreview(probabilities);
+      if (preview) make(quickSignals, 'span', preview, 'compact-evidence-note');
     }
     if (marketRow && (model || hasModelEstimate)) make(quickSignals, 'span', 'Model unvalidated', 'compact-evidence-note');
     if (marketRow && (currentOdds || model || hasModelEstimate)) make(quickSignals, 'span', 'EV withheld', 'compact-evidence-note');
@@ -551,17 +566,20 @@
       const contextWeight = event.model?.probabilityKind === 'EXPERIMENTAL_CONTEXT_WEIGHT';
       const acceptedProbability = model?.outcomes.find(outcome => outcome.id === choice.id)?.probability;
       const probability = acceptedProbability ?? (estimated && !contextWeight ? choice.probability : null);
+      const estimateBasis = event.sport === 'football'
+        ? window.ResearchAudit.footballEstimateBasis(acceptedProbability != null ? model.name : event.model?.name)
+        : 'Model estimate';
       const fair = acceptedProbability > 0 ? (1 / acceptedProbability).toFixed(2) : '';
       const unavailableEstimate=!estimated&&!priced&&!publishedForecast&&acceptedProbability==null;
       const value = hasLivePrice ? livePrice.toFixed(2) : acceptedProbability != null ? pct(acceptedProbability) : estimated ? pct(choice.probability) : priced ? quote.decimal.toFixed(2) : publishedForecast?'Forecast '+choice.forecastPrice.decimal.toFixed(2):'—';
       view.element.classList.toggle('is-unpriced',unavailableEstimate);
       view.element.classList.toggle('has-matched-price',hasLivePrice);
-      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':hasLivePrice ? 'Sky Bet price' : estimated ? contextWeight ? 'Context weight' : 'Model estimate' : priced ? 'SOURCE ODDS · UNVERIFIED' : publishedForecast?'PUBLISHER FORECAST · NOT BOOKMAKER ODDS':marketRow?'':'Model unavailable'));
+      write(view.price, compactRunners ? '' : value); view.price.hidden = !view.price.textContent; view.caption.hidden = compactRunners && !chosen; write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + (event.provisionalEntry?'PROVISIONAL PAPER CHOICE':hasLivePrice ? 'Sky Bet price' : estimated ? contextWeight ? 'Context weight' : estimateBasis : priced ? 'SOURCE ODDS · UNVERIFIED' : publishedForecast?'PUBLISHER FORECAST · NOT BOOKMAKER ODDS':marketRow?'':'Model unavailable'));
       if (marketRow) {
-        const comparison = [hasLivePrice && probability != null ? pct(probability) + ' model' : '', fair ? 'Fair ' + fair : ''].filter(Boolean);
+        const comparison = [hasLivePrice && probability != null ? pct(probability) + ' · ' + estimateBasis : '', fair ? 'Fair ' + fair : ''].filter(Boolean);
         write(view.comparison, comparison.join(' · '));
         view.comparison.title = comparison.length && model ? model.name + ' · UNVALIDATED' : '';
-        if (!hasLivePrice && acceptedProbability != null) write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + 'Model estimate');
+        if (!hasLivePrice && acceptedProbability != null) write(view.caption, (chosen ? 'IN THIS SLIP · ' : '') + estimateBasis);
       }
       write(view.odds, hasLivePrice ? 'Sky Bet '+livePrice.toFixed(2)+' · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK · checked '+dateText(new Date(currentOdds.checked).toISOString())+' UK · EV withheld' : priced ? estimated ? 'Source odds ' + quote.decimal.toFixed(2) + ' · unverified' : 'Bookmaker observation · unverified' : publishedForecast?'Publisher forecast · not bookmaker odds':'No matched bookmaker price in this snapshot');
       write(view.method, event.model?.name ? 'Method: ' + event.model.name + ' · UNVALIDATED' + (contextWeight ? ' · context weight, not win probability' : '') : 'Method: unavailable · no validated forecast');

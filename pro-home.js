@@ -223,7 +223,7 @@ function evidenceCell(tr,item,index){
  const toggle=document.createElement('button');toggle.type='button';
  toggle.className='pro-fixture-evidence-toggle';
  toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls',detailRow.id);
- toggle.textContent=evidence.models.length?'Experimental model · '+(item.sport==='racing'?evidence.models[0].outcomes.length+' runners':evidence.models[0].outcomes.map(o=>pct(o.probability)).join(' / ')):
+ toggle.textContent=evidence.models.length?(item.sport==='football' ? window.ResearchAudit.footballEstimateBasis(evidence.models[0].name) : 'Experimental model')+' · '+(item.sport==='racing'?evidence.models[0].outcomes.length+' runners':evidence.models[0].outcomes.map(o=>pct(o.probability)).join(' / ')):
   hasCurrent?'Sky Bet prices':evidence.quotes.length?'Recorded market prices':evidence.unverified.length?'Unverified experimental estimate':'Evidence unavailable';
  if(hasCurrent&&evidence.models.length)toggle.textContent+=' · Sky Bet prices';
  toggle.addEventListener('click',()=>{
