@@ -6765,3 +6765,67 @@ Limitations — O((n+k) log n) event operations with balanced active structure a
 Mechanism — Output-sensitive event-driven neighbor maintenance for all proper intersections; not a closest-pair or graph traversal algorithm
 
 Source — Laura Toma, Bowdoin College CS3250, Line segment intersection, Spring 2018, general-position assumptions and Bentley–Ottmann event invariants reviewed in parsed slides; introductory orthogonal sweep slide image inspected. Original 1979 article not reviewed; https://tildesites.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring18/Lectures/cg-bentleyottman.pdf
+
+## Graham polar-angle convex hull (graham-polar-angle-convex-hull)
+
+> Select pivot o with minimum (y,x); sort remaining distinct points by increasing polar direction about o, then increasing squared distance. For each c, while stack has at least two points a,b and turn(a,b,c)=(b_x−a_x)(c_y−a_y)−(b_y−a_y)(c_x−a_x)≤0, pop b; append c. Return stack in counterclockwise order; return empty or singleton directly
+
+o extreme pivot; a,b stack tail; c candidate; turn signed orientation determinant.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite planar points, deduplicated, exact orientation and total polar order; pivot selection ensures directions lie in a half-plane.
+
+Limitations — O(n log n) sorting and O(n) scan/storage; excludes intermediate collinear boundary points; collinear sets yield extreme endpoints.
+
+Mechanism — Same extreme-vertex hull objective as Andrew monotone chain; polar sort rather than two lexicographic scans; conservatively classified as variant
+
+Source — Sedgewick and Wayne, Princeton Algorithms 4e, Convex Hull, polar sorting and Andrew comparison; nondegenerate GrahamScan reference excerpt consulted; general implementation URL returned 403; tie policy derived from orientation stack; https://algs4.cs.princeton.edu/99hull/
+
+## Polygon winding-number point classification (polygon-winding-number)
+
+> For cyclic ordered vertices a,b and query q, let D=cross(b−a,q−a). Return boundary first if D=0 and q lies in the closed edge bounding box. Otherwise w=Σ_i [1(a_y≤q_y<b_y and D>0)−1(b_y≤q_y<a_y and D<0)]; classify by w≠0 for the nonzero winding rule
+
+a,b directed edge endpoints; q query; D signed orientation; w integer winding number; 1 indicator.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite planar closed walk with at least three vertices and exact predicates; edges implicit from successive vertices and last to first; repeated vertices allowed.
+
+Limitations — O(n) time and O(1) extra space per query; winding is undefined on boundary; self-intersections use nonzero fill rule, not even-odd rule; no geographic/spherical interpretation.
+
+Mechanism — Signed ray-crossing point classification, not intersection enumeration or convex hull construction
+
+Source — David G. Alciatore and Rick Miranda, Colorado State University, A Winding Number and Point-in-Polygon Algorithm, axis-crossing method and page 3 image reviewed; half-open convention expressed with equivalent signed predicates; https://www.engr.colostate.edu/~dga/documents/papers/point_in_polygon.pdf
+
+## Polygon shoelace signed area (polygon-shoelace-signed-area)
+
+> For n≥3 cyclic ordered vertices p_i=(x_i,y_i), with p_(n+1)=p_1, signed area A=½Σ_(i=1)^n(x_i y_(i+1)−x_(i+1)y_i). For a simple polygon ordinary area=|A|
+
+n vertex count; x_i,y_i Cartesian coordinates; A oriented algebraic area.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite planar coordinates and cyclic boundary order; simple polygon required for ordinary enclosed area; use exact or suitably controlled accumulation.
+
+Limitations — O(n) time and O(1) extra space; self-crossing walks give algebraic rather than union area; cancellation and overflow may affect floating-point calculations; zero alone does not certify degeneracy or simplicity.
+
+Mechanism — Scalar geometric diagnostic, not a separately counted distinct algorithm
+
+Source — Ohio State Ximera, Green’s Theorem as a planimeter, shoelace formula and boundary integral derivation; signed convention corroborated by Jeff Erickson Illinois winding-number search excerpt (direct page blocked); https://ximera.osu.edu/mooculus/calculus3/master/greensTheorem/digInGreensTheoremAsAPlanimeter
+
+## Ramer–Douglas–Peucker polyline simplification (ramer-douglas-peucker-polyline)
+
+> For ordered planar vertices p_i,…,p_j with j≥i+2, d_max=max_{i<k<j} min_{0≤t≤1} ||p_k−((1−t)p_i+t p_j)||₂. Split at first maximizing k if d_max>ε; otherwise replace subchain by endpoint chord (ε≥0). Return empty or singleton unchanged, adjacent endpoints directly
+
+p_i,p_j chord endpoints; p_k interior vertex; t segment parameter; ε nonnegative distance tolerance; d_max maximal finite-segment deviation.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite ordered planar vertices, finite nonnegative tolerance; exact or controlled point-to-segment comparisons; zero-length chord distance is point distance.
+
+Limitations — O(n²) worst-case time, O(n log n) balanced splits, O(n) stack/output; does not guarantee topology, minimal retained vertices or a Fréchet bound; output may self-intersect.
+
+Mechanism — Recursive maximum-deviation simplification, not closest-pair minimization or a scalar diagnostic
+
+Source — RPI CSCI 4560/6560 Spring 2026 Lecture 23, recursive split and complexity parsed; PostGIS ST_Simplify documentation on endpoint preservation and invalid output; finite-segment convention explicitly chosen; original Ramer and Douglas–Peucker papers not reviewed; https://www.cs.rpi.edu/~cutler/classes/computationalgeometry/S26/lectures/23_curves_polyline_simplification_sprouts.pdf

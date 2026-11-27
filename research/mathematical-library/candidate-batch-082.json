@@ -20,20 +20,21 @@
     "classification": "model-variant",
     "id": "graham-polar-angle-convex-hull",
     "name": "Graham polar-angle convex hull",
-    "definition": "Sort around lowest pivot by polar direction; remove non-left turns using cross≤0. Provisional.",
-    "variables": "Provisional; define during review",
-    "assumptions": "Provisional; source review pending",
-    "limitations": "Provisional; complexity and degeneracies pending",
+    "definition": "Select pivot o with minimum (y,x); sort remaining distinct points by increasing polar direction about o, then increasing squared distance. For each c, while stack has at least two points a,b and turn(a,b,c)=(b_x−a_x)(c_y−a_y)−(b_y−a_y)(c_x−a_x)≤0, pop b; append c. Return stack in counterclockwise order; return empty or singleton directly",
+    "variables": "o extreme pivot; a,b stack tail; c candidate; turn signed orientation determinant",
+    "assumptions": "Finite planar points, deduplicated, exact orientation and total polar order; pivot selection ensures directions lie in a half-plane",
+    "limitations": "O(n log n) sorting and O(n) scan/storage; excludes intermediate collinear boundary points; collinear sets yield extreme endpoints",
     "failure_conditions": [
-      "Invalid input"
+      "Nonfinite coordinate, uncertain orientation or overflow"
     ],
-    "computation": "Provisional; independent review pending",
+    "computation": "Use determinant-based angle comparator and squared-distance tie order rather than rounded angles; retain only farthest point on a shared pivot ray",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Graham polar-angle convex hull"
+      "citation": "Sedgewick and Wayne, Princeton Algorithms 4e, Convex Hull, polar sorting and Andrew comparison; nondegenerate GrahamScan reference excerpt consulted; general implementation URL returned 403; tie policy derived from orientation stack; https://algs4.cs.princeton.edu/99hull/",
+      "url": "https://algs4.cs.princeton.edu/99hull/"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
-    "required_inputs": "Finite geometric input; exact conditions pending review",
+    "required_inputs": "Finite planar point list, including empty, singleton and collinear cases",
     "compatible_methods": [
       "andrew-monotone-chain-convex-hull"
     ],
@@ -46,7 +47,7 @@
         "target": "andrew-monotone-chain-convex-hull"
       }
     ],
-    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+    "mechanism_note": "Same extreme-vertex hull objective as Andrew monotone chain; polar sort rather than two lexicographic scans; conservatively classified as variant"
   },
   {
     "profile": "multifeature",
@@ -69,20 +70,21 @@
     "classification": "distinct-algorithm",
     "id": "polygon-winding-number",
     "name": "Polygon winding-number point classification",
-    "definition": "Sum signed crossing counts w=upward−downward; boundary separately. Provisional.",
-    "variables": "Provisional; define during review",
-    "assumptions": "Provisional; source review pending",
-    "limitations": "Provisional; complexity and degeneracies pending",
+    "definition": "For cyclic ordered vertices a,b and query q, let D=cross(b−a,q−a). Return boundary first if D=0 and q lies in the closed edge bounding box. Otherwise w=Σ_i [1(a_y≤q_y<b_y and D>0)−1(b_y≤q_y<a_y and D<0)]; classify by w≠0 for the nonzero winding rule",
+    "variables": "a,b directed edge endpoints; q query; D signed orientation; w integer winding number; 1 indicator",
+    "assumptions": "Finite planar closed walk with at least three vertices and exact predicates; edges implicit from successive vertices and last to first; repeated vertices allowed",
+    "limitations": "O(n) time and O(1) extra space per query; winding is undefined on boundary; self-intersections use nonzero fill rule, not even-odd rule; no geographic/spherical interpretation",
     "failure_conditions": [
-      "Invalid input"
+      "Malformed vertices, nonfinite coordinates or unresolved boundary/orientation predicate"
     ],
-    "computation": "Provisional; independent review pending",
+    "computation": "Count upward right-ray crossings positively and downward crossings negatively; half-open vertical interval counts shared vertices once; horizontal edges contribute zero except boundary detection",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Polygon winding-number point classification"
+      "citation": "David G. Alciatore and Rick Miranda, Colorado State University, A Winding Number and Point-in-Polygon Algorithm, axis-crossing method and page 3 image reviewed; half-open convention expressed with equivalent signed predicates; https://www.engr.colostate.edu/~dga/documents/papers/point_in_polygon.pdf",
+      "url": "https://www.engr.colostate.edu/~dga/documents/papers/point_in_polygon.pdf"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
-    "required_inputs": "Finite geometric input; exact conditions pending review",
+    "required_inputs": "Ordered finite closed planar polygonal walk and finite query point",
     "compatible_methods": [
       "bentley-ottmann-segment-intersections"
     ],
@@ -95,7 +97,7 @@
         "target": "bentley-ottmann-segment-intersections"
       }
     ],
-    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+    "mechanism_note": "Signed ray-crossing point classification, not intersection enumeration or convex hull construction"
   },
   {
     "profile": "multifeature",
@@ -118,20 +120,21 @@
     "classification": "diagnostic",
     "id": "polygon-shoelace-signed-area",
     "name": "Polygon shoelace signed area",
-    "definition": "A=½Σ(x_i y_(i+1)−x_(i+1)y_i). Provisional.",
-    "variables": "Provisional; define during review",
-    "assumptions": "Provisional; source review pending",
-    "limitations": "Provisional; complexity and degeneracies pending",
+    "definition": "For n≥3 cyclic ordered vertices p_i=(x_i,y_i), with p_(n+1)=p_1, signed area A=½Σ_(i=1)^n(x_i y_(i+1)−x_(i+1)y_i). For a simple polygon ordinary area=|A|",
+    "variables": "n vertex count; x_i,y_i Cartesian coordinates; A oriented algebraic area",
+    "assumptions": "Finite planar coordinates and cyclic boundary order; simple polygon required for ordinary enclosed area; use exact or suitably controlled accumulation",
+    "limitations": "O(n) time and O(1) extra space; self-crossing walks give algebraic rather than union area; cancellation and overflow may affect floating-point calculations; zero alone does not certify degeneracy or simplicity",
     "failure_conditions": [
-      "Invalid input"
+      "Fewer than three vertices, nonfinite coordinates, unresolved arithmetic or claiming ordinary area without simplicity"
     ],
-    "computation": "Provisional; independent review pending",
+    "computation": "Sum directed edge determinants including closing edge; optionally translate origin to improve numerical behavior; reverse orientation negates signed area",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Polygon shoelace signed area"
+      "citation": "Ohio State Ximera, Green’s Theorem as a planimeter, shoelace formula and boundary integral derivation; signed convention corroborated by Jeff Erickson Illinois winding-number search excerpt (direct page blocked); https://ximera.osu.edu/mooculus/calculus3/master/greensTheorem/digInGreensTheoremAsAPlanimeter",
+      "url": "https://ximera.osu.edu/mooculus/calculus3/master/greensTheorem/digInGreensTheoremAsAPlanimeter"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
-    "required_inputs": "Finite geometric input; exact conditions pending review",
+    "required_inputs": "At least three finite planar vertices in cyclic order",
     "compatible_methods": [
       "andrew-monotone-chain-convex-hull"
     ],
@@ -144,7 +147,7 @@
         "target": "andrew-monotone-chain-convex-hull"
       }
     ],
-    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+    "mechanism_note": "Scalar geometric diagnostic, not a separately counted distinct algorithm"
   },
   {
     "profile": "multifeature",
@@ -167,20 +170,21 @@
     "classification": "distinct-algorithm",
     "id": "ramer-douglas-peucker-polyline",
     "name": "Ramer–Douglas–Peucker polyline simplification",
-    "definition": "For ordered planar vertices p_i,…,p_j with j≥i+2, d_max=max_{i<k<j} min_{0≤t≤1} ||p_k−((1−t)p_i+t p_j)||₂. Split at the first maximizing k if d_max>ε; otherwise replace the subchain by its endpoint chord (ε≥0). Provisional.",
-    "variables": "Provisional; define during review",
-    "assumptions": "Provisional; source review pending",
-    "limitations": "Provisional; complexity and degeneracies pending",
+    "definition": "For ordered planar vertices p_i,…,p_j with j≥i+2, d_max=max_{i<k<j} min_{0≤t≤1} ||p_k−((1−t)p_i+t p_j)||₂. Split at first maximizing k if d_max>ε; otherwise replace subchain by endpoint chord (ε≥0). Return empty or singleton unchanged, adjacent endpoints directly",
+    "variables": "p_i,p_j chord endpoints; p_k interior vertex; t segment parameter; ε nonnegative distance tolerance; d_max maximal finite-segment deviation",
+    "assumptions": "Finite ordered planar vertices, finite nonnegative tolerance; exact or controlled point-to-segment comparisons; zero-length chord distance is point distance",
+    "limitations": "O(n²) worst-case time, O(n log n) balanced splits, O(n) stack/output; does not guarantee topology, minimal retained vertices or a Fréchet bound; output may self-intersect",
     "failure_conditions": [
-      "Invalid input"
+      "Negative/nonfinite tolerance, malformed coordinate, unresolved threshold or resource exhaustion"
     ],
-    "computation": "Provisional; independent review pending",
+    "computation": "Project to chord and clamp parameter to [0,1]; when endpoints coincide use squared distance to endpoint. Compare squared distances with ε², retain first maximum on ties and concatenate recursive results without duplicate shared index",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Ramer–Douglas–Peucker polyline simplification"
+      "citation": "RPI CSCI 4560/6560 Spring 2026 Lecture 23, recursive split and complexity parsed; PostGIS ST_Simplify documentation on endpoint preservation and invalid output; finite-segment convention explicitly chosen; original Ramer and Douglas–Peucker papers not reviewed; https://www.cs.rpi.edu/~cutler/classes/computationalgeometry/S26/lectures/23_curves_polyline_simplification_sprouts.pdf",
+      "url": "https://www.cs.rpi.edu/~cutler/classes/computationalgeometry/S26/lectures/23_curves_polyline_simplification_sprouts.pdf"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
-    "required_inputs": "Finite geometric input; exact conditions pending review",
+    "required_inputs": "Ordered planar polyline, nonnegative finite distance tolerance",
     "compatible_methods": [
       "closest-pair-planar-divide-conquer"
     ],
@@ -193,6 +197,6 @@
         "target": "closest-pair-planar-divide-conquer"
       }
     ],
-    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+    "mechanism_note": "Recursive maximum-deviation simplification, not closest-pair minimization or a scalar diagnostic"
   }
 ]
