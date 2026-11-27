@@ -9627,5 +9627,97 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Detects eventual periodic orbit using two moving pointers, rather than general graph SCC traversal or tree-ancestor queries."
+  },
+  {
+    "id": "andrew-monotone-chain-convex-hull",
+    "source": {
+      "kind": "literature",
+      "citation": "Laura Toma, Bowdoin College CS3250, Planar convex hulls (II), Fall 2021, Andrew monotone-chain lecture; slide image reviewed. Original 1979 article not reviewed; https://tildesites.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/fall21/Lectures/L4-hull2d/cg-convexHull2.pdf",
+      "url": "https://tildesites.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/fall21/Lectures/L4-hull2d/cg-convexHull2.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Two directional convex-envelope stack scans, not merely a monotone stack query; no existing convex hull record found"
+  },
+  {
+    "id": "closest-pair-planar-divide-conquer",
+    "source": {
+      "kind": "literature",
+      "citation": "Sariel Har-Peled, University of Illinois CS473, Divide and Conquer, 2 Dec 2021, section 7.2, page 3 image reviewed. Rank-based splitting corrects coordinate-tie ambiguity; right-recursion typographical error in source not copied; https://courses.grainger.illinois.edu/cs473/fa2021/lec/notes/07_divide_conquer.pdf",
+      "url": "https://courses.grainger.illinois.edu/cs473/fa2021/lec/notes/07_divide_conquer.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Geometric strip packing and recursive minimization, not subset tour DP"
+  },
+  {
+    "id": "rotating-calipers-convex-diameter",
+    "source": {
+      "kind": "literature",
+      "citation": "David Eppstein, UC Irvine, The Rotating Caliper Graph, support-pair characterization; RPI CSCI 4560/6560 Spring 2026 Lecture 23 parsed maximum diameter slide corroborates linear scan. Princeton FarthestPair page direct retrieval returned 403; original papers not reviewed; https://www-test.ics.uci.edu/~eppstein/junkyard/rcg.html",
+      "url": "https://www-test.ics.uci.edu/~eppstein/junkyard/rcg.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Antipodal farthest-pair scan is a different objective and mechanism from closest-pair strip recursion and hull construction"
+  },
+  {
+    "id": "bentley-ottmann-segment-intersections",
+    "source": {
+      "kind": "literature",
+      "citation": "Laura Toma, Bowdoin College CS3250, Line segment intersection, Spring 2018, general-position assumptions and Bentley–Ottmann event invariants reviewed in parsed slides; introductory orthogonal sweep slide image inspected. Original 1979 article not reviewed; https://tildesites.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring18/Lectures/cg-bentleyottman.pdf",
+      "url": "https://tildesites.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring18/Lectures/cg-bentleyottman.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Output-sensitive event-driven neighbor maintenance for all proper intersections; not a closest-pair or graph traversal algorithm"
   }
 ]

@@ -6701,3 +6701,67 @@ Limitations — O(μ+λ) transition evaluations and O(1) auxiliary state referen
 Mechanism — Detects eventual periodic orbit using two moving pointers, rather than general graph SCC traversal or tree-ancestor queries.
 
 Source — John Burkardt, CYCLE_FLOYD, 18 June 2012, University of South Carolina mathematics-hosted reference implementation and description, https://people.math.sc.edu/Burkardt/cpp_src/cycle_floyd/cycle_floyd.cpp; Stanford CS355 Spring 2021 Lecture 5 cycle-finding slide parsed text corroborates meeting argument (screenshot unavailable due to size). Original historical attribution not reviewed.
+
+## Andrew monotone-chain convex hull (andrew-monotone-chain-convex-hull)
+
+> Sort unique points lexicographically; for each forward and reverse scan pop last b while turn(a,b,c)=(b_x−a_x)(c_y−a_y)−(b_y−a_y)(c_x−a_x)≤0, then push c. H=lower[:-1] concatenated with upper[:-1]; for at most one unique point return it directly
+
+a,b,c consecutive planar points, H extreme vertices in counterclockwise order.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite real coordinate pairs, exact orientation and ordering, duplicate points removed.
+
+Limitations — O(n log n) sorting and O(n) scanning and storage; excludes intermediate collinear boundary points; all-collinear input yields its two extremes.
+
+Mechanism — Two directional convex-envelope stack scans, not merely a monotone stack query; no existing convex hull record found
+
+Source — Laura Toma, Bowdoin College CS3250, Planar convex hulls (II), Fall 2021, Andrew monotone-chain lecture; slide image reviewed. Original 1979 article not reviewed; https://tildesites.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/fall21/Lectures/L4-hull2d/cg-convexHull2.pdf
+
+## Planar closest pair divide and conquer (closest-pair-planar-divide-conquer)
+
+> For indexed points split x-sorted sequence by rank; d²=min(d_L²,d_R²), with base cases of at most three points by direct pair comparison (empty pair set gives +∞). If d²=0 return zero. In strip (x−x_m)²<d² sorted by y, compare each point with at most seven following points while (y_j−y_i)²<d²; reduce d² to minimum of current value and squared distances
+
+n point count, x_m median split coordinate, d_L and d_R within-half closest distances, d closest distance.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — At least two finite indexed planar points, Euclidean metric, exact comparison, rank split even when x ties, retain original identities; duplicate coordinates yield zero.
+
+Limitations — O(n log n) with presorted y lists partitioned by identity and linear merging; sorting each strip separately gives O(n log² n); returns any minimizing pair, not all ties.
+
+Mechanism — Geometric strip packing and recursive minimization, not subset tour DP
+
+Source — Sariel Har-Peled, University of Illinois CS473, Divide and Conquer, 2 Dec 2021, section 7.2, page 3 image reviewed. Rank-based splitting corrects coordinate-tie ambiguity; right-recursion typographical error in source not copied; https://courses.grainger.illinois.edu/cs473/fa2021/lec/notes/07_divide_conquer.pdf
+
+## Rotating calipers convex polygon diameter (rotating-calipers-convex-diameter)
+
+> For counterclockwise extreme vertices v_0,…,v_(h−1), define A_i(j)=cross(v_(i+1)−v_i,v_j−v_i), cyclic indices. Start j=1; for each edge i advance j while A_i(j+1)>A_i(j). Evaluate squared distances from both edge endpoints to v_j and, if A_i(j+1)=A_i(j), to v_(j+1). D²=max of evaluated distances
+
+h hull vertex count, i edge index, j opposite support index, A_i signed doubled triangle area, D Euclidean diameter.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Convex counterclockwise extreme-vertex polygon without repeated or intermediate collinear vertices; exact predicates; handle h=1 with zero and h=2 by endpoint distance.
+
+Limitations — O(h) after valid hull construction; O(n log n) including monotone-chain hull; no general guarantee for nonconvex or incorrectly ordered vertices; reject empty input.
+
+Mechanism — Antipodal farthest-pair scan is a different objective and mechanism from closest-pair strip recursion and hull construction
+
+Source — David Eppstein, UC Irvine, The Rotating Caliper Graph, support-pair characterization; RPI CSCI 4560/6560 Spring 2026 Lecture 23 parsed maximum diameter slide corroborates linear scan. Princeton FarthestPair page direct retrieval returned 403; original papers not reviewed; https://www-test.ics.uci.edu/~eppstein/junkyard/rcg.html
+
+## Bentley–Ottmann segment-intersection sweep (bentley-ottmann-segment-intersections)
+
+> Initialize event queue Q with left/right endpoints ordered by x and active segments T ordered by y at sweep x. At start insert segment and schedule future intersections with its immediate neighbors; at end delete and schedule new adjacent pair; at crossing report pair, swap its adjacent order and schedule newly adjacent pairs. For nonparallel segments a+t(b−a), c+u(d−c), t=cross(c−a,d−c)/cross(b−a,d−c), u=cross(c−a,b−a)/cross(b−a,d−c); proper intersection iff 0<t<1 and 0<u<1
+
+a,b,c,d endpoints, t,u segment parameters, Q events, T active order, n segments, k proper intersections.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — General position certified: finite nonvertical nonzero segments, no overlaps, endpoint contacts or triple crossings, all endpoint and crossing x coordinates distinct; exact predicates and event order.
+
+Limitations — O((n+k) log n) event operations with balanced active structure and deduplicated priority queue; may use O(n+k) storage; quadratic worst-case output; prechecking general position by all pairs can cost O(n²) and is not included in sweep bound.
+
+Mechanism — Output-sensitive event-driven neighbor maintenance for all proper intersections; not a closest-pair or graph traversal algorithm
+
+Source — Laura Toma, Bowdoin College CS3250, Line segment intersection, Spring 2018, general-position assumptions and Bentley–Ottmann event invariants reviewed in parsed slides; introductory orthogonal sweep slide image inspected. Original 1979 article not reviewed; https://tildesites.bowdoin.edu/~ltoma/teaching/cs3250-CompGeom/spring18/Lectures/cg-bentleyottman.pdf
