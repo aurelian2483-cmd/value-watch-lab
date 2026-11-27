@@ -349,6 +349,20 @@ assert.equal(weeklyReview.selectionCount,3,
 assert.deepEqual(new Set(weeklyReview.selections.map(x=>x.sport)),new Set(['football','tennis','nfl']));
 assert(weeklyReview.selections.every(row=>row.review==='AUTOMATED_PRELIMINARY_NOT_INDEPENDENTLY_APPROVED'));
 assert(weeklyReview.selections.every(row=>row.priceVerified===false&&row.potentialReturn===null&&row.expectedValue===null));
+const footballWildcard=weeklyReview.selections.find(row=>row.sport==='football');
+assert.equal(footballWildcard.model,'CURRENT_SEASON_POISSON_COMPARISON_V1');
+assert.equal(footballWildcard.experimentalProbability,.51);
+assert.equal(footballWildcard.modelEvidence.margin,.25);
+const overlappingWeeks=[
+ {week:'2026-11-09',review:{...weeklyReview,selections:[footballWildcard,{...footballWildcard,choiceId:'draw'}]}},
+ {week:'2026-11-02',review:weeklyReview}
+];
+const originalWeeks=JSON.stringify(overlappingWeeks);
+const [later,earlier]=E.uniqueWildcardHistory(overlappingWeeks);
+assert.deepEqual(later.selections.map(row=>row.choiceId),['draw']);
+assert.deepEqual(later.duplicates,[footballWildcard]);
+assert.equal(earlier.selections.length,3);
+assert.equal(JSON.stringify(overlappingWeeks),originalWeeks,'Deduplication must preserve saved snapshots');
 assert.equal(weeklyReview.combinedWinChance,null);
 assert.equal(weeklyReview.potentialReturn,null);
 assert.equal(weeklyReview.expertSignoff,'NOT_PERFORMED');

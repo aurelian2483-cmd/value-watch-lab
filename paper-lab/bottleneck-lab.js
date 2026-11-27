@@ -97,12 +97,14 @@
       Math.abs(p.reduce((sum, x) => sum + x, 0) - 1) < 1e-8;
     return Object.values(data || {}).filter(row => {
       const start = Date.parse(row?.kickoff_utc), captured = Date.parse(row?.captured_at_utc);
-      return typeof row?.home === 'string' && typeof row?.away === 'string' &&
+      const league = row?.league ?? 'PL';
+      const code = {PL:'PL', E1:'ELC'}[league];
+      return code && typeof row?.home === 'string' && typeof row?.away === 'string' &&
         row.baseline_model === 'FOOTBALL_DATA_VENUE_POISSON_V1' &&
-        row.challenger_model === 'BOTTLENECK_PL_RECENT_GOAL_DIFF_PILOT_V1' &&
+        row.challenger_model === 'BOTTLENECK_' + code + '_RECENT_GOAL_DIFF_PILOT_V1' &&
         captured <= now && start - captured >= 300000 &&
         /^[a-f0-9]{64}$/.test(row.source_sha256 || '') &&
-        /^https:\/\/api\.football-data\.org\/v4\/competitions\/PL\/matches\?season=\d{4}$/.test(row.source) &&
+        /^https:\/\/api\.football-data\.org\/v4\/competitions\/(?:PL|ELC)\/matches\?season=\d{4}$/.test(row.source) && row.source.includes('/competitions/' + code + '/') &&
         vector(row.baseline) && vector(row.challenger);
     }).sort((a, b) => {
       const first = Date.parse(a.kickoff_utc), second = Date.parse(b.kickoff_utc);
@@ -112,5 +114,41 @@
     });
   }
 
-  return Object.freeze({ forSelection, footballPaperPairs });
+  function scoreFootballPairs(pairs, finals, now = Date.now()) {
+    const key = (league, home, away, start) =>
+      JSON.stringify([league, home.trim().toLowerCase(), away.trim().toLowerCase(), Date.parse(start)]);
+    const results = new Map();
+    for (const final of finals) {
+      if (final.result_verification !== 'TWO_PUBLISHER_RESULT_CORROBORATED') continue;
+      const id = key(final.league, final.home, final.away, final.startUTC);
+      const score = [final.score_home, final.score_away];
+      if (!results.has(id)) results.set(id, score);
+      else if (JSON.stringify(results.get(id)) !== JSON.stringify(score)) results.set(id, null);
+    }
+    const stats = {scored:0, pending:0, unmatched:0, disagreements:0,
+      baseline:{correct:0, brier:0, logLoss:0}, challenger:{correct:0,brier:0,logLoss:0}};
+    const leaders = vector => vector.flatMap((p,i) => Math.max(...vector) - p < 1e-12 ? [i] : []);
+    const rows = pairs.map(pair => {
+      const id = key(pair.league ?? 'PL', pair.home, pair.away, pair.kickoff_utc);
+      const score = results.get(id);
+      if (!score || Date.parse(pair.kickoff_utc) + 10800000 > now) {
+        const status = Date.parse(pair.kickoff_utc) + 10800000 > now ? 'pending' : 'unmatched';
+        stats[status]++;
+        return {pair,status};
+      }
+      const actual = score[0] === score[1] ? 1 : score[0] > score[1] ? 0 : 2;
+      stats.scored++;
+      if (String(leaders(pair.baseline)) !== String(leaders(pair.challenger))) stats.disagreements++;
+      for (const model of ['baseline','challenger']) {
+        const p = pair[model], choices = leaders(p);
+        stats[model].correct += Number(choices.length === 1 && choices[0] === actual);
+        stats[model].brier += p.reduce((sum,x,i) => sum + (x - Number(i === actual)) ** 2,0);
+        stats[model].logLoss -= Math.log(Math.max(p[actual],1e-15));
+      }
+      return {pair,status:'scored',score};
+    });
+    return {stats,rows};
+  }
+
+  return Object.freeze({ forSelection, footballPaperPairs, scoreFootballPairs });
 });

@@ -1435,7 +1435,7 @@
     hybrid:'Hybrid 3.1 · current-season football model + independent market.',
     compare:'Compare the saved estimate with each experimental method.',
     reliability:'Historical Reliability · form-pattern screen; not certified betting value.',
-    bottleneck:'Bottleneck Lab · Premier League paper comparison and sport readiness.',
+    bottleneck:'Bottleneck Lab · Football paper comparisons and sport readiness.',
     'racing-top-four':'Racing Top Four · unvalidated win-to-place research transform.'
   };
   const engineLabels = Object.fromEntries(M.methods.map(method => [method.id,method.label]));
@@ -1515,21 +1515,29 @@
 
   function renderBottleneckFootball(root, lab) {
     const section = make(root, 'section', undefined, 'bottleneck-paper');
-    make(section, 'h4', 'Premier League paper comparison');
+    make(section, 'h4', 'Football paper comparison');
     const content = make(section, 'div', 'Loading frozen football predictions…');
-    bottleneckArchiveRequest ??= fetch(new URL('research/bottleneck/football-paper-pairs.json', rootURL), {cache:'no-store'})
-      .then(response => {
-        if (!response.ok) throw Error('Prediction archive unavailable');
-        return response.json();
-      }).catch(() => null);
-    bottleneckArchiveRequest.then(data => {
+    const load = path => fetch(new URL(path, rootURL), {cache:'no-store'}).then(response => {
+      if (!response.ok) throw Error('Research feed unavailable');
+      return response.json();
+    }).catch(() => null);
+    bottleneckArchiveRequest ??= Promise.all([
+      load('research/bottleneck/football-paper-pairs.json'),
+      load('research/bottleneck/championship-paper-pairs.json'),
+      load('research-history.json'),
+      load('football-expanded-data.json')
+    ]);
+    bottleneckArchiveRequest.then(([premier, championship, history, expanded]) => {
       if (!section.isConnected) return;
       content.replaceChildren();
-      const pairs = lab.footballPaperPairs(data);
+      const pairs = lab.footballPaperPairs({...premier, ...championship});
       if (!pairs.length) {
-        make(content, 'p', data ? 'The archive has no eligible frozen predictions yet.' : 'The published prediction archive is unavailable.', 'small');
+        make(content, 'p', premier || championship ? 'The archive has no eligible frozen predictions yet.' : 'The published prediction archive is unavailable.', 'small');
         return;
       }
+      const audit = window.ResearchAudit;
+      const finals = [...audit.normalizeFootballHistory(history), ...audit.normalizeFootballResults(expanded)];
+      const {rows} = lab.scoreFootballPairs(pairs, finals);
       const controls = make(content, 'div', undefined, 'bottleneck-paper-controls');
       const makeSelect = (text, options) => {
         const label = make(controls, 'label', text);
@@ -1537,8 +1545,8 @@
         for (const [value, labelText] of options) make(select, 'option', labelText).value = value;
         return select;
       };
-      const identity = row => JSON.stringify([row.home,row.away,row.kickoff_utc]);
-      const fixture = makeSelect('Choose a fixture', pairs.map(row => [identity(row), row.home + ' vs ' + row.away + ' · ' + dateText(row.kickoff_utc)]));
+      const identity = row => JSON.stringify([row.league ?? 'PL',row.home,row.away,row.kickoff_utc]);
+      const fixture = makeSelect('Choose a fixture', pairs.map(row => [identity(row), ((row.league === 'E1' ? 'Championship' : 'Premier League') + ' · ' + row.home + ' vs ' + row.away + ' · ' + dateText(row.kickoff_utc))]));
       const method = makeSelect('Choose a model view', [['challenger','Bottleneck pilot'],['baseline','Current-season baseline']]);
       if (pairs.some(row => identity(row) === bottleneckFootballFixture)) fixture.value = bottleneckFootballFixture;
       method.value = bottleneckFootballMethod;
@@ -1546,6 +1554,23 @@
       result.setAttribute('aria-live', 'polite');
       const evidence = details(content, 'Capture and source details', 'bottleneck-paper-evidence');
       const capture = make(evidence, 'p');
+      const scoring = details(content, 'Results and model scores by league', 'bottleneck-paper-evidence');
+      for (const [league,label] of [['PL','Premier League'],['E1','Championship']]) {
+        const sample = pairs.filter(row => (row.league ?? 'PL') === league);
+        const {stats} = lab.scoreFootballPairs(sample, finals);
+        make(scoring, 'h4', label);
+        make(scoring, 'p', stats.scored+' scored · '+stats.pending+' pending · '+stats.unmatched+' without a matched verified final');
+        if ((league === 'PL' && !history) || (league === 'E1' && !expanded)) make(scoring, 'p', 'Verified result feed unavailable.');
+        if (stats.scored) {
+          make(scoring, 'p', stats.disagreements+' scored fixtures with different first choices or ties.');
+          for (const model of ['baseline','challenger']) {
+            const score = stats[model];
+            make(scoring, 'p', (model === 'baseline' ? 'Baseline' : 'Bottleneck')+' · '+score.correct+
+              '/'+stats.scored+' correct first choices · log loss '+(score.logLoss/stats.scored).toFixed(3)+
+              ' · Brier '+(score.brier/stats.scored).toFixed(3));
+          }
+        }
+      }
       make(evidence, 'p', 'Experimental paper estimates frozen before kickoff. Football data provided by the Football-Data.org API.');
       function draw() {
         bottleneckFootballFixture = fixture.value;
@@ -1565,6 +1590,9 @@
           make(outcome, 'span', label);
           make(outcome, 'strong', pct(values[i]));
         });
+        const match = rows.find(item => item.pair === row);
+        make(result,'p', match.status === 'scored' ? 'Corroborated final '+match.score.join('–') :
+          match.status === 'pending' ? 'Result pending' : 'Awaiting a matched verified final', 'bottleneck-paper-label');
         write(capture, 'Captured ' + dateText(row.captured_at_utc) + ' UK · ' +
           (method.value === 'challenger' ? row.challenger_model : row.baseline_model));
       }
@@ -1621,7 +1649,7 @@
         make(card, 'p', 'Baseline path: ' + row.baseline + (row.baselineEstimateCount ?
           ' · ' + row.baselineEstimateCount + ' fresh estimates in the filtered desk feed' :
           ' · no fresh estimate counted in the filtered desk feed'), 'small');
-        make(card, 'p', row.key === 'football' ? 'Premier League pilot estimates are isolated in the paper comparison. Second star withheld.' : 'Bottleneck estimate: unavailable for current events. Second star withheld.', 'small');
+        make(card, 'p', row.key === 'football' ? 'Premier League and Championship pilot estimates are isolated in the paper comparison. Second star withheld.' : 'Bottleneck estimate: unavailable for current events. Second star withheld.', 'small');
         make(card, 'p', 'Research candidate: ' + row.bottleneck, 'small');
         make(card, 'p', row.evidence, 'small');
         make(card, 'p', 'Next: ' + row.next, 'small');
@@ -1942,15 +1970,14 @@
     make(panel,'p','The review is recalculated from the latest loaded events. The saved weekly snapshot and four paper slips are not overwritten.','wildcard-note');
   }
   function renderWildcardTracker(target, entries, openWeeks, keepOpen, now) {
-    const records=entries.filter(row=>row?.review?.kind==='WEEKLY_WILDCARD_PAPER_RESEARCH' &&
-      typeof row.week==='string' && Array.isArray(row.review.selections)).sort((a,b)=>b.week.localeCompare(a.week));
+    const records=E.uniqueWildcardHistory(entries);
     if(!records.length)return;
     const tracker=details(target,'Saved picks & results · '+records.length+' week'+(records.length===1?'':'s'),'wildcard-archive wildcard-results-tracker');
     tracker.open=keepOpen;
-    make(tracker,'p','Saved on this device. One week’s totals count only corroborated results.','wildcard-note');
+    make(tracker,'p','Saved on this device. Each repeated pick counts in its earliest saved week. Weekly totals include only corroborated results.','wildcard-note');
     const evidence=E.wildcardResultEvidence(store.get().snapshotState?.snapshots,now);
-    for(const {week,review} of records){
-      const rows=review.selections.filter(Boolean).map(chosen=>({chosen,result:E.wildcardResult(chosen,review.generatedAt,evidence,now)}));
+    for(const {week,review,selections,duplicates} of records){
+      const rows=selections.map(chosen=>({chosen,result:E.wildcardResult(chosen,review.generatedAt,evidence,now)}));
       const checked=rows.filter(row=>typeof row.result.correct==='boolean');
       const summary=checked.length
         ? checked.filter(row=>row.result.correct).length+' correct of '+checked.length+' corroborated'
@@ -1958,14 +1985,17 @@
       const original=details(tracker,'Week of '+week+' · '+summary,'wildcard-archive wildcard-saved-review');
       original.dataset.week=week;
       original.open=openWeeks.has(week) || (!keepOpen && records.length===1);
-      make(original,'p','Saved '+dateText(review.generatedAt)+' · '+(rows.length-checked.length)+' without a corroborated result','wildcard-note');
+      const upcoming=rows.filter(({result})=>result.label==='Upcoming').length;
+      make(original,'p','Saved '+dateText(review.generatedAt)+' · '+upcoming+' upcoming · '+
+        (rows.length-checked.length-upcoming)+' unresolved · '+checked.length+' corroborated','wildcard-note');
+      if(duplicates.length) make(original,'p',duplicates.length+' repeated pick(s) counted in an earlier week.','wildcard-note');
       for(const {chosen,result} of rows){
         const section=make(original,'div',undefined,'wildcard-sport');
         make(section,'strong',(wildcardSportNames[chosen.sport]||chosen.sport)+' · '+chosen.outcome);
         make(section,'p',chosen.event+' · '+dateText(chosen.startUTC));
         make(section,'p',result.label,'small');
         if(result.sources?.length)provenance(details(section,'Final score sources'),result.sources);
-        make(section,'p','Saved experimental estimate '+pct(chosen.experimentalProbability)+(chosen.model?' · '+chosen.model:''),'small');
+        make(section,'p','Saved experimental estimate '+pct(chosen.experimentalProbability)+(chosen.sport==='football'&&!chosen.modelEvidence?' · Model attribution unavailable for this older save':chosen.model?' · '+chosen.model:''),'small');
         const quote=chosen.preEventPrice;
         if(quote?.status==='SOURCE_OBSERVED_UNVERIFIED' && Number.isFinite(quote.decimal) && quote.decimal>1 &&
           PaperLab.url(quote.source) && Date.parse(quote.observedAt)<=Date.parse(review.generatedAt) &&
@@ -1975,7 +2005,7 @@
         }else make(section,'p','Pre-event price unavailable','small');
       }
       for(const row of (Array.isArray(review.coverage)?review.coverage:[]).filter(Boolean))
-        if(!rows.some(({chosen})=>chosen.sport===row.sport))
+        if(!review.selections.some(chosen=>chosen?.sport===row.sport))
           make(original,'p',(wildcardSportNames[row.sport]||row.sport)+' · PASS when saved','wildcard-note');
     }
   }
@@ -2015,6 +2045,16 @@
       make(box,'strong',chosen.outcome,'wildcard-shortlist-pick');
       make(box,'small',chosen.event+' · '+dateText(chosen.startUTC),'wildcard-shortlist-detail');
       make(box,'strong',pct(chosen.experimentalProbability)+' · experimental estimate','wildcard-shortlist-estimate');
+      const model = chosen.modelEvidence;
+      make(box,'small','Why shown: highest evidence within '+(wildcardSportNames[sport]||sport)+
+        '; estimate breaks evidence ties.','wildcard-shortlist-detail');
+      if(sport==='football' && Number.isSafeInteger(model?.homeMatches) && Number.isSafeInteger(model.awayMatches)){
+        make(box,'small','Current-season venue model · '+model.homeMatches+' home / '+model.awayMatches+
+          ' away matches · '+(100*model.margin).toFixed(1)+' pp gap','wildcard-shortlist-detail');
+        const observed=model.sources[0]?.observed_at_utc;
+        if(Number.isFinite(Date.parse(observed)))
+          make(box,'small','Source observed '+dateText(observed)+' UK','wildcard-shortlist-detail');
+      }
     }
     make(target,'p','Combined slip: verified prices unavailable.','wildcard-compact-warning');
     renderWildcardTracker(target,data?.entries||[],openWeeks,keepSavedOpen,Date.now());
@@ -2062,8 +2102,8 @@
     const eligible = audit.reduce((n,row) => n + row.eligible,0);
     const saved = state.plan.slots.reduce((n,slot) => n + slot.legs.length,0);
     write(target, 'Plan ' + state.plan.from + ' – ' + state.plan.to + ' · ' +
-      saved + ' saved selections · ' + (state.events.length ?
-      eligible + ' eligible now (' + totals + ')' : 'No source events loaded yet. Check the refresh status.') +
+      saved + ' picks saved across your slips · ' + (state.events.length ?
+      eligible + ' events eligible for research now (' + totals + ')' : 'No source events loaded yet. Check the refresh status.') +
       (persistence.locked ? ' · Browser storage locked; export your work before retrying.' : '') +
       '. Research only; no verified expected value.');
   }

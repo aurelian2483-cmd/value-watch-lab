@@ -716,13 +716,23 @@
       const probability=sport==='football' ?
         choice.event.seasonComparison[{home:'prob_home',draw:'prob_draw',away:'prob_away'}[choice.choice.id]] :
         choice.choice.probability;
+      const comparison = sport === 'football' ? choice.event.seasonComparison : null;
+      const model = comparison ? 'CURRENT_SEASON_POISSON_COMPARISON_V1' : choice.event.model.name;
+      const ranked = comparison && [comparison.prob_home, comparison.prob_draw, comparison.prob_away].sort((a,b)=>b-a);
+      const modelEvidence = comparison ? {
+        homeMatches: comparison.home_venue_matches,
+        awayMatches: comparison.away_venue_matches,
+        cutoff: comparison.cutoff_utc ?? null,
+        sources: clone(list(comparison.source_receipts)),
+        margin: ranked[0] - ranked[1]
+      } : {observedAt: choice.event.model.observedAt ?? null};
       const quote=choice.choice.quote;
       const preEventPrice=quote?.status==='SOURCE_OBSERVED_UNVERIFIED' && supportedQuote(quote,choice.event,now)
         ? clone(quote) : null;
       selections.push({sport,eventId:choice.event.id,event:choice.event.name,
         startUTC:choice.event.startUTC,choiceId:choice.choice.id,outcome:choice.choice.label,
         market:choice.choice.market,experimentalProbability:probability,
-        evidenceScore:choice.evidence,model:choice.event.model.name,
+        evidenceScore:choice.evidence,model,modelEvidence,
         sourceReceiptCount:choice.event.sources.filter(source=>source.kind==='PROVIDER_RECEIPT').length,
         preEventPrice,odds:null,expectedValue:null,potentialReturn:null,priceVerified:false,
         review:'AUTOMATED_PRELIMINARY_NOT_INDEPENDENTLY_APPROVED'});
@@ -740,6 +750,29 @@
        'Physics/modelling: independence, changing lineups, injuries and other dynamic inputs remain unresolved.',
        'Highest possible payout and highest winning chance are conflicting goals; no guaranteed optimal bet can be identified.'],
       ...GATES};
+  }
+
+  function uniqueWildcardHistory(entries) {
+    const seen = new Set();
+    const ordered = entries.filter(row => row?.review?.kind === 'WEEKLY_WILDCARD_PAPER_RESEARCH' &&
+      typeof row.week === 'string' && Array.isArray(row.review.selections))
+      .sort((a,b) => a.week.localeCompare(b.week));
+    return ordered.map(({week,review}) => {
+      const duplicates = [];
+      const selections = review.selections.filter(chosen => {
+        if (!chosen) return false;
+        if (!chosen.sport || !chosen.eventId || !chosen.choiceId ||
+            !Number.isFinite(instant(chosen.startUTC))) return true;
+        const id = JSON.stringify([chosen.sport,chosen.eventId,instant(chosen.startUTC),chosen.market,chosen.choiceId]);
+        if (!seen.has(id)) {
+          seen.add(id);
+          return true;
+        }
+        duplicates.push(chosen);
+        return false;
+      });
+      return {week,review,selections,duplicates};
+    }).reverse();
   }
 
   function wildcardResultEvidence(snapshots, now) {
@@ -1006,5 +1039,5 @@
     return 1 / decimal;
   }
 
-  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, weeklyWildcardReview, wildcardResultEvidence, wildcardResult, wildcardRiskStudio, wildcardCandidateAudit, freshDailyResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
+  return Object.freeze({ GATES, APPROACHES, SPORTS, MAX_LEGS, createPlan, normalizeFeeds, statusOf, addSelection, removeSelection, moveSelection, replaceSelection, setStake, setStructure, updateRange, clearSlot, setRecordedQuote, candidateAssessment, modelLeaders, footballEvidenceReview, footballSeasonMaturity, racingCandidates, fractionalToDecimal, impliedProbability, evaluateSlot, generateResearch, weeklyWildcardReview, uniqueWildcardHistory, wildcardResultEvidence, wildcardResult, wildcardRiskStudio, wildcardCandidateAudit, freshDailyResearch, paperEligibilityAudit, moneyMinor, combinations, serialize, restore, freeze, dateOnly, range, day: Core.day });
 });

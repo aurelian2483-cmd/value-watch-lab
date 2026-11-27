@@ -51,3 +51,21 @@ const archiveNow = Date.parse('2026-11-28T14:59:00Z');
 assert.deepEqual(footballPaperPairs({valid:pair, late:{...pair,captured_at_utc:'2026-11-28T14:57:00Z'},
   invalid:{...pair,challenger:[.5,.2,.5]}, future:{...pair,captured_at_utc:'2026-11-28T15:01:00Z'}},archiveNow),[pair]);
 console.log('PASS: archived football choices require paired vectors, official source and pre-kickoff capture');
+
+const { scoreFootballPairs } = require('../paper-lab/bottleneck-lab.js');
+const championship = {...pair, league:'E1',
+  challenger_model:'BOTTLENECK_ELC_RECENT_GOAL_DIFF_PILOT_V1',
+  source:'https://api.football-data.org/v4/competitions/ELC/matches?season=2026'};
+assert.deepEqual(footballPaperPairs({championship}, archiveNow), [championship]);
+const final = {league:'E1', home:pair.home, away:pair.away, startUTC:pair.kickoff_utc,
+  score_home:2, score_away:1, result_verification:'TWO_PUBLISHER_RESULT_CORROBORATED'};
+const settle = Date.parse('2026-11-28T19:00:00Z');
+const scored = scoreFootballPairs([pair,championship],[final],settle);
+assert.equal(scored.stats.scored,1);
+assert.equal(scored.stats.unmatched,1);
+assert.equal(scored.stats.baseline.correct,0);
+assert.equal(scored.stats.challenger.correct,1);
+assert.equal(scored.stats.disagreements,1);
+assert.equal(scoreFootballPairs([championship],[final],archiveNow).stats.pending,1);
+assert.equal(scoreFootballPairs([championship],[final,{...final,score_home:0}],settle).stats.unmatched,1);
+console.log('PASS: league isolation, corroborated scoring, ties, pending and conflicts');

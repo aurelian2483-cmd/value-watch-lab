@@ -103,7 +103,7 @@ def compare(matches, fixtures, observed, recent_differences=None):
                                 (p / sum(totals) for p in totals))), len(home_rows), len(away_rows)
 
 
-def freeze_pair(fixture, comparison, recent):
+def freeze_pair(fixture, comparison, recent, code='PL'):
     # Prespecified prospective pilot. Keep the existing venue comparison as control.
     baseline = [comparison[key] for key in ('prob_home', 'prob_draw', 'prob_away')]
     tilt = 0.10 * max(-3, min(3, (sum(recent[0]) - sum(recent[1])) / 5))
@@ -111,7 +111,8 @@ def freeze_pair(fixture, comparison, recent):
     return {
         'home': fixture['home'], 'away': fixture['away'], 'kickoff_utc': fixture['kickoff_utc'],
         'captured_at_utc': comparison['observed_at_utc'], 'baseline_model': METHOD,
-        'challenger_model': 'BOTTLENECK_PL_RECENT_GOAL_DIFF_PILOT_V1',
+        'league': 'E1' if code == 'ELC' else 'PL',
+        'challenger_model': f'BOTTLENECK_{code}_RECENT_GOAL_DIFF_PILOT_V1',
         'baseline': baseline, 'challenger': [p / sum(shifted) for p in shifted],
         'recent_goal_differences': recent, 'source_sha256': comparison['source_sha256'],
         'source': comparison['source'],
@@ -142,7 +143,7 @@ def enrich(feed, token, archive=None):
             if payload['competition']['code'] != code:
                 raise ValueError('Unexpected competition')
             observed = datetime.now(timezone.utc)
-            recent = {} if archive is not None and code == 'PL' else None
+            recent = {} if archive is not None and code in ('PL', 'ELC') else None
             comparisons = list(compare(payload['matches'], fixtures, observed, recent))
         except (HTTPError, URLError, OSError, ValueError, KeyError, TypeError, ArithmeticError) as exc:
             print(f'{code}: comparison unavailable ({getattr(exc, "code", type(exc).__name__)})')
@@ -159,7 +160,7 @@ def enrich(feed, token, archive=None):
                 'model_validation': 'UNVALIDATED', 'odds': None, 'expected_value': None,
             }
             if recent is not None and id(fixture) in recent:
-                pair = freeze_pair(fixture, fixture[FIELD], recent[id(fixture)])
+                pair = freeze_pair(fixture, fixture[FIELD], recent[id(fixture)], code)
                 identity = '|'.join(pair[k] for k in ('home', 'away', 'kickoff_utc'))
                 archive.setdefault(identity, pair)
         print(f'{code}: {len(comparisons)} display comparisons')

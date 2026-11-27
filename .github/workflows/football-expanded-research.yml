@@ -67,7 +67,7 @@ jobs:
       - name: Add Football-data.org current-season display comparisons
         env:
           FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
-        run: python website/scripts/enrich_football_season_api.py /tmp/football-expanded/football-expanded-data.json
+        run: python website/scripts/enrich_football_season_api.py /tmp/football-expanded/football-expanded-data.json --bottleneck-archive website/research/bottleneck/championship-paper-pairs.json
       - name: Publish additional league data
         shell: bash
         run: |
@@ -77,6 +77,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- football-expanded-data.json
+          if [ -f research/bottleneck/championship-paper-pairs.json ]; then git add -- research/bottleneck/championship-paper-pairs.json; fi
           if ! git diff --cached --quiet; then
             git commit -m "Refresh expanded football research snapshot"
             git pull --rebase origin main
