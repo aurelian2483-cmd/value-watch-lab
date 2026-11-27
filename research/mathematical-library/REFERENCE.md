@@ -6989,3 +6989,35 @@ Limitations — O(d n²) arithmetic and O(d(n+1)) storage with rolling rows and 
 Mechanism — Reuses the exact registered de Casteljau interpolation triangle, returning boundary control polygons instead of only the evaluated point; classified as a variant, not an independent algorithm.
 
 Source — Ching-Kuang Shene, Michigan Technological University, Subdividing a Bézier Curve; page text reviewed, left and reversed right boundary chains and parameter subintervals. https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html
+
+## Median-split k-d tree nearest-neighbor search (kd-tree-axis-median-nearest-neighbor)
+
+> For a finite nonempty indexed set P in R^d, choose split axis a = depth mod d and median pivot p under the order (coordinate a, record ID); recursively store the lower and upper rank halves. For query q minimize D(x) = sum_j (x_j - q_j)^2 over P; inspect each pivot, visit the nearer split side first, and prune the opposite side only when (q_a - p_a)^2 > D(best). For equal distances choose the smaller record ID.
+
+P indexed points, d positive dimension, a split axis, p pivot, q query, D squared Euclidean distance, best incumbent.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite nonempty static points and query of the same positive dimension; unique comparable record IDs; exact arithmetic or conservative distance bounds; rank tie splitting permits equal coordinates in both children.
+
+Limitations — Worst-case query visits all n pivots, O(nd) arithmetic; high dimensions and clustered data can reduce pruning. Sorting separately at each node costs O(n log^2 n) comparisons for fixed dimension; no average-case speed guarantee.
+
+Mechanism — Coordinate-median indexing and exact branch-and-bound query are distinct from pairwise closest-pair computation and nearest-neighbour regression, which estimates a response; this entry specifies a single exact neighbour search, not a statistical estimator.
+
+Source — Cornell University, CS4780 (2017), Lecture 16: KD Trees, text reviewed, axis-aligned recursive splitting and split-wall lower bound. https://www.cs.cornell.edu/courses/cs4780/2017sp/lectures/lecturenote16.html ; pivot storage, squared Euclidean bound and deterministic ID ties specified locally.
+
+## Point-region quadtree spatial partition (point-region-quadtree-partition)
+
+> For a half-open square cell C = [l_x,u_x) × [l_y,u_y), define m_j = (l_j+u_j)/2 and child index b = 1[x ≥ m_x] + 2·1[y ≥ m_y]. Store records in a leaf when occupancy n ≤ B or depth h ≥ H; otherwise recursively partition into the four disjoint midpoint children, assigning every record to its unique child.
+
+C root or child cell, l and u bounds, m midpoint, B positive bucket capacity, H finite nonnegative maximum depth, h current depth, n occupancy, b quadrant index.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite planar indexed points inside a positive-width half-open root square; B ≥ 1 and integer H ≥ 0; exact midpoint arithmetic or explicit failure on unrepresentable midpoint; duplicate coordinates retained as separate records.
+
+Limitations — Terminal leaves at maximum depth may exceed capacity. Worst-case construction performs O(n(H+1)) record assignments and stores O(1+nH) nodes with explicit empty children for H ≥ 1; large depth and clustered points increase memory. This bounded bucket policy generalizes capacity-one PR decomposition.
+
+Mechanism — Fixed midpoint four-way key-space partition differs from rank-based binary k-d tree; finite depth and bucket rules are documented rather than counted as additional methods.
+
+Source — Virginia Tech OpenDSA, CS5040 (2021), section 18.3 The PR Quadtree, text reviewed: fixed midpoint subdivision and configurable bucket occupancy. https://opendsa.cs.vt.edu/ODSA/Books/vt/cs5040/spring-2021/TR_200_CRNs_13282_13283/html/PRquadtree.html ; half-open ownership, finite depth and duplicate retention explicitly specified locally.

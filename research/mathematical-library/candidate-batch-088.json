@@ -32,12 +32,14 @@
     "computation": "Build by recursive median-rank splitting; update incumbent lexicographically by squared distance then record ID; descend near side before testing opposite side; at coordinate equality choose either near side but do not prune the other on equality.",
     "source": {
       "kind": "literature",
-      "citation": "Cornell University, CS4780 (2017), Lecture 16: KD Trees, https://www.cs.cornell.edu/courses/cs4780/2017sp/lectures/lecturenote16.html ; deterministic tie policy and squared-distance formulation specified here."
+      "citation": "Cornell University, CS4780 (2017), Lecture 16: KD Trees, text reviewed, axis-aligned recursive splitting and split-wall lower bound. https://www.cs.cornell.edu/courses/cs4780/2017sp/lectures/lecturenote16.html ; pivot storage, squared Euclidean bound and deterministic ID ties specified locally.",
+      "url": "https://www.cs.cornell.edu/courses/cs4780/2017sp/lectures/lecturenote16.html"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
     "required_inputs": "Nonempty finite indexed point set, dimension d and same-dimensional finite query.",
     "compatible_methods": [
-      "closest-pair-planar-divide-conquer"
+      "closest-pair-planar-divide-conquer",
+      "knn-regression"
     ],
     "incompatible_methods": [
       "Treating a mathematical specification as an implemented or validated algorithm"
@@ -46,9 +48,13 @@
       {
         "type": "related",
         "target": "closest-pair-planar-divide-conquer"
+      },
+      {
+        "type": "related",
+        "target": "knn-regression"
       }
     ],
-    "mechanism_note": "Provisional admission review pending. Coordinate-median tree and query branch-and-bound are distinct from an all-pairs closest-pair computation; deterministic tie policy is a local specification choice."
+    "mechanism_note": "Coordinate-median indexing and exact branch-and-bound query are distinct from pairwise closest-pair computation and nearest-neighbour regression, which estimates a response; this entry specifies a single exact neighbour search, not a statistical estimator."
   },
   {
     "profile": "multifeature",
@@ -83,7 +89,8 @@
     "computation": "Assign all records to root. If split is required, create four child cells with lower-closed upper-open intervals and distribute records according to b. Recur until bucket or depth bound; retain all terminal records including overfull depth-limited leaves.",
     "source": {
       "kind": "literature",
-      "citation": "Virginia Tech OpenDSA, The PR Quadtree, https://opendsa.cs.vt.edu/OpenDSA/Books/Catalog/html/PRquadtree.html ; half-open ownership, bucket capacity and finite depth are local explicit extensions."
+      "citation": "Virginia Tech OpenDSA, CS5040 (2021), section 18.3 The PR Quadtree, text reviewed: fixed midpoint subdivision and configurable bucket occupancy. https://opendsa.cs.vt.edu/ODSA/Books/vt/cs5040/spring-2021/TR_200_CRNs_13282_13283/html/PRquadtree.html ; half-open ownership, finite depth and duplicate retention explicitly specified locally.",
+      "url": "https://opendsa.cs.vt.edu/ODSA/Books/vt/cs5040/spring-2021/TR_200_CRNs_13282_13283/html/PRquadtree.html"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
     "required_inputs": "Finite planar points, positive-width root square, integer capacity B and finite maximum depth H.",
@@ -99,6 +106,6 @@
         "target": "kd-tree-axis-median-nearest-neighbor"
       }
     ],
-    "mechanism_note": "Provisional admission review pending. Fixed midpoint four-way key-space partition differs from rank-based binary k-d tree; finite depth and bucket rules are documented rather than counted as additional methods."
+    "mechanism_note": "Fixed midpoint four-way key-space partition differs from rank-based binary k-d tree; finite depth and bucket rules are documented rather than counted as additional methods."
   }
 ]

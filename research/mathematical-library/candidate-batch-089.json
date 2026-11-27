@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "089",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "convex-polygon-separating-axis-test",
+    "name": "Convex polygon separating-axis intersection test",
+    "definition": "For two full-dimensional closed convex planar polygons P,Q, take every nonzero edge normal a from both polygons. Set I_P(a)=[min_{p in P} a·p,max_{p in P} a·p] and likewise I_Q(a). Declare disjoint iff at least one axis has max I_P < min I_Q or max I_Q < min I_P; otherwise report intersection including boundary contact.",
+    "variables": "P,Q ordered convex polygon vertices; a nonzero perpendicular to an edge; I_P,I_Q scalar projection intervals.",
+    "assumptions": "Finite cyclic convex polygon vertices with positive area, no zero-length edges, exact comparisons or an explicitly justified robust predicate.",
+    "limitations": "Direct projection costs O((m+n)^2) arithmetic for m,n vertices; not valid for arbitrary nonconvex polygons; no contact manifold or penetration depth returned.",
+    "failure_conditions": [
+      "Invalid convexity or zero area, nonfinite coordinates, zero-length edge, or unreliable comparison near touching."
+    ],
+    "computation": "Enumerate perpendicular edge vectors from both boundaries; compute min/max dot products without normalizing; early exit on strict interval separation; equality means touching or overlap.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional source locator: Michael Lugo, Fun with the Separating Axis Theorem, Virginia Tech, https://personal.math.vt.edu/mrlugo/sat.html ; independent review pending."
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Two finite ordered closed convex planar polygons of positive area.",
+    "compatible_methods": [
+      "sutherland-hodgman-convex-window-clipping"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "sutherland-hodgman-convex-window-clipping"
+      }
+    ],
+    "mechanism_note": "Provisional. Projection interval decision differs from constructing the clipped polygon; full source and novelty review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "089",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "minimum-enclosing-disk-support-enumeration",
+    "name": "Minimum enclosing disk by support enumeration",
+    "definition": "For nonempty finite P in R², minimize r² over disks (c,r) with ||p−c||² ≤ r² for all p in P. Enumerate centers at individual points, midpoints of distinct pairs, and circumcenters of noncollinear triples; associate squared radius of the defining support; discard disks not containing all P and choose minimum squared radius.",
+    "variables": "P finite planar points, c disk center, r nonnegative radius, support of size one to three.",
+    "assumptions": "Finite nonempty planar input, Euclidean metric, exact arithmetic or robust containment and collinearity tests; duplicate points allowed.",
+    "limitations": "O(n^4) arithmetic for exhaustive candidate generation and containment; not the randomized Welzl algorithm; near-collinearity may amplify floating-point error.",
+    "failure_conditions": [
+      "Empty or nonfinite input, inaccurate circumcenter or containment predicates."
+    ],
+    "computation": "Test singleton disks, pair diameter disks and noncollinear triple circumdisks; skip collinear triples, retain only containing disks; minimize squared radius.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional source locator: CGAL Min_circle_2 reference at Stanford, https://www.graphics.stanford.edu/courses/cs368-00-spring/TA/manuals/CGAL/ref-manual2/Optimisation/Min_circle_2.html ; independent review pending."
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Nonempty finite set of planar points.",
+    "compatible_methods": [
+      "rotating-calipers-convex-diameter"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "rotating-calipers-convex-diameter"
+      }
+    ],
+    "mechanism_note": "Provisional. A minimum containing disk differs from maximum pairwise distance, which supplies only a lower bound on its diameter; full review pending."
+  }
+]

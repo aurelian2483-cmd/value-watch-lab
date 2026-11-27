@@ -1,0 +1,111 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "088",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "kd-tree-axis-median-nearest-neighbor",
+    "name": "Median-split k-d tree nearest-neighbor search",
+    "definition": "For a finite nonempty indexed set P in R^d, choose split axis a = depth mod d and median pivot p under the order (coordinate a, record ID); recursively store the lower and upper rank halves. For query q minimize D(x) = sum_j (x_j - q_j)^2 over P; inspect each pivot, visit the nearer split side first, and prune the opposite side only when (q_a - p_a)^2 > D(best). For equal distances choose the smaller record ID.",
+    "variables": "P indexed points, d positive dimension, a split axis, p pivot, q query, D squared Euclidean distance, best incumbent.",
+    "assumptions": "Finite nonempty static points and query of the same positive dimension; unique comparable record IDs; exact arithmetic or conservative distance bounds; rank tie splitting permits equal coordinates in both children.",
+    "limitations": "Worst-case query visits all n pivots, O(nd) arithmetic; high dimensions and clustered data can reduce pruning. Sorting separately at each node costs O(n log^2 n) comparisons for fixed dimension; no average-case speed guarantee.",
+    "failure_conditions": [
+      "Empty point set, dimension mismatch or nonfinite coordinates",
+      "Incorrect split ordering or pruning at equality when deterministic ties are required",
+      "Overflow or rounding that invalidates the lower bound"
+    ],
+    "computation": "Build by recursive median-rank splitting; update incumbent lexicographically by squared distance then record ID; descend near side before testing opposite side; at coordinate equality choose either near side but do not prune the other on equality.",
+    "source": {
+      "kind": "literature",
+      "citation": "Cornell University, CS4780 (2017), Lecture 16: KD Trees, text reviewed, axis-aligned recursive splitting and split-wall lower bound. https://www.cs.cornell.edu/courses/cs4780/2017sp/lectures/lecturenote16.html ; pivot storage, squared Euclidean bound and deterministic ID ties specified locally.",
+      "url": "https://www.cs.cornell.edu/courses/cs4780/2017sp/lectures/lecturenote16.html"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Nonempty finite indexed point set, dimension d and same-dimensional finite query.",
+    "compatible_methods": [
+      "closest-pair-planar-divide-conquer",
+      "knn-regression"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "closest-pair-planar-divide-conquer"
+      },
+      {
+        "type": "related",
+        "target": "knn-regression"
+      }
+    ],
+    "mechanism_note": "Coordinate-median indexing and exact branch-and-bound query are distinct from pairwise closest-pair computation and nearest-neighbour regression, which estimates a response; this entry specifies a single exact neighbour search, not a statistical estimator."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "088",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "point-region-quadtree-partition",
+    "name": "Point-region quadtree spatial partition",
+    "definition": "For a half-open square cell C = [l_x,u_x) × [l_y,u_y), define m_j = (l_j+u_j)/2 and child index b = 1[x ≥ m_x] + 2·1[y ≥ m_y]. Store records in a leaf when occupancy n ≤ B or depth h ≥ H; otherwise recursively partition into the four disjoint midpoint children, assigning every record to its unique child.",
+    "variables": "C root or child cell, l and u bounds, m midpoint, B positive bucket capacity, H finite nonnegative maximum depth, h current depth, n occupancy, b quadrant index.",
+    "assumptions": "Finite planar indexed points inside a positive-width half-open root square; B ≥ 1 and integer H ≥ 0; exact midpoint arithmetic or explicit failure on unrepresentable midpoint; duplicate coordinates retained as separate records.",
+    "limitations": "Terminal leaves at maximum depth may exceed capacity. Worst-case construction performs O(n(H+1)) record assignments and stores O(1+nH) nodes with explicit empty children for H ≥ 1; large depth and clustered points increase memory. This bounded bucket policy generalizes capacity-one PR decomposition.",
+    "failure_conditions": [
+      "Invalid square, out-of-domain or nonfinite coordinates, invalid capacity or depth",
+      "Midpoint cannot be represented strictly between bounds",
+      "Inconsistent boundary ownership or dropped duplicate records"
+    ],
+    "computation": "Assign all records to root. If split is required, create four child cells with lower-closed upper-open intervals and distribute records according to b. Recur until bucket or depth bound; retain all terminal records including overfull depth-limited leaves.",
+    "source": {
+      "kind": "literature",
+      "citation": "Virginia Tech OpenDSA, CS5040 (2021), section 18.3 The PR Quadtree, text reviewed: fixed midpoint subdivision and configurable bucket occupancy. https://opendsa.cs.vt.edu/ODSA/Books/vt/cs5040/spring-2021/TR_200_CRNs_13282_13283/html/PRquadtree.html ; half-open ownership, finite depth and duplicate retention explicitly specified locally.",
+      "url": "https://opendsa.cs.vt.edu/ODSA/Books/vt/cs5040/spring-2021/TR_200_CRNs_13282_13283/html/PRquadtree.html"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite planar points, positive-width root square, integer capacity B and finite maximum depth H.",
+    "compatible_methods": [
+      "kd-tree-axis-median-nearest-neighbor"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "kd-tree-axis-median-nearest-neighbor"
+      }
+    ],
+    "mechanism_note": "Fixed midpoint four-way key-space partition differs from rank-based binary k-d tree; finite depth and bucket rules are documented rather than counted as additional methods."
+  }
+]

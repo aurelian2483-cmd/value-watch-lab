@@ -10041,5 +10041,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Reuses the exact registered de Casteljau interpolation triangle, returning boundary control polygons instead of only the evaluated point; classified as a variant, not an independent algorithm."
+  },
+  {
+    "id": "kd-tree-axis-median-nearest-neighbor",
+    "source": {
+      "kind": "literature",
+      "citation": "Cornell University, CS4780 (2017), Lecture 16: KD Trees, text reviewed, axis-aligned recursive splitting and split-wall lower bound. https://www.cs.cornell.edu/courses/cs4780/2017sp/lectures/lecturenote16.html ; pivot storage, squared Euclidean bound and deterministic ID ties specified locally.",
+      "url": "https://www.cs.cornell.edu/courses/cs4780/2017sp/lectures/lecturenote16.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Coordinate-median indexing and exact branch-and-bound query are distinct from pairwise closest-pair computation and nearest-neighbour regression, which estimates a response; this entry specifies a single exact neighbour search, not a statistical estimator."
+  },
+  {
+    "id": "point-region-quadtree-partition",
+    "source": {
+      "kind": "literature",
+      "citation": "Virginia Tech OpenDSA, CS5040 (2021), section 18.3 The PR Quadtree, text reviewed: fixed midpoint subdivision and configurable bucket occupancy. https://opendsa.cs.vt.edu/ODSA/Books/vt/cs5040/spring-2021/TR_200_CRNs_13282_13283/html/PRquadtree.html ; half-open ownership, finite depth and duplicate retention explicitly specified locally.",
+      "url": "https://opendsa.cs.vt.edu/ODSA/Books/vt/cs5040/spring-2021/TR_200_CRNs_13282_13283/html/PRquadtree.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Fixed midpoint four-way key-space partition differs from rank-based binary k-d tree; finite depth and bucket rules are documented rather than counted as additional methods."
   }
 ]
