@@ -10087,5 +10087,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Fixed midpoint four-way key-space partition differs from rank-based binary k-d tree; finite depth and bucket rules are documented rather than counted as additional methods."
+  },
+  {
+    "id": "convex-polygon-separating-axis-test",
+    "source": {
+      "kind": "literature",
+      "citation": "Michael Lugo, Fun with the Separating Axis Theorem, Virginia Tech, text reviewed; Kansas State University CIS 580, Separating Axis Theorem, text reviewed: both polygons' edge normals and projection intervals. https://personal.math.vt.edu/mrlugo/sat.html ; https://textbooks.cs.ksu.edu/cis580/04-collisions/04-separating-axis-theorem/index.html",
+      "url": "https://personal.math.vt.edu/mrlugo/sat.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Projection interval feasibility decides closed-set intersection without constructing the clipped polygon; distinct from Sutherland–Hodgman boundary construction. Use signed dot products, not absolute projection magnitudes; multiplying by a positive axis scale does not change interval separation."
+  },
+  {
+    "id": "minimum-enclosing-disk-support-enumeration",
+    "source": {
+      "kind": "literature",
+      "citation": "CGAL 6.2.1 Bounding Volumes, Min_circle_2 class reference, text reviewed: support of at most three boundary points, including duplicates and degenerate cases. https://doc.cgal.org/latest/Bounding_volumes/classCGAL_1_1Min__circle__2.html ; exhaustive enumeration and optimality argument independently derived here, not CGAL's Welzl implementation.",
+      "url": "https://doc.cgal.org/latest/Bounding_volumes/classCGAL_1_1Min__circle__2.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Exhaustive support enumeration is distinct from maximum pairwise distance, which provides only a lower bound on the enclosing diameter. A minimum disk center lies in the convex hull of its active boundary points (otherwise a separating direction reduces the maximum radius); a planar convex hull certificate needs at most three active points. No claim of randomized linear-time implementation."
   }
 ]

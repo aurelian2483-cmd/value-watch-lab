@@ -7021,3 +7021,35 @@ Limitations — Terminal leaves at maximum depth may exceed capacity. Worst-case
 Mechanism — Fixed midpoint four-way key-space partition differs from rank-based binary k-d tree; finite depth and bucket rules are documented rather than counted as additional methods.
 
 Source — Virginia Tech OpenDSA, CS5040 (2021), section 18.3 The PR Quadtree, text reviewed: fixed midpoint subdivision and configurable bucket occupancy. https://opendsa.cs.vt.edu/ODSA/Books/vt/cs5040/spring-2021/TR_200_CRNs_13282_13283/html/PRquadtree.html ; half-open ownership, finite depth and duplicate retention explicitly specified locally.
+
+## Convex polygon separating-axis intersection test (convex-polygon-separating-axis-test)
+
+> For two full-dimensional closed convex planar polygons P,Q, take every nonzero edge normal a from both polygons. Set I_P(a)=[min_{p in P} a·p,max_{p in P} a·p] and likewise I_Q(a). Declare disjoint iff at least one axis has max I_P < min I_Q or max I_Q < min I_P; otherwise report intersection including boundary contact.
+
+P,Q ordered convex polygon vertices; a nonzero perpendicular to an edge; I_P,I_Q scalar projection intervals..
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite vertices in cyclic boundary order of simple closed convex polygons with positive area, no zero-length edges, exact comparisons or an explicitly justified robust predicate; either orientation is permitted..
+
+Limitations — Direct projection costs O((m+n)^2) arithmetic for m,n vertices; not valid for arbitrary nonconvex polygons; no contact manifold or penetration depth returned..
+
+Mechanism — Projection interval feasibility decides closed-set intersection without constructing the clipped polygon; distinct from Sutherland–Hodgman boundary construction. Use signed dot products, not absolute projection magnitudes; multiplying by a positive axis scale does not change interval separation.
+
+Source — Michael Lugo, Fun with the Separating Axis Theorem, Virginia Tech, text reviewed; Kansas State University CIS 580, Separating Axis Theorem, text reviewed: both polygons' edge normals and projection intervals. https://personal.math.vt.edu/mrlugo/sat.html ; https://textbooks.cs.ksu.edu/cis580/04-collisions/04-separating-axis-theorem/index.html
+
+## Minimum enclosing disk by support enumeration (minimum-enclosing-disk-support-enumeration)
+
+> For nonempty finite P in R², minimize r² over c∈R² and r≥0 with ||p−c||² ≤ r² for all p∈P. Enumerate singleton disks (c,r²)=(p,0), pair disks with c=(p+q)/2 and r²=||p−q||²/4, and noncollinear triple circumdisks with 2(q−p)·c=||q||²−||p||² and 2(s−p)·c=||s||²−||p||², r²=||c−p||². Retain containing disks and minimize r².
+
+P finite planar points, c disk center, r nonnegative radius, support of size one to three..
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite nonempty planar input, Euclidean metric, exact arithmetic or robust containment and collinearity tests; duplicate points allowed..
+
+Limitations — O(n^4) arithmetic for exhaustive candidate generation and containment; not the randomized Welzl algorithm; near-collinearity may amplify floating-point error..
+
+Mechanism — Exhaustive support enumeration is distinct from maximum pairwise distance, which provides only a lower bound on the enclosing diameter. A minimum disk center lies in the convex hull of its active boundary points (otherwise a separating direction reduces the maximum radius); a planar convex hull certificate needs at most three active points. No claim of randomized linear-time implementation.
+
+Source — CGAL 6.2.1 Bounding Volumes, Min_circle_2 class reference, text reviewed: support of at most three boundary points, including duplicates and degenerate cases. https://doc.cgal.org/latest/Bounding_volumes/classCGAL_1_1Min__circle__2.html ; exhaustive enumeration and optimality argument independently derived here, not CGAL's Welzl implementation.

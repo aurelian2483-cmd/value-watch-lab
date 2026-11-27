@@ -1,0 +1,105 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "090",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "convex-polygon-minkowski-edge-merge",
+    "name": "Convex polygon Minkowski sum by edge merge",
+    "definition": "P⊕Q={p+q:p∈P,q∈Q}. For two CCW strictly convex polygon vertex cycles rotated to start at their lowest-y then lowest-x vertex, merge their cyclic edge vectors by increasing polar angle in [0,2π), summing co-directed vectors at equal angles. Starting at the sum of the first vertices, cumulatively add the merged edges, omitting the repeated closing vertex.",
+    "variables": "P,Q closed convex planar polygons; p,q points; ⊕ set addition; edge vectors in angular order.",
+    "assumptions": "Positive-area simple convex inputs in CCW order with no zero-length or redundant collinear edges; exact angular ordering or robust half-plane and cross-product comparison.",
+    "limitations": "O(m+n) arithmetic comparisons and output size for already valid ordered convex polygons; does not cover arbitrary nonconvex sums or input validation cost.",
+    "failure_conditions": [
+      "Invalid orientation or convexity, zero-length edges, unreliable angle ties or nonfinite coordinates."
+    ],
+    "computation": "Rotate input cycles to the specified starting vertices; merge edge sequences by angle, using a half-plane test then cross product, co-directed ties combined. Accumulate vectors from the summed start; check closure.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional source locator: CGAL 6.2 2D Minkowski Sums user manual. https://doc.cgal.org/6.2/Minkowski_sum_2/index.html ; independent admission review pending."
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Two positive-area convex planar polygon boundaries in cyclic order.",
+    "compatible_methods": [
+      "convex-polygon-separating-axis-test",
+      "andrew-monotone-chain-convex-hull"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "convex-polygon-separating-axis-test"
+      },
+      {
+        "type": "related",
+        "target": "andrew-monotone-chain-convex-hull"
+      }
+    ],
+    "mechanism_note": "Provisional. Constructs the full set sum by merging edge directions, rather than testing separation or constructing a single point-set hull; review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "090",
+    "family": "computational-geometry",
+    "classification": "diagnostic",
+    "id": "polygon-area-centroid-first-moment",
+    "name": "Uniform polygon area centroid",
+    "definition": "For a simple polygon with cyclic vertices (x_i,y_i), let d_i=x_i y_(i+1)−x_(i+1)y_i, A=(1/2)Σ_i d_i. For A≠0 the area centroid is C=(Σ_i (x_i+x_(i+1))d_i, Σ_i (y_i+y_(i+1))d_i)/(6A).",
+    "variables": "A signed area; d_i signed edge cross product; C uniform area centroid; indices cyclic.",
+    "assumptions": "Simple closed finite planar polygon with nonzero area and uniform areal density; no holes in this specification; either orientation.",
+    "limitations": "O(n) arithmetic; near-zero signed area and cancellation can degrade floating-point accuracy; centroid may lie outside a concave polygon and is not generally the vertex average.",
+    "failure_conditions": [
+      "Zero area, self-intersection, nonfinite coordinates or unsupported nonuniform density."
+    ],
+    "computation": "Accumulate signed cross products and their coordinate-weighted first moments, then divide by six times signed area. Use consistent cyclic indexing.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional source locator: Eric W. Weisstein, Polygon Centroid, MathWorld. https://mathworld.wolfram.com/PolygonCentroid.html ; independent admission review pending."
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Cyclic vertices of a simple positive-area polygon with uniform density.",
+    "compatible_methods": [
+      "polygon-shoelace-signed-area"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "polygon-shoelace-signed-area"
+      }
+    ],
+    "mechanism_note": "Provisional. First-moment summary extends the shoelace area computation; diagnostic, not an additional independent algorithm."
+  }
+]
