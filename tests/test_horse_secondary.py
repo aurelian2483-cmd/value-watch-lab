@@ -1,6 +1,7 @@
 import copy
 import datetime as dt
 import json
+import math
 import os
 from pathlib import Path
 import sys
@@ -162,8 +163,18 @@ class EvaluationTests(unittest.TestCase):
  def fixture(self,n):
   records=[];entries=[]
   for i in range(n):
-   records.append({'record_sha256':str(i),'model':'TEST','race_id':str(i),'startUTC':'2026-11-02T13:00:00Z','runners':[{'horse_id':'1','model_probability':.6},{'horse_id':'2','model_probability':.4}]})
-   entries.append({'record_sha256':str(i),'winner_horse_id':'1','multiclass_brier_score':.32,'log_loss':-__import__('math').log(.6),'equal_chance_brier_score':.5,'equal_chance_log_loss':__import__('math').log(2)})
+   identity={'record_sha256':str(i),'model':'TEST','race_id':str(i),
+    'racecourse':'Chelmsford City','startUTC':'2026-11-02T13:00:00Z',
+    'publication_gate':'BLOCKED','challenge_eligible':0}
+   source=f'https://www.sportinglife.com/racing/racecards/racecard/{i}/test'
+   records.append({**identity,'generated_at_utc':'2026-11-02T12:00:00Z','source':source,
+    'research_only':True,'model_validation':'UNVALIDATED',
+    'runners':[{'horse_id':'1','model_probability':.6},{'horse_id':'2','model_probability':.4}]})
+   entries.append({**identity,'winner_horse_id':'1','multiclass_brier_score':.32,
+    'log_loss':-math.log(.6),'equal_chance_brier_score':.5,'equal_chance_log_loss':math.log(2),
+    'verification':'SINGLE_SOURCE_PROVISIONAL','independently_verified':False,
+    'scored_at_utc':'2026-11-02T14:00:00Z',
+    'source_receipt':{'url':source,'sha256':'c'*64,'observed_at_utc':'2026-11-02T14:00:00Z'}})
   return records,entries
  def test_no_invented_accuracy_and_small_sample_gate(self):
   self.assertEqual(evaluate([],[])['models'],{})
