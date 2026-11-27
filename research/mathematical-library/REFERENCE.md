@@ -6381,3 +6381,35 @@ Limitations — O(L+log L) emitted or consumed bits; integer arithmetic and stor
 Mechanism — Gamma's unary length header is replaced by a gamma code for L, while the binary remainder is unchanged. Prefix-freeness follows from gamma header prefix-freeness and the fixed remaining length once L is decoded. This nested header is a material variant of gamma rather than an independent algorithm count.
 
 Source — Elias (1975), Universal codeword sets and representations of the integers, IEEE Transactions on Information Theory 21(2), 194–203, DOI 10.1109/TIT.1975.1055349 (bibliographic metadata checked; original full text not reviewed). Mansouri (2022), University of Southern Maine, Introduction to Information Retrieval, Session 5, slide 35, https://cs.usm.maine.edu/~behrooz.mansouri/courses/Slides_IR_22/Introduction%20to%20Information%20Retrieval%20--%20Session%205%20-%20Indexing%20%26%20Ranking.pdf (gamma-coded length followed by binary remainder; here leading-zero gamma convention).
+
+## Golomb truncated-binary code (golomb-truncated-binary-code)
+
+> For integers n≥0 and m≥1 set q=⌊n/m⌋, r=n−qm. Emit q zero bits followed by one. If m=1 emit no remainder bits. Otherwise set b=bitlength(m−1), t=2^b−m; emit r in b−1 bits when r<t, or r+t in b bits otherwise. Decode q from the unary header; for m>1 read b−1 bits as u, use r=u if u<t, otherwise read bit v and set r=2u+v−t. Recover n=qm+r.
+
+n nonnegative integer, m positive divisor, q quotient, r remainder, b binary width, t short-code count, u partial binary value, v extra bit.
+
+General integer code; no empirical benefit claimed.
+
+Assumptions — Exact integer arithmetic, fixed shared m, leading-zero unary convention, known end or declared codeword count, no implicit padding; m=1 is unary only.
+
+Limitations — Output and bit processing cost O(q+1+b) with b=0 for m=1; integer operation costs depend on representation. Large n relative to m can yield impractically long unary headers. Optimality for arbitrary sources or arbitrary m is not claimed; no error correction.
+
+Mechanism — The unary quotient identifies a disjoint block of m integers; truncated binary distinguishes residues using t short leaves and m−t long leaves. The remainder Kraft sum is t·2^(−(b−1))+(m−t)·2^(−b)=1 for m>1; the unary-only case is separate. This quotient/remainder construction is distinct from Elias length headers and fitted finite Huffman trees.
+
+Source — Treib (2014), GPU-Based Compression for Large-Scale Visualization, TU München dissertation, §2.1.3, p. 15, https://mediatum.ub.tum.de/doc/1190931/939759.pdf (quotient and truncated-binary remainder; unary polarity complemented here). Kiely (2004), Selecting the Golomb Parameter in Rice Coding, JPL IPN Progress Report 42-159, p. 2, https://tda.jpl.nasa.gov/progress_report/42-159/159E.pdf (leading-zero convention and floor quotient). Golomb (1966), Run-Length Encodings, IEEE Transactions on Information Theory 12(3), 399–401, bibliographic citation checked via Kiely; original full paper not reviewed.
+
+## Rice power-of-two Golomb code (rice-power-two-golomb-code)
+
+> For integer n≥0 and integer k≥0 let m=2^k, q=⌊n/m⌋, r=n−qm. Encode q zeros followed by one and then the k-bit unsigned binary representation of r (empty when k=0). The code length is L=q+1+k. Decode the unary count and exactly k suffix bits, then reconstruct n=2^k q+r.
+
+n nonnegative integer, k remainder width, m divisor, q quotient, r remainder.
+
+General integer code; no empirical benefit claimed.
+
+Assumptions — Exact nonnegative integers, fixed shared k, identical unary polarity, known stream end or declared codeword count, no implicit padding; k=0 is unary.
+
+Limitations — O(q+1+k) bit processing and output; integer operation costs depend on representation. The power-of-two restriction may be less efficient than other divisors; adaptive block parameter selection and error correction are not specified.
+
+Mechanism — When m=2^k and k>0, the Golomb threshold t=0 and b=k, so all residues have k bits; k=0 gives the same unary-only special case. This is a material restricted variant, not an additional distinct algorithm.
+
+Source — Kiely (2004), Selecting the Golomb Parameter in Rice Coding, JPL IPN Progress Report 42-159, p. 2, https://tda.jpl.nasa.gov/progress_report/42-159/159E.pdf (GPO2 construction, floor quotient verified on page image). Treib (2014), §2.1.3, https://mediatum.ub.tum.de/doc/1190931/939759.pdf (power-of-two restriction). Rice (1979), Some Practical Universal Noiseless Coding Techniques, JPL 79-22, NASA document 19790014634 (metadata reviewed; original full report not reviewed).

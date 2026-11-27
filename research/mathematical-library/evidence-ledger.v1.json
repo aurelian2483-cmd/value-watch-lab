@@ -9167,5 +9167,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Gamma's unary length header is replaced by a gamma code for L, while the binary remainder is unchanged. Prefix-freeness follows from gamma header prefix-freeness and the fixed remaining length once L is decoded. This nested header is a material variant of gamma rather than an independent algorithm count."
+  },
+  {
+    "id": "golomb-truncated-binary-code",
+    "source": {
+      "kind": "literature",
+      "citation": "Treib (2014), GPU-Based Compression for Large-Scale Visualization, TU München dissertation, §2.1.3, p. 15, https://mediatum.ub.tum.de/doc/1190931/939759.pdf (quotient and truncated-binary remainder; unary polarity complemented here). Kiely (2004), Selecting the Golomb Parameter in Rice Coding, JPL IPN Progress Report 42-159, p. 2, https://tda.jpl.nasa.gov/progress_report/42-159/159E.pdf (leading-zero convention and floor quotient). Golomb (1966), Run-Length Encodings, IEEE Transactions on Information Theory 12(3), 399–401, bibliographic citation checked via Kiely; original full paper not reviewed.",
+      "url": "https://mediatum.ub.tum.de/doc/1190931/939759.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The unary quotient identifies a disjoint block of m integers; truncated binary distinguishes residues using t short leaves and m−t long leaves. The remainder Kraft sum is t·2^(−(b−1))+(m−t)·2^(−b)=1 for m>1; the unary-only case is separate. This quotient/remainder construction is distinct from Elias length headers and fitted finite Huffman trees."
+  },
+  {
+    "id": "rice-power-two-golomb-code",
+    "source": {
+      "kind": "literature",
+      "citation": "Kiely (2004), Selecting the Golomb Parameter in Rice Coding, JPL IPN Progress Report 42-159, p. 2, https://tda.jpl.nasa.gov/progress_report/42-159/159E.pdf (GPO2 construction, floor quotient verified on page image). Treib (2014), §2.1.3, https://mediatum.ub.tum.de/doc/1190931/939759.pdf (power-of-two restriction). Rice (1979), Some Practical Universal Noiseless Coding Techniques, JPL 79-22, NASA document 19790014634 (metadata reviewed; original full report not reviewed).",
+      "url": "https://tda.jpl.nasa.gov/progress_report/42-159/159E.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "When m=2^k and k>0, the Golomb threshold t=0 and b=k, so all residues have k bits; k=0 gives the same unary-only special case. This is a material restricted variant, not an additional distinct algorithm."
   }
 ]

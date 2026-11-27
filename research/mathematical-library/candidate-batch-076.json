@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "076",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "lz77-sliding-window-backreference",
+    "name": "LZ77 sliding-window backreference",
+    "definition": "At position i, find a bounded previous-window match of length ℓ with distance d≥1, emit a backreference (d,ℓ) or literal and advance; provisional; specify overlap and tie convention.",
+    "variables": "i input position, d backward distance, ℓ match length",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input or malformed stream"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Ziv and Lempel (1977), A Universal Algorithm for Sequential Data Compression; Treib (2014), §2.3.1, https://mediatum.ub.tum.de/doc/1190931/939759.pdf"
+    },
+    "application": "General lossless sequence representation; no empirical benefit claimed.",
+    "required_inputs": "Finite symbol sequence or framed encoded tokens.",
+    "compatible_methods": [
+      "lz78-dictionary-parsing"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "lz78-dictionary-parsing"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "076",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "run-length-encoding-symbol-count",
+    "name": "Run-length encoding symbol-count pairs",
+    "definition": "For a symbol sequence x, partition into maximal equal-symbol runs (s_i,c_i), where c_i≥1 and adjacent s_i differ; decode by repeating each s_i exactly c_i times. Provisional; verify framing.",
+    "variables": "s_i symbol, c_i positive run length",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input or malformed stream"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Treib (2014), §2.2, https://mediatum.ub.tum.de/doc/1190931/939759.pdf"
+    },
+    "application": "General lossless sequence representation; no empirical benefit claimed.",
+    "required_inputs": "Finite symbol sequence or framed encoded tokens.",
+    "compatible_methods": [
+      "golomb-truncated-binary-code"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "golomb-truncated-binary-code"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  }
+]

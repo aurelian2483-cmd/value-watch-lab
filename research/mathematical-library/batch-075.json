@@ -1,0 +1,108 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "075",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "golomb-truncated-binary-code",
+    "name": "Golomb truncated-binary code",
+    "definition": "For integers n≥0 and m≥1 set q=⌊n/m⌋, r=n−qm. Emit q zero bits followed by one. If m=1 emit no remainder bits. Otherwise set b=bitlength(m−1), t=2^b−m; emit r in b−1 bits when r<t, or r+t in b bits otherwise. Decode q from the unary header; for m>1 read b−1 bits as u, use r=u if u<t, otherwise read bit v and set r=2u+v−t. Recover n=qm+r.",
+    "variables": "n nonnegative integer, m positive divisor, q quotient, r remainder, b binary width, t short-code count, u partial binary value, v extra bit",
+    "assumptions": "Exact integer arithmetic, fixed shared m, leading-zero unary convention, known end or declared codeword count, no implicit padding; m=1 is unary only",
+    "limitations": "Output and bit processing cost O(q+1+b) with b=0 for m=1; integer operation costs depend on representation. Large n relative to m can yield impractically long unary headers. Optimality for arbitrary sources or arbitrary m is not claimed; no error correction",
+    "failure_conditions": [
+      "Negative or noninteger n, nonpositive or noninteger m",
+      "Missing unary terminator, truncated suffix, nonbinary input or extra bits under single-codeword framing",
+      "Unary length, divisor or reconstructed integer exceeds declared resource limits"
+    ],
+    "computation": "Use exact quotient and remainder and integer bit length; bound output length before emission. Read the unary prefix with a limit; handle m=1 separately; otherwise use the short-prefix threshold and reconstruct the nonnegative integer with checked arithmetic.",
+    "source": {
+      "kind": "literature",
+      "citation": "Treib (2014), GPU-Based Compression for Large-Scale Visualization, TU München dissertation, §2.1.3, p. 15, https://mediatum.ub.tum.de/doc/1190931/939759.pdf (quotient and truncated-binary remainder; unary polarity complemented here). Kiely (2004), Selecting the Golomb Parameter in Rice Coding, JPL IPN Progress Report 42-159, p. 2, https://tda.jpl.nasa.gov/progress_report/42-159/159E.pdf (leading-zero convention and floor quotient). Golomb (1966), Run-Length Encodings, IEEE Transactions on Information Theory 12(3), 399–401, bibliographic citation checked via Kiely; original full paper not reviewed.",
+      "url": "https://mediatum.ub.tum.de/doc/1190931/939759.pdf"
+    },
+    "application": "General integer code; no empirical benefit claimed.",
+    "required_inputs": "Nonnegative integer, shared divisor or width, or framed binary code.",
+    "compatible_methods": [
+      "elias-gamma-positive-integer-code"
+    ],
+    "incompatible_methods": [
+      "Mixing unary polarity or divisor between encoder and decoder",
+      "Assuming compression or optimality without a source model"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "elias-gamma-positive-integer-code"
+      }
+    ],
+    "mechanism_note": "The unary quotient identifies a disjoint block of m integers; truncated binary distinguishes residues using t short leaves and m−t long leaves. The remainder Kraft sum is t·2^(−(b−1))+(m−t)·2^(−b)=1 for m>1; the unary-only case is separate. This quotient/remainder construction is distinct from Elias length headers and fitted finite Huffman trees."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "075",
+    "family": "data-structures",
+    "classification": "model-variant",
+    "id": "rice-power-two-golomb-code",
+    "name": "Rice power-of-two Golomb code",
+    "definition": "For integer n≥0 and integer k≥0 let m=2^k, q=⌊n/m⌋, r=n−qm. Encode q zeros followed by one and then the k-bit unsigned binary representation of r (empty when k=0). The code length is L=q+1+k. Decode the unary count and exactly k suffix bits, then reconstruct n=2^k q+r.",
+    "variables": "n nonnegative integer, k remainder width, m divisor, q quotient, r remainder",
+    "assumptions": "Exact nonnegative integers, fixed shared k, identical unary polarity, known stream end or declared codeword count, no implicit padding; k=0 is unary",
+    "limitations": "O(q+1+k) bit processing and output; integer operation costs depend on representation. The power-of-two restriction may be less efficient than other divisors; adaptive block parameter selection and error correction are not specified",
+    "failure_conditions": [
+      "Negative or noninteger n or k",
+      "Missing unary terminator, nonbinary or truncated suffix, extra bits under single-codeword framing",
+      "Width, quotient or reconstructed integer exceeds declared resource bounds"
+    ],
+    "computation": "Validate k and output limits; split n into quotient and low k bits, using exact shifts or division. Decode a bounded unary count and fixed-width remainder; reconstruct with checked arithmetic.",
+    "source": {
+      "kind": "literature",
+      "citation": "Kiely (2004), Selecting the Golomb Parameter in Rice Coding, JPL IPN Progress Report 42-159, p. 2, https://tda.jpl.nasa.gov/progress_report/42-159/159E.pdf (GPO2 construction, floor quotient verified on page image). Treib (2014), §2.1.3, https://mediatum.ub.tum.de/doc/1190931/939759.pdf (power-of-two restriction). Rice (1979), Some Practical Universal Noiseless Coding Techniques, JPL 79-22, NASA document 19790014634 (metadata reviewed; original full report not reviewed).",
+      "url": "https://tda.jpl.nasa.gov/progress_report/42-159/159E.pdf"
+    },
+    "application": "General integer code; no empirical benefit claimed.",
+    "required_inputs": "Nonnegative integer, shared divisor or width, or framed binary code.",
+    "compatible_methods": [
+      "golomb-truncated-binary-code"
+    ],
+    "incompatible_methods": [
+      "Changing k without explicit framing",
+      "Treating this fixed-width code as the complete adaptive Rice compressor"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "golomb-truncated-binary-code"
+      }
+    ],
+    "mechanism_note": "When m=2^k and k>0, the Golomb threshold t=0 and b=k, so all residues have k bits; k=0 gives the same unary-only special case. This is a material restricted variant, not an additional distinct algorithm."
+  }
+]
