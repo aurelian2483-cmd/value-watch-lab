@@ -9857,5 +9857,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Constructs a triangulation of an existing simple polygon through successive ear deletion; not hull construction or point containment"
+  },
+  {
+    "id": "cohen-sutherland-segment-clipping",
+    "source": {
+      "kind": "literature",
+      "citation": "Carnegie Mellon University, Computer Graphics 15-462, 12 September 2001, slides 28–32 (extracted text and page image for slides 31–32 reviewed). Explicit boundary, bit-priority and point-contact conventions supplied by this specification. https://www.cs.cmu.edu/~jkh/462_f02/slides/07_viewing.pdf",
+      "url": "https://www.cs.cmu.edu/~jkh/462_f02/slides/07_viewing.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Bit-coded half-plane rejection and endpoint refinement for a single segment; not pairwise segment-intersection enumeration or polygon clipping"
+  },
+  {
+    "id": "sutherland-hodgman-convex-window-clipping",
+    "source": {
+      "kind": "literature",
+      "citation": "Carnegie Mellon University, Computer Graphics 15-462, 12 September 2001, slides 33–36 (extracted text and page image reviewed); four transition rules and convex clipping window generalization. Convex subject restriction and zero-area discard are explicit catalogue conventions. https://www.cs.cmu.edu/~jkh/462_f02/slides/07_viewing.pdf",
+      "url": "https://www.cs.cmu.edu/~jkh/462_f02/slides/07_viewing.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Repeated polygon half-plane intersection with vertex-list reconstruction; distinct output and procedure from endpoint segment clipping or winding-number containment"
   }
 ]

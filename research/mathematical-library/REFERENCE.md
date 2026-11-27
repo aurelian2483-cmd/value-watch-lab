@@ -6861,3 +6861,35 @@ Limitations — Naive repeated exhaustive ear scans take O(n³) time, O(n) addit
 Mechanism — Constructs a triangulation of an existing simple polygon through successive ear deletion; not hull construction or point containment
 
 Source — Godfried Toussaint, Triangulations and Arrangements (1993), lecture notes archived by UC Irvine, two-ear theorem and naive cubic ear cutting; Hacettepe University Polygon Triangulation lecture, 28 January 2026, ear algorithm. https://www-dev.ics.uci.edu/~eppstein/junkyard/godfried.toussaint.html
+
+## Cohen–Sutherland rectangular segment clipping (cohen-sutherland-segment-clipping)
+
+> For rectangle R=[l,u]×[d,v], C(p)=1·[p_x<l]+2·[p_x>u]+4·[p_y<d]+8·[p_y>v]. Accept if C(a) OR C(b)=0; reject if C(a) AND C(b)≠0; otherwise choose an outside endpoint and one set bit, replace that endpoint by a+t(b−a), where t=(z−a_j)/(b_j−a_j) for the indicated coordinate j and boundary z; repeat
+
+a,b ordered segment endpoints; l,u horizontal limits; d,v vertical limits; p point; [condition] indicator; j coordinate; z boundary coordinate; t segment parameter; OR and AND bitwise operations.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite Cartesian endpoints and l<u, d<v; closed axis-aligned rectangle; exact or reliably controlled predicates and intersection arithmetic; fixed bit priority left, right, bottom, top; zero-length segments handled by trivial tests.
+
+Limitations — Constant number of clipping steps for four fixed half-planes in exact arithmetic; arithmetic cost depends on representation; floating-point rounding may cause inconsistent boundary classifications; no arbitrary polygon or open-boundary support.
+
+Mechanism — Bit-coded half-plane rejection and endpoint refinement for a single segment; not pairwise segment-intersection enumeration or polygon clipping
+
+Source — Carnegie Mellon University, Computer Graphics 15-462, 12 September 2001, slides 28–32 (extracted text and page image for slides 31–32 reviewed). Explicit boundary, bit-priority and point-contact conventions supplied by this specification. https://www.cs.cmu.edu/~jkh/462_f02/slides/07_viewing.pdf
+
+## Sutherland–Hodgman convex-window polygon clipping (sutherland-hodgman-convex-window-clipping)
+
+> For each directed counterclockwise window edge (a,b), let f(q)=orient(a,b,q)=(b_x−a_x)(q_y−a_y)−(b_y−a_y)(q_x−a_x). For consecutive cyclic subject vertices s,t, emit intersection s+f(s)/(f(s)−f(t))·(t−s) if inside states differ, then emit t if f(t)≥0; feed the output to the next window edge
+
+a,b window edge endpoints; s,t current subject edge endpoints; q point; f oriented half-plane predicate; n initial subject vertex count; m window vertex count.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite ordered simple convex subject and strictly convex window, both positive area, no holes or repeated vertices; normalize both counterclockwise; exact or reliably controlled orientation and intersection arithmetic; boundary included during clipping.
+
+Limitations — Single convex output only; this specification discards zero-area contact, not a full set-valued intersection for line or point contacts; no concave subject or window support. With at most n+i vertices after i clipping stages, naive time O(mn+m²) and working storage O(n+m), excluding input validation; arithmetic cost depends on representation.
+
+Mechanism — Repeated polygon half-plane intersection with vertex-list reconstruction; distinct output and procedure from endpoint segment clipping or winding-number containment
+
+Source — Carnegie Mellon University, Computer Graphics 15-462, 12 September 2001, slides 33–36 (extracted text and page image reviewed); four transition rules and convex clipping window generalization. Convex subject restriction and zero-area discard are explicit catalogue conventions. https://www.cs.cmu.edu/~jkh/462_f02/slides/07_viewing.pdf
