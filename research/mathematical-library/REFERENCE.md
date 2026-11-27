@@ -6994,13 +6994,13 @@ Source — Ching-Kuang Shene, Michigan Technological University, Subdividing a B
 
 > For a finite nonempty indexed set P in R^d, choose split axis a = depth mod d and median pivot p under the order (coordinate a, record ID); recursively store the lower and upper rank halves. For query q minimize D(x) = sum_j (x_j - q_j)^2 over P; inspect each pivot, visit the nearer split side first, and prune the opposite side only when (q_a - p_a)^2 > D(best). For equal distances choose the smaller record ID.
 
-P indexed points, d positive dimension, a split axis, p pivot, q query, D squared Euclidean distance, best incumbent.
+P indexed points, d positive dimension, a split axis, p pivot, q query, D squared Euclidean distance, best incumbent..
 
 General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
 
-Assumptions — Finite nonempty static points and query of the same positive dimension; unique comparable record IDs; exact arithmetic or conservative distance bounds; rank tie splitting permits equal coordinates in both children.
+Assumptions — Finite nonempty static points and query of the same positive dimension; unique comparable record IDs; exact arithmetic or conservative distance bounds; rank tie splitting permits equal coordinates in both children..
 
-Limitations — Worst-case query visits all n pivots, O(nd) arithmetic; high dimensions and clustered data can reduce pruning. Sorting separately at each node costs O(n log^2 n) comparisons for fixed dimension; no average-case speed guarantee.
+Limitations — Worst-case query visits all n pivots, O(nd) arithmetic; high dimensions and clustered data can reduce pruning. Sorting separately at each node costs O(n log^2 n) comparisons for fixed dimension; no average-case speed guarantee..
 
 Mechanism — Coordinate-median indexing and exact branch-and-bound query are distinct from pairwise closest-pair computation and nearest-neighbour regression, which estimates a response; this entry specifies a single exact neighbour search, not a statistical estimator.
 
@@ -7010,13 +7010,13 @@ Source — Cornell University, CS4780 (2017), Lecture 16: KD Trees, text reviewe
 
 > For a half-open square cell C = [l_x,u_x) × [l_y,u_y), define m_j = (l_j+u_j)/2 and child index b = 1[x ≥ m_x] + 2·1[y ≥ m_y]. Store records in a leaf when occupancy n ≤ B or depth h ≥ H; otherwise recursively partition into the four disjoint midpoint children, assigning every record to its unique child.
 
-C root or child cell, l and u bounds, m midpoint, B positive bucket capacity, H finite nonnegative maximum depth, h current depth, n occupancy, b quadrant index.
+C root or child cell, l and u bounds, m midpoint, B positive bucket capacity, H finite nonnegative maximum depth, h current depth, n occupancy, b quadrant index..
 
 General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
 
-Assumptions — Finite planar indexed points inside a positive-width half-open root square; B ≥ 1 and integer H ≥ 0; exact midpoint arithmetic or explicit failure on unrepresentable midpoint; duplicate coordinates retained as separate records.
+Assumptions — Finite planar indexed points inside a positive-width half-open root square; B ≥ 1 and integer H ≥ 0; exact midpoint arithmetic or explicit failure on unrepresentable midpoint; duplicate coordinates retained as separate records..
 
-Limitations — Terminal leaves at maximum depth may exceed capacity. Worst-case construction performs O(n(H+1)) record assignments and stores O(1+nH) nodes with explicit empty children for H ≥ 1; large depth and clustered points increase memory. This bounded bucket policy generalizes capacity-one PR decomposition.
+Limitations — Terminal leaves at maximum depth may exceed capacity. Worst-case construction performs O(n(H+1)) record assignments and stores O(1+nH) nodes with explicit empty children for H ≥ 1; large depth and clustered points increase memory. This bounded bucket policy generalizes capacity-one PR decomposition..
 
 Mechanism — Fixed midpoint four-way key-space partition differs from rank-based binary k-d tree; finite depth and bucket rules are documented rather than counted as additional methods.
 
