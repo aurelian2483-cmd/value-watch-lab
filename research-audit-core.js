@@ -64,8 +64,21 @@ function normalizeFootballHistory(document,now=Date.now()){
     return 'Model estimate';
   }
 
+function footballApiSeasonComparison(fixture, now=Date.now()){
+ const value=fixture.football_data_season_comparison;
+ if(!guarded(value)||value.method!=='FOOTBALL_DATA_VENUE_POISSON_V1'||
+    !SHA.test(value.source_sha256||'')||value.odds!==null||value.expected_value!==null||
+    !/^https:\/\/api\.football-data\.org\/v4\/competitions\/(PL|ELC|CL|PD|BL1|SA|FL1)\/matches\?season=\d{4}$/.test(value.source)||
+    !freshness(value.observed_at_utc,36*3600000,now).fresh||
+    Date.parse(value.observed_at_utc)>=Date.parse(fixture.kickoff_utc)||
+    ![value.home_venue_matches,value.away_venue_matches].every(n=>Number.isSafeInteger(n)&&n>=5))return null;
+ const probabilities=[value.prob_home,value.prob_draw,value.prob_away];
+ return probabilities.every(p=>Number.isFinite(p)&&p>=0&&p<=1)&&
+   Math.abs(probabilities.reduce((a,b)=>a+b,0)-1)<=1e-8?value:null;
+}
 function footballMarginPreview(probabilities, modelName) {
  if (modelName !== 'CURRENT_SEASON_POISSON_COMPARISON_V1' &&
+     modelName !== 'FOOTBALL_DATA_VENUE_POISSON_V1' &&
      modelName !== 'POISSON_CURRENT_SEASON_SHRINKAGE_V1' &&
      !/^LEAGUE_POISSON_SHRINKAGE_V1_[A-Z0-9]+_CURRENT_SEASON_SMALL_SAMPLE$/.test(modelName || '')) return '';
  if (probabilities.length !== 3 || !probabilities.every(p => Number.isFinite(p) && p >= 0 && p <= 1) ||
@@ -75,5 +88,5 @@ function footballMarginPreview(probabilities, modelName) {
  return 'Current-season 10-point preview · ' + (gap + 1e-12 >= 0.10 ? 'Research lead' : 'Watch') +
      ' · ' + (gap * 100).toFixed(2) + ' pp gap';
 }
-return {footballMarginPreview,footballEstimateBasis,freshness,validateOtherIdentity,validateOtherEvent,validateOtherForecast,normalizeFootballResults,normalizeFootballHistory};
+return {footballApiSeasonComparison,footballMarginPreview,footballEstimateBasis,freshness,validateOtherIdentity,validateOtherEvent,validateOtherForecast,normalizeFootballResults,normalizeFootballHistory};
 });

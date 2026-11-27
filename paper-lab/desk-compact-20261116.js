@@ -469,12 +469,14 @@
     const model = comparisonModel?.cutoff > Date.now() ? comparisonModel : null;
     const quickSignals = record.signals;
     quickSignals.replaceChildren(record.status);
-    if (event.sport === 'football' && !event.international && (model || hasModelEstimate)) {
-      if (event.seasonComparison) {
-        const {prob_home, prob_draw, prob_away} = event.seasonComparison;
+    const displaySeason = event.apiSeasonComparison ?? event.seasonComparison;
+    if (event.sport === 'football' && !event.international && (displaySeason || model || hasModelEstimate)) {
+      if (displaySeason) {
+        const {prob_home, prob_draw, prob_away} = displaySeason;
         make(quickSignals, 'span', 'This season (1 / X / 2) · ' +
           [prob_home, prob_draw, prob_away].map(pct).join(' / ') +
-          (event.seasonComparison.small_sample ? ' · Small sample' : ''), 'compact-evidence-note');
+          (displaySeason.small_sample ? ' · Small sample' : '') +
+          (event.apiSeasonComparison ? ' · Football data provided by the Football-Data.org API' : ''), 'compact-evidence-note');
       } else {
         make(quickSignals, 'span', 'Current-season venue comparison unavailable', 'compact-evidence-note');
       }
@@ -486,7 +488,7 @@
       make(quickSignals,'span','Sky Bet · observed '+dateText(new Date(currentOdds.observed).toISOString())+' UK','compact-signal-pill live-price-pill');
     }
     if (event.sport === 'football') {
-      const comparison = event.seasonComparison;
+      const comparison = displaySeason;
       const probabilities = comparison
         ? [comparison.prob_home, comparison.prob_draw, comparison.prob_away]
         : event.choices.map(choice => choice.probability);

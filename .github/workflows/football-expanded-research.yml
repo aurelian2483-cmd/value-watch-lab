@@ -64,6 +64,10 @@ jobs:
         with:
           ref: main
           path: website
+      - name: Add Football-data.org current-season display comparisons
+        env:
+          FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+        run: python website/scripts/enrich_football_season_api.py /tmp/football-expanded/football-expanded-data.json
       - name: Publish additional league data
         shell: bash
         run: |

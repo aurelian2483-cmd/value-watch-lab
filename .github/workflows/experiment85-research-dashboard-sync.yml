@@ -79,6 +79,10 @@ jobs:
           ref: main
           path: website
           persist-credentials: true
+      - name: Add Football-data.org current-season display comparisons
+        env:
+          FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+        run: python website/scripts/enrich_football_season_api.py /tmp/experiment82/dashboard-data.json
       - name: Publish only validated research JSON
         shell: bash
         run: |
