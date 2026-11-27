@@ -9259,5 +9259,97 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Run boundaries occur exactly at unequal adjacent symbols; the unique maximal-run partition is recovered from its ordered symbols and lengths. This is not Golomb coding of integers, nor general LZ77 substring substitution; although long constant runs can be represented using distance-one LZ77 references, the canonical run partition is a different sequence representation."
+  },
+  {
+    "id": "kahn-topological-sort",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Pennsylvania, CIS 1210, Spring 2025, Recitation 7, Kahn’s algorithm, https://www.cis.upenn.edu/~cis1210/current/recitations/fa25_rec_7_sols.pdf (retrieved text; screenshot unavailable). Original Kahn (1962) DOI 10.1145/368996.369025 retained as unverified locator.",
+      "url": "https://www.cis.upenn.edu/~cis1210/current/recitations/fa25_rec_7_sols.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Maintains indegree of the unprocessed induced graph. Every nonempty finite DAG has a source; each emitted vertex precedes all its unprocessed successors. If no source remains, following predecessors in the finite residual graph yields a cycle. Distinct from shortest-path and spanning-forest objectives."
+  },
+  {
+    "id": "tarjan-strongly-connected-components",
+    "source": {
+      "kind": "literature",
+      "citation": "Cornell CS 4120 (Spring 2023), Iterative solving, Tarjan’s algorithm, https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html. Original Tarjan (1972) DOI 10.1137/0201010 retained as unverified locator.",
+      "url": "https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The root condition identifies a maximal mutually reachable group; active-stack bookkeeping distinguishes completed components. Floyd–Warshall computes pairwise paths rather than this linear-time partition; Kahn orders the resulting condensation DAG, not the cyclic graph itself."
+  },
+  {
+    "id": "edmonds-karp-maximum-flow",
+    "source": {
+      "kind": "literature",
+      "citation": "MIT 6.854, Strongly Polynomial Flow Algorithms, Scribe Notes #7, §2, https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html. Edmonds and Karp (1972) DOI 10.1145/321694.321699 retained as unverified locator.",
+      "url": "https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Residual reverse arcs permit cancellation; shortest residual distances do not decrease and each critical arc can recur only O(|V|) times. Different objective and state updates from Dijkstra; the existing general linear-program specification is not this combinatorial procedure."
+  },
+  {
+    "id": "hopcroft-karp-bipartite-matching",
+    "source": {
+      "kind": "literature",
+      "citation": "Norbert Zeh, Dalhousie University, Algorithms II §7.4.4, https://web.cs.dal.ca/~nzeh/Teaching/4113/book/matching/bipartite_maximum_matching/hopcroft_karp.html. Original Hopcroft and Karp (1973) DOI 10.1137/0202019 retained as unverified locator.",
+      "url": "https://web.cs.dal.ca/~nzeh/Teaching/4113/book/matching/bipartite_maximum_matching/hopcroft_karp.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Each phase increases matching cardinality by k; shortest augmenting distance strictly increases. This is a specialized disjoint-path phase algorithm, distinct from Edmonds–Karp single-path augmentation and Hungarian weighted assignment; related to unit-capacity blocking flow."
   }
 ]

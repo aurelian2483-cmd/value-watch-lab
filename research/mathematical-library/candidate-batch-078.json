@@ -1,0 +1,198 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "078",
+    "family": "network-science",
+    "classification": "model-variant",
+    "id": "kosaraju-two-pass-scc",
+    "name": "Kosaraju two-pass strongly connected components",
+    "definition": "Compute DFS finishing order L on G; traverse G^T in reverse L, each new DFS tree = one SCC. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Cornell CS 4120 Iterative solving, https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "tarjan-strongly-connected-components"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "tarjan-strongly-connected-components"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "078",
+    "family": "operations-research",
+    "classification": "model-variant",
+    "id": "dinic-blocking-flow",
+    "name": "Dinic layered blocking flow",
+    "definition": "For residual graph BFS levels d(v), admissible edges satisfy d(v)=d(u)+1; augment a blocking flow in the level graph, then rebuild. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: MIT 6.854 Scribe Notes #7, §3, https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "edmonds-karp-maximum-flow"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "edmonds-karp-maximum-flow"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "078",
+    "family": "network-science",
+    "classification": "distinct-algorithm",
+    "id": "prim-minimum-spanning-tree",
+    "name": "Prim minimum spanning tree",
+    "definition": "Start S={r}; choose minimum-weight edge (u,v) crossing S to V\\\\S, add it and set S=S∪{v}. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Prim (1957), Shortest connection networks and some generalizations"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "kruskal-spanning-forest"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "kruskal-spanning-forest"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "078",
+    "family": "operations-research",
+    "classification": "distinct-algorithm",
+    "id": "bellman-held-karp-subset-dp",
+    "name": "Bellman–Held–Karp subset dynamic programming",
+    "definition": "For subsets S containing root r, D(S,j)=min_{i∈S\\\\{j}}[D(S\\\\{j},i)+c(i,j)] for j≠r, with D({r},r)=0. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Held and Karp (1962), A dynamic programming approach to sequencing problems"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "branch-bound"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "branch-bound"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  }
+]
