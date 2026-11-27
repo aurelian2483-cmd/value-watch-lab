@@ -74,6 +74,7 @@ def evaluate(records,entries):
   key=(r['model'],r['race_id'],r['startUTC'])
   if key in seen:raise ValueError('More than one scored revision per race/model')
   seen.add(key)
+  _validate_settlement_evidence(r,e)
   if not all(type(e.get(k)) in (int,float) and math.isfinite(e[k]) and e[k]>=0 for k in ('multiclass_brier_score','log_loss','equal_chance_brier_score','equal_chance_log_loss')):raise ValueError('Invalid scored metric')
   ids=[str(row['horse_id']) for row in r['runners']]
   ps=[row['model_probability'] for row in r['runners']]
@@ -214,8 +215,8 @@ def _instant(value):
  if stamp.tzinfo is None:raise ValueError('Timezone required')
  return stamp.astimezone(dt.timezone.utc)
 
-def _validated_score(record,entry):
- """Comparison requires a source-backed, reproducible score, not a bare winner."""
+def _validate_settlement_evidence(record,entry):
+ """Apply the same source and chronology checks to each paired comparison."""
  if record.get('research_only') is not True or record.get('publication_gate')!='BLOCKED' or record.get('model_validation')!='UNVALIDATED' or record.get('challenge_eligible')!=0:raise ValueError('Unsafe forecast')
  if entry.get('verification')!='SINGLE_SOURCE_PROVISIONAL' or entry.get('independently_verified') is not False or entry.get('publication_gate')!='BLOCKED' or entry.get('challenge_eligible')!=0:raise ValueError('Unsafe outcome')
  if any(entry.get(k)!=record[k] for k in ('record_sha256','race_id','racecourse','startUTC','model')):raise ValueError('Outcome identity mismatch')
@@ -227,6 +228,10 @@ def _validated_score(record,entry):
  observed=_instant(receipt['observed_at_utc']);scored=_instant(entry['scored_at_utc'])
  if observed<kickoff:raise ValueError('Outcome observed before start')
  if scored<observed:raise ValueError('Score precedes outcome observation')
+
+def _validated_score(record,entry):
+ """Comparison requires a source-backed, reproducible score, not a bare winner."""
+ _validate_settlement_evidence(record,entry)
  rows=record['runners'];ids=[str(r['horse_id']) for r in rows];ps=[r['model_probability'] for r in rows]
  if len(rows)<2 or len(set(ids))!=len(rows) or any(type(p) not in (int,float) or not math.isfinite(p) or not 0<p<1 for p in ps) or abs(sum(ps)-1)>1e-8:raise ValueError('Invalid vector')
  winner=str(entry['winner_horse_id'])

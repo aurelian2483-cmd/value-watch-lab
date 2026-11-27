@@ -109,6 +109,33 @@ class PairedModelComparison(unittest.TestCase):
 if __name__=='__main__':unittest.main()
 
 class EvaluationScoreIntegrity(unittest.TestCase):
+    def test_uniform_baseline_rejects_invalid_settlement_evidence(self):
+        for issue, message in (
+            ('late-freeze', 'Late capture'),
+            ('pre-start-result', 'Outcome observed before start'),
+            ('score-before-observation', 'Score precedes outcome observation'),
+            ('unzoned-result', 'Timezone required'),
+            ('wrong-source', 'Invalid source receipt'),
+            ('wrong-event', 'Outcome identity mismatch'),
+            ('unproven-verification', 'Unsafe outcome'),
+        ):
+            with self.subTest(issue=issue):
+                r,e=fixture()
+                if issue=='late-freeze':r['generated_at_utc']='2026-11-04T14:55:00Z'
+                if issue=='pre-start-result':e['source_receipt']['observed_at_utc']='2026-11-04T14:59:59Z'
+                if issue=='score-before-observation':e['scored_at_utc']='2026-11-04T16:59:59+01:00'
+                if issue=='unzoned-result':e['source_receipt']['observed_at_utc']='2026-11-04T16:00:00'
+                if issue=='wrong-source':e['source_receipt']['url']='https://example.test/results/1'
+                if issue=='wrong-event':e['race_id']='another-race'
+                if issue=='unproven-verification':e['independently_verified']=True
+                with self.assertRaisesRegex(ValueError,message):
+                    evaluate([r],[e])
+
+    def test_uniform_baseline_accepts_equivalent_receipt_and_score_instants(self):
+        r,e=fixture()
+        e['scored_at_utc']='2026-11-04T17:00:00+01:00'
+        self.assertEqual(evaluate([r],[e])['models'][r['model']]['scored_races'],1)
+
     def test_rejects_corrupted_model_scores(self):
         for key in ('multiclass_brier_score','log_loss'):
             r,e=fixture();e[key]+=.01
@@ -198,6 +225,8 @@ class BootstrapOrderIntegrity(unittest.TestCase):
             record,entry=fixture(str(index))
             day=4+index//15
             record['startUTC']=entry['startUTC']=f'2026-11-{day:02d}T15:00:00Z'
+            record['generated_at_utc']=f'2026-11-{day:02d}T13:00:00Z'
+            entry['scored_at_utc']=entry['source_receipt']['observed_at_utc']=f'2026-11-{day:02d}T16:00:00Z'
             records.append(record);entries.append(entry)
         result=evaluate(records,entries)
         summary=next(iter(result['models'].values()))
