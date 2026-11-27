@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-27T20:28:50.574479+00:00",
+  "generated_at_utc": "2026-11-27T21:24:26.301094+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -9,8 +9,8 @@
   "secondary_source_audit": {
     "provider": "The Racing API",
     "connection_status": "CONNECTED",
-    "schedule_matches": 1,
-    "result_rows_cached": 897,
+    "schedule_matches": 0,
+    "result_rows_cached": 898,
     "errors": [],
     "verification_scope": "Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established."
   },
@@ -22,11 +22,11 @@
     "superseded_racecards": [],
     "active_runner_observations": 315,
     "non_runner_observations": 29,
-    "pre_event_races": 1,
+    "pre_event_races": 0,
     "errors": [],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED",
-    "collection_completed_at_utc": "2026-11-27T20:28:47.034531+00:00"
+    "collection_completed_at_utc": "2026-11-27T21:24:22.700725+00:00"
   },
   "race_count": 38,
   "reference_baseline_audit": {
@@ -357,15 +357,15 @@
     "model_validation": "UNVALIDATED"
   },
   "performance": {
-    "scored_forecasts": 142,
+    "scored_forecasts": 144,
     "independently_verified_results": 0,
     "verification": "SINGLE_SOURCE_PROVISIONAL",
     "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
     "metrics": {
-      "mean_multiclass_brier_score": 0.8950813004802548,
-      "mean_log_loss": 2.3193560700851106,
-      "mean_equal_chance_brier_score": 0.90199186572426,
-      "mean_equal_chance_log_loss": 2.356585099235558
+      "mean_multiclass_brier_score": 0.8950673212900916,
+      "mean_log_loss": 2.320008263686767,
+      "mean_equal_chance_brier_score": 0.9022257449340783,
+      "mean_equal_chance_log_loss": 2.3588335881518256
     },
     "entries": [
       {
@@ -3775,17 +3775,57 @@
         "publication_gate": "BLOCKED",
         "result_recheck_status": "NOT_RECHECKED",
         "result_last_checked_at_utc": "2026-11-27T19:30:36.838772+00:00"
+      },
+      {
+        "record_sha256": "b6c37ac3f9f4b5f0c36f464e4e1a5dcabaf4f82d27a11d0d319602a82e026f49",
+        "race_id": "950756",
+        "racecourse": "Dundalk",
+        "startUTC": "2026-11-27T20:00:00+00:00",
+        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+        "winner_horse_id": "1195458",
+        "scored_at_utc": "2026-11-27T21:24:26.301094+00:00",
+        "multiclass_brier_score": 0.8865451596031996,
+        "log_loss": 2.273879254926301,
+        "equal_chance_brier_score": 0.9090909090909091,
+        "equal_chance_log_loss": 2.3978952727983707,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-27/dundalk/racecard/950756/bar-1-betting-weekly-rewards-apprentice-handicap-0-60",
+          "sha256": "d1d40306b30558fbcd1a3128ec1139d92f7523022a276afe5f0c2691b1c4c2f8",
+          "observed_at_utc": "2026-11-27T21:24:26.301094+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-27T21:24:26.301094+00:00"
+      },
+      {
+        "record_sha256": "7f9d96b25c20a9e0be428cd1e6021bec1e375c153d4aef036491729dc4051170",
+        "race_id": "950757",
+        "racecourse": "Dundalk",
+        "startUTC": "2026-11-27T20:30:00+00:00",
+        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+        "winner_horse_id": "1189324",
+        "scored_at_utc": "2026-11-27T21:24:26.301094+00:00",
+        "multiclass_brier_score": 0.9016044379738072,
+        "log_loss": 2.458748763882398,
+        "equal_chance_brier_score": 0.9285714285714286,
+        "equal_chance_log_loss": 2.6390573296152584,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-27/dundalk/racecard/950757/saddle-cocktail-bar-at-dundalk-stadium-handicap",
+          "sha256": "537ab35024b7109672d47deb17bc75facbe75a315afb48834d0de761312d4fa8",
+          "observed_at_utc": "2026-11-27T21:24:26.301094+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-27T21:24:26.301094+00:00"
       }
     ],
     "pending": [
-      {
-        "race_id": "950756",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
-      {
-        "race_id": "950757",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
       {
         "race_id": "950413",
         "reason": "VOID_FIELD_CHANGED_AFTER_CAPTURE"
@@ -9064,6 +9104,14 @@
       {
         "race_id": "950754",
         "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
+      },
+      {
+        "race_id": "950756",
+        "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
+      },
+      {
+        "race_id": "950757",
+        "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
       }
     ],
     "provisional_evaluation": {
@@ -9072,19 +9120,19 @@
         "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1": {
           "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
           "parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "scored_races": 142,
+          "scored_races": 144,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.006910565244005252,
-          "mean_log_loss_delta_vs_equal_chance": -0.03722902915044708,
+          "mean_brier_delta_vs_equal_chance": -0.007158423643986645,
+          "mean_log_loss_delta_vs_equal_chance": -0.038825324465058444,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.010856762374045807,
-            "upper": -0.0030517026144428194,
+            "lower": -0.011029057417898202,
+            "upper": -0.0035209627589247016,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.05624084533012862,
-            "upper": -0.019140679661298735,
+            "lower": -0.05708015703322738,
+            "upper": -0.021803285150354425,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -9099,16 +9147,16 @@
             {
               "lower": 0.05,
               "upper": 0.1,
-              "runner_observations": 1096,
-              "mean_model_probability": 0.07930579899046056,
-              "observed_win_frequency": 0.07481751824817519
+              "runner_observations": 1118,
+              "mean_model_probability": 0.07924574373038534,
+              "observed_win_frequency": 0.0742397137745975
             },
             {
               "lower": 0.1,
               "upper": 0.15,
-              "runner_observations": 388,
-              "mean_model_probability": 0.11550544783068624,
-              "observed_win_frequency": 0.12886597938144329
+              "runner_observations": 391,
+              "mean_model_probability": 0.11544380552757089,
+              "observed_win_frequency": 0.13043478260869565
             },
             {
               "lower": 0.15,
@@ -9206,6 +9254,192 @@
   },
   "current_field_checks": {},
   "settled_forecasts": [
+    {
+      "record_sha256": "7f9d96b25c20a9e0be428cd1e6021bec1e375c153d4aef036491729dc4051170",
+      "race_id": "950757",
+      "racecourse": "Dundalk",
+      "race_name": "Saddle Cocktail Bar At Dundalk Stadium Handicap",
+      "startUTC": "2026-11-27T20:30:00+00:00",
+      "generated_at_utc": "2026-11-27T12:37:16.236104+00:00",
+      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+      "runners": [
+        {
+          "horse_id": "1024587",
+          "name": "Satono Chevalier",
+          "model_probability": 0.06380425104482573,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1092967",
+          "name": "Afloat",
+          "model_probability": 0.0631241848415092,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1113874",
+          "name": "Tribal Moon",
+          "model_probability": 0.06303311588023895,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1141166",
+          "name": "Usuario Amigo",
+          "model_probability": 0.08592528312219483,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1149284",
+          "name": "Movin And Groovin",
+          "model_probability": 0.08240938806850771,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1155177",
+          "name": "Flying Fortress",
+          "model_probability": 0.078304412553552,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1182634",
+          "name": "Flame Of Forest",
+          "model_probability": 0.05554700137041961,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1188499",
+          "name": "Wild Berries",
+          "model_probability": 0.06693492298859795,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1188729",
+          "name": "Isthatrightkatie",
+          "model_probability": 0.06293449720304911,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1189324",
+          "name": "Love Orchid",
+          "model_probability": 0.08554191716970952,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1195753",
+          "name": "A Pretty Penny",
+          "model_probability": 0.07587018559595168,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1198629",
+          "name": "Anightaway",
+          "model_probability": 0.0776076203394107,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1232555",
+          "name": "Emily Estherfaye",
+          "model_probability": 0.06336315141325118,
+          "equal_chance_reference": 0.07142857142857142
+        },
+        {
+          "horse_id": "1237314",
+          "name": "Riyazanka",
+          "model_probability": 0.0756000684087818,
+          "equal_chance_reference": 0.07142857142857142
+        }
+      ],
+      "winner_horse_id": "1189324",
+      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-27T21:24:26.301094+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
+    {
+      "record_sha256": "b6c37ac3f9f4b5f0c36f464e4e1a5dcabaf4f82d27a11d0d319602a82e026f49",
+      "race_id": "950756",
+      "racecourse": "Dundalk",
+      "race_name": "BAR 1 Betting 'Weekly Rewards' Apprentice Handicap (0-60)",
+      "startUTC": "2026-11-27T20:00:00+00:00",
+      "generated_at_utc": "2026-11-27T01:57:00.389758+00:00",
+      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+      "runners": [
+        {
+          "horse_id": "1061971",
+          "name": "Phil's Dream",
+          "model_probability": 0.08629779366038128,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1069938",
+          "name": "Hasiyna",
+          "model_probability": 0.07617232291543342,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1145220",
+          "name": "Star Allure",
+          "model_probability": 0.09117236222539635,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1151111",
+          "name": "Bye Bye Now",
+          "model_probability": 0.1035661530549074,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1165548",
+          "name": "Shamanka",
+          "model_probability": 0.08891240309135623,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1188878",
+          "name": "The Love Machine",
+          "model_probability": 0.08788200146550908,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1189328",
+          "name": "One Cool Bear",
+          "model_probability": 0.11593586777088692,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1195458",
+          "name": "The Cosy Corner",
+          "model_probability": 0.10291218214816367,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1197079",
+          "name": "Astute Power",
+          "model_probability": 0.08784579524901334,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1217141",
+          "name": "Prince Andorra",
+          "model_probability": 0.0768843899961043,
+          "equal_chance_reference": 0.09090909090909091
+        },
+        {
+          "horse_id": "1232457",
+          "name": "Gaineamh Min",
+          "model_probability": 0.08241872842284809,
+          "equal_chance_reference": 0.09090909090909091
+        }
+      ],
+      "winner_horse_id": "1195458",
+      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-27T21:24:26.301094+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
     {
       "record_sha256": "0e662e75c2c29903c0ede39bf4655d613b823dec6e8168a99c1d5a1d6bc088a0",
       "race_id": "950754",
@@ -10645,191 +10879,17 @@
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
-    },
-    {
-      "record_sha256": "19467d999561b84388c7893684b4fd3a080c2f3e6ba0e14ba41f477b307ae0bf",
-      "race_id": "950229",
-      "racecourse": "Newcastle",
-      "race_name": "Midnite: Built For 2026 Not 2006 Handicap",
-      "startUTC": "2026-11-25T17:30:00+00:00",
-      "generated_at_utc": "2026-11-25T00:39:12.385427+00:00",
-      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
-      "runners": [
-        {
-          "horse_id": "1015881",
-          "name": "Crypto Quest",
-          "model_probability": 0.06332981666184667,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1024926",
-          "name": "Thank The Lord",
-          "model_probability": 0.061826816106785115,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1031849",
-          "name": "Henery Hawk",
-          "model_probability": 0.08132120283995742,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1057238",
-          "name": "King's Crown",
-          "model_probability": 0.06359980869952438,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1109786",
-          "name": "Shatin Venture",
-          "model_probability": 0.07574157107806483,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1110252",
-          "name": "Wrestling Revenue",
-          "model_probability": 0.0702540358026495,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1147342",
-          "name": "Auntie Jo",
-          "model_probability": 0.07983447745507151,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1147681",
-          "name": "South Shore Island",
-          "model_probability": 0.08337096379746253,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1149286",
-          "name": "Until Dawn",
-          "model_probability": 0.07045018517614397,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1165382",
-          "name": "Dc Cogent",
-          "model_probability": 0.07119331446209017,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1189360",
-          "name": "Powernap",
-          "model_probability": 0.06701262823689721,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1192014",
-          "name": "Woolridge",
-          "model_probability": 0.07518730918286881,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1195299",
-          "name": "Golden Havana",
-          "model_probability": 0.07166494502453157,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "427100",
-          "name": "Delagate This Lord",
-          "model_probability": 0.06521292547610638,
-          "equal_chance_reference": 0.07142857142857142
-        }
-      ],
-      "winner_horse_id": "1057238",
-      "result_verification": "TWO_PUBLISHER_CORROBORATED",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
-    },
-    {
-      "record_sha256": "94dda7f4be02720b8363e5478f719b0b6f685fb8b6069f3c8790f8f52d31558f",
-      "race_id": "950228",
-      "racecourse": "Newcastle",
-      "race_name": "AW Trials Day - Lingfield 2nd Jan 2027 Handicap",
-      "startUTC": "2026-11-25T17:00:00+00:00",
-      "generated_at_utc": "2026-11-25T00:39:12.385427+00:00",
-      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
-      "runners": [
-        {
-          "horse_id": "1181804",
-          "name": "Blue To Blue",
-          "model_probability": 0.08827114193470038,
-          "equal_chance_reference": 0.1111111111111111
-        },
-        {
-          "horse_id": "1183884",
-          "name": "Rapide Vega",
-          "model_probability": 0.12909147856503753,
-          "equal_chance_reference": 0.1111111111111111
-        },
-        {
-          "horse_id": "1192887",
-          "name": "Aqua Bear",
-          "model_probability": 0.08763594674789002,
-          "equal_chance_reference": 0.1111111111111111
-        },
-        {
-          "horse_id": "1196827",
-          "name": "Ephron",
-          "model_probability": 0.10905104159135494,
-          "equal_chance_reference": 0.1111111111111111
-        },
-        {
-          "horse_id": "1210479",
-          "name": "Skewsby",
-          "model_probability": 0.1000841117860247,
-          "equal_chance_reference": 0.1111111111111111
-        },
-        {
-          "horse_id": "1214739",
-          "name": "Filly Eilish",
-          "model_probability": 0.1307390122324538,
-          "equal_chance_reference": 0.1111111111111111
-        },
-        {
-          "horse_id": "1219496",
-          "name": "Shadow Boxer",
-          "model_probability": 0.12271127465619755,
-          "equal_chance_reference": 0.1111111111111111
-        },
-        {
-          "horse_id": "1224423",
-          "name": "Leopards Rock",
-          "model_probability": 0.112395532159181,
-          "equal_chance_reference": 0.1111111111111111
-        },
-        {
-          "horse_id": "1225324",
-          "name": "Yimmna",
-          "model_probability": 0.12002046032716011,
-          "equal_chance_reference": 0.1111111111111111
-        }
-      ],
-      "winner_horse_id": "1219496",
-      "result_verification": "TWO_PUBLISHER_CORROBORATED",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
     }
   ],
   "settled_history_limit": 20,
   "race_cycle_audit": {
-    "checked_at_utc": "2026-11-27T20:28:50.574479+00:00",
+    "checked_at_utc": "2026-11-27T21:24:26.301094+00:00",
     "race_date_uk": "2026-11-27",
     "collection_scope": "CURRENT_UK_DAY_ONLY",
-    "upcoming_observed_races": 1,
+    "upcoming_observed_races": 0,
     "upcoming_form_forecasts": 0,
-    "next_observed_start_utc": "2026-11-27T20:30:00+00:00",
-    "status": "NO_SUPPORTED_UPCOMING_FORECASTS"
+    "next_observed_start_utc": null,
+    "status": "COLLECTED_CARD_FINISHED"
   },
   "limitations": [
     "Exploratory heuristic, not a trained or calibrated AI model.",
