@@ -1412,7 +1412,7 @@
       make(chip,'span','★','method-key-symbol');
       make(chip,'span',method.name);
       if(['tool','readiness','place-model','separate-unconnected'].includes(method.kind)){
-        make(chip,'small',method.kind==='tool'?'comparison tool':method.kind==='readiness'?'no forecast':method.kind==='place-model'?'top-4 market; separate':'separate / not connected','method-unavailable');
+        make(chip,'small',method.kind==='tool'?'comparison tool':method.kind==='readiness'?'paper lab':method.kind==='place-model'?'top-4 market; separate':'separate / not connected','method-unavailable');
       }
     }
     const alpha=make(guide,'a','Open Alpha Hunt · separate research','method-alpha-link');
@@ -1435,7 +1435,7 @@
     hybrid:'Hybrid 3.1 · current-season football model + independent market.',
     compare:'Compare the saved estimate with each experimental method.',
     reliability:'Historical Reliability · form-pattern screen; not certified betting value.',
-    bottleneck:'Bottleneck Lab · research readiness, no active forecasting or betting output.',
+    bottleneck:'Bottleneck Lab · Premier League paper comparison and sport readiness.',
     'racing-top-four':'Racing Top Four · unvalidated win-to-place research transform.'
   };
   const engineLabels = Object.fromEntries(M.methods.map(method => [method.id,method.label]));
@@ -1514,11 +1514,9 @@
   let bottleneckArchiveRequest;
 
   function renderBottleneckFootball(root, lab) {
-    const section = make(root, 'section', undefined, 'bottleneck-readiness-card');
+    const section = make(root, 'section', undefined, 'bottleneck-paper');
     make(section, 'h4', 'Premier League paper comparison');
-    make(section, 'p', 'Experimental predictions frozen before kickoff. Football data provided by the Football-Data.org API.', 'small');
     const content = make(section, 'div', 'Loading frozen football predictions…');
-    content.setAttribute('aria-live', 'polite');
     bottleneckArchiveRequest ??= fetch(new URL('research/bottleneck/football-paper-pairs.json', rootURL), {cache:'no-store'})
       .then(response => {
         if (!response.ok) throw Error('Prediction archive unavailable');
@@ -1532,8 +1530,9 @@
         make(content, 'p', data ? 'The archive has no eligible frozen predictions yet.' : 'The published prediction archive is unavailable.', 'small');
         return;
       }
+      const controls = make(content, 'div', undefined, 'bottleneck-paper-controls');
       const makeSelect = (text, options) => {
-        const label = make(content, 'label', text + ' ');
+        const label = make(controls, 'label', text);
         const select = make(label, 'select');
         for (const [value, labelText] of options) make(select, 'option', labelText).value = value;
         return select;
@@ -1543,7 +1542,11 @@
       const method = makeSelect('Choose a model view', [['challenger','Bottleneck pilot'],['baseline','Current-season baseline']]);
       if (pairs.some(row => identity(row) === bottleneckFootballFixture)) fixture.value = bottleneckFootballFixture;
       method.value = bottleneckFootballMethod;
-      const result = make(content, 'div');
+      const result = make(content, 'div', undefined, 'bottleneck-paper-result');
+      result.setAttribute('aria-live', 'polite');
+      const evidence = details(content, 'Capture and source details', 'bottleneck-paper-evidence');
+      const capture = make(evidence, 'p');
+      make(evidence, 'p', 'Experimental paper estimates frozen before kickoff. Football data provided by the Football-Data.org API.');
       function draw() {
         bottleneckFootballFixture = fixture.value;
         bottleneckFootballMethod = method.value;
@@ -1551,12 +1554,19 @@
         const values = row[method.value];
         const labels = [row.home,'Draw',row.away];
         const best = Math.max(...values);
-        const leaders = labels.filter((_, i) => values[i] === best);
+        const leaders = labels.map((_, i) => i).filter(i => best - values[i] < 1e-12);
         result.replaceChildren();
-        make(result, 'p', 'Paper pick: ' + (leaders.length === 1 ? leaders[0] : 'Tied estimates'), 'small');
-        make(result, 'p', labels.map((label,i) => label + ' ' + pct(values[i])).join(' · '), 'small');
-        make(result, 'p', 'Captured ' + dateText(row.captured_at_utc) + ' UK · ' +
-          (method.value === 'challenger' ? row.challenger_model : row.baseline_model), 'small');
+        make(result, 'p', 'Paper pick', 'bottleneck-paper-label');
+        make(result, 'strong', leaders.length === 1 ? labels[leaders[0]] : 'Tied estimates', 'bottleneck-paper-pick');
+        const outcomes = make(result, 'div', undefined, 'bottleneck-paper-outcomes');
+        labels.forEach((label, i) => {
+          const outcome = make(outcomes, 'div', undefined,
+            'bottleneck-paper-outcome' + (leaders.length === 1 && leaders[0] === i ? ' is-leading' : ''));
+          make(outcome, 'span', label);
+          make(outcome, 'strong', pct(values[i]));
+        });
+        write(capture, 'Captured ' + dateText(row.captured_at_utc) + ' UK · ' +
+          (method.value === 'challenger' ? row.challenger_model : row.baseline_model));
       }
       fixture.addEventListener('change', draw);
       method.addEventListener('change', draw);
@@ -1596,19 +1606,18 @@
     const state = store.get();
     if (view === 'bottleneck') {
       const lab = window.ValueWatchBottleneckLab;
-      make(root, 'p', 'Sport-specific research readiness · no active betting output.', 'small');
-      make(root, 'h3', state.sport === 'all' ? 'Cross-sport Bottleneck readiness' : (sports[state.sport] || state.sport) + ' · Bottleneck readiness');
-      make(root, 'p', 'Each lane has its own market definition and evidence requirements. Bookmaker prices and existing model values stay on the fixture board.', 'small');
       if (lab && (state.sport === 'all' || state.sport === 'football')) {
         renderBottleneckFootball(root, lab);
       }
       const rows = lab?.forSelection(state.sport, filtered(state), E.statusOf) || [];
-      const list = make(root, 'div', undefined, 'bottleneck-readiness-list');
+      const readiness = details(root, 'Readiness and previous research', 'bottleneck-paper-evidence');
+      readiness.open = state.sport !== 'all' && state.sport !== 'football';
+      const list = make(readiness, 'div', undefined, 'bottleneck-readiness-list');
       if (!rows.length) make(list, 'p', 'Bottleneck evidence is unavailable for this view.', 'small');
       for (const row of rows) {
         const card = make(list, 'section', undefined, 'bottleneck-readiness-card');
         card.dataset.bottleneckLane = row.key;
-        make(card, 'h4', row.label + ' · ' + row.status.replaceAll('_', ' '));
+        make(card, 'h4', row.label + ' · ' + (row.key === 'football' ? 'V0 retrospective study' : row.status.replaceAll('_', ' ')));
         make(card, 'p', 'Baseline path: ' + row.baseline + (row.baselineEstimateCount ?
           ' · ' + row.baselineEstimateCount + ' fresh estimates in the filtered desk feed' :
           ' · no fresh estimate counted in the filtered desk feed'), 'small');
@@ -1617,8 +1626,8 @@
         make(card, 'p', row.evidence, 'small');
         make(card, 'p', 'Next: ' + row.next, 'small');
       }
-      make(root, 'p', 'Research only · UNVALIDATED · Publication BLOCKED.', 'small');
-      const evidence = make(root, 'a', 'Open the pinned data inventory (JSON)');
+      make(readiness, 'p', 'Unvalidated research. Betting publication blocked.');
+      const evidence = make(readiness, 'a', 'Open the pinned data inventory (JSON)');
       evidence.href = new URL('research/bottleneck/inventory.json', rootURL).href;
       return;
     }

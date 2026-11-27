@@ -104,7 +104,12 @@
         /^[a-f0-9]{64}$/.test(row.source_sha256 || '') &&
         /^https:\/\/api\.football-data\.org\/v4\/competitions\/PL\/matches\?season=\d{4}$/.test(row.source) &&
         vector(row.baseline) && vector(row.challenger);
-    }).sort((a, b) => Date.parse(b.kickoff_utc) - Date.parse(a.kickoff_utc));
+    }).sort((a, b) => {
+      const first = Date.parse(a.kickoff_utc), second = Date.parse(b.kickoff_utc);
+      const archived = first <= now, otherArchived = second <= now;
+      if (archived !== otherArchived) return archived ? 1 : -1;
+      return archived ? second - first : first - second;
+    });
   }
 
   return Object.freeze({ forSelection, footballPaperPairs });
