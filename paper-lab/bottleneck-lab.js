@@ -91,5 +91,21 @@
     });
   }
 
-  return Object.freeze({ forSelection });
+  function footballPaperPairs(data, now = Date.now()) {
+    const vector = p => Array.isArray(p) && p.length === 3 &&
+      p.every(x => Number.isFinite(x) && x >= 0 && x <= 1) &&
+      Math.abs(p.reduce((sum, x) => sum + x, 0) - 1) < 1e-8;
+    return Object.values(data || {}).filter(row => {
+      const start = Date.parse(row?.kickoff_utc), captured = Date.parse(row?.captured_at_utc);
+      return typeof row?.home === 'string' && typeof row?.away === 'string' &&
+        row.baseline_model === 'FOOTBALL_DATA_VENUE_POISSON_V1' &&
+        row.challenger_model === 'BOTTLENECK_PL_RECENT_GOAL_DIFF_PILOT_V1' &&
+        captured <= now && start - captured >= 300000 &&
+        /^[a-f0-9]{64}$/.test(row.source_sha256 || '') &&
+        /^https:\/\/api\.football-data\.org\/v4\/competitions\/PL\/matches\?season=\d{4}$/.test(row.source) &&
+        vector(row.baseline) && vector(row.challenger);
+    }).sort((a, b) => Date.parse(b.kickoff_utc) - Date.parse(a.kickoff_utc));
+  }
+
+  return Object.freeze({ forSelection, footballPaperPairs });
 });

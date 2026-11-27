@@ -37,3 +37,17 @@ for (const row of select('all')) {
 }
 assert.equal(JSON.stringify(inputs), snapshot);
 console.log('PASS: Bottleneck sport isolation, current estimate evidence and fail-closed star');
+
+const { footballPaperPairs } = require('../paper-lab/bottleneck-lab.js');
+const pair = {
+  home: 'Home', away: 'Away', kickoff_utc: '2026-11-28T15:00:00Z',
+  captured_at_utc: '2026-11-28T14:50:00Z',
+  baseline_model:'FOOTBALL_DATA_VENUE_POISSON_V1',
+  challenger_model:'BOTTLENECK_PL_RECENT_GOAL_DIFF_PILOT_V1',
+  source:'https://api.football-data.org/v4/competitions/PL/matches?season=2026',
+  source_sha256:'a'.repeat(64), baseline:[.4,.2,.4], challenger:[.5,.2,.3]
+};
+const archiveNow = Date.parse('2026-11-28T14:59:00Z');
+assert.deepEqual(footballPaperPairs({valid:pair, late:{...pair,captured_at_utc:'2026-11-28T14:57:00Z'},
+  invalid:{...pair,challenger:[.5,.2,.5]}, future:{...pair,captured_at_utc:'2026-11-28T15:01:00Z'}},archiveNow),[pair]);
+console.log('PASS: archived football choices require paired vectors, official source and pre-kickoff capture');

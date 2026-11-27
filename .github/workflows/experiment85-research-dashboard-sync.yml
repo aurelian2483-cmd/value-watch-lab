@@ -82,7 +82,7 @@ jobs:
       - name: Add Football-data.org current-season display comparisons
         env:
           FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
-        run: python website/scripts/enrich_football_season_api.py /tmp/experiment82/dashboard-data.json
+        run: python website/scripts/enrich_football_season_api.py /tmp/experiment82/dashboard-data.json --bottleneck-archive website/research/bottleneck/football-paper-pairs.json
       - name: Publish only validated research JSON
         shell: bash
         run: |
@@ -93,6 +93,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- research-dashboard-data.json research-history.json
+          if [ -f research/bottleneck/football-paper-pairs.json ]; then git add -- research/bottleneck/football-paper-pairs.json; fi
           if git diff --cached --quiet; then
             echo "No data changes"
           else

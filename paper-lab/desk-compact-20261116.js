@@ -1509,6 +1509,61 @@
     make(parent, 'p', candidate.selection === 'PASS' ? 'PASS · below 5% estimated EV or above odds cap' :
       candidate.selection + ' · odds ' + candidate.selectedOdds.toFixed(2) + ' · estimated EV ' + pct(candidate.estimatedEV));
   }
+  let bottleneckFootballFixture = '';
+  let bottleneckFootballMethod = 'challenger';
+  let bottleneckArchiveRequest;
+
+  function renderBottleneckFootball(root, lab) {
+    const section = make(root, 'section', undefined, 'bottleneck-readiness-card');
+    make(section, 'h4', 'Premier League paper comparison');
+    make(section, 'p', 'Experimental predictions frozen before kickoff. Football data provided by the Football-Data.org API.', 'small');
+    const content = make(section, 'div', 'Loading frozen football predictions…');
+    content.setAttribute('aria-live', 'polite');
+    bottleneckArchiveRequest ??= fetch(new URL('research/bottleneck/football-paper-pairs.json', rootURL), {cache:'no-store'})
+      .then(response => {
+        if (!response.ok) throw Error('Prediction archive unavailable');
+        return response.json();
+      }).catch(() => null);
+    bottleneckArchiveRequest.then(data => {
+      if (!section.isConnected) return;
+      content.replaceChildren();
+      const pairs = lab.footballPaperPairs(data);
+      if (!pairs.length) {
+        make(content, 'p', data ? 'The archive has no eligible frozen predictions yet.' : 'The published prediction archive is unavailable.', 'small');
+        return;
+      }
+      const makeSelect = (text, options) => {
+        const label = make(content, 'label', text + ' ');
+        const select = make(label, 'select');
+        for (const [value, labelText] of options) make(select, 'option', labelText).value = value;
+        return select;
+      };
+      const identity = row => JSON.stringify([row.home,row.away,row.kickoff_utc]);
+      const fixture = makeSelect('Choose a fixture', pairs.map(row => [identity(row), row.home + ' vs ' + row.away + ' · ' + dateText(row.kickoff_utc)]));
+      const method = makeSelect('Choose a model view', [['challenger','Bottleneck pilot'],['baseline','Current-season baseline']]);
+      if (pairs.some(row => identity(row) === bottleneckFootballFixture)) fixture.value = bottleneckFootballFixture;
+      method.value = bottleneckFootballMethod;
+      const result = make(content, 'div');
+      function draw() {
+        bottleneckFootballFixture = fixture.value;
+        bottleneckFootballMethod = method.value;
+        const row = pairs.find(pair => identity(pair) === fixture.value);
+        const values = row[method.value];
+        const labels = [row.home,'Draw',row.away];
+        const best = Math.max(...values);
+        const leaders = labels.filter((_, i) => values[i] === best);
+        result.replaceChildren();
+        make(result, 'p', 'Paper pick: ' + (leaders.length === 1 ? leaders[0] : 'Tied estimates'), 'small');
+        make(result, 'p', labels.map((label,i) => label + ' ' + pct(values[i])).join(' · '), 'small');
+        make(result, 'p', 'Captured ' + dateText(row.captured_at_utc) + ' UK · ' +
+          (method.value === 'challenger' ? row.challenger_model : row.baseline_model), 'small');
+      }
+      fixture.addEventListener('change', draw);
+      method.addEventListener('change', draw);
+      draw();
+    });
+  }
+
   function renderEngineMode(evaluation, view, root, openComparisons, focusedComparison) {
     const method = methodModes[view];
     if (method) {
@@ -1544,6 +1599,9 @@
       make(root, 'p', 'Sport-specific research readiness · no active betting output.', 'small');
       make(root, 'h3', state.sport === 'all' ? 'Cross-sport Bottleneck readiness' : (sports[state.sport] || state.sport) + ' · Bottleneck readiness');
       make(root, 'p', 'Each lane has its own market definition and evidence requirements. Bookmaker prices and existing model values stay on the fixture board.', 'small');
+      if (lab && (state.sport === 'all' || state.sport === 'football')) {
+        renderBottleneckFootball(root, lab);
+      }
       const rows = lab?.forSelection(state.sport, filtered(state), E.statusOf) || [];
       const list = make(root, 'div', undefined, 'bottleneck-readiness-list');
       if (!rows.length) make(list, 'p', 'Bottleneck evidence is unavailable for this view.', 'small');
@@ -1554,7 +1612,7 @@
         make(card, 'p', 'Baseline path: ' + row.baseline + (row.baselineEstimateCount ?
           ' · ' + row.baselineEstimateCount + ' fresh estimates in the filtered desk feed' :
           ' · no fresh estimate counted in the filtered desk feed'), 'small');
-        make(card, 'p', 'Bottleneck estimate: unavailable for current events. Second star withheld.', 'small');
+        make(card, 'p', row.key === 'football' ? 'Premier League pilot estimates are isolated in the paper comparison. Second star withheld.' : 'Bottleneck estimate: unavailable for current events. Second star withheld.', 'small');
         make(card, 'p', 'Research candidate: ' + row.bottleneck, 'small');
         make(card, 'p', row.evidence, 'small');
         make(card, 'p', 'Next: ' + row.next, 'small');
