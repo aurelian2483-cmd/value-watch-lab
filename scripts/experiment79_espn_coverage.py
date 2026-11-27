@@ -6,7 +6,7 @@ OUT=pathlib.Path("/tmp/experiment79")
 def main():
  OUT.mkdir(parents=True,exist_ok=True)
  now=dt.datetime.now(dt.timezone.utc)
- start=now+dt.timedelta(minutes=90);end=now+dt.timedelta(days=21)
+ start=now;end=now+dt.timedelta(days=21)
  days=sorted({(now+dt.timedelta(days=i)).strftime("%Y%m%d") for i in range(22)})
  fixtures={};errors=[];receipts=[]
  for day in days:
@@ -32,7 +32,7 @@ def main():
     a=away[0].get("team",{}).get("displayName","")
     if not norm(h) or not norm(a) or norm(h)==norm(a):continue
     when=dt.datetime.fromisoformat(event["date"].replace("Z","+00:00"))
-    if not start<=when<=end:continue
+    if not start<when<=end:continue
     if event.get("status",{}).get("type",{}).get("state")!="pre":continue
     key=(norm(h),norm(a),stamp(when))
     fixture={"league":"E0","home":h,"away":a,"kickoff_utc":stamp(when),

@@ -473,7 +473,7 @@ def main():
    if error:league_audits[code]['source_errors'].append(error);continue
    receipts[code].append(receipt)
    for f in rows:
-    if now+dt.timedelta(minutes=90)<=when(f['kickoff_utc'])<=now+dt.timedelta(days=21):
+    if now<when(f['kickoff_utc'])<=now+dt.timedelta(days=21):
      key=identity(f)
      if key in discovered and discovered[key]['espn_event_id']!=f['espn_event_id']:raise ValueError('Ambiguous expanded ESPN fixture')
      discovered[key]=f
@@ -516,10 +516,11 @@ def main():
    item={**f,'league_name':cfg['name'],'verification':'SCHEDULE_CROSS_CHECK' if checked else 'UNVERIFIED','forecast_eligible':False,'paper_prediction':None,'result':None}
    item['schedule_source_receipts']=[receipt for receipt in receipts[code] if 'dates='+when(f['kickoff_utc']).strftime('%Y%m%d') in receipt['url']]+[receipt for receipt in secondary_receipts if f['kickoff_utc'][:7] in receipt['url']]
    model=None
-   if checked and audit['days_succeeded']==22 and prior is not None:model=model_forecast(item,prior,current)
-   item['current_season_comparison']=current_season_comparison(item,current) if checked else None
+   research_window=when(f['kickoff_utc'])>=now+dt.timedelta(minutes=90)
+   if research_window and checked and audit['days_succeeded']==22 and prior is not None:model=model_forecast(item,prior,current)
+   item['current_season_comparison']=current_season_comparison(item,current) if checked and research_window else None
    item['current_season_form']=current_season_team_form(item,current_rows,current_receipts,now) if checked and current_rows and current_receipts else None
-   item['forecast_status']='EXPERIMENTAL_MODEL_FORECAST' if model else 'SCHEDULE_UNVERIFIED' if not checked else 'MODEL_INPUTS_UNAVAILABLE'
+   item['forecast_status']='EXPERIMENTAL_MODEL_FORECAST' if model else 'SCHEDULE_UNVERIFIED' if not checked else 'PRE_KICKOFF_RESEARCH_CUTOFF' if not research_window else 'MODEL_INPUTS_UNAVAILABLE'
    # Descriptive only: available seasons may contain too few direct meetings.
    # Do not feed this evidence into the published probability model.
    if code!='UCL' and h2h_rows:
@@ -537,7 +538,7 @@ def main():
  if not fixtures:raise ValueError('No additional fixtures discovered; retain previous expanded feed')
  frozen,archived,added=archive_forecasts(forecasts,dt.datetime.now(UTC),ROOT/'research/football-expanded-archive/v1')
  performance=score_results(archived,fetcher,dt.datetime.now(UTC),ROOT/'research/football-expanded-results/v1/verified.json')
- data={'schema_version':1,'generated_at_utc':stamp(dt.datetime.now(UTC)),'discovery_window_utc':[stamp(now+dt.timedelta(minutes=90)),stamp(now+dt.timedelta(days=21))],'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED','official_challenge':{'completed':0,'target':100},
+ data={'schema_version':1,'generated_at_utc':stamp(dt.datetime.now(UTC)),'discovery_window_utc':[stamp(now),stamp(now+dt.timedelta(days=21))],'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED','official_challenge':{'completed':0,'target':100},
   'upcoming_fixtures':sorted(fixtures,key=lambda f:(f['kickoff_utc'],f['league'])),'experimental_model_forecasts':frozen,'league_audits':league_audits,
   'archive_audit':{'new_records':added,'total_records_including_revisions':len(archived)},'performance':performance,
   'limitations':['Each competition has an isolated model and performance sample. No validated betting value.',

@@ -68,9 +68,13 @@ def main():
  fallback={};fallback_audit={};fallback_error=None
  try:fallback,cur_h,cur_a,fallback_audit=current_season_inputs(data)
  except Exception as exc:fallback_error=str(exc)
+ research_start=dt.datetime.fromisoformat(data["generated_at_utc"].replace("Z","+00:00"))+dt.timedelta(minutes=90)
  outputs=[];unavailable=[]
  for fixture in data["upcoming_fixtures"]:
   if fixture["verification"]!="SCHEDULE_CROSS_CHECK":continue
+  if dt.datetime.fromisoformat(fixture["kickoff_utc"].replace("Z","+00:00"))<research_start:
+   unavailable.append({"home":fixture["home"],"away":fixture["away"],"kickoff_utc":fixture["kickoff_utc"],"reason":"PRE_KICKOFF_RESEARCH_CUTOFF"})
+   continue
   home=keyed.get(norm(fixture["home"]));away=keyed.get(norm(fixture["away"]))
   model="POISSON_BASELINE_2025_26_V1";basis=None
   if not home or not away or min(home["hn"],away["an"])<10:
