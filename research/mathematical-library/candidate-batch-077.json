@@ -167,7 +167,7 @@
     "classification": "distinct-algorithm",
     "id": "hopcroft-karp-bipartite-matching",
     "name": "Hopcroft–Karp bipartite maximum matching",
-    "definition": "Find shortest augmenting path length ℓ by BFS in the alternating graph and augment along a maximal vertex-disjoint collection of shortest paths. Provisional; verify phase complexity.",
+    "definition": "Given a matching M, find shortest augmenting path length ℓ by BFS in the alternating graph; for an inclusion-maximal collection of vertex-disjoint shortest M-augmenting paths P_1,...,P_k, update M_new = M △ (E(P_1) ∪ ... ∪ E(P_k)), where △ is symmetric difference and E(P_i) is the edge set of path i. Stop if no augmenting path exists. Provisional; verify phase complexity.",
     "variables": "Provisional; define graph and state variables during review",
     "assumptions": "Provisional; independent source and mathematical review pending",
     "limitations": "Provisional; verify complexity and edge cases",
