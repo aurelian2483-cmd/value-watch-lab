@@ -1,0 +1,204 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "080",
+    "family": "network-science",
+    "classification": "model-variant",
+    "id": "johnson-reweighted-all-pairs",
+    "name": "Johnson reweighted all-pairs shortest paths",
+    "definition": "Add auxiliary source q with zero-weight arcs to every vertex; h(v)=d(q,v) by Bellman–Ford. Reject any negative cycle. Set c′(u,v)=c(u,v)+h(u)−h(v)≥0, run Dijkstra from every original source, and recover d(u,v)=d′(u,v)−h(u)+h(v), preserving unreachable distances as +∞",
+    "variables": "V vertices, E directed edges, c finite edge weight, q auxiliary source, h vertex potential, d and d′ original and reweighted shortest-path distances",
+    "assumptions": "Finite directed graph with at least one vertex, finite real weights, no negative cycle anywhere; exact arithmetic or checked numerical bounds",
+    "limitations": "O(|V|³) with array-based Dijkstra, or O(|V|(|E|+|V|) log(max(2,|V|))) with binary heaps, including auxiliary-source Bellman–Ford and output; O(|V|²) output storage; rejects negative cycles rather than returning partially defined distances",
+    "failure_conditions": [
+      "Negative cycle, malformed graph, nonfinite weight, negative reweighted edge or arithmetic overflow"
+    ],
+    "computation": "Compute potentials using augmented graph, check all reduced costs nonnegative, run Dijkstra on original vertices with reduced weights, restore distances. Telescoping potentials shift every path between fixed endpoints by the same constant.",
+    "source": {
+      "kind": "literature",
+      "citation": "MIT OpenCourseWare 6.046J, Fall 2005, Lecture 19, Johnson algorithm transcript; https://mitocw.ups.edu.ec/courses/electrical-engineering-and-computer-science/6-046j-introduction-to-algorithms-sma-5503-fall-2005/video-lectures/lecture-19-shortest-paths-iii-all-pairs-shortest-paths-matrix-multiplication-floyd-warshall-johnson/ (MIT OCW mirror; transcript reviewed).",
+      "url": "https://mitocw.ups.edu.ec/courses/electrical-engineering-and-computer-science/6-046j-introduction-to-algorithms-sma-5503-fall-2005/video-lectures/lecture-19-shortest-paths-iii-all-pairs-shortest-paths-matrix-multiplication-floyd-warshall-johnson/"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite directed weighted adjacency list with declared vertex set",
+    "compatible_methods": [
+      "floyd-warshall",
+      "bellman-ford-shortest-path",
+      "dijkstra-shortest-path"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "floyd-warshall"
+      }
+    ],
+    "mechanism_note": "Combines potential reweighting with repeated nonnegative shortest-path searches; same all-pairs objective as Floyd–Warshall but different mechanism; conservatively registered as variant."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "080",
+    "family": "operations-research",
+    "classification": "distinct-algorithm",
+    "id": "gale-shapley-deferred-acceptance",
+    "name": "Gale–Shapley deferred acceptance",
+    "definition": "For equal-size sets A and B with complete strict preferences, initialize M=∅. Each free proposer a offers to its next untried receiver b. If b is free or prefers a to its current holder, replace that holder; otherwise reject a. At termination M={(a,b): b holds a}; no unmatched pair mutually prefers each other to their assigned partners",
+    "variables": "A proposers, B receivers, n common size, M held pairs, rank orders of opposite-side participants, next untried position",
+    "assumptions": "Finite equally sized disjoint sets, strict complete preference permutations on both sides, one-to-one matching, fixed proposer side",
+    "limitations": "At most n² proposals and O(n²) time with inverse receiver ranks and queue; not a maximum-weight or fairness optimiser; outcome can depend on proposer side; ties, incomplete lists and capacities require separate treatment",
+    "failure_conditions": [
+      "Unequal sides, invalid or incomplete preference permutations, exhausted proposer under stated assumptions, duplicate held partner or blocking pair"
+    ],
+    "computation": "Keep free-proposer queue and per-proposer next position. Receivers retain their preferred offer and release any displaced holder. Validate bijection and absence of blocking pairs; stability follows from receivers never replacing a holder with a less preferred offer.",
+    "source": {
+      "kind": "literature",
+      "citation": "Alexander Hulpke, Colorado State University, Combinatorics (Fall 2025), chapter Connections, Stable Matchings, algorithm and Proof 2.4; https://www.math.colostate.edu/~hulpke/lectures/m501/notes.html (HTML reviewed).",
+      "url": "https://www.math.colostate.edu/~hulpke/lectures/m501/notes.html"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Two equal-size sets and complete strict preference order for each member",
+    "compatible_methods": [
+      "hopcroft-karp-bipartite-matching"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "hopcroft-karp-bipartite-matching"
+      }
+    ],
+    "mechanism_note": "Ordinal blocking-pair stability, not maximum-cardinality matching; the proposal and rejection mechanism is distinct from augmenting paths."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "080",
+    "family": "network-science",
+    "classification": "model-variant",
+    "id": "dfs-low-link-bridges",
+    "name": "DFS low-link bridge detection",
+    "definition": "In a complete DFS forest of a simple undirected graph, low(u)=min({d(u)}∪{d(w): uw is a back edge to an ancestor}∪{low(v): v is a DFS child}). A DFS tree edge uv with parent u and child v is a bridge iff low(v)>d(u)",
+    "variables": "d discovery index, low earliest reachable ancestor discovery index via descendants and at most one back edge, u parent, v child, w ancestor",
+    "assumptions": "Finite simple undirected graph, all components searched, reverse of parent edge excluded; isolated vertices permitted",
+    "limitations": "O(|V|+|E|) time and O(|V|) auxiliary state with adjacency lists, excluding output; recursive implementation may overflow stack; multigraphs require parent-edge identity not parent vertex",
+    "failure_conditions": [
+      "Directed graph, malformed adjacency, unsupported parallel edges or invalid DFS parent exclusion"
+    ],
+    "computation": "Initialize low at discovery, propagate child minima on return, update from ancestor back edges, report each tree edge satisfying the strict inequality. Equivalent to a component-count increase after deleting that edge.",
+    "source": {
+      "kind": "literature",
+      "citation": "Dave Mount, University of Maryland CMSC 451 Lecture 4, Bridges and 2-Edge Connectivity, 7 September 2017, pp. 2–4; https://www.cs.umd.edu/class/fall2017/cmsc451-0101/Lects/lect04-edge-connectivity.pdf (parsed text reviewed; screenshot unavailable: HTTP 403).",
+      "url": "https://www.cs.umd.edu/class/fall2017/cmsc451-0101/Lects/lect04-edge-connectivity.pdf"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Simple undirected adjacency list with declared vertices",
+    "compatible_methods": [
+      "dfs-articulation-points"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "dfs-articulation-points"
+      }
+    ],
+    "mechanism_note": "Shares low-link computation with articulation points but uses strict edge criterion rather than vertex-removal criterion; conservative variant classification."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "080",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "floyd-tortoise-hare-cycle",
+    "name": "Floyd tortoise-and-hare cycle detection",
+    "definition": "For x_(i+1)=f(x_i), initialize slow=f(x_0), fast=f(f(x_0)); iterate slow←f(slow), fast←f(f(fast)) until equality. Reset slow=x_0 and advance both once per step until equality at x_μ. From that entry advance one pointer until it returns, counting λ≥1; x_(μ+λ)=x_μ",
+    "variables": "f deterministic transition on finite state set, x_0 start, μ first cycle-entry index, λ positive cycle period",
+    "assumptions": "Finite nonempty state space, total deterministic transition, exact state equality, unchanged transition during run",
+    "limitations": "O(μ+λ) transition evaluations and O(1) auxiliary state references (excluding transition representation); cannot guarantee termination for arbitrary infinite nonrepeating sequences; not a general graph cycle enumerator",
+    "failure_conditions": [
+      "Undefined transition, invalid start, inconsistent state equality or resource bound exhausted"
+    ],
+    "computation": "Advance one and two steps until a meeting; reset one pointer and advance in lockstep to find entry and μ; advance from entry to measure λ. Meeting index is a multiple of λ once in the cycle; this justifies reset.",
+    "source": {
+      "kind": "literature",
+      "citation": "John Burkardt, CYCLE_FLOYD, 18 June 2012, University of South Carolina mathematics-hosted reference implementation and description, https://people.math.sc.edu/Burkardt/cpp_src/cycle_floyd/cycle_floyd.cpp; Stanford CS355 Spring 2021 Lecture 5 cycle-finding slide parsed text corroborates meeting argument (screenshot unavailable due to size). Original historical attribution not reviewed.",
+      "url": "https://people.math.sc.edu/Burkardt/cpp_src/cycle_floyd/cycle_floyd.cpp"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Total deterministic finite-state transition and initial state",
+    "compatible_methods": [
+      "binary-lifting-tree-ancestor"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "binary-lifting-tree-ancestor"
+      }
+    ],
+    "mechanism_note": "Detects eventual periodic orbit using two moving pointers, rather than general graph SCC traversal or tree-ancestor queries."
+  }
+]

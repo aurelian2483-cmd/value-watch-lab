@@ -9535,5 +9535,97 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Constructs a closed edge-covering trail with repeated vertices permitted, unlike subset-DP Hamiltonian tours and topological sorting."
+  },
+  {
+    "id": "johnson-reweighted-all-pairs",
+    "source": {
+      "kind": "literature",
+      "citation": "MIT OpenCourseWare 6.046J, Fall 2005, Lecture 19, Johnson algorithm transcript; https://mitocw.ups.edu.ec/courses/electrical-engineering-and-computer-science/6-046j-introduction-to-algorithms-sma-5503-fall-2005/video-lectures/lecture-19-shortest-paths-iii-all-pairs-shortest-paths-matrix-multiplication-floyd-warshall-johnson/ (MIT OCW mirror; transcript reviewed).",
+      "url": "https://mitocw.ups.edu.ec/courses/electrical-engineering-and-computer-science/6-046j-introduction-to-algorithms-sma-5503-fall-2005/video-lectures/lecture-19-shortest-paths-iii-all-pairs-shortest-paths-matrix-multiplication-floyd-warshall-johnson/"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Combines potential reweighting with repeated nonnegative shortest-path searches; same all-pairs objective as Floyd–Warshall but different mechanism; conservatively registered as variant."
+  },
+  {
+    "id": "gale-shapley-deferred-acceptance",
+    "source": {
+      "kind": "literature",
+      "citation": "Alexander Hulpke, Colorado State University, Combinatorics (Fall 2025), chapter Connections, Stable Matchings, algorithm and Proof 2.4; https://www.math.colostate.edu/~hulpke/lectures/m501/notes.html (HTML reviewed).",
+      "url": "https://www.math.colostate.edu/~hulpke/lectures/m501/notes.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Ordinal blocking-pair stability, not maximum-cardinality matching; the proposal and rejection mechanism is distinct from augmenting paths."
+  },
+  {
+    "id": "dfs-low-link-bridges",
+    "source": {
+      "kind": "literature",
+      "citation": "Dave Mount, University of Maryland CMSC 451 Lecture 4, Bridges and 2-Edge Connectivity, 7 September 2017, pp. 2–4; https://www.cs.umd.edu/class/fall2017/cmsc451-0101/Lects/lect04-edge-connectivity.pdf (parsed text reviewed; screenshot unavailable: HTTP 403).",
+      "url": "https://www.cs.umd.edu/class/fall2017/cmsc451-0101/Lects/lect04-edge-connectivity.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Shares low-link computation with articulation points but uses strict edge criterion rather than vertex-removal criterion; conservative variant classification."
+  },
+  {
+    "id": "floyd-tortoise-hare-cycle",
+    "source": {
+      "kind": "literature",
+      "citation": "John Burkardt, CYCLE_FLOYD, 18 June 2012, University of South Carolina mathematics-hosted reference implementation and description, https://people.math.sc.edu/Burkardt/cpp_src/cycle_floyd/cycle_floyd.cpp; Stanford CS355 Spring 2021 Lecture 5 cycle-finding slide parsed text corroborates meeting argument (screenshot unavailable due to size). Original historical attribution not reviewed.",
+      "url": "https://people.math.sc.edu/Burkardt/cpp_src/cycle_floyd/cycle_floyd.cpp"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Detects eventual periodic orbit using two moving pointers, rather than general graph SCC traversal or tree-ancestor queries."
   }
 ]

@@ -6637,3 +6637,67 @@ Limitations — O(|V|+|E|) time with adjacency cursors, used-edge flags and stac
 Mechanism — Constructs a closed edge-covering trail with repeated vertices permitted, unlike subset-DP Hamiltonian tours and topological sorting.
 
 Source — T. M. Murali, Virginia Tech CS 4884, Introduction to Graphs, January 28 2020, Hierholzer algorithm and properties, https://bioinformatics.cs.vt.edu/~murali/teaching/2020-spring-cs4884/lectures/lecture-03-graphs.pdf. Parsed text reviewed; screenshot request failed due to PDF size.
+
+## Johnson reweighted all-pairs shortest paths (johnson-reweighted-all-pairs)
+
+> Add auxiliary source q with zero-weight arcs to every vertex; h(v)=d(q,v) by Bellman–Ford. Reject any negative cycle. Set c′(u,v)=c(u,v)+h(u)−h(v)≥0, run Dijkstra from every original source, and recover d(u,v)=d′(u,v)−h(u)+h(v), preserving unreachable distances as +∞
+
+V vertices, E directed edges, c finite edge weight, q auxiliary source, h vertex potential, d and d′ original and reweighted shortest-path distances.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite directed graph with at least one vertex, finite real weights, no negative cycle anywhere; exact arithmetic or checked numerical bounds.
+
+Limitations — O(|V|³) with array-based Dijkstra, or O(|V|(|E|+|V|) log(max(2,|V|))) with binary heaps, including auxiliary-source Bellman–Ford and output; O(|V|²) output storage; rejects negative cycles rather than returning partially defined distances.
+
+Mechanism — Combines potential reweighting with repeated nonnegative shortest-path searches; same all-pairs objective as Floyd–Warshall but different mechanism; conservatively registered as variant.
+
+Source — MIT OpenCourseWare 6.046J, Fall 2005, Lecture 19, Johnson algorithm transcript; https://mitocw.ups.edu.ec/courses/electrical-engineering-and-computer-science/6-046j-introduction-to-algorithms-sma-5503-fall-2005/video-lectures/lecture-19-shortest-paths-iii-all-pairs-shortest-paths-matrix-multiplication-floyd-warshall-johnson/ (MIT OCW mirror; transcript reviewed).
+
+## Gale–Shapley deferred acceptance (gale-shapley-deferred-acceptance)
+
+> For equal-size sets A and B with complete strict preferences, initialize M=∅. Each free proposer a offers to its next untried receiver b. If b is free or prefers a to its current holder, replace that holder; otherwise reject a. At termination M={(a,b): b holds a}; no unmatched pair mutually prefers each other to their assigned partners
+
+A proposers, B receivers, n common size, M held pairs, rank orders of opposite-side participants, next untried position.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite equally sized disjoint sets, strict complete preference permutations on both sides, one-to-one matching, fixed proposer side.
+
+Limitations — At most n² proposals and O(n²) time with inverse receiver ranks and queue; not a maximum-weight or fairness optimiser; outcome can depend on proposer side; ties, incomplete lists and capacities require separate treatment.
+
+Mechanism — Ordinal blocking-pair stability, not maximum-cardinality matching; the proposal and rejection mechanism is distinct from augmenting paths.
+
+Source — Alexander Hulpke, Colorado State University, Combinatorics (Fall 2025), chapter Connections, Stable Matchings, algorithm and Proof 2.4; https://www.math.colostate.edu/~hulpke/lectures/m501/notes.html (HTML reviewed).
+
+## DFS low-link bridge detection (dfs-low-link-bridges)
+
+> In a complete DFS forest of a simple undirected graph, low(u)=min({d(u)}∪{d(w): uw is a back edge to an ancestor}∪{low(v): v is a DFS child}). A DFS tree edge uv with parent u and child v is a bridge iff low(v)>d(u)
+
+d discovery index, low earliest reachable ancestor discovery index via descendants and at most one back edge, u parent, v child, w ancestor.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite simple undirected graph, all components searched, reverse of parent edge excluded; isolated vertices permitted.
+
+Limitations — O(|V|+|E|) time and O(|V|) auxiliary state with adjacency lists, excluding output; recursive implementation may overflow stack; multigraphs require parent-edge identity not parent vertex.
+
+Mechanism — Shares low-link computation with articulation points but uses strict edge criterion rather than vertex-removal criterion; conservative variant classification.
+
+Source — Dave Mount, University of Maryland CMSC 451 Lecture 4, Bridges and 2-Edge Connectivity, 7 September 2017, pp. 2–4; https://www.cs.umd.edu/class/fall2017/cmsc451-0101/Lects/lect04-edge-connectivity.pdf (parsed text reviewed; screenshot unavailable: HTTP 403).
+
+## Floyd tortoise-and-hare cycle detection (floyd-tortoise-hare-cycle)
+
+> For x_(i+1)=f(x_i), initialize slow=f(x_0), fast=f(f(x_0)); iterate slow←f(slow), fast←f(f(fast)) until equality. Reset slow=x_0 and advance both once per step until equality at x_μ. From that entry advance one pointer until it returns, counting λ≥1; x_(μ+λ)=x_μ
+
+f deterministic transition on finite state set, x_0 start, μ first cycle-entry index, λ positive cycle period.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite nonempty state space, total deterministic transition, exact state equality, unchanged transition during run.
+
+Limitations — O(μ+λ) transition evaluations and O(1) auxiliary state references (excluding transition representation); cannot guarantee termination for arbitrary infinite nonrepeating sequences; not a general graph cycle enumerator.
+
+Mechanism — Detects eventual periodic orbit using two moving pointers, rather than general graph SCC traversal or tree-ancestor queries.
+
+Source — John Burkardt, CYCLE_FLOYD, 18 June 2012, University of South Carolina mathematics-hosted reference implementation and description, https://people.math.sc.edu/Burkardt/cpp_src/cycle_floyd/cycle_floyd.cpp; Stanford CS355 Spring 2021 Lecture 5 cycle-finding slide parsed text corroborates meeting argument (screenshot unavailable due to size). Original historical attribution not reviewed.
