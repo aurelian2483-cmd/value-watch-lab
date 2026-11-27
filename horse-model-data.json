@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-11-27T19:14:46.690342+00:00",
+  "generated_at_utc": "2026-11-27T19:30:36.838772+00:00",
   "research_only": true,
   "publication_gate": "BLOCKED",
   "model_validation": "UNVALIDATED",
@@ -9,8 +9,8 @@
   "secondary_source_audit": {
     "provider": "The Racing API",
     "connection_status": "CONNECTED",
-    "schedule_matches": 3,
-    "result_rows_cached": 894,
+    "schedule_matches": 2,
+    "result_rows_cached": 895,
     "errors": [],
     "verification_scope": "Second-publisher corroboration only; independent underlying data origin and timestamp attestation are not established."
   },
@@ -22,17 +22,17 @@
     "superseded_racecards": [],
     "active_runner_observations": 315,
     "non_runner_observations": 29,
-    "pre_event_races": 3,
+    "pre_event_races": 2,
     "errors": [],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED",
-    "collection_completed_at_utc": "2026-11-27T19:14:42.974198+00:00"
+    "collection_completed_at_utc": "2026-11-27T19:30:33.175576+00:00"
   },
   "race_count": 38,
   "reference_baseline_audit": {
     "status": "REFERENCE_BENCHMARKS_ONLY",
     "model": "EQUAL_CHANCE_REFERENCE_V1",
-    "available_references": 3,
+    "available_references": 2,
     "new_archived_records": 0,
     "skipped": [
       {
@@ -173,6 +173,10 @@
       },
       {
         "race_id": "950754",
+        "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
+      },
+      {
+        "race_id": "950755",
         "reason": "NOT_CONFIRMED_PRE_EVENT_WITH_5_MINUTE_BUFFER"
       }
     ],
@@ -1858,22 +1862,22 @@
       },
       {
         "race_id": "950755",
-        "reason": "INSUFFICIENT_FORM_FOR_FULL_FIELD"
+        "reason": "NOT_PRE_EVENT_WITH_BUFFER"
       }
     ],
     "publication_gate": "BLOCKED",
     "model_validation": "UNVALIDATED"
   },
   "performance": {
-    "scored_forecasts": 141,
+    "scored_forecasts": 142,
     "independently_verified_results": 0,
     "verification": "SINGLE_SOURCE_PROVISIONAL",
     "metrics_status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
     "metrics": {
-      "mean_multiclass_brier_score": 0.8949072997729167,
-      "mean_log_loss": 2.3178688599364143,
-      "mean_equal_chance_brier_score": 0.9018423263104115,
-      "mean_equal_chance_log_loss": 2.35510733853892
+      "mean_multiclass_brier_score": 0.8950813004802548,
+      "mean_log_loss": 2.3193560700851106,
+      "mean_equal_chance_brier_score": 0.90199186572426,
+      "mean_equal_chance_log_loss": 2.356585099235558
     },
     "entries": [
       {
@@ -5259,13 +5263,33 @@
         "publication_gate": "BLOCKED",
         "result_recheck_status": "NOT_RECHECKED",
         "result_last_checked_at_utc": "2026-11-27T19:14:46.690342+00:00"
+      },
+      {
+        "record_sha256": "0e662e75c2c29903c0ede39bf4655d613b823dec6e8168a99c1d5a1d6bc088a0",
+        "race_id": "950754",
+        "racecourse": "Dundalk",
+        "startUTC": "2026-11-27T19:00:00+00:00",
+        "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+        "winner_horse_id": "974105",
+        "scored_at_utc": "2026-11-27T19:30:36.838772+00:00",
+        "multiclass_brier_score": 0.9196154002149194,
+        "log_loss": 2.529052701051268,
+        "equal_chance_brier_score": 0.9230769230769231,
+        "equal_chance_log_loss": 2.5649493574615367,
+        "source_receipt": {
+          "url": "https://www.sportinglife.com/racing/racecards/2026-11-27/dundalk/racecard/950754/killowen-contracts-handicap",
+          "sha256": "c6480e0c2cf0bba980257b396884f9825f1a20e9a567a5012b6c535c13db9abe",
+          "observed_at_utc": "2026-11-27T19:30:36.838772+00:00"
+        },
+        "verification": "SINGLE_SOURCE_PROVISIONAL",
+        "independently_verified": false,
+        "challenge_eligible": 0,
+        "publication_gate": "BLOCKED",
+        "result_recheck_status": "NOT_RECHECKED",
+        "result_last_checked_at_utc": "2026-11-27T19:30:36.838772+00:00"
       }
     ],
     "pending": [
-      {
-        "race_id": "950754",
-        "reason": "WAITING_FOR_FINAL_RESULT"
-      },
       {
         "race_id": "950756",
         "reason": "WAITING_FOR_FINAL_RESULT"
@@ -10548,6 +10572,10 @@
       {
         "race_id": "950753",
         "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
+      },
+      {
+        "race_id": "950754",
+        "reason": "SECONDARY_RESULT_MISSING_AMBIGUOUS_OR_CORRECTED"
       }
     ],
     "provisional_evaluation": {
@@ -10556,19 +10584,19 @@
         "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1": {
           "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
           "parameter_sha256": "92e1121e7d3bd3333574fe6371fdd456ba36d1838bb6a0297120dd666c1609ad",
-          "scored_races": 141,
+          "scored_races": 142,
           "status": "DESCRIPTIVE_ONLY_NOT_MODEL_VALIDATION",
-          "mean_brier_delta_vs_equal_chance": -0.006935026537494625,
-          "mean_log_loss_delta_vs_equal_chance": -0.03723847860250508,
+          "mean_brier_delta_vs_equal_chance": -0.006910565244005252,
+          "mean_log_loss_delta_vs_equal_chance": -0.03722902915044708,
           "brier_delta_bootstrap_95_interval": {
-            "lower": -0.011079680511866039,
-            "upper": -0.0031964001695696993,
+            "lower": -0.010856762374045807,
+            "upper": -0.0030517026144428194,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
           "log_loss_delta_bootstrap_95_interval": {
-            "lower": -0.0551068335843572,
-            "upper": -0.01910921279275644,
+            "lower": -0.05624084533012862,
+            "upper": -0.019140679661298735,
             "method": "Paired bootstrap resampling whole races; 1000 replicates",
             "limitation": "Exploratory descriptive interval; not independent model validation."
           },
@@ -10583,9 +10611,9 @@
             {
               "lower": 0.05,
               "upper": 0.1,
-              "runner_observations": 1083,
-              "mean_model_probability": 0.07933440045572,
-              "observed_win_frequency": 0.07479224376731301
+              "runner_observations": 1096,
+              "mean_model_probability": 0.07930579899046056,
+              "observed_win_frequency": 0.07481751824817519
             },
             {
               "lower": 0.1,
@@ -10691,7 +10719,7 @@
   "current_field_checks": {
     "b6c37ac3f9f4b5f0c36f464e4e1a5dcabaf4f82d27a11d0d319602a82e026f49": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-27T19:14:42.448116+00:00",
+      "runner_observed_at_utc": "2026-11-27T19:30:33.156822+00:00",
       "active_runner_ids": [
         "1061971",
         "1069938",
@@ -10706,11 +10734,11 @@
         "1232457"
       ],
       "active_runner_count": 11,
-      "checked_at_utc": "2026-11-27T19:14:46.690342+00:00"
+      "checked_at_utc": "2026-11-27T19:30:36.838772+00:00"
     },
     "7f9d96b25c20a9e0be428cd1e6021bec1e375c153d4aef036491729dc4051170": {
       "status": "FRESH_MATCHING_FIELD",
-      "runner_observed_at_utc": "2026-11-27T19:14:42.955120+00:00",
+      "runner_observed_at_utc": "2026-11-27T19:30:33.135762+00:00",
       "active_runner_ids": [
         "1024587",
         "1092967",
@@ -10728,10 +10756,106 @@
         "1237314"
       ],
       "active_runner_count": 14,
-      "checked_at_utc": "2026-11-27T19:14:46.690342+00:00"
+      "checked_at_utc": "2026-11-27T19:30:36.838772+00:00"
     }
   },
   "settled_forecasts": [
+    {
+      "record_sha256": "0e662e75c2c29903c0ede39bf4655d613b823dec6e8168a99c1d5a1d6bc088a0",
+      "race_id": "950754",
+      "racecourse": "Dundalk",
+      "race_name": "Killowen Contracts Handicap",
+      "startUTC": "2026-11-27T19:00:00+00:00",
+      "generated_at_utc": "2026-11-27T15:00:06.234718+00:00",
+      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
+      "runners": [
+        {
+          "horse_id": "1107185",
+          "name": "I'm Spartacus",
+          "model_probability": 0.07060473268575326,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1109784",
+          "name": "Mint Man",
+          "model_probability": 0.07584930958405413,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1151118",
+          "name": "Carrigans Grove",
+          "model_probability": 0.09845834757262817,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1155188",
+          "name": "Blue Anthem",
+          "model_probability": 0.09660027846850494,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1183708",
+          "name": "Leonie",
+          "model_probability": 0.06091956278030889,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1185687",
+          "name": "Thaloria",
+          "model_probability": 0.0743949542385358,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1185931",
+          "name": "All Hail",
+          "model_probability": 0.06590603293337793,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1193620",
+          "name": "My Cubby Bear",
+          "model_probability": 0.08914456305636434,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1193915",
+          "name": "Andaman Fifty",
+          "model_probability": 0.07957137940190695,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1202390",
+          "name": "Sovereign Cry",
+          "model_probability": 0.0604792839115259,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "1229337",
+          "name": "Saint Acclaim",
+          "model_probability": 0.08892635667070695,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "974105",
+          "name": "Go Athletico",
+          "model_probability": 0.07973451694537924,
+          "equal_chance_reference": 0.07692307692307693
+        },
+        {
+          "horse_id": "983774",
+          "name": "Dandyville",
+          "model_probability": 0.05941068175095346,
+          "equal_chance_reference": 0.07692307692307693
+        }
+      ],
+      "winner_horse_id": "974105",
+      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
+      "result_recheck_status": "NOT_RECHECKED",
+      "result_last_checked_at_utc": "2026-11-27T19:30:36.838772+00:00",
+      "publication_gate": "BLOCKED",
+      "model_validation": "UNVALIDATED",
+      "research_only": true
+    },
     {
       "record_sha256": "bd539fa70522e6d18e411250e6a2384ec3614bf13c02436a6b714c940b34cd52",
       "race_id": "950753",
@@ -12249,118 +12373,16 @@
       "publication_gate": "BLOCKED",
       "model_validation": "UNVALIDATED",
       "research_only": true
-    },
-    {
-      "record_sha256": "f2387fa0f2b882f9150a5dc1d82fd484fad35ccced80b2ad7fdd3aef107aeb6d",
-      "race_id": "950192",
-      "racecourse": "Dundalk",
-      "race_name": "Irishinjuredjockeys.com Handicap",
-      "startUTC": "2026-11-25T16:40:00+00:00",
-      "generated_at_utc": "2026-11-25T14:51:05.482073+00:00",
-      "model": "FORM_PERCENTILE_SOFTMAX_RESEARCH_V1",
-      "runners": [
-        {
-          "horse_id": "1021374",
-          "name": "Exquisite Acclaim",
-          "model_probability": 0.07968977904654302,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1080744",
-          "name": "Brewing",
-          "model_probability": 0.05549015766998374,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1101269",
-          "name": "Tachos",
-          "model_probability": 0.07649300172434909,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1124767",
-          "name": "I Bid You Ajou",
-          "model_probability": 0.07580086271360727,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1153007",
-          "name": "Gotta Catch'em All",
-          "model_probability": 0.07046865518429916,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1154742",
-          "name": "Bishopton",
-          "model_probability": 0.06619006785013226,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1157965",
-          "name": "Temperance",
-          "model_probability": 0.06312442448369461,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1180109",
-          "name": "Naoi",
-          "model_probability": 0.08622361751110905,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1183878",
-          "name": "Gavoo",
-          "model_probability": 0.07177014123894138,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1184401",
-          "name": "Frank Pickle",
-          "model_probability": 0.0704831500318965,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1195169",
-          "name": "Art Gallery",
-          "model_probability": 0.07475778161474357,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1195746",
-          "name": "Leveraging",
-          "model_probability": 0.07347657806999572,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1211720",
-          "name": "Lady In Gold",
-          "model_probability": 0.06391868449351876,
-          "equal_chance_reference": 0.07142857142857142
-        },
-        {
-          "horse_id": "1215072",
-          "name": "New Radical",
-          "model_probability": 0.07211309836718582,
-          "equal_chance_reference": 0.07142857142857142
-        }
-      ],
-      "winner_horse_id": "1153007",
-      "result_verification": "SINGLE_SOURCE_PROVISIONAL",
-      "result_recheck_status": "LATEST_SOURCE_CONFIRMED",
-      "result_last_checked_at_utc": "2026-11-27T12:37:16.236104+00:00",
-      "publication_gate": "BLOCKED",
-      "model_validation": "UNVALIDATED",
-      "research_only": true
     }
   ],
   "settled_history_limit": 20,
   "race_cycle_audit": {
-    "checked_at_utc": "2026-11-27T19:14:46.690342+00:00",
+    "checked_at_utc": "2026-11-27T19:30:36.838772+00:00",
     "race_date_uk": "2026-11-27",
     "collection_scope": "CURRENT_UK_DAY_ONLY",
-    "upcoming_observed_races": 3,
+    "upcoming_observed_races": 2,
     "upcoming_form_forecasts": 2,
-    "next_observed_start_utc": "2026-11-27T19:30:00+00:00",
+    "next_observed_start_utc": "2026-11-27T20:00:00+00:00",
     "status": "UPCOMING_FORECASTS_AVAILABLE"
   },
   "limitations": [
