@@ -9949,5 +9949,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Nonlinear circle midpoint decision with coordinate-dependent increments and eightfold symmetry, distinct primitive and recurrence from linear rasterization; shared midpoint principle is not a claim of independent scientific novelty"
+  },
+  {
+    "id": "liang-barsky-parametric-segment-clipping",
+    "source": {
+      "kind": "literature",
+      "citation": "University at Buffalo, CSE 480/580, Lecture 9, slides 6–8 (page images reviewed): parametric inequalities and interval updates. Slide 7–8 left coefficient sign inconsistency and missing parallel skip in pseudocode resolved algebraically from slide 6. https://cse.buffalo.edu/faculty/walters/cs480/NewLect9.pdf",
+      "url": "https://cse.buffalo.edu/faculty/walters/cs480/NewLect9.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Parameter-interval clipping replaces repeated outcode endpoint replacement, but computes the same closed rectangular segment intersection as Cohen–Sutherland; classified as a variant, not additional independent scientific evidence"
+  },
+  {
+    "id": "scanline-even-odd-polygon-fill",
+    "source": {
+      "kind": "literature",
+      "citation": "Harriet Fell, Northeastern University CS 4300, Lecture 9, September 2011, slides 5–10 (extracted text reviewed; page-image requests returned HTTP 429). Parity and paired crossing approach; direct recomputation and lower-inclusive/left-inclusive boundary rules explicitly specified here rather than reproducing the lecture's endpoint preprocessing. https://www.khoury.northeastern.edu/home/fell/CS4300/Lectures/CS4300F2011-9-ScanLineFill.pdf",
+      "url": "https://www.khoury.northeastern.edu/home/fell/CS4300/Lectures/CS4300F2011-9-ScanLineFill.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Rowwise sorted edge intersections produce raster spans rather than evaluating individual point winding numbers; parity is related to containment but scanline batching and raster boundary policy are distinct computational procedures"
   }
 ]

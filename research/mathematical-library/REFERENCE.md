@@ -6925,3 +6925,35 @@ Limitations — O(r+1) time and O(1) working state excluding O(r+1) output if ea
 Mechanism — Nonlinear circle midpoint decision with coordinate-dependent increments and eightfold symmetry, distinct primitive and recurrence from linear rasterization; shared midpoint principle is not a claim of independent scientific novelty
 
 Source — Brandeis University, CS155, Drawing 2D Primitives, Lecture 02, PDF pp. 5–6 (text and slide images reviewed); circle implicit equation, integer midpoint update and eightfold symmetry. Octant stopping and local deduplication explicitly specified here. https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf
+
+## Liang–Barsky parametric segment clipping (liang-barsky-parametric-segment-clipping)
+
+> For a=(x₀,y₀), b=(x₁,y₁), d=b−a and rectangle [L,R]×[B,T], set p=(−dₓ,dₓ,−dᵧ,dᵧ), q=(x₀−L,R−x₀,y₀−B,T−y₀). If any pᵢ=0 with qᵢ<0 reject. Otherwise ℓ=max({0}∪{qᵢ/pᵢ:pᵢ<0}), u=min({1}∪{qᵢ/pᵢ:pᵢ>0}). Reject if ℓ>u; else return (a+ℓd,a+ud)
+
+a,b ordered segment endpoints; d displacement; L,R,B,T inclusive rectangle bounds; p,q four coefficient pairs; ℓ,u feasible parameter limits.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite planar coordinates, L≤R and B≤T; closed rectangle and closed segment; exact arithmetic in mathematical definition; zero-length segments and degenerate rectangles allowed.
+
+Limitations — Constant time and working storage for four inequalities; floating-point near-parallel or boundary comparisons can be unstable; no arbitrary nonconvex clip regions or measured performance advantage; identical returned endpoints represent a point.
+
+Mechanism — Parameter-interval clipping replaces repeated outcode endpoint replacement, but computes the same closed rectangular segment intersection as Cohen–Sutherland; classified as a variant, not additional independent scientific evidence
+
+Source — University at Buffalo, CSE 480/580, Lecture 9, slides 6–8 (page images reviewed): parametric inequalities and interval updates. Slide 7–8 left coefficient sign inconsistency and missing parallel skip in pseudocode resolved algebraically from slide 6. https://cse.buffalo.edu/faculty/walters/cs480/NewLect9.pdf
+
+## Scanline even–odd polygon filling (scanline-even-odd-polygon-fill)
+
+> For each selected integer row y, take every polygon edge (a,b) with min(aᵧ,bᵧ)≤y<max(aᵧ,bᵧ), and compute x=aₓ+(y−aᵧ)(bₓ−aₓ)/(bᵧ−aᵧ). Sort the resulting multiset x₁≤…≤x₂ₖ. Emit all integer pixel centers (x,y) with x₂ⱼ₋₁≤x<x₂ⱼ for j=1,…,k
+
+a,b adjacent vertices; x,y Cartesian pixel-center coordinates; k half the crossing count; n polygon edge count; H number of selected rows; M number of emitted pixels.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Simple closed nonzero-area polygon with finite vertices, implicit closing edge and no zero-length edges; integer pixel centers; horizontal edges excluded; lower-inclusive upper-exclusive edge activity and left-inclusive right-exclusive spans are explicit catalogue conventions; retain multiplicity of coincident crossings.
+
+Limitations — Direct per-row intersection and sorting costs O(Hn log(n+1)+M) time and O(n) working memory excluding output; no active-edge-table performance claim; boundary rule is not closed-set containment; no antialiasing, holes or self-intersections in this specification; floating-point ordering near vertices requires care.
+
+Mechanism — Rowwise sorted edge intersections produce raster spans rather than evaluating individual point winding numbers; parity is related to containment but scanline batching and raster boundary policy are distinct computational procedures
+
+Source — Harriet Fell, Northeastern University CS 4300, Lecture 9, September 2011, slides 5–10 (extracted text reviewed; page-image requests returned HTTP 429). Parity and paired crossing approach; direct recomputation and lower-inclusive/left-inclusive boundary rules explicitly specified here rather than reproducing the lecture's endpoint preprocessing. https://www.khoury.northeastern.edu/home/fell/CS4300/Lectures/CS4300F2011-9-ScanLineFill.pdf

@@ -20,20 +20,21 @@
     "classification": "model-variant",
     "id": "liang-barsky-parametric-segment-clipping",
     "name": "Liang–Barsky parametric segment clipping",
-    "definition": "For p(t)=a+t(b−a), 0≤t≤1, intersect each rectangular half-plane constraint with the feasible parameter interval. Provisional.",
-    "variables": "Provisional; define during review",
-    "assumptions": "Provisional; source review pending",
-    "limitations": "Provisional; complexity and degeneracies pending",
+    "definition": "For a=(x₀,y₀), b=(x₁,y₁), d=b−a and rectangle [L,R]×[B,T], set p=(−dₓ,dₓ,−dᵧ,dᵧ), q=(x₀−L,R−x₀,y₀−B,T−y₀). If any pᵢ=0 with qᵢ<0 reject. Otherwise ℓ=max({0}∪{qᵢ/pᵢ:pᵢ<0}), u=min({1}∪{qᵢ/pᵢ:pᵢ>0}). Reject if ℓ>u; else return (a+ℓd,a+ud)",
+    "variables": "a,b ordered segment endpoints; d displacement; L,R,B,T inclusive rectangle bounds; p,q four coefficient pairs; ℓ,u feasible parameter limits",
+    "assumptions": "Finite planar coordinates, L≤R and B≤T; closed rectangle and closed segment; exact arithmetic in mathematical definition; zero-length segments and degenerate rectangles allowed",
+    "limitations": "Constant time and working storage for four inequalities; floating-point near-parallel or boundary comparisons can be unstable; no arbitrary nonconvex clip regions or measured performance advantage; identical returned endpoints represent a point",
     "failure_conditions": [
-      "Invalid input"
+      "Nonfinite coordinates, reversed bounds, unguarded division by zero or arithmetic overflow"
     ],
-    "computation": "Provisional; independent review pending",
+    "computation": "Initialize ℓ=0,u=1; skip each zero coefficient if its q is nonnegative, otherwise reject. Negative p raises lower bound, positive p lowers upper bound. Reject when lower exceeds upper. Map surviving interval endpoints into Cartesian coordinates; retain boundary tangencies",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Liang–Barsky parametric segment clipping"
+      "citation": "University at Buffalo, CSE 480/580, Lecture 9, slides 6–8 (page images reviewed): parametric inequalities and interval updates. Slide 7–8 left coefficient sign inconsistency and missing parallel skip in pseudocode resolved algebraically from slide 6. https://cse.buffalo.edu/faculty/walters/cs480/NewLect9.pdf",
+      "url": "https://cse.buffalo.edu/faculty/walters/cs480/NewLect9.pdf"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
-    "required_inputs": "Finite geometric input; exact conditions pending review",
+    "required_inputs": "Two finite 2D endpoints, ordered finite rectangle bounds, arithmetic preserving comparisons",
     "compatible_methods": [
       "cohen-sutherland-segment-clipping"
     ],
@@ -46,7 +47,7 @@
         "target": "cohen-sutherland-segment-clipping"
       }
     ],
-    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+    "mechanism_note": "Parameter-interval clipping replaces repeated outcode endpoint replacement, but computes the same closed rectangular segment intersection as Cohen–Sutherland; classified as a variant, not additional independent scientific evidence"
   },
   {
     "profile": "multifeature",
@@ -69,20 +70,21 @@
     "classification": "distinct-algorithm",
     "id": "scanline-even-odd-polygon-fill",
     "name": "Scanline even–odd polygon filling",
-    "definition": "For each scanline y, sort the intersections x₁≤x₂≤…≤x₂ₖ with nonhorizontal polygon edges under a half-open crossing convention; classify alternating spans as interior. Provisional.",
-    "variables": "Provisional; define during review",
-    "assumptions": "Provisional; source review pending",
-    "limitations": "Provisional; complexity and degeneracies pending",
+    "definition": "For each selected integer row y, take every polygon edge (a,b) with min(aᵧ,bᵧ)≤y<max(aᵧ,bᵧ), and compute x=aₓ+(y−aᵧ)(bₓ−aₓ)/(bᵧ−aᵧ). Sort the resulting multiset x₁≤…≤x₂ₖ. Emit all integer pixel centers (x,y) with x₂ⱼ₋₁≤x<x₂ⱼ for j=1,…,k",
+    "variables": "a,b adjacent vertices; x,y Cartesian pixel-center coordinates; k half the crossing count; n polygon edge count; H number of selected rows; M number of emitted pixels",
+    "assumptions": "Simple closed nonzero-area polygon with finite vertices, implicit closing edge and no zero-length edges; integer pixel centers; horizontal edges excluded; lower-inclusive upper-exclusive edge activity and left-inclusive right-exclusive spans are explicit catalogue conventions; retain multiplicity of coincident crossings",
+    "limitations": "Direct per-row intersection and sorting costs O(Hn log(n+1)+M) time and O(n) working memory excluding output; no active-edge-table performance claim; boundary rule is not closed-set containment; no antialiasing, holes or self-intersections in this specification; floating-point ordering near vertices requires care",
     "failure_conditions": [
-      "Invalid input"
+      "Invalid polygon, nonfinite coordinates, invalid row range or odd crossing count under stated assumptions"
     ],
-    "computation": "Provisional; independent review pending",
+    "computation": "For each row in the requested finite integer range compute and sort eligible intersections; assert even cardinality; pair consecutive crossings and emit integer x from ceil(left) through ceil(right)−1; zero-width pairs emit nothing",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: scanline even–odd polygon filling"
+      "citation": "Harriet Fell, Northeastern University CS 4300, Lecture 9, September 2011, slides 5–10 (extracted text reviewed; page-image requests returned HTTP 429). Parity and paired crossing approach; direct recomputation and lower-inclusive/left-inclusive boundary rules explicitly specified here rather than reproducing the lecture's endpoint preprocessing. https://www.khoury.northeastern.edu/home/fell/CS4300/Lectures/CS4300F2011-9-ScanLineFill.pdf",
+      "url": "https://www.khoury.northeastern.edu/home/fell/CS4300/Lectures/CS4300F2011-9-ScanLineFill.pdf"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
-    "required_inputs": "Finite geometric input; exact conditions pending review",
+    "required_inputs": "Valid simple planar polygon, finite integer row range and exact or robust geometric arithmetic",
     "compatible_methods": [
       "polygon-winding-number"
     ],
@@ -95,6 +97,6 @@
         "target": "polygon-winding-number"
       }
     ],
-    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+    "mechanism_note": "Rowwise sorted edge intersections produce raster spans rather than evaluating individual point winding numbers; parity is related to containment but scanline batching and raster boundary policy are distinct computational procedures"
   }
 ]
