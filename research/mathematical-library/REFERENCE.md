@@ -6573,3 +6573,67 @@ Limitations — O(n²2^n) time and O(n2^n) table storage with constant-time subs
 Mechanism — Subset and endpoint state enforces visiting each vertex exactly once; distinct from general branch-and-bound pruning, Bellman–Ford walks and Floyd–Warshall allowed-intermediate-vertex recurrence.
 
 Source — Carnegie Mellon University 15-451 (Fall 2023), Dynamic Programming II, §1, pp. 1–3, https://www.cs.cmu.edu/~15451-f23/lectures/lecture10-dp2.pdf. Held and Karp (1962) original publication locator not independently reviewed.
+
+## Borůvka component minimum-edge spanning forest (boruvka-component-minimum-edge)
+
+> Start F=∅ on V. For each component C of (V,F) select e_C=argmin_{e∈δ(C)}(w(e),id(e)) in lexicographic order if δ(C) is nonempty. Add selected edges only if their endpoints remain in different components; repeat until no crossing edge exists
+
+V vertices, F forest edges, δ(C) edges crossing the cut of C, w finite edge weight, id fixed unique edge ordering.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite undirected loop-free graph, finite weights and consistent tie order; disconnected components and isolated vertices allowed.
+
+Limitations — Returns minimum spanning forest, not shortest paths; ties can yield multiple optima; O((|V|+|E|) log(max(2,|V|))) for linear component labelling and edge scans each round.
+
+Mechanism — Component-wide minimum selection differs from Prim's single frontier and Kruskal's global sorted scan; conservatively classified as spanning-forest variant.
+
+Source — Jeff Erickson, Algorithms, §§7.1–7.3, pp. 257–262, https://jeffe.cs.illinois.edu/teaching/algorithms/book/07-mst.pdf. Book page image and text reviewed; disconnected stopping rule is a componentwise extension.
+
+## Push–relabel preflow maximum flow (push-relabel-preflow)
+
+> Use skew-symmetric net flow f(u,v)=−f(v,u), r(u,v)=c(u,v)−f(u,v), e(u)=Σ_v f(v,u). Initialize h(s)=|V|, h(v)=0 otherwise, saturate arcs from s. For active u≠s,t push δ=min(e(u),r(u,v)) when r(u,v)>0 and h(u)=h(v)+1; otherwise set h(u)=1+min_{v:r(u,v)>0}h(v). Stop when all internal excesses are zero
+
+c directed capacity (zero if absent), f signed net flow, r residual, e excess, h integer height, s source, t sink.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite directed loop-free graph, distinct s,t, nonnegative finite capacities, exact arithmetic; parallel capacities may be aggregated.
+
+Limitations — Intermediate preflow need not conserve flow; generic O(|V|²|E|) operation bound with appropriate adjacency and current-edge bookkeeping; finite-precision arithmetic requires separate invariant checks.
+
+Mechanism — Local pushes relax conservation temporarily rather than augmenting complete paths; height labels rule out residual source-sink paths. Conservatively classified as maximum-flow variant.
+
+Source — Carnegie Mellon 15-451/651, Lecture 14, October 10 2013, §§2–3, https://www.cs.cmu.edu/~avrim/451f13/lectures/lect1010.pdf. Page 3 image reviewed; signed net-flow convention equivalent. Original paper not reviewed.
+
+## DFS low-link articulation point detection (dfs-articulation-points)
+
+> For discovery index d(u), low(u)=min({d(u)}∪{d(w): uw is a back edge to an ancestor}∪{low(v): v is a DFS child}). Nonroot u is a cut vertex iff some child v has low(v)≥d(u); root iff it has at least two DFS children
+
+d discovery index, low earliest ancestor reachable through descendants and at most one back edge, u vertex, v DFS child, w ancestor.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite simple undirected graph, full DFS forest, parent edge excluded from back edges.
+
+Limitations — O(|V|+|E|) time and O(|V|) auxiliary state with adjacency lists; recursion can exhaust stack; multigraphs need edge-ID exclusion.
+
+Mechanism — Detects component-count increase on vertex deletion, not directed mutual-reachability SCCs; low-link recurrence and root rule have different meanings.
+
+Source — Victor Adamchik, Carnegie Mellon CS 15-451, Lecture 11, February 7 2014, p. 5, https://www.cs.cmu.edu/afs/cs/academic/class/15451-s14/www/LectureNotes/lecture11.pdf. Page image reviewed; componentwise extension to disconnected graphs.
+
+## Hierholzer Eulerian circuit construction (hierholzer-eulerian-circuit)
+
+> For an undirected graph with even degrees and connected positive-degree support, repeatedly consume unused incident edges to close trails and splice a new closed trail at any visited vertex with unused edges. Final vertex sequence satisfies v_0=v_m and m=|E| with every edge identity used exactly once
+
+V vertices, E edge identities, m traversed edges, v_i ordered vertices, degree counts incident edge ends.
+
+General graph computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite simple undirected graph with at least one vertex, every degree even and all positive-degree vertices in one connected component; if E empty return a zero-edge circuit at any vertex.
+
+Limitations — O(|V|+|E|) time with adjacency cursors, used-edge flags and stack, O(|V|+|E|) storage including output; does not solve Hamiltonian cycles or optimise route weights.
+
+Mechanism — Constructs a closed edge-covering trail with repeated vertices permitted, unlike subset-DP Hamiltonian tours and topological sorting.
+
+Source — T. M. Murali, Virginia Tech CS 4884, Introduction to Graphs, January 28 2020, Hierholzer algorithm and properties, https://bioinformatics.cs.vt.edu/~murali/teaching/2020-spring-cs4884/lectures/lecture-03-graphs.pdf. Parsed text reviewed; screenshot request failed due to PDF size.

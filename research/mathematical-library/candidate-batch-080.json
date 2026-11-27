@@ -1,0 +1,198 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "080",
+    "family": "network-science",
+    "classification": "model-variant",
+    "id": "johnson-reweighted-all-pairs",
+    "name": "Johnson reweighted all-pairs shortest paths",
+    "definition": "With Bellman–Ford potentials h, c′(u,v)=c(u,v)+h(u)−h(v); run Dijkstra from each source; recover d(u,v)=d′(u,v)−h(u)+h(v). Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Johnson reweighted all-pairs shortest paths"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "floyd-warshall"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "floyd-warshall"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "080",
+    "family": "operations-research",
+    "classification": "distinct-algorithm",
+    "id": "gale-shapley-deferred-acceptance",
+    "name": "Gale–Shapley deferred acceptance",
+    "definition": "Each unmatched proposer offers to next preferred receiver; receiver holding i retains j iff j≻i; terminate with matching M=held pairs. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Gale–Shapley deferred acceptance"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "hopcroft-karp-bipartite-matching"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "hopcroft-karp-bipartite-matching"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "080",
+    "family": "network-science",
+    "classification": "model-variant",
+    "id": "dfs-low-link-bridges",
+    "name": "DFS low-link bridge detection",
+    "definition": "A DFS tree edge (u,v) belongs to B={uv:low(v)>d(u)}, excluding parent edge. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: DFS low-link bridge detection"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "dfs-articulation-points"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "dfs-articulation-points"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "080",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "floyd-tortoise-hare-cycle",
+    "name": "Floyd tortoise-and-hare cycle detection",
+    "definition": "Iterate slow←f(slow), fast←f(f(fast)); after meeting reset one pointer to start and advance both once to locate cycle entry. Provisional.",
+    "variables": "Provisional; define variables during review",
+    "assumptions": "Provisional; source and mathematical review pending",
+    "limitations": "Provisional; review complexity and edge cases",
+    "failure_conditions": [
+      "Invalid input"
+    ],
+    "computation": "Provisional; independent review pending",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Floyd tortoise-and-hare cycle detection"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite graph and declared inputs",
+    "compatible_methods": [
+      "binary-lifting-tree-ancestor"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "binary-lifting-tree-ancestor"
+      }
+    ],
+    "mechanism_note": "Provisional; independent source, novelty and mathematical review pending."
+  }
+]

@@ -1,0 +1,202 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "079",
+    "family": "network-science",
+    "classification": "model-variant",
+    "id": "boruvka-component-minimum-edge",
+    "name": "Borůvka component minimum-edge spanning forest",
+    "definition": "Start F=∅ on V. For each component C of (V,F) select e_C=argmin_{e∈δ(C)}(w(e),id(e)) in lexicographic order if δ(C) is nonempty. Add selected edges only if their endpoints remain in different components; repeat until no crossing edge exists",
+    "variables": "V vertices, F forest edges, δ(C) edges crossing the cut of C, w finite edge weight, id fixed unique edge ordering",
+    "assumptions": "Finite undirected loop-free graph, finite weights and consistent tie order; disconnected components and isolated vertices allowed",
+    "limitations": "Returns minimum spanning forest, not shortest paths; ties can yield multiple optima; O((|V|+|E|) log(max(2,|V|))) for linear component labelling and edge scans each round",
+    "failure_conditions": [
+      "Nonfinite weights or invalid endpoints; inconsistent tie order or duplicate edge insertion"
+    ],
+    "computation": "Label forest components, scan all edges for minima, add each selected edge once with component checks, stop when no crossing edge exists. Cut optimality under fixed tie order and component halving justify the procedure.",
+    "source": {
+      "kind": "literature",
+      "citation": "Jeff Erickson, Algorithms, §§7.1–7.3, pp. 257–262, https://jeffe.cs.illinois.edu/teaching/algorithms/book/07-mst.pdf. Book page image and text reviewed; disconnected stopping rule is a componentwise extension.",
+      "url": "https://jeffe.cs.illinois.edu/teaching/algorithms/book/07-mst.pdf"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Undirected finite weighted graph with unique edge IDs",
+    "compatible_methods": [
+      "kruskal-spanning-forest"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "kruskal-spanning-forest"
+      }
+    ],
+    "mechanism_note": "Component-wide minimum selection differs from Prim's single frontier and Kruskal's global sorted scan; conservatively classified as spanning-forest variant."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "079",
+    "family": "operations-research",
+    "classification": "model-variant",
+    "id": "push-relabel-preflow",
+    "name": "Push–relabel preflow maximum flow",
+    "definition": "Use skew-symmetric net flow f(u,v)=−f(v,u), r(u,v)=c(u,v)−f(u,v), e(u)=Σ_v f(v,u). Initialize h(s)=|V|, h(v)=0 otherwise, saturate arcs from s. For active u≠s,t push δ=min(e(u),r(u,v)) when r(u,v)>0 and h(u)=h(v)+1; otherwise set h(u)=1+min_{v:r(u,v)>0}h(v). Stop when all internal excesses are zero",
+    "variables": "c directed capacity (zero if absent), f signed net flow, r residual, e excess, h integer height, s source, t sink",
+    "assumptions": "Finite directed loop-free graph, distinct s,t, nonnegative finite capacities, exact arithmetic; parallel capacities may be aggregated",
+    "limitations": "Intermediate preflow need not conserve flow; generic O(|V|²|E|) operation bound with appropriate adjacency and current-edge bookkeeping; finite-precision arithmetic requires separate invariant checks",
+    "failure_conditions": [
+      "Negative/nonfinite capacity, invalid terminals, negative residual or invalid height invariant"
+    ],
+    "computation": "Initialize by saturating source arcs, update both residual directions and excess on each push, relabel only when no admissible edge exists. Verify capacity bounds, conservation and absence of residual source-sink paths at termination.",
+    "source": {
+      "kind": "literature",
+      "citation": "Carnegie Mellon 15-451/651, Lecture 14, October 10 2013, §§2–3, https://www.cs.cmu.edu/~avrim/451f13/lectures/lect1010.pdf. Page 3 image reviewed; signed net-flow convention equivalent. Original paper not reviewed.",
+      "url": "https://www.cs.cmu.edu/~avrim/451f13/lectures/lect1010.pdf"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Directed finite capacity network and terminals",
+    "compatible_methods": [
+      "edmonds-karp-maximum-flow"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "edmonds-karp-maximum-flow"
+      }
+    ],
+    "mechanism_note": "Local pushes relax conservation temporarily rather than augmenting complete paths; height labels rule out residual source-sink paths. Conservatively classified as maximum-flow variant."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "079",
+    "family": "network-science",
+    "classification": "distinct-algorithm",
+    "id": "dfs-articulation-points",
+    "name": "DFS low-link articulation point detection",
+    "definition": "For discovery index d(u), low(u)=min({d(u)}∪{d(w): uw is a back edge to an ancestor}∪{low(v): v is a DFS child}). Nonroot u is a cut vertex iff some child v has low(v)≥d(u); root iff it has at least two DFS children",
+    "variables": "d discovery index, low earliest ancestor reachable through descendants and at most one back edge, u vertex, v DFS child, w ancestor",
+    "assumptions": "Finite simple undirected graph, full DFS forest, parent edge excluded from back edges",
+    "limitations": "O(|V|+|E|) time and O(|V|) auxiliary state with adjacency lists; recursion can exhaust stack; multigraphs need edge-ID exclusion",
+    "failure_conditions": [
+      "Directed or malformed graph; incorrect parent exclusion or root rule"
+    ],
+    "computation": "Traverse every unseen component, propagate child low values on return and update from ancestor back edges. Apply separate root and nonroot rules, return marked vertices once.",
+    "source": {
+      "kind": "literature",
+      "citation": "Victor Adamchik, Carnegie Mellon CS 15-451, Lecture 11, February 7 2014, p. 5, https://www.cs.cmu.edu/afs/cs/academic/class/15451-s14/www/LectureNotes/lecture11.pdf. Page image reviewed; componentwise extension to disconnected graphs.",
+      "url": "https://www.cs.cmu.edu/afs/cs/academic/class/15451-s14/www/LectureNotes/lecture11.pdf"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Simple undirected adjacency list including isolated vertices",
+    "compatible_methods": [
+      "tarjan-strongly-connected-components"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "tarjan-strongly-connected-components"
+      }
+    ],
+    "mechanism_note": "Detects component-count increase on vertex deletion, not directed mutual-reachability SCCs; low-link recurrence and root rule have different meanings."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "079",
+    "family": "network-science",
+    "classification": "distinct-algorithm",
+    "id": "hierholzer-eulerian-circuit",
+    "name": "Hierholzer Eulerian circuit construction",
+    "definition": "For an undirected graph with even degrees and connected positive-degree support, repeatedly consume unused incident edges to close trails and splice a new closed trail at any visited vertex with unused edges. Final vertex sequence satisfies v_0=v_m and m=|E| with every edge identity used exactly once",
+    "variables": "V vertices, E edge identities, m traversed edges, v_i ordered vertices, degree counts incident edge ends",
+    "assumptions": "Finite simple undirected graph with at least one vertex, every degree even and all positive-degree vertices in one connected component; if E empty return a zero-edge circuit at any vertex",
+    "limitations": "O(|V|+|E|) time with adjacency cursors, used-edge flags and stack, O(|V|+|E|) storage including output; does not solve Hamiltonian cycles or optimise route weights",
+    "failure_conditions": [
+      "Odd degree, disconnected non-isolated support or malformed adjacency; failure of exact coverage or closure"
+    ],
+    "computation": "Check parity and connectivity; stack starts at a positive-degree vertex or any vertex if E empty. Consume a fresh edge and push its endpoint, or pop to reverse output when no unused incident edge remains. Reverse output and verify exact coverage and closure.",
+    "source": {
+      "kind": "literature",
+      "citation": "T. M. Murali, Virginia Tech CS 4884, Introduction to Graphs, January 28 2020, Hierholzer algorithm and properties, https://bioinformatics.cs.vt.edu/~murali/teaching/2020-spring-cs4884/lectures/lecture-03-graphs.pdf. Parsed text reviewed; screenshot request failed due to PDF size.",
+      "url": "https://bioinformatics.cs.vt.edu/~murali/teaching/2020-spring-cs4884/lectures/lecture-03-graphs.pdf"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite simple undirected graph with uniquely identified edges",
+    "compatible_methods": [
+      "bellman-held-karp-subset-dp"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "bellman-held-karp-subset-dp"
+      }
+    ],
+    "mechanism_note": "Constructs a closed edge-covering trail with repeated vertices permitted, unlike subset-DP Hamiltonian tours and topological sorting."
+  }
+]

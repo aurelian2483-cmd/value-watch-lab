@@ -9443,5 +9443,97 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Subset and endpoint state enforces visiting each vertex exactly once; distinct from general branch-and-bound pruning, Bellman–Ford walks and Floyd–Warshall allowed-intermediate-vertex recurrence."
+  },
+  {
+    "id": "boruvka-component-minimum-edge",
+    "source": {
+      "kind": "literature",
+      "citation": "Jeff Erickson, Algorithms, §§7.1–7.3, pp. 257–262, https://jeffe.cs.illinois.edu/teaching/algorithms/book/07-mst.pdf. Book page image and text reviewed; disconnected stopping rule is a componentwise extension.",
+      "url": "https://jeffe.cs.illinois.edu/teaching/algorithms/book/07-mst.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Component-wide minimum selection differs from Prim's single frontier and Kruskal's global sorted scan; conservatively classified as spanning-forest variant."
+  },
+  {
+    "id": "push-relabel-preflow",
+    "source": {
+      "kind": "literature",
+      "citation": "Carnegie Mellon 15-451/651, Lecture 14, October 10 2013, §§2–3, https://www.cs.cmu.edu/~avrim/451f13/lectures/lect1010.pdf. Page 3 image reviewed; signed net-flow convention equivalent. Original paper not reviewed.",
+      "url": "https://www.cs.cmu.edu/~avrim/451f13/lectures/lect1010.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Local pushes relax conservation temporarily rather than augmenting complete paths; height labels rule out residual source-sink paths. Conservatively classified as maximum-flow variant."
+  },
+  {
+    "id": "dfs-articulation-points",
+    "source": {
+      "kind": "literature",
+      "citation": "Victor Adamchik, Carnegie Mellon CS 15-451, Lecture 11, February 7 2014, p. 5, https://www.cs.cmu.edu/afs/cs/academic/class/15451-s14/www/LectureNotes/lecture11.pdf. Page image reviewed; componentwise extension to disconnected graphs.",
+      "url": "https://www.cs.cmu.edu/afs/cs/academic/class/15451-s14/www/LectureNotes/lecture11.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Detects component-count increase on vertex deletion, not directed mutual-reachability SCCs; low-link recurrence and root rule have different meanings."
+  },
+  {
+    "id": "hierholzer-eulerian-circuit",
+    "source": {
+      "kind": "literature",
+      "citation": "T. M. Murali, Virginia Tech CS 4884, Introduction to Graphs, January 28 2020, Hierholzer algorithm and properties, https://bioinformatics.cs.vt.edu/~murali/teaching/2020-spring-cs4884/lectures/lecture-03-graphs.pdf. Parsed text reviewed; screenshot request failed due to PDF size.",
+      "url": "https://bioinformatics.cs.vt.edu/~murali/teaching/2020-spring-cs4884/lectures/lecture-03-graphs.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Constructs a closed edge-covering trail with repeated vertices permitted, unlike subset-DP Hamiltonian tours and topological sorting."
   }
 ]

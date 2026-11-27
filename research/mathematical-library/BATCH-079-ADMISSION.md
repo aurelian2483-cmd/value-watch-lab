@@ -1,0 +1,11 @@
+# Batch 079 admission review (2026-11-27)
+
+Parent 9e127d5dca36ca40b376194d58597ba15af91020; PR 171 open draft and matching branch verified. Exact-head workflow lookup: full regression 45972305057 and registry 45972305007 completed successfully. Candidate 023 and disposition reread; lagged Pearson remains withheld.
+
+Reviewed 445 unique ledger IDs, corresponding reference headings and equation signatures, and graph family records. Borůvka and push–relabel conservatively classified as variants; articulation points and Euler circuits have different objectives from existing SCC, topological-sort and subset-tour methods. No normalized name, definition or ID duplication detected. Catalogue-level review, not a scientific novelty claim.
+
+Sources: Erickson Algorithms §§7.1–7.3 (page image and parsed text); CMU Lecture 14 §§2–3 (p. 3 image); Adamchik Lecture 11 (p. 5 image); Virginia Tech Murali lecture (parsed text, screenshot failed due to source PDF size). Original research papers not independently reviewed. Definitions paraphrased. Added fixed global tie order, no-crossing stop, preflow initialization and residual invariants, DFS root exception, Eulerian support connectivity and circuit coverage equation.
+
+Independent bounded JS synthetic comparisons passed: 4096 four-vertex weighted undirected graphs (absent edges or weights −1,0,1) against exhaustive forest enumeration; 4096 four-vertex directed binary-capacity networks against exhaustive minimum cuts, with residual and height checks; 1099 simple undirected graphs with 1–5 vertices against component-count change on deletion; 1099 same-size graphs checked for Euler circuit construction versus parity/connectivity and exact coverage (76 valid including zero-edge cases). These are reference-procedure checks, not production implementation tests, complexity benchmarks or empirical qualification. No protected data accessed.
+
+All four stay SPECIFIED, implementation/test evidence null. Existing IDs and lifecycle claims preserved. Four snapshots updated incrementally following inspected catalogue.mjs format; repository generator and full local regression not directly executed. Hosted verification of new head required before further writes. Batch 080 candidates remain provisional. No execution, publication, validation or size-gate changes.
