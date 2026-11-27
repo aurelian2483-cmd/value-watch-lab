@@ -9029,5 +9029,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Prefix closure ensures that extending the longest matching phrase by the next symbol creates a new phrase. Each emitted normal token references an earlier dictionary entry, so decoder synchronization follows by induction; the terminal token handles a final already-known phrase. Unlike static multi-pattern matching, the dictionary grows from the input; unlike Huffman coding it adapts phrase boundaries and uses dictionary references."
+  },
+  {
+    "id": "arithmetic-coding-interval-refinement",
+    "source": {
+      "kind": "literature",
+      "citation": "Howard and Vitter (1994), Arithmetic Coding for Data Compression, section II.A–B, manuscript p. 2, table 1 and figure 1. https://www.ittc.ku.edu/~jsv/Papers/HoV94.arithmetic_coding.pdf ; Witten, Neal and Cleary (1987), DOI 10.1145/214762.214771 (metadata and abstract checked). Least-grid exponent bound independently derived for explicitly framed points.",
+      "url": "https://www.ittc.ku.edu/~jsv/Papers/HoV94.arithmetic_coding.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "At each step the subintervals partition the parent interval, and the selected width is the parent width times p_j. A dyadic grid with spacing no greater than the final width necessarily contains a point in that half-open interval. Known length resolves nested interval ambiguity. Unlike Huffman coding this assigns a joint sequence interval rather than independently concatenating symbol codewords."
+  },
+  {
+    "id": "lzw-implicit-dictionary-parsing",
+    "source": {
+      "kind": "literature",
+      "citation": "Welch (1984), A Technique for High-Performance Data Compression, Computer 17(6), 8–19, pp. 16–17, compression and decompression algorithms and special case. DOI 10.1109/MC.1984.1659158. https://courses.cs.duke.edu/spring03/cps296.5/papers/welch_1984_technique_for.pdf ; unbounded externally framed code list is a specified abstraction.",
+      "url": "https://courses.cs.duke.edu/spring03/cps296.5/papers/welch_1984_technique_for.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "LZW retains LZ78-style longest-phrase dictionary growth but starts from the full singleton alphabet and transmits indices alone instead of index/symbol pairs. The decoder is one insertion behind; only the next free code may refer to the immediately pending phrase, whose first symbol must equal that of the previous phrase. This material change in representation and synchronization justifies a variant, not another distinct algorithm count."
   }
 ]

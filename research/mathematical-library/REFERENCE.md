@@ -6285,3 +6285,35 @@ Limitations — Trie parsing uses O(n) symbol transitions with constant-time chi
 Mechanism — Prefix closure ensures that extending the longest matching phrase by the next symbol creates a new phrase. Each emitted normal token references an earlier dictionary entry, so decoder synchronization follows by induction; the terminal token handles a final already-known phrase. Unlike static multi-pattern matching, the dictionary grows from the input; unlike Huffman coding it adapts phrase boundaries and uses dictionary references.
 
 Source — Ziv and Lempel (1978), Compression of individual sequences via variable-rate coding, IEEE Transactions on Information Theory 24(5), 530–536, DOI 10.1109/TIT.1978.1055934 (bibliographic metadata checked). Goemans (2015), MIT 18.310A Lempel-Ziv codes, section 1, pp. LZ-1–LZ-2; explicit tagged terminal record is a specified framing adaptation. https://math.mit.edu/~goemans/18310S15/lempel-ziv-notes.pdf
+
+## Arithmetic coding interval refinement (arithmetic-coding-interval-refinement)
+
+> For ordered symbols a_j with positive probabilities p_j and C_j=Σ_{h<j}p_h, C_K=1 (zero-based j), initialize [L,U)=[0,1). For symbol a_j simultaneously set L'=L+(U−L)C_j and U'=L+(U−L)C_{j+1}. After n symbols choose the least b≥0 admitting an integer m with L≤m/2^b<U; transmit m and b with external length n. Decode n symbols by choosing the unique containing subinterval and rescaling the point.
+
+K alphabet size, p_j fixed positive probabilities, C_j cumulative masses, L,U interval endpoints, n symbol count, b dyadic denominator exponent, m dyadic numerator.
+
+General exact lossless coding specification; no empirical benefit claimed.
+
+Assumptions — Finite ordered nonempty alphabet, shared static normalized positive probabilities, exact rational arithmetic, known symbol count and externally framed dyadic point; both endpoints computed from the old interval.
+
+Limitations — Interval width equals the product of symbol probabilities. The least b is at most ceil(log2(1/(U−L))); this excludes all framing and model costs. Exact arithmetic can grow in bit complexity; no fixed-precision renormalization or practical codec specified. Poor models may expand data.
+
+Mechanism — At each step the subintervals partition the parent interval, and the selected width is the parent width times p_j. A dyadic grid with spacing no greater than the final width necessarily contains a point in that half-open interval. Known length resolves nested interval ambiguity. Unlike Huffman coding this assigns a joint sequence interval rather than independently concatenating symbol codewords.
+
+Source — Howard and Vitter (1994), Arithmetic Coding for Data Compression, section II.A–B, manuscript p. 2, table 1 and figure 1. https://www.ittc.ku.edu/~jsv/Papers/HoV94.arithmetic_coding.pdf ; Witten, Neal and Cleary (1987), DOI 10.1145/214762.214771 (metadata and abstract checked). Least-grid exponent bound independently derived for explicitly framed points.
+
+## LZW implicit dictionary parsing (lzw-implicit-dictionary-parsing)
+
+> Initialize D[0..K−1] to the ordered single symbols. For the longest dictionary phrase w matching the unread suffix, emit its index; if followed by symbol a, append D[j]=wa at the next free index j and resume at a. If no following symbol exists, finish. In decoding let v be the previous phrase; for next code c, use s=D[c] if already defined, or s=v concatenated with first(v) if c=j (next free index); append D[j]=v concatenated with first(s), output s, and set v←s.
+
+K alphabet size, D dictionary, w encoder phrase, a next symbol, j next free index, c emitted code, v previous decoded phrase, s current decoded phrase.
+
+General lossless dictionary coding specification; no empirical benefit claimed.
+
+Assumptions — Finite nonempty alphabet, exact symbol equality, identical single-symbol initialization and sequential indices, externally framed integer code list, no resets or capacity limit; first nonempty code must be an initial symbol.
+
+Limitations — With prefix-code/symbol dictionary nodes and constant-time transition lookup, encoding takes O(n) symbol transitions; decoder expansion takes O(n) output-symbol operations for n decoded symbols and dictionary storage O(K+z) nodes for z insertions. Unbounded dictionary and variable-width index framing incur costs; naive full-phrase storage can cost more. Not a GIF or TIFF bitstream specification and no finite-input compression guarantee.
+
+Mechanism — LZW retains LZ78-style longest-phrase dictionary growth but starts from the full singleton alphabet and transmits indices alone instead of index/symbol pairs. The decoder is one insertion behind; only the next free code may refer to the immediately pending phrase, whose first symbol must equal that of the previous phrase. This material change in representation and synchronization justifies a variant, not another distinct algorithm count.
+
+Source — Welch (1984), A Technique for High-Performance Data Compression, Computer 17(6), 8–19, pp. 16–17, compression and decompression algorithms and special case. DOI 10.1109/MC.1984.1659158. https://courses.cs.duke.edu/spring03/cps296.5/papers/welch_1984_technique_for.pdf ; unbounded externally framed code list is a specified abstraction.

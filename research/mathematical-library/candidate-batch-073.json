@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "073",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "burrows-wheeler-sentinel-transform",
+    "name": "Burrows–Wheeler sentinel transform",
+    "definition": "Append a unique ordered sentinel to x; let R_i be cyclic rotation i of the augmented string. Sort rotations lexicographically and set B[j]=last(R_{π(j)}) for sorted permutation π. Provisional inverse via stable occurrence ranks.",
+    "variables": "Ordered alphabet, cumulative probabilities, interval bounds, input length",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify bounds and edge cases",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Burrows and Wheeler (1994), A Block-sorting Lossless Data Compression Algorithm; verify sentinel and inversion conventions."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence and declared symbol semantics.",
+    "compatible_methods": [
+      "suffix-array-prefix-doubling"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "suffix-array-prefix-doubling"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "073",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "move-to-front-rank-transform",
+    "name": "Move-to-front rank transform",
+    "definition": "Initialize a shared ordered list A of distinct symbols; for each symbol x emit r=index_A(x), remove x from A and insert x at index zero. Decoder uses the same list and moves A[r] to the front after output.",
+    "variables": "Ordered alphabet, cumulative probabilities, interval bounds, input length",
+    "assumptions": "Provisional; independent source and mathematical review pending",
+    "limitations": "Provisional; verify bounds and edge cases",
+    "failure_conditions": [
+      "Invalid inputs or violated assumptions"
+    ],
+    "computation": "Provisional specification; verify before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Bentley, Sleator, Tarjan and Wei (1986), A Locally Adaptive Data Compression Scheme; verify rank convention and inverse."
+    },
+    "application": "General sequence algorithm; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence and declared symbol semantics.",
+    "compatible_methods": [
+      "burrows-wheeler-sentinel-transform"
+    ],
+    "incompatible_methods": [
+      "Treating provisional specification as validated implementation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "burrows-wheeler-sentinel-transform"
+      }
+    ],
+    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+  }
+]

@@ -20,33 +20,41 @@
     "classification": "distinct-algorithm",
     "id": "arithmetic-coding-interval-refinement",
     "name": "Arithmetic coding interval refinement",
-    "definition": "Given cumulative probabilities F(a), update bounds simultaneously L_new=L+(U−L)F(a), U_new=L+(U−L)F(next(a)) for each symbol a; select a representable point in the final half-open interval with an explicit length convention.",
-    "variables": "Ordered alphabet, cumulative probabilities, interval bounds, input length",
-    "assumptions": "Provisional; independent source and mathematical review pending",
-    "limitations": "Provisional; verify bounds and edge cases",
+    "definition": "For ordered symbols a_j with positive probabilities p_j and C_j=Σ_{h<j}p_h, C_K=1 (zero-based j), initialize [L,U)=[0,1). For symbol a_j simultaneously set L'=L+(U−L)C_j and U'=L+(U−L)C_{j+1}. After n symbols choose the least b≥0 admitting an integer m with L≤m/2^b<U; transmit m and b with external length n. Decode n symbols by choosing the unique containing subinterval and rescaling the point.",
+    "variables": "K alphabet size, p_j fixed positive probabilities, C_j cumulative masses, L,U interval endpoints, n symbol count, b dyadic denominator exponent, m dyadic numerator",
+    "assumptions": "Finite ordered nonempty alphabet, shared static normalized positive probabilities, exact rational arithmetic, known symbol count and externally framed dyadic point; both endpoints computed from the old interval",
+    "limitations": "Interval width equals the product of symbol probabilities. The least b is at most ceil(log2(1/(U−L))); this excludes all framing and model costs. Exact arithmetic can grow in bit complexity; no fixed-precision renormalization or practical codec specified. Poor models may expand data",
     "failure_conditions": [
-      "Invalid inputs or violated assumptions"
+      "Reject nonpositive or non-normalized masses, unknown symbols, invalid length or malformed dyadic point",
+      "Reject arithmetic that collapses a nonempty interval; do not update the upper endpoint using the new lower endpoint"
     ],
-    "computation": "Provisional specification; verify before admission.",
+    "computation": "Precompute cumulative masses. Refine with exact arithmetic, find the first dyadic grid intersecting the final half-open interval using m=ceil(2^b L), and decode with normalized coordinate t: select C_j≤t<C_{j+1}, then set t←(t−C_j)/p_j. Empty input gives n=0 and point 0.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Witten, Neal and Cleary (1987), Arithmetic coding for data compression; verify exact interval and finite precision distinctions."
+      "citation": "Howard and Vitter (1994), Arithmetic Coding for Data Compression, section II.A–B, manuscript p. 2, table 1 and figure 1. https://www.ittc.ku.edu/~jsv/Papers/HoV94.arithmetic_coding.pdf ; Witten, Neal and Cleary (1987), DOI 10.1145/214762.214771 (metadata and abstract checked). Least-grid exponent bound independently derived for explicitly framed points.",
+      "url": "https://www.ittc.ku.edu/~jsv/Papers/HoV94.arithmetic_coding.pdf"
     },
-    "application": "General sequence algorithm; no empirical benefit claimed.",
-    "required_inputs": "Finite sequence or symbol weights as appropriate; declared symbol semantics.",
+    "application": "General exact lossless coding specification; no empirical benefit claimed.",
+    "required_inputs": "Finite symbol sequence, shared positive rational probability vector, explicit symbol count and dyadic framing.",
     "compatible_methods": [
-      "huffman-greedy-prefix-code"
+      "huffman-greedy-prefix-code",
+      "entropy"
     ],
     "incompatible_methods": [
-      "Treating provisional specification as validated implementation"
+      "Assuming a dyadic point without framing is a complete prefix-free bitstream",
+      "Claiming fixed-precision correctness or guaranteed compression from exact interval arithmetic"
     ],
     "relationships": [
       {
         "type": "related",
         "target": "huffman-greedy-prefix-code"
+      },
+      {
+        "type": "related",
+        "target": "entropy"
       }
     ],
-    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+    "mechanism_note": "At each step the subintervals partition the parent interval, and the selected width is the parent width times p_j. A dyadic grid with spacing no greater than the final width necessarily contains a point in that half-open interval. Known length resolves nested interval ambiguity. Unlike Huffman coding this assigns a joint sequence interval rather than independently concatenating symbol codewords."
   },
   {
     "profile": "multifeature",
@@ -69,25 +77,28 @@
     "classification": "model-variant",
     "id": "lzw-implicit-dictionary-parsing",
     "name": "LZW implicit dictionary parsing",
-    "definition": "Initialize D to all alphabet symbols; on longest matching phrase w followed by a, emit index(w), append D[j]=wa, and resume at a; emit final phrase index and stop.",
-    "variables": "Alphabet, phrase dictionary, indices, input sequence",
-    "assumptions": "Provisional; independent source and mathematical review pending",
-    "limitations": "Provisional; verify bounds and edge cases",
+    "definition": "Initialize D[0..K−1] to the ordered single symbols. For the longest dictionary phrase w matching the unread suffix, emit its index; if followed by symbol a, append D[j]=wa at the next free index j and resume at a. If no following symbol exists, finish. In decoding let v be the previous phrase; for next code c, use s=D[c] if already defined, or s=v concatenated with first(v) if c=j (next free index); append D[j]=v concatenated with first(s), output s, and set v←s.",
+    "variables": "K alphabet size, D dictionary, w encoder phrase, a next symbol, j next free index, c emitted code, v previous decoded phrase, s current decoded phrase",
+    "assumptions": "Finite nonempty alphabet, exact symbol equality, identical single-symbol initialization and sequential indices, externally framed integer code list, no resets or capacity limit; first nonempty code must be an initial symbol",
+    "limitations": "With prefix-code/symbol dictionary nodes and constant-time transition lookup, encoding takes O(n) symbol transitions; decoder expansion takes O(n) output-symbol operations for n decoded symbols and dictionary storage O(K+z) nodes for z insertions. Unbounded dictionary and variable-width index framing incur costs; naive full-phrase storage can cost more. Not a GIF or TIFF bitstream specification and no finite-input compression guarantee",
     "failure_conditions": [
-      "Invalid inputs or violated assumptions"
+      "Reject first code outside the initial alphabet, negative or noninteger codes, or later code greater than next free index",
+      "Reject inconsistent initialization, symbol framing or resource exhaustion; enforce external output and dictionary limits for practical decoding"
     ],
-    "computation": "Provisional specification; verify before admission.",
+    "computation": "Use a trie or prefix-index/symbol map for encoding. Decode the first code directly, then handle the single not-yet-inserted index as specified before inserting the previous phrase extended by the first symbol of the current phrase. An empty code list represents empty input.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: Welch (1984), A Technique for High-Performance Data Compression; verify decoder special case and framing."
+      "citation": "Welch (1984), A Technique for High-Performance Data Compression, Computer 17(6), 8–19, pp. 16–17, compression and decompression algorithms and special case. DOI 10.1109/MC.1984.1659158. https://courses.cs.duke.edu/spring03/cps296.5/papers/welch_1984_technique_for.pdf ; unbounded externally framed code list is a specified abstraction.",
+      "url": "https://courses.cs.duke.edu/spring03/cps296.5/papers/welch_1984_technique_for.pdf"
     },
-    "application": "General sequence algorithm; no empirical benefit claimed.",
-    "required_inputs": "Finite sequence or symbol weights as appropriate; declared symbol semantics.",
+    "application": "General lossless dictionary coding specification; no empirical benefit claimed.",
+    "required_inputs": "Finite symbol sequence or framed integer code list, declared ordered alphabet and resource bounds for actual use.",
     "compatible_methods": [
       "lz78-dictionary-parsing"
     ],
     "incompatible_methods": [
-      "Treating provisional specification as validated implementation"
+      "Interpreting every undefined decoder code as valid",
+      "Assuming an unbounded abstract code list specifies a standard compressed file format"
     ],
     "relationships": [
       {
@@ -95,6 +106,6 @@
         "target": "lz78-dictionary-parsing"
       }
     ],
-    "mechanism_note": "Provisional; novelty, assumptions and source review pending."
+    "mechanism_note": "LZW retains LZ78-style longest-phrase dictionary growth but starts from the full singleton alphabet and transmits indices alone instead of index/symbol pairs. The decoder is one insertion behind; only the next free code may refer to the immediately pending phrase, whose first symbol must equal that of the previous phrase. This material change in representation and synchronization justifies a variant, not another distinct algorithm count."
   }
 ]
