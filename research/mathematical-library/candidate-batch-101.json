@@ -1,0 +1,112 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "101",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "trial-division-prime-factorization",
+    "name": "Trial division prime factorization",
+    "definition": "For n≥2 set r=n and d=2; while d²≤r repeatedly divide r by d while r mod d=0, recording d each time, then increment d. If r>1 append r; n=∏ recorded factors.",
+    "variables": "n integer to factor; r residual; d trial divisor",
+    "assumptions": "Exact integer arithmetic; input n is an integer at least 2; divisors are tried in increasing integer order",
+    "limitations": "O(√n) trial divisibility checks and O(log n) successful divisions in the worst case, counted as arithmetic operations rather than bit complexity. Output has at most floor(log₂ n) prime factors with multiplicity. Running time is exponential in the input bit length in the worst case; unsuitable for large primes or large balanced semiprimes",
+    "failure_conditions": [
+      "Noninteger input, n<2 or insufficient exact arithmetic; never return a partial factorization as complete."
+    ],
+    "computation": "Validate n; retain residual r and increasing divisor d. Use d≤floor(r/d) to avoid overflowing a fixed-width square. Remove all copies of d before incrementing. Return the sorted prime factors with multiplicity, appending the final residual only if it exceeds one.",
+    "source": {
+      "kind": "literature",
+      "citation": "Number Theory: In Context and Interactive, Gordon College, Section 12.5.2, Algorithm 12.5.7 Trial Factorization, https://www.math.gordon.edu/ntic/ntic2017/section-intro-factor.html ; source describes trial over primes to find one factor; the complete all-integer residual loop, invariant and operation bounds are independently derived.",
+      "url": "https://www.math.gordon.edu/ntic/ntic2017/section-intro-factor.html"
+    },
+    "required_inputs": "Integer n≥2.",
+    "compatible_methods": [
+      "eratosthenes-prime-sieve"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "eratosthenes-prime-sieve"
+      }
+    ],
+    "mechanism_note": "Invariant: the product of recorded factors times r equals n, and r has no divisor in [2,d−1]. Therefore if d divides r then d is prime, and if d²>r then r is one or prime (any composite has a prime divisor at most its square root). This extracts a factor multiset of a supplied integer, unlike the Eratosthenes sieve which enumerates primes over a bounded range."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "101",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "diagnostic",
+    "id": "euler-totient-prime-product",
+    "name": "Euler totient prime product",
+    "definition": "For n≥1 with known complete prime factorization, φ(n)=n∏_(p|n)(1−1/p), the product over distinct prime divisors p.",
+    "variables": "n positive integer; p distinct prime divisor; φ(n) count of coprime positive integers up to n",
+    "assumptions": "Positive exact integer n; verified complete prime factor multiset whose product is n; the empty multiset and empty product apply for n=1",
+    "limitations": "Once factorization and distinct prime divisors are verified, k exact divisions and k subtractions for k distinct prime factors, plus deduplication. This excludes factorization, verification, sorting and bit-arithmetic costs; obtaining a complete factorization may dominate. A partial or composite-factor list does not justify this identity",
+    "failure_conditions": [
+      "Noninteger or nonpositive n, nonprime factor, incorrect factor multiplicity or reconstruction, or insufficient exact arithmetic."
+    ],
+    "computation": "Verify that every supplied factor is prime and the full multiset multiplies to n; deduplicate factors. Initialize v=n and for each distinct prime p update v=v−v/p using exact integer division. Return v; if n=1 return 1.",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Southampton MATH1001 Introduction to Number Theory, Section 7.2 Euler’s Product Formula, Lemma 7.8, Theorem 7.10 and Corollary 7.13, https://www.southampton.ac.uk/~wright/1001/eulers-product-formula.html ; integer update and cost limitations independently derived.",
+      "url": "https://www.southampton.ac.uk/~wright/1001/eulers-product-formula.html"
+    },
+    "required_inputs": "Integer n≥1 and complete verified prime factorization.",
+    "compatible_methods": [
+      "euclidean-remainder-gcd",
+      "eratosthenes-prime-sieve",
+      "trial-division-prime-factorization"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "euclidean-remainder-gcd"
+      },
+      {
+        "type": "related",
+        "target": "eratosthenes-prime-sieve"
+      },
+      {
+        "type": "related",
+        "target": "trial-division-prime-factorization"
+      }
+    ],
+    "mechanism_note": "For each prime power p^a, exactly p^(a−1) of its p^a residues are divisible by p. Multiplicativity over coprime prime powers yields the product. During the integer update every unprocessed prime still divides v, since previously processed distinct primes remove only their own divisor. This scalar counting identity is a diagnostic, not a new factorization or gcd algorithm."
+  }
+]

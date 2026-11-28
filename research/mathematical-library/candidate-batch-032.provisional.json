@@ -1,0 +1,102 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "032",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "brent-bracketed-root-solver",
+    "name": "Brent safeguarded scalar root solver",
+    "definition": "Maintain a sign-changing bracket f(a)f(b)≤0; propose secant or inverse quadratic interpolation steps and use bisection when acceptance safeguards fail. Exact acceptance rules require review.",
+    "variables": "a,b bracket endpoints; f scalar continuous function; interpolation history",
+    "assumptions": "Continuous f and valid initial bracket; finite evaluations; explicit stopping rules.",
+    "limitations": "Discontinuous functions or nonfinite evaluations invalidate the bracket logic.",
+    "failure_conditions": [
+      "Lost sign bracket or iteration bound exceeded"
+    ],
+    "computation": "Provisional hybrid recurrence; verify full step acceptance rules before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: R. P. Brent, Algorithms for Minimization Without Derivatives (1973); verify exact algorithm before admission."
+    },
+    "application": "General scalar root solving.",
+    "required_inputs": "Continuous scalar function, sign-changing bracket and tolerances.",
+    "compatible_methods": [
+      "bisection",
+      "secant-root"
+    ],
+    "incompatible_methods": [
+      "Unbracketed use without safeguards"
+    ],
+    "relationships": [
+      {
+        "target": "bisection",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional; independent review required before admission."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "032",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "ridder-bracketed-root-solver",
+    "name": "Ridders bracketed scalar root solver",
+    "definition": "For f(a)f(b)<0 set m=(a+b)/2, x=m+(m−a) sign(f(a)−f(b)) f(m)/sqrt(f(m)^2−f(a)f(b)); update the sign-changing bracket using a,m,x,b.",
+    "variables": "a,b bracket; m midpoint; x trial point; f continuous scalar function",
+    "assumptions": "Continuous f; handle exact zero before division; finite arithmetic and positive radicand.",
+    "limitations": "Scaling and cancellation require care; not a general multiple-root detector.",
+    "failure_conditions": [
+      "Invalid bracket, unsafe denominator or exhausted iteration bound"
+    ],
+    "computation": "Verify sign-preserving bracket update and stable evaluation before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: C. J. F. Ridders (1979), A new algorithm for computing a single root of a real continuous function; verify publication and formula."
+    },
+    "application": "General scalar root solving.",
+    "required_inputs": "Continuous scalar function, sign-changing bracket and tolerances.",
+    "compatible_methods": [
+      "bisection",
+      "secant-root"
+    ],
+    "incompatible_methods": [
+      "Ignoring the sign-change requirement"
+    ],
+    "relationships": [
+      {
+        "target": "bisection",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional; independent review required before admission."
+  }
+]

@@ -1,0 +1,154 @@
+[
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "021",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "jarque-bera-normality",
+    "name": "Jarque–Bera normality diagnostic",
+    "definition": "JB=n[g_1²/6+(g_2−3)²/24], where g_1=m_3/m_2^(3/2), g_2=m_4/m_2² and m_j=n^(−1)Σ_i(x_i−mean(x))^j.",
+    "variables": "n sample size; m_j empirical central moments; g_1 skewness; g_2 non-excess kurtosis",
+    "assumptions": "Independent observations, nonzero sample variance, sufficiently large sample for the asymptotic chi-square(2) reference under normality.",
+    "limitations": "Tests selected moment departures; non-rejection does not demonstrate normality. Small-sample asymptotics can be inaccurate.",
+    "failure_conditions": [
+      "Zero variance or unmodelled serial dependence"
+    ],
+    "computation": "Calculate centered moments and JB statistic; apply the large-sample null reference only when justified.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, jarque_bera API and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.jarque_bera.html"
+    },
+    "application": "Diagnose distributional assumptions of comparable residual measurements on authorised development data.",
+    "required_inputs": "Large authorised independent sample of comparable real-valued measurements.",
+    "compatible_methods": [
+      "chi-square-law",
+      "anderson-darling"
+    ],
+    "incompatible_methods": [
+      "Using dependent residuals as independent without adjustment"
+    ],
+    "relationships": [
+      {
+        "target": "anderson-darling",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "021",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "binary-runs-randomness",
+    "name": "Wald–Wolfowitz binary runs diagnostic",
+    "definition": "For n_1,n_2 counts of two binary symbols, n=n_1+n_2, let R=1+Σ_(i=2)^n 1(s_i≠s_(i−1)), μ_R=1+2n_1n_2/n, σ_R²=2n_1n_2(2n_1n_2−n)/(n²(n−1)); Z=(R−μ_R)/σ_R.",
+    "variables": "Ordered binary sequence s; n_1,n_2 symbol counts; R run count; μ_R and σ_R² conditional null moments",
+    "assumptions": "Null exchangeability of the ordering conditional on counts; both symbols observed, positive null variance, prespecified binary encoding.",
+    "limitations": "Normal approximation requires sufficient counts; use an exact conditional reference for small samples. Detects only some departures from randomness.",
+    "failure_conditions": [
+      "No variation, post hoc binary threshold, or an unjustified ordering null"
+    ],
+    "computation": "Count symbol transitions and calculate conditional moments; use exact or justified asymptotic reference.",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Engineering Statistics Handbook, Runs Test for Detecting Non-randomness. https://www.itl.nist.gov/div898/handbook/eda/section3/eda35d.htm"
+    },
+    "application": "Assess order dependence in a prespecified binary encoding of historical residual measurements.",
+    "required_inputs": "Authorised ordered binary development sequence with a documented encoding and tie policy.",
+    "compatible_methods": [
+      "ljung-box",
+      "paired-exact-sign-test"
+    ],
+    "incompatible_methods": [
+      "Sorting the sequence by observed value before assessing chronological randomness"
+    ],
+    "relationships": [
+      {
+        "target": "ljung-box",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "021",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "paired-mean-sign-permutation",
+    "name": "Exact paired mean sign-flip permutation test",
+    "definition": "For n paired differences d_i, T=Σ_i d_i/n. Under independent uniform sign flips conditional on magnitudes, p=2^(−n)Σ_(s∈{−1,+1}^n)1(|Σ_i s_i d_i/n|≥|T|).",
+    "variables": "n matched pairs; d_i difference; s sign vector; T mean difference; p two-sided exact tail probability",
+    "assumptions": "Joint null invariance under independent sign reversals (for example independent symmetric differences); correct matching and prespecified two-sided statistic.",
+    "limitations": "Exponential enumeration cost; does not test a zero mean under arbitrary asymmetric or dependent distributions.",
+    "failure_conditions": [
+      "Lack of sign-exchangeability or incorrect event matching"
+    ],
+    "computation": "Enumerate sign patterns for small n; for larger n a separately specified randomization approximation requires reproducible seeds and uncertainty reporting.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, permutation_test API, permutation_type='samples' for a single paired-difference sample. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.permutation_test.html"
+    },
+    "application": "Compare matched development measurements while retaining magnitudes under a justified sign-exchangeable null.",
+    "required_inputs": "Authorised matched differences with a defensible randomization or symmetry assumption.",
+    "compatible_methods": [
+      "paired-exact-sign-test",
+      "paired-student-t"
+    ],
+    "incompatible_methods": [
+      "Unjustified independent sign flips of clustered or serial differences"
+    ],
+    "relationships": [
+      {
+        "target": "paired-exact-sign-test",
+        "type": "related"
+      },
+      {
+        "target": "paired-student-t",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Uses magnitudes in the test statistic rather than merely counting positive signs."
+  }
+]

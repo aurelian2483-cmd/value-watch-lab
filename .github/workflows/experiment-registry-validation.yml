@@ -1,0 +1,52 @@
+name: Experiment registry validation
+on:
+  pull_request:
+    paths:
+      - 'research/mathematical-library/experiment-registry*.mjs'
+      - 'research/mathematical-library/candidate-batch-*.json'
+      - '.github/workflows/experiment-registry-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  registry:
+    # Pin the runner to the OS supported by the repository's Playwright 1.56.1.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Registry unit and lifecycle tests
+        run: node --test research/mathematical-library/experiment-registry*.test.mjs
+      - name: Check staged mathematical catalogue intake
+        run: node research/mathematical-library/experiment-registry-catalogue-intake.mjs --next
+      - name: Generate static Alpha Hunt preview
+        run: |
+          mkdir -p "$RUNNER_TEMP/alpha-hunt-preview"
+          node research/mathematical-library/experiment-registry-alpha-preview.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/unavailable-local-registry" > "$RUNNER_TEMP/alpha-hunt-preview/index.html"
+      - name: Generate consolidated Research Control Centre preview
+        run: |
+          mkdir -p "$RUNNER_TEMP/research-control-centre"
+          node research/mathematical-library/experiment-registry-control-centre.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/unavailable-local-registry" html > "$RUNNER_TEMP/research-control-centre/index.html"
+          node research/mathematical-library/experiment-registry-control-centre.mjs "$GITHUB_WORKSPACE" "$RUNNER_TEMP/unavailable-local-registry" json > "$RUNNER_TEMP/research-control-centre/status.json"
+      - name: Install Chromium for preview acceptance
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Verify generated preview in Chromium
+        run: node research/mathematical-library/experiment-registry-alpha-preview-browser.mjs "$RUNNER_TEMP/alpha-hunt-preview/index.html"
+      - name: Archive preview for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: alpha-hunt-readiness-preview
+          path: ${{ runner.temp }}/alpha-hunt-preview/index.html
+          retention-days: 7
+          if-no-files-found: error
+      - name: Archive consolidated research preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-control-centre-preview
+          path: ${{ runner.temp }}/research-control-centre/
+          retention-days: 7
+          if-no-files-found: error

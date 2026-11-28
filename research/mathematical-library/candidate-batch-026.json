@@ -1,0 +1,253 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "026",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "arnoldi-orthogonalization",
+    "name": "Arnoldi Krylov basis construction",
+    "definition": "Start with unit q₁. For j=1,…,m form w=Aq_j, h_ij=q_i* w and w←w−h_ij q_i successively for i≤j; h_(j+1,j)=||w||₂, q_(j+1)=w/h_(j+1,j) if nonzero. In exact arithmetic A Q_m=Q_(m+1) H̄_m.",
+    "variables": "A square real or complex matrix; * adjoint; q_i orthonormal basis vectors; H̄ upper Hessenberg projection with one extra row",
+    "assumptions": "Nonzero initial vector, consistent inner product; stop at exact invariant-subspace breakdown or use a documented finite-precision policy.",
+    "limitations": "Growing basis storage and loss of orthogonality; Ritz values are approximations, not necessarily certified eigenvalues.",
+    "failure_conditions": [
+      "Near-zero residual or loss of orthogonality without safeguard"
+    ],
+    "computation": "Modified Gram–Schmidt orthogonalization of matrix-vector products; use reorthogonalization as needed.",
+    "source": {
+      "kind": "literature",
+      "citation": "Bindel, D. (2025), Cornell CS 6210, Lanczos and Arnoldi, 17 November, Arnoldi section. https://www.cs.cornell.edu/courses/cs6210/2025fa/lec/2025-11-17.html"
+    },
+    "application": "Construct a reduced subspace for a general numerical matrix analysis.",
+    "required_inputs": "Square matrix or linear operator, initial vector, dimension limit and breakdown policy.",
+    "compatible_methods": [
+      "hessenberg-reduction",
+      "power-iteration-eigenvector"
+    ],
+    "incompatible_methods": [
+      "Ignoring breakdown or treating projected spectrum as exact"
+    ],
+    "relationships": [
+      {
+        "target": "hessenberg-reduction",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "026",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "symmetric-lanczos-krylov",
+    "name": "Symmetric Lanczos three-term recurrence",
+    "definition": "For real symmetric A, q₀=0, β₀=0 and unit q₁, form w=Aq_j−β_(j−1)q_(j−1), α_j=q_jᵀw, w←w−α_j q_j, β_j=||w||₂, q_(j+1)=w/β_j when β_j>0.",
+    "variables": "A symmetric matrix; q_j basis vectors; α_j and β_j tridiagonal coefficients",
+    "assumptions": "Symmetry, unit initial vector, exact-arithmetic orthogonality; finite precision requires a monitored reorthogonalization or restart policy.",
+    "limitations": "Loss of orthogonality can cause repeated spurious Ritz values; stop safely on breakdown.",
+    "failure_conditions": [
+      "Nonsymmetric operator or unhandled near-zero β_j"
+    ],
+    "computation": "Apply matrix-vector products and three-term updates; use the resulting tridiagonal projection for numerical analysis.",
+    "source": {
+      "kind": "literature",
+      "citation": "Bindel, D. (2026), Cornell CS 4220, Krylov subspace iterations, 16 March, three-term recurrence. https://www.cs.cornell.edu/courses/cs4220/2026sp/lec/2026-03-16.html"
+    },
+    "application": "Build a compact projection of a symmetric numerical operator.",
+    "required_inputs": "Symmetric matrix or operator, starting vector, stopping and orthogonality policy.",
+    "compatible_methods": [
+      "arnoldi-orthogonalization",
+      "symmetric-tridiagonal-reduction"
+    ],
+    "incompatible_methods": [
+      "Applying the symmetric recurrence to an arbitrary nonsymmetric matrix"
+    ],
+    "relationships": [
+      {
+        "target": "arnoldi-orthogonalization",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Symmetric specialization of Arnoldi; three-term recurrence materially changes computational storage and operations, not independent mathematical evidence."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "026",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "unshifted-qr-eigeniteration",
+    "name": "Unshifted QR eigenvalue iteration",
+    "definition": "Factor A_k=Q_k R_k with orthogonal Q_k and triangular R_k; set A_(k+1)=R_k Q_k=Q_kᵀ A_k Q_k.",
+    "variables": "A_k real square matrix; Q_k orthogonal factor; R_k triangular factor",
+    "assumptions": "Consistent QR factorization; convergence to diagonal form for real symmetric matrices requires appropriate spectral and initialization conditions; repeated or opposite equal magnitudes may stall.",
+    "limitations": "Unshifted convergence can be slow or fail to separate equal-magnitude eigenvalues; not a complete modern eigensolver.",
+    "failure_conditions": [
+      "Assuming convergence for arbitrary matrices or using a nonorthogonal factorization"
+    ],
+    "computation": "Repeated orthogonal QR factorizations and similarity updates, monitor off-diagonal residual and iteration limit.",
+    "source": {
+      "kind": "literature",
+      "citation": "Bindel, D. (2026), Cornell CS 4220, From power methods to QR iteration, 6 March. https://www.cs.cornell.edu/courses/cs4220/2026sp/lec/2026-03-06.html"
+    },
+    "application": "General numerical study of orthogonal eigenvalue iteration.",
+    "required_inputs": "Square matrix, QR implementation, convergence criterion and iteration bound.",
+    "compatible_methods": [
+      "householder-qr",
+      "symmetric-tridiagonal-reduction"
+    ],
+    "incompatible_methods": [
+      "Treating unconverged diagonal entries as certified eigenvalues"
+    ],
+    "relationships": [
+      {
+        "target": "householder-qr",
+        "type": "related"
+      },
+      {
+        "target": "symmetric-tridiagonal-reduction",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "026",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "givens-qr-elimination",
+    "name": "Givens-rotation QR elimination",
+    "definition": "For a,b not both zero let r=√(a²+b²), c=a/r, s=b/r; G=[[c,s],[−s,c]] maps (a,b)ᵀ to (r,0)ᵀ. Apply embedded rotations to eliminate subdiagonal matrix entries.",
+    "variables": "a,b entries to rotate; c,s cosine and sine; G orthogonal plane rotation",
+    "assumptions": "Finite real matrix, stable hypotenuse computation, identity or declared sign convention for zero pair.",
+    "limitations": "Dense matrices often favor Householder transformations; repeated updates require stable numerical implementation.",
+    "failure_conditions": [
+      "Overflow in naive norm or division by zero"
+    ],
+    "computation": "Use stable hypotenuse, apply rotations in elimination order, and accumulate the orthogonal factor if required.",
+    "source": {
+      "kind": "literature",
+      "citation": "Bindel, D. (2026), Cornell CS 4220, Least squares and QR, 23 February, Givens rotations section. https://www.cs.cornell.edu/courses/cs4220/2026sp/lec/2026-02-23.html"
+    },
+    "application": "General sparse or incremental numerical factorization.",
+    "required_inputs": "Real matrix and a stable plane-rotation routine.",
+    "compatible_methods": [
+      "householder-qr",
+      "unshifted-qr-eigeniteration"
+    ],
+    "incompatible_methods": [
+      "Using unstable squared sums for extreme entries"
+    ],
+    "relationships": [
+      {
+        "target": "householder-qr",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Local plane-rotation elimination instead of full-column reflections."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "026",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "modified-gram-schmidt-qr",
+    "name": "Modified Gram–Schmidt QR factorization",
+    "definition": "For columns a_j set v_j=a_j. For i=1,…,n set r_ii=||v_i||₂, q_i=v_i/r_ii; for j>i set r_ij=q_iᵀv_j, v_j←v_j−r_ij q_i.",
+    "variables": "a_j input columns; v_j residuals; q_i orthonormal columns; R upper triangular",
+    "assumptions": "Real full-column-rank matrix; positive residual norms; finite-precision orthogonality monitored.",
+    "limitations": "Loss of orthogonality on ill-conditioned matrices; not rank-revealing by itself.",
+    "failure_conditions": [
+      "Zero or near-zero residual norm without rank handling"
+    ],
+    "computation": "Successively project remaining columns onto each newly normalized basis vector.",
+    "source": {
+      "kind": "literature",
+      "citation": "Zhang, Z. (2023), QR and least square, 17 March, p. 2, Algorithm 2. https://www.math.cmu.edu/~zechengz/spring_2023_nla/0317.pdf"
+    },
+    "application": "General orthonormal basis construction for numerical linear algebra.",
+    "required_inputs": "Full-column-rank real matrix and numerical breakdown threshold.",
+    "compatible_methods": [
+      "householder-qr",
+      "arnoldi-orthogonalization"
+    ],
+    "incompatible_methods": [
+      "Ignoring rank deficiency"
+    ],
+    "relationships": [
+      {
+        "target": "householder-qr",
+        "type": "related"
+      }
+    ]
+  }
+]

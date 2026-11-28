@@ -1,0 +1,106 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "062",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "kmv-bottom-k-cardinality",
+    "name": "Bottom-k hash order-statistic cardinality estimator",
+    "definition": "Maintain S of the k smallest distinct hashes seen; if |S|<k return n_hat=|S|, otherwise n_hat=(k−1)/max(S). For n≥k under ideal hashing, E[n_hat]=n and Var(n_hat)=n(n−k+1)/(k−2) for k>2.",
+    "variables": "S retained hash set, initially empty; n true distinct-key count; k integer capacity; max(S)=U_(k), kth order statistic; n_hat estimate",
+    "assumptions": "Insertion-only finite stream fixed independently of hash randomness; stable mapping from each distinct key to an independent continuous uniform value in (0,1), hence collisions have probability zero in the ideal model; k≥2 and accurate arithmetic",
+    "limitations": "For k=2 the second moment is infinite in the ideal full-buffer case. Finite hashes can collide, quantize order statistics or create a zero denominator; exact small-count claims and moment identities are conditional on the ideal model. No deletion or exact recovery of unretained keys. A full buffer alone does not distinguish n=k from n>k; this specification uses the estimator in both cases",
+    "failure_conditions": [
+      "k<2 or invalid capacity",
+      "Unstable or incompatible hash mapping, nonpositive retained threshold, or arithmetic overflow",
+      "Finite precision or collision invalidates ideal-model exactness"
+    ],
+    "computation": "Ignore a hash already in S. Insert if |S|<k, otherwise replace the maximum only when the new value is smaller. Query using the definition. Compatible sketches merge by taking the k smallest distinct values from their union. Use a bounded ordered set or max heap with membership tracking. Do not silently round the estimate or treat it as an exact count.",
+    "source": {
+      "kind": "literature",
+      "citation": "Beyer, Gemulla, Haas, Reinwald and Sismanis (2009), Distinct-value synopses for multiset operations, Communications of the ACM 52(10), 87–95, Algorithm 1, sections 2 and 4.1, equation (2) and Theorem 2. DOI 10.1145/1562764.1562787. https://www.uni-mannheim.de/media/Einrichtungen/dws/Files_People/Profs/rgemulla/publications/beyer09distinct.pdf",
+      "url": "https://www.uni-mannheim.de/media/Einrichtungen/dws/Files_People/Profs/rgemulla/publications/beyer09distinct.pdf"
+    },
+    "application": "General distinct-key count estimation; no empirical benefit claimed.",
+    "required_inputs": "Key stream, hash map and retained count.",
+    "compatible_methods": [
+      "hyperloglog-cardinality"
+    ],
+    "incompatible_methods": [
+      "Treating approximate counts as exact"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "hyperloglog-cardinality"
+      }
+    ],
+    "mechanism_note": "The kth order statistic has Beta(k,n−k+1) law. Integrating inverse powers against its density gives E[U_(k)^−r]=B(k−r,n−k+1)/B(k,n−k+1) for 0≤r<k. This yields the stated mean and variance, including n=k. The source discusses an exact n≤k branch; without an extra overflow indicator only n<k is detectable from S alone. The bottom-k union identity follows because any omitted value already has k smaller values in its own set. This retains numerical hash order statistics rather than HyperLogLog register ranks or reservoir samples of arrival positions."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "062",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "morris-randomized-counter",
+    "name": "Morris exponential randomized counter",
+    "definition": "Initialize C=0; for each unit arrival increment C with conditional probability 2^(−C), else leave it unchanged; n_hat=2^C−1. After n arrivals, E[n_hat]=n and Var(n_hat)=n(n−1)/2.",
+    "variables": "C nonnegative integer random state; n fixed true number of unit arrivals; n_hat approximate arrival count",
+    "assumptions": "Fixed finite number of unit insertions, independent fresh Bernoulli draws conditional on current state with the stated probability, exact arithmetic and an unsaturated integer state",
+    "limitations": "A single base-two counter has large relative standard deviation approaching 1/√2; unbiasedness is not high-probability accuracy. State and decoded value can overflow finite storage; no distinct-key semantics, deletions or arbitrary weighted updates in this specification. No worst-case logarithmic-logarithmic space guarantee",
+    "failure_conditions": [
+      "Biased or dependent random draws not satisfying conditional probability",
+      "Saturation, overflow or underflow of transition probability or decoded value",
+      "Non-unit or negative updates"
+    ],
+    "computation": "Start at zero. For each arrival draw C independent fair bits and increment if all are heads (the empty sequence succeeds); early termination on tails is equivalent. Return 2^C−1 with checked arithmetic. Reject unsupported overflow rather than silently saturating.",
+    "source": {
+      "kind": "literature",
+      "citation": "Nelson and Yu (2022), Optimal Bounds for Approximate Counting, section 1.2, p. 3 of author-hosted manuscript dated March 30 2022; attributes base-two counter to Morris (1978), Counting large numbers of events in small registers, Communications of the ACM 21(10), 840–842. https://www.cs.princeton.edu/~hy2/files/approx_counting.pdf",
+      "url": "https://www.cs.princeton.edu/~hy2/files/approx_counting.pdf"
+    },
+    "application": "General approximate event counting; no empirical benefit claimed.",
+    "required_inputs": "Unit arrivals and random number generator.",
+    "compatible_methods": [
+      "vitter-reservoir-algorithm-r"
+    ],
+    "incompatible_methods": [
+      "Treating randomized state as exact count"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "vitter-reservoir-algorithm-r"
+      }
+    ],
+    "mechanism_note": "Let Z=2^C. Conditional on Z, the next Z equals 2Z with probability 1/Z and Z otherwise. Thus E[Z_next|Z]=Z+1 and E[Z_next²|Z]=Z²+3Z. From Z₀=1 obtain E[Z_n]=n+1 and Var(Z_n)=n(n−1)/2 by summing the recurrences. Unlike KMV, this counts every arrival through state-dependent random increments, not distinct hash values. No separate admission for merely changing the exponential base."
+  }
+]

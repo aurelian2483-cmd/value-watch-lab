@@ -1,0 +1,204 @@
+[
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "022",
+    "family": "multivariate-statistics",
+    "classification": "diagnostic",
+    "id": "pearson-linear-correlation",
+    "name": "Pearson product-moment correlation",
+    "definition": "r=Σ_i(x_i−mean(x))(y_i−mean(y))/√[Σ_i(x_i−mean(x))² Σ_i(y_i−mean(y))²].",
+    "variables": "n matched observations of x and y; r sample linear correlation in [−1,1]",
+    "assumptions": "Comparable aligned observations and positive centered sums of squares; classical inferential reference needs independent pairs and bivariate normality.",
+    "limitations": "Zero linear correlation does not establish independence; sensitive to outliers and nonlinear association.",
+    "failure_conditions": [
+      "Constant variable or misaligned observations"
+    ],
+    "computation": "Center paired variables and divide the cross-product by the product of their Euclidean norms.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy pearsonr API, definition and assumptions. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html"
+    },
+    "application": "Describe linear association between comparable historical measurements.",
+    "required_inputs": "Authorised matched numeric observations with consistent measurement units and identity.",
+    "compatible_methods": [
+      "spearman",
+      "vif"
+    ],
+    "incompatible_methods": [
+      "Treating correlation as causal evidence"
+    ],
+    "relationships": [
+      {
+        "target": "spearman",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "022",
+    "family": "multivariate-statistics",
+    "classification": "diagnostic",
+    "id": "discrete-empirical-mutual-information",
+    "name": "Empirical discrete mutual information",
+    "definition": "I(X;Y)=Σ_(i,j:p_ij>0) p_ij ln[p_ij/(p_i·p_j)], using empirical joint and marginal category frequencies.",
+    "variables": "p_ij empirical joint proportions; p_i,p_j marginal proportions; I information in nats",
+    "assumptions": "Aligned finite categorical observations and nonempty sample; positive joint cells have positive marginals; categories defined consistently.",
+    "limitations": "Finite-sample upward bias, especially with sparse cells; no causal or inferential conclusion from the descriptive value alone.",
+    "failure_conditions": [
+      "Misaligned pairs or outcome-dependent category selection"
+    ],
+    "computation": "Construct a contingency table, compute proportions, and sum contributions from positive joint cells.",
+    "source": {
+      "kind": "literature",
+      "citation": "Scikit-learn mutual_info_score API, mathematical definition. https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mutual_info_score.html"
+    },
+    "application": "Describe categorical dependence in authorised development data.",
+    "required_inputs": "Aligned categorical pairs and prespecified category definitions.",
+    "compatible_methods": [
+      "entropy",
+      "pearson-contingency-independence"
+    ],
+    "incompatible_methods": [
+      "Treating plug-in information as an unbiased population estimate"
+    ],
+    "relationships": [
+      {
+        "target": "kl",
+        "type": "related"
+      },
+      {
+        "target": "entropy",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "KL divergence of the joint distribution from its product of marginals; a specific dependence functional, not a new independent source of evidence."
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "022",
+    "family": "multivariate-statistics",
+    "classification": "diagnostic",
+    "id": "cramer-v-effect-size",
+    "name": "Cramér V categorical association",
+    "definition": "V=√[X²/(N·min(r−1,c−1))], where X² is the uncorrected Pearson contingency statistic.",
+    "variables": "N sample size; r,c numbers of categories; X² Pearson statistic; V∈[0,1]",
+    "assumptions": "Valid nonempty contingency table with at least two positive-margin categories on each axis.",
+    "limitations": "Unsigned descriptive association, potentially upward biased in sparse tables; not an independent significance test.",
+    "failure_conditions": [
+      "Zero marginal category totals or invalid observations"
+    ],
+    "computation": "Calculate uncorrected Pearson chi-square and normalize by sample size and the smaller category dimension.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy contingency.association API, method='cramer', correction=False. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.contingency.association.html"
+    },
+    "application": "Summarize categorical association magnitude on aligned development observations.",
+    "required_inputs": "Authorised contingency counts from comparable categories.",
+    "compatible_methods": [
+      "pearson-contingency-independence",
+      "fisher-exact-two-by-two"
+    ],
+    "incompatible_methods": [
+      "Counting the effect size and its underlying chi-square as independent findings"
+    ],
+    "relationships": [
+      {
+        "target": "pearson-contingency-independence",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Deterministic normalization of Pearson X² given dimensions and sample size; descriptive effect size only."
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "022",
+    "family": "multivariate-statistics",
+    "classification": "diagnostic",
+    "id": "biased-sample-distance-correlation",
+    "name": "Double-centred sample distance correlation",
+    "definition": "For paired vectors define A_ij=a_ij−mean_row_i(a)−mean_col_j(a)+mean(a), a_ij=||x_i−x_j||₂, and B similarly for y. V²_xy=n^(−2)Σ_ij A_ij B_ij; R²=V²_xy/√(V²_xx V²_yy) when denominator>0, otherwise 0.",
+    "variables": "n paired vectors; A,B doubly centered Euclidean distance matrices; V²_xy empirical squared distance covariance; R² empirical squared distance correlation",
+    "assumptions": "Aligned finite observations; population interpretation needs finite first moments and suitable independent sampling; stated version is biased empirical statistic.",
+    "limitations": "Quadratic naive memory and time cost; finite sample dependence estimate not a standalone significance test; sensitive to feature scaling.",
+    "failure_conditions": [
+      "Invalid pair alignment or incomparable feature units"
+    ],
+    "computation": "Compute pairwise Euclidean distances and double-center; calculate normalized matrix inner products, handling zero denominator explicitly.",
+    "source": {
+      "kind": "literature",
+      "citation": "dcor theory documentation and Székely, Rizzo and Bakirov (2007). https://dcor.readthedocs.io/en/latest/theory.html"
+    },
+    "application": "Assess nonlinear dependence among aligned historical measurements on authorised development records.",
+    "required_inputs": "Authorised paired numeric vectors with predefined feature scaling.",
+    "compatible_methods": [
+      "pearson-linear-correlation",
+      "energy-distance-1d"
+    ],
+    "incompatible_methods": [
+      "Treating descriptive sample distance correlation as independent validation"
+    ],
+    "relationships": [
+      {
+        "target": "pearson-linear-correlation",
+        "type": "related"
+      }
+    ]
+  }
+]

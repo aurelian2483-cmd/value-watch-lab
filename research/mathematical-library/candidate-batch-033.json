@@ -1,0 +1,106 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "033",
+    "family": "numerical-optimisation",
+    "classification": "model-variant",
+    "id": "regula-falsi-bracketed-root",
+    "name": "Classical false-position scalar root solver",
+    "definition": "Check endpoint zeros first. Given a<b and opposite signs f(a), f(b), compute x=(af(b)−bf(a))/(f(b)−f(a)). If f(x)=0 return x; otherwise replace the endpoint of matching sign with x and repeat. Return a bracket on width tolerance, or a residual-only approximate point explicitly labelled as such.",
+    "variables": "a,b ordered bracket endpoints; x interpolation trial; f real scalar function",
+    "assumptions": "Continuous real f, strict sign change after endpoint-zero checks, finite values, representable interior trials and bounded iterations",
+    "limitations": "A bracket endpoint may remain fixed indefinitely; a small residual alone is not a certified error bound without further assumptions",
+    "failure_conditions": [
+      "Invalid bracket, nonfinite arithmetic, noninterior trial due to rounding, stagnation or iteration budget exceeded"
+    ],
+    "computation": "Compute the secant intercept with guarded arithmetic, then update by sign rather than multiplying potentially extreme residuals. Keep the bracket invariant; distinguish a residual stopping rule from width certification.",
+    "source": {
+      "kind": "literature",
+      "citation": "Vladimir Dobrushkin, Brown University, Mathematica tutorial, Part III Bracketing Methods, section II False Position Method. https://www.cfm.brown.edu/people/dobrush/am33/python/p3/bracket.html"
+    },
+    "application": "General scalar root solving.",
+    "required_inputs": "Continuous scalar function, sign-changing bracket and tolerances.",
+    "compatible_methods": [
+      "bisection",
+      "secant-root"
+    ],
+    "incompatible_methods": [
+      "Unbracketed use without safeguards"
+    ],
+    "relationships": [
+      {
+        "target": "secant-root",
+        "type": "variant-of"
+      },
+      {
+        "target": "bisection",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Same linear intercept as the existing secant method, but retains the opposite-sign endpoint rather than discarding by age. Bracket preservation is a material control-rule change; counted as a variant, not an independent algorithm."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "033",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "inverse-quadratic-interpolation-root",
+    "name": "Open inverse quadratic scalar root iteration",
+    "definition": "For three points x_i with distinct y_i=f(x_i), set x_new=Σ_i x_i Π_(j≠i) (−y_j)/(y_i−y_j); discard the oldest point and repeat unless converged.",
+    "variables": "Three recent iterates x_i and their function values y_i=f(x_i)",
+    "assumptions": "Three distinct finite function values; local smoothness and a simple root for useful convergence.",
+    "limitations": "No bracket guarantee; close function values can produce unstable extrapolation.",
+    "failure_conditions": [
+      "Coincident function values, nonfinite or divergent iterate, or exhausted budget"
+    ],
+    "computation": "Provisional inverse Lagrange interpolation at y=0; check standalone novelty against Brent before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Driscoll and Braun, Fundamentals of Numerical Computation, section 4.4.2 Inverse interpolation. https://fncbook.com/secant/"
+    },
+    "application": "General scalar root solving.",
+    "required_inputs": "Scalar function, three initial points, stopping tolerances and iteration budget",
+    "compatible_methods": [
+      "bisection",
+      "secant-root"
+    ],
+    "incompatible_methods": [
+      "Assuming an invariant bracket or global convergence"
+    ],
+    "relationships": [
+      {
+        "target": "bisection",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Standalone open control differs from Brent, but the inverse quadratic interpolation kernel is already included in Brent. Retained in candidate archive, not counted."
+  }
+]

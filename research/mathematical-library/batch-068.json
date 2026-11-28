@@ -1,0 +1,112 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "068",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "levenshtein-unit-edit-distance-dp",
+    "name": "Levenshtein unit edit distance dynamic programming",
+    "definition": "D_{i,0}=i, D_{0,j}=j; D_{i,j}=min(D_{i−1,j}+1,D_{i,j−1}+1,D_{i−1,j−1}+1[x_{i−1}≠y_{j−1}]); return D_{m,n}.",
+    "variables": "x,y input sequences; m,n lengths; i,j prefix lengths; D distance table",
+    "assumptions": "Finite immutable sequences over a consistent equality relation; insertion and deletion each cost one, unequal-symbol substitution costs one, equality costs zero; exact nonnegative integer arithmetic and constant-cost indexing/comparison",
+    "limitations": "Full table uses O((m+1)(n+1)) time and space including empty inputs; two rows reduce value-only storage to O(min(m,n)+1). No transpositions, affine gap penalties, normalization or traceback is specified; raw distance depends on sequence lengths",
+    "failure_conditions": [
+      "Reject inconsistent equality or negative/non-unit operation costs under this specification",
+      "Do not confuse unit substitutions with insertion/deletion-only distance; check table capacity and index arithmetic"
+    ],
+    "computation": "Initialize the first row and column, fill increasing i and j so all three predecessor values exist, and return the final cell. Either empty input returns the length of the other. For length-only storage use two rows, swapping the sequences first if needed.",
+    "source": {
+      "kind": "literature",
+      "citation": "Wagner and Fischer (1974), The String-to-String Correction Problem, JACM 21(1), 168–173, DOI 10.1145/321796.321811 (bibliographic record and abstract); Cornell CS 4820 (2025), Dynamic Programming II: Edit Distance, and Dynamic Programming III: Analysis of Edit Distance (recurrence and boundaries). https://www.cs.cornell.edu/courses/cs4820/2025sp/notes/07-ED-Analysis.pdf",
+      "url": "https://www.cs.cornell.edu/courses/cs4820/2025sp/notes/07-ED-Analysis.pdf"
+    },
+    "application": "General exact minimum unit edit count for two sequences; no empirical benefit claimed.",
+    "required_inputs": "Two finite sequences with a declared symbol comparison rule.",
+    "compatible_methods": [
+      "knuth-morris-pratt-prefix-matching",
+      "longest-common-subsequence-length-dp"
+    ],
+    "incompatible_methods": [
+      "Interpreting unit substitution distance as insertion/deletion-only distance",
+      "Equating an optimal edit script with an observed history"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "knuth-morris-pratt-prefix-matching"
+      }
+    ],
+    "mechanism_note": "An optimal order-preserving alignment ends with a deletion, insertion or paired symbols. Under unit costs, repeated changes of one surviving symbol cannot beat direct substitution, and an inserted then deleted symbol can be omitted. Removing the final alignment operation leaves an optimal prefix subproblem; each predecessor also extends to a feasible alignment. Unlike exact pattern scanning and suffix ordering, this minimizes global edit cost."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "068",
+    "family": "data-structures",
+    "classification": "model-variant",
+    "id": "longest-common-subsequence-length-dp",
+    "name": "Longest common subsequence length dynamic programming",
+    "definition": "L_{i,0}=L_{0,j}=0; if x_{i−1}=y_{j−1}, L_{i,j}=1+L_{i−1,j−1}; otherwise L_{i,j}=max(L_{i−1,j},L_{i,j−1}); return L_{m,n}.",
+    "variables": "x,y input sequences; m,n lengths; i,j prefix lengths; L subsequence length table",
+    "assumptions": "Finite immutable sequences, consistent symbol equality, exact integer lengths, constant-cost indexing and comparisons; subsequence preserves order without requiring adjacent positions",
+    "limitations": "O((m+1)(n+1)) full-table time and space including empty inputs; two rows suffice for the length in O(min(m,n)+1) space. Does not reconstruct a unique subsequence, compute a contiguous substring or imply a normalized similarity",
+    "failure_conditions": [
+      "Reject inconsistent symbol equality or unsafe table dimensions",
+      "Do not substitute unit-cost Levenshtein distance into the insertion/deletion identity"
+    ],
+    "computation": "Initialize both zero boundaries. Fill increasing i,j; if the last symbols match extend the diagonal, otherwise retain the better of dropping either final symbol. Return the final length, including zero for an empty input.",
+    "source": {
+      "kind": "literature",
+      "citation": "MIT 6.006 (Spring 2020), Lecture 16: Dynamic Programming Subproblems, pp. 2–3, longest common subsequence suffix recurrence and complexity; prefix form follows by reversing both sequences. https://live.ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/28461a74f81101874a13d9679a40584d_MIT6_006S20_lec16.pdf",
+      "url": "https://live.ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/28461a74f81101874a13d9679a40584d_MIT6_006S20_lec16.pdf"
+    },
+    "application": "General maximum common order-preserving subsequence length; no empirical benefit claimed.",
+    "required_inputs": "Two finite sequences with a declared symbol comparison rule.",
+    "compatible_methods": [
+      "levenshtein-unit-edit-distance-dp",
+      "suffix-array-prefix-doubling"
+    ],
+    "incompatible_methods": [
+      "Treating subsequence as substring",
+      "Using unit-substitution edit distance in the cost-two identity"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "levenshtein-unit-edit-distance-dp"
+      },
+      {
+        "type": "related",
+        "target": "suffix-array-prefix-doubling"
+      }
+    ],
+    "mechanism_note": "If final symbols match an optimal common subsequence can be chosen to end at that pair; if unequal, at least one final position is unused. The score maximization is a material objective change within the same prefix-grid alignment family. With insertion/deletion cost one and unequal substitution cost two, D2(i,j)=i+j−2L(i,j); unequal substitution is replaceable by deletion plus insertion. This identity does not hold for unit substitutions (x=a,y=b gives D1=1, L=0). Conservatively count as a variant, not another distinct algorithm."
+  }
+]

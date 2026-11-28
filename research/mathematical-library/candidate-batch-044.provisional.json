@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "044",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "denman-beavers-matrix-square-root",
+    "name": "Denman–Beavers matrix square root iteration",
+    "definition": "Provisional: Y₀=A, Z₀=I; Y_(k+1)=(Y_k+Z_k^(-1))/2, Z_(k+1)=(Z_k+Y_k^(-1))/2.",
+    "variables": "A input matrix; Y,Z coupled iterates",
+    "assumptions": "Provisional: square matrix and appropriate nonsingularity or spectral conditions; independent review pending",
+    "limitations": "Provisional: conditioning, convergence and finite precision require review",
+    "failure_conditions": [
+      "Unresolved inverse solve or convergence"
+    ],
+    "computation": "Provisional: iterate the coupled or single matrix update and examine residuals; review stopping policy.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: numerical matrix functions literature; independent source review pending."
+    },
+    "application": "General numerical matrix functions and factorizations.",
+    "required_inputs": "Matrix, precision, convergence and solve policy",
+    "compatible_methods": [
+      "pivoted-lu"
+    ],
+    "incompatible_methods": [
+      "Unresolved matrix inverse solve"
+    ],
+    "relationships": [
+      {
+        "target": "pivoted-lu",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: distinct output and recurrence; overlap and convergence require review."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "044",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "newton-matrix-polar-factor",
+    "name": "Newton iteration for a matrix polar factor",
+    "definition": "Provisional: X₀=A, X_(k+1)=(X_k+(X_k*)^(-1))/2.",
+    "variables": "A nonsingular square matrix; X iterate; * adjoint",
+    "assumptions": "Provisional: square matrix and appropriate nonsingularity or spectral conditions; independent review pending",
+    "limitations": "Provisional: conditioning, convergence and finite precision require review",
+    "failure_conditions": [
+      "Unresolved inverse solve or convergence"
+    ],
+    "computation": "Provisional: iterate the coupled or single matrix update and examine residuals; review stopping policy.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: numerical matrix functions literature; independent source review pending."
+    },
+    "application": "General numerical matrix functions and factorizations.",
+    "required_inputs": "Matrix, precision, convergence and solve policy",
+    "compatible_methods": [
+      "svd-least-squares"
+    ],
+    "incompatible_methods": [
+      "Unresolved matrix inverse solve"
+    ],
+    "relationships": [
+      {
+        "target": "svd-least-squares",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: distinct output and recurrence; overlap and convergence require review."
+  }
+]

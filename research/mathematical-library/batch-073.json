@@ -1,0 +1,106 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "073",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "burrows-wheeler-sentinel-transform",
+    "name": "Burrows–Wheeler sentinel transform",
+    "definition": "Let S=x⊕$ with unique least sentinel $, N=|S|, and π(j) the starting index of the j-th lexicographically sorted cyclic rotation. Set B[j]=S[(π(j)−1) mod N]. Define C(c)=#{i:B[i]<c}, Occ(c,j)=#{i<j:B[i]=c}, and LF(j)=C(B[j])+Occ(B[j],j). Starting at the unique r with B[r]=$, fill S[N−1−k]=B[r] and update r←LF(r) for k=0,…,N−1; then remove the terminal sentinel.",
+    "variables": "x finite input sequence, $ reserved least symbol, S augmented sequence, N augmented length, π rotation order, B transformed column, C cumulative smaller-symbol count, Occ exclusive occurrence rank, LF last-to-first permutation, r current row",
+    "assumptions": "Finite totally ordered alphabet, sentinel absent from x and smaller than all input symbols, exact symbol comparisons, zero-based indexing, known block length and alphabet order; empty x is represented by the sentinel alone",
+    "limitations": "Explicit rotation materialization uses O(N²) storage and O(N² log N) worst-case symbol comparisons; a suffix array of the sentinel-terminated sequence can supply the same order without materializing rotations. Inversion uses O(N+K) time and storage with preordered dense alphabet of size K and direct-index counts; arbitrary symbol sorting adds cost. Transformation preserves the symbol multiset plus sentinel and is not itself compression",
+    "failure_conditions": [
+      "Sentinel absent, duplicated or part of the original input alphabet",
+      "Invalid symbol ordering or transformed column whose LF orbit from the sentinel does not visit every row exactly once and return to its start"
+    ],
+    "computation": "Sort rotations or compute the sentinel-terminated suffix array, emit predecessor symbols; count symbols and exclusive occurrences to build LF. Reject invalid alphabet or sentinel and reject a premature cycle or failure to close after N steps before returning reconstructed input.",
+    "source": {
+      "kind": "literature",
+      "citation": "Burrows and Wheeler (1994), A Block-sorting Lossless Data Compression Algorithm, SRC Research Report 124, section 2, pp. 2–4 (rotation and occurrence-ranked inverse). https://www.cl.cam.ac.uk/teaching/2223/Bioinfo/papers/burrows_wheeler.pdf ; sentinel-only framing and single-cycle validity check independently derived from unique sentinel rotation order.",
+      "url": "https://www.cl.cam.ac.uk/teaching/2223/Bioinfo/papers/burrows_wheeler.pdf"
+    },
+    "application": "General reversible sequence rearrangement; no empirical benefit claimed.",
+    "required_inputs": "Finite sequence of exact comparable symbols and reserved least sentinel, or a framed transformed column for inversion.",
+    "compatible_methods": [
+      "suffix-array-prefix-doubling"
+    ],
+    "incompatible_methods": [
+      "Assuming the transform alone reduces bit length",
+      "Accepting a malformed last column with multiple LF cycles"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "suffix-array-prefix-doubling"
+      }
+    ],
+    "mechanism_note": "Right-rotation of rows ending in the same symbol preserves their relative lexicographic order, giving LF by stable occurrence rank. A unique sentinel distinguishes every rotation and identifies the original row, so LF traverses one cycle of length N. Unlike suffix-array construction, the output is a reversible symbol permutation rather than an index; suffix ordering is a reusable subroutine, not an equivalent transform."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "073",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "move-to-front-rank-transform",
+    "name": "Move-to-front rank transform",
+    "definition": "With shared initial permutation A of K distinct symbols, at input position t set r_t=index_A(x_t) and A←[x_t] concatenated with A after deleting x_t. For decoding set x_t=A[r_t] before applying the same update, requiring 0≤r_t<K.",
+    "variables": "A mutable ordered alphabet, K alphabet size, x_t input or recovered symbol at position t, r_t zero-based rank",
+    "assumptions": "Finite nonempty shared alphabet with identical initial order, exact symbol equality, no insertion of new symbols, externally framed rank sequence; empty input produces empty output",
+    "limitations": "Simple list representation uses O(nK) worst-case time and O(K) working storage for n symbols; integer ranks require separate coding to yield a bitstream. Locality may produce small ranks, but there is no finite-input compression guarantee and rank corruption can desynchronize subsequent state",
+    "failure_conditions": [
+      "Unknown input symbol or duplicated initial alphabet symbol",
+      "Noninteger or out-of-range decoded rank, mismatched initial order or missing framing"
+    ],
+    "computation": "For each input symbol find its current position, emit that rank and move it to the front; in decoding validate the rank before retrieving and moving its symbol. Encoder and decoder maintain identical list state inductively.",
+    "source": {
+      "kind": "literature",
+      "citation": "Bentley, Sleator, Tarjan and Wei (1986), A Locally Adaptive Data Compression Scheme, Communications of the ACM 29(4), 320–330, p. 321, sections 2–3. DOI 10.1145/5684.5688. https://www.cs.cmu.edu/~sleator/papers/adaptive-data-compression.pdf ; fixed shared alphabet and zero-based ranks are an explicit restricted convention, not the full new-word or integer coding scheme.",
+      "url": "https://www.cs.cmu.edu/~sleator/papers/adaptive-data-compression.pdf"
+    },
+    "application": "General reversible recency-rank transformation for finite symbol sequences; no empirical benefit claimed.",
+    "required_inputs": "Finite symbol sequence with known ordered alphabet, or a framed sequence of integer ranks and the same ordered alphabet.",
+    "compatible_methods": [
+      "burrows-wheeler-sentinel-transform"
+    ],
+    "incompatible_methods": [
+      "Treating rank stream as a complete compressed bitstream",
+      "Changing the initial alphabet independently at decoder"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "burrows-wheeler-sentinel-transform"
+      }
+    ],
+    "mechanism_note": "The state is an ordering of fixed symbols by recency, rather than an expanding phrase dictionary or a global rotation permutation. Rank emission plus deterministic list update is invertible with shared state, and can be composed with the Burrows–Wheeler transform without being equivalent to it."
+  }
+]

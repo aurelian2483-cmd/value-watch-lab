@@ -1,0 +1,154 @@
+[
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "019",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "brunner-munzel-test",
+    "name": "Brunner–Munzel relative-effect test",
+    "definition": "Let h(x,y)=1(x<y)+0.5·1(x=y), p̂=Σ_iΣ_j h(X_i,Y_j)/(nm), A_i=Σ_j h(X_i,Y_j)/m, B_j=Σ_i h(X_i,Y_j)/n. W=(p̂−0.5)/√(s_A²/n+s_B²/m), with sample variances of A and B.",
+    "variables": "X,Y independent groups; n,m≥2; p̂ relative-effect estimate; s_A²,s_B² unbiased sample variances; W studentized statistic",
+    "assumptions": "Independent samples and independent observations within each group; nonzero estimated standard error; approximate reference distribution justified.",
+    "limitations": "Small samples and zero variance may make the approximation unreliable; tests relative effect, not general equality of distributions.",
+    "failure_conditions": [
+      "Zero estimated standard error or unmodelled dependence"
+    ],
+    "computation": "Compute tie-aware pairwise placements and their sample variances; obtain a justified t or asymptotic normal reference separately.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, brunnermunzel API and references to Brunner and Munzel (2000). https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.brunnermunzel.html"
+    },
+    "application": "Compare relative ordering between comparable independent measurements in development samples.",
+    "required_inputs": "Two independent authorised samples of the same measurement with a prespecified relative-effect hypothesis.",
+    "compatible_methods": [
+      "mann-whitney-u",
+      "ks-two-sample"
+    ],
+    "incompatible_methods": [
+      "Treating paired or clustered measurements as independent"
+    ],
+    "relationships": [
+      {
+        "target": "mann-whitney-u",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Studentizes a relative-effect estimate with separate group placement variances; unlike the equal-distribution Mann–Whitney null."
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "019",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "bartlett-variance-test",
+    "name": "Bartlett homogeneity-of-variance test",
+    "definition": "Let v_i=n_i−1, V=Σ_i v_i, s_p²=Σ_i v_i s_i²/V. B=[V ln(s_p²)−Σ_i v_i ln(s_i²)]/[1+(Σ_i 1/v_i−1/V)/(3(k−1))].",
+    "variables": "k≥2 independent groups; n_i≥2 sizes; s_i² positive unbiased sample variances; B corrected likelihood-ratio statistic",
+    "assumptions": "Independent normally distributed observations and groups; positive variances; chi-square approximation with k−1 degrees of freedom under equal variances.",
+    "limitations": "Sensitive to non-normality; does not prove equality when non-significant.",
+    "failure_conditions": [
+      "Zero group variance, severe non-normality or dependence"
+    ],
+    "computation": "Calculate pooled variance, log-variance contrast and finite-sample correction; use the approximate chi-square reference.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, bartlett API and references. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bartlett.html"
+    },
+    "application": "Assess variability across comparable independent groups when normality is defensible.",
+    "required_inputs": "Authorised independent groups with sample sizes and positive unbiased variances.",
+    "compatible_methods": [
+      "levene-mean-center",
+      "fligner-killeen"
+    ],
+    "incompatible_methods": [
+      "Unadjusted use on correlated or heavily non-normal groups"
+    ],
+    "relationships": [
+      {
+        "target": "levene-mean-center",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "019",
+    "family": "statistical-inference",
+    "classification": "diagnostic",
+    "id": "paired-student-t",
+    "name": "Paired Student t-test",
+    "definition": "For matched observations let d_i=x_i−y_i, T=mean(d)/(s_d/√n); under independent normally distributed differences with zero mean, T∼t_(n−1).",
+    "variables": "n≥2 matched pairs; d_i difference; s_d positive unbiased sample standard deviation; T statistic",
+    "assumptions": "Pairs correctly matched; differences independent across pairs and normally distributed for exact reference, or an adequate asymptotic approximation.",
+    "limitations": "Serial or clustered differences require dependence-aware inference; extreme differences can dominate the mean.",
+    "failure_conditions": [
+      "Zero difference variance, incorrect pairing or unmodelled serial dependence"
+    ],
+    "computation": "Form pairwise differences, calculate their sample mean and variance and evaluate the t reference with n−1 degrees of freedom.",
+    "source": {
+      "kind": "literature",
+      "citation": "SciPy maintainers, ttest_rel API, statistic and degrees of freedom. https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_rel.html"
+    },
+    "application": "Assess mean differences on matched development observations when pairwise independence is defensible.",
+    "required_inputs": "Authorised comparable matched observations, identity checks and prespecified comparison.",
+    "compatible_methods": [
+      "wilcoxon-signed-rank",
+      "welch-two-sample-t"
+    ],
+    "incompatible_methods": [
+      "Unmatched observations or ignoring time dependence"
+    ],
+    "relationships": [
+      {
+        "target": "welch-two-sample-t",
+        "type": "related"
+      },
+      {
+        "target": "wilcoxon-signed-rank",
+        "type": "related"
+      }
+    ]
+  }
+]

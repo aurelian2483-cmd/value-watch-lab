@@ -1,0 +1,150 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "027",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "jacobi-symmetric-eigensolver",
+    "name": "Jacobi plane-rotation symmetric eigensolver",
+    "definition": "Choose p≠q with A_pq≠0 and orthogonal plane rotation G such that (GᵀAG)_pq=0; update A←GᵀAG and eigenvector accumulator V←VG until off-diagonal norm is small.",
+    "variables": "A real symmetric matrix; G plane rotation; V accumulated orthogonal transformations",
+    "assumptions": "Symmetry; systematic or maximal-element pivot selection and appropriate rotation signs; finite precision requires tolerance and iteration bound.",
+    "limitations": "Repeated rotations can be costly for large dense matrices; clustered eigenvalues make individual eigenvectors nonunique or sensitive.",
+    "failure_conditions": [
+      "Nonsymmetric matrix or unconverged off-diagonal residual"
+    ],
+    "computation": "Compute stable annihilating plane rotation, update symmetric entries and optional eigenvector accumulator.",
+    "source": {
+      "kind": "literature",
+      "citation": "Golub and Van Loan, Matrix Computations, 4th ed., symmetric eigenvalue problem, Jacobi method; verify source before admission."
+    },
+    "application": "General symmetric matrix diagonalization for numerical analysis.",
+    "required_inputs": "Real symmetric matrix, pivot schedule, convergence threshold, iteration bound.",
+    "compatible_methods": [
+      "givens-qr-elimination",
+      "symmetric-tridiagonal-reduction"
+    ],
+    "incompatible_methods": [
+      "Confusing a single QR plane rotation with iterative symmetric diagonalization"
+    ],
+    "relationships": [
+      {
+        "target": "givens-qr-elimination",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "027",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "bidiagonal-golub-kahan-recurrence",
+    "name": "Golub–Kahan bidiagonalization recurrence",
+    "definition": "Start unit v₁, u₀=0, β₁=0. For j≥1 set w=Av_j−β_j u_(j−1), α_j=||w||₂, u_j=w/α_j; z=Aᵀu_j−α_j v_j, β_(j+1)=||z||₂, v_(j+1)=z/β_(j+1) when norms are positive.",
+    "variables": "A real rectangular matrix; u,v left and right basis vectors; α,β bidiagonal coefficients",
+    "assumptions": "Nonzero starting vector; exact-arithmetic orthogonality with finite-precision monitoring; stop on breakdown.",
+    "limitations": "Loss of orthogonality and near-zero norms require safeguards; projected singular values are approximations.",
+    "failure_conditions": [
+      "Unhandled zero norm or incompatible adjoint operator"
+    ],
+    "computation": "Alternate products by A and A transpose with coupled short recurrences.",
+    "source": {
+      "kind": "literature",
+      "citation": "Paige and Saunders, LSQR: An Algorithm for Sparse Linear Equations and Sparse Least Squares, ACM TOMS 8 (1982), Golub–Kahan process; verify source before admission."
+    },
+    "application": "General reduced numerical representation of rectangular linear operators.",
+    "required_inputs": "Linear operator, transpose operator, initial vector, dimension and stopping policy.",
+    "compatible_methods": [
+      "svd-bidiagonal-reduction",
+      "symmetric-lanczos-krylov"
+    ],
+    "incompatible_methods": [
+      "Treating partial projection as complete singular value decomposition"
+    ],
+    "relationships": [
+      {
+        "target": "svd-bidiagonal-reduction",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Krylov recurrence rather than dense Householder bidiagonal reduction."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "027",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "bicgstab-linear-system",
+    "name": "BiCGSTAB nonsymmetric linear-system iteration",
+    "definition": "With r=b−Ax, fixed shadow r̂, ρ=r̂ᵀr, β=(ρ/ρ_old)(α/ω), set p=r+β(p−ωv), v=Ap, α=ρ/(r̂ᵀv), s=r−αv, t=As, ω=(tᵀs)/(tᵀt), x←x+αp+ωs, r←s−ωt. Set ρ_old←ρ at each completed step. Initialize p=v=0, ρ_old=α=ω=1; stop early with x←x+αp if s converges.",
+    "variables": "A square matrix; b right side; x solution iterate; r,r̂ residual and shadow; α,β,ρ,ω scalars",
+    "assumptions": "Nonsingular system; nonzero denominators and bounded iterations; residual checks and breakdown policy.",
+    "limitations": "Irregular convergence and breakdown possible; residual alone may not imply small forward error.",
+    "failure_conditions": [
+      "Zero or near-zero denominator, stagnation or nonfinite iterate"
+    ],
+    "computation": "Matrix-vector products, dot products and short recurrences; verify true residual before accepting convergence.",
+    "source": {
+      "kind": "literature",
+      "citation": "Van der Vorst (1992), Bi-CGSTAB: A Fast and Smoothly Converging Variant of Bi-CG, SIAM J Sci Stat Comput 13, 631–644; verify source before admission."
+    },
+    "application": "General iterative solution of a nonsymmetric numerical system.",
+    "required_inputs": "Matrix or operator, right-hand side, initial point, tolerance and iteration bound.",
+    "compatible_methods": [
+      "gmres-linear-solve",
+      "linear-solve-backward-error"
+    ],
+    "incompatible_methods": [
+      "Ignoring recurrence breakdown"
+    ],
+    "relationships": [
+      {
+        "target": "gmres-linear-solve",
+        "type": "related"
+      }
+    ]
+  }
+]

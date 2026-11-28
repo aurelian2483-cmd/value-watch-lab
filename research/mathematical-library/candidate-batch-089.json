@@ -1,0 +1,102 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "089",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "convex-polygon-separating-axis-test",
+    "name": "Convex polygon separating-axis intersection test",
+    "definition": "For two full-dimensional closed convex planar polygons P,Q, take every nonzero edge normal a from both polygons. Set I_P(a)=[min_{p in P} a·p,max_{p in P} a·p] and likewise I_Q(a). Declare disjoint iff at least one axis has max I_P < min I_Q or max I_Q < min I_P; otherwise report intersection including boundary contact.",
+    "variables": "P,Q ordered convex polygon vertices; a nonzero perpendicular to an edge; I_P,I_Q scalar projection intervals.",
+    "assumptions": "Finite vertices in cyclic boundary order of simple closed convex polygons with positive area, no zero-length edges, exact comparisons or an explicitly justified robust predicate; either orientation is permitted.",
+    "limitations": "Direct projection costs O((m+n)^2) arithmetic for m,n vertices; not valid for arbitrary nonconvex polygons; no contact manifold or penetration depth returned.",
+    "failure_conditions": [
+      "Invalid convexity or zero area, nonfinite coordinates, zero-length edge, or unreliable comparison near touching."
+    ],
+    "computation": "Enumerate perpendicular edge vectors from both boundaries; compute min/max dot products without normalizing; early exit on strict interval separation; equality means touching or overlap.",
+    "source": {
+      "kind": "literature",
+      "citation": "Michael Lugo, Fun with the Separating Axis Theorem, Virginia Tech, text reviewed; Kansas State University CIS 580, Separating Axis Theorem, text reviewed: both polygons' edge normals and projection intervals. https://personal.math.vt.edu/mrlugo/sat.html ; https://textbooks.cs.ksu.edu/cis580/04-collisions/04-separating-axis-theorem/index.html",
+      "url": "https://personal.math.vt.edu/mrlugo/sat.html"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Two finite ordered closed convex planar polygons of positive area.",
+    "compatible_methods": [
+      "sutherland-hodgman-convex-window-clipping"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "sutherland-hodgman-convex-window-clipping"
+      }
+    ],
+    "mechanism_note": "Projection interval feasibility decides closed-set intersection without constructing the clipped polygon; distinct from Sutherland–Hodgman boundary construction. Use signed dot products, not absolute projection magnitudes; multiplying by a positive axis scale does not change interval separation."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "089",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "minimum-enclosing-disk-support-enumeration",
+    "name": "Minimum enclosing disk by support enumeration",
+    "definition": "For nonempty finite P in R², minimize r² over c∈R² and r≥0 with ||p−c||² ≤ r² for all p∈P. Enumerate singleton disks (c,r²)=(p,0), pair disks with c=(p+q)/2 and r²=||p−q||²/4, and noncollinear triple circumdisks with 2(q−p)·c=||q||²−||p||² and 2(s−p)·c=||s||²−||p||², r²=||c−p||². Retain containing disks and minimize r².",
+    "variables": "P finite planar points, c disk center, r nonnegative radius, support of size one to three.",
+    "assumptions": "Finite nonempty planar input, Euclidean metric, exact arithmetic or robust containment and collinearity tests; duplicate points allowed.",
+    "limitations": "O(n^4) arithmetic for exhaustive candidate generation and containment; not the randomized Welzl algorithm; near-collinearity may amplify floating-point error.",
+    "failure_conditions": [
+      "Empty or nonfinite input, inaccurate circumcenter or containment predicates."
+    ],
+    "computation": "Test singleton disks, distinct pair diameter disks and noncollinear triple circumdisks; solve the two linear equations for each triple, skip collinear triples, retain only disks containing every point, and minimize squared radius. The minimizing center and radius are unique, although defining supports may not be.",
+    "source": {
+      "kind": "literature",
+      "citation": "CGAL 6.2.1 Bounding Volumes, Min_circle_2 class reference, text reviewed: support of at most three boundary points, including duplicates and degenerate cases. https://doc.cgal.org/latest/Bounding_volumes/classCGAL_1_1Min__circle__2.html ; exhaustive enumeration and optimality argument independently derived here, not CGAL's Welzl implementation.",
+      "url": "https://doc.cgal.org/latest/Bounding_volumes/classCGAL_1_1Min__circle__2.html"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Nonempty finite set of planar points.",
+    "compatible_methods": [
+      "rotating-calipers-convex-diameter"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "rotating-calipers-convex-diameter"
+      }
+    ],
+    "mechanism_note": "Exhaustive support enumeration is distinct from maximum pairwise distance, which provides only a lower bound on the enclosing diameter. A minimum disk center lies in the convex hull of its active boundary points (otherwise a separating direction reduces the maximum radius); a planar convex hull certificate needs at most three active points. No claim of randomized linear-time implementation."
+  }
+]

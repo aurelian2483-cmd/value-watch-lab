@@ -1,0 +1,208 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "052",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "kahan-compensated-summation",
+    "name": "Kahan compensated summation",
+    "definition": "Set s=0,c=0; for each x_i compute y=fl(x_i−c), t=fl(s+y), c=fl(fl(t−s)−y), s=t; return s.",
+    "variables": "x_i terms; s running sum; c signed rounding compensation; t,y temporaries; fl operation-wise rounding; u unit roundoff",
+    "assumptions": "Finite floating-point inputs; fixed working precision, round-to-nearest, standard relative rounding model with no overflow or underflow for the quoted bound; strict evaluation order",
+    "limitations": "Not an exact accumulator or a guaranteed correctly rounded result; cancellation can still make relative error large; nonfinite intermediates and reassociation invalidate the analysis",
+    "failure_conditions": [
+      "Nonfinite terms or intermediates",
+      "Arithmetic reassociation defeats compensation"
+    ],
+    "computation": "Process in stated order with four rounded arithmetic operations per term; return the running sum without an extra final correction; preserve the parentheses and reject nonfinite intermediates",
+    "source": {
+      "kind": "literature",
+      "citation": "Higham (1993), The Accuracy of Floating Point Summation, SIAM J. Sci. Comput. 14(4), 783–799, p. 791, equations (3.10)–(3.11), DOI 10.1137/0914050. https://nhigham.com/wp-content/uploads/2023/10/high93s.pdf",
+      "url": "https://nhigham.com/wp-content/uploads/2023/10/high93s.pdf"
+    },
+    "application": "General numerical summation; no forecasting benefit claimed.",
+    "required_inputs": "Finite sequence and declared floating-point arithmetic",
+    "compatible_methods": [
+      "horner-polynomial-evaluation"
+    ],
+    "incompatible_methods": [
+      "Claiming exact summation from a compensated result"
+    ],
+    "relationships": [
+      {
+        "target": "horner-polynomial-evaluation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "The sign convention c=−e maps the recurrence to Higham’s compensated sum. Under the stated rounding model its absolute forward error is bounded asymptotically by (2u+O(nu²))Σ|x_i|; this is not a certified numerical tolerance or relative error guarantee. The feedback state is different from Horner polynomial evaluation, which multiplies by a query at each step, and from a balanced addition tree."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "052",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "knuth-two-sum-error-free-transform",
+    "name": "TwoSum error-free addition transform",
+    "definition": "For floating-point a,b set s=fl(a+b), z=fl(s−a), e=fl(fl(a−fl(s−z))+fl(b−z)); under suitable arithmetic conditions a+b=s+e exactly.",
+    "variables": "a,b input numbers; s rounded sum; z temporary; e residual; fl rounding operator",
+    "assumptions": "IEEE binary floating point with round-to-nearest ties-to-even, one working precision, gradual underflow, individually rounded operations and no overflow in any intermediate",
+    "limitations": "Exactness concerns the unevaluated real sum s+e, not a second rounded addition; flush-to-zero, double rounding and reassociation can invalidate the identity",
+    "failure_conditions": [
+      "Nonfinite input or intermediate",
+      "Arithmetic assumptions not established"
+    ],
+    "computation": "Evaluate the six rounded additions/subtractions exactly in the stated order and retain both components separately; reject any nonfinite intermediate",
+    "source": {
+      "kind": "literature",
+      "citation": "Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, SIAM J. Sci. Comput. 26(6), 1955–1988, Algorithm 3.1 and Theorem 3.4, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf",
+      "url": "https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf"
+    },
+    "application": "General floating-point residual decomposition; no forecasting benefit claimed.",
+    "required_inputs": "Two floating-point operands and arithmetic specification",
+    "compatible_methods": [
+      "kahan-compensated-summation"
+    ],
+    "incompatible_methods": [
+      "Assuming the identity under arbitrary rounding or reassociation"
+    ],
+    "relationships": [
+      {
+        "target": "kahan-compensated-summation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "The cited theorem supplies the exact identity even with gradual underflow because subnormal addition/subtraction is exact in this format. Unlike Kahan, this is an order-independent two-operand residual extraction in six operations, not a streaming approximate sum; it requires no magnitude ordering. For example, the binary64 pair 1 and 2^−53 yields s=1 and e=2^−53, whose real sum is exact but whose rounded sum is 1."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "052",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "balanced-pairwise-summation",
+    "name": "Balanced pairwise floating-point summation",
+    "definition": "Let v^(0)=(x_1,…,x_n), n≥1. At each level replace adjacent pairs by v_j^(k+1)=fl(v_(2j−1)^(k)+v_(2j)^(k)); copy an unpaired last term unchanged. Stop at one value Ŝ.",
+    "variables": "n number of terms; k tree level; v intermediate terms; fl rounded addition; Ŝ computed sum; u unit roundoff; d=⌈log₂ n⌉",
+    "assumptions": "Finite inputs, fixed pairing and precision, round-to-nearest with standard relative rounding model; no overflow or underflow for the stated bound; du<1",
+    "limitations": "Not guaranteed correctly rounded; cancellation and input order affect accuracy; different parallel reduction trees can yield different rounded answers",
+    "failure_conditions": [
+      "Empty input under this specification",
+      "Nonfinite input or intermediate",
+      "Unspecified or nondeterministic reduction tree"
+    ],
+    "computation": "Reduce disjoint adjacent pairs level by level, copying an odd tail unchanged; use n−1 additions and d levels; return the only surviving term",
+    "source": {
+      "kind": "literature",
+      "citation": "Higham (1993), The Accuracy of Floating Point Summation, p. 788, equation (3.6), DOI 10.1137/0914050. https://nhigham.com/wp-content/uploads/2023/10/high93s.pdf",
+      "url": "https://nhigham.com/wp-content/uploads/2023/10/high93s.pdf"
+    },
+    "application": "General numerical reduction; no forecasting benefit claimed.",
+    "required_inputs": "Nonempty finite sequence, declared ordering and floating-point arithmetic",
+    "compatible_methods": [
+      "kahan-compensated-summation"
+    ],
+    "incompatible_methods": [
+      "Treating arbitrary parallel reduction orders as bitwise identical"
+    ],
+    "relationships": [
+      {
+        "target": "kahan-compensated-summation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "A leaf undergoes at most d rounded additions, so its multiplicative perturbation differs from 1 by at most γ_d=du/(1−du) under the stated rounding model. Summing absolute leaf errors yields |Ŝ−Σx_i|≤γ_dΣ|x_i|; shorter paths are covered by padding with factors 1. This extends the cited power-of-two derivation to odd lengths. The balanced reduction tree, unlike the sequential feedback in Kahan, uses no compensation."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "052",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "two-product-fma-error-free-transform",
+    "name": "Fused multiply-add product residual transform",
+    "definition": "For floating-point a,b form p=fl(a b) and e=fma(a,b,−p), where fma rounds the exact product-plus-addend only once. If the exact residual is representable then a b=p+e as real numbers.",
+    "variables": "a,b operands; p rounded product; e residual; fl rounding to working precision; fma single-rounding fused operation",
+    "assumptions": "Finite IEEE binary operands, round-to-nearest ties-to-even, correctly rounded FMA in the same precision, no overflow and representable exact residual; no underflow in the sense of the cited product decomposition is a sufficient condition",
+    "limitations": "A tiny product residual may be unrepresentable even when the rounded product is normal; product decomposition must not be claimed exact in that case; not equivalent to a separate rounded multiplication and subtraction",
+    "failure_conditions": [
+      "Nonfinite operands or product",
+      "FMA unavailable or not single-rounding",
+      "Exact residual not representable for a claimed error-free result"
+    ],
+    "computation": "Round the initial product once, then invoke an explicit FMA with its negation; retain p and e separately and restrict the exactness claim to the representability domain",
+    "source": {
+      "kind": "literature",
+      "citation": "Ogita, Rump and Oishi (2005), Accurate Sum and Dot Product, equation (2.3) and Algorithm 3.5, DOI 10.1137/030601818. https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf",
+      "url": "https://ogilab.w.waseda.jp/ogita/math/doc/2005_OgRuOi.pdf"
+    },
+    "application": "General numerical product decomposition; no forecasting benefit claimed.",
+    "required_inputs": "Two finite floating-point operands and a correctly rounded FMA with declared exponent range",
+    "compatible_methods": [
+      "knuth-two-sum-error-free-transform"
+    ],
+    "incompatible_methods": [
+      "Replacing FMA by an independently rounded product and subtraction"
+    ],
+    "relationships": [
+      {
+        "target": "knuth-two-sum-error-free-transform",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "The real residual r=a b−p is the exact input to the final rounding; if r belongs to the format, that rounding is the identity and the pair preserves the product. For a subnormal residual below the minimum representable increment this argument fails. The multiplication residual and explicit fused operation differ from the six-addition TwoSum primitive; neither alone is a full compensated dot-product algorithm."
+  }
+]

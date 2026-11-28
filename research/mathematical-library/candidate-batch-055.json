@@ -1,0 +1,109 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "055",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "welford-online-central-second-moment",
+    "name": "Welford online central second moment",
+    "definition": "For a finite sequence initialize k=1, m_1=x_1, M_1=0; for k≥2 set δ=x_k−m_(k−1), m_k=m_(k−1)+δ/k, M_k=M_(k−1)+δ(x_k−m_k). Return M_k=Σ_(i=1)^k(x_i−m_k)² in exact arithmetic",
+    "variables": "k positive count; x_k observation; m_k running mean; M_k unnormalized second central moment",
+    "assumptions": "Nonempty finite real observations with consistent units; exact count, valid arithmetic, and representable intermediates for a floating-point implementation; no independence assumption for descriptive moments",
+    "limitations": "Rounded mean updates may stagnate and subtraction or products may overflow or underflow; results depend on order in floating point; unbiased sample variance additionally needs independent identically distributed observations of finite variance",
+    "failure_conditions": [
+      "Empty input, nonfinite values, count overflow or nonfinite intermediate",
+      "Requesting sample variance for k<2"
+    ],
+    "computation": "Initialize directly from the first value; update the mean before using the new mean in the central-moment correction. Use M_k/k for the empirical variance and M_k/(k−1) for sample variance when k≥2; retain count and reject invalid numerical states.",
+    "source": {
+      "kind": "literature",
+      "citation": "Pébay (2008), Formulas for Robust, One-Pass Parallel Computation of Covariances and Arbitrary-Order Statistical Moments, SAND2008-6212, pp. 7–8, eqs. (1.1)–(1.2), citing Welford (1962). DOI 10.2172/1028931. https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf",
+      "url": "https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf"
+    },
+    "application": "General streaming numerical summary; no empirical benefit claimed.",
+    "required_inputs": "Finite numeric observations and declared arithmetic.",
+    "compatible_methods": [
+      "balanced-pairwise-summation"
+    ],
+    "incompatible_methods": [
+      "Treating a rounded accumulator as exact"
+    ],
+    "relationships": [
+      {
+        "target": "balanced-pairwise-summation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Recenter the first k−1 observations by m_(k−1)−m_k; the cross term vanishes because their old centered deviations sum to zero. Their correction plus the new squared deviation equals δ(x_k−m_k). This updates a centered second moment in constant state, unlike the registered summation, conditional-variance and raw scatter methods; not a guarantee of floating-point exactness."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "055",
+    "family": "numerical-optimisation",
+    "classification": "model-variant",
+    "id": "chan-parallel-central-second-moment",
+    "name": "Chan pairwise central second moment merge",
+    "definition": "For nonempty disjoint blocks A,B set n=n_A+n_B, δ=m_B−m_A, m=m_A+δ n_B/n, M=M_A+M_B+δ² n_A n_B/n",
+    "variables": "n_A,n_B positive block counts; m_A,m_B block means; M_A,M_B block unnormalized second central moments; n,m,M combined state",
+    "assumptions": "Disjoint observation-index blocks with finite values in common units and internally consistent moment states; counts exact and required intermediates representable; identities in real arithmetic",
+    "limitations": "Merge order, large count imbalance, squared differences and finite precision can change rounded results or overflow; no universal accuracy guarantee or independence inference",
+    "failure_conditions": [
+      "Nonpositive or inconsistent counts, overlapping observation indices, nonfinite state or intermediate",
+      "Sample variance requested for total count below two"
+    ],
+    "computation": "Represent empty blocks separately: skip an empty block, reject two empty blocks for a mean or variance query. For two nonempty blocks combine counts, mean and between-block correction; choose a fixed merge tree for reproducibility. Return M/n or M/(n−1) for n≥2 as appropriate.",
+    "source": {
+      "kind": "literature",
+      "citation": "Pébay (2008), SAND2008-6212, p. 8, eqs. (1.3)–(1.4), attributing the block formula to Chan, Golub and LeVeque (1979). DOI 10.2172/1028931. https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf",
+      "url": "https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf"
+    },
+    "application": "General parallel numerical summary; no empirical benefit claimed.",
+    "required_inputs": "Two finite valid disjoint block moment states.",
+    "compatible_methods": [
+      "welford-online-central-second-moment",
+      "balanced-pairwise-summation"
+    ],
+    "incompatible_methods": [
+      "Merging overlapping observations as independent blocks"
+    ],
+    "relationships": [
+      {
+        "target": "welford-online-central-second-moment",
+        "type": "variant-of"
+      },
+      {
+        "target": "balanced-pairwise-summation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Within each block the deviations about its own mean sum to zero; shifting the block centers adds n_A(m_A−m)²+n_B(m_B−m)²=δ² n_A n_B/n. A singleton B gives the Welford correction. Arbitrary block merging adds parallel aggregation capability, but the shared recentering identity warrants variant classification."
+  }
+]

@@ -90,7 +90,7 @@ test('manifest is reproducible and links all configurations into the preserved c
   const manifest = readFileSync(new URL('./configurations.json', import.meta.url), 'utf8')
   assert.deepEqual(JSON.parse(manifest), report)
   const { entries } = loadCatalogue()
-  assert.equal(entries.length, 286)
+  assert.ok(entries.length >= 286, 'The preserved catalogue must not shrink')
   assert.ok(entries.every(entry => !entry.id.startsWith('sky81-')))
   const byId = new Map(entries.map(entry => [entry.id, entry]))
   for (const row of report.configurations) {

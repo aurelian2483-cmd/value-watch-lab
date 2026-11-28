@@ -1,0 +1,7 @@
+# Batch 059 provisional intake repair
+
+- Parent: 57667284158ee7e7857e3fac5d4d2fab7c8e648f; PR #171, branch audit/master-research-architecture-20261124.
+- Full research regression run 45800048020 succeeded. Registry run 45800048023 failed (65/66 tests passed); job 139840595275 reported `misra-gries-frequent-items: missing mathematical specification`. The staged definition used only a strict greater-than comparison, which does not satisfy the existing explicit-equation check in validate-v1.mjs.
+- Expressed the actual counter updates as assignments, retaining the strict frequent-item threshold, and defined the residual counter. The update and cancellation interpretation were checked against Matthew Towers (UCL), *Elements appearing with prescribed frequency in a list* (30 July 2021), https://www.homepages.ucl.ac.uk/~ucahmto/math/2021/07/30/elements-appearing-k-times.html. The original paper was not inspected in this repair.
+- Both staged definitions now satisfy the exact mathematical-specification predicate by inspection and direct evaluation. Full local registry tests were not executed. Hosted checks must pass before admission review or further writes.
+- This is a candidate-only repair, not admission or independent scientific validation. The Count–Min candidate is unchanged; both remain provisional. No catalogue entries, identifiers, snapshots, validation code, thresholds, lifecycle evidence or publication gates changed. No experiment or protected data was accessed.

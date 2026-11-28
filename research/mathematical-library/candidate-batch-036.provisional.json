@@ -1,0 +1,101 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "036",
+    "family": "numerical-differentiation",
+    "classification": "distinct-algorithm",
+    "id": "complex-step-first-derivative",
+    "name": "Complex-step first derivative",
+    "definition": "Provisional: D_h f(x)=Im(f(x+ih))/h for real nonzero h and f analytic near real x and real on the real axis.",
+    "variables": "x real point; i imaginary unit; h real step; Im imaginary part",
+    "assumptions": "Holomorphic extension and complex-safe computation",
+    "limitations": "Nonanalytic operations or loss of the imaginary component invalidate the estimate",
+    "failure_conditions": [
+      "Nonfinite output or unsupported complex arithmetic"
+    ],
+    "computation": "Provisional complex evaluation; independently review Taylor remainder and floating-point restrictions.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: Nicholas Higham, Differentiation With(out) a Difference, SIAM News (2018), https://www.siam.org/publications/siam-news/articles/differentiation-without-a-difference/ ; full review pending."
+    },
+    "application": "General numerical differentiation.",
+    "required_inputs": "Analytic function, real point and step",
+    "compatible_methods": [
+      "first-difference"
+    ],
+    "incompatible_methods": [
+      "Nonanalytic absolute value or imaginary-component suppression"
+    ],
+    "relationships": [
+      {
+        "target": "first-difference",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional complex perturbation instead of subtracting two real function values."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "036",
+    "family": "numerical-differentiation",
+    "classification": "distinct-algorithm",
+    "id": "finite-difference-moment-weights",
+    "name": "Finite-difference weights by moment matching",
+    "definition": "Provisional: for distinct offsets s_j and derivative order m<n, solve Σ_(j=0)^(n−1) w_j s_j^k=m! δ_(km) for k=0,…,n−1; approximate f^(m)(x) by Σ_j w_j f(x+s_j).",
+    "variables": "n nodes; m derivative order; s_j offsets; w_j weights; δ Kronecker delta",
+    "assumptions": "Distinct nodes and adequate smoothness; nonsingular moment system",
+    "limitations": "Direct Vandermonde systems can be ill-conditioned; not Fornberg recursion",
+    "failure_conditions": [
+      "Duplicate nodes, nonfinite samples or unresolved linear solve"
+    ],
+    "computation": "Provisional moment-system construction; review scaling, conditioning and exactness.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: finite difference differentiation via polynomial interpolation, UC Berkeley Math 128A chapter 4, https://persson.berkeley.edu/math128a/lecture_notes/math128a_lecture_notes_chapter_4.html ; verify derivation before admission."
+    },
+    "application": "General numerical differentiation.",
+    "required_inputs": "Function samples, distinct offsets and derivative order",
+    "compatible_methods": [
+      "barycentric-polynomial-interpolation",
+      "pivoted-lu"
+    ],
+    "incompatible_methods": [
+      "Unresolved ill-conditioned weight solve"
+    ],
+    "relationships": [
+      {
+        "target": "barycentric-polynomial-interpolation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional derivative functional constructed by polynomial exactness; compare existing interpolation methods before counting."
+  }
+]

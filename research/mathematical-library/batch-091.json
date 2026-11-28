@@ -1,0 +1,103 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "091",
+    "family": "computational-geometry",
+    "classification": "model-variant",
+    "id": "welzl-randomized-minimum-enclosing-disk",
+    "name": "Welzl randomized minimum enclosing disk",
+    "definition": "For finite planar P in uniformly random order and forced boundary R, |R|≤3, W(P,R) is the smallest disk containing P with every r∈R on its boundary. For p last in P let D=W(P\\{p},R); return D if ||p−c_D||²≤r_D², otherwise W(P\\{p},R∪{p}). At P=∅ or |R|=3 use the constrained support disk: empty sentinel for |R|=0, zero radius for |R|=1, diameter for two distinct points, circumdisk for three noncollinear points.",
+    "variables": "P ordered remaining points; R forced boundary set; p last point; c_D center and r_D radius of nonempty disk; W constrained subproblem",
+    "assumptions": "Finite nonempty planar Euclidean root input, R initially empty; uniform random permutation and exact or robust closed containment and support construction. Empty sentinel contains no point. Duplicate coordinates cannot be added twice to R; reachable three-point supports are noncollinear under exact predicates.",
+    "limitations": "Expected O(n) arithmetic for fixed planar dimension and uniform random order; no deterministic linear-time guarantee. Index-based recursion uses O(n) stack; copying prefixes can increase cost. Near-collinearity requires robust arithmetic.",
+    "failure_conditions": [
+      "Nonfinite points, infeasible forced boundary, singular three-point support or unreliable containment.",
+      "Stack exhaustion or nonuniform ordering invalidates resource or expected-time assumptions."
+    ],
+    "computation": "Shuffle once and recurse by prefix length. For two supports use midpoint and squared distance; for three solve perpendicular-bisector equations for circumcenter. Reject an infeasible support state, never silently remove a forced boundary. Equality is contained.",
+    "source": {
+      "kind": "literature",
+      "citation": "Emo Welzl (1991), Smallest enclosing disks (balls and ellipsoids), LNCS 555, pp. 359–370, publisher abstract reviewed (expected linear time), https://doi.org/10.1007/BFb0038202 ; Brown University, Linear Algebra with Mathematica, Part 7, Erect the Fence, recursion and constrained base cases reviewed, https://www.cfm.brown.edu/people/dobrush/cs52/Mathematica/Part7/fence.html ; original full text unavailable.",
+      "url": "https://doi.org/10.1007/BFb0038202"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite nonempty planar points and declared random permutation procedure.",
+    "compatible_methods": [
+      "minimum-enclosing-disk-support-enumeration"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "minimum-enclosing-disk-support-enumeration"
+      }
+    ],
+    "mechanism_note": "Randomized incremental variant for the same enclosing disk objective. Forced boundary is not an unconstrained smallest-disk problem: an obtuse three-point forced support requires its circumdisk, not the longest-edge diameter. For nonempty R, restrict centers to its affine equal-distance locus; containment inequalities are linear in the center and radius squared is the squared distance to a fixed support. An added violating constraint must be tight at the new optimum. Empty support is a sentinel, not a disk centered at an arbitrary origin."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "091",
+    "family": "computational-geometry",
+    "classification": "model-variant",
+    "id": "convex-polygon-fan-binary-point-location",
+    "name": "Convex polygon fan binary point location",
+    "definition": "For strictly convex CCW vertices v_0,...,v_(n−1), define orient(a,b,c)=(b−a)×(c−a). Let L=orient(v_0,v_1,q), U=orient(v_0,v_(n−1),q). Reject if L<0 or U>0. If L=0 or U=0 test closed segment membership on the corresponding extreme ray, using (q−v_0)·(q−v_j)≤0. Otherwise binary search for the largest i∈[1,n−2] with orient(v_0,v_i,q)≥0 and accept iff orient(v_i,v_(i+1),q)≥0.",
+    "variables": "v_i cyclic ordered vertices; n vertex count; q query; orient signed cross product; L,U extreme-ray tests; j extreme vertex index; i fan sector",
+    "assumptions": "Strictly convex positive-area CCW polygon with n≥3, no repeated vertices or collinear consecutive edges; finite points and robust exact orientation and dot-product signs. Any cyclic anchor v_0 is valid for this strict convex version.",
+    "limitations": "O(log n) arithmetic comparisons per query after ordered polygon preparation and validity checks; O(n) vertex storage. Does not handle concave polygons; finite extreme-ray membership and exact boundary comparisons are essential.",
+    "failure_conditions": [
+      "Invalid cyclic order, nonconvexity, repeated vertices or unreliable orientation or dot-product signs."
+    ],
+    "computation": "Reject outside anchor wedge; handle both extreme rays by finite segment containment including anchor itself. Binary search the monotone angular predicate, then test outer edge. Accept equality for closed membership.",
+    "source": {
+      "kind": "literature",
+      "citation": "Algorithms for Competitive Programming, Check if point belongs to the convex polygon in O(log N), algorithm and implementation text reviewed, https://cp-algorithms.com/geometry/point-in-convex-polygon.html ; Texas A&M University, J. Chen, Chapter 6 Prune and Search, §6.2.1 p. 97, interior-anchor fan search and complexity cross-checked, https://people.engr.tamu.edu/j-chen3/courses/620/2025/Lectures/ch6.pdf ; extreme-ray and arbitrary vertex anchor conventions independently derived.",
+      "url": "https://cp-algorithms.com/geometry/point-in-convex-polygon.html"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Ordered strictly convex polygon and query point.",
+    "compatible_methods": [
+      "polygon-winding-number"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "polygon-winding-number"
+      }
+    ],
+    "mechanism_note": "Restricted convex point-membership variant of general polygon winding classification. Strict convexity orders anchor rays in an angle interval smaller than π; the cross-product predicate changes sign once for an interior wedge query. Each fan triangle is bounded by those rays and one outer edge, so only that edge remains to be tested. Finite-segment checks prevent accepting ray extensions beyond either endpoint."
+  }
+]

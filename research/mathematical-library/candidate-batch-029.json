@@ -1,0 +1,105 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "029",
+    "family": "numerical-linear-algebra",
+    "classification": "model-variant",
+    "id": "sor-stationary-linear-solve",
+    "name": "Successive overrelaxation stationary solver",
+    "definition": "For A=D+L+U solve (D+ωL)x_(k+1)=ωb+[(1−ω)D−ωU]x_k with fixed relaxation ω.",
+    "variables": "D diagonal; L,U strict triangular parts; ω relaxation; x iterate",
+    "assumptions": "Nonzero diagonal; symmetric positive definite A and 0<ω<2 suffice for convergence in exact arithmetic.",
+    "limitations": "Ordering and relaxation affect convergence; ω=1 reduces to Gauss–Seidel.",
+    "failure_conditions": [
+      "Zero diagonal, nonfinite iterate or residual tolerance not met within bound"
+    ],
+    "computation": "Sweep relaxed Gauss–Seidel coordinates; check true residual.",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, §2.2.3, equation (2.7) and Fig. 2.3; lower and upper parts here have opposite signs to the book's convention. https://netlib.org/templates/templates.html"
+    },
+    "application": "General numerical solution of a linear system.",
+    "required_inputs": "Square matrix, right side, initial iterate, relaxation and stopping bounds.",
+    "compatible_methods": [
+      "gauss-seidel-linear-solve"
+    ],
+    "incompatible_methods": [
+      "Claiming convergence for arbitrary relaxation and matrices"
+    ],
+    "relationships": [
+      {
+        "target": "gauss-seidel-linear-solve",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "A fixed relaxation of the ordered Gauss–Seidel sweep; ω=1 gives the parent iteration exactly. Counted as a variant, not a new distinct algorithm."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "029",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "richardson-stationary-linear-solve",
+    "name": "Fixed-step Richardson linear iteration",
+    "definition": "For symmetric positive definite A, x_(k+1)=x_k+ω(b−Ax_k), with 0<ω<2/λ_max(A).",
+    "variables": "A matrix; b right side; ω step; λ_max largest eigenvalue",
+    "assumptions": "Symmetric positive definite A and valid spectral step bound.",
+    "limitations": "May converge slowly for ill-conditioned A; constant diagonal scaling can give equivalence to Jacobi.",
+    "failure_conditions": [
+      "Invalid step bound, nonfinite iterate or residual stagnation"
+    ],
+    "computation": "Add scaled residual and check true residual or iteration limit.",
+    "source": {
+      "kind": "literature",
+      "citation": "Bindel, Cornell CS 4220, 8 April 2026, Gradient descent, fixed-step quadratic iteration. https://www.cs.cornell.edu/courses/cs4220/2026sp/lec/2026-04-08.html"
+    },
+    "application": "General numerical linear-system iteration.",
+    "required_inputs": "Matrix, right side, starting point, step and stopping bounds.",
+    "compatible_methods": [
+      "jacobi-linear-solve",
+      "linear-system-iterative-refinement"
+    ],
+    "incompatible_methods": [
+      "Using unchecked step size"
+    ],
+    "relationships": [
+      {
+        "target": "jacobi-linear-solve",
+        "type": "related"
+      },
+      {
+        "target": "linear-system-iterative-refinement",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "With f(x)=xᵀAx/2−bᵀx, ∇f=Ax−b, this is fixed-step gradient descent; the SPD convergence interval follows from |1−ωλ_i|<1 for every eigenvalue. Withheld as derivative."
+  }
+]

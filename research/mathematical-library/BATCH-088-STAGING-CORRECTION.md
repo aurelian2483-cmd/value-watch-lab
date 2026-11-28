@@ -1,0 +1,9 @@
+# Batch 088 staging correction — 2026-11-27
+
+Parent: c86bb399c37ec73f5c44078bd5f6de72717205d7. PR #171 open and draft, authorized branch only.
+
+Hosted full research regression run 46055290943 succeeded. Registry run 46055290935, job 140696189021, failed (65 passed, 1 failed): staged candidates pass structural intake without inflating registered counts; kd-tree-axis-median-nearest-neighbor: missing mathematical specification. Inspected validate-v1.mjs and experiment-registry-catalogue-intake.mjs. The second provisional entry also lacked a mathematical relation, compatible methods and relationships. Corrected both candidate definitions, variables, input assumptions, limitations, failure conditions, computation, sources and links instead of weakening validation.
+
+Source text reviewed: Cornell CS4780 Lecture 16 (https://www.cs.cornell.edu/courses/cs4780/2017sp/lectures/lecturenote16.html) for axis splits and distance lower bounds; Virginia Tech OpenDSA PR Quadtree (https://opendsa.cs.vt.edu/OpenDSA/Books/Catalog/html/PRquadtree.html) for fixed four-way decomposition. Local extensions are explicit: squared Euclidean distance with strict pruning and stable ID ties; half-open cells, bucket capacity, depth bound and duplicate retention. No original paper claimed reviewed.
+
+Verified the existing evidence ledger contains 471 distinct IDs; neither candidate ID is registered. Checked candidate mathematical-relation markers, nonempty compatible/relationship lists, valid link targets and unchanged lifecycle nulls. These are targeted staging checks, not a full registry run, mathematical implementation test, or independent admission. Full novelty and mathematical review remain pending. No entries admitted, no snapshots or registered IDs modified. No experiment, protected data, execution authority or publication gate changed. Await exact corrected-head workflows before further writes.

@@ -1,0 +1,110 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "042",
+    "family": "numerical-ode",
+    "classification": "model-variant",
+    "id": "heat-equation-ftcs",
+    "name": "Forward-time centred-space heat equation integration",
+    "definition": "Provisional: U_i^(n+1)=U_i^n+r(U_(i−1)^n−2U_i^n+U_(i+1)^n), r=κΔt/h²; review stability and boundary assumptions.",
+    "variables": "U nodal state; κ diffusivity; h spatial spacing; Δt time step; r diffusion number",
+    "assumptions": "Provisional constant positive diffusion and uniform mesh",
+    "limitations": "Provisional explicit stability restriction",
+    "failure_conditions": [
+      "Invalid mesh or unresolved stability restriction"
+    ],
+    "computation": "Provisional forward Euler on centred spatial differences; review convergence.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: numerical PDE literature; independent source review pending."
+    },
+    "application": "General numerical heat equation integration.",
+    "required_inputs": "Initial and boundary values, diffusion, grid and step policy",
+    "compatible_methods": [
+      "forward-euler-ode",
+      "centered-finite-difference-linear-bvp"
+    ],
+    "incompatible_methods": [
+      "Unresolved stability restriction"
+    ],
+    "relationships": [
+      {
+        "target": "forward-euler-ode",
+        "type": "variant-of"
+      },
+      {
+        "target": "centered-finite-difference-linear-bvp",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: forward Euler applied to a spatially discretized diffusion equation; not a new time integrator."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "042",
+    "family": "numerical-ode",
+    "classification": "model-variant",
+    "id": "heat-equation-crank-nicolson",
+    "name": "Crank–Nicolson centred-space heat equation integration",
+    "definition": "Provisional: (I−rL/2)U^(n+1)=(I+rL/2)U^n for zero Dirichlet values and centred unscaled second difference L, r=κΔt/h².",
+    "variables": "I identity; L second difference matrix; κ diffusivity; Δt time step; h mesh spacing; U nodal state",
+    "assumptions": "Provisional constant positive diffusion and uniform mesh",
+    "limitations": "Provisional stability, oscillations and boundary terms require review",
+    "failure_conditions": [
+      "Invalid grid or unresolved implicit solve"
+    ],
+    "computation": "Provisional trapezoidal integration of the centred spatial discretization; review stability and convergence.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: numerical PDE literature; independent source review pending."
+    },
+    "application": "General numerical heat equation integration.",
+    "required_inputs": "Initial data, homogeneous Dirichlet values, diffusion, grid and solve policy",
+    "compatible_methods": [
+      "implicit-trapezoidal-ode",
+      "centered-finite-difference-linear-bvp"
+    ],
+    "incompatible_methods": [
+      "Unresolved implicit solve"
+    ],
+    "relationships": [
+      {
+        "target": "implicit-trapezoidal-ode",
+        "type": "variant-of"
+      },
+      {
+        "target": "centered-finite-difference-linear-bvp",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: trapezoidal time integration of centred spatial diffusion; not a new time integrator."
+  }
+]

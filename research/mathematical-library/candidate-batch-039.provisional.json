@@ -1,0 +1,101 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "039",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "single-shooting-boundary-value",
+    "name": "Single shooting for scalar second-order boundary value problems",
+    "definition": "Provisional: for y″=g(t,y,y′), y(a)=A, y(b)=B, integrate the initial-value system with y′(a)=s and solve residual R(s)=y(b;s)−B=0.",
+    "variables": "a,b interval endpoints; A,B boundary values; s initial slope; g right-hand side",
+    "assumptions": "Provisional smooth well-posed initial-value solves and a root of the endpoint residual",
+    "limitations": "May be ill-conditioned, fail to find a root or miss other solutions; source and uniqueness review pending",
+    "failure_conditions": [
+      "Failed initial-value integration or endpoint root solve"
+    ],
+    "computation": "Provisional integration and scalar root solving; verify conditioning and stopping requirements before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: University of Bielefeld Computational Physics, Boundary Value Problems; independent source inspection pending."
+    },
+    "application": "General numerical boundary value problems.",
+    "required_inputs": "Differential equation, endpoints, boundary conditions, integration and root solve policies",
+    "compatible_methods": [
+      "classical-rk4",
+      "bdf2-constant-step-ode"
+    ],
+    "incompatible_methods": [
+      "Unresolved endpoint residual"
+    ],
+    "relationships": [
+      {
+        "target": "classical-rk4",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: boundary conditions are converted into an unknown initial slope, rather than solved as a grid system."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "039",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "centered-finite-difference-linear-bvp",
+    "name": "Centered finite differences for linear second-order boundary value problems",
+    "definition": "Provisional: for −y″+c(t)y=g(t), y(a)=A, y(b)=B, approximate interior equations by (−y_(i−1)+2y_i−y_(i+1))/h²+c(t_i)y_i=g(t_i).",
+    "variables": "a,b endpoints; h uniform step; c,g given functions; y_i nodal unknowns",
+    "assumptions": "Provisional smooth solution, Dirichlet conditions and nonnegative c on a uniform grid",
+    "limitations": "Boundary treatment, discrete invertibility, consistency and convergence review pending",
+    "failure_conditions": [
+      "Invalid grid or unresolved linear system"
+    ],
+    "computation": "Provisional assemble interior tridiagonal equations with boundary contributions and solve; verify error and uniqueness conditions.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: University of Bielefeld Computational Physics, Boundary Value Problems; independent source inspection pending."
+    },
+    "application": "General numerical boundary value problems.",
+    "required_inputs": "Coefficient functions, forcing, interval, Dirichlet conditions, uniform grid and solve policy",
+    "compatible_methods": [
+      "finite-difference-moment-weights"
+    ],
+    "incompatible_methods": [
+      "Unresolved discrete system"
+    ],
+    "relationships": [
+      {
+        "target": "finite-difference-moment-weights",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional: a global boundary-constrained discrete linear system, not an initial-value time step."
+  }
+]

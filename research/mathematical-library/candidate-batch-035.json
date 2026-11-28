@@ -1,0 +1,102 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "035",
+    "family": "numerical-quadrature",
+    "classification": "distinct-algorithm",
+    "id": "tanh-sinh-quadrature",
+    "name": "Tanh–sinh quadrature",
+    "definition": "For finite a<b, set c=(a+b)/2, d=(b−a)/2, x(t)=tanh((π/2)sinh t), w(t)=(π/2)cosh(t)/cosh²((π/2)sinh t). Set Q(h,N)=dh Σ_(k=−N)^N f(c+d x(kh))w(kh), approximating ∫_a^b f(s)ds.",
+    "variables": "a,b interval endpoints; h>0 mesh spacing; N nonnegative integer truncation; c midpoint; d half-width; w derivative of x",
+    "assumptions": "Integrable f with finite interior samples and a sufficiently smooth, rapidly decaying transformed integrand for useful convergence; rapid double-exponential convergence is conditional",
+    "limitations": "Endpoint rounding, overflow, cancellation and insufficient tail resolution can corrupt the result; refinement differences are indicators, not certified bounds",
+    "failure_conditions": [
+      "Nonfinite terms or unrepresentable interior nodes",
+      "Unresolved tail or mesh refinement within a finite evaluation budget"
+    ],
+    "computation": "For fixed h extend N and monitor changes over outer shells; separately halve h while retaining at least the previous transformed extent and rechecking tails. Compare resolved estimates against allocated positive tolerances. Report unresolved convergence on budget exhaustion; a single small tail term is not a certificate. Use stable endpoint complements or higher precision where necessary.",
+    "source": {
+      "kind": "literature",
+      "citation": "Mori, M. (2005), Discovery of the Double Exponential Transformation and Its Developments, Publ. RIMS 41, 897–935, publisher abstract, https://ems.press/journals/prims/articles/2317 ; Boost.Math 1.71 tanh_sinh and 1.66 endpoint handling documentation, https://www.boost.org/doc/libs/1_71_0/libs/math/doc/html/math_toolkit/double_exponential/de_tanh_sinh.html ; https://www.boost.org/doc/libs/1_66_0/libs/math/doc/html/math_toolkit/double_exponential/de_tanh_sinh_2_arg.html"
+    },
+    "application": "General numerical integration.",
+    "required_inputs": "Integrand, finite interval, positive mesh, truncation and refinement budgets, positive tail and refinement tolerances",
+    "compatible_methods": [
+      "composite-trapezoid"
+    ],
+    "incompatible_methods": [
+      "Unverified tail convergence"
+    ],
+    "relationships": [
+      {
+        "target": "composite-trapezoid",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Nonlinear transformation creates clustered nonuniform physical nodes and Jacobian weights; distinct from finite uniform-grid trapezoid, although it uses trapezoidal summation in transformed coordinates."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "035",
+    "family": "numerical-quadrature",
+    "classification": "model-variant",
+    "id": "adaptive-simpson-quadrature",
+    "name": "Adaptive Simpson quadrature",
+    "definition": "S(l,r)=(r−l)[f(l)+4f((l+r)/2)+f(r)]/6; m=(l+r)/2; S₂=S(l,m)+S(m,r); E=|S₂−S(l,r)|/15. If E≤τ, accept S₂+(S₂−S(l,r))/15; otherwise recurse on both halves with local tolerance τ/2 and sum their accepted estimates.",
+    "variables": "l,r panel endpoints; S coarse estimate; S₂ two-panel estimate; E estimated error of S₂; τ positive local absolute tolerance",
+    "assumptions": "Finite a<b and finite sampled values; sufficiently smooth integrand with locally stable fourth derivative for asymptotic error scaling; positive tolerance and finite recursion budget",
+    "limitations": "Estimator can miss localized or oscillatory structure and is not a rigorous bound; correction relies on the same asymptotic scaling",
+    "failure_conditions": [
+      "Nonfinite samples or midpoint indistinguishable from an endpoint",
+      "Unresolved estimated error at recursion or evaluation limit"
+    ],
+    "computation": "Start on [a,b] with absolute tolerance ε; cache shared samples, bisect as specified and halve the local budget on each child. Sum corrected accepted estimates and record the sum of local indicators; report failure rather than unconditional success if a budget is exhausted.",
+    "source": {
+      "kind": "literature",
+      "citation": "Per-Olof Persson, UC Berkeley Math 128A, Numerical Differentiation and Integration, §4.6 Adaptive Quadrature Methods, https://persson.berkeley.edu/math128a/lecture_notes/math128a_lecture_notes_chapter_4.html ; signed Richardson correction derived from stated 1/16 error scaling."
+    },
+    "application": "General numerical integration.",
+    "required_inputs": "Integrand, finite interval, positive absolute tolerance, recursion and evaluation limits",
+    "compatible_methods": [
+      "composite-simpson"
+    ],
+    "incompatible_methods": [
+      "Treating error estimate as a certificate"
+    ],
+    "relationships": [
+      {
+        "target": "composite-simpson",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Adaptive subdivision and Richardson correction of composite Simpson; a variant, not an independent algorithm. Unlike Romberg, refinement is local; unlike Gauss–Kronrod, uses Simpson panels."
+  }
+]

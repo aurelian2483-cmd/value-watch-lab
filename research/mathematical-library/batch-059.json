@@ -1,0 +1,105 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "059",
+    "family": "streaming-algorithms",
+    "classification": "model-variant",
+    "id": "misra-gries-frequent-items",
+    "name": "Misra–Gries bounded frequent-item counters",
+    "definition": "With at most k−1 counters, increment c_i←c_i+1 for a tracked arrival, insert c_i←1 if space remains, otherwise decrement all stored c_j←c_j−1, remove zeros and set D←D+1. Initially D=0. N=Σ_i c_i+kD and 0≤f_i−c_i≤D≤floor(N/k).",
+    "variables": "k threshold denominator; N stream length; c_i residual multiplicity (zero when absent); f_i actual multiplicity; D number of full cancellation steps",
+    "assumptions": "Finite stream of unit arrivals, stable equality, fixed integer k≥2, exact integer counters; replay is required for exact threshold classification unless bounds decide it",
+    "limitations": "Retained keys need not exceed the threshold; absent keys can tie the threshold; counts are lower bounds, not exact frequencies or a guaranteed top-k ranking. O(k) stored keys; O(N log k) time with an ordered balanced tree, including amortized full decrements",
+    "failure_conditions": [
+      "Invalid k, unstable equality or counter overflow",
+      "Reporting an ambiguous candidate as confirmed without an unchanged replay"
+    ],
+    "computation": "Initialize empty counters, N=0 and D=0. Increment N for each arrival and apply the stated update. On a full miss cancel the arriving occurrence and one occurrence from each stored key; do not insert the arrival. Return candidate keys and intervals [c_i,c_i+D]. For exact frequent-item classification, replay the same stream to count retained keys and report only those with k f_i>N. Empty streams have no frequent keys; if k>N, all observed keys survive.",
+    "source": {
+      "kind": "literature",
+      "citation": "Misra and Gries (1982), Finding repeated elements, Science of Computer Programming 2(2), 143–152, sections 3–4, Theorem 1 and Algorithm (3), pp. 146–148. DOI 10.1016/0167-6423(82)90012-0. https://www.cs.utexas.edu/~misra/scannedPdf.dir/FindRepeatedElements.pdf",
+      "url": "https://www.cs.utexas.edu/~misra/scannedPdf.dir/FindRepeatedElements.pdf"
+    },
+    "application": "General categorical stream frequency screening; no empirical benefit claimed.",
+    "required_inputs": "Stream, capacity and replay if exact frequencies required.",
+    "compatible_methods": [
+      "boyer-moore-majority-vote"
+    ],
+    "incompatible_methods": [
+      "Treating residual counts as exact frequencies"
+    ],
+    "relationships": [
+      {
+        "target": "boyer-moore-majority-vote",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "A full miss discards one group of k distinct occurrences. The residual bag and D disjoint groups account for all arrivals, and a key loses at most one occurrence per group. Thus every key above N/k survives, whereas equality need not survive. For k=2 this reduces to unequal-pair cancellation; classify as a variant of the existing majority algorithm rather than an additional distinct algorithm."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "059",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "count-min-frequency-sketch",
+    "name": "Count–Min nonnegative frequency sketch",
+    "definition": "For 0<ε,δ<1 set W=ceil(e/ε), d=ceil(ln(1/δ)); C[j,h_j(x)]←C[j,h_j(x)]+u; f_hat(x)=min_j C[j,h_j(x)]. For fixed x, f_x≤f_hat(x) and Pr(f_hat(x)≤f_x+εF)≥1−δ.",
+    "variables": "ε additive relative-to-total error allowance; δ failure probability; W row width; d row count; e natural exponential base; C counter matrix; h_j row hash; u nonnegative increment; f_x true cumulative weight; F=Σ_x f_x total weight; f_hat estimate",
+    "assumptions": "Finite key universe, nonnegative updates, exact arithmetic or explicitly bounded numerical error; independent row hashes drawn from a family with collision probability at most 1/W for distinct keys; fixed query and data independent of hash selection",
+    "limitations": "Collision overestimation is possible; the error is additive in total weight, not relative to the queried frequency. The stated probability is for one fixed query, not all adaptive queries. Uses Wd counters plus hash descriptions and O(d) hash evaluations per update or query",
+    "failure_conditions": [
+      "Negative or nonfinite increment, invalid ε or δ, insufficient memory or overflow",
+      "Unjustified hash collision or row-independence guarantee",
+      "Applying a fixed-query probability bound to adversarial or adaptive queries without further analysis"
+    ],
+    "computation": "Allocate a zero matrix of W columns and d rows and independently select row hashes with the required collision bound. Record hash family and seeds. For each key/increment pair add the increment to its selected bucket in every row and track total weight F. For a fixed key take the minimum across rows. Return the estimate and stated additive guarantee; F=0 gives zero exactly. Do not infer that an unobserved key has a positive true count.",
+    "source": {
+      "kind": "literature",
+      "citation": "Cormode and Muthukrishnan (2005), An improved data stream summary: The count-min sketch and its applications, Journal of Algorithms 55(1), 58–75, sections 3 and 4.1, Theorem 1, pp. 63–64. DOI 10.1016/j.jalgor.2003.12.001. https://cs.au.dk/~gerth/madalgo/old-madalgo.au.dk/img/SumSchoo2007_Lecture%20slides/Bibliography/p14_Cormode_JAl_05.pdf",
+      "url": "https://cs.au.dk/~gerth/madalgo/old-madalgo.au.dk/img/SumSchoo2007_Lecture%20slides/Bibliography/p14_Cormode_JAl_05.pdf"
+    },
+    "application": "General nonnegative stream frequency estimation; no empirical benefit claimed.",
+    "required_inputs": "Stream of item and increment pairs, hash functions and dimensions.",
+    "compatible_methods": [
+      "boyer-moore-majority-vote"
+    ],
+    "incompatible_methods": [
+      "Unqualified exact frequency claims"
+    ],
+    "relationships": [
+      {
+        "target": "boyer-moore-majority-vote",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Each addressed cell equals f_x plus nonnegative collision mass. Expected collision mass per row is at most F/W≤εF/e. For F>0 Markov bounds the chance of exceeding εF by 1/e; independence makes the probability that every row exceeds it at most e^(−d)≤δ. Unlike explicit candidate cancellation, this stores hashed aggregate counters and answers a supplied key query. No empirical benefit or implementation is claimed."
+  }
+]

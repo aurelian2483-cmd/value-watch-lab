@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "034",
+    "family": "numerical-quadrature",
+    "classification": "distinct-algorithm",
+    "id": "clenshaw-curtis-quadrature",
+    "name": "Clenshaw–Curtis quadrature",
+    "definition": "On [−1,1], interpolate f at x_j=cos(jπ/n), j=0,…,n; write p_n(x)=Σ_k a_k T_k(x) and approximate integral by Σ_(even k) 2a_k/(1−k²).",
+    "variables": "n polynomial degree; T_k Chebyshev polynomial; a_k interpolant coefficients",
+    "assumptions": "Finite evaluations on a closed interval; well-defined integrable function",
+    "limitations": "Nonsmooth integrands can converge slowly; endpoint singularities require separate treatment",
+    "failure_conditions": [
+      "Nonfinite samples or unresolved quadrature error"
+    ],
+    "computation": "Provisional Chebyshev interpolation and exact polynomial integration; verify normalization and source before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: Trefethen, Is Gauss Quadrature Better than Clenshaw–Curtis?, SIAM Review 2008; verify before admission."
+    },
+    "application": "General numerical integration.",
+    "required_inputs": "Integrand, interval and polynomial degree",
+    "compatible_methods": [
+      "gaussian-quadrature"
+    ],
+    "incompatible_methods": [
+      "Assuming smooth-function error rates without checking regularity"
+    ],
+    "relationships": [
+      {
+        "target": "gaussian-quadrature",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional cosine-grid polynomial integration; compare existing interpolation and quadrature entries."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "034",
+    "family": "numerical-quadrature",
+    "classification": "model-variant",
+    "id": "adaptive-gauss-kronrod-quadrature",
+    "name": "Adaptive Gauss–Kronrod quadrature",
+    "definition": "For each interval I compute nested Gauss and Kronrod estimates G(I), K(I), with local indicator E(I)=|K(I)−G(I)|; subdivide intervals with largest E until summed indicators meet declared tolerance or budget.",
+    "variables": "I subinterval; G,K nested quadrature estimates; E local indicator",
+    "assumptions": "Integrable function and valid nested nodes and weights on the reference interval",
+    "limitations": "Difference indicator is not a guaranteed upper error bound; singular or oscillatory integrands can defeat sampling",
+    "failure_conditions": [
+      "Nonfinite evaluations, unresolved error, or exhausted subdivisions"
+    ],
+    "computation": "Provisional adaptive interval management with nested rules; review exact node/weight and stopping specification before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: QUADPACK QAG routine and Gauss–Kronrod rules, Netlib; verify before admission."
+    },
+    "application": "General numerical integration.",
+    "required_inputs": "Integrand, interval, quadrature pair, tolerances and subdivision budget",
+    "compatible_methods": [
+      "gaussian-quadrature"
+    ],
+    "incompatible_methods": [
+      "Treating estimated error as a rigorous bound"
+    ],
+    "relationships": [
+      {
+        "target": "gaussian-quadrature",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional variant using nested quadrature and adaptive subdivision; verify overlap before admission."
+  }
+]

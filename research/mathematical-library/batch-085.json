@@ -1,0 +1,104 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "085",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "bresenham-integer-line-rasterization",
+    "name": "Bresenham integer line rasterization",
+    "definition": "Let A=|x₁−x₀|, B=|y₁−y₀|, a=max(A,B), b=min(A,B). In normalized major/minor coordinates (u,v)=(0,0), set D=2b−a. Emit (u,v); while u<a, if D≥0 set (u,v,D)←(u+1,v+1,D+2(b−a)), otherwise set (u,v,D)←(u+1,v,D+2b); emit after each step. Invert the axis swap and direction signs and add the start point",
+    "variables": "(x₀,y₀),(x₁,y₁) ordered integer endpoints; A,B absolute coordinate differences; a,b major and minor lengths; u,v normalized offsets; D doubled implicit midpoint decision",
+    "assumptions": "Integer pixel centers on a square Cartesian lattice; exact integer arithmetic; select x as major axis on equal magnitudes; normalize directions independently using the signs of endpoint differences; a=0 returns the single endpoint; ties select the diagonal in normalized coordinates",
+    "limitations": "O(a+1) time and O(1) working state excluding O(a+1) output; fixed-width overflow must be avoided; no antialiasing, fractional endpoints, or all-touched-pixel guarantee; reversing endpoint order can change tie pixels",
+    "failure_conditions": [
+      "Noninteger coordinates or unrepresentable integer differences, doubled error or output coordinates",
+      "Inconsistent axis transformation or output missing an endpoint"
+    ],
+    "computation": "Set signs of coordinate increments from endpoint differences; choose x as major if A≥B, else y. Map normalized offsets to (x₀+sx·u,y₀+sy·v) for x-major or (x₀+sx·v,y₀+sy·u) for y-major, with zero sign allowed. Apply the recurrence exactly and emit each mapped point once; stop at u=a",
+    "source": {
+      "kind": "literature",
+      "citation": "Brandeis University, CS155, Drawing 2D Primitives, Lecture 02, PDF pp. 4–5 (text and slide images reviewed); doubled midpoint recurrence and octant symmetry. Tie convention follows pseudocode, not the preceding slide's strict-positive diagonal rule. https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf",
+      "url": "https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Two ordered integer lattice endpoints; arithmetic capable of exact differences and doubled errors",
+    "compatible_methods": [
+      "cohen-sutherland-segment-clipping"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "cohen-sutherland-segment-clipping"
+      }
+    ],
+    "mechanism_note": "Incremental integer midpoint decision for a linear primitive, generating a connected nearest-minor-coordinate lattice path; distinct from continuous segment clipping"
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "085",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "midpoint-circle-rasterization",
+    "name": "Midpoint circle rasterization",
+    "definition": "Let F(x,y)=x²+y²−r². Start at (x,y)=(0,r), d=1−r. While x≤y, emit the distinct signed permutations of (x,y) translated by the center. Using old coordinates, if d<0 update (x,y,d)←(x+1,y,d+2x+3), else update (x,y,d)←(x+1,y−1,d+2(x−y)+5). Here d=F(x+1,y−1/2)−1/4",
+    "variables": "r integer radius; x,y nonnegative octant offsets; d integer midpoint decision; F implicit circle function; (cₓ,cᵧ) integer center",
+    "assumptions": "Square Cartesian integer lattice and integer center, r≥0; exact integer arithmetic; plot only while x≤y; suppress duplicate signed permutations at axes and diagonal; r=0 produces the center alone",
+    "limitations": "O(r+1) time and O(1) working state excluding O(r+1) output if each symmetry orbit is deduplicated locally; no filled disk, antialiasing, noninteger radius or anisotropic pixel support; not a guarantee of globally minimum radial error; fixed-width overflow must be avoided",
+    "failure_conditions": [
+      "Negative or noninteger radius, noninteger center, or arithmetic overflow",
+      "Output with incorrect symmetry or octant termination"
+    ],
+    "computation": "Generate offsets in the octant from the positive y-axis toward the diagonal; for each pair emit unique (±x,±y) and (±y,±x) with independent signs, translated by the center. The midpoint polynomial differs from d by 1/4, so d<0 selects the same branch as the exact negative midpoint test. Stop before emitting a crossed octant",
+    "source": {
+      "kind": "literature",
+      "citation": "Brandeis University, CS155, Drawing 2D Primitives, Lecture 02, PDF pp. 5–6 (text and slide images reviewed); circle implicit equation, integer midpoint update and eightfold symmetry. Octant stopping and local deduplication explicitly specified here. https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf",
+      "url": "https://www.cs.brandeis.edu/~cs155/Lecture_02_6.pdf"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Integer center and nonnegative integer radius; exact lattice arithmetic",
+    "compatible_methods": [
+      "bresenham-integer-line-rasterization"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "bresenham-integer-line-rasterization"
+      }
+    ],
+    "mechanism_note": "Nonlinear circle midpoint decision with coordinate-dependent increments and eightfold symmetry, distinct primitive and recurrence from linear rasterization; shared midpoint principle is not a claim of independent scientific novelty"
+  }
+]

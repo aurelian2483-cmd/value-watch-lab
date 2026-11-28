@@ -1,0 +1,51 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "029",
+    "family": "numerical-linear-algebra",
+    "classification": "model-variant",
+    "id": "sor-stationary-linear-solve",
+    "name": "Successive overrelaxation stationary solver",
+    "definition": "For A=D+L+U solve (D+ωL)x_(k+1)=ωb+[(1−ω)D−ωU]x_k with fixed relaxation ω.",
+    "variables": "D diagonal; L,U strict triangular parts; ω relaxation; x iterate",
+    "assumptions": "Nonzero diagonal; symmetric positive definite A and 0<ω<2 suffice for convergence in exact arithmetic.",
+    "limitations": "Ordering and relaxation affect convergence; ω=1 reduces to Gauss–Seidel.",
+    "failure_conditions": [
+      "Zero diagonal, nonfinite iterate or residual tolerance not met within bound"
+    ],
+    "computation": "Sweep relaxed Gauss–Seidel coordinates; check true residual.",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, §2.2.3, equation (2.7) and Fig. 2.3; lower and upper parts here have opposite signs to the book's convention. https://netlib.org/templates/templates.html"
+    },
+    "application": "General numerical solution of a linear system.",
+    "required_inputs": "Square matrix, right side, initial iterate, relaxation and stopping bounds.",
+    "compatible_methods": [
+      "gauss-seidel-linear-solve"
+    ],
+    "incompatible_methods": [
+      "Claiming convergence for arbitrary relaxation and matrices"
+    ],
+    "relationships": [
+      {
+        "target": "gauss-seidel-linear-solve",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "A fixed relaxation of the ordered Gauss–Seidel sweep; ω=1 gives the parent iteration exactly. Counted as a variant, not a new distinct algorithm."
+  }
+]

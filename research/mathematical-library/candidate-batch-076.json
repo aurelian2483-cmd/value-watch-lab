@@ -1,0 +1,108 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "076",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "lz77-sliding-window-backreference",
+    "name": "LZ77 sliding-window backreference",
+    "definition": "For input x[0..n−1], window W≥1, maximum length L≥2 and position i, define ℓ(d)=max{k: 0≤k≤min(L,n−i), x[i+j]=x[i+j−d] for all 0≤j<k}, for 1≤d≤min(W,i). Choose maximum ℓ(d), breaking ties by smallest d. If a match of length at least 2 exists, emit tagged pair (d,ℓ) and advance i by ℓ; otherwise emit tagged literal x[i] and advance by one. Decoder appends y[|y|−d] repeatedly ℓ times, recalculating the current output length each time.",
+    "variables": "x input, n length, i current position, W window bound, L length bound, d distance, ℓ match length, y decoded prefix",
+    "assumptions": "Finite equality-comparable symbols; fixed shared integer W and L; empty initial dictionary; framed tagged tokens and exact expected output length; overlapping references permitted; empty input encodes as no tokens",
+    "limitations": "Direct exhaustive matching takes O(nWL) symbol comparisons as a conservative bound; decoding takes O(n) symbol writes with O(W) history beyond output. Greedy longest matching is not necessarily bit-optimal; this specifies a simplified token parser, not original triple framing or the full DEFLATE format",
+    "failure_conditions": [
+      "Invalid window or length bounds, unknown tag or invalid literal",
+      "Reference distance outside 1..min(W,decoded length), length outside 2..L, truncated token",
+      "Decoded output exceeds declared length or resource limit, or final length differs"
+    ],
+    "computation": "Enumerate admissible distances in ascending order and extend each match until mismatch or limit; emit longest eligible match or a literal. Validate bounds and expected remaining output before decoding each token; overlap uses forward symbol-by-symbol copying rather than a static slice.",
+    "source": {
+      "kind": "literature",
+      "citation": "Deutsch (1996), RFC 1951, DEFLATE Compressed Data Format Specification, §§2 and 3.2.3, https://www.rfc-editor.org/rfc/rfc1951.html (literal and distance/length token model, overlapping copies; this specification generalizes bounds and uses its own greedy rule and framing). Ziv and Lempel (1977), A Universal Algorithm for Sequential Data Compression, IEEE Transactions on Information Theory 23(3), 337–343, DOI 10.1109/TIT.1977.1055714 (metadata and abstract reviewed; original full paper not reviewed).",
+      "url": "https://www.rfc-editor.org/rfc/rfc1951.html"
+    },
+    "application": "General lossless sequence representation; no empirical benefit claimed.",
+    "required_inputs": "Finite symbol sequence or tagged token stream, shared W and L, declared output length and resource cap.",
+    "compatible_methods": [
+      "lz78-dictionary-parsing"
+    ],
+    "incompatible_methods": [
+      "Static non-overlapping slice decoding for overlapping matches",
+      "Assuming greedy parsing is bit-optimal or claiming DEFLATE compatibility"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "lz78-dictionary-parsing"
+      }
+    ],
+    "mechanism_note": "Each copied symbol references an already produced symbol because d≥1, including within overlapping copies; induction on decoded length proves lossless reconstruction. Unlike LZ78, no persistent phrase dictionary or phrase-index insertion is required; references are bounded relative positions. This is a distinct sliding-window mechanism."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "076",
+    "family": "data-structures",
+    "classification": "distinct-algorithm",
+    "id": "run-length-encoding-symbol-count",
+    "name": "Run-length encoding symbol-count pairs",
+    "definition": "For a finite sequence x of length n, partition into maximal equal-symbol runs (s_i,c_i), c_i≥1, adjacent s_i≠s_(i+1), and Σ_i c_i=n. Encode the ordered pairs; decode x=s_1 repeated c_1 times followed by subsequent runs in order. Empty input has zero pairs.",
+    "variables": "s_i run symbol, c_i positive run length, n input length, r number of maximal runs",
+    "assumptions": "Finite equality-comparable symbols with unambiguous representation; framed pairs and declared output length; exact bounded positive integer counts; adjacent equal-symbol pairs rejected under this canonical unsplit-run convention",
+    "limitations": "Encoding and decoding require O(n) symbol operations and O(1) working words beyond input/output in a bounded-count word model; r≤n for nonempty input. Actual encoded size depends on count and symbol representation, and may expand; fixed-width split-run formats and PackBits are not specified",
+    "failure_conditions": [
+      "Nonpositive or noninteger count, unknown symbol or malformed pair",
+      "Adjacent pairs with equal symbols under canonical framing",
+      "Sum of counts exceeds declared output size or resource limit, or final sum differs"
+    ],
+    "computation": "Scan the input once, accumulating a count for the current symbol and flushing on change or end. Validate the complete pair framing, counts, adjacency and cumulative length before expansion; then emit the declared number of each symbol.",
+    "source": {
+      "kind": "literature",
+      "citation": "Kulcu, Algorithms Lecture Notes, Chapter 9: String Matching and Compression, §9.8.1, https://sercankulcu.github.io/files/algorithms/notes/Chapter_09_String_Matching_and_Compression_Lecture_Notes.html (maximal runs and count-symbol pairs). TIFF Image File Format Rev. 4.0, Appendix C, https://cool.culturalheritage.org/bytopic/imaging/std/tiff4.html (historical PackBits repeat packets; not the same wire format).",
+      "url": "https://sercankulcu.github.io/files/algorithms/notes/Chapter_09_String_Matching_and_Compression_Lecture_Notes.html"
+    },
+    "application": "General lossless sequence representation; no empirical benefit claimed.",
+    "required_inputs": "Finite symbol sequence or framed symbol/count pairs, declared output length and resource cap.",
+    "compatible_methods": [
+      "golomb-truncated-binary-code"
+    ],
+    "incompatible_methods": [
+      "Treating a global symbol histogram as contiguous runs",
+      "Assuming fixed-width counts without overflow handling or guaranteed compression"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "golomb-truncated-binary-code"
+      }
+    ],
+    "mechanism_note": "Run boundaries occur exactly at unequal adjacent symbols; the unique maximal-run partition is recovered from its ordered symbols and lengths. This is not Golomb coding of integers, nor general LZ77 substring substitution; although long constant runs can be represented using distance-one LZ77 references, the canonical run partition is a different sequence representation."
+  }
+]

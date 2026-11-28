@@ -1,0 +1,206 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "077",
+    "family": "network-science",
+    "classification": "distinct-algorithm",
+    "id": "kahn-topological-sort",
+    "name": "Kahn indegree topological sort",
+    "definition": "For finite directed graph G=(V,E), set d(v)=|{(u,v) in E}|. Initialize queue Q with d(v)=0. Remove v from Q, append it to ordering L, and for each outgoing arc (v,w) set d(w)=d(w)−1; enqueue w exactly when d(w)=0. If |L|=|V| return L; otherwise report a directed cycle.",
+    "variables": "V vertices, E directed arcs, d remaining indegree, Q queue, L output order",
+    "assumptions": "Finite fixed graph with valid endpoints; adjacency lists and one count per arc; self-loops are cycles; empty graph has empty ordering",
+    "limitations": "O(|V|+|E|) time and O(|V|) auxiliary storage; multiple valid orderings possible; a cycle report does not identify all cyclic vertices",
+    "failure_conditions": [
+      "Invalid endpoints or inconsistent arc multiplicities",
+      "A nonempty residual graph without a source prevents a complete topological ordering"
+    ],
+    "computation": "Scan arcs to initialize indegrees; process zero-indegree vertices in declared FIFO order, scanning each outgoing list once. Check output count and arc ordering.",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Pennsylvania, CIS 1210, Spring 2025, Recitation 7, Kahn’s algorithm, https://www.cis.upenn.edu/~cis1210/current/recitations/fa25_rec_7_sols.pdf (retrieved text; screenshot unavailable). Original Kahn (1962) DOI 10.1145/368996.369025 retained as unverified locator.",
+      "url": "https://www.cis.upenn.edu/~cis1210/current/recitations/fa25_rec_7_sols.pdf"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite directed graph with declared vertex order and adjacency lists.",
+    "compatible_methods": [
+      "dijkstra-shortest-path"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "dijkstra-shortest-path"
+      }
+    ],
+    "mechanism_note": "Maintains indegree of the unprocessed induced graph. Every nonempty finite DAG has a source; each emitted vertex precedes all its unprocessed successors. If no source remains, following predecessors in the finite residual graph yields a cycle. Distinct from shortest-path and spanning-forest objectives."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "077",
+    "family": "network-science",
+    "classification": "distinct-algorithm",
+    "id": "tarjan-strongly-connected-components",
+    "name": "Tarjan strongly connected components",
+    "definition": "For directed graph G=(V,E), assign discovery index i(v)=low(v)=next index on DFS entry; push v on active stack S. For each edge v→w, if w is undiscovered recurse then set low(v)=min(low(v),low(w)); else if w is on S set low(v)=min(low(v),i(w)); otherwise ignore. If low(v)=i(v), pop through v inclusive as one component. Start DFS at each still undiscovered vertex.",
+    "variables": "i discovery index, low DFS lowlink, S unassigned vertex stack, v,w vertices",
+    "assumptions": "Finite fixed directed graph; valid endpoints; distinct discovery indices; active-stack membership tracked separately from DFS call stack",
+    "limitations": "O(|V|+|E|) time, O(|V|) auxiliary storage; recursive depth may reach |V|; output component order depends on traversal choices, but partition does not",
+    "failure_conditions": [
+      "Invalid vertex reference",
+      "Resource limit on stack or discovery counter"
+    ],
+    "computation": "Traverse all adjacency lists once; distinguish tree-edge lowlink propagation from on-stack non-tree discovery-index update; ignore completed components and mark popped vertices inactive.",
+    "source": {
+      "kind": "literature",
+      "citation": "Cornell CS 4120 (Spring 2023), Iterative solving, Tarjan’s algorithm, https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html. Original Tarjan (1972) DOI 10.1137/0201010 retained as unverified locator.",
+      "url": "https://courses.cs.cornell.edu/cs4120/2023sp/notes/iterative/index.html"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite directed graph with explicit adjacency lists.",
+    "compatible_methods": [
+      "kahn-topological-sort"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "kahn-topological-sort"
+      }
+    ],
+    "mechanism_note": "The root condition identifies a maximal mutually reachable group; active-stack bookkeeping distinguishes completed components. Floyd–Warshall computes pairwise paths rather than this linear-time partition; Kahn orders the resulting condensation DAG, not the cyclic graph itself."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "077",
+    "family": "operations-research",
+    "classification": "distinct-algorithm",
+    "id": "edmonds-karp-maximum-flow",
+    "name": "Edmonds–Karp shortest augmenting path maximum flow",
+    "definition": "For finite directed network G=(V,E), start residual capacities r(u,v)=c(u,v) (zero for absent arcs). BFS from source s to sink t using r>0 finds a minimum-edge path P. Set δ=min_{(u,v) in P} r(u,v), then r(u,v)=r(u,v)−δ and r(v,u)=r(v,u)+δ along P; accumulate F=F+δ from F=0. Stop when t is unreachable; F is maximum flow value.",
+    "variables": "c nonnegative capacity, r residual capacity, s,t distinct terminals, P shortest residual path, δ bottleneck, F net flow value",
+    "assumptions": "Finite fixed directed graph, finite nonnegative capacities, exact arithmetic; aggregate parallel arcs by ordered endpoints, omit self-loops; residual representation permits antiparallel arcs",
+    "limitations": "O(|V||E|²) time after excluding irrelevant isolated vertices, with O(|V|+|E|) initialization and storage using adjacency lists; finite-precision residual tolerances require separate numerical analysis",
+    "failure_conditions": [
+      "Invalid terminals, negative or nonfinite capacities",
+      "Overflow or residual arithmetic that violates nonnegativity or conservation"
+    ],
+    "computation": "Initialize reverse arcs as needed; repeat BFS and paired residual updates. Terminal reachable set defines a cut whose capacity equals F; certify max-flow value against that cut.",
+    "source": {
+      "kind": "literature",
+      "citation": "MIT 6.854, Strongly Polynomial Flow Algorithms, Scribe Notes #7, §2, https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html. Edmonds and Karp (1972) DOI 10.1145/321694.321699 retained as unverified locator.",
+      "url": "https://courses.csail.mit.edu/6.854/21/Scribe/s7-blockingFlows/unit-capacity.html"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite directed capacity network and distinct source and sink.",
+    "compatible_methods": [
+      "dijkstra-shortest-path"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "dijkstra-shortest-path"
+      }
+    ],
+    "mechanism_note": "Residual reverse arcs permit cancellation; shortest residual distances do not decrease and each critical arc can recur only O(|V|) times. Different objective and state updates from Dijkstra; the existing general linear-program specification is not this combinatorial procedure."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "077",
+    "family": "operations-research",
+    "classification": "distinct-algorithm",
+    "id": "hopcroft-karp-bipartite-matching",
+    "name": "Hopcroft–Karp bipartite maximum matching",
+    "definition": "Given bipartite graph G=(L∪R,E) and matching M (initially empty), orient unmatched edges L→R and matched edges R→L. BFS from free L vertices finds shortest distance ℓ to a free R vertex. Select an inclusion-maximal collection of vertex-disjoint shortest augmenting paths P_1,...,P_k in the layered graph by DFS, and update M_new=M △ (E(P_1) ∪ ... ∪ E(P_k)). Stop when no free R vertex is reachable.",
+    "variables": "L,R disjoint vertex sets, E crossing edges, M matching, ℓ shortest augmenting path length, P_i paths, △ symmetric difference",
+    "assumptions": "Finite unweighted bipartite graph, valid partition and endpoints, simple edges or deduplicated parallel edges; all paths in a phase selected relative to the same initial matching",
+    "limitations": "O(|V|+|E|√|V|) time using linear-time layered DFS per phase and removal of isolated vertices; O(|V|+|E|) storage. Solves cardinality, not weighted assignment or nonbipartite matching.",
+    "failure_conditions": [
+      "Nonbipartite input or invalid matching",
+      "Layer traversal that does not produce an inclusion-maximal disjoint set"
+    ],
+    "computation": "BFS builds shortest alternating layers; DFS with per-phase edge cursors and dead-end removal finds disjoint shortest paths. Flip their edges simultaneously, then rebuild layers. Absence of augmenting paths certifies maximum cardinality.",
+    "source": {
+      "kind": "literature",
+      "citation": "Norbert Zeh, Dalhousie University, Algorithms II §7.4.4, https://web.cs.dal.ca/~nzeh/Teaching/4113/book/matching/bipartite_maximum_matching/hopcroft_karp.html. Original Hopcroft and Karp (1973) DOI 10.1137/0202019 retained as unverified locator.",
+      "url": "https://web.cs.dal.ca/~nzeh/Teaching/4113/book/matching/bipartite_maximum_matching/hopcroft_karp.html"
+    },
+    "application": "General graph computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite bipartite graph with explicit partition and adjacency lists.",
+    "compatible_methods": [
+      "edmonds-karp-maximum-flow"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "edmonds-karp-maximum-flow"
+      }
+    ],
+    "mechanism_note": "Each phase increases matching cardinality by k; shortest augmenting distance strictly increases. This is a specialized disjoint-path phase algorithm, distinct from Edmonds–Karp single-path augmentation and Hungarian weighted assignment; related to unit-capacity blocking flow."
+  }
+]

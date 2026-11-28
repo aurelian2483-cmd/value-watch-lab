@@ -1,0 +1,104 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "040",
+    "family": "numerical-ode",
+    "classification": "model-variant",
+    "id": "multiple-shooting-boundary-value",
+    "name": "Multiple shooting with continuity constraints",
+    "definition": "For Y′=F(t,Y) in R^d and boundary equation B(Y(a),Y(b))=0 in R^d, partition a=t₀<⋯<t_m=b. Introduce Z_j∈R^d for j=0,…,m and exact segment flow Φ_j from t_j to t_(j+1). Solve Φ_j(Z_j)−Z_(j+1)=0 for j=0,…,m−1 and B(Z₀,Z_m)=0. In computation replace exact flows with numerical integrations.",
+    "variables": "d state dimension; m segment count; t_j mesh points; Z_j nodal states; Φ_j flow map; B boundary map",
+    "assumptions": "Increasing mesh, well-posed segment IVPs near a solution, compatible boundary conditions, differentiable flow and boundary maps for Newton iteration, nonsingular full matching Jacobian at a regular local root",
+    "limitations": "Larger nonlinear system than single shooting; shorter intervals can reduce within-segment error amplification but cannot guarantee conditioning, uniqueness or convergence; integration errors remain",
+    "failure_conditions": [
+      "Failed segment integration or nonfinite state",
+      "Unresolved interface or boundary residual",
+      "Singular or inadequately conditioned coupled Jacobian"
+    ],
+    "computation": "Declare mesh, nodal guesses, integration and nonlinear-solve tolerances. Assemble matching residuals and Jacobian with blocks DΦ_j and −I for adjacent states and endpoint derivatives of B. Solve with safeguarded Newton iteration; verify interface and boundary residuals and sensitivity to integration refinement.",
+    "source": {
+      "kind": "literature",
+      "citation": "Michael T. Heath, Scientific Computing: An Introductory Survey, chapter 10, Multiple Shooting, slide 19, University of Illinois, https://relate.cs.illinois.edu/course/cs450-s24/f/lectures/heath/chap10.pdf ; Morrison, Riley and Zancanaro (1962), https://doi.org/10.1145/355580.369128 (public abstract only); dimensions and Jacobian independently derived."
+    },
+    "application": "General numerical boundary value problems.",
+    "required_inputs": "ODE vector field, boundary map, mesh, nodal guesses, integration and nonlinear-solve policies",
+    "compatible_methods": [
+      "single-shooting-boundary-value"
+    ],
+    "incompatible_methods": [
+      "Unresolved matching constraints"
+    ],
+    "relationships": [
+      {
+        "target": "single-shooting-boundary-value",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "There are (m+1)d unknowns, md continuity equations and d boundary equations. Exact continuity and unique local IVP solutions concatenate to an original BVP solution; elimination of intermediate states recovers the single-shooting equation. Counted as a shooting variant."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "040",
+    "family": "numerical-ode",
+    "classification": "distinct-algorithm",
+    "id": "piecewise-linear-galerkin-elliptic-bvp",
+    "name": "Piecewise-linear Galerkin finite elements for scalar elliptic boundary value problems",
+    "definition": "For −u″+c u=g on (a,b), u(a)=u(b)=0, use continuous piecewise-linear trial and test functions vanishing at endpoints. Set U=Σ_j U_j φ_j in interior nodal hats and solve Σ_j A_ij U_j=b_i, A_ij=∫_a^b(φ_i′φ_j′+c φ_i φ_j)dt, b_i=∫_a^b g φ_i dt. For constant c on an element of length h_e, A_e=(1/h_e)[[1,−1],[−1,1]]+(c h_e/6)[[2,1],[1,2]].",
+    "variables": "a,b interval endpoints; c reaction coefficient; g forcing; h_e element length; φ_j nodal hats; U_j coefficients; A,b_i assembled matrix and load",
+    "assumptions": "Finite interval, bounded c≥0 almost everywhere, square-integrable g, increasing conforming mesh and exact integration for variational claims; H² solution for first-order energy convergence",
+    "limitations": "Underintegration changes the equations; nonsmooth solutions may reduce rates; mesh conditioning and quadrature affect solves; algebraic residual alone cannot certify discretization error",
+    "failure_conditions": [
+      "Invalid mesh or coefficient",
+      "Nonfinite assembly or unresolved linear solve",
+      "Uncontrolled quadrature or refinement error"
+    ],
+    "computation": "Compute each local bilinear form and load, assemble using shared node indices, eliminate endpoint degrees of freedom, solve the symmetric positive-definite interior system and assess mesh and quadrature refinement separately from linear-solve tolerance.",
+    "source": {
+      "kind": "literature",
+      "citation": "Per-Olof Persson, The Finite Element Method – Lecture Notes, UC Berkeley, Introduction to FEM and assembly, https://persson.berkeley.edu/math228b/html/fem_notes.html ; reaction matrix, energy orthogonality and finite-difference comparison independently derived."
+    },
+    "application": "General numerical boundary value problems.",
+    "required_inputs": "Interval, reaction coefficient, forcing, mesh, quadrature and solve policies",
+    "compatible_methods": [
+      "centered-finite-difference-linear-bvp"
+    ],
+    "incompatible_methods": [
+      "Unresolved coercivity or linear solve"
+    ],
+    "relationships": [
+      {
+        "target": "centered-finite-difference-linear-bvp",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Energy orthogonality gives best approximation in the bilinear-form norm; positivity follows from the derivative term and zero boundary conditions. Interpolation of an H² solution gives O(max h_e) energy error. Uniform mesh with c=0 and constant g gives the centered finite-difference equations after dividing interior rows by h; general consistent reaction and load integrals differ, so the methods are related rather than equivalent."
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "027",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "jacobi-symmetric-eigensolver",
+    "name": "Jacobi plane-rotation symmetric eigensolver",
+    "definition": "Initialize V=I and A=A₀. While the off-diagonal Frobenius norm exceeds tolerance, choose p≠q maximizing |A_pq| and orthogonal plane rotation G with (GᵀAG)_pq=0; set A←GᵀAG, V←VG. Return diag(A) and V only after convergence.",
+    "variables": "A real symmetric matrix; G plane rotation; V accumulated orthogonal transformations",
+    "assumptions": "Real symmetric input; maximal off-diagonal pivot; stable rotation computation; bounded iterations and finite-precision residual checks.",
+    "limitations": "Repeated rotations can be costly for large dense matrices; clustered eigenvalues make individual eigenvectors nonunique or sensitive.",
+    "failure_conditions": [
+      "Nonsymmetric matrix or unconverged off-diagonal residual"
+    ],
+    "computation": "Compute stable annihilating plane rotation, update symmetric entries and optional eigenvector accumulator.",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Texas at Austin, Advanced Linear Algebra: Foundations to Frontiers, §11.3.2 Jacobi's method for computing the Spectral Decomposition. https://www.cs.utexas.edu/~flame/laff/alaff/chapter11-Jacobi-method-spectral-decomposition.html"
+    },
+    "application": "General symmetric matrix diagonalization for numerical analysis.",
+    "required_inputs": "Real symmetric matrix, pivot schedule, convergence threshold, iteration bound.",
+    "compatible_methods": [
+      "givens-qr-elimination",
+      "symmetric-tridiagonal-reduction"
+    ],
+    "incompatible_methods": [
+      "Confusing a single QR plane rotation with iterative symmetric diagonalization"
+    ],
+    "relationships": [
+      {
+        "target": "givens-qr-elimination",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Repeated two-sided orthogonal similarity transforms differ from one-sided Givens QR elimination and the QR eigenvalue iteration."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "027",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "bidiagonal-golub-kahan-recurrence",
+    "name": "Golub–Kahan bidiagonalization recurrence",
+    "definition": "Start unit v₁, u₀=0, β₁=0. For j≥1 set w=Av_j−β_j u_(j−1), α_j=||w||₂; stop if α_j vanishes, otherwise u_j=w/α_j. Then z=Aᵀu_j−α_j v_j, β_(j+1)=||z||₂; stop if β_(j+1) vanishes, otherwise v_(j+1)=z/β_(j+1).",
+    "variables": "A real rectangular matrix; u,v left and right basis vectors; α,β bidiagonal coefficients",
+    "assumptions": "Real rectangular operator with consistent transpose; unit starting vector; positive normalization factors until termination; finite-precision orthogonality monitored.",
+    "limitations": "Loss of orthogonality and near-zero norms require safeguards; projected singular values are approximations.",
+    "failure_conditions": [
+      "Unhandled zero norm or incompatible adjoint operator"
+    ],
+    "computation": "Alternate products by A and A transpose with coupled short recurrences.",
+    "source": {
+      "kind": "literature",
+      "citation": "Netlib, Templates for the Solution of Algebraic Eigenvalue Problems, Golub-Kahan-Lanczos Bidiagonalization Procedure, equations (112)–(116); beta indices shifted by one in this specification. https://www.netlib.org/utk/people/JackDongarra/etemplates/node198.html"
+    },
+    "application": "General reduced numerical representation of rectangular linear operators.",
+    "required_inputs": "Linear operator, transpose operator, initial vector, dimension and stopping policy.",
+    "compatible_methods": [
+      "svd-bidiagonal-reduction",
+      "symmetric-lanczos-krylov"
+    ],
+    "incompatible_methods": [
+      "Treating partial projection as complete singular value decomposition"
+    ],
+    "relationships": [
+      {
+        "target": "svd-bidiagonal-reduction",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Alternating rectangular-operator and transpose Krylov recurrence, related to Lanczos on an augmented symmetric operator; differs computationally from dense two-sided Householder reduction. Not independent scientific evidence."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "027",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "bicgstab-linear-system",
+    "name": "BiCGSTAB nonsymmetric linear-system iteration",
+    "definition": "Initialize r=b−Ax; stop if converged. Fix r̂=r, p=v=0, ρ_old=α=ω=1. At each step set ρ=r̂ᵀr, β=(ρ/ρ_old)(α/ω), p=r+β(p−ωv), v=Ap, α=ρ/(r̂ᵀv), s=r−αv. If s meets tolerance, set x←x+αp and check true residual; otherwise t=As, ω=(tᵀs)/(tᵀt), x←x+αp+ωs, r←s−ωt, ρ_old←ρ. Check convergence before another step; guard all divisions.",
+    "variables": "A square matrix; b right side; x solution iterate; r,r̂ residual and shadow; α,β,ρ,ω scalars",
+    "assumptions": "Real nonsingular square system, identity preconditioner, fixed initial shadow residual, finite quantities, nonzero denominators, bounded iterations and a declared absolute/relative residual criterion.",
+    "limitations": "Irregular convergence and breakdown possible; residual alone may not imply small forward error.",
+    "failure_conditions": [
+      "Zero or near-zero rho, omega or other required denominator before convergence; stagnation, failed true-residual check or nonfinite iterate"
+    ],
+    "computation": "Matrix-vector products, dot products and short recurrences; verify true residual before accepting convergence.",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems (1993), Netlib BiCGSTAB reverse-communication routine, lines 249–385, specialized to the identity preconditioner. https://netlib.org/templates/double/BiCGSTABREVCOM.f"
+    },
+    "application": "General iterative solution of a nonsymmetric numerical system.",
+    "required_inputs": "Matrix or operator, right-hand side, initial point, tolerance and iteration bound.",
+    "compatible_methods": [
+      "gmres-linear-solve",
+      "linear-solve-backward-error"
+    ],
+    "incompatible_methods": [
+      "Ignoring recurrence breakdown"
+    ],
+    "relationships": [
+      {
+        "target": "gmres-linear-solve",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Short stabilized biconjugate-gradient recurrence differs from Arnoldi-based GMRES and symmetric positive-definite CG; no convergence guarantee for every nonsingular system."
+  }
+]

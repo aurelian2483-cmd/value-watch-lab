@@ -1,0 +1,109 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "056",
+    "family": "numerical-optimisation",
+    "classification": "model-variant",
+    "id": "pebay-pairwise-central-cross-moment",
+    "name": "Pébay pairwise centered cross moment merge",
+    "definition": "For disjoint nonempty paired blocks G=A,B, C_G=Σ_(i∈G)(x_i−m_(x,G))(y_i−m_(y,G)); n=n_A+n_B, δ_x=m_(x,B)−m_(x,A), δ_y=m_(y,B)−m_(y,A); C=C_A+C_B+δ_xδ_y n_A n_B/n",
+    "variables": "C_G unnormalized centered cross moment; m_(x,G),m_(y,G) block coordinate means; n_G positive counts; C merged cross moment",
+    "assumptions": "Disjoint observation identities with aligned finite real pairs, consistent block summaries, common coordinate units, exact counts and representable intermediates; identity in real arithmetic",
+    "limitations": "Products and mean differences may overflow or underflow or suffer cancellation; merge order matters in floating point; covariance does not establish independence or causation",
+    "failure_conditions": [
+      "Unpaired observations, overlapping identities, inconsistent states, or nonfinite intermediates",
+      "Attempt to normalize by n−1 for n<2"
+    ],
+    "computation": "Merge both coordinate means using the count-weighted Chan update, then add the between-block product correction to the two cross moments. Return the unnormalized state; divide by n for empirical covariance or n−1 for sample covariance when n≥2 and the inferential assumptions are justified. An empty block is handled as an identity without using its undefined means.",
+    "source": {
+      "kind": "literature",
+      "citation": "Pébay (2008), Formulas for Robust, One-Pass Parallel Computation of Covariances and Arbitrary-Order Statistical Moments, SAND2008-6212, pp. 12–13, Proposition 3.1, eqs. (3.1)–(3.11). DOI 10.2172/1028931. https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf",
+      "url": "https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf"
+    },
+    "application": "General numerical covariance summary; no empirical benefit claimed.",
+    "required_inputs": "Two disjoint paired block summaries.",
+    "compatible_methods": [
+      "chan-parallel-central-second-moment",
+      "pearson-linear-correlation"
+    ],
+    "incompatible_methods": [
+      "Treating a rounded cross moment as exact"
+    ],
+    "relationships": [
+      {
+        "target": "chan-parallel-central-second-moment",
+        "type": "variant-of"
+      },
+      {
+        "target": "pearson-linear-correlation",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Expanding each centered product about the combined means eliminates both first-order terms because within-block deviations sum to zero. Setting y=x recovers Chan's second-moment merge. This is its bivariate extension rather than a new distinct algorithm."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "056",
+    "family": "numerical-optimisation",
+    "classification": "model-variant",
+    "id": "pebay-arbitrary-order-central-moment-merge",
+    "name": "Pébay arbitrary-order central moment merge",
+    "definition": "For integer p≥3 and disjoint nonempty blocks G=A,B, n=n_A+n_B, m=m_A+(m_B−m_A)n_B/n, M_(j,G)=Σ_(i∈G)(x_i−m_G)^j for j≥2; M_p=Σ_(j=0)^p binom(p,j)[M_(j,A)(m_A−m)^(p−j)+M_(j,B)(m_B−m)^(p−j)], with M_(0,G)=n_G, M_(1,G)=0 and exponent-zero factors equal to 1",
+    "variables": "p integer moment order; M_(j,G) unnormalized block central moment; m_G block mean; n_G positive count; m and M_p merged mean and moment",
+    "assumptions": "Finite real observations, disjoint observation identities, consistent lower-order moment states, exact counts, and representable intermediate terms; identity in real arithmetic",
+    "limitations": "Large powers and binomial coefficients may overflow or underflow; cancellation and merge order affect floating-point accuracy; high-order moments are sensitive to outliers and are not inherently robust",
+    "failure_conditions": [
+      "Missing lower moments, invalid counts, overlapping blocks or nonfinite intermediates",
+      "Treating normalized moments as unnormalized states without conversion"
+    ],
+    "computation": "Compute combined mean and the two mean shifts; evaluate the binomial sum from the unchanged input states. Use exponent-zero factors of 1 even for zero shifts. Compute each needed order before replacing block states; empty blocks are identities handled separately. Divide by n only if an empirical normalized moment is desired.",
+    "source": {
+      "kind": "literature",
+      "citation": "Pébay (2008), Formulas for Robust, One-Pass Parallel Computation of Covariances and Arbitrary-Order Statistical Moments, SAND2008-6212, p. 10, Proposition 2.1, particularly eq. (2.6). DOI 10.2172/1028931. https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf",
+      "url": "https://digital.library.unt.edu/ark:/67531/metadc837537/m2/1/high_res_d/1028931.pdf"
+    },
+    "application": "General numerical higher-moment summary; no empirical benefit claimed.",
+    "required_inputs": "Disjoint block counts, means and moments through the declared order.",
+    "compatible_methods": [
+      "chan-parallel-central-second-moment"
+    ],
+    "incompatible_methods": [
+      "Treating high-order moments as robust estimators"
+    ],
+    "relationships": [
+      {
+        "target": "chan-parallel-central-second-moment",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Apply the binomial theorem to x_i−m=(x_i−m_G)+(m_G−m) and sum separately over the blocks. Re-indexing the exponent gives the stated form of (2.6); the first centered moment vanishes. At p=2 this reduces to Chan's merge, so arbitrary higher orders are a single variant, not separate entries per order."
+  }
+]

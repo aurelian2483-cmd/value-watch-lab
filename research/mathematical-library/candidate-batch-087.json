@@ -1,0 +1,102 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "087",
+    "family": "computational-geometry",
+    "classification": "distinct-algorithm",
+    "id": "chaikin-corner-cutting",
+    "name": "Chaikin corner-cutting subdivision",
+    "definition": "For a cyclic ordered polygon P₀,…,Pₘ₋₁, m≥3, set Q₂ᵢ=(3Pᵢ+Pᵢ₊₁)/4 and Q₂ᵢ₊₁=(Pᵢ+3Pᵢ₊₁)/4 for i=0,…,m−1, with indices modulo m; repeat on Q for k≥0 refinement rounds",
+    "variables": "P,Q input and refined vector-valued control polygons; m input vertex count; i cyclic vertex index; k number of rounds",
+    "assumptions": "Finite real coordinates in a common dimension d≥1; ordered closed polygon with implicit closure, not a repeated closing vertex; repeated or coincident vertices permitted; finite nonnegative integer refinement count",
+    "limitations": "Output size m·2^k and O(d m·2^k) arithmetic and storage for k≥1; limit is a periodic uniform quadratic B-spline, not generally an interpolant of the initial vertices; finite refinement is a polyline, not an exact smooth curve; no topology preservation or tolerance guarantee claimed",
+    "failure_conditions": [
+      "Invalid dimension, fewer than three input vertices, nonfinite coordinates, invalid round count or output-size exhaustion"
+    ],
+    "computation": "For each round read only the previous cyclic sequence; append the quarter and three-quarter points in edge order including the closing edge. Return input unchanged for k=0. Each new point is a convex combination; maximum edge length at most halves each round.",
+    "source": {
+      "kind": "literature",
+      "citation": "Neil Dodgson, University of Cambridge, Advanced Graphics Lecture Notes (2014), printed pp. 28–29, equations 46–47 and figure 14; text and page images reviewed. Periodic closure is explicitly fixed here. https://www.cl.cam.ac.uk/teaching/1314/AdvGraph/NADnotes14.pdf",
+      "url": "https://www.cl.cam.ac.uk/teaching/1314/AdvGraph/NADnotes14.pdf"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Ordered finite cyclic control points of common dimension and nonnegative integer round count",
+    "compatible_methods": [
+      "de-boor-bspline-evaluation"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "de-boor-bspline-evaluation"
+      }
+    ],
+    "mechanism_note": "Repeated local corner-cutting creates a refined control polygon rather than evaluating a spline at a query point as de Boor does; related quadratic spline limit does not imply independent empirical evidence."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "087",
+    "family": "computational-geometry",
+    "classification": "model-variant",
+    "id": "de-casteljau-bezier-subdivision",
+    "name": "De Casteljau Bézier curve subdivision",
+    "definition": "For degree n≥0 Bézier control points Pᵢ⁰=Pᵢ and split s∈[0,1], compute Pᵢʳ=(1−s)Pᵢʳ⁻¹+sPᵢ₊₁ʳ⁻¹ for r=1,…,n and i=0,…,n−r. Left Lⱼ=P₀ʲ and right Rⱼ=Pⱼⁿ⁻ʲ for j=0,…,n; their Bernstein curves satisfy B_L(t)=B_P(st) and B_R(t)=B_P(s+(1−s)t) for t∈[0,1]",
+    "variables": "n polynomial degree; Pᵢʳ level-r interpolation points; s split parameter; L,R ordered control vectors; t local parameter; B Bernstein polynomial curve",
+    "assumptions": "Finite real vector coordinates of common dimension d≥1; nonrational polynomial Bézier curve; s in the closed unit interval, n≥0; repeated vertices permitted; endpoint splits yield one constant segment",
+    "limitations": "O(d n²) arithmetic and O(d(n+1)) storage with rolling rows and two boundary chains; subdivision preserves the polynomial exactly in exact arithmetic, not necessarily bitwise under rounding; no rational weights or adaptive error criterion in scope",
+    "failure_conditions": [
+      "Empty control polygon, inconsistent dimension, nonfinite values or parameter outside [0,1]"
+    ],
+    "computation": "Copy the first and last entries of each successive row of the de Casteljau triangle, including row zero and the final singleton. Keep the first entries in forward order and reverse the last-entry list to form the right control polygon.",
+    "source": {
+      "kind": "literature",
+      "citation": "Ching-Kuang Shene, Michigan Technological University, Subdividing a Bézier Curve; page text reviewed, left and reversed right boundary chains and parameter subintervals. https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html",
+      "url": "https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html"
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "At least one finite polynomial Bézier control point, common vector dimension and split parameter in [0,1]",
+    "compatible_methods": [
+      "de-casteljau-bernstein-evaluation"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "de-casteljau-bernstein-evaluation"
+      }
+    ],
+    "mechanism_note": "Reuses the exact registered de Casteljau interpolation triangle, returning boundary control polygons instead of only the evaluated point; classified as a variant, not an independent algorithm."
+  }
+]

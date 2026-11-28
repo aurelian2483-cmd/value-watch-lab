@@ -1,0 +1,104 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "058",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "vitter-reservoir-algorithm-r",
+    "name": "Uniform reservoir sampling Algorithm R",
+    "definition": "For t>k choose J uniformly from {1,…,t}; if J≤k replace slot J; P(R_t=S)=1/C(t,k) for every k-subset S of the first t observation identities",
+    "variables": "t stream count; k reservoir capacity; J unbiased integer draw; R_t retained identity set; C(t,k) binomial coefficient",
+    "assumptions": "Fixed positive integer capacity, finite stream independent of sampling draws, conditionally uniform independent integer draws, exact counters and distinct observation identities even when values repeat",
+    "limitations": "O(N) sequential processing and O(k) stored records; samples are dependent without replacement, order of slots is not a random permutation guarantee, no stratification or temporal weighting",
+    "failure_conditions": [
+      "Invalid capacity, biased integer draws or counter overflow",
+      "Request for exactly k records from a stream of length less than k"
+    ],
+    "computation": "Start empty and retain each of the first min(k,N) records. At each later arrival t, generate an unbiased integer J from 1 through t (avoid modulo or floating-point scaling bias). Replace slot J if J≤k, otherwise leave the reservoir unchanged. At end return the retained identities; if N<k report the actual count and insufficient population for a full-size sample. Record random generator and seed for reproducibility where applicable.",
+    "source": {
+      "kind": "literature",
+      "citation": "Vitter (1985), Random Sampling with a Reservoir, ACM TOMS 11(1), 37–57, section 2, pp. 39–40; Algorithm R attributed there to Alan Waterman. DOI 10.1145/3147.3165. https://www.cs.umd.edu/~samir/498/vitter.pdf",
+      "url": "https://www.cs.umd.edu/~samir/498/vitter.pdf"
+    },
+    "application": "General uniform sampling of a finite stream; no empirical benefit claimed.",
+    "required_inputs": "Stream and sample capacity.",
+    "compatible_methods": [
+      "monte-carlo"
+    ],
+    "incompatible_methods": [
+      "Treating samples as independent draws with replacement"
+    ],
+    "relationships": [
+      {
+        "target": "monte-carlo",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "For a subset S not containing t, the preceding subset must equal S and survive with probability (t−k)/t. If S contains t, there are t−k possible preceding subsets, each with a unique replacement of probability 1/t. Both cases yield 1/C(t,k) by induction from t=k. Distinct from simulation by repeated independent draws and from quantile summaries. Short streams retain every observed identity."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "058",
+    "family": "streaming-algorithms",
+    "classification": "distinct-algorithm",
+    "id": "boyer-moore-majority-vote",
+    "name": "Boyer–Moore majority cancellation",
+    "definition": "Start c=0; if c=0 set (m,c)=(x,1), else c←c+1 for x=m and c←c−1 otherwise; a strict majority satisfies count(m)>N/2",
+    "variables": "m current candidate; c uncancelled count; N total observations; x current observation",
+    "assumptions": "Finite replayable categorical stream or an externally guaranteed strict majority; stable equivalence relation for equality; exact integer counters",
+    "limitations": "O(N) comparisons, O(1) candidate and counters; residual count is not frequency, mode is not necessarily a strict majority, a nonzero residual alone does not establish majority",
+    "failure_conditions": [
+      "Counter overflow or nontransitive equality",
+      "No replay or strict majority guarantee when residual count is positive but no greater than N/2"
+    ],
+    "computation": "Start with no candidate and c=0. Process each item by the recurrence. If c=0 at termination return no strict majority, including an empty stream. If c>N/2 the candidate is already certified; otherwise count its true occurrences on an unchanged replay and return it only if the count exceeds floor(N/2). If replay is unavailable and no strict majority is guaranteed, report an unverified candidate rather than a majority.",
+    "source": {
+      "kind": "literature",
+      "citation": "Boyer and Moore (1991), MJRTY: A Fast Majority Vote Algorithm, in Automated Reasoning, pp. 105–117, sections 5.2–5.4 and Figure 5.1. https://www.cs.utexas.edu/~boyer/mjrty.pdf",
+      "url": "https://www.cs.utexas.edu/~boyer/mjrty.pdf"
+    },
+    "application": "General categorical stream majority detection; no empirical benefit claimed.",
+    "required_inputs": "Equality-comparable stream and replay for verification.",
+    "compatible_methods": [
+      "ecdf"
+    ],
+    "incompatible_methods": [
+      "Reporting an unverified candidate as a strict majority"
+    ],
+    "relationships": [
+      {
+        "target": "ecdf",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Each processed prefix partitions into c identical uncancelled observations and unequal pairs. Removing a pair cannot eliminate a strict majority, so a true majority must survive; c=0 rules one out. A nonmajority can survive (A,B,C leaves C), making verification essential unless the residual itself certifies it. Distinct from a full histogram or empirical distribution."
+  }
+]

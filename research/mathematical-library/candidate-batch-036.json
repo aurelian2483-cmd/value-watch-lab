@@ -1,0 +1,108 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "036",
+    "family": "numerical-differentiation",
+    "classification": "distinct-algorithm",
+    "id": "complex-step-first-derivative",
+    "name": "Complex-step first derivative",
+    "definition": "For real x and nonzero real h, D_h f(x)=Im(f(x+ih))/h. If f is holomorphic near x and real on the real axis, D_h f(x)=f′(x)−h²f‴(x)/6+O(h⁴) as h→0 in exact arithmetic.",
+    "variables": "x real evaluation point; i imaginary unit; h real nonzero step; Im imaginary part; f′ and f‴ first and third derivatives",
+    "assumptions": "A holomorphic extension on a neighborhood containing the perturbed point, real values on the real axis, and an evaluation that preserves the small imaginary perturbation without unrelated imaginary rounding noise",
+    "limitations": "No subtraction of two nearly equal real outputs is needed, but underflow, imaginary noise, nonanalytic operations and complex-unsafe implementations can still invalidate the approximation",
+    "failure_conditions": [
+      "Nonfinite output, underflow of the perturbation or unsupported complex arithmetic",
+      "Nonanalytic operations or known loss of the imaginary component"
+    ],
+    "computation": "Evaluate f at x+ih within the analytic neighborhood; divide its imaginary part by h. Inspect the evaluation path for real-only casts, conjugation, absolute values or unrelated imaginary noise; compare estimates across representable steps where feasible. Agreement alone is not an error certificate; report unresolved numerical behavior rather than assuming arbitrary small h is safe.",
+    "source": {
+      "kind": "literature",
+      "citation": "Higham, N. J. (2018), Differentiation With(out) a Difference, SIAM News 51(5), equation (1) and discussion of imaginary rounding, https://www.siam.org/publications/siam-news/articles/differentiation-without-a-difference ; signed Taylor correction independently derived."
+    },
+    "application": "General numerical differentiation.",
+    "required_inputs": "Analytic complex-safe function, real point, representable nonzero step and a neighborhood where analyticity holds",
+    "compatible_methods": [
+      "first-difference"
+    ],
+    "incompatible_methods": [
+      "Nonanalytic absolute value or imaginary-component suppression"
+    ],
+    "relationships": [
+      {
+        "target": "first-difference",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Complex perturbation obtains the derivative from the imaginary component rather than differences of real outputs. Related to first difference, but a distinct derivative approximation."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "036",
+    "family": "numerical-differentiation",
+    "classification": "model-variant",
+    "id": "finite-difference-moment-weights",
+    "name": "Finite-difference weights by moment matching",
+    "definition": "For n≥2 distinct real offsets s_j=h t_j with h>0 and integer 1≤m<n, solve Σ_(j=0)^(n−1) c_j t_j^k=m! δ_(km) for k=0,…,n−1. Set w_j=c_j/h^m and D_m f(x)=Σ_j w_j f(x+s_j). This is exact on polynomials of degree at most n−1.",
+    "variables": "n node count; m derivative order; h positive scale; t_j distinct dimensionless offsets; s_j physical offsets; c_j scaled weights; w_j derivative weights; δ Kronecker delta",
+    "assumptions": "Distinct real nodes, finite samples, and sufficient smoothness on the interval containing x and all nodes; for fixed distinct t_j and f with bounded nth derivative the Taylor error is O(h^(n−m)) as h tends to zero",
+    "limitations": "The Vandermonde moment system and weighted summation may be ill-conditioned; scaling does not guarantee stability; noise grows with derivative order and inverse step scale",
+    "failure_conditions": [
+      "Duplicate or collapsed nodes, nonfinite samples or weights",
+      "Unresolved moment system conditioning or numerical residual within the chosen precision"
+    ],
+    "computation": "Scale offsets by a positive h, construct V_(kj)=t_j^k with k=0,…,n−1 and right side m!δ_(km). Solve Vc=b with a suitable pivoted solver, assess conditioning and residual, then sum the weighted samples with h^(−m) scaling. Reject unresolved numerical solves; a small residual alone cannot certify the derivative error.",
+    "source": {
+      "kind": "literature",
+      "citation": "Driscoll, T. A. and Braun, R. J., Fundamentals of Numerical Computation, §5.4 Finite differences, https://tobydriscoll.net/fnc-julia/localapprox/finitediffs.html ; Persson, P.-O., UC Berkeley Math 128A, §4.1, https://persson.berkeley.edu/math128a/lecture_notes/math128a_lecture_notes_chapter_4.html ; arbitrary-node, arbitrary-order moment equations and error order independently derived from polynomial exactness and Taylor expansion."
+    },
+    "application": "General numerical differentiation.",
+    "required_inputs": "Finite function samples at n distinct real offsets, positive scaling factor, integer derivative order and a numerical solve tolerance/precision policy",
+    "compatible_methods": [
+      "barycentric-polynomial-interpolation",
+      "pivoted-lu",
+      "first-difference"
+    ],
+    "incompatible_methods": [
+      "Unresolved ill-conditioned weight solve"
+    ],
+    "relationships": [
+      {
+        "target": "barycentric-polynomial-interpolation",
+        "type": "variant-of"
+      },
+      {
+        "target": "first-difference",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Derivative functional of the same unique interpolating polynomial rather than a new polynomial approximation family. A derivative-output variant of polynomial interpolation; direct moment solving is not Fornberg recursion and ordinary difference stencils are special cases."
+  }
+]

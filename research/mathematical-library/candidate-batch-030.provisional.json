@@ -1,0 +1,101 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "030",
+    "family": "numerical-linear-algebra",
+    "classification": "model-variant",
+    "id": "ssor-symmetric-relaxation-sweep",
+    "name": "Symmetric successive relaxation sweep",
+    "definition": "For A=D+L+U, solve (D+ωL)y=ωb+[(1−ω)D−ωU]x_k, then (D+ωU)x_(k+1)=ωb+[(1−ω)D−ωL]y.",
+    "variables": "A symmetric matrix; D,L,U splitting; ω fixed relaxation; y forward sweep",
+    "assumptions": "SPD A, 0<ω<2, fixed ordering, finite precision monitored.",
+    "limitations": "Two sequential sweeps; not necessarily faster than forward SOR.",
+    "failure_conditions": [
+      "Zero diagonal, invalid relaxation or residual stagnation"
+    ],
+    "computation": "Apply forward and reversed relaxed triangular sweeps; check true residual.",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, §2.2.4; provisional review. https://netlib.org/templates/templates.html"
+    },
+    "application": "General numerical symmetric linear-system solution.",
+    "required_inputs": "Symmetric matrix, right side, initial iterate, relaxation, stop criteria.",
+    "compatible_methods": [
+      "sor-stationary-linear-solve"
+    ],
+    "incompatible_methods": [
+      "Treating two sweeps as independently validated evidence"
+    ],
+    "relationships": [
+      {
+        "target": "sor-stationary-linear-solve",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional: assess whether symmetric sweep is materially distinct enough from SOR."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "030",
+    "family": "numerical-linear-algebra",
+    "classification": "distinct-algorithm",
+    "id": "chebyshev-polynomial-linear-iteration",
+    "name": "Chebyshev polynomial linear iteration",
+    "definition": "For SPD A with spectrum in [a,b], 0<a<b, let d=(a+b)/2, c=(b−a)/2 and q_k(t)=T_k((d−t)/c)/T_k(d/c). The kth iterate is x_k=x*+q_k(A)(x₀−x*); compute using the polynomial recurrence on the initial residual without knowing x*.",
+    "variables": "a,b spectral bounds; T_k Chebyshev polynomial; x* exact solution; q_k normalized error polynomial",
+    "assumptions": "Valid positive enclosing spectral interval; stable recurrence and residual checks.",
+    "limitations": "Poor bounds degrade convergence; no guarantee for general nonsymmetric matrices.",
+    "failure_conditions": [
+      "Invalid interval, nonfinite recurrence or residual tolerance failure"
+    ],
+    "computation": "Use normalized three-term polynomial recurrence and matrix-vector products; derive an implementable residual recurrence before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Barrett et al., Templates for the Solution of Linear Systems, §2.3.9; verify polynomial normalization and recurrence before admission. https://netlib.org/templates/templates.html"
+    },
+    "application": "General numerical SPD linear-system approximation.",
+    "required_inputs": "Operator, right side, initial vector, spectral bounds, stopping criteria.",
+    "compatible_methods": [
+      "conjugate-gradient",
+      "matrix-two-norm-condition-number"
+    ],
+    "incompatible_methods": [
+      "Using unverified spectral bounds as guaranteed"
+    ],
+    "relationships": [
+      {
+        "target": "conjugate-gradient",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional predetermined polynomial coefficients versus adaptive Krylov coefficients; assess equivalence to existing momentum methods."
+  }
+]

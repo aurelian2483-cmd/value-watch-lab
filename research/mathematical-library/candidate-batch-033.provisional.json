@@ -1,0 +1,102 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "033",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "regula-falsi-bracketed-root",
+    "name": "Classical false-position scalar root solver",
+    "definition": "For a sign-changing bracket (a,b), set x=(af(b)−bf(a))/(f(b)−f(a)); return if f(x)=0, otherwise replace the endpoint sharing its sign with x.",
+    "variables": "a,b bracket endpoints; f scalar continuous function; interpolation history",
+    "assumptions": "Continuous real f with sign-changing endpoints; nonzero denominator and bounded iterations.",
+    "limitations": "One endpoint may remain fixed for many iterations; residual and bracket width need separate stopping rules.",
+    "failure_conditions": [
+      "Invalid bracket, nonfinite values, stagnation or iteration budget exceeded"
+    ],
+    "computation": "Provisional secant-intercept formula with bracket update; source and overlap review required.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: Brown University, Bracketing Methods, false position section; verify before admission."
+    },
+    "application": "General scalar root solving.",
+    "required_inputs": "Continuous scalar function, sign-changing bracket and tolerances.",
+    "compatible_methods": [
+      "bisection",
+      "secant-root"
+    ],
+    "incompatible_methods": [
+      "Unbracketed use without safeguards"
+    ],
+    "relationships": [
+      {
+        "target": "bisection",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional; compare with existing secant and bisection specifications."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "033",
+    "family": "numerical-optimisation",
+    "classification": "distinct-algorithm",
+    "id": "inverse-quadratic-interpolation-root",
+    "name": "Open inverse quadratic scalar root iteration",
+    "definition": "For three points x_i with distinct y_i=f(x_i), set x_new=Σ_i x_i Π_(j≠i) (−y_j)/(y_i−y_j); discard the oldest point and repeat unless converged.",
+    "variables": "a,b bracket endpoints; f scalar continuous function; interpolation history",
+    "assumptions": "Three distinct finite function values; local smoothness and a simple root for useful convergence.",
+    "limitations": "No bracket guarantee; close function values can produce unstable extrapolation.",
+    "failure_conditions": [
+      "Coincident function values, nonfinite or divergent iterate, or exhausted budget"
+    ],
+    "computation": "Provisional inverse Lagrange interpolation at y=0; check standalone novelty against Brent before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: Brown University, Open Methods, inverse quadratic interpolation discussion; verify before admission."
+    },
+    "application": "General scalar root solving.",
+    "required_inputs": "Continuous scalar function, sign-changing bracket and tolerances.",
+    "compatible_methods": [
+      "bisection",
+      "secant-root"
+    ],
+    "incompatible_methods": [
+      "Unbracketed use without safeguards"
+    ],
+    "relationships": [
+      {
+        "target": "bisection",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional; may be withheld as a component of the Brent procedure if not sufficiently distinct."
+  }
+]

@@ -1,0 +1,104 @@
+[
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "023",
+    "family": "multivariate-statistics",
+    "classification": "diagnostic",
+    "id": "partial-correlation-one-control",
+    "name": "First-order partial correlation",
+    "definition": "r_xy·z=(r_xy−r_xz r_yz)/√[(1−r_xz²)(1−r_yz²)], for sample Pearson correlations on a common set of observations.",
+    "variables": "r_xy,r_xz,r_yz sample Pearson correlations; z control variable; r_xy·z residual linear correlation",
+    "assumptions": "Aligned observations, nonconstant variables, nonsingular residual variances; inferential use requires a separately justified sampling model.",
+    "limitations": "Controls only linear association with the specified covariate; does not establish causal effects or general conditional independence.",
+    "failure_conditions": [
+      "Perfect correlation with control variable or inconsistent pairwise samples"
+    ],
+    "computation": "Calculate all correlations on the same complete cases and evaluate the formula, equivalently correlate residuals from separate regressions on z with intercepts.",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Dataplot, Partial Correlation. https://www.itl.nist.gov/div898/software/dataplot/refman2/auxillar/partcorr.htm"
+    },
+    "application": "Describe remaining linear association after accounting for a prespecified measured covariate in development data.",
+    "required_inputs": "Three aligned numeric variables on common authorised observations.",
+    "compatible_methods": [
+      "pearson-linear-correlation",
+      "vif"
+    ],
+    "incompatible_methods": [
+      "Interpreting residual association as a causal effect"
+    ],
+    "relationships": [
+      {
+        "target": "pearson-linear-correlation",
+        "type": "related"
+      }
+    ]
+  },
+  {
+    "profile": "assessment",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development records; confirm source reuse rights.",
+    "input_timing": "assessment-only",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "023",
+    "family": "multivariate-statistics",
+    "classification": "diagnostic",
+    "id": "bartlett-sphericity",
+    "name": "Bartlett correlation-matrix sphericity test",
+    "definition": "For p≥2 variables and n independent observations, B=−[n−1−(2p+5)/6] ln det(R), where R is the sample correlation matrix.",
+    "variables": "n sample size; p variable count; R positive-definite sample correlation matrix; B approximate chi-square statistic",
+    "assumptions": "Multivariate normal independent observations; n>p, positive definite R, adequately large sample; null population correlation matrix equals identity.",
+    "limitations": "Sensitive to departures from normality and large sample sizes; rejects global identity, not a specific association or factor model.",
+    "failure_conditions": [
+      "Singular correlation matrix or unjustified independence"
+    ],
+    "computation": "Compute sample correlation matrix, stable log determinant and correction factor; use approximate chi-square reference with p(p−1)/2 degrees of freedom.",
+    "source": {
+      "kind": "literature",
+      "citation": "Factor Analyzer documentation, calculate_bartlett_sphericity; Bartlett (1950). https://factor-analyzer.readthedocs.io/en/latest/factor_analyzer.html"
+    },
+    "application": "Assess global linear dependence structure in a prespecified set of development measurements.",
+    "required_inputs": "Authorised complete aligned multivariate numeric data with adequate sample size.",
+    "compatible_methods": [
+      "pca",
+      "pearson-linear-correlation"
+    ],
+    "incompatible_methods": [
+      "Using a singular or pairwise-deletion correlation matrix without adjustment"
+    ],
+    "relationships": [
+      {
+        "target": "pearson-linear-correlation",
+        "type": "related"
+      },
+      {
+        "target": "pca",
+        "type": "related"
+      }
+    ]
+  }
+]

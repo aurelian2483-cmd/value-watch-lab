@@ -1,0 +1,11 @@
+# Batch 070 admission review (2026-11-26)
+
+Parent cd6e6df142c70fb46551abd11758ba523e6cd7ac; PR 171 open/draft and branch matched. Exact-head regression 45903600115 and registry 45903600176 passed; check-run head SHA matched. Candidate 023 and its admission note reread: withheld lagged cross-correlation remains withheld. Reviewed candidate 070, validator, CLI, manifest, profile and snapshots. All 423 prior ledger IDs matched reference headings in order; screened normalized names, equations and identifiers and inspected related headings. Limited conceptual novelty review, not proof of all equivalences.
+
+Z: Gusfield sections 1.3–1.5 text and p. 9 page image inspected. Adapted to zero-based half-open intervals and explicitly empty input; independently verified frontier reasoning. Conservatively retained model-variant classification relative to KMP.
+
+Aho–Corasick: original metadata and abstract verified; original PDF retrieval failed. Stanford CS166 lecture text on suffix and output links inspected; screenshot retrieved for introductory slide only. Corrected candidate to explicit terminal-only output links and completed dense transitions; naive failure-chain output traversal would not justify O(m+z). Fixed alphabet and output-sensitive assumptions documented. Multi-pattern branching and output enumeration justify distinct algorithm relative to single-pattern KMP.
+
+Independent JavaScript synthetic checks: 196610 Z entries over binary strings of lengths 0–13 against direct substring comparisons; 2794 failure links against longest proper suffix enumeration; 20097 complete multi-pattern reports against direct suffix enumeration across 319 pattern sets and all binary texts of lengths 0–5. All comparisons passed. No repository implementations or empirical qualification claimed.
+
+Both remain SPECIFIED with null implementation_ref and test_evidence. Candidate 070 archived as admitted; 071 stages Huffman and LZ78 pending review. Four catalogue snapshots regenerated incrementally from previously green snapshots using inspected CLI formatting; prior reference/ledger order and index tallies checked. Direct CLI execution and full local tests not performed. No prediction experiments, protected data, spending, merge, deployment or permission changes. Gates unchanged.

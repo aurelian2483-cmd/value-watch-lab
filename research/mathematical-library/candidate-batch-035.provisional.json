@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "035",
+    "family": "numerical-quadrature",
+    "classification": "distinct-algorithm",
+    "id": "tanh-sinh-quadrature",
+    "name": "Tanh–sinh quadrature",
+    "definition": "Provisional: x(t)=tanh((π/2)sinh t); approximate ∫_(−1)^1 f(x)dx by h Σ_(k=−N)^N f(x(kh))x′(kh).",
+    "variables": "h positive mesh width; N truncation; x transformed variable",
+    "assumptions": "Integrable function and a suitable transformed decay rate",
+    "limitations": "Truncation and discretization errors require separate control; endpoint rounding can invalidate evaluation",
+    "failure_conditions": [
+      "Nonfinite terms, unresolved tail or refinement error"
+    ],
+    "computation": "Provisional transformed trapezoid summation; review derivative and truncation criteria before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: Takahasi and Mori, Double exponential formulas for numerical integration (1974); verify before admission."
+    },
+    "application": "General numerical integration.",
+    "required_inputs": "Integrand, interval, mesh and truncation limits",
+    "compatible_methods": [
+      "composite-trapezoid"
+    ],
+    "incompatible_methods": [
+      "Unverified tail convergence"
+    ],
+    "relationships": [
+      {
+        "target": "composite-trapezoid",
+        "type": "related"
+      }
+    ],
+    "mechanism_note": "Provisional nonlinear change of variable; review equivalence and classification."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "035",
+    "family": "numerical-quadrature",
+    "classification": "model-variant",
+    "id": "adaptive-simpson-quadrature",
+    "name": "Adaptive Simpson quadrature",
+    "definition": "Provisional: S(a,b)=(b−a)[f(a)+4f((a+b)/2)+f(b)]/6; m=(a+b)/2; S₂=S(a,m)+S(m,b); E≈|S₂−S(a,b)|/15 under smoothness assumptions. Subdivide when the local error estimate exceeds its allocated tolerance.",
+    "variables": "S coarse rule; S₂ refined rule; E local estimated error",
+    "assumptions": "Sufficient smoothness for asymptotic Simpson error scaling",
+    "limitations": "Error estimate can miss localized structure",
+    "failure_conditions": [
+      "Nonfinite values, unresolved error or exhausted recursion"
+    ],
+    "computation": "Provisional recursive quadrature; verify local tolerance allocation and correction before admission.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional: numerical analysis references on adaptive Simpson quadrature; verify before admission."
+    },
+    "application": "General numerical integration.",
+    "required_inputs": "Integrand, interval, tolerance and recursion bound",
+    "compatible_methods": [
+      "composite-simpson"
+    ],
+    "incompatible_methods": [
+      "Treating error estimate as a certificate"
+    ],
+    "relationships": [
+      {
+        "target": "composite-simpson",
+        "type": "variant-of"
+      }
+    ],
+    "mechanism_note": "Provisional adaptive Simpson variant; compare Romberg and adaptive Gauss–Kronrod."
+  }
+]
