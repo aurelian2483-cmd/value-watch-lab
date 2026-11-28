@@ -1,0 +1,101 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "097",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "diagnostic",
+    "id": "polygon-second-area-moments",
+    "name": "Uniform polygon second area moments",
+    "definition": "For CCW simple polygon vertices (x_i,y_i) with cyclic indices, let c_i=x_i y_(i+1)−x_(i+1)y_i. Then M20=Σ_i c_i(x_i²+x_i x_(i+1)+x_(i+1)²)/12, M02=Σ_i c_i(y_i²+y_i y_(i+1)+y_(i+1)²)/12 and M11=Σ_i c_i(2x_i y_i+x_i y_(i+1)+x_(i+1)y_i+2x_(i+1)y_(i+1))/24.",
+    "variables": "c_i edge cross product; M20,M02,M11 raw area moments",
+    "assumptions": "Simple CCW polygon of positive area, finite coordinates",
+    "limitations": "Provisional raw moments about the coordinate origin; numerical stability, orientation and independent checks pending",
+    "failure_conditions": [
+      "Invalid polygon or inconsistent vertex order."
+    ],
+    "computation": "Sum signed edge terms; independent derivation and verification pending.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: J. Burkardt, POLYGON_INTEGRALS, https://people.math.sc.edu/Burkardt/m_src/polygon_integrals/polygon_integrals.html ; admission review pending."
+    },
+    "required_inputs": "Ordered polygon vertices.",
+    "compatible_methods": [
+      "polygon-area-centroid-first-moment",
+      "polygon-shoelace-signed-area"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "polygon-area-centroid-first-moment"
+      }
+    ],
+    "mechanism_note": "Provisional second-moment diagnostic rather than new distinct algorithm."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "097",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "affine-lower-envelope-monotone-stack",
+    "name": "Affine lower envelope by monotone slope stack",
+    "definition": "For lines f_i(x)=m_i x+b_i sorted by strictly decreasing slope after retaining the least intercept per slope, keep an envelope stack with increasing start breakpoints. For new line j and last line i, compute x_ij=(b_j−b_i)/(m_i−m_j); pop i if x_ij≤its start, and repeat; append j with its computed start or −∞ for the first line. Query the last start≤x to obtain min_i f_i(x).",
+    "variables": "m_i slope; b_i intercept; x_ij crossing; x query",
+    "assumptions": "Nonempty finite static line set with exact comparisons; minimum value only",
+    "limitations": "Provisional envelope construction and query bounds pending review",
+    "failure_conditions": [
+      "Inconsistent slope order, division by zero or incorrect breakpoint ordering."
+    ],
+    "computation": "Sort, deduplicate slopes, maintain increasing breakpoints and binary-search query; admission testing pending.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: pairwise affine intersection and monotone slope order; independent source and correctness review pending."
+    },
+    "required_inputs": "Finite affine functions and query coordinate.",
+    "compatible_methods": [
+      "andrew-monotone-chain-convex-hull"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "andrew-monotone-chain-convex-hull"
+      }
+    ],
+    "mechanism_note": "Provisional static lower-envelope mechanism; novelty classification pending."
+  }
+]

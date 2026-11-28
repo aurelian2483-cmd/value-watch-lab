@@ -10409,5 +10409,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Distinct heap-and-balanced-rank partition structure. Rank spans of nodes at a common depth are disjoint, so at most two partially intersecting spans occur per depth. A fully contained visited node passing the heap test emits its own point, and each failed child can be charged to a visited parent. This yields O(log(n+1)+k) visits and one output per matching record."
+  },
+  {
+    "id": "layered-range-tree-fractional-cascading",
+    "source": {
+      "kind": "literature",
+      "citation": "E. Demaine, MIT 6.851 Advanced Data Structures, Spring 2012, lecture 3 scribe notes, sections 3.1–3.2, pp. 5–8, parsed text and p. 8 page image reviewed, https://courses.csail.mit.edu/6.851/spring12/scribe/lec3.pdf ; exact prefix-rank and identity tie conventions independently specified.",
+      "url": "https://courses.csail.mit.edu/6.851/spring12/scribe/lec3.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Variant of planar orthogonal range tree reporting. The child list is an order-preserving subsequence of its parent, so the two prefix counts map any half-open slice exactly. At each primary depth at most two nodes straddle the x range boundaries; all other visited nodes terminate or report. One root y search plus constant work per visited node and one unit per reported identity removes the extra logarithmic factor."
+  },
+  {
+    "id": "persistent-sweep-planar-point-location",
+    "source": {
+      "kind": "literature",
+      "citation": "N. Sarnak and R. E. Tarjan (1986), Planar Point Location Using Persistent Search Trees, Communications of the ACM 29(7), 669–679, https://doi.org/10.1145/6138.6151 ; IBM Research abstract reviewed, https://research.ibm.com/publications/planar-point-location-using-persistent-search-trees ; MIT 6.851 Spring 2012 lecture 3 scribe notes, sections 2.1–2.2, pp. 2–3, parsed text and p. 3 image reviewed, https://courses.csail.mit.edu/6.851/spring12/scribe/lec3.pdf ; restricted path-copying version, predecessor convention and midpoint update rules independently specified; original full paper not reviewed.",
+      "url": "https://doi.org/10.1145/6138.6151"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Distinct persistent search structure: unlike intersection reporting or polygon membership, old search roots locate labelled faces of a subdivision. Active edge heights cannot exchange order inside a slab without an intersection. Removing edges in the old order and inserting in the new order preserves the search invariant, and predecessor face labels identify the open vertical interval. Path copying preserves previous roots, using O(log(n+1)) new nodes per update; there are at most two updates per edge."
   }
 ]

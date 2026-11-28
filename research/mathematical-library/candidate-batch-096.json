@@ -24,17 +24,18 @@
     "classification": "model-variant",
     "id": "layered-range-tree-fractional-cascading",
     "name": "Layered range tree with fractional cascading",
-    "definition": "For a planar range tree node v with sorted y list A_v, define child prefix maps F_c(t)=|{j:0≤j<t and A_v[j] belongs to child c}|. Propagate query slice [s,t) to [F_c(s),F_c(t)) in child c; report slices at canonical x nodes.",
-    "variables": "A_v ordered record references; c child; F_c prefix rank map; s,t slice bounds",
-    "assumptions": "Static finite planar records, consistent tie order and closed query bounds; exact admission review pending",
-    "limitations": "Provisional crosslinked range-tree variant; construction and output-sensitive bounds pending review",
+    "definition": "For n static planar records with unique identities i, build a balanced leaf tree over ranks sorted by (x_i,i). At node v let A_v contain its descendant records sorted by (y_i,i). For each child c define F_c(t)=|{j:0≤j<t and A_v[j] belongs to c}| for 0≤t≤|A_v|. For closed rectangle [a,b]×[d,e], binary-search the root y list for s=first y≥d and t=first y>e, using n for missing bounds. Traverse the primary x interval using node rank spans, propagating [s,t) to [F_c(s),F_c(t)) in child c. Return the identities in those slices at maximal contained nodes. Empty input or slice yields no records.",
+    "variables": "n record count; i unique identity; v node; A_v sorted record references; c child; F_c prefix rank map; s,t half-open slice bounds; k output count",
+    "assumptions": "Static finite totally ordered coordinates, unique comparable identities, ordered closed bounds a≤b and d≤e; repeated coordinates allowed",
+    "limitations": "O(n log(n+1)) construction and storage using bottom-up merges; O(log(n+1)+k) reporting for nonempty input. No dynamic update or sorted output guarantee. Exact coordinate and identity order must be maintained",
     "failure_conditions": [
-      "Incorrect prefix rank map or inconsistent record ordering."
+      "Incorrect prefix map, missing terminal position, inconsistent identity tie order, duplicate identities or reversed query bounds."
     ],
-    "computation": "Merge child lists with identity tie breaks and store prefix counts for both children including the terminal position. Search root y list and propagate slices along the x query traversal. Admission verification pending.",
+    "computation": "Sort primary ranks by (x_i,i), create balanced leaf intervals and merge child lists by (y_i,i). Build child prefix counts during each merge, including positions zero and list length. Binary-search the primary x bounds and root y bounds, prune disjoint x spans and empty slices, emit the entire slice at a maximal contained primary node, otherwise descend with mapped endpoints.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional locator: E. Demaine, MIT 6.851 Advanced Data Structures, lecture 3, https://courses.csail.mit.edu/6.851/spring12/lectures/L03.html ; admission review pending."
+      "citation": "E. Demaine, MIT 6.851 Advanced Data Structures, Spring 2012, lecture 3 scribe notes, sections 3.1–3.2, pp. 5–8, parsed text and p. 8 page image reviewed, https://courses.csail.mit.edu/6.851/spring12/scribe/lec3.pdf ; exact prefix-rank and identity tie conventions independently specified.",
+      "url": "https://courses.csail.mit.edu/6.851/spring12/scribe/lec3.pdf"
     },
     "required_inputs": "Static planar records, rectangular query and linked ordered lists.",
     "compatible_methods": [
@@ -46,7 +47,7 @@
         "target": "planar-orthogonal-range-tree-reporting"
       }
     ],
-    "mechanism_note": "Provisional range-tree acceleration, not admitted."
+    "mechanism_note": "Variant of planar orthogonal range tree reporting. The child list is an order-preserving subsequence of its parent, so the two prefix counts map any half-open slice exactly. At each primary depth at most two nodes straddle the x range boundaries; all other visited nodes terminate or report. One root y search plus constant work per visited node and one unit per reported identity removes the extra logarithmic factor."
   },
   {
     "profile": "multifeature",
@@ -73,17 +74,18 @@
     "classification": "distinct-algorithm",
     "id": "persistent-sweep-planar-point-location",
     "name": "Persistent sweep planar point location",
-    "definition": "For nonvertical edge e with endpoints (a,b) and (c,d), a<c, define h_e(x)=b+(d-b)(x-a)/(c-a). For consecutive distinct vertex abscissas X_j<X_(j+1), the active set A_j={e:a≤X_j and X_(j+1)≤c} has a fixed vertical order in the open slab. Maintain a persistent ordered tree T_j of A_j. For X_j<x<X_(j+1) and a query (x,y) off all edges, find the predecessor of y among h_e(x) and return its upper incident face (or the unbounded face below all edges). Event and boundary queries remain outside this provisional open-slab specification.",
-    "variables": "(a,b),(c,d) ordered edge endpoints; h_e(x) interpolated height; X_j sorted event abscissas; A_j active edges; T_j persistent version; (x,y) query.",
-    "assumptions": "Finite planar straight-line subdivision with nonvertical edges, disjoint edge interiors, no coincident edges, intersections represented by shared vertices and distinct vertex abscissas; query is within an open slab and off all edges. Incident faces must be consistently labelled. Event and boundary conventions pending admission review.",
-    "limitations": "Provisional static open-slab point location only; queries at event abscissas, on boundaries or outside the extreme event interval are excluded pending review. Persistent update model, resource bounds and general degeneracy handling still require independent admission review.",
+    "definition": "For nonvertical edge e with ordered endpoints (a,b),(c,d), a<c, define h_e(x)=b+(d−b)(x−a)/(c−a). For consecutive distinct vertex abscissas X_j<X_(j+1), the active set A_j={e:a≤X_j and X_(j+1)≤c} has fixed vertical order in that open slab. Maintain a path-copied balanced search tree T_j for each slab. For X_j<x<X_(j+1) and off-edge query (x,y), find the immediately lower edge (largest h_e(x)<y) in T_j; return its upper incident face, or the unbounded face when no lower edge exists.",
+    "variables": "(a,b),(c,d) edge endpoints; h_e(x) interpolated height; X_j event coordinates; A_j active edges; T_j persistent root; (x,y) query; n edge count",
+    "assumptions": "Finite planar straight-line subdivision with nonvertical edges, no overlapping or crossing interiors, intersections only at shared vertices, distinct abscissas of distinct vertices, and consistent incident face labels. Queries lie in an open slab off all edges. Exact comparisons assumed",
+    "limitations": "O(n log(n+1)) preprocessing time and space using path copying of a balanced search tree with logarithmic update cost; O(log(n+1)) query time. This simple version does not claim the original specialised linear-space bound. Event abscissas, on-edge queries, queries beyond extreme events and general degeneracies are outside scope",
     "failure_conditions": [
-      "Crossing or coincident edge interiors, inconsistent incident face labels, undefined edge ordering, or queries outside the restricted open-slab domain."
+      "Crossing or coincident edges, incorrect face labels, nonfinite coordinates, in-place modification of retained nodes or unsupported query domain."
     ],
-    "computation": "Sort event abscissas; remove terminating edges and insert starting edges at each event using their order immediately to the right. Retain the resulting active tree version. Binary-search the event array for a supported query, then compare y with exact interpolated heights to find the immediately lower edge or identify that none exists. Return its upper face label or the unbounded face. Full implementation and admission review pending.",
+    "computation": "Sort and group endpoint events by abscissa. At each interior event delete terminating edges using a comparison at the previous slab midpoint, then insert starting edges using the next slab midpoint. Use path-copied AVL insertions, deletions and rotations, retaining the root of every open slab. Surviving edges retain order. Binary-search the event array and traverse the selected root comparing the query height with h_e(x); reject equal heights or unsupported abscissas.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional source locators checked 2026-11-28: E. Demaine, MIT 6.851 Advanced Data Structures, lecture 3, https://courses.csail.mit.edu/6.851/spring12/lectures/L03.html ; N. Sarnak and R. E. Tarjan (1986), Planar Point Location Using Persistent Search Trees, Communications of the ACM 29(7), 669–679, https://doi.org/10.1145/6138.6151 (Princeton institutional abstract consulted; full article not reviewed). Formula and restricted domain are explicit local specification choices. Admission review pending."
+      "citation": "N. Sarnak and R. E. Tarjan (1986), Planar Point Location Using Persistent Search Trees, Communications of the ACM 29(7), 669–679, https://doi.org/10.1145/6138.6151 ; IBM Research abstract reviewed, https://research.ibm.com/publications/planar-point-location-using-persistent-search-trees ; MIT 6.851 Spring 2012 lecture 3 scribe notes, sections 2.1–2.2, pp. 2–3, parsed text and p. 3 image reviewed, https://courses.csail.mit.edu/6.851/spring12/scribe/lec3.pdf ; restricted path-copying version, predecessor convention and midpoint update rules independently specified; original full paper not reviewed.",
+      "url": "https://doi.org/10.1145/6138.6151"
     },
     "required_inputs": "Planar subdivision edges, incident face labels and query point.",
     "compatible_methods": [
@@ -96,6 +98,6 @@
         "target": "bentley-ottmann-segment-intersections"
       }
     ],
-    "mechanism_note": "Provisional persistent sweep search structure, not admitted."
+    "mechanism_note": "Distinct persistent search structure: unlike intersection reporting or polygon membership, old search roots locate labelled faces of a subdivision. Active edge heights cannot exchange order inside a slab without an intersection. Removing edges in the old order and inserting in the new order preserves the search invariant, and predecessor face labels identify the open vertical interval. Path copying preserves previous roots, using O(log(n+1)) new nodes per update; there are at most two updates per edge."
   }
 ]

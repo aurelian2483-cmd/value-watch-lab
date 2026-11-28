@@ -7245,3 +7245,35 @@ Limitations — O(n log(n+1)) construction after initial sort by scanning and pa
 Mechanism — Distinct heap-and-balanced-rank partition structure. Rank spans of nodes at a common depth are disjoint, so at most two partially intersecting spans occur per depth. A fully contained visited node passing the heap test emits its own point, and each failed child can be charged to a visited parent. This yields O(log(n+1)+k) visits and one output per matching record.
 
 Source — E. M. McCreight, Priority Search Trees, SIAM Journal on Computing 14(2), 1985, pp. 257–276, abstract reviewed, https://doi.org/10.1137/0214021 ; University of Illinois CS598TMC, Fall 2019, Orthogonal Range Searching notes, pp. 4–5, construction and query analysis reviewed, https://courses.grainger.illinois.edu/cs598tmc/fa2019/lec1to3_ors.pdf ; axes exchanged and rank tie handling independently specified.
+
+## Layered range tree with fractional cascading (layered-range-tree-fractional-cascading)
+
+> For n static planar records with unique identities i, build a balanced leaf tree over ranks sorted by (x_i,i). At node v let A_v contain its descendant records sorted by (y_i,i). For each child c define F_c(t)=|{j:0≤j<t and A_v[j] belongs to c}| for 0≤t≤|A_v|. For closed rectangle [a,b]×[d,e], binary-search the root y list for s=first y≥d and t=first y>e, using n for missing bounds. Traverse the primary x interval using node rank spans, propagating [s,t) to [F_c(s),F_c(t)) in child c. Return the identities in those slices at maximal contained nodes. Empty input or slice yields no records.
+
+n record count; i unique identity; v node; A_v sorted record references; c child; F_c prefix rank map; s,t half-open slice bounds; k output count.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Static finite totally ordered coordinates, unique comparable identities, ordered closed bounds a≤b and d≤e; repeated coordinates allowed.
+
+Limitations — O(n log(n+1)) construction and storage using bottom-up merges; O(log(n+1)+k) reporting for nonempty input. No dynamic update or sorted output guarantee. Exact coordinate and identity order must be maintained.
+
+Mechanism — Variant of planar orthogonal range tree reporting. The child list is an order-preserving subsequence of its parent, so the two prefix counts map any half-open slice exactly. At each primary depth at most two nodes straddle the x range boundaries; all other visited nodes terminate or report. One root y search plus constant work per visited node and one unit per reported identity removes the extra logarithmic factor.
+
+Source — E. Demaine, MIT 6.851 Advanced Data Structures, Spring 2012, lecture 3 scribe notes, sections 3.1–3.2, pp. 5–8, parsed text and p. 8 page image reviewed, https://courses.csail.mit.edu/6.851/spring12/scribe/lec3.pdf ; exact prefix-rank and identity tie conventions independently specified.
+
+## Persistent sweep planar point location (persistent-sweep-planar-point-location)
+
+> For nonvertical edge e with ordered endpoints (a,b),(c,d), a<c, define h_e(x)=b+(d−b)(x−a)/(c−a). For consecutive distinct vertex abscissas X_j<X_(j+1), the active set A_j={e:a≤X_j and X_(j+1)≤c} has fixed vertical order in that open slab. Maintain a path-copied balanced search tree T_j for each slab. For X_j<x<X_(j+1) and off-edge query (x,y), find the immediately lower edge (largest h_e(x)<y) in T_j; return its upper incident face, or the unbounded face when no lower edge exists.
+
+(a,b),(c,d) edge endpoints; h_e(x) interpolated height; X_j event coordinates; A_j active edges; T_j persistent root; (x,y) query; n edge count.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite planar straight-line subdivision with nonvertical edges, no overlapping or crossing interiors, intersections only at shared vertices, distinct abscissas of distinct vertices, and consistent incident face labels. Queries lie in an open slab off all edges. Exact comparisons assumed.
+
+Limitations — O(n log(n+1)) preprocessing time and space using path copying of a balanced search tree with logarithmic update cost; O(log(n+1)) query time. This simple version does not claim the original specialised linear-space bound. Event abscissas, on-edge queries, queries beyond extreme events and general degeneracies are outside scope.
+
+Mechanism — Distinct persistent search structure: unlike intersection reporting or polygon membership, old search roots locate labelled faces of a subdivision. Active edge heights cannot exchange order inside a slab without an intersection. Removing edges in the old order and inserting in the new order preserves the search invariant, and predecessor face labels identify the open vertical interval. Path copying preserves previous roots, using O(log(n+1)) new nodes per update; there are at most two updates per edge.
+
+Source — N. Sarnak and R. E. Tarjan (1986), Planar Point Location Using Persistent Search Trees, Communications of the ACM 29(7), 669–679, https://doi.org/10.1145/6138.6151 ; IBM Research abstract reviewed, https://research.ibm.com/publications/planar-point-location-using-persistent-search-trees ; MIT 6.851 Spring 2012 lecture 3 scribe notes, sections 2.1–2.2, pp. 2–3, parsed text and p. 3 image reviewed, https://courses.csail.mit.edu/6.851/spring12/scribe/lec3.pdf ; restricted path-copying version, predecessor convention and midpoint update rules independently specified; original full paper not reviewed.
