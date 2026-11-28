@@ -21,7 +21,7 @@
     "id": "convex-polygon-minkowski-edge-merge",
     "name": "Convex polygon Minkowski sum by edge merge",
     "definition": "P⊕Q={p+q:p∈P,q∈Q}. For two CCW strictly convex polygon vertex cycles rotated to start at their lowest-y then lowest-x vertex, merge their cyclic edge vectors by increasing polar angle in [0,2π), summing co-directed vectors at equal angles. Starting at the sum of the first vertices, cumulatively add the merged edges, omitting the repeated closing vertex.",
-    "variables": "P,Q closed convex planar polygons; p,q points; ⊕ set addition; edge vectors in angular order.",
+    "variables": "P,Q closed convex planar polygons; p,q points; ⊕ set addition; edge vectors in angular order",
     "assumptions": "Positive-area simple convex inputs in CCW order with no zero-length or redundant collinear edges; exact angular ordering or robust half-plane and cross-product comparison.",
     "limitations": "O(m+n) arithmetic comparisons and output size for already valid ordered convex polygons; does not cover arbitrary nonconvex sums or input validation cost.",
     "failure_conditions": [
@@ -30,7 +30,8 @@
     "computation": "Rotate input cycles to the specified starting vertices; merge edge sequences by angle, using a half-plane test then cross product, co-directed ties combined. Accumulate vectors from the summed start; check closure.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional source locator: CGAL 6.2 2D Minkowski Sums user manual. https://doc.cgal.org/6.2/Minkowski_sum_2/index.html ; independent admission review pending."
+      "citation": "Ron Wein et al., CGAL 6.2, 2D Minkowski Sums user manual, section Computing the Minkowski Sum of Two Polygons, text reviewed: convex edge ordering, bottommost start and linear merge. https://doc.cgal.org/6.2/Minkowski_sum_2/index.html ; tie-breaking and robust angle comparator explicitly specified here.",
+      "url": "https://doc.cgal.org/6.2/Minkowski_sum_2/index.html"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
     "required_inputs": "Two positive-area convex planar polygon boundaries in cyclic order.",
@@ -51,7 +52,7 @@
         "target": "andrew-monotone-chain-convex-hull"
       }
     ],
-    "mechanism_note": "Provisional. Constructs the full set sum by merging edge directions, rather than testing separation or constructing a single point-set hull; review pending."
+    "mechanism_note": "Constructs a set sum by merging edge directions rather than testing separation or constructing a single point-set hull. Support functions add, and exposed faces in any common direction add; co-directed edges therefore combine. Opposite directions must not be treated as ties."
   },
   {
     "profile": "multifeature",
@@ -84,7 +85,8 @@
     "computation": "Accumulate signed cross products and their coordinate-weighted first moments, then divide by six times signed area. Use consistent cyclic indexing.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional source locator: Eric W. Weisstein, Polygon Centroid, MathWorld. https://mathworld.wolfram.com/PolygonCentroid.html ; independent admission review pending."
+      "citation": "Eric W. Weisstein, Polygon Centroid, MathWorld, equations (1)–(2), text reviewed: coordinate-weighted cross products divided by six times signed area. https://mathworld.wolfram.com/PolygonCentroid.html ; signed triangle first-moment derivation independently checked.",
+      "url": "https://mathworld.wolfram.com/PolygonCentroid.html"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
     "required_inputs": "Cyclic vertices of a simple positive-area polygon with uniform density.",
@@ -100,6 +102,6 @@
         "target": "polygon-shoelace-signed-area"
       }
     ],
-    "mechanism_note": "Provisional. First-moment summary extends the shoelace area computation; diagnostic, not an additional independent algorithm."
+    "mechanism_note": "First-moment summary extends the shoelace area computation; diagnostic rather than a distinct algorithm. Signed origin-edge triangles have area d_i/2 and centroid (v_i+v_(i+1))/3, so their signed moments sum even for concave simple polygons. Reversing orientation reverses numerator and denominator together."
   }
 ]

@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "091",
+    "family": "computational-geometry",
+    "classification": "model-variant",
+    "id": "welzl-randomized-minimum-enclosing-disk",
+    "name": "Welzl randomized minimum enclosing disk",
+    "definition": "For randomly permuted P and boundary support R with |R|≤3, W(P,R)=W(P\\{p},R) if that disk contains p; otherwise W(P,R)=W(P\\{p},R∪{p}). Stop when P is empty or |R|=3, solving the constrained support disk base case.",
+    "variables": "P remaining planar points; R constrained boundary support; p next point; W constrained enclosing disk",
+    "assumptions": "Finite planar Euclidean points, uniform random permutation, robust containment and support construction; review degenerate and empty support cases before admission.",
+    "limitations": "Expected linear arithmetic for fixed planar dimension under random order; recursive stack and worst-case complexity require separate review.",
+    "failure_conditions": [
+      "Incorrect constrained support base case, invalid input or unreliable containment."
+    ],
+    "computation": "Process a uniform random permutation recursively; only add a point to boundary support if the current disk does not contain it. Base cases and degeneracies must be independently reviewed.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional source locator: Emo Welzl (1991), Smallest enclosing disks (balls and ellipsoids), https://doi.org/10.1007/BFb0038202 ; independent admission review pending."
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Finite nonempty planar points and declared random permutation procedure.",
+    "compatible_methods": [
+      "minimum-enclosing-disk-support-enumeration"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "minimum-enclosing-disk-support-enumeration"
+      }
+    ],
+    "mechanism_note": "Provisional randomized alternative for the same enclosing disk objective; no independent admission or empirical validation claimed."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "091",
+    "family": "computational-geometry",
+    "classification": "model-variant",
+    "id": "convex-polygon-fan-binary-point-location",
+    "name": "Convex polygon fan binary point location",
+    "definition": "For strictly convex CCW vertices v_0,...,v_(n−1), define orient(a,b,c)=(b−a)×(c−a). Reject points outside the extreme rays from v_0, handle those ray boundaries by segment containment, otherwise binary search for the largest i with orient(v_0,v_i,q)≥0 and test orient(v_i,v_(i+1),q)≥0.",
+    "variables": "v_i ordered vertices; q query; orient signed cross product; i fan sector",
+    "assumptions": "Strictly convex positive-area CCW polygon with n≥3; finite points, robust exact orientation and boundary handling.",
+    "limitations": "O(log n) query after ordered polygon preparation; does not handle general concave polygons; boundary rays need explicit finite-segment checks.",
+    "failure_conditions": [
+      "Invalid convexity, zero-length edges, unreliable orientation or unresolved boundary ties."
+    ],
+    "computation": "Check extreme rays, locate angular sector by binary search, test the outer edge; include boundary points under closed-set membership.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional source locator: Algorithms for Competitive Programming, Check if point belongs to the convex polygon in O(log N), https://cp-algorithms.com/geometry/point-in-convex-polygon.html ; independent admission review pending."
+    },
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "required_inputs": "Ordered strictly convex polygon and query point.",
+    "compatible_methods": [
+      "polygon-winding-number"
+    ],
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "polygon-winding-number"
+      }
+    ],
+    "mechanism_note": "Provisional restricted convex point-membership alternative to winding number; no admission or validation claimed."
+  }
+]

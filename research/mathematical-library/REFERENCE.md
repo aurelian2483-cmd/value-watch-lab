@@ -7053,3 +7053,35 @@ Limitations — O(n^4) arithmetic for exhaustive candidate generation and contai
 Mechanism — Exhaustive support enumeration is distinct from maximum pairwise distance, which provides only a lower bound on the enclosing diameter. A minimum disk center lies in the convex hull of its active boundary points (otherwise a separating direction reduces the maximum radius); a planar convex hull certificate needs at most three active points. No claim of randomized linear-time implementation.
 
 Source — CGAL 6.2.1 Bounding Volumes, Min_circle_2 class reference, text reviewed: support of at most three boundary points, including duplicates and degenerate cases. https://doc.cgal.org/latest/Bounding_volumes/classCGAL_1_1Min__circle__2.html ; exhaustive enumeration and optimality argument independently derived here, not CGAL's Welzl implementation.
+
+## Convex polygon Minkowski sum by edge merge (convex-polygon-minkowski-edge-merge)
+
+> P⊕Q={p+q:p∈P,q∈Q}. For two CCW strictly convex polygon vertex cycles rotated to start at their lowest-y then lowest-x vertex, merge their cyclic edge vectors by increasing polar angle in [0,2π), summing co-directed vectors at equal angles. Starting at the sum of the first vertices, cumulatively add the merged edges, omitting the repeated closing vertex.
+
+P,Q closed convex planar polygons; p,q points; ⊕ set addition; edge vectors in angular order.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Positive-area simple convex inputs in CCW order with no zero-length or redundant collinear edges; exact angular ordering or robust half-plane and cross-product comparison..
+
+Limitations — O(m+n) arithmetic comparisons and output size for already valid ordered convex polygons; does not cover arbitrary nonconvex sums or input validation cost..
+
+Mechanism — Constructs a set sum by merging edge directions rather than testing separation or constructing a single point-set hull. Support functions add, and exposed faces in any common direction add; co-directed edges therefore combine. Opposite directions must not be treated as ties.
+
+Source — Ron Wein et al., CGAL 6.2, 2D Minkowski Sums user manual, section Computing the Minkowski Sum of Two Polygons, text reviewed: convex edge ordering, bottommost start and linear merge. https://doc.cgal.org/6.2/Minkowski_sum_2/index.html ; tie-breaking and robust angle comparator explicitly specified here.
+
+## Uniform polygon area centroid (polygon-area-centroid-first-moment)
+
+> For a simple polygon with cyclic vertices (x_i,y_i), let d_i=x_i y_(i+1)−x_(i+1)y_i, A=(1/2)Σ_i d_i. For A≠0 the area centroid is C=(Σ_i (x_i+x_(i+1))d_i, Σ_i (y_i+y_(i+1))d_i)/(6A).
+
+A signed area; d_i signed edge cross product; C uniform area centroid; indices cyclic..
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Simple closed finite planar polygon with nonzero area and uniform areal density; no holes in this specification; either orientation..
+
+Limitations — O(n) arithmetic; near-zero signed area and cancellation can degrade floating-point accuracy; centroid may lie outside a concave polygon and is not generally the vertex average..
+
+Mechanism — First-moment summary extends the shoelace area computation; diagnostic rather than a distinct algorithm. Signed origin-edge triangles have area d_i/2 and centroid (v_i+v_(i+1))/3, so their signed moments sum even for concave simple polygons. Reversing orientation reverses numerator and denominator together.
+
+Source — Eric W. Weisstein, Polygon Centroid, MathWorld, equations (1)–(2), text reviewed: coordinate-weighted cross products divided by six times signed area. https://mathworld.wolfram.com/PolygonCentroid.html ; signed triangle first-moment derivation independently checked.
