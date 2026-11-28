@@ -7469,3 +7469,35 @@ Limitations — For m supplied prime factors with multiplicity, expected O(m) ha
 Mechanism — The nonzero divisors contributing to Σ_(d|n) μ(d) correspond to subsets of the distinct primes; their signed sum is (1−1)^k for k distinct prime factors, hence zero for n>1 and one for n=1. This also provides a factorization-independent recursive reference. The squarefree parity function is distinct from the totient residue count but classified as diagnostic.
 
 Source — NIST Digital Library of Mathematical Functions §27.2 equation 27.2.12, https://dlmf.nist.gov/27.2.E12 ; §27.6 equation 27.6.2, https://dlmf.nist.gov/27.6.E2 ; factor-list verification and operation costs independently derived.
+
+## Prime-power divisor sum product (prime-power-divisor-sum)
+
+> For n=∏ p_i^a_i, σ(n)=∏_i Σ_(j=0..a_i) p_i^j=∏_i (p_i^(a_i+1)−1)/(p_i−1); σ(1)=1.
+
+n positive integer; p_i distinct primes; a_i positive multiplicities; σ sum of positive divisors.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Exact integer arithmetic; complete verified factorization into distinct primes with positive integer exponents; n≥1.
+
+Limitations — Requires prior verified factorization; not a factorization algorithm. Iterated geometric sums use O(Σ_i a_i) integer operations, or exact powers can use binary exponentiation. Bit costs and factorization costs are additional.
+
+Mechanism — Unique prime factorization identifies every divisor with one vector of exponents between zero and the corresponding multiplicity. Summing the product over this Cartesian product separates into finite geometric sums. This counts a scalar arithmetic property, distinct from the totient or Möbius diagnostics, not a new distinct algorithm.
+
+Source — NIST Digital Library of Mathematical Functions §27.3 equations 27.3.2 and 27.3.6 (α=1), https://dlmf.nist.gov/27.3 ; finite geometric sum and operation counts independently derived.
+
+## Finite divisor-sum Möbius inversion (divisor-sum-mobius-inversion)
+
+> For functions on positive integers, F(n)=Σ_(d|n) f(d) implies f(n)=Σ_(d|n) μ(d) F(n/d), where μ(1)=1.
+
+n positive integer; d positive divisor; μ Möbius function; F divisor sum of f.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite sums over complete positive divisor sets; exact integer, rational or other additive-group arithmetic; all required F values and correct Möbius values available.
+
+Limitations — For a single n, O(τ(n)) signed additions and lookups once the divisor list and μ values are available, where τ(n) is the divisor count. Factorization, enumeration and value-acquisition costs are additional. Floating-point cancellation can destroy accuracy; no infinite-series convergence claim.
+
+Mechanism — Expanding F(n/d) and grouping by each divisor k of n gives f(k) times Σ_(d|n/k) μ(d). The inner sum is one when k=n and zero otherwise. The inverse is a finite divisor-lattice transformation, distinct from the scalar Möbius evaluation and not counted as a distinct algorithm.
+
+Source — NIST Digital Library of Mathematical Functions §27.5 equations 27.5.2 and 27.5.3, https://dlmf.nist.gov/27.5 ; finite double-sum proof and cost accounting independently derived.

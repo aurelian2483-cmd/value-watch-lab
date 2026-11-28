@@ -24,17 +24,18 @@
     "classification": "diagnostic",
     "id": "prime-power-divisor-sum",
     "name": "Prime-power divisor sum product",
-    "definition": "For n=∏ p_i^a_i, σ(n)=∏_i Σ_(j=0..a_i) p_i^j; empty product is 1.",
+    "definition": "For n=∏ p_i^a_i, σ(n)=∏_i Σ_(j=0..a_i) p_i^j=∏_i (p_i^(a_i+1)−1)/(p_i−1); σ(1)=1.",
     "variables": "n positive integer; p_i distinct primes; a_i positive multiplicities; σ sum of positive divisors",
-    "assumptions": "Exact integer arithmetic; verified complete prime factorization",
-    "limitations": "Provisional complexity and novelty review pending",
+    "assumptions": "Exact integer arithmetic; complete verified factorization into distinct primes with positive integer exponents; n≥1",
+    "limitations": "Requires prior verified factorization; not a factorization algorithm. Iterated geometric sums use O(Σ_i a_i) integer operations, or exact powers can use binary exponentiation. Bit costs and factorization costs are additional",
     "failure_conditions": [
-      "Invalid or incomplete factorization."
+      "Nonpositive or noninteger n, composite or repeated prime labels, nonpositive or noninteger exponents, factor product not equal to n, or arithmetic/resource failure."
     ],
-    "computation": "Compute each finite geometric sum with exact arithmetic and multiply.",
+    "computation": "For each verified prime power compute its geometric sum by recurrence or exact division of p^(a+1)−1 by p−1. Multiply the sums; for n=1 return 1.",
     "source": {
-      "kind": "original-derivation",
-      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §27.3 equations 27.3.2 and 27.3.6 (α=1), https://dlmf.nist.gov/27.3 ; finite geometric sum and operation counts independently derived.",
+      "url": "https://dlmf.nist.gov/27.3"
     },
     "required_inputs": "Positive integer and complete verified prime factorization.",
     "compatible_methods": [
@@ -46,7 +47,7 @@
         "target": "trial-division-prime-factorization"
       }
     ],
-    "mechanism_note": "Provisional classification; independent review pending."
+    "mechanism_note": "Unique prime factorization identifies every divisor with one vector of exponents between zero and the corresponding multiplicity. Summing the product over this Cartesian product separates into finite geometric sums. This counts a scalar arithmetic property, distinct from the totient or Möbius diagnostics, not a new distinct algorithm."
   },
   {
     "profile": "multifeature",
@@ -73,17 +74,18 @@
     "classification": "feature-transformation",
     "id": "divisor-sum-mobius-inversion",
     "name": "Finite divisor-sum Möbius inversion",
-    "definition": "If F(n)=Σ_(d|n) f(d), then f(n)=Σ_(d|n) μ(d) F(n/d) for positive integers n.",
+    "definition": "For functions on positive integers, F(n)=Σ_(d|n) f(d) implies f(n)=Σ_(d|n) μ(d) F(n/d), where μ(1)=1.",
     "variables": "n positive integer; d positive divisor; μ Möbius function; F divisor sum of f",
-    "assumptions": "Exact or controlled arithmetic, complete divisor enumeration and available F values",
-    "limitations": "Provisional complexity and novelty review pending",
+    "assumptions": "Finite sums over complete positive divisor sets; exact integer, rational or other additive-group arithmetic; all required F values and correct Möbius values available",
+    "limitations": "For a single n, O(τ(n)) signed additions and lookups once the divisor list and μ values are available, where τ(n) is the divisor count. Factorization, enumeration and value-acquisition costs are additional. Floating-point cancellation can destroy accuracy; no infinite-series convergence claim",
     "failure_conditions": [
-      "Missing divisors, undefined F values or unjustified arithmetic."
+      "Nonpositive or noninteger n, incomplete or repeated divisor list, missing F values or incorrect μ values; overflow or uncontrolled cancellation."
     ],
-    "computation": "Enumerate divisors of n; compute μ(d), multiply by F(n/d), and sum.",
+    "computation": "Enumerate each positive divisor d once, obtain μ(d) and F(n/d), accumulate their signed product; terms with μ(d)=0 may be skipped.",
     "source": {
-      "kind": "original-derivation",
-      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §27.5 equations 27.5.2 and 27.5.3, https://dlmf.nist.gov/27.5 ; finite double-sum proof and cost accounting independently derived.",
+      "url": "https://dlmf.nist.gov/27.5"
     },
     "required_inputs": "Positive integer, complete divisors and values of F at those divisors.",
     "compatible_methods": [
@@ -95,6 +97,6 @@
         "target": "prime-factor-mobius-function"
       }
     ],
-    "mechanism_note": "Provisional classification; independent review pending."
+    "mechanism_note": "Expanding F(n/d) and grouping by each divisor k of n gives f(k) times Σ_(d|n/k) μ(d). The inner sum is one when k=n and zero otherwise. The inverse is a finite divisor-lattice transformation, distinct from the scalar Möbius evaluation and not counted as a distinct algorithm."
   }
 ]

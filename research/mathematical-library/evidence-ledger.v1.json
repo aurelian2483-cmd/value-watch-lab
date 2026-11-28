@@ -10731,5 +10731,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "The nonzero divisors contributing to Σ_(d|n) μ(d) correspond to subsets of the distinct primes; their signed sum is (1−1)^k for k distinct prime factors, hence zero for n>1 and one for n=1. This also provides a factorization-independent recursive reference. The squarefree parity function is distinct from the totient residue count but classified as diagnostic."
+  },
+  {
+    "id": "prime-power-divisor-sum",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §27.3 equations 27.3.2 and 27.3.6 (α=1), https://dlmf.nist.gov/27.3 ; finite geometric sum and operation counts independently derived.",
+      "url": "https://dlmf.nist.gov/27.3"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Unique prime factorization identifies every divisor with one vector of exponents between zero and the corresponding multiplicity. Summing the product over this Cartesian product separates into finite geometric sums. This counts a scalar arithmetic property, distinct from the totient or Möbius diagnostics, not a new distinct algorithm."
+  },
+  {
+    "id": "divisor-sum-mobius-inversion",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §27.5 equations 27.5.2 and 27.5.3, https://dlmf.nist.gov/27.5 ; finite double-sum proof and cost accounting independently derived.",
+      "url": "https://dlmf.nist.gov/27.5"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Expanding F(n/d) and grouping by each divisor k of n gives f(k) times Σ_(d|n/k) μ(d). The inner sum is one when k=n and zero otherwise. The inverse is a finite divisor-lattice transformation, distinct from the scalar Möbius evaluation and not counted as a distinct algorithm."
   }
 ]

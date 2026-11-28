@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "104",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "model-variant",
+    "id": "rational-continued-fraction-convergents",
+    "name": "Rational continued fraction convergents",
+    "definition": "For rational x=u/v, repeatedly take a_k=floor(u/v) and replace (u,v) by (v,u−a_k v) until v=0. Recurrences P_k=a_k P_(k−1)+P_(k−2), Q_k=a_k Q_(k−1)+Q_(k−2), with P_−2=0, P_−1=1, Q_−2=1, Q_−1=0.",
+    "variables": "u integer; v positive integer; a_k quotient; P_k,Q_k convergent numerator and denominator",
+    "assumptions": "Exact integer arithmetic, v>0",
+    "limitations": "Provisional complexity and novelty review pending",
+    "failure_conditions": [
+      "Invalid input or unverified assumptions; stop on arithmetic or resource failure."
+    ],
+    "computation": "Use floor division and remainder; update convergent recurrences until remainder vanishes.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+    },
+    "required_inputs": "Exact integer arithmetic, v>0",
+    "compatible_methods": [
+      "euclidean-remainder-gcd"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "euclidean-remainder-gcd"
+      }
+    ],
+    "mechanism_note": "Provisional classification; independent review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "104",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "tonelli-shanks-modular-square-root",
+    "name": "Tonelli–Shanks modular square root",
+    "definition": "For odd prime p and nonzero quadratic residue a, find r with r²≡a (mod p). Write p−1=q·2^s, q odd; initialize c=z^q, r=a^((q+1)/2), t=a^q, m=s modulo p using a quadratic nonresidue z; while t≠1 find least i<m with t^(2^i)=1, set b=c^(2^(m−i−1)), then (r,t,c,m)←(rb,tb²,b²,i) modulo p for the first three coordinates.",
+    "variables": "p odd prime; a residue; z nonresidue; q odd; s,m,i exponents; r,t,c,b residues",
+    "assumptions": "Verified odd prime p and nonzero quadratic residue a; verified quadratic nonresidue z; exact modular arithmetic",
+    "limitations": "Provisional complexity and novelty review pending",
+    "failure_conditions": [
+      "Invalid input or unverified assumptions; stop on arithmetic or resource failure."
+    ],
+    "computation": "Apply the recurrence with modular exponentiation and verify r²≡a modulo p; reject violated assumptions.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+    },
+    "required_inputs": "Verified odd prime p and nonzero quadratic residue a; verified quadratic nonresidue z; exact modular arithmetic",
+    "compatible_methods": [
+      "binary-modular-exponentiation"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "binary-modular-exponentiation"
+      }
+    ],
+    "mechanism_note": "Provisional classification; independent review pending."
+  }
+]
