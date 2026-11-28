@@ -31,12 +31,28 @@ def blobs(revision, *paths):
     return {path.decode(): meta for meta, path in items}
 
 
+def integrated_main(pr_merge):
+    """Resolve the immutable upstream of a GitHub pull-request test merge."""
+    if not pr_merge:
+        return MAIN
+    parents = git('show', '-s', '--format=%P', 'HEAD').decode().split()
+    if len(parents) != 2:
+        raise ValueError('Expected a two-parent pull-request test merge')
+    upstream, draft = parents
+    git('merge-base', '--is-ancestor', MAIN, upstream)
+    git('merge-base', '--is-ancestor', DRAFT, draft)
+    return upstream
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--archive-manifest', type=Path)
+    parser.add_argument('--pr-merge', action='store_true',
+                        help='Use the first parent of the GitHub pull-request test merge')
     args = parser.parse_args()
     for baseline in DRAFT, MAIN:
         git('merge-base', '--is-ancestor', baseline, 'HEAD')
+    upstream_commit = integrated_main(args.pr_merge)
     frozen = blobs(ORIGINAL, *ARCHIVES)
     assert len(frozen) == 612
     for baseline in MAIN, 'HEAD':
@@ -58,9 +74,9 @@ def main():
     assert blobs('HEAD', *historical) == historical
 
     before = json.loads(git('show', f'{DRAFT}:{RESULTS}'))
-    upstream = json.loads(git('show', f'{MAIN}:{RESULTS}'))
+    upstream = json.loads(git('show', f'{upstream_commit}:{RESULTS}'))
     current = json.loads(git('show', f'HEAD:{RESULTS}'))
-    assert current == upstream
+    assert current == upstream, f'Challenger results differ from upstream {upstream_commit}'
     assert current['model_validation'] == 'UNVALIDATED' and current['publication_gate'] == 'BLOCKED'
     assert all(row in current['entries'] for row in before['entries'])
     assert all(row in current['amendments'] for row in before['amendments'])
@@ -78,6 +94,7 @@ def main():
             assert b'contents: read' in body, path
 
     print(json.dumps(dict(head=git('rev-parse', 'HEAD').decode().strip(),
+                          settlement_upstream=upstream_commit,
                           pinned_forecasts_verified=len(frozen), archive_manifest_sha256=ARCHIVE_MANIFEST_SHA256,
                           draft_archive_files=len(draft_frozen),
                           integrated_archive_files=len(blobs('HEAD', *ARCHIVES)), fixed_phase3_files=len(blobs(DRAFT, *FIXED)),

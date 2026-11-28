@@ -29,7 +29,11 @@ jobs:
           for manifest in "$base" "$base/transactional-repair" "$base/evidence-qualification" "$handover"; do
             sha256sum -c "$manifest/SHA256SUMS"
           done
-          python "$handover/verify_integrated_pins.py"
+          verifier_args=()
+          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then
+            verifier_args+=(--pr-merge)
+          fi
+          python "$handover/verify_integrated_pins.py" "${verifier_args[@]}"
           openssl version
           evidence="$(mktemp -d)"
           python research/phase3-lifecycle/acceptance.py "$evidence/lifecycle.json"
