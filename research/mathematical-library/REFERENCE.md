@@ -7405,3 +7405,35 @@ Limitations — For e>0, floor(log₂(e))+1 iterations and at most twice that ma
 Mechanism — The loop invariant is x y^k≡a^e (mod m). Writing k=2q+r with r∈{0,1}, multiplying x by y only when r=1 and replacing y by y² preserves it. Halving k terminates at zero, leaving the desired residue. Distinct integer modular power algorithm; matrix exponential scaling and squaring instead approximates a matrix function.
 
 Source — University of Washington CSE 311 Spring 2020 Lecture 15, Modular Exponentiation and Induction, binary expansion and modular squaring reviewed, https://courses.cs.washington.edu/courses/cse311/20sp/lectures/lecture15.html ; Ben Lynn, Stanford-hosted Number Theory notes, Modular Exponentiation, https://crypto.stanford.edu/pbc/notes/numbertheory/exp.html ; loop invariant and zero-exponent convention independently derived.
+
+## Trial division prime factorization (trial-division-prime-factorization)
+
+> For n≥2 set r=n and d=2; while d²≤r repeatedly divide r by d while r mod d=0, recording d each time, then increment d. If r>1 append r; n=∏ recorded factors.
+
+n integer to factor; r residual; d trial divisor.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Exact integer arithmetic; input n is an integer at least 2; divisors are tried in increasing integer order.
+
+Limitations — O(√n) trial divisibility checks and O(log n) successful divisions in the worst case, counted as arithmetic operations rather than bit complexity. Output has at most floor(log₂ n) prime factors with multiplicity. Running time is exponential in the input bit length in the worst case; unsuitable for large primes or large balanced semiprimes.
+
+Mechanism — Invariant: the product of recorded factors times r equals n, and r has no divisor in [2,d−1]. Therefore if d divides r then d is prime, and if d²>r then r is one or prime (any composite has a prime divisor at most its square root). This extracts a factor multiset of a supplied integer, unlike the Eratosthenes sieve which enumerates primes over a bounded range.
+
+Source — Number Theory: In Context and Interactive, Gordon College, Section 12.5.2, Algorithm 12.5.7 Trial Factorization, https://www.math.gordon.edu/ntic/ntic2017/section-intro-factor.html ; source describes trial over primes to find one factor; the complete all-integer residual loop, invariant and operation bounds are independently derived.
+
+## Euler totient prime product (euler-totient-prime-product)
+
+> For n≥1 with known complete prime factorization, φ(n)=n∏_(p|n)(1−1/p), the product over distinct prime divisors p.
+
+n positive integer; p distinct prime divisor; φ(n) count of coprime positive integers up to n.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Positive exact integer n; verified complete prime factor multiset whose product is n; the empty multiset and empty product apply for n=1.
+
+Limitations — Once factorization and distinct prime divisors are verified, k exact divisions and k subtractions for k distinct prime factors, plus deduplication. This excludes factorization, verification, sorting and bit-arithmetic costs; obtaining a complete factorization may dominate. A partial or composite-factor list does not justify this identity.
+
+Mechanism — For each prime power p^a, exactly p^(a−1) of its p^a residues are divisible by p. Multiplicativity over coprime prime powers yields the product. During the integer update every unprocessed prime still divides v, since previously processed distinct primes remove only their own divisor. This scalar counting identity is a diagnostic, not a new factorization or gcd algorithm.
+
+Source — University of Southampton MATH1001 Introduction to Number Theory, Section 7.2 Euler’s Product Formula, Lemma 7.8, Theorem 7.10 and Corollary 7.13, https://www.southampton.ac.uk/~wright/1001/eulers-product-formula.html ; integer update and cost limitations independently derived.

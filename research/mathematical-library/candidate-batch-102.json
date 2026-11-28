@@ -1,0 +1,105 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "102",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "fermat-difference-of-squares-factorization",
+    "name": "Fermat difference-of-squares factorization",
+    "definition": "For odd n≥3, start a=ceil(√n), increment a until a²−n=b² for integer b≥0; return factors a−b and a+b with product n.",
+    "variables": "n odd positive integer; a candidate midpoint; b nonnegative integer square root",
+    "assumptions": "Exact integer arithmetic; odd integer n≥3; a trivial factor pair is allowed",
+    "limitations": "Provisional complexity and novelty review pending",
+    "failure_conditions": [
+      "Invalid input, overflow or resource exhaustion before completion."
+    ],
+    "computation": "Compute exact integer ceiling square root and test successive differences for perfect squares; verify returned product.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+    },
+    "required_inputs": "Odd integer n≥3.",
+    "compatible_methods": [
+      "trial-division-prime-factorization"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "trial-division-prime-factorization"
+      }
+    ],
+    "mechanism_note": "Provisional classification; independent review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "102",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "diagnostic",
+    "id": "prime-factor-mobius-function",
+    "name": "Möbius function from prime multiplicities",
+    "definition": "For n≥1 with complete prime factorization, μ(n)=0 if any prime multiplicity exceeds one; otherwise μ(n)=(−1)^k for k distinct primes.",
+    "variables": "n positive integer; k number of distinct prime factors; μ(n) Möbius function",
+    "assumptions": "Exact positive integers; verified complete factorization; empty multiset for n=1",
+    "limitations": "Provisional complexity and novelty review pending",
+    "failure_conditions": [
+      "Invalid input or incomplete factorization."
+    ],
+    "computation": "Validate the factor multiset, return zero for repeated prime factors, otherwise return parity sign of the number of factors.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+    },
+    "required_inputs": "Positive integer and complete verified prime factorization.",
+    "compatible_methods": [
+      "trial-division-prime-factorization",
+      "euler-totient-prime-product"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "trial-division-prime-factorization"
+      },
+      {
+        "type": "related",
+        "target": "euler-totient-prime-product"
+      }
+    ],
+    "mechanism_note": "Provisional classification; independent review pending."
+  }
+]

@@ -10639,5 +10639,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "The loop invariant is x y^k≡a^e (mod m). Writing k=2q+r with r∈{0,1}, multiplying x by y only when r=1 and replacing y by y² preserves it. Halving k terminates at zero, leaving the desired residue. Distinct integer modular power algorithm; matrix exponential scaling and squaring instead approximates a matrix function."
+  },
+  {
+    "id": "trial-division-prime-factorization",
+    "source": {
+      "kind": "literature",
+      "citation": "Number Theory: In Context and Interactive, Gordon College, Section 12.5.2, Algorithm 12.5.7 Trial Factorization, https://www.math.gordon.edu/ntic/ntic2017/section-intro-factor.html ; source describes trial over primes to find one factor; the complete all-integer residual loop, invariant and operation bounds are independently derived.",
+      "url": "https://www.math.gordon.edu/ntic/ntic2017/section-intro-factor.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Invariant: the product of recorded factors times r equals n, and r has no divisor in [2,d−1]. Therefore if d divides r then d is prime, and if d²>r then r is one or prime (any composite has a prime divisor at most its square root). This extracts a factor multiset of a supplied integer, unlike the Eratosthenes sieve which enumerates primes over a bounded range."
+  },
+  {
+    "id": "euler-totient-prime-product",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Southampton MATH1001 Introduction to Number Theory, Section 7.2 Euler’s Product Formula, Lemma 7.8, Theorem 7.10 and Corollary 7.13, https://www.southampton.ac.uk/~wright/1001/eulers-product-formula.html ; integer update and cost limitations independently derived.",
+      "url": "https://www.southampton.ac.uk/~wright/1001/eulers-product-formula.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "For each prime power p^a, exactly p^(a−1) of its p^a residues are divisible by p. Multiplicativity over coprime prime powers yields the product. During the integer update every unprocessed prime still divides v, since previously processed distinct primes remove only their own divisor. This scalar counting identity is a diagnostic, not a new factorization or gcd algorithm."
   }
 ]
