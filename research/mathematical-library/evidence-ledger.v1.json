@@ -10271,5 +10271,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Lattice-area identity used as a diagnostic rather than a separate algorithm. Writing displacement as g times a primitive integer vector, Bezout’s identity implies that lattice locations on the closed edge occur at parameters j/g for j=0,…,g. A half-open edge contributes g locations, so summation counts boundary vertices once. Triangulating into empty lattice triangles yields unit half-area triangles; Euler incidence counting gives the identity. This does not certify polygon validity."
+  },
+  {
+    "id": "bounded-half-plane-intersection-deque",
+    "source": {
+      "kind": "literature",
+      "citation": "Algorithms for Competitive Programming, Half-plane intersection – Sort-and-Incremental algorithm, angle/deque procedure reviewed, https://cp-algorithms.com/geometry/halfplane-intersection.html ; University of New Mexico CS 506, Half Plane Intersection, Duality and Arrangements, Spring 2020, p. 1 page image reviewed for problem and convexity, https://www.cs.unm.edu/~saia/classes/506-s24/lec/halfplane-intersection-and-duality.pdf ; strict pruning and restricted contract independently specified.",
+      "url": "https://cp-algorithms.com/geometry/halfplane-intersection.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Variant of sequential convex-window clipping. Angle order lets redundant boundaries be removed at ends of the active chain. Essential adjacent boundaries of a bounded positive-area polygon turn by less than π; equality at a corner alone creates no edge. Intersection formula follows from Cramer’s rule. No general infeasibility classifier claimed."
+  },
+  {
+    "id": "interval-union-endpoint-sweep-length",
+    "source": {
+      "kind": "literature",
+      "citation": "F. P. Preparata and M. I. Shamos, Computational Geometry: An Introduction, section 8.4, p. 332, endpoint-count scan reviewed from Rensselaer Polytechnic Institute-hosted page image, https://www.cs.rpi.edu/~cutler/classes/computationalgeometry/F23/references/Computational_Geometry_An_Introduction.pdf ; Jeff Erickson, Klee’s Measure Problem, University of Illinois, problem and complexity reviewed, https://jeffe.cs.illinois.edu/open/klee.html ; grouped-event convention independently derived.",
+      "url": "https://jeffe.cs.illinois.edu/open/klee.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Scalar coverage diagnostic. The union differs from disjoint covered open gaps only by finitely many endpoints of measure zero. Active count is constant on each gap, so grouping tied events preserves length including touching and zero-width intervals."
   }
 ]

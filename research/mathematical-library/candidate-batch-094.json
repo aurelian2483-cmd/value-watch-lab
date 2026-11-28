@@ -1,0 +1,101 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "094",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "diagnostic",
+    "id": "rectangle-union-area-sweep-segment-tree",
+    "name": "Axis-aligned rectangle union area by sweep",
+    "definition": "For rectangles [l_i,r_i]×[b_i,t_i], A=Σ_j (x_(j+1)−x_j)L_j, with L_j union length of active vertical intervals between distinct sorted x events.",
+    "variables": "A union area; x_j event coordinates; L_j active union length",
+    "assumptions": "Finite ordered axis-aligned rectangles; grouped tied events; zero-area rectangles ignored",
+    "limitations": "Target O(n log n) time with compressed vertical coordinates and covered-length segment tree; update and tie details pending review",
+    "failure_conditions": [
+      "Invalid rectangles or inconsistent coverage counts"
+    ],
+    "computation": "Provisional sweep x events and maintain covered length using counts over elementary vertical gaps.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: Preparata and Shamos, Computational Geometry: An Introduction, section 8.4; admission review pending."
+    },
+    "required_inputs": "Finite axis-aligned rectangles.",
+    "compatible_methods": [
+      "interval-union-endpoint-sweep-length",
+      "segment-tree-associative-range-aggregate"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "interval-union-endpoint-sweep-length"
+      }
+    ],
+    "mechanism_note": "Provisional two-dimensional coverage measure, not admitted."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "094",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "planar-orthogonal-range-tree-reporting",
+    "name": "Planar orthogonal range tree reporting",
+    "definition": "For planar records P and box B=[a,b]×[c,d], report R={p∈P:a≤p_x≤b and c≤p_y≤d} using an x-key balanced tree with secondary sorted y structures.",
+    "variables": "P planar records; B query box; R output; n record count; k output count",
+    "assumptions": "Finite static coordinates; deterministic total ordering with record identities",
+    "limitations": "Provisional O(n log n) storage and O(log²n+k) reporting without fractional cascading; duplicate handling pending review",
+    "failure_conditions": [
+      "Invalid query box or missing or duplicated records"
+    ],
+    "computation": "Provisional decompose x interval into canonical subtrees and query secondary y structures for inclusive range.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: de Berg et al., Computational Geometry: Algorithms and Applications, orthogonal range searching; admission review pending."
+    },
+    "required_inputs": "Static planar records and closed query box.",
+    "compatible_methods": [
+      "kd-tree-axis-median-nearest-neighbor"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "kd-tree-axis-median-nearest-neighbor"
+      }
+    ],
+    "mechanism_note": "Provisional orthogonal reporting structure, not admitted."
+  }
+]

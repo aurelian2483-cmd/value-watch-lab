@@ -24,19 +24,20 @@
     "classification": "model-variant",
     "id": "bounded-half-plane-intersection-deque",
     "name": "Bounded half-plane intersection by angle-sorted deque",
-    "definition": "For oriented closed half-planes H_i={q:orient(a_i,b_i,q)≥0}, compute P=∩_i H_i by sorting directions and maintaining active boundary lines in a deque. Provisional restricted bounded positive-area case; exact insertion and parallel-line rules require review.",
-    "variables": "H_i half-plane; a_i,b_i oriented line points; P intersection; orient signed cross product",
-    "assumptions": "Finite input, bounded positive-area nonempty intersection, robust orientation and line intersection; parallel cases require explicit review.",
-    "limitations": "O(n log n) target bound depends on angle ordering and linear deque procedure; unbounded, empty and lower-dimensional cases not covered by provisional version.",
+    "definition": "For H_i={q:cross(d_i,q)≥c_i}, d_i≠0 and c_i=cross(d_i,a_i), compute P=∩_i H_i. Assume P bounded with positive area. For nonparallel lines i,j their intersection is q=(c_i d_j−c_j d_i)/cross(d_i,d_j). Sort directions cyclically by half-circle and cross-product ordering. Normalize equal directions by positive scaling and retain maximal c. Maintain deque Q: before adding h, pop last while |Q|≥2 and its last adjacent intersection has cross(d_h,q)≤c_h; symmetrically pop first using its first adjacent intersection. If a new adjacent direction gap is at least π, report outside supported domain. Append h. After the sweep repeat back-against-first and front-against-last tests until neither pops. Require at least three lines and every cyclic gap strictly between 0 and π; return cyclic consecutive intersections.",
+    "variables": "H_i closed half-plane; d_i directed boundary vector; a_i point on boundary; c_i signed offset; cross planar determinant; P feasible polygon; Q deque; h incoming constraint; q boundary intersection",
+    "assumptions": "Finite nonzero directions and finite offsets; known bounded positive-area intersection (for example supplied bounding rectangle with a strictly feasible point); exact or robust angular, determinant and side comparisons. Equal directions share positive normalization; opposite directions are not grouped",
+    "limitations": "O(n log n) arithmetic/comparisons and O(n) storage; each constraint enters and leaves the deque at most once. Empty, unbounded or lower-dimensional intersections are outside this contract; domain rejection does not prove emptiness. Exact arithmetic bit complexity and input certification are separate",
     "failure_conditions": [
-      "Invalid line, incorrect deque pruning or unresolved parallel-line handling."
+      "Zero direction, nonfinite offset, unverified boundedness or positive area, nonpositive adjacent determinant, or unreliable side comparison."
     ],
-    "computation": "Sort oriented boundaries by direction, retain tightest same-direction constraints, remove infeasible adjacent intersections at both ends and close the deque; independently review all details.",
+    "computation": "Keep tightest co-directed constraint, remove corner-only contacts with non-strict pruning, and enforce cyclic gap and cardinality requirements before dividing by determinant. Return strict convex vertices in counterclockwise order. Independent checking can enumerate feasible pair intersections; extra checking is not included in the bound.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional source locator: Algorithms for Competitive Programming, Half-plane intersection, https://cp-algorithms.com/geometry/halfplane-intersection.html ; independent admission review pending."
+      "citation": "Algorithms for Competitive Programming, Half-plane intersection – Sort-and-Incremental algorithm, angle/deque procedure reviewed, https://cp-algorithms.com/geometry/halfplane-intersection.html ; University of New Mexico CS 506, Half Plane Intersection, Duality and Arrangements, Spring 2020, p. 1 page image reviewed for problem and convexity, https://www.cs.unm.edu/~saia/classes/506-s24/lec/halfplane-intersection-and-duality.pdf ; strict pruning and restricted contract independently specified.",
+      "url": "https://cp-algorithms.com/geometry/halfplane-intersection.html"
     },
-    "required_inputs": "Finite oriented half-planes and explicit boundedness and degeneracy policy.",
+    "required_inputs": "Finite oriented half-planes, known bounded positive-area feasible intersection and robust exact comparisons.",
     "compatible_methods": [
       "sutherland-hodgman-convex-window-clipping"
     ],
@@ -46,7 +47,7 @@
         "target": "sutherland-hodgman-convex-window-clipping"
       }
     ],
-    "mechanism_note": "Provisional alternative half-plane intersection construction, not admitted."
+    "mechanism_note": "Variant of sequential convex-window clipping. Angle order lets redundant boundaries be removed at ends of the active chain. Essential adjacent boundaries of a bounded positive-area polygon turn by less than π; equality at a corner alone creates no edge. Intersection formula follows from Cramer’s rule. No general infeasibility classifier claimed."
   },
   {
     "profile": "multifeature",
@@ -73,19 +74,20 @@
     "classification": "diagnostic",
     "id": "interval-union-endpoint-sweep-length",
     "name": "Interval union length by endpoint sweep",
-    "definition": "For finite closed intervals [l_i,r_i] with l_i≤r_i, sort endpoint coordinates x_j and let c_j count covering intervals on (x_j,x_(j+1)); union length L=Σ_j (x_(j+1)−x_j)[c_j>0].",
-    "variables": "l_i,r_i endpoints; x_j distinct sorted coordinates; c_j active count; L union length",
-    "assumptions": "Finite real endpoints, ordered intervals, exact or robust comparisons; zero-width intervals contribute zero.",
-    "limitations": "O(n log n) sorting and O(n) storage; total length alone does not encode component membership.",
+    "definition": "For finite closed intervals [l_i,r_i] with l_i≤r_i, sort distinct endpoints x_1<…<x_m. Set c_0=0, c_j=c_(j−1)+#{i:l_i=x_j}−#{i:r_i=x_j}. Union length L=Σ_(j=1)^(m−1)(x_(j+1)−x_j)·1[c_j>0], and L=0 when m≤1.",
+    "variables": "l_i,r_i ordered endpoints; x_j distinct sorted coordinates; c_j count on open gap to next endpoint; m endpoint count; L Lebesgue length of union",
+    "assumptions": "Finite real ordered endpoints and exact or robust comparisons and arithmetic. Empty input and singleton intervals have zero length; tied coordinates processed as one event",
+    "limitations": "O(n log n) sorting and O(n) storage in comparison model. Length alone does not encode component membership or multiplicity. Floating-point differences and sums can lose precision",
     "failure_conditions": [
-      "Nonfinite or reversed intervals, incorrect grouping of tied endpoints."
+      "Nonfinite or reversed intervals, incorrect grouping, negative active count or nonzero final count."
     ],
-    "computation": "Group all endpoint events at each coordinate, update active count and accumulate the next gap if positive; verify tie conventions independently.",
+    "computation": "Aggregate +1 for each left endpoint and −1 for each right endpoint at its coordinate. In ascending order update count at each coordinate and add distance to next distinct coordinate only if count is positive. Require final count zero. A zero-width interval contributes net zero.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional source locator: Algorithms for Competitive Programming, Length of the union of segments, https://cp-algorithms.com/geometry/length-of-segments-union.html ; independent admission review pending."
+      "citation": "F. P. Preparata and M. I. Shamos, Computational Geometry: An Introduction, section 8.4, p. 332, endpoint-count scan reviewed from Rensselaer Polytechnic Institute-hosted page image, https://www.cs.rpi.edu/~cutler/classes/computationalgeometry/F23/references/Computational_Geometry_An_Introduction.pdf ; Jeff Erickson, Klee’s Measure Problem, University of Illinois, problem and complexity reviewed, https://jeffe.cs.illinois.edu/open/klee.html ; grouped-event convention independently derived.",
+      "url": "https://jeffe.cs.illinois.edu/open/klee.html"
     },
-    "required_inputs": "Finite real intervals with endpoints.",
+    "required_inputs": "Finite ordered real intervals; exact or robust endpoint comparisons and length arithmetic.",
     "compatible_methods": [
       "bentley-ottmann-segment-intersections"
     ],
@@ -95,6 +97,6 @@
         "target": "bentley-ottmann-segment-intersections"
       }
     ],
-    "mechanism_note": "Provisional scalar union measure using endpoint sweep, not admitted."
+    "mechanism_note": "Scalar coverage diagnostic. The union differs from disjoint covered open gaps only by finitely many endpoints of measure zero. Active count is constant on each gap, so grouping tied events preserves length including touching and zero-width intervals."
   }
 ]

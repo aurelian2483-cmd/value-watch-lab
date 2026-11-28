@@ -7149,3 +7149,35 @@ Limitations — Constant-time arithmetic given I and B; obtaining I by exhaustiv
 Mechanism — Lattice-area identity used as a diagnostic rather than a separate algorithm. Writing displacement as g times a primitive integer vector, Bezout’s identity implies that lattice locations on the closed edge occur at parameters j/g for j=0,…,g. A half-open edge contributes g locations, so summation counts boundary vertices once. Triangulating into empty lattice triangles yields unit half-area triangles; Euler incidence counting gives the identity. This does not certify polygon validity.
 
 Source — J. Harrison, A formal proof of Pick’s theorem, manuscript received 23 November 2015, statement and simple boundary assumptions reviewed (p. 1 page image and introduction), https://www.cl.cam.ac.uk/~jrh13/papers/pick.pdf ; Algorithms for Competitive Programming, Pick’s Theorem – area of lattice polygons, statement cross-checked, https://cp-algorithms.com/geometry/picks-theorem.html ; boundary gcd formula independently derived.
+
+## Bounded half-plane intersection by angle-sorted deque (bounded-half-plane-intersection-deque)
+
+> For H_i={q:cross(d_i,q)≥c_i}, d_i≠0 and c_i=cross(d_i,a_i), compute P=∩_i H_i. Assume P bounded with positive area. For nonparallel lines i,j their intersection is q=(c_i d_j−c_j d_i)/cross(d_i,d_j). Sort directions cyclically by half-circle and cross-product ordering. Normalize equal directions by positive scaling and retain maximal c. Maintain deque Q: before adding h, pop last while |Q|≥2 and its last adjacent intersection has cross(d_h,q)≤c_h; symmetrically pop first using its first adjacent intersection. If a new adjacent direction gap is at least π, report outside supported domain. Append h. After the sweep repeat back-against-first and front-against-last tests until neither pops. Require at least three lines and every cyclic gap strictly between 0 and π; return cyclic consecutive intersections.
+
+H_i closed half-plane; d_i directed boundary vector; a_i point on boundary; c_i signed offset; cross planar determinant; P feasible polygon; Q deque; h incoming constraint; q boundary intersection.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite nonzero directions and finite offsets; known bounded positive-area intersection (for example supplied bounding rectangle with a strictly feasible point); exact or robust angular, determinant and side comparisons. Equal directions share positive normalization; opposite directions are not grouped.
+
+Limitations — O(n log n) arithmetic/comparisons and O(n) storage; each constraint enters and leaves the deque at most once. Empty, unbounded or lower-dimensional intersections are outside this contract; domain rejection does not prove emptiness. Exact arithmetic bit complexity and input certification are separate.
+
+Mechanism — Variant of sequential convex-window clipping. Angle order lets redundant boundaries be removed at ends of the active chain. Essential adjacent boundaries of a bounded positive-area polygon turn by less than π; equality at a corner alone creates no edge. Intersection formula follows from Cramer’s rule. No general infeasibility classifier claimed.
+
+Source — Algorithms for Competitive Programming, Half-plane intersection – Sort-and-Incremental algorithm, angle/deque procedure reviewed, https://cp-algorithms.com/geometry/halfplane-intersection.html ; University of New Mexico CS 506, Half Plane Intersection, Duality and Arrangements, Spring 2020, p. 1 page image reviewed for problem and convexity, https://www.cs.unm.edu/~saia/classes/506-s24/lec/halfplane-intersection-and-duality.pdf ; strict pruning and restricted contract independently specified.
+
+## Interval union length by endpoint sweep (interval-union-endpoint-sweep-length)
+
+> For finite closed intervals [l_i,r_i] with l_i≤r_i, sort distinct endpoints x_1<…<x_m. Set c_0=0, c_j=c_(j−1)+#{i:l_i=x_j}−#{i:r_i=x_j}. Union length L=Σ_(j=1)^(m−1)(x_(j+1)−x_j)·1[c_j>0], and L=0 when m≤1.
+
+l_i,r_i ordered endpoints; x_j distinct sorted coordinates; c_j count on open gap to next endpoint; m endpoint count; L Lebesgue length of union.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite real ordered endpoints and exact or robust comparisons and arithmetic. Empty input and singleton intervals have zero length; tied coordinates processed as one event.
+
+Limitations — O(n log n) sorting and O(n) storage in comparison model. Length alone does not encode component membership or multiplicity. Floating-point differences and sums can lose precision.
+
+Mechanism — Scalar coverage diagnostic. The union differs from disjoint covered open gaps only by finitely many endpoints of measure zero. Active count is constant on each gap, so grouping tied events preserves length including touching and zero-width intervals.
+
+Source — F. P. Preparata and M. I. Shamos, Computational Geometry: An Introduction, section 8.4, p. 332, endpoint-count scan reviewed from Rensselaer Polytechnic Institute-hosted page image, https://www.cs.rpi.edu/~cutler/classes/computationalgeometry/F23/references/Computational_Geometry_An_Introduction.pdf ; Jeff Erickson, Klee’s Measure Problem, University of Illinois, problem and complexity reviewed, https://jeffe.cs.illinois.edu/open/klee.html ; grouped-event convention independently derived.
