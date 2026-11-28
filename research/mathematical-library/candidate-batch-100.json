@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "100",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "pairwise-coprime-chinese-remainder-construction",
+    "name": "Pairwise coprime Chinese remainder construction",
+    "definition": "For pairwise coprime m_i≥2, M=∏m_i, M_i=M/m_i and y_i M_i≡1 (mod m_i), return x=(∑a_i M_i y_i) mod M.",
+    "variables": "a_i residues; m_i moduli; M product; M_i complementary product; y_i inverse",
+    "assumptions": "Pairwise coprime positive moduli; exact integer arithmetic; nonempty finite list",
+    "limitations": "Provisional complexity and novelty review pending",
+    "failure_conditions": [
+      "Invalid input or insufficient exact arithmetic."
+    ],
+    "computation": "Compute each inverse by extended gcd, then sum weighted residues and reduce modulo M.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+    },
+    "required_inputs": "Residues and corresponding pairwise coprime integer moduli.",
+    "compatible_methods": [
+      "extended-euclidean-bezout"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "extended-euclidean-bezout"
+      }
+    ],
+    "mechanism_note": "Provisional classification; independent review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "100",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "binary-modular-exponentiation",
+    "name": "Binary modular exponentiation",
+    "definition": "For integer a, e≥0, m≥2 initialize x=1, y=a mod m, k=e; if k is odd set x=(xy) mod m; update y=y² mod m and k=floor(k/2) until k=0.",
+    "variables": "a base; e exponent; m modulus; x accumulator; y squared base; k remaining exponent",
+    "assumptions": "Exact integer arithmetic; nonnegative exponent; modulus at least 2",
+    "limitations": "Provisional complexity and novelty review pending",
+    "failure_conditions": [
+      "Invalid input or insufficient exact arithmetic."
+    ],
+    "computation": "Process exponent bits from least significant to most significant; return x.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+    },
+    "required_inputs": "Integer base, nonnegative exponent, integer modulus at least 2.",
+    "compatible_methods": [
+      "euclidean-remainder-gcd"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "euclidean-remainder-gcd"
+      }
+    ],
+    "mechanism_note": "Provisional classification; independent review pending."
+  }
+]

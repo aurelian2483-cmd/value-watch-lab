@@ -10547,5 +10547,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Distinct prime enumeration algorithm. Each cleared value is composite. Every composite c has least prime divisor p≤sqrt(c), so c≥p² and is cleared at p; p itself cannot be cleared by smaller primes. Work is bounded by N plus N times the sum of reciprocals of primes up to sqrt(N); the standard Mertens prime-reciprocal bound gives O(N log log N). This is not independent trial division of each candidate."
+  },
+  {
+    "id": "extended-euclidean-bezout",
+    "source": {
+      "kind": "literature",
+      "citation": "Cornell University CS 2800, Fall 2017, Lecture 34: Properties of GCD, Bézout induction reviewed, https://www.cs.cornell.edu/courses/cs2800/2017fa/lectures/lec34-gcd.html ; iterative invariant and iteration bound independently derived.",
+      "url": "https://www.cs.cornell.edu/courses/cs2800/2017fa/lectures/lec34-gcd.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Variant of remainder gcd. Initially each remainder is its stated linear combination. Subtracting q times the second combination from the first preserves this invariant; the pair update has determinant −1. Euclidean termination and gcd invariance give the result. The remainder sequence is unchanged, hence the iteration bound still applies."
+  },
+  {
+    "id": "segmented-eratosthenes-sieve",
+    "source": {
+      "kind": "literature",
+      "citation": "Kim Walisch, primesieve algorithm documentation, segmentation and square-start marking reviewed, https://github.com/kimwalisch/primesieve/blob/master/doc/ALGORITHMS.md ; simple unoptimized block recurrence and scan overhead independently derived. University of Illinois CS 491 CAP sieve transcript supports base sieve.",
+      "url": "https://github.com/kimwalisch/primesieve/blob/master/doc/ALGORITHMS.md"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Variant of Eratosthenes. Each cleared number is a multiple of p at least p², hence composite. Every composite in a block has a least prime factor p≤sqrt(R) and lies at or beyond both start thresholds. No prime is cleared. The blocks partition the range, preserving the same prime set. Marking uses the standard prime reciprocal bound; scanning base-prime lists adds overhead."
   }
 ]

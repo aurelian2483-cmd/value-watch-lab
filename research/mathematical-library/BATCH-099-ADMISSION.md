@@ -1,0 +1,9 @@
+# Batch 099 admission review — 2026-11-28
+
+Parent 3f3f658885bc683e910080846587dc7e7368220f. PR #171 open/draft on authorised branch; exact-head workflow query reported Full research regression 46129405124 and Experiment registry validation 46129405141 successful. Candidate 023 and batch 023 reread: two admitted IDs retained, normalized lag cross-correlation remains withheld. All 493 reference headings and ledger IDs agree; normalized names and definitions screened. Both admissions are variants of existing number-theory methods.
+
+Cornell CS 2800 Lecture 34 Bézout induction, CMU 21-110 extended Euclidean notes, primesieve algorithm documentation and University of Illinois CS 491 CAP sieve transcript reviewed as HTML. Original Singleton paper not consulted. Invariant, determinant, termination, least-prime-factor marking, integer bounds and per-block overhead independently reviewed. No optimized bucket-sieve performance claim.
+
+Isolated Python synthetic checks, seed 9920261128: 15,200 nonzero integer pairs (all pairs in [0,100]² except zero pair plus 5,000 seeded pairs up to 512 bits) compared with math.gcd and checked for Bézout identity, intermediate remainder identities and determinant magnitude. 1,606 segmented-sieve cases (bounds 2–201 across seven block sizes, 200 seeded cases up to 50000, six boundary cases at 50000) compared with independent trial division. All passed. Both remain SPECIFIED; null implementation_ref and test_evidence.
+
+Four snapshots regenerated incrementally using inspected catalogue.mjs formatting, exact parent index reconstruction and exact parent ledger serialization. Full local generator and regression not executed. Batch 100 staged only. No prediction experiments, protected data access, wagering, spending, merge, deployment or permission changes.

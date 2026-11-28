@@ -7341,3 +7341,35 @@ Limitations — O(N log log N) indexed word operations asymptotically using the 
 Mechanism — Distinct prime enumeration algorithm. Each cleared value is composite. Every composite c has least prime divisor p≤sqrt(c), so c≥p² and is cleared at p; p itself cannot be cleared by smaller primes. Work is bounded by N plus N times the sum of reciprocals of primes up to sqrt(N); the standard Mertens prime-reciprocal bound gives O(N log log N). This is not independent trial division of each candidate.
 
 Source — M. Beckman, University of Illinois CS 491 CAP, 2019, The Sieve of Eratosthenes transcript, square-root reasoning, square-start marking and asymptotic bound reviewed, https://courses.physics.illinois.edu/cs491cap/fa2019/transcripts/sieve-of-eratosthenes/ ; finite inclusive-bound specification independently derived.
+
+## Extended Euclidean Bezout coefficient recurrence (extended-euclidean-bezout)
+
+> Initialize (r0,r1)=(a,b), (s0,s1)=(1,0), (t0,t1)=(0,1). While r1>0 set q=floor(r0/r1); replace each pair (u0,u1) by (u1,u0−q u1). At termination r0=gcd(a,b)=a s0+b t0.
+
+a,b nonnegative integers not both zero; r remainders; s,t integer coefficients; q quotient.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Exact integer arithmetic including signed coefficients.
+
+Limitations — O(log(M+1)) Euclidean iterations for M=max(a,b)≥1; a constant number of integer registers, not constant bit storage. Signed coefficients and intermediate products require exact or checked arithmetic. Bit cost depends on arithmetic implementation; coefficients need not be unique or minimal. Not constant time.
+
+Mechanism — Variant of remainder gcd. Initially each remainder is its stated linear combination. Subtracting q times the second combination from the first preserves this invariant; the pair update has determinant −1. Euclidean termination and gcd invariance give the result. The remainder sequence is unchanged, hence the iteration bound still applies.
+
+Source — Cornell University CS 2800, Fall 2017, Lecture 34: Properties of GCD, Bézout induction reviewed, https://www.cs.cornell.edu/courses/cs2800/2017fa/lectures/lec34-gcd.html ; iterative invariant and iteration bound independently derived.
+
+## Segmented Eratosthenes prime sieve (segmented-eratosthenes-sieve)
+
+> For each integer block [L,R] within [2,N], mark initially true; for each base prime p≤sqrt(R), clear indices beginning at m=max(p²,p ceil(L/p)) and increment by p until m>R.
+
+N inclusive upper bound; B positive block length; L,R inclusive block endpoints; p base prime; m first multiple to clear.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Exact integer indices and square-root bounds; complete base primes through floor(sqrt(N)); disjoint consecutive blocks of length at most B covering [2,N].
+
+Limitations — O(B+sqrt(N)) auxiliary words excluding streamed output (cap B at N). Simple per-block scanning incurs O(ceil((N−1)/B) π(floor(sqrt(N)))) overhead in addition to asymptotic O(N log log N) marking and initialization; π counts primes. Small B can worsen runtime. No cache performance claim.
+
+Mechanism — Variant of Eratosthenes. Each cleared number is a multiple of p at least p², hence composite. Every composite in a block has a least prime factor p≤sqrt(R) and lies at or beyond both start thresholds. No prime is cleared. The blocks partition the range, preserving the same prime set. Marking uses the standard prime reciprocal bound; scanning base-prime lists adds overhead.
+
+Source — Kim Walisch, primesieve algorithm documentation, segmentation and square-start marking reviewed, https://github.com/kimwalisch/primesieve/blob/master/doc/ALGORITHMS.md ; simple unoptimized block recurrence and scan overhead independently derived. University of Illinois CS 491 CAP sieve transcript supports base sieve.

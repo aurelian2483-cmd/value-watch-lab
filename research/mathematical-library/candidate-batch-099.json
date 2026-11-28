@@ -27,14 +27,15 @@
     "definition": "Initialize (r0,r1)=(a,b), (s0,s1)=(1,0), (t0,t1)=(0,1). While r1>0 set q=floor(r0/r1); replace each pair (u0,u1) by (u1,u0−q u1). At termination r0=gcd(a,b)=a s0+b t0.",
     "variables": "a,b nonnegative integers not both zero; r remainders; s,t integer coefficients; q quotient",
     "assumptions": "Exact integer arithmetic including signed coefficients",
-    "limitations": "Provisional coefficient growth and complexity review pending",
+    "limitations": "O(log(M+1)) Euclidean iterations for M=max(a,b)≥1; a constant number of integer registers, not constant bit storage. Signed coefficients and intermediate products require exact or checked arithmetic. Bit cost depends on arithmetic implementation; coefficients need not be unique or minimal. Not constant time",
     "failure_conditions": [
       "Both inputs zero, invalid integer input or overflow."
     ],
-    "computation": "Track coefficient pairs alongside the Euclidean remainder recurrence.",
+    "computation": "Update all three pairs simultaneously using the same quotient; return (r0,s0,t0) when r1=0. The zero-operand cases follow from initialization. Never divide by zero.",
     "source": {
-      "kind": "original-derivation",
-      "citation": "Original derivation: maintain r_i=a s_i+b t_i; independent review pending."
+      "kind": "literature",
+      "citation": "Cornell University CS 2800, Fall 2017, Lecture 34: Properties of GCD, Bézout induction reviewed, https://www.cs.cornell.edu/courses/cs2800/2017fa/lectures/lec34-gcd.html ; iterative invariant and iteration bound independently derived.",
+      "url": "https://www.cs.cornell.edu/courses/cs2800/2017fa/lectures/lec34-gcd.html"
     },
     "required_inputs": "Two nonnegative integers, not both zero.",
     "compatible_methods": [
@@ -46,7 +47,7 @@
         "target": "euclidean-remainder-gcd"
       }
     ],
-    "mechanism_note": "Provisional variant; independent review pending."
+    "mechanism_note": "Variant of remainder gcd. Initially each remainder is its stated linear combination. Subtracting q times the second combination from the first preserves this invariant; the pair update has determinant −1. Euclidean termination and gcd invariance give the result. The remainder sequence is unchanged, hence the iteration bound still applies."
   },
   {
     "profile": "multifeature",
@@ -74,18 +75,19 @@
     "id": "segmented-eratosthenes-sieve",
     "name": "Segmented Eratosthenes prime sieve",
     "definition": "For each integer block [L,R] within [2,N], mark initially true; for each base prime p≤sqrt(R), clear indices beginning at m=max(p²,p ceil(L/p)) and increment by p until m>R.",
-    "variables": "N inclusive upper bound; L,R block endpoints; p base prime; m multiple",
-    "assumptions": "Exact bounded integer arithmetic, complete base primes to floor(sqrt(N)), disjoint blocks covering [2,N]",
-    "limitations": "Provisional storage and block-overhead analysis pending",
+    "variables": "N inclusive upper bound; B positive block length; L,R inclusive block endpoints; p base prime; m first multiple to clear",
+    "assumptions": "Exact integer indices and square-root bounds; complete base primes through floor(sqrt(N)); disjoint consecutive blocks of length at most B covering [2,N]",
+    "limitations": "O(B+sqrt(N)) auxiliary words excluding streamed output (cap B at N). Simple per-block scanning incurs O(ceil((N−1)/B) π(floor(sqrt(N)))) overhead in addition to asymptotic O(N log log N) marking and initialization; π counts primes. Small B can worsen runtime. No cache performance claim",
     "failure_conditions": [
       "Invalid block size, incomplete base primes or overflow."
     ],
-    "computation": "Precompute base primes; process consecutive bounded blocks and emit survivors.",
+    "computation": "Compute base primes once using an ordinary sieve (empty when floor(sqrt(N))<2). For L=2,2+B,…≤N set R=min(N,L+B−1); allocate R−L+1 flags and clear as specified. Emit surviving L+i in increasing order, then discard flags. Use checked products and integer ceiling division.",
     "source": {
-      "kind": "original-derivation",
-      "citation": "Original derivation: restrict standard sieve marking to each block; independent review pending."
+      "kind": "literature",
+      "citation": "Kim Walisch, primesieve algorithm documentation, segmentation and square-start marking reviewed, https://github.com/kimwalisch/primesieve/blob/master/doc/ALGORITHMS.md ; simple unoptimized block recurrence and scan overhead independently derived. University of Illinois CS 491 CAP sieve transcript supports base sieve.",
+      "url": "https://github.com/kimwalisch/primesieve/blob/master/doc/ALGORITHMS.md"
     },
-    "required_inputs": "Integer inclusive bound N≥2.",
+    "required_inputs": "Integer inclusive bound N≥2 and positive integer block size B.",
     "compatible_methods": [
       "eratosthenes-prime-sieve"
     ],
@@ -95,6 +97,6 @@
         "target": "eratosthenes-prime-sieve"
       }
     ],
-    "mechanism_note": "Provisional variant; independent review pending."
+    "mechanism_note": "Variant of Eratosthenes. Each cleared number is a multiple of p at least p², hence composite. Every composite in a block has a least prime factor p≤sqrt(R) and lies at or beyond both start thresholds. No prime is cleared. The blocks partition the range, preserving the same prime set. Marking uses the standard prime reciprocal bound; scanning base-prime lists adds overhead."
   }
 ]
