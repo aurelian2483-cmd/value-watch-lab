@@ -10455,5 +10455,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Distinct persistent search structure: unlike intersection reporting or polygon membership, old search roots locate labelled faces of a subdivision. Active edge heights cannot exchange order inside a slab without an intersection. Removing edges in the old order and inserting in the new order preserves the search invariant, and predecessor face labels identify the open vertical interval. Path copying preserves previous roots, using O(log(n+1)) new nodes per update; there are at most two updates per edge."
+  },
+  {
+    "id": "polygon-second-area-moments",
+    "source": {
+      "kind": "literature",
+      "citation": "J. Burkardt, polygon_integrals (revised 11 January 2021), Florida State University-hosted documentation, low-order raw moment formulas, https://people.sc.fsu.edu/~jburkardt/m_src/polygon_integrals/polygon_integrals.html ; Bockman (1989) and Steger (1996) listed there, originals not reviewed.",
+      "url": "https://people.sc.fsu.edu/~jburkardt/m_src/polygon_integrals/polygon_integrals.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Diagnostic extending signed polygon area and first moments to raw quadratic integrals, not a new distinct algorithm. On a reference simplex the integrals of the squared barycentric coordinates are 1/12 and of their product 1/24; multiplying by the signed determinant and expanding the monomials gives the edge formulas. Oriented triangle chains sum to the polygon integral even when the origin is outside."
+  },
+  {
+    "id": "affine-lower-envelope-monotone-stack",
+    "source": {
+      "kind": "literature",
+      "citation": "R. Wein, CGAL 6.2 2D Envelopes user manual, introduction and convex hull with envelopes example, https://doc.cgal.org/6.2/Envelope_2/index.html ; pointwise minimum and point-line duality reviewed. The slope-stack construction, tie rule and query bounds are independently derived here, not claimed to be CGAL's implementation.",
+      "url": "https://doc.cgal.org/6.2/Envelope_2/index.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Dual monotone convex-hull variant, not a new distinct algorithm: mapping a line to (m,−b) maps lower-envelope segments to the upper hull. A smaller-slope new line beats the last line to the right of their crossing; if that crossing is no later than the last line's start, the last line has no surviving interval. Otherwise the crossing is the new start. Each line is pushed and popped at most once, giving linear stack work."
   }
 ]

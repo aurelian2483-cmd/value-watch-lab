@@ -7277,3 +7277,35 @@ Limitations — O(n log(n+1)) preprocessing time and space using path copying of
 Mechanism — Distinct persistent search structure: unlike intersection reporting or polygon membership, old search roots locate labelled faces of a subdivision. Active edge heights cannot exchange order inside a slab without an intersection. Removing edges in the old order and inserting in the new order preserves the search invariant, and predecessor face labels identify the open vertical interval. Path copying preserves previous roots, using O(log(n+1)) new nodes per update; there are at most two updates per edge.
 
 Source — N. Sarnak and R. E. Tarjan (1986), Planar Point Location Using Persistent Search Trees, Communications of the ACM 29(7), 669–679, https://doi.org/10.1145/6138.6151 ; IBM Research abstract reviewed, https://research.ibm.com/publications/planar-point-location-using-persistent-search-trees ; MIT 6.851 Spring 2012 lecture 3 scribe notes, sections 2.1–2.2, pp. 2–3, parsed text and p. 3 image reviewed, https://courses.csail.mit.edu/6.851/spring12/scribe/lec3.pdf ; restricted path-copying version, predecessor convention and midpoint update rules independently specified; original full paper not reviewed.
+
+## Uniform polygon second area moments (polygon-second-area-moments)
+
+> For CCW simple polygon vertices (x_i,y_i) with cyclic indices, let c_i=x_i y_(i+1)−x_(i+1)y_i. Then M20=Σ_i c_i(x_i²+x_i x_(i+1)+x_(i+1)²)/12, M02=Σ_i c_i(y_i²+y_i y_(i+1)+y_(i+1)²)/12 and M11=Σ_i c_i(2x_i y_i+x_i y_(i+1)+x_(i+1)y_i+2x_(i+1)y_(i+1))/24.
+
+c_i oriented edge determinant; M20=∫_P x² dA, M02=∫_P y² dA, M11=∫_P xy dA; P polygon interior.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — One simple counterclockwise polygonal boundary with positive area and finite coordinates; uniform unit area density; repeated closing vertex optional, no holes.
+
+Limitations — O(n) arithmetic and O(1) auxiliary storage, excluding input validation. Raw origin-dependent moments have units of length to the fourth power, not normalized or central moments. The mixed moment can be negative; do not take its absolute value. Floating-point cancellation and overflow may occur with large coordinate offsets or near-degenerate polygons.
+
+Mechanism — Diagnostic extending signed polygon area and first moments to raw quadratic integrals, not a new distinct algorithm. On a reference simplex the integrals of the squared barycentric coordinates are 1/12 and of their product 1/24; multiplying by the signed determinant and expanding the monomials gives the edge formulas. Oriented triangle chains sum to the polygon integral even when the origin is outside.
+
+Source — J. Burkardt, polygon_integrals (revised 11 January 2021), Florida State University-hosted documentation, low-order raw moment formulas, https://people.sc.fsu.edu/~jburkardt/m_src/polygon_integrals/polygon_integrals.html ; Bockman (1989) and Steger (1996) listed there, originals not reviewed.
+
+## Affine lower envelope by monotone slope stack (affine-lower-envelope-monotone-stack)
+
+> For lines f_i(x)=m_i x+b_i sorted by strictly decreasing slope after retaining the least intercept per slope, keep an envelope stack with increasing start breakpoints. For new line j and last line i, compute x_ij=(b_j−b_i)/(m_i−m_j); pop i if x_ij≤its start, and repeat; append j with its computed start or −∞ for the first line. Query the last start≤x to obtain min_i f_i(x).
+
+m_i slope; b_i intercept; x_ij crossing; x finite query; n input line count; h retained envelope line count.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Nonempty static set of finite affine functions on the entire real axis, exact ordered comparisons; only minimum value required, not every minimizing identity.
+
+Limitations — O(n log(n+1)) sorting and O(n) stack work, O(n) storage, O(log(h+1)) query. Parallel lines with greater intercept are dominated; identical lines and isolated breakpoint-only ties need not retain their identities. No arbitrary insertion, deletion, vertical lines, bounded segments or floating-point robustness guarantee.
+
+Mechanism — Dual monotone convex-hull variant, not a new distinct algorithm: mapping a line to (m,−b) maps lower-envelope segments to the upper hull. A smaller-slope new line beats the last line to the right of their crossing; if that crossing is no later than the last line's start, the last line has no surviving interval. Otherwise the crossing is the new start. Each line is pushed and popped at most once, giving linear stack work.
+
+Source — R. Wein, CGAL 6.2 2D Envelopes user manual, introduction and convex hull with envelopes example, https://doc.cgal.org/6.2/Envelope_2/index.html ; pointwise minimum and point-line duality reviewed. The slope-stack construction, tie rule and query bounds are independently derived here, not claimed to be CGAL's implementation.

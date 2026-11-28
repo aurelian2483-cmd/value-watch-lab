@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "098",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "euclidean-remainder-gcd",
+    "name": "Euclidean remainder greatest common divisor",
+    "definition": "For nonnegative integers a,b not both zero, gcd(a,b)=gcd(b,a mod b) when b>0; gcd(a,0)=a.",
+    "variables": "a,b nonnegative integers; mod integer remainder; gcd greatest common divisor",
+    "assumptions": "Exact integer arithmetic; at least one nonzero operand",
+    "limitations": "Provisional arithmetic operation and bit-complexity review pending",
+    "failure_conditions": [
+      "Both inputs zero or noninteger input."
+    ],
+    "computation": "Iterate (a,b)←(b,a mod b) until b=0; return a.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: a common divisor of a,b also divides a mod b and conversely; independent literature review pending."
+    },
+    "required_inputs": "Two nonnegative integers, not both zero.",
+    "compatible_methods": [
+      "prime-field-number-theoretic-transform"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "prime-field-number-theoretic-transform"
+      }
+    ],
+    "mechanism_note": "Provisional candidate; independent review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "098",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "eratosthenes-prime-sieve",
+    "name": "Sieve of Eratosthenes prime enumeration",
+    "definition": "For integer N≥2, mark 2,…,N initially; for each still marked p with p²≤N, clear p²,p²+p,…≤N; the marked set P={q∈[2,N]:q is prime}.",
+    "variables": "N inclusive bound; p candidate divisor; P returned prime set",
+    "assumptions": "Exact integer indices; bounded allocation",
+    "limitations": "Provisional operation and storage bounds pending review",
+    "failure_conditions": [
+      "Invalid bound, insufficient memory or overflow in p²."
+    ],
+    "computation": "Scan ascending candidate divisors, clearing multiples from the square; enumerate surviving indices.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: every composite integer has a prime divisor no greater than its square root; independent literature review pending."
+    },
+    "required_inputs": "Integer inclusive bound N≥2.",
+    "compatible_methods": [
+      "prime-field-number-theoretic-transform"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "prime-field-number-theoretic-transform"
+      }
+    ],
+    "mechanism_note": "Provisional candidate; independent review pending."
+  }
+]
