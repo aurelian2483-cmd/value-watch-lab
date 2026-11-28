@@ -41,6 +41,15 @@ class ChallengerTests(unittest.TestCase):
   m={'model':MODEL,'feature_version':FEATURE_VERSION,'features':FEATURES,'coefficients':[0]*len(FEATURES),'publication_gate':'BLOCKED','model_validation':'UNVALIDATED'};m['artifact_sha256']=sha(m)
   validate_model(m);m['coefficients'][0]=2
   with self.assertRaises(ValueError):validate_model(m)
+ def test_archive_requires_normalized_embedded_form_baseline(self):
+  record={'model':MODEL,'race_id':'r','racecourse':'Wolverhampton','race_name':'Race',
+   'startUTC':'2026-11-04T15:00:00Z','generated_at_utc':'2026-11-04T13:00:00Z','parameters':{},
+   'runners':[{'horse_id':'1','model_probability':.6,'baseline_form_weight':.4},{'horse_id':'2','model_probability':.4,'baseline_form_weight':.6}],
+   'publication_gate':'BLOCKED','model_validation':'UNVALIDATED','challenge_eligible':0}
+  record['record_sha256']=sha(record);challenger.validate_record(record)
+  record['runners'][1]['baseline_form_weight']=.5
+  record['record_sha256']=sha({k:v for k,v in record.items() if k!='record_sha256'})
+  with self.assertRaisesRegex(ValueError,'embedded form baseline'):challenger.validate_record(record)
  def test_going_and_commentary_are_not_feature_inputs(self):
   a=race();before=feature_rows(a)
   for r in a['runners']:r.update({'odds':'1/10','commentary':'winner','timeform_stars':5})

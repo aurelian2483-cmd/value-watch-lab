@@ -91,6 +91,20 @@ produce revisions; only the latest revision per race/model is scored. Stale
 fields are withheld from current challenger display. Result scoring remains
 single-source provisional and separate from the original model's results.
 
+The public research output also computes a read-only paired diagnostic between
+each challenger vector and the original form probabilities embedded in that
+same frozen record. This uses one field, one freeze time and one result receipt,
+so it cannot be distorted by joining a later baseline revision. Invalid,
+missing or non-normalized embedded vectors fail closed. The diagnostic remains
+descriptive and `UNVALIDATED` / `BLOCKED`; it does not turn provisional results
+into independent evidence or establish betting value.
+
+The same diagnostic reports the explicitly two-publisher-corroborated result
+subset separately from all single-source provisional results. Corroboration
+requires two distinct HTTPS publisher hosts, valid post-start receipts and an
+exact event/winner match. It remains agreement between publishers, not proof
+of independent upstream data origin or official finality.
+
 ## Next experiment
 
 Build a substantially larger earlier-period training set and use a new,

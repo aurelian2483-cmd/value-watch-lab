@@ -7,6 +7,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 from horse_model_pipeline import (ROOT, WORK, UTC, canon, sha, stamp, forecast,
  check_feed, score_provisional, current_field_checks, settled_history)
+from horse_evaluation import compare_embedded_form_baseline
 
 MODEL='AW_CONDITIONAL_LOGIT_PILOT_V1'
 FEATURE_VERSION='AW_CONTEXT_FEATURES_V1'
@@ -71,6 +72,8 @@ def validate_record(record,path=None):
  if stamp(record['generated_at_utc'])>=stamp(record['startUTC'])-dt.timedelta(minutes=5):raise ValueError('Challenger captured too late')
  ps=[r['model_probability'] for r in record['runners']]
  if len(ps)<2 or len(set(r['horse_id'] for r in record['runners']))!=len(ps) or any(not math.isfinite(p) or not 0<p<1 for p in ps) or abs(sum(ps)-1)>1e-8:raise ValueError('Invalid challenger vector')
+ baseline=[r.get('baseline_form_weight') for r in record['runners']]
+ if any(type(p) not in (int,float) or not math.isfinite(p) or not 0<p<1 for p in baseline) or abs(sum(baseline)-1)>1e-8:raise ValueError('Invalid embedded form baseline vector')
  return record
 def main():
  data=json.loads((WORK/'racing-research-data.json').read_text());now=dt.datetime.now(UTC);check_feed(data,now)
@@ -106,6 +109,12 @@ def main():
    records.append(r)
   current.append(r)
  performance=score_provisional(records,now,ROOT/'research/horse-challenger/results-v1.json')
+ baseline_feed_path=WORK/'horse-model-data.json'
+ corroborated=[]
+ if baseline_feed_path.exists():
+  baseline_feed=json.loads(baseline_feed_path.read_text());check_feed(baseline_feed,now)
+  corroborated=baseline_feed.get('performance',{}).get('cross_source_entries',[])
+ performance['embedded_form_baseline_evaluation']=compare_embedded_form_baseline(records,performance['entries'],corroborated)
  public={'schema_version':1,'generated_at_utc':now.isoformat(),'research_only':True,'model_validation':'UNVALIDATED','publication_gate':'BLOCKED','official_challenge':'0/100','model':model,'forecasts':current,'skipped':skipped,'current_field_checks':current_field_checks(data,current,now),'performance':performance,'settled_forecasts':settled_history(records,performance)}
  (WORK/'horse-challenger-data.json').write_text(json.dumps(public,indent=2)+'\n')
  print(json.dumps({'challenger_forecasts':len(current),'archived':len(records),'scored':performance['scored_forecasts']}))

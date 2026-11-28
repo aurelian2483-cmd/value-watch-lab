@@ -1,0 +1,40 @@
+name: Phase 3 disposable evidence lifecycle
+on:
+  pull_request:
+    paths:
+      - 'research/phase3-lifecycle/**'
+      - 'research/phase3-evidence/**'
+      - 'research/reviews/phase3-independent-review/**'
+      - '.github/workflows/phase3-final-lifecycle.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lifecycle-fixtures:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reproduce disposable evidence lifecycle and verify the integrated draft
+        run: |
+          set -euo pipefail
+          base=research/reviews/phase3-independent-review
+          handover="$base/final-qualification"
+          for manifest in "$base" "$base/transactional-repair" "$base/evidence-qualification" "$handover"; do
+            sha256sum -c "$manifest/SHA256SUMS"
+          done
+          verifier_args=()
+          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then
+            verifier_args+=(--pr-merge)
+          fi
+          python "$handover/verify_integrated_pins.py" "${verifier_args[@]}"
+          openssl version
+          evidence="$(mktemp -d)"
+          python research/phase3-lifecycle/acceptance.py "$evidence/lifecycle.json"
+          cmp "$evidence/lifecycle.json" "$handover/acceptance.json"

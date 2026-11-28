@@ -1,0 +1,32 @@
+name: Phase 3 disposable evidence qualification
+on:
+  pull_request:
+    paths:
+      - 'research/phase3-evidence/**'
+      - 'research/phase3-transactional/**'
+      - 'research/horse-ab-phase3-master-20261115/**'
+      - 'research/reviews/phase3-independent-review/**'
+      - '.github/workflows/phase3-evidence-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify-fixtures:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reproduce isolated qualification and verify manifests
+        run: |
+          set -euo pipefail
+          base=research/reviews/phase3-independent-review
+          sha256sum -c "$base/SHA256SUMS"
+          sha256sum -c "$base/transactional-repair/SHA256SUMS"
+          sha256sum -c "$base/evidence-qualification/SHA256SUMS"
+          openssl version
+          evidence="$(mktemp -d)"
+          python research/phase3-evidence/acceptance.py "$evidence/qualification.json"
+          cmp "$evidence/qualification.json" "$base/evidence-qualification/acceptance.json"
