@@ -7213,3 +7213,35 @@ Limitations — O(n log(n+1)) storage and construction by bottom-up merges; quer
 Mechanism — Distinct static orthogonal reporting structure, not equivalent to alternating-axis k-d partition or one-dimensional aggregation trees. The primary rank range has O(log(n+1)) disjoint canonical subsets, each queried in its independent y order. Each identity belongs to exactly one selected subset.
 
 Source — M. de Berg, O. Cheong, M. van Kreveld and M. Overmars, Computational Geometry: Algorithms and Applications, 3rd ed., chapter 5 section 5.3, pp. 108–109 page images reviewed for canonical subsets, presorted construction and Theorem 5.8, https://www.cs.cmu.edu/afs/cs/academic/class/15456-s13/Handouts/BKOS.pdf ; rank-based tie handling and sorted-list representation independently specified.
+
+## Centered interval tree stabbing reporting (centered-interval-tree-stabbing-reporting)
+
+> For n closed intervals I_i=[l_i,r_i], choose the upper median m of the 2n endpoint occurrences. Partition into L={i:r_i<m}, M={i:l_i≤m≤r_i}, R={i:l_i>m}. Store M in increasing l_i order and decreasing r_i order, and recurse on L and R. For q<m scan the increasing list while l_i≤q and visit L; for q>m scan the decreasing list while r_i≥q and visit R; at q=m return all M and stop. Empty subtrees return no identities. The result is {i:l_i≤q≤r_i}.
+
+n interval count; i unique identity; l_i,r_i endpoints; m upper median endpoint; L,M,R partition sets; q query; k output size.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite totally ordered coordinates, l_i≤r_i, static intervals and unique comparable identities; repeated intervals and singleton intervals allowed.
+
+Limitations — O(n) stored references and O(log(n+1)+k) query time; sorting endpoints anew at every node costs O(n log²(n+1)) comparisons; presorted stable partitioning can reduce construction to O(n log(n+1)). No dynamic updates or sorted output guarantee.
+
+Mechanism — Each interval is owned by exactly one crossing node. Both strict child sets have at most floor(n/2) intervals because each contributes two endpoint occurrences on its side of the median. Each query visits one path; a scanned crossing interval needs only the endpoint facing the query, so each successful scan emits one identity.
+
+Source — D. M. Mount, CMSC 754 Computational Geometry lecture notes, University of Maryland, Spring 2012, pp. 117–119, parsed text reviewed for partition, sorted lists and query complexity; https://www.cs.cmu.edu/afs/cs/academic/class/15456-s13/Handouts/cmsc754-lects.pdf ; upper median convention and repeated-sorting bound independently derived.
+
+## Priority search tree three-sided reporting (priority-search-tree-three-sided-reporting)
+
+> For static records p_i=(x_i,y_i,i), assign distinct ranks j_i by sorting (y_i,i). In a nonempty rank-ordered subset S choose p with minimum (x_i,i), store p and the minimum and maximum ranks u,v of S, remove p, and bisect the remaining ordered list into floor((|S|−1)/2) and ceil((|S|−1)/2) records. Recurse. For a≤b let l be the first rank with y≥a and r the first with y>b, using n if absent. For nonempty [l,r), visit a node only if v≥l, u<r and its stored x≤q_x; emit its identity if l≤j_i<r and recurse on both children. Return {i:x_i≤q_x and a≤y_i≤b}.
+
+n record count; i identity; x_i,y_i coordinates; j_i y rank; S node subset; u,v rank extrema; a,b y bounds; l,r rank bounds; q_x x threshold; k output size.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Static finite coordinates, unique comparable identities, a≤b; coincident points and tied priority values allowed; all comparisons use consistent total orders.
+
+Limitations — O(n log(n+1)) construction after initial sort by scanning and partitioning each rank-ordered subset; O(n) stored nodes; query O(log(n+1)+k) for nonempty input. Only the stated three-sided predicate; no dynamic update or sorted output guarantee.
+
+Mechanism — Distinct heap-and-balanced-rank partition structure. Rank spans of nodes at a common depth are disjoint, so at most two partially intersecting spans occur per depth. A fully contained visited node passing the heap test emits its own point, and each failed child can be charged to a visited parent. This yields O(log(n+1)+k) visits and one output per matching record.
+
+Source — E. M. McCreight, Priority Search Trees, SIAM Journal on Computing 14(2), 1985, pp. 257–276, abstract reviewed, https://doi.org/10.1137/0214021 ; University of Illinois CS598TMC, Fall 2019, Orthogonal Range Searching notes, pp. 4–5, construction and query analysis reviewed, https://courses.grainger.illinois.edu/cs598tmc/fa2019/lec1to3_ors.pdf ; axes exchanged and rank tie handling independently specified.

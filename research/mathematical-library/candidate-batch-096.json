@@ -1,0 +1,101 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "096",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "model-variant",
+    "id": "layered-range-tree-fractional-cascading",
+    "name": "Layered range tree with fractional cascading",
+    "definition": "For a planar range tree node v with sorted y list A_v, define child prefix maps F_c(t)=|{j:0≤j<t and A_v[j] belongs to child c}|. Propagate query slice [s,t) to [F_c(s),F_c(t)) in child c; report slices at canonical x nodes.",
+    "variables": "A_v ordered record references; c child; F_c prefix rank map; s,t slice bounds",
+    "assumptions": "Static finite planar records, consistent tie order and closed query bounds; exact admission review pending",
+    "limitations": "Provisional crosslinked range-tree variant; construction and output-sensitive bounds pending review",
+    "failure_conditions": [
+      "Incorrect prefix rank map or inconsistent record ordering."
+    ],
+    "computation": "Merge child lists with identity tie breaks and store prefix counts for both children including the terminal position. Search root y list and propagate slices along the x query traversal. Admission verification pending.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: E. Demaine, MIT 6.851 Advanced Data Structures, lecture 3, https://courses.csail.mit.edu/6.851/spring12/lectures/L03.html ; admission review pending."
+    },
+    "required_inputs": "Static planar records, rectangular query and linked ordered lists.",
+    "compatible_methods": [
+      "planar-orthogonal-range-tree-reporting"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "planar-orthogonal-range-tree-reporting"
+      }
+    ],
+    "mechanism_note": "Provisional range-tree acceleration, not admitted."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "096",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "persistent-sweep-planar-point-location",
+    "name": "Persistent sweep planar point location",
+    "definition": "For a planar subdivision with noncrossing segment interiors and distinct event abscissas X_j, maintain an ordered active-edge version T_j for each open slab X_j<x<X_(j+1). Locate the containing face using a predecessor/successor search in T_j by edge height at query x; exact event and boundary conventions pending review.",
+    "variables": "X_j sweep event coordinates; T_j persistent search-tree version; x query abscissa; edge height",
+    "assumptions": "Finite planar straight-line subdivision, noncrossing edges, finite query point; vertical edges and boundary ownership pending review",
+    "limitations": "Provisional static point location structure; persistent update model, complexity and degeneracy handling pending independent review",
+    "failure_conditions": [
+      "Crossing interiors not represented as vertices, inconsistent edge order, or undefined boundary ownership."
+    ],
+    "computation": "Sweep vertex events, persist the active edge search order for each open slab and binary-search event abscissas before querying the selected version. Full specification and admission review pending.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: E. Demaine, MIT 6.851 Advanced Data Structures, lecture 3, https://courses.csail.mit.edu/6.851/spring12/lectures/L03.html ; admission review pending."
+    },
+    "required_inputs": "Planar subdivision edges, incident face labels and query point.",
+    "compatible_methods": [
+      "planar-orthogonal-range-tree-reporting",
+      "bentley-ottmann-segment-intersections"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "bentley-ottmann-segment-intersections"
+      }
+    ],
+    "mechanism_note": "Provisional persistent sweep search structure, not admitted."
+  }
+]

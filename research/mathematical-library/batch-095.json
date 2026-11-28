@@ -1,0 +1,104 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "095",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "centered-interval-tree-stabbing-reporting",
+    "name": "Centered interval tree stabbing reporting",
+    "definition": "For n closed intervals I_i=[l_i,r_i], choose the upper median m of the 2n endpoint occurrences. Partition into L={i:r_i<m}, M={i:l_i≤m≤r_i}, R={i:l_i>m}. Store M in increasing l_i order and decreasing r_i order, and recurse on L and R. For q<m scan the increasing list while l_i≤q and visit L; for q>m scan the decreasing list while r_i≥q and visit R; at q=m return all M and stop. Empty subtrees return no identities. The result is {i:l_i≤q≤r_i}.",
+    "variables": "n interval count; i unique identity; l_i,r_i endpoints; m upper median endpoint; L,M,R partition sets; q query; k output size",
+    "assumptions": "Finite totally ordered coordinates, l_i≤r_i, static intervals and unique comparable identities; repeated intervals and singleton intervals allowed",
+    "limitations": "O(n) stored references and O(log(n+1)+k) query time; sorting endpoints anew at every node costs O(n log²(n+1)) comparisons; presorted stable partitioning can reduce construction to O(n log(n+1)). No dynamic updates or sorted output guarantee",
+    "failure_conditions": [
+      "Reversed or nonfinite endpoints, duplicate identities, exclusion of median-touching intervals, or failure to stop scans at the first failing endpoint."
+    ],
+    "computation": "Choose endpoint occurrence at zero-based rank n; partition by strict left/right and inclusive crossing tests. Sort crossing references with identity tie breaks. Repeat on each strict child. Query only the child on the query side, emitting identities from the appropriate crossing-list prefix.",
+    "source": {
+      "kind": "literature",
+      "citation": "D. M. Mount, CMSC 754 Computational Geometry lecture notes, University of Maryland, Spring 2012, pp. 117–119, parsed text reviewed for partition, sorted lists and query complexity; https://www.cs.cmu.edu/afs/cs/academic/class/15456-s13/Handouts/cmsc754-lects.pdf ; upper median convention and repeated-sorting bound independently derived.",
+      "url": "https://www.cs.cmu.edu/afs/cs/academic/class/15456-s13/Handouts/cmsc754-lects.pdf"
+    },
+    "required_inputs": "Static closed finite intervals with unique identities and a finite query coordinate.",
+    "compatible_methods": [
+      "segment-tree-associative-range-aggregate",
+      "interval-union-endpoint-sweep-length"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "segment-tree-associative-range-aggregate"
+      }
+    ],
+    "mechanism_note": "Each interval is owned by exactly one crossing node. Both strict child sets have at most floor(n/2) intervals because each contributes two endpoint occurrences on its side of the median. Each query visits one path; a scanned crossing interval needs only the endpoint facing the query, so each successful scan emits one identity."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "095",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "priority-search-tree-three-sided-reporting",
+    "name": "Priority search tree three-sided reporting",
+    "definition": "For static records p_i=(x_i,y_i,i), assign distinct ranks j_i by sorting (y_i,i). In a nonempty rank-ordered subset S choose p with minimum (x_i,i), store p and the minimum and maximum ranks u,v of S, remove p, and bisect the remaining ordered list into floor((|S|−1)/2) and ceil((|S|−1)/2) records. Recurse. For a≤b let l be the first rank with y≥a and r the first with y>b, using n if absent. For nonempty [l,r), visit a node only if v≥l, u<r and its stored x≤q_x; emit its identity if l≤j_i<r and recurse on both children. Return {i:x_i≤q_x and a≤y_i≤b}.",
+    "variables": "n record count; i identity; x_i,y_i coordinates; j_i y rank; S node subset; u,v rank extrema; a,b y bounds; l,r rank bounds; q_x x threshold; k output size",
+    "assumptions": "Static finite coordinates, unique comparable identities, a≤b; coincident points and tied priority values allowed; all comparisons use consistent total orders",
+    "limitations": "O(n log(n+1)) construction after initial sort by scanning and partitioning each rank-ordered subset; O(n) stored nodes; query O(log(n+1)+k) for nonempty input. Only the stated three-sided predicate; no dynamic update or sorted output guarantee",
+    "failure_conditions": [
+      "Nonfinite coordinates, duplicate identities, reversed y bounds, invalid heap minimum, or overlapping child rank spans."
+    ],
+    "computation": "Presort by (y_i,i), assign integer ranks and preserve order when removing the minimum (x_i,i). Split the remaining records by count and store each node's original rank extrema. Binary-search y alone for inclusive query boundaries. Reject empty rank intervals before traversal; prune disjoint spans and nodes whose minimum x exceeds q_x.",
+    "source": {
+      "kind": "literature",
+      "citation": "E. M. McCreight, Priority Search Trees, SIAM Journal on Computing 14(2), 1985, pp. 257–276, abstract reviewed, https://doi.org/10.1137/0214021 ; University of Illinois CS598TMC, Fall 2019, Orthogonal Range Searching notes, pp. 4–5, construction and query analysis reviewed, https://courses.grainger.illinois.edu/cs598tmc/fa2019/lec1to3_ors.pdf ; axes exchanged and rank tie handling independently specified.",
+      "url": "https://doi.org/10.1137/0214021"
+    },
+    "required_inputs": "Static planar records with unique identities and finite three-sided query bounds.",
+    "compatible_methods": [
+      "planar-orthogonal-range-tree-reporting",
+      "centered-interval-tree-stabbing-reporting"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "planar-orthogonal-range-tree-reporting"
+      }
+    ],
+    "mechanism_note": "Distinct heap-and-balanced-rank partition structure. Rank spans of nodes at a common depth are disjoint, so at most two partially intersecting spans occur per depth. A fully contained visited node passing the heap test emits its own point, and each failed child can be charged to a visited parent. This yields O(log(n+1)+k) visits and one output per matching record."
+  }
+]
