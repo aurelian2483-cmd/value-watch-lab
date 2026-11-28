@@ -7117,3 +7117,35 @@ Limitations — O(log n) arithmetic comparisons per query after ordered polygon 
 Mechanism — Restricted convex point-membership variant of general polygon winding classification. Strict convexity orders anchor rays in an angle interval smaller than π; the cross-product predicate changes sign once for an interior wedge query. Each fan triangle is bounded by those rays and one outer edge, so only that edge remains to be tested. Finite-segment checks prevent accepting ray extensions beyond either endpoint.
 
 Source — Algorithms for Competitive Programming, Check if point belongs to the convex polygon in O(log N), algorithm and implementation text reviewed, https://cp-algorithms.com/geometry/point-in-convex-polygon.html ; Texas A&M University, J. Chen, Chapter 6 Prune and Search, §6.2.1 p. 97, interior-anchor fan search and complexity cross-checked, https://people.engr.tamu.edu/j-chen3/courses/620/2025/Lectures/ch6.pdf ; extreme-ray and arbitrary vertex anchor conventions independently derived.
+
+## Kirkpatrick–Seidel output-sensitive convex hull (kirkpatrick-seidel-output-sensitive-convex-hull)
+
+> For planar P with distinct x coordinates, construct upper chains U(S). If |S|≤2 return points in increasing x. Otherwise choose a strictly between the two central split coordinates, and let (u,v) be the upper supporting edge with u_x<a<v_x. Then U(S)=U({p∈S:p_x≤u_x}) concatenated with U({p∈S:p_x≥v_x}). Reflect y to obtain lower chain, reverse it and join without repeating extrema. To find the bridge, pair points p,q with p_x<q_x; K is the median pair slope k=(q_y−p_y)/(q_x−p_x). Let C=argmax_{p∈S}(p_y−K p_x) and u=min_x C,v=max_x C. If u_x<a<v_x return (u,v); if v_x<a discard the left member of pairs with k≥K; if u_x>a discard the right member of pairs with k≤K; retain all others and any unpaired point, then repeat. With two remaining points return them in increasing x.
+
+P input; S current subset; a split abscissa; n input size; h extreme vertex count; p,q paired points; k pair slope; K median slope; C support contacts; u,v bridge endpoints; U upper chain.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite planar coordinates with distinct x values and no three collinear; exact or robust slope, support and orientation comparisons. Choose the split between adjacent central order statistics, including for odd sizes; no input point is on the split. Empty and singleton inputs return directly.
+
+Limitations — Worst-case O(n log h) arithmetic for h≥2 with worst-case linear selection for both median operations and linear partitioning; O(n) space with appropriate storage management. Sorting at each selection does not establish that bound. Duplicate abscissae and collinear triples are excluded here; arithmetic bit complexity and precision are separate.
+
+Mechanism — Output-sensitive alternative to Andrew, Graham and Jarvis for the same extreme hull objective. Support contact abscissae move left as slope increases; if all contacts are left of the split then K exceeds the bridge slope, so the left point of each pair of slope at least K cannot be a bridge endpoint (its partner would lie above the bridge). The right-contact case is symmetric. A constant fraction is eliminated up to rounding; the two hull subproblems each contain at most ceil(n/2) points. The theoretical bound is from the published algorithm, not measured runtime.
+
+Source — D. G. Kirkpatrick and R. Seidel (1986), The Ultimate Planar Convex Hull Algorithm?, SIAM Journal on Computing 15(1), 287–299, Algorithms 2.1 and 3.1 and Lemmas 3.2–3.3 reviewed in Stanford-hosted paper, pp. 289 and 292 page images reviewed. https://doi.org/10.1137/0215021 ; https://graphics.stanford.edu/courses/cs268-16-fall/Notes/KirkSeidel.pdf ; strict split and general-position restriction are catalogue conventions.
+
+## Pick lattice polygon area identity (pick-lattice-polygon-area-identity)
+
+> For a simple positive-area lattice polygon without holes, A=I+B/2−1 where I counts strict interior integer lattice points and B counts distinct boundary lattice points. For cyclic integer vertices p_i=(x_i,y_i), B=Σ_i gcd(|x_(i+1)−x_i|,|y_(i+1)−y_i|), using p_(n+1)=p_1.
+
+A unsigned Euclidean area; I strictly interior lattice count; B distinct boundary lattice count; p_i vertices; n vertex count; gcd greatest common divisor.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Simple closed polygonal boundary, positive area, integer Cartesian vertex coordinates, no holes and no zero-length edges; both clockwise and counterclockwise order permitted. Count each boundary lattice point once.
+
+Limitations — Constant-time arithmetic given I and B; obtaining I by exhaustive bounding-box enumeration with an O(n) containment test costs O(nWH) where W and H are integer grid counts across the box. Computing B uses n gcd operations. Not applicable to arbitrary real-coordinate, self-intersecting or holed polygons as stated; exact integer arithmetic avoids overflow.
+
+Mechanism — Lattice-area identity used as a diagnostic rather than a separate algorithm. Writing displacement as g times a primitive integer vector, Bezout’s identity implies that lattice locations on the closed edge occur at parameters j/g for j=0,…,g. A half-open edge contributes g locations, so summation counts boundary vertices once. Triangulating into empty lattice triangles yields unit half-area triangles; Euler incidence counting gives the identity. This does not certify polygon validity.
+
+Source — J. Harrison, A formal proof of Pick’s theorem, manuscript received 23 November 2015, statement and simple boundary assumptions reviewed (p. 1 page image and introduction), https://www.cl.cam.ac.uk/~jrh13/papers/pick.pdf ; Algorithms for Competitive Programming, Pick’s Theorem – area of lattice polygons, statement cross-checked, https://cp-algorithms.com/geometry/picks-theorem.html ; boundary gcd formula independently derived.

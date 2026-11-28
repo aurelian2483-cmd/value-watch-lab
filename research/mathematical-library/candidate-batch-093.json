@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "093",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "model-variant",
+    "id": "bounded-half-plane-intersection-deque",
+    "name": "Bounded half-plane intersection by angle-sorted deque",
+    "definition": "For oriented closed half-planes H_i={q:orient(a_i,b_i,q)≥0}, compute P=∩_i H_i by sorting directions and maintaining active boundary lines in a deque. Provisional restricted bounded positive-area case; exact insertion and parallel-line rules require review.",
+    "variables": "H_i half-plane; a_i,b_i oriented line points; P intersection; orient signed cross product",
+    "assumptions": "Finite input, bounded positive-area nonempty intersection, robust orientation and line intersection; parallel cases require explicit review.",
+    "limitations": "O(n log n) target bound depends on angle ordering and linear deque procedure; unbounded, empty and lower-dimensional cases not covered by provisional version.",
+    "failure_conditions": [
+      "Invalid line, incorrect deque pruning or unresolved parallel-line handling."
+    ],
+    "computation": "Sort oriented boundaries by direction, retain tightest same-direction constraints, remove infeasible adjacent intersections at both ends and close the deque; independently review all details.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional source locator: Algorithms for Competitive Programming, Half-plane intersection, https://cp-algorithms.com/geometry/halfplane-intersection.html ; independent admission review pending."
+    },
+    "required_inputs": "Finite oriented half-planes and explicit boundedness and degeneracy policy.",
+    "compatible_methods": [
+      "sutherland-hodgman-convex-window-clipping"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "sutherland-hodgman-convex-window-clipping"
+      }
+    ],
+    "mechanism_note": "Provisional alternative half-plane intersection construction, not admitted."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "093",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "diagnostic",
+    "id": "interval-union-endpoint-sweep-length",
+    "name": "Interval union length by endpoint sweep",
+    "definition": "For finite closed intervals [l_i,r_i] with l_i≤r_i, sort endpoint coordinates x_j and let c_j count covering intervals on (x_j,x_(j+1)); union length L=Σ_j (x_(j+1)−x_j)[c_j>0].",
+    "variables": "l_i,r_i endpoints; x_j distinct sorted coordinates; c_j active count; L union length",
+    "assumptions": "Finite real endpoints, ordered intervals, exact or robust comparisons; zero-width intervals contribute zero.",
+    "limitations": "O(n log n) sorting and O(n) storage; total length alone does not encode component membership.",
+    "failure_conditions": [
+      "Nonfinite or reversed intervals, incorrect grouping of tied endpoints."
+    ],
+    "computation": "Group all endpoint events at each coordinate, update active count and accumulate the next gap if positive; verify tie conventions independently.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional source locator: Algorithms for Competitive Programming, Length of the union of segments, https://cp-algorithms.com/geometry/length-of-segments-union.html ; independent admission review pending."
+    },
+    "required_inputs": "Finite real intervals with endpoints.",
+    "compatible_methods": [
+      "bentley-ottmann-segment-intersections"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "bentley-ottmann-segment-intersections"
+      }
+    ],
+    "mechanism_note": "Provisional scalar union measure using endpoint sweep, not admitted."
+  }
+]

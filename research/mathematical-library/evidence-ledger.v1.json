@@ -10225,5 +10225,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Restricted convex point-membership variant of general polygon winding classification. Strict convexity orders anchor rays in an angle interval smaller than π; the cross-product predicate changes sign once for an interior wedge query. Each fan triangle is bounded by those rays and one outer edge, so only that edge remains to be tested. Finite-segment checks prevent accepting ray extensions beyond either endpoint."
+  },
+  {
+    "id": "kirkpatrick-seidel-output-sensitive-convex-hull",
+    "source": {
+      "kind": "literature",
+      "citation": "D. G. Kirkpatrick and R. Seidel (1986), The Ultimate Planar Convex Hull Algorithm?, SIAM Journal on Computing 15(1), 287–299, Algorithms 2.1 and 3.1 and Lemmas 3.2–3.3 reviewed in Stanford-hosted paper, pp. 289 and 292 page images reviewed. https://doi.org/10.1137/0215021 ; https://graphics.stanford.edu/courses/cs268-16-fall/Notes/KirkSeidel.pdf ; strict split and general-position restriction are catalogue conventions.",
+      "url": "https://doi.org/10.1137/0215021"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Output-sensitive alternative to Andrew, Graham and Jarvis for the same extreme hull objective. Support contact abscissae move left as slope increases; if all contacts are left of the split then K exceeds the bridge slope, so the left point of each pair of slope at least K cannot be a bridge endpoint (its partner would lie above the bridge). The right-contact case is symmetric. A constant fraction is eliminated up to rounding; the two hull subproblems each contain at most ceil(n/2) points. The theoretical bound is from the published algorithm, not measured runtime."
+  },
+  {
+    "id": "pick-lattice-polygon-area-identity",
+    "source": {
+      "kind": "literature",
+      "citation": "J. Harrison, A formal proof of Pick’s theorem, manuscript received 23 November 2015, statement and simple boundary assumptions reviewed (p. 1 page image and introduction), https://www.cl.cam.ac.uk/~jrh13/papers/pick.pdf ; Algorithms for Competitive Programming, Pick’s Theorem – area of lattice polygons, statement cross-checked, https://cp-algorithms.com/geometry/picks-theorem.html ; boundary gcd formula independently derived.",
+      "url": "https://www.cl.cam.ac.uk/~jrh13/papers/pick.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Lattice-area identity used as a diagnostic rather than a separate algorithm. Writing displacement as g times a primitive integer vector, Bezout’s identity implies that lattice locations on the closed edge occur at parameters j/g for j=0,…,g. A half-open edge contributes g locations, so summation counts boundary vertices once. Triangulating into empty lattice triangles yields unit half-area triangles; Euler incidence counting gives the identity. This does not certify polygon validity."
   }
 ]
