@@ -10685,5 +10685,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "For each prime power p^a, exactly p^(a−1) of its p^a residues are divisible by p. Multiplicativity over coprime prime powers yields the product. During the integer update every unprocessed prime still divides v, since previously processed distinct primes remove only their own divisor. This scalar counting identity is a diagnostic, not a new factorization or gcd algorithm."
+  },
+  {
+    "id": "fermat-difference-of-squares-factorization",
+    "source": {
+      "kind": "literature",
+      "citation": "Number Theory: In Context and Interactive, Gordon College, §12.5.3 Fact 12.5.8 and Algorithm 12.5.10, https://www.math.gordon.edu/ntic/ntic2017/section-intro-factor.html ; Jose Capco, Algorithmic Number Theory Lecture 06, JKU, Algorithm 1, https://www3.risc.jku.at/education/courses/ws2018/algo_num_theory/lecture_06.pdf ; trivial pair, square case and exact bound independently derived.",
+      "url": "https://www.math.gordon.edu/ntic/ntic2017/section-intro-factor.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Every positive odd factor pair u≤v determines integer a=(u+v)/2 and b=(v−u)/2. Conversely a²−b²=n yields a positive pair. The trivial pair ensures termination at a=(n+1)/2; squares terminate immediately with b=0. First success gives the closest factor pair, since (u+n/u)/2 decreases for 1≤u≤√n. Distinct from trial division: searches midpoints for square differences rather than testing divisors."
+  },
+  {
+    "id": "prime-factor-mobius-function",
+    "source": {
+      "kind": "literature",
+      "citation": "NIST Digital Library of Mathematical Functions §27.2 equation 27.2.12, https://dlmf.nist.gov/27.2.E12 ; §27.6 equation 27.6.2, https://dlmf.nist.gov/27.6.E2 ; factor-list verification and operation costs independently derived.",
+      "url": "https://dlmf.nist.gov/27.2.E12"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The nonzero divisors contributing to Σ_(d|n) μ(d) correspond to subsets of the distinct primes; their signed sum is (1−1)^k for k distinct prime factors, hence zero for n>1 and one for n=1. This also provides a factorization-independent recursive reference. The squarefree parity function is distinct from the totient residue count but classified as diagnostic."
   }
 ]

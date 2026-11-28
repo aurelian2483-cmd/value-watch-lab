@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "103",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "diagnostic",
+    "id": "prime-power-divisor-sum",
+    "name": "Prime-power divisor sum product",
+    "definition": "For n=∏ p_i^a_i, σ(n)=∏_i Σ_(j=0..a_i) p_i^j; empty product is 1.",
+    "variables": "n positive integer; p_i distinct primes; a_i positive multiplicities; σ sum of positive divisors",
+    "assumptions": "Exact integer arithmetic; verified complete prime factorization",
+    "limitations": "Provisional complexity and novelty review pending",
+    "failure_conditions": [
+      "Invalid or incomplete factorization."
+    ],
+    "computation": "Compute each finite geometric sum with exact arithmetic and multiply.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+    },
+    "required_inputs": "Positive integer and complete verified prime factorization.",
+    "compatible_methods": [
+      "trial-division-prime-factorization"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "trial-division-prime-factorization"
+      }
+    ],
+    "mechanism_note": "Provisional classification; independent review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "103",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "feature-transformation",
+    "id": "divisor-sum-mobius-inversion",
+    "name": "Finite divisor-sum Möbius inversion",
+    "definition": "If F(n)=Σ_(d|n) f(d), then f(n)=Σ_(d|n) μ(d) F(n/d) for positive integers n.",
+    "variables": "n positive integer; d positive divisor; μ Möbius function; F divisor sum of f",
+    "assumptions": "Exact or controlled arithmetic, complete divisor enumeration and available F values",
+    "limitations": "Provisional complexity and novelty review pending",
+    "failure_conditions": [
+      "Missing divisors, undefined F values or unjustified arithmetic."
+    ],
+    "computation": "Enumerate divisors of n; compute μ(d), multiply by F(n/d), and sum.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+    },
+    "required_inputs": "Positive integer, complete divisors and values of F at those divisors.",
+    "compatible_methods": [
+      "prime-factor-mobius-function"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "prime-factor-mobius-function"
+      }
+    ],
+    "mechanism_note": "Provisional classification; independent review pending."
+  }
+]

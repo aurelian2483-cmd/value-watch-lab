@@ -7437,3 +7437,35 @@ Limitations — Once factorization and distinct prime divisors are verified, k e
 Mechanism — For each prime power p^a, exactly p^(a−1) of its p^a residues are divisible by p. Multiplicativity over coprime prime powers yields the product. During the integer update every unprocessed prime still divides v, since previously processed distinct primes remove only their own divisor. This scalar counting identity is a diagnostic, not a new factorization or gcd algorithm.
 
 Source — University of Southampton MATH1001 Introduction to Number Theory, Section 7.2 Euler’s Product Formula, Lemma 7.8, Theorem 7.10 and Corollary 7.13, https://www.southampton.ac.uk/~wright/1001/eulers-product-formula.html ; integer update and cost limitations independently derived.
+
+## Fermat difference-of-squares factorization (fermat-difference-of-squares-factorization)
+
+> For odd integer n≥3, start a=ceil(√n); increment a until s=a²−n=b² for integer b≥0; return u=a−b and v=a+b, with uv=n.
+
+n odd positive integer; a candidate midpoint; b nonnegative integer square root.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Exact integer arithmetic; odd integer n≥3; a trivial factor pair is allowed.
+
+Limitations — At most (n+1)/2−ceil(√n)+1 square tests; Θ(n) tests for odd primes, exponential in bit length. Close factors require fewer tests. Counts exclude exact integer square root and bit-arithmetic costs. Returns one factor pair, not a complete prime factorization; (1,n) is allowed.
+
+Mechanism — Every positive odd factor pair u≤v determines integer a=(u+v)/2 and b=(v−u)/2. Conversely a²−b²=n yields a positive pair. The trivial pair ensures termination at a=(n+1)/2; squares terminate immediately with b=0. First success gives the closest factor pair, since (u+n/u)/2 decreases for 1≤u≤√n. Distinct from trial division: searches midpoints for square differences rather than testing divisors.
+
+Source — Number Theory: In Context and Interactive, Gordon College, §12.5.3 Fact 12.5.8 and Algorithm 12.5.10, https://www.math.gordon.edu/ntic/ntic2017/section-intro-factor.html ; Jose Capco, Algorithmic Number Theory Lecture 06, JKU, Algorithm 1, https://www3.risc.jku.at/education/courses/ws2018/algo_num_theory/lecture_06.pdf ; trivial pair, square case and exact bound independently derived.
+
+## Möbius function from prime multiplicities (prime-factor-mobius-function)
+
+> For n≥1 with complete prime factorization, μ(n)=0 if any prime multiplicity exceeds one; otherwise μ(n)=(−1)^k for k distinct primes.
+
+n positive integer; k number of distinct prime factors; μ(n) Möbius function.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Exact positive integers; verified complete factorization; empty multiset for n=1.
+
+Limitations — For m supplied prime factors with multiplicity, expected O(m) hash-set operations or O(m log m) sorting comparisons; excludes verifying primality, product and obtaining factorization, as well as bit costs. Incomplete factorization cannot justify a value. Scalar arithmetic diagnostic, not an independent factorization method.
+
+Mechanism — The nonzero divisors contributing to Σ_(d|n) μ(d) correspond to subsets of the distinct primes; their signed sum is (1−1)^k for k distinct prime factors, hence zero for n>1 and one for n=1. This also provides a factorization-independent recursive reference. The squarefree parity function is distinct from the totient residue count but classified as diagnostic.
+
+Source — NIST Digital Library of Mathematical Functions §27.2 equation 27.2.12, https://dlmf.nist.gov/27.2.E12 ; §27.6 equation 27.6.2, https://dlmf.nist.gov/27.6.E2 ; factor-list verification and operation costs independently derived.
