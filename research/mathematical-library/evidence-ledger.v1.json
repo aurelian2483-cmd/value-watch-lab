@@ -10179,5 +10179,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "First-moment summary extends the shoelace area computation; diagnostic rather than a distinct algorithm. Signed origin-edge triangles have area d_i/2 and centroid (v_i+v_(i+1))/3, so their signed moments sum even for concave simple polygons. Reversing orientation reverses numerator and denominator together."
+  },
+  {
+    "id": "welzl-randomized-minimum-enclosing-disk",
+    "source": {
+      "kind": "literature",
+      "citation": "Emo Welzl (1991), Smallest enclosing disks (balls and ellipsoids), LNCS 555, pp. 359–370, publisher abstract reviewed (expected linear time), https://doi.org/10.1007/BFb0038202 ; Brown University, Linear Algebra with Mathematica, Part 7, Erect the Fence, recursion and constrained base cases reviewed, https://www.cfm.brown.edu/people/dobrush/cs52/Mathematica/Part7/fence.html ; original full text unavailable.",
+      "url": "https://doi.org/10.1007/BFb0038202"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Randomized incremental variant for the same enclosing disk objective. Forced boundary is not an unconstrained smallest-disk problem: an obtuse three-point forced support requires its circumdisk, not the longest-edge diameter. For nonempty R, restrict centers to its affine equal-distance locus; containment inequalities are linear in the center and radius squared is the squared distance to a fixed support. An added violating constraint must be tight at the new optimum. Empty support is a sentinel, not a disk centered at an arbitrary origin."
+  },
+  {
+    "id": "convex-polygon-fan-binary-point-location",
+    "source": {
+      "kind": "literature",
+      "citation": "Algorithms for Competitive Programming, Check if point belongs to the convex polygon in O(log N), algorithm and implementation text reviewed, https://cp-algorithms.com/geometry/point-in-convex-polygon.html ; Texas A&M University, J. Chen, Chapter 6 Prune and Search, §6.2.1 p. 97, interior-anchor fan search and complexity cross-checked, https://people.engr.tamu.edu/j-chen3/courses/620/2025/Lectures/ch6.pdf ; extreme-ray and arbitrary vertex anchor conventions independently derived.",
+      "url": "https://cp-algorithms.com/geometry/point-in-convex-polygon.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Restricted convex point-membership variant of general polygon winding classification. Strict convexity orders anchor rays in an angle interval smaller than π; the cross-product predicate changes sign once for an interior wedge query. Each fan triangle is bounded by those rays and one outer edge, so only that edge remains to be tested. Finite-segment checks prevent accepting ray extensions beyond either endpoint."
   }
 ]

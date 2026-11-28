@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "092",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "model-variant",
+    "id": "kirkpatrick-seidel-output-sensitive-convex-hull",
+    "name": "Kirkpatrick–Seidel output-sensitive convex hull",
+    "definition": "Let n=|P| and h=|vertices(CH(P))|. Split planar points by median x; find an upper supporting bridge (u,v) crossing the split, recursively construct upper chains left of u and right of v, combine; repeat for lower hull. Intended arithmetic bound O(n log h).",
+    "variables": "n input count; h hull count; u,v bridge endpoints; median split",
+    "assumptions": "Finite planar points with distinct x coordinates and no three collinear for provisional version; bridge pruning must be reviewed.",
+    "limitations": "Output-sensitive complexity depends on exact linear-time bridge implementation; degeneracies and lower hull handling need review.",
+    "failure_conditions": [
+      "Wrong bridge, invalid degeneracies or unverified pruning."
+    ],
+    "computation": "Use median partition and prune-and-search bridge construction; exact pruning rules and termination require independent admission review.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional source locator: J. Chen, Texas A&M University, Chapter 6 Prune and Search, §6.1.1, https://people.engr.tamu.edu/j-chen3/courses/620/2025/Lectures/ch6.pdf ; independent admission review pending."
+    },
+    "required_inputs": "Finite planar points and stated degeneracy policy.",
+    "compatible_methods": [
+      "andrew-monotone-chain-convex-hull"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "andrew-monotone-chain-convex-hull"
+      }
+    ],
+    "mechanism_note": "Provisional output-sensitive hull alternative; not yet admitted or validated."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "092",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "diagnostic",
+    "id": "pick-lattice-polygon-area-identity",
+    "name": "Pick lattice polygon area identity",
+    "definition": "For a simple lattice polygon, A=I+B/2−1 where I counts strict interior lattice points and B counts boundary lattice points; B=Σ gcd(|Δx_i|,|Δy_i|) over cyclic edges.",
+    "variables": "A area; I interior lattice count; B boundary lattice count; Δx_i,Δy_i integer edge increments",
+    "assumptions": "Simple positive-area integer-lattice polygon without holes; cyclic vertices, no zero-length edge.",
+    "limitations": "Counting I can be costly; does not cover arbitrary real-coordinate or self-intersecting polygons.",
+    "failure_conditions": [
+      "Nonlattice vertices, invalid polygon or incorrect lattice counts."
+    ],
+    "computation": "Count interior lattice points, sum edge gcd values, evaluate area identity. Proof and complexity need independent admission review.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional source locator: Algorithms for Competitive Programming, Pick's Theorem - area of lattice polygons, https://cp-algorithms.com/geometry/picks-theorem.html ; independent admission review pending."
+    },
+    "required_inputs": "Simple lattice polygon and exact lattice counts.",
+    "compatible_methods": [
+      "polygon-shoelace-signed-area"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "polygon-shoelace-signed-area"
+      }
+    ],
+    "mechanism_note": "Provisional lattice-specific area diagnostic; not yet admitted."
+  }
+]

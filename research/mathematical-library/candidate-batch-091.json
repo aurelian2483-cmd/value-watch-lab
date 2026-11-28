@@ -20,17 +20,19 @@
     "classification": "model-variant",
     "id": "welzl-randomized-minimum-enclosing-disk",
     "name": "Welzl randomized minimum enclosing disk",
-    "definition": "For randomly permuted P and boundary support R with |R|≤3, W(P,R)=W(P\\{p},R) if that disk contains p; otherwise W(P,R)=W(P\\{p},R∪{p}). Stop when P is empty or |R|=3, solving the constrained support disk base case.",
-    "variables": "P remaining planar points; R constrained boundary support; p next point; W constrained enclosing disk",
-    "assumptions": "Finite planar Euclidean points, uniform random permutation, robust containment and support construction; review degenerate and empty support cases before admission.",
-    "limitations": "Expected linear arithmetic for fixed planar dimension under random order; recursive stack and worst-case complexity require separate review.",
+    "definition": "For finite planar P in uniformly random order and forced boundary R, |R|≤3, W(P,R) is the smallest disk containing P with every r∈R on its boundary. For p last in P let D=W(P\\{p},R); return D if ||p−c_D||²≤r_D², otherwise W(P\\{p},R∪{p}). At P=∅ or |R|=3 use the constrained support disk: empty sentinel for |R|=0, zero radius for |R|=1, diameter for two distinct points, circumdisk for three noncollinear points.",
+    "variables": "P ordered remaining points; R forced boundary set; p last point; c_D center and r_D radius of nonempty disk; W constrained subproblem",
+    "assumptions": "Finite nonempty planar Euclidean root input, R initially empty; uniform random permutation and exact or robust closed containment and support construction. Empty sentinel contains no point. Duplicate coordinates cannot be added twice to R; reachable three-point supports are noncollinear under exact predicates.",
+    "limitations": "Expected O(n) arithmetic for fixed planar dimension and uniform random order; no deterministic linear-time guarantee. Index-based recursion uses O(n) stack; copying prefixes can increase cost. Near-collinearity requires robust arithmetic.",
     "failure_conditions": [
-      "Incorrect constrained support base case, invalid input or unreliable containment."
+      "Nonfinite points, infeasible forced boundary, singular three-point support or unreliable containment.",
+      "Stack exhaustion or nonuniform ordering invalidates resource or expected-time assumptions."
     ],
-    "computation": "Process a uniform random permutation recursively; only add a point to boundary support if the current disk does not contain it. Base cases and degeneracies must be independently reviewed.",
+    "computation": "Shuffle once and recurse by prefix length. For two supports use midpoint and squared distance; for three solve perpendicular-bisector equations for circumcenter. Reject an infeasible support state, never silently remove a forced boundary. Equality is contained.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional source locator: Emo Welzl (1991), Smallest enclosing disks (balls and ellipsoids), https://doi.org/10.1007/BFb0038202 ; independent admission review pending."
+      "citation": "Emo Welzl (1991), Smallest enclosing disks (balls and ellipsoids), LNCS 555, pp. 359–370, publisher abstract reviewed (expected linear time), https://doi.org/10.1007/BFb0038202 ; Brown University, Linear Algebra with Mathematica, Part 7, Erect the Fence, recursion and constrained base cases reviewed, https://www.cfm.brown.edu/people/dobrush/cs52/Mathematica/Part7/fence.html ; original full text unavailable.",
+      "url": "https://doi.org/10.1007/BFb0038202"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
     "required_inputs": "Finite nonempty planar points and declared random permutation procedure.",
@@ -46,7 +48,7 @@
         "target": "minimum-enclosing-disk-support-enumeration"
       }
     ],
-    "mechanism_note": "Provisional randomized alternative for the same enclosing disk objective; no independent admission or empirical validation claimed."
+    "mechanism_note": "Randomized incremental variant for the same enclosing disk objective. Forced boundary is not an unconstrained smallest-disk problem: an obtuse three-point forced support requires its circumdisk, not the longest-edge diameter. For nonempty R, restrict centers to its affine equal-distance locus; containment inequalities are linear in the center and radius squared is the squared distance to a fixed support. An added violating constraint must be tight at the new optimum. Empty support is a sentinel, not a disk centered at an arbitrary origin."
   },
   {
     "profile": "multifeature",
@@ -69,17 +71,18 @@
     "classification": "model-variant",
     "id": "convex-polygon-fan-binary-point-location",
     "name": "Convex polygon fan binary point location",
-    "definition": "For strictly convex CCW vertices v_0,...,v_(n−1), define orient(a,b,c)=(b−a)×(c−a). Reject points outside the extreme rays from v_0, handle those ray boundaries by segment containment, otherwise binary search for the largest i with orient(v_0,v_i,q)≥0 and test orient(v_i,v_(i+1),q)≥0.",
-    "variables": "v_i ordered vertices; q query; orient signed cross product; i fan sector",
-    "assumptions": "Strictly convex positive-area CCW polygon with n≥3; finite points, robust exact orientation and boundary handling.",
-    "limitations": "O(log n) query after ordered polygon preparation; does not handle general concave polygons; boundary rays need explicit finite-segment checks.",
+    "definition": "For strictly convex CCW vertices v_0,...,v_(n−1), define orient(a,b,c)=(b−a)×(c−a). Let L=orient(v_0,v_1,q), U=orient(v_0,v_(n−1),q). Reject if L<0 or U>0. If L=0 or U=0 test closed segment membership on the corresponding extreme ray, using (q−v_0)·(q−v_j)≤0. Otherwise binary search for the largest i∈[1,n−2] with orient(v_0,v_i,q)≥0 and accept iff orient(v_i,v_(i+1),q)≥0.",
+    "variables": "v_i cyclic ordered vertices; n vertex count; q query; orient signed cross product; L,U extreme-ray tests; j extreme vertex index; i fan sector",
+    "assumptions": "Strictly convex positive-area CCW polygon with n≥3, no repeated vertices or collinear consecutive edges; finite points and robust exact orientation and dot-product signs. Any cyclic anchor v_0 is valid for this strict convex version.",
+    "limitations": "O(log n) arithmetic comparisons per query after ordered polygon preparation and validity checks; O(n) vertex storage. Does not handle concave polygons; finite extreme-ray membership and exact boundary comparisons are essential.",
     "failure_conditions": [
-      "Invalid convexity, zero-length edges, unreliable orientation or unresolved boundary ties."
+      "Invalid cyclic order, nonconvexity, repeated vertices or unreliable orientation or dot-product signs."
     ],
-    "computation": "Check extreme rays, locate angular sector by binary search, test the outer edge; include boundary points under closed-set membership.",
+    "computation": "Reject outside anchor wedge; handle both extreme rays by finite segment containment including anchor itself. Binary search the monotone angular predicate, then test outer edge. Accept equality for closed membership.",
     "source": {
       "kind": "literature",
-      "citation": "Provisional source locator: Algorithms for Competitive Programming, Check if point belongs to the convex polygon in O(log N), https://cp-algorithms.com/geometry/point-in-convex-polygon.html ; independent admission review pending."
+      "citation": "Algorithms for Competitive Programming, Check if point belongs to the convex polygon in O(log N), algorithm and implementation text reviewed, https://cp-algorithms.com/geometry/point-in-convex-polygon.html ; Texas A&M University, J. Chen, Chapter 6 Prune and Search, §6.2.1 p. 97, interior-anchor fan search and complexity cross-checked, https://people.engr.tamu.edu/j-chen3/courses/620/2025/Lectures/ch6.pdf ; extreme-ray and arbitrary vertex anchor conventions independently derived.",
+      "url": "https://cp-algorithms.com/geometry/point-in-convex-polygon.html"
     },
     "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
     "required_inputs": "Ordered strictly convex polygon and query point.",
@@ -95,6 +98,6 @@
         "target": "polygon-winding-number"
       }
     ],
-    "mechanism_note": "Provisional restricted convex point-membership alternative to winding number; no admission or validation claimed."
+    "mechanism_note": "Restricted convex point-membership variant of general polygon winding classification. Strict convexity orders anchor rays in an angle interval smaller than π; the cross-product predicate changes sign once for an interior wedge query. Each fan triangle is bounded by those rays and one outer edge, so only that edge remains to be tested. Finite-segment checks prevent accepting ray extensions beyond either endpoint."
   }
 ]

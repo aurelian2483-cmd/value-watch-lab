@@ -7085,3 +7085,35 @@ Limitations — O(n) arithmetic; near-zero signed area and cancellation can degr
 Mechanism — First-moment summary extends the shoelace area computation; diagnostic rather than a distinct algorithm. Signed origin-edge triangles have area d_i/2 and centroid (v_i+v_(i+1))/3, so their signed moments sum even for concave simple polygons. Reversing orientation reverses numerator and denominator together.
 
 Source — Eric W. Weisstein, Polygon Centroid, MathWorld, equations (1)–(2), text reviewed: coordinate-weighted cross products divided by six times signed area. https://mathworld.wolfram.com/PolygonCentroid.html ; signed triangle first-moment derivation independently checked.
+
+## Welzl randomized minimum enclosing disk (welzl-randomized-minimum-enclosing-disk)
+
+> For finite planar P in uniformly random order and forced boundary R, |R|≤3, W(P,R) is the smallest disk containing P with every r∈R on its boundary. For p last in P let D=W(P\{p},R); return D if ||p−c_D||²≤r_D², otherwise W(P\{p},R∪{p}). At P=∅ or |R|=3 use the constrained support disk: empty sentinel for |R|=0, zero radius for |R|=1, diameter for two distinct points, circumdisk for three noncollinear points.
+
+P ordered remaining points; R forced boundary set; p last point; c_D center and r_D radius of nonempty disk; W constrained subproblem.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite nonempty planar Euclidean root input, R initially empty; uniform random permutation and exact or robust closed containment and support construction. Empty sentinel contains no point. Duplicate coordinates cannot be added twice to R; reachable three-point supports are noncollinear under exact predicates..
+
+Limitations — Expected O(n) arithmetic for fixed planar dimension and uniform random order; no deterministic linear-time guarantee. Index-based recursion uses O(n) stack; copying prefixes can increase cost. Near-collinearity requires robust arithmetic..
+
+Mechanism — Randomized incremental variant for the same enclosing disk objective. Forced boundary is not an unconstrained smallest-disk problem: an obtuse three-point forced support requires its circumdisk, not the longest-edge diameter. For nonempty R, restrict centers to its affine equal-distance locus; containment inequalities are linear in the center and radius squared is the squared distance to a fixed support. An added violating constraint must be tight at the new optimum. Empty support is a sentinel, not a disk centered at an arbitrary origin.
+
+Source — Emo Welzl (1991), Smallest enclosing disks (balls and ellipsoids), LNCS 555, pp. 359–370, publisher abstract reviewed (expected linear time), https://doi.org/10.1007/BFb0038202 ; Brown University, Linear Algebra with Mathematica, Part 7, Erect the Fence, recursion and constrained base cases reviewed, https://www.cfm.brown.edu/people/dobrush/cs52/Mathematica/Part7/fence.html ; original full text unavailable.
+
+## Convex polygon fan binary point location (convex-polygon-fan-binary-point-location)
+
+> For strictly convex CCW vertices v_0,...,v_(n−1), define orient(a,b,c)=(b−a)×(c−a). Let L=orient(v_0,v_1,q), U=orient(v_0,v_(n−1),q). Reject if L<0 or U>0. If L=0 or U=0 test closed segment membership on the corresponding extreme ray, using (q−v_0)·(q−v_j)≤0. Otherwise binary search for the largest i∈[1,n−2] with orient(v_0,v_i,q)≥0 and accept iff orient(v_i,v_(i+1),q)≥0.
+
+v_i cyclic ordered vertices; n vertex count; q query; orient signed cross product; L,U extreme-ray tests; j extreme vertex index; i fan sector.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Strictly convex positive-area CCW polygon with n≥3, no repeated vertices or collinear consecutive edges; finite points and robust exact orientation and dot-product signs. Any cyclic anchor v_0 is valid for this strict convex version..
+
+Limitations — O(log n) arithmetic comparisons per query after ordered polygon preparation and validity checks; O(n) vertex storage. Does not handle concave polygons; finite extreme-ray membership and exact boundary comparisons are essential..
+
+Mechanism — Restricted convex point-membership variant of general polygon winding classification. Strict convexity orders anchor rays in an angle interval smaller than π; the cross-product predicate changes sign once for an interior wedge query. Each fan triangle is bounded by those rays and one outer edge, so only that edge remains to be tested. Finite-segment checks prevent accepting ray extensions beyond either endpoint.
+
+Source — Algorithms for Competitive Programming, Check if point belongs to the convex polygon in O(log N), algorithm and implementation text reviewed, https://cp-algorithms.com/geometry/point-in-convex-polygon.html ; Texas A&M University, J. Chen, Chapter 6 Prune and Search, §6.2.1 p. 97, interior-anchor fan search and complexity cross-checked, https://people.engr.tamu.edu/j-chen3/courses/620/2025/Lectures/ch6.pdf ; extreme-ray and arbitrary vertex anchor conventions independently derived.
