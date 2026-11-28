@@ -7181,3 +7181,35 @@ Limitations — O(n log n) sorting and O(n) storage in comparison model. Length 
 Mechanism — Scalar coverage diagnostic. The union differs from disjoint covered open gaps only by finitely many endpoints of measure zero. Active count is constant on each gap, so grouping tied events preserves length including touching and zero-width intervals.
 
 Source — F. P. Preparata and M. I. Shamos, Computational Geometry: An Introduction, section 8.4, p. 332, endpoint-count scan reviewed from Rensselaer Polytechnic Institute-hosted page image, https://www.cs.rpi.edu/~cutler/classes/computationalgeometry/F23/references/Computational_Geometry_An_Introduction.pdf ; Jeff Erickson, Klee’s Measure Problem, University of Illinois, problem and complexity reviewed, https://jeffe.cs.illinois.edu/open/klee.html ; grouped-event convention independently derived.
+
+## Axis-aligned rectangle union area by sweep (rectangle-union-area-sweep-segment-tree)
+
+> For ordered rectangles R_i=[l_i,r_i]×[b_i,t_i], discard zero-area records. Let Y_0<…<Y_m be distinct remaining vertical endpoints. A balanced segment tree on elementary gaps has node v spanning [Y_a,Y_b), canonical-cover count C_v and covered length L_v. Set L_v=Y_b−Y_a if C_v>0, 0 if C_v=0 at a leaf, and L_left+L_right otherwise. At x=l_i insert the vertical interval and at x=r_i delete it by adding ±1 to its maximal fully contained nodes. For distinct consecutive event coordinates x_j,x_(j+1), L_j is the root length after all events at x_j. Union area A=Σ_j (x_(j+1)−x_j)L_j; empty input gives A=0.
+
+R_i rectangle; Y_h compressed coordinate; v tree node; C_v local cover multiplicity; L_v covered length from v and descendants; x_j sweep coordinate; L_j root covered length; A union area.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite ordered endpoints; exact or robust comparisons and arithmetic; fixed compressed tree; every deletion matches an earlier insertion; duplicate rectangles retain multiplicity.
+
+Limitations — O(n log(n+1)) arithmetic/comparison time and O(n) auxiliary storage for n positive-area rectangles; only scalar area, not union boundary. Bit complexity and rounding separate.
+
+Mechanism — Scalar coverage diagnostic extending interval union length. Each active interval decomposes into disjoint canonical spans. Positive local count covers the whole span; otherwise the children partition it. Induction proves the root invariant. The active set is constant inside each open x slab and rectangle boundaries have zero area.
+
+Source — Jeff Erickson, Klee’s Measure Problem, University of Illinois, 31 July 1998, planar sweep and complexity reviewed, https://jeffe.cs.illinois.edu/open/klee.html ; H. Samet, Hierarchical Representations of Collections of Small Rectangles, ACM Computing Surveys 20(4), 1988, section 2.4 p. 288, parsed text on multiplicity and length reviewed, https://www.cs.umd.edu/users/hjs/pubs/SameCSUR88.pdf ; explicit recurrence and grouped events independently derived.
+
+## Planar orthogonal range tree reporting (planar-orthogonal-range-tree-reporting)
+
+> For n static records p_i=(x_i,y_i,i) with unique identities i, sort by (x_i,i) into positions 0,…,n−1. Build a balanced leaf tree on half-open position intervals; each node stores its descendant records ordered by (y_i,i). For closed B=[a,b]×[c,d], find l=first position with x_i≥a and r=first with x_i>b (n if absent). Decompose [l,r) into disjoint maximal tree intervals. In each associated y list take the slice from first y≥c to first y>d. Return R={i:a≤x_i≤b and c≤y_i≤d}, each identity once. Empty input or empty x slice returns no records.
+
+n record count; i identity; x_i,y_i coordinates; B closed box; l,r rank bounds; R returned identities; k=|R|.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Finite static coordinates with consistent total order; unique comparable identities; ordered query bounds a≤b and c≤d; coincident coordinates and zero-width query boxes allowed.
+
+Limitations — O(n log(n+1)) storage and construction by bottom-up merges; query O(log²(n+1)+k) for nonempty input without fractional cascading. No dynamic updates; result order unspecified and sorting costs extra.
+
+Mechanism — Distinct static orthogonal reporting structure, not equivalent to alternating-axis k-d partition or one-dimensional aggregation trees. The primary rank range has O(log(n+1)) disjoint canonical subsets, each queried in its independent y order. Each identity belongs to exactly one selected subset.
+
+Source — M. de Berg, O. Cheong, M. van Kreveld and M. Overmars, Computational Geometry: Algorithms and Applications, 3rd ed., chapter 5 section 5.3, pp. 108–109 page images reviewed for canonical subsets, presorted construction and Theorem 5.8, https://www.cs.cmu.edu/afs/cs/academic/class/15456-s13/Handouts/BKOS.pdf ; rank-based tie handling and sorted-list representation independently specified.

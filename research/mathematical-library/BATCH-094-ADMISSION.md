@@ -1,0 +1,9 @@
+# Batch 094 admission review — 2026-11-28
+
+Parent e7ff74246461f7fd869e74571e0717d80fd649eb. PR #171 open/draft on authorised branch; exact-parent regression 46101990161 and registry 46101990230 succeeded. Candidate 023 reread: fixed-overlap lagged correlation remains withheld; two other candidates already admitted. Parent ledger, reference headings and definitions each contain 483 records with aligned IDs; normalized names and definitions unique. Related range, rectangle, sweep, segment and spatial structures screened. Rectangle area is a scalar diagnostic; planar range reporting is a distinct structure.
+
+Erickson (UIUC, 1998) planar sweep and Samet (ACM Computing Surveys 1988, section 2.4) parsed text reviewed for covered length, multiplicity and complexity. Node recurrence and tied events independently derived. de Berg et al., 3rd ed., pp. 108–109 page images reviewed for canonical subsets, construction and query bounds. Rank-based ties and merged y arrays explicitly specified. Duke lecture text consulted for candidate staging; screenshot returned HTTP 403. Bentley's original unpublished notes not consulted.
+
+Isolated Python seed 9420261128: 6,000 integer rectangle sets compared with explicit unit-cell enumeration and the same 6,000 sets scaled by 1/7 tested with exact fractions; 36,000 closed-box queries (1,200 static point sets, 30 queries each) compared with direct identity filtering. All assertions passed; not production performance or empirical validation. Both records SPECIFIED, implementation_ref and test_evidence null.
+
+Four snapshots reconstructed incrementally using catalogue.mjs rules; parent index and last reference/ledger blocks reproduced exactly. Prior IDs retained, no existing batch altered. Full local generator and regression not executed; exact-head hosted validation required. Batch 095 staged only, not counted. No prediction experiments, protected data, wagering, spending, merge, deployment or permission changes.

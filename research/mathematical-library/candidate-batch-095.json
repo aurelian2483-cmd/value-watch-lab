@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "095",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "centered-interval-tree-stabbing-reporting",
+    "name": "Centered interval tree stabbing reporting",
+    "definition": "For intervals I_i=[l_i,r_i], report R={i:l_i≤q≤r_i} using median-centered recursive partitions and endpoint-sorted crossing lists.",
+    "variables": "I_i intervals; q query point; R returned identities",
+    "assumptions": "Provisional finite ordered coordinates, unique identities, static records; tie handling pending review",
+    "limitations": "Provisional structure; complexity and boundary cases pending independent review",
+    "failure_conditions": [
+      "Invalid coordinates, duplicate identities or incorrect boundary handling."
+    ],
+    "computation": "Provisional construction and query; admission review pending.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: P. K. Agarwal, Duke CPS234 Lecture 7, sections 7.2–7.3, https://courses.cs.duke.edu/fall05/cps234/notes/lecture07.pdf ; admission review pending."
+    },
+    "required_inputs": "Static finite ordered intervals and a query point.",
+    "compatible_methods": [
+      "rectangle-union-area-sweep-segment-tree"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "rectangle-union-area-sweep-segment-tree"
+      }
+    ],
+    "mechanism_note": "Provisional reporting structure, not admitted."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "095",
+    "family": "computational-geometry",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "priority-search-tree-three-sided-reporting",
+    "name": "Priority search tree three-sided reporting",
+    "definition": "For P={(x_i,y_i,i)}, report R={i:x_i≤q_x and a≤y_i≤b} using a heap in x and balanced partitions in y.",
+    "variables": "P input points; q_x x upper bound; a,b y bounds; R output identities",
+    "assumptions": "Provisional finite ordered coordinates, unique identities, static records; tie handling pending review",
+    "limitations": "Provisional structure; complexity and boundary cases pending independent review",
+    "failure_conditions": [
+      "Invalid coordinates, duplicate identities or incorrect boundary handling."
+    ],
+    "computation": "Provisional construction and query; admission review pending.",
+    "source": {
+      "kind": "literature",
+      "citation": "Provisional locator: P. K. Agarwal, Duke CPS234 Lecture 7, sections 7.2–7.3, https://courses.cs.duke.edu/fall05/cps234/notes/lecture07.pdf ; admission review pending."
+    },
+    "required_inputs": "Static planar records and a three-sided query.",
+    "compatible_methods": [
+      "planar-orthogonal-range-tree-reporting"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "planar-orthogonal-range-tree-reporting"
+      }
+    ],
+    "mechanism_note": "Provisional reporting structure, not admitted."
+  }
+]

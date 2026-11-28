@@ -10317,5 +10317,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Scalar coverage diagnostic. The union differs from disjoint covered open gaps only by finitely many endpoints of measure zero. Active count is constant on each gap, so grouping tied events preserves length including touching and zero-width intervals."
+  },
+  {
+    "id": "rectangle-union-area-sweep-segment-tree",
+    "source": {
+      "kind": "literature",
+      "citation": "Jeff Erickson, Klee’s Measure Problem, University of Illinois, 31 July 1998, planar sweep and complexity reviewed, https://jeffe.cs.illinois.edu/open/klee.html ; H. Samet, Hierarchical Representations of Collections of Small Rectangles, ACM Computing Surveys 20(4), 1988, section 2.4 p. 288, parsed text on multiplicity and length reviewed, https://www.cs.umd.edu/users/hjs/pubs/SameCSUR88.pdf ; explicit recurrence and grouped events independently derived.",
+      "url": "https://jeffe.cs.illinois.edu/open/klee.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Scalar coverage diagnostic extending interval union length. Each active interval decomposes into disjoint canonical spans. Positive local count covers the whole span; otherwise the children partition it. Induction proves the root invariant. The active set is constant inside each open x slab and rectangle boundaries have zero area."
+  },
+  {
+    "id": "planar-orthogonal-range-tree-reporting",
+    "source": {
+      "kind": "literature",
+      "citation": "M. de Berg, O. Cheong, M. van Kreveld and M. Overmars, Computational Geometry: Algorithms and Applications, 3rd ed., chapter 5 section 5.3, pp. 108–109 page images reviewed for canonical subsets, presorted construction and Theorem 5.8, https://www.cs.cmu.edu/afs/cs/academic/class/15456-s13/Handouts/BKOS.pdf ; rank-based tie handling and sorted-list representation independently specified.",
+      "url": "https://www.cs.cmu.edu/afs/cs/academic/class/15456-s13/Handouts/BKOS.pdf"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Distinct static orthogonal reporting structure, not equivalent to alternating-axis k-d partition or one-dimensional aggregation trees. The primary rank range has O(log(n+1)) disjoint canonical subsets, each queried in its independent y order. Each identity belongs to exactly one selected subset."
   }
 ]
