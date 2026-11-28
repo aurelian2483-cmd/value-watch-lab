@@ -27,14 +27,15 @@
     "definition": "For nonnegative integers a,b not both zero, gcd(a,b)=gcd(b,a mod b) when b>0; gcd(a,0)=a.",
     "variables": "a,b nonnegative integers; mod integer remainder; gcd greatest common divisor",
     "assumptions": "Exact integer arithmetic; at least one nonzero operand",
-    "limitations": "Provisional arithmetic operation and bit-complexity review pending",
+    "limitations": "For M=max(a,b)≥1, O(log(M+1)) remainder operations and a constant number of integer registers; bit cost depends on operand length and division implementation. Not a constant-time or factorization algorithm",
     "failure_conditions": [
       "Both inputs zero or noninteger input."
     ],
-    "computation": "Iterate (a,b)←(b,a mod b) until b=0; return a.",
+    "computation": "While b>0 simultaneously replace (a,b) by (b,a mod b). Return a when b=0. If a<b the first step swaps operands. Use exact integer remainder.",
     "source": {
-      "kind": "original-derivation",
-      "citation": "Original derivation: a common divisor of a,b also divides a mod b and conversely; independent literature review pending."
+      "kind": "literature",
+      "citation": "K.-D. Crisman, Number Theory: In Context and Interactive, section 2.3, Algorithm 2.3.3 and proof reviewed, https://math.gordon.edu/ntic/ntic2019/section-euclid-alg.html ; remainder-operation bound independently derived.",
+      "url": "https://math.gordon.edu/ntic/ntic2019/section-euclid-alg.html"
     },
     "required_inputs": "Two nonnegative integers, not both zero.",
     "compatible_methods": [
@@ -46,7 +47,7 @@
         "target": "prime-field-number-theoretic-transform"
       }
     ],
-    "mechanism_note": "Provisional candidate; independent review pending."
+    "mechanism_note": "Distinct arithmetic algorithm. Writing a=qb+r proves that the common divisor sets of (a,b) and (b,r) agree. Remainders decrease until zero. If r>b/2 then b mod r=b−r<b/2; otherwise r≤b/2 already. Every two steps at least halve a positive divisor. Pick's lattice-area record uses gcd as a primitive, not this computation."
   },
   {
     "profile": "multifeature",
@@ -76,14 +77,15 @@
     "definition": "For integer N≥2, mark 2,…,N initially; for each still marked p with p²≤N, clear p²,p²+p,…≤N; the marked set P={q∈[2,N]:q is prime}.",
     "variables": "N inclusive bound; p candidate divisor; P returned prime set",
     "assumptions": "Exact integer indices; bounded allocation",
-    "limitations": "Provisional operation and storage bounds pending review",
+    "limitations": "O(N log log N) indexed word operations asymptotically using the standard prime reciprocal sum bound; O(N) flags plus output storage. Cost is exponential in the bit length of N; no claim of optimality or suitability for isolated large primality queries",
     "failure_conditions": [
       "Invalid bound, insufficient memory or overflow in p²."
     ],
-    "computation": "Scan ascending candidate divisors, clearing multiples from the square; enumerate surviving indices.",
+    "computation": "Initialize flags 2 through N true and 0,1 false. Scan p upward while p≤floor(N/p), clearing p² through N in increments of p only if p remains marked. Enumerate survivors in order; use checked indices and increments.",
     "source": {
-      "kind": "original-derivation",
-      "citation": "Original derivation: every composite integer has a prime divisor no greater than its square root; independent literature review pending."
+      "kind": "literature",
+      "citation": "M. Beckman, University of Illinois CS 491 CAP, 2019, The Sieve of Eratosthenes transcript, square-root reasoning, square-start marking and asymptotic bound reviewed, https://courses.physics.illinois.edu/cs491cap/fa2019/transcripts/sieve-of-eratosthenes/ ; finite inclusive-bound specification independently derived.",
+      "url": "https://courses.physics.illinois.edu/cs491cap/fa2019/transcripts/sieve-of-eratosthenes/"
     },
     "required_inputs": "Integer inclusive bound N≥2.",
     "compatible_methods": [
@@ -95,6 +97,6 @@
         "target": "prime-field-number-theoretic-transform"
       }
     ],
-    "mechanism_note": "Provisional candidate; independent review pending."
+    "mechanism_note": "Distinct prime enumeration algorithm. Each cleared value is composite. Every composite c has least prime divisor p≤sqrt(c), so c≥p² and is cleared at p; p itself cannot be cleared by smaller primes. Work is bounded by N plus N times the sum of reciprocals of primes up to sqrt(N); the standard Mertens prime-reciprocal bound gives O(N log log N). This is not independent trial division of each candidate."
   }
 ]

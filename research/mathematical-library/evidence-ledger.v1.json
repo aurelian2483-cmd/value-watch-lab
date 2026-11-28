@@ -10501,5 +10501,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Dual monotone convex-hull variant, not a new distinct algorithm: mapping a line to (m,−b) maps lower-envelope segments to the upper hull. A smaller-slope new line beats the last line to the right of their crossing; if that crossing is no later than the last line's start, the last line has no surviving interval. Otherwise the crossing is the new start. Each line is pushed and popped at most once, giving linear stack work."
+  },
+  {
+    "id": "euclidean-remainder-gcd",
+    "source": {
+      "kind": "literature",
+      "citation": "K.-D. Crisman, Number Theory: In Context and Interactive, section 2.3, Algorithm 2.3.3 and proof reviewed, https://math.gordon.edu/ntic/ntic2019/section-euclid-alg.html ; remainder-operation bound independently derived.",
+      "url": "https://math.gordon.edu/ntic/ntic2019/section-euclid-alg.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Distinct arithmetic algorithm. Writing a=qb+r proves that the common divisor sets of (a,b) and (b,r) agree. Remainders decrease until zero. If r>b/2 then b mod r=b−r<b/2; otherwise r≤b/2 already. Every two steps at least halve a positive divisor. Pick's lattice-area record uses gcd as a primitive, not this computation."
+  },
+  {
+    "id": "eratosthenes-prime-sieve",
+    "source": {
+      "kind": "literature",
+      "citation": "M. Beckman, University of Illinois CS 491 CAP, 2019, The Sieve of Eratosthenes transcript, square-root reasoning, square-start marking and asymptotic bound reviewed, https://courses.physics.illinois.edu/cs491cap/fa2019/transcripts/sieve-of-eratosthenes/ ; finite inclusive-bound specification independently derived.",
+      "url": "https://courses.physics.illinois.edu/cs491cap/fa2019/transcripts/sieve-of-eratosthenes/"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Distinct prime enumeration algorithm. Each cleared value is composite. Every composite c has least prime divisor p≤sqrt(c), so c≥p² and is cleared at p; p itself cannot be cleared by smaller primes. Work is bounded by N plus N times the sum of reciprocals of primes up to sqrt(N); the standard Mertens prime-reciprocal bound gives O(N log log N). This is not independent trial division of each candidate."
   }
 ]

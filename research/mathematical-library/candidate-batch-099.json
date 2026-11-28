@@ -1,0 +1,100 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "099",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "model-variant",
+    "id": "extended-euclidean-bezout",
+    "name": "Extended Euclidean Bezout coefficient recurrence",
+    "definition": "Initialize (r0,r1)=(a,b), (s0,s1)=(1,0), (t0,t1)=(0,1). While r1>0 set q=floor(r0/r1); replace each pair (u0,u1) by (u1,u0−q u1). At termination r0=gcd(a,b)=a s0+b t0.",
+    "variables": "a,b nonnegative integers not both zero; r remainders; s,t integer coefficients; q quotient",
+    "assumptions": "Exact integer arithmetic including signed coefficients",
+    "limitations": "Provisional coefficient growth and complexity review pending",
+    "failure_conditions": [
+      "Both inputs zero, invalid integer input or overflow."
+    ],
+    "computation": "Track coefficient pairs alongside the Euclidean remainder recurrence.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: maintain r_i=a s_i+b t_i; independent review pending."
+    },
+    "required_inputs": "Two nonnegative integers, not both zero.",
+    "compatible_methods": [
+      "euclidean-remainder-gcd"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "euclidean-remainder-gcd"
+      }
+    ],
+    "mechanism_note": "Provisional variant; independent review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "099",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "model-variant",
+    "id": "segmented-eratosthenes-sieve",
+    "name": "Segmented Eratosthenes prime sieve",
+    "definition": "For each integer block [L,R] within [2,N], mark initially true; for each base prime p≤sqrt(R), clear indices beginning at m=max(p²,p ceil(L/p)) and increment by p until m>R.",
+    "variables": "N inclusive upper bound; L,R block endpoints; p base prime; m multiple",
+    "assumptions": "Exact bounded integer arithmetic, complete base primes to floor(sqrt(N)), disjoint blocks covering [2,N]",
+    "limitations": "Provisional storage and block-overhead analysis pending",
+    "failure_conditions": [
+      "Invalid block size, incomplete base primes or overflow."
+    ],
+    "computation": "Precompute base primes; process consecutive bounded blocks and emit survivors.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: restrict standard sieve marking to each block; independent review pending."
+    },
+    "required_inputs": "Integer inclusive bound N≥2.",
+    "compatible_methods": [
+      "eratosthenes-prime-sieve"
+    ],
+    "relationships": [
+      {
+        "type": "variant-of",
+        "target": "eratosthenes-prime-sieve"
+      }
+    ],
+    "mechanism_note": "Provisional variant; independent review pending."
+  }
+]

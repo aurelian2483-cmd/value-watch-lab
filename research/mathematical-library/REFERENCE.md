@@ -7309,3 +7309,35 @@ Limitations — O(n log(n+1)) sorting and O(n) stack work, O(n) storage, O(log(h
 Mechanism — Dual monotone convex-hull variant, not a new distinct algorithm: mapping a line to (m,−b) maps lower-envelope segments to the upper hull. A smaller-slope new line beats the last line to the right of their crossing; if that crossing is no later than the last line's start, the last line has no surviving interval. Otherwise the crossing is the new start. Each line is pushed and popped at most once, giving linear stack work.
 
 Source — R. Wein, CGAL 6.2 2D Envelopes user manual, introduction and convex hull with envelopes example, https://doc.cgal.org/6.2/Envelope_2/index.html ; pointwise minimum and point-line duality reviewed. The slope-stack construction, tie rule and query bounds are independently derived here, not claimed to be CGAL's implementation.
+
+## Euclidean remainder greatest common divisor (euclidean-remainder-gcd)
+
+> For nonnegative integers a,b not both zero, gcd(a,b)=gcd(b,a mod b) when b>0; gcd(a,0)=a.
+
+a,b nonnegative integers; mod integer remainder; gcd greatest common divisor.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Exact integer arithmetic; at least one nonzero operand.
+
+Limitations — For M=max(a,b)≥1, O(log(M+1)) remainder operations and a constant number of integer registers; bit cost depends on operand length and division implementation. Not a constant-time or factorization algorithm.
+
+Mechanism — Distinct arithmetic algorithm. Writing a=qb+r proves that the common divisor sets of (a,b) and (b,r) agree. Remainders decrease until zero. If r>b/2 then b mod r=b−r<b/2; otherwise r≤b/2 already. Every two steps at least halve a positive divisor. Pick's lattice-area record uses gcd as a primitive, not this computation.
+
+Source — K.-D. Crisman, Number Theory: In Context and Interactive, section 2.3, Algorithm 2.3.3 and proof reviewed, https://math.gordon.edu/ntic/ntic2019/section-euclid-alg.html ; remainder-operation bound independently derived.
+
+## Sieve of Eratosthenes prime enumeration (eratosthenes-prime-sieve)
+
+> For integer N≥2, mark 2,…,N initially; for each still marked p with p²≤N, clear p²,p²+p,…≤N; the marked set P={q∈[2,N]:q is prime}.
+
+N inclusive bound; p candidate divisor; P returned prime set.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Exact integer indices; bounded allocation.
+
+Limitations — O(N log log N) indexed word operations asymptotically using the standard prime reciprocal sum bound; O(N) flags plus output storage. Cost is exponential in the bit length of N; no claim of optimality or suitability for isolated large primality queries.
+
+Mechanism — Distinct prime enumeration algorithm. Each cleared value is composite. Every composite c has least prime divisor p≤sqrt(c), so c≥p² and is cleared at p; p itself cannot be cleared by smaller primes. Work is bounded by N plus N times the sum of reciprocals of primes up to sqrt(N); the standard Mertens prime-reciprocal bound gives O(N log log N). This is not independent trial division of each candidate.
+
+Source — M. Beckman, University of Illinois CS 491 CAP, 2019, The Sieve of Eratosthenes transcript, square-root reasoning, square-start marking and asymptotic bound reviewed, https://courses.physics.illinois.edu/cs491cap/fa2019/transcripts/sieve-of-eratosthenes/ ; finite inclusive-bound specification independently derived.
