@@ -1,0 +1,105 @@
+[
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "101",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "distinct-algorithm",
+    "id": "trial-division-prime-factorization",
+    "name": "Trial division prime factorization",
+    "definition": "For n≥2 set r=n and d=2; while d²≤r repeatedly divide r by d while r mod d=0, recording d each time, then increment d. If r>1 append r; n=∏ recorded factors.",
+    "variables": "n integer to factor; r residual; d trial divisor",
+    "assumptions": "Exact positive integer arithmetic; finite input n≥2",
+    "limitations": "Provisional complexity and novelty review pending",
+    "failure_conditions": [
+      "Invalid input or insufficient arithmetic."
+    ],
+    "computation": "Test divisors in increasing order, remove every exact factor and return multiplicities; use checked square comparison.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+    },
+    "required_inputs": "Integer n≥2.",
+    "compatible_methods": [
+      "eratosthenes-prime-sieve"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "eratosthenes-prime-sieve"
+      }
+    ],
+    "mechanism_note": "Provisional classification; independent review pending."
+  },
+  {
+    "profile": "multifeature",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "data_rights": "Use synthetic inputs or authorised development measurements; confirm source reuse rights.",
+    "input_timing": "as-of-cutoff",
+    "status": "SPECIFIED",
+    "implementation_ref": null,
+    "test_evidence": null,
+    "legacy_id": null,
+    "batch": "101",
+    "family": "number-theory",
+    "application": "General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.",
+    "incompatible_methods": [
+      "Treating a mathematical specification as an implemented or validated algorithm"
+    ],
+    "classification": "diagnostic",
+    "id": "euler-totient-prime-product",
+    "name": "Euler totient prime product",
+    "definition": "For n≥1 with known complete prime factorization, φ(n)=n∏_(p|n)(1−1/p), the product over distinct prime divisors p.",
+    "variables": "n positive integer; p distinct prime divisor; φ(n) count of coprime positive integers up to n",
+    "assumptions": "Complete exact prime factorization; empty product for n=1",
+    "limitations": "Provisional complexity and novelty review pending",
+    "failure_conditions": [
+      "Invalid or incomplete factorization or insufficient arithmetic."
+    ],
+    "computation": "Validate prime factors and reconstruction; start v=n, for each distinct prime factor set v=v−v/p using exact integer division, return v.",
+    "source": {
+      "kind": "original-derivation",
+      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+    },
+    "required_inputs": "Integer n≥1 and complete verified prime factorization.",
+    "compatible_methods": [
+      "euclidean-remainder-gcd",
+      "eratosthenes-prime-sieve"
+    ],
+    "relationships": [
+      {
+        "type": "related",
+        "target": "euclidean-remainder-gcd"
+      },
+      {
+        "type": "related",
+        "target": "eratosthenes-prime-sieve"
+      }
+    ],
+    "mechanism_note": "Provisional classification; independent review pending."
+  }
+]

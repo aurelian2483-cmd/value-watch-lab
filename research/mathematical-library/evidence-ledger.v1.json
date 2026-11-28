@@ -10593,5 +10593,51 @@
     ],
     "applicability_profile": "multifeature",
     "mechanism_note": "Variant of Eratosthenes. Each cleared number is a multiple of p at least p², hence composite. Every composite in a block has a least prime factor p≤sqrt(R) and lies at or beyond both start thresholds. No prime is cleared. The blocks partition the range, preserving the same prime set. Marking uses the standard prime reciprocal bound; scanning base-prime lists adds overhead."
+  },
+  {
+    "id": "pairwise-coprime-chinese-remainder-construction",
+    "source": {
+      "kind": "literature",
+      "citation": "Number Theory: In Context and Interactive, Gordon College, Section 5.4 Using the Chinese Remainder Theorem, constructive proof reviewed, https://math.gordon.edu/ntic/ntic2020/section-using-crt.html ; validation and operation-count limitations independently derived.",
+      "url": "https://math.gordon.edu/ntic/ntic2020/section-using-crt.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "Each M_i y_i equals one modulo its own modulus and zero modulo every other modulus, so the weighted sum satisfies every congruence. Any two solutions differ by a multiple of each pairwise coprime modulus, hence by a multiple of M. This general congruence solver uses extended gcd as a subroutine and differs in output and purpose from Good–Thomas Fourier indexing."
+  },
+  {
+    "id": "binary-modular-exponentiation",
+    "source": {
+      "kind": "literature",
+      "citation": "University of Washington CSE 311 Spring 2020 Lecture 15, Modular Exponentiation and Induction, binary expansion and modular squaring reviewed, https://courses.cs.washington.edu/courses/cse311/20sp/lectures/lecture15.html ; Ben Lynn, Stanford-hosted Number Theory notes, Modular Exponentiation, https://crypto.stanford.edu/pbc/notes/numbertheory/exp.html ; loop invariant and zero-exponent convention independently derived.",
+      "url": "https://courses.cs.washington.edu/courses/cse311/20sp/lectures/lecture15.html"
+    },
+    "status": "SPECIFIED",
+    "legacy_id": null,
+    "implementation_ref": null,
+    "test_evidence": null,
+    "input_timing": "as-of-cutoff",
+    "sports": [
+      "football",
+      "horse-racing",
+      "tennis",
+      "rugby",
+      "nfl",
+      "darts"
+    ],
+    "applicability_profile": "multifeature",
+    "mechanism_note": "The loop invariant is x y^k≡a^e (mod m). Writing k=2q+r with r∈{0,1}, multiplying x by y only when r=1 and replacing y by y² preserves it. Halving k terminates at zero, leaving the desired residue. Distinct integer modular power algorithm; matrix exponential scaling and squaring instead approximates a matrix function."
   }
 ]

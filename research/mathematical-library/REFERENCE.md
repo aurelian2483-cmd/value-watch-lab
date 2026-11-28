@@ -7373,3 +7373,35 @@ Limitations — O(B+sqrt(N)) auxiliary words excluding streamed output (cap B at
 Mechanism — Variant of Eratosthenes. Each cleared number is a multiple of p at least p², hence composite. Every composite in a block has a least prime factor p≤sqrt(R) and lies at or beyond both start thresholds. No prime is cleared. The blocks partition the range, preserving the same prime set. Marking uses the standard prime reciprocal bound; scanning base-prime lists adds overhead.
 
 Source — Kim Walisch, primesieve algorithm documentation, segmentation and square-start marking reviewed, https://github.com/kimwalisch/primesieve/blob/master/doc/ALGORITHMS.md ; simple unoptimized block recurrence and scan overhead independently derived. University of Illinois CS 491 CAP sieve transcript supports base sieve.
+
+## Pairwise coprime Chinese remainder construction (pairwise-coprime-chinese-remainder-construction)
+
+> For integer residues a_i and pairwise coprime integers m_i≥2, set M=∏m_i, M_i=M/m_i, choose y_i such that M_i y_i≡1 (mod m_i), and return x=(∑a_i M_i y_i) mod M in [0,M−1].
+
+a_i residues; m_i moduli; M product; M_i complementary product; y_i inverse.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — A nonempty finite list of equal-length integer residue and modulus arrays; pairwise coprime positive moduli at least 2; exact integer arithmetic.
+
+Limitations — For k moduli, straightforward pairwise validation uses O(k²) gcd calls; construction uses k modular inversions and O(k) additional multiprecision product, division and reduction operations after product formation. Integer sizes grow with the sum of modulus bit lengths; operation counts are not bit complexity. Noncoprime congruences require a different method.
+
+Mechanism — Each M_i y_i equals one modulo its own modulus and zero modulo every other modulus, so the weighted sum satisfies every congruence. Any two solutions differ by a multiple of each pairwise coprime modulus, hence by a multiple of M. This general congruence solver uses extended gcd as a subroutine and differs in output and purpose from Good–Thomas Fourier indexing.
+
+Source — Number Theory: In Context and Interactive, Gordon College, Section 5.4 Using the Chinese Remainder Theorem, constructive proof reviewed, https://math.gordon.edu/ntic/ntic2020/section-using-crt.html ; validation and operation-count limitations independently derived.
+
+## Binary modular exponentiation (binary-modular-exponentiation)
+
+> For integer a, e≥0, m≥2 initialize x=1, y=a mod m, k=e; while k>0, if k is odd set x=(xy) mod m; then set y=y² mod m and k=floor(k/2). Return x=a^e mod m.
+
+a base; e exponent; m modulus; x accumulator; y squared base; k remaining exponent.
+
+General mathematical computation on synthetic or authorised inputs; no empirical benefit claimed.
+
+Assumptions — Exact integer arithmetic; nonnegative integer exponent; integer modulus at least 2; use the empty-product convention a^0=1 including zero base.
+
+Limitations — For e>0, floor(log₂(e))+1 iterations and at most twice that many modular multiplications; e=0 returns immediately after initialization. Modular operands are below m after reduction, with products below m². Bit cost depends on operand sizes and arithmetic algorithms. Branching on exponent bits is not constant time; no cryptographic implementation or performance claim.
+
+Mechanism — The loop invariant is x y^k≡a^e (mod m). Writing k=2q+r with r∈{0,1}, multiplying x by y only when r=1 and replacing y by y² preserves it. Halving k terminates at zero, leaving the desired residue. Distinct integer modular power algorithm; matrix exponential scaling and squaring instead approximates a matrix function.
+
+Source — University of Washington CSE 311 Spring 2020 Lecture 15, Modular Exponentiation and Induction, binary expansion and modular squaring reviewed, https://courses.cs.washington.edu/courses/cse311/20sp/lectures/lecture15.html ; Ben Lynn, Stanford-hosted Number Theory notes, Modular Exponentiation, https://crypto.stanford.edu/pbc/notes/numbertheory/exp.html ; loop invariant and zero-exponent convention independently derived.

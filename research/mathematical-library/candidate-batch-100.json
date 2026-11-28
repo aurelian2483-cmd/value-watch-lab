@@ -24,29 +24,35 @@
     "classification": "distinct-algorithm",
     "id": "pairwise-coprime-chinese-remainder-construction",
     "name": "Pairwise coprime Chinese remainder construction",
-    "definition": "For pairwise coprime m_i≥2, M=∏m_i, M_i=M/m_i and y_i M_i≡1 (mod m_i), return x=(∑a_i M_i y_i) mod M.",
+    "definition": "For integer residues a_i and pairwise coprime integers m_i≥2, set M=∏m_i, M_i=M/m_i, choose y_i such that M_i y_i≡1 (mod m_i), and return x=(∑a_i M_i y_i) mod M in [0,M−1].",
     "variables": "a_i residues; m_i moduli; M product; M_i complementary product; y_i inverse",
-    "assumptions": "Pairwise coprime positive moduli; exact integer arithmetic; nonempty finite list",
-    "limitations": "Provisional complexity and novelty review pending",
+    "assumptions": "A nonempty finite list of equal-length integer residue and modulus arrays; pairwise coprime positive moduli at least 2; exact integer arithmetic",
+    "limitations": "For k moduli, straightforward pairwise validation uses O(k²) gcd calls; construction uses k modular inversions and O(k) additional multiprecision product, division and reduction operations after product formation. Integer sizes grow with the sum of modulus bit lengths; operation counts are not bit complexity. Noncoprime congruences require a different method",
     "failure_conditions": [
-      "Invalid input or insufficient exact arithmetic."
+      "Empty or unequal-length input, noninteger values, modulus below 2, noncoprime moduli or insufficient exact arithmetic."
     ],
-    "computation": "Compute each inverse by extended gcd, then sum weighted residues and reduce modulo M.",
+    "computation": "Validate inputs and pairwise gcds, reduce residues to canonical nonnegative representatives, form M and exact quotients M_i, obtain y_i using extended gcd, sum weighted residues and reduce modulo M. Reject invalid inputs.",
     "source": {
-      "kind": "original-derivation",
-      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+      "kind": "literature",
+      "citation": "Number Theory: In Context and Interactive, Gordon College, Section 5.4 Using the Chinese Remainder Theorem, constructive proof reviewed, https://math.gordon.edu/ntic/ntic2020/section-using-crt.html ; validation and operation-count limitations independently derived.",
+      "url": "https://math.gordon.edu/ntic/ntic2020/section-using-crt.html"
     },
     "required_inputs": "Residues and corresponding pairwise coprime integer moduli.",
     "compatible_methods": [
-      "extended-euclidean-bezout"
+      "extended-euclidean-bezout",
+      "good-thomas-prime-factor-dft"
     ],
     "relationships": [
       {
         "type": "related",
         "target": "extended-euclidean-bezout"
+      },
+      {
+        "type": "related",
+        "target": "good-thomas-prime-factor-dft"
       }
     ],
-    "mechanism_note": "Provisional classification; independent review pending."
+    "mechanism_note": "Each M_i y_i equals one modulo its own modulus and zero modulo every other modulus, so the weighted sum satisfies every congruence. Any two solutions differ by a multiple of each pairwise coprime modulus, hence by a multiple of M. This general congruence solver uses extended gcd as a subroutine and differs in output and purpose from Good–Thomas Fourier indexing."
   },
   {
     "profile": "multifeature",
@@ -73,17 +79,18 @@
     "classification": "distinct-algorithm",
     "id": "binary-modular-exponentiation",
     "name": "Binary modular exponentiation",
-    "definition": "For integer a, e≥0, m≥2 initialize x=1, y=a mod m, k=e; if k is odd set x=(xy) mod m; update y=y² mod m and k=floor(k/2) until k=0.",
+    "definition": "For integer a, e≥0, m≥2 initialize x=1, y=a mod m, k=e; while k>0, if k is odd set x=(xy) mod m; then set y=y² mod m and k=floor(k/2). Return x=a^e mod m.",
     "variables": "a base; e exponent; m modulus; x accumulator; y squared base; k remaining exponent",
-    "assumptions": "Exact integer arithmetic; nonnegative exponent; modulus at least 2",
-    "limitations": "Provisional complexity and novelty review pending",
+    "assumptions": "Exact integer arithmetic; nonnegative integer exponent; integer modulus at least 2; use the empty-product convention a^0=1 including zero base",
+    "limitations": "For e>0, floor(log₂(e))+1 iterations and at most twice that many modular multiplications; e=0 returns immediately after initialization. Modular operands are below m after reduction, with products below m². Bit cost depends on operand sizes and arithmetic algorithms. Branching on exponent bits is not constant time; no cryptographic implementation or performance claim",
     "failure_conditions": [
-      "Invalid input or insufficient exact arithmetic."
+      "Noninteger input, negative exponent, modulus below 2 or overflow in modular products."
     ],
-    "computation": "Process exponent bits from least significant to most significant; return x.",
+    "computation": "Reduce signed base to its nonnegative residue, process exponent bits from least significant to most significant, and reduce after each product. Preserve exact integer multiplication or use an independently verified modular multiplication routine.",
     "source": {
-      "kind": "original-derivation",
-      "citation": "Original derivation: provisional construction; independent literature and correctness review pending."
+      "kind": "literature",
+      "citation": "University of Washington CSE 311 Spring 2020 Lecture 15, Modular Exponentiation and Induction, binary expansion and modular squaring reviewed, https://courses.cs.washington.edu/courses/cse311/20sp/lectures/lecture15.html ; Ben Lynn, Stanford-hosted Number Theory notes, Modular Exponentiation, https://crypto.stanford.edu/pbc/notes/numbertheory/exp.html ; loop invariant and zero-exponent convention independently derived.",
+      "url": "https://courses.cs.washington.edu/courses/cse311/20sp/lectures/lecture15.html"
     },
     "required_inputs": "Integer base, nonnegative exponent, integer modulus at least 2.",
     "compatible_methods": [
@@ -95,6 +102,6 @@
         "target": "euclidean-remainder-gcd"
       }
     ],
-    "mechanism_note": "Provisional classification; independent review pending."
+    "mechanism_note": "The loop invariant is x y^k≡a^e (mod m). Writing k=2q+r with r∈{0,1}, multiplying x by y only when r=1 and replacing y by y² preserves it. Halving k terminates at zero, leaving the desired residue. Distinct integer modular power algorithm; matrix exponential scaling and squaring instead approximates a matrix function."
   }
 ]
